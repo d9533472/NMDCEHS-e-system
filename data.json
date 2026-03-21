@@ -1,0 +1,135 @@
+{
+  "bulletins": [
+    {
+      "id": "mmzvtmdwsk3jn",
+      "text": "歡迎使用 Environmental E-System！",
+      "date": "2026-03-21"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "mmzvtmdw2wnlp",
+      "name": "完成本週環境監測報告",
+      "person": "Paul",
+      "deadline": "2026-03-22",
+      "done": false
+    },
+    {
+      "id": "mmzvtmdwnxi9r",
+      "name": "更新 MMO 觀察紀錄表",
+      "person": "Raymond",
+      "deadline": "2026-03-21",
+      "done": false
+    },
+    {
+      "id": "mmzvtmdwh8p6f",
+      "name": "檢查防塵網破損狀況",
+      "person": "Sean",
+      "deadline": "2025-03-01",
+      "done": false
+    },
+    {
+      "id": "mmzvtmdwdghoh",
+      "name": "水質檢測數據上傳",
+      "person": "Jacqueline",
+      "deadline": "2026-03-22",
+      "done": false
+    }
+  ],
+  "sections": [
+    {
+      "id": "mmzvtmdwwbim5",
+      "name": "Environmental Monitoring 環境監測",
+      "links": [
+        {
+          "id": "mmzvtmdwrbo9i",
+          "title": "Weekly ENV Report",
+          "url": "https://example.com",
+          "icon": "📊"
+        },
+        {
+          "id": "mmzvtmdw1x696",
+          "title": "MMO 鯨豚觀察紀錄",
+          "url": "https://example.com",
+          "icon": "🐋"
+        },
+        {
+          "id": "mmzvtmdw5gyoo",
+          "title": "Water Quality 水質監測",
+          "url": "https://example.com",
+          "icon": "💧"
+        }
+      ]
+    },
+    {
+      "id": "mmzvtmdwym7yu",
+      "name": "Dust & Pollution Control 揚塵/汙染防治",
+      "links": [
+        {
+          "id": "mmzvtmdwjf9ck",
+          "title": "灑水紀錄表",
+          "url": "https://example.com",
+          "icon": "💦"
+        },
+        {
+          "id": "mmzvtmdwv4hxz",
+          "title": "防塵網檢查表",
+          "url": "https://example.com",
+          "icon": "🏗️"
+        },
+        {
+          "id": "mmzvtmdwerd74",
+          "title": "水汙染防治計畫",
+          "url": "https://example.com",
+          "icon": "🚰"
+        }
+      ]
+    },
+    {
+      "id": "mmzvtmdwia79j",
+      "name": "Safety & EHS 安全管理",
+      "links": [
+        {
+          "id": "mmzvtmdwk23bt",
+          "title": "PTW Register",
+          "url": "https://example.com",
+          "icon": "🛡️"
+        },
+        {
+          "id": "mmzvtmdw9r3qd",
+          "title": "Safety Observation Cards",
+          "url": "https://example.com",
+          "icon": "⚠️"
+        }
+      ]
+    },
+    {
+      "id": "mmzvtmdw5w553",
+      "name": "Vessel & Marine 船舶海事",
+      "links": [
+        {
+          "id": "mmzvtmdwvicl3",
+          "title": "AIS Vessel Tracker",
+          "url": "https://example.com",
+          "icon": "🚢"
+        },
+        {
+          "id": "mmzvtmdwdmv61",
+          "title": "OPTS 人員調派",
+          "url": "https://example.com",
+          "icon": "👷"
+        }
+      ]
+    }
+  ],
+  "schedule": [
+    {
+      "url": "https://raw.githubusercontent.com/d9533472/NMDCEHS-e-system/main/schedule/schedule-1-2026-03.jpg?t=1774070607169",
+      "label": "班表 1 — 2026 年 03月"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/d9533472/NMDCEHS-e-system/main/schedule/schedule-2-2026-03.jpg?t=1774070610705",
+      "label": "班表 2 — 2026 年 03月"
+    }
+  ]
+}
