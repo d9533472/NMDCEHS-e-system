@@ -4,11 +4,6 @@
       "id": "mmzvun8j486y6",
       "text": "4/10 核火工處預查核\n4/17 經濟部國營事業司查核",
       "date": "2026-03-21"
-    },
-    {
-      "id": "mmzvtmdwsk3jn",
-      "text": "歡迎使用 Environmental E-System！",
-      "date": "2026-03-21"
     }
   ],
   "tasks": [
@@ -67,6 +62,24 @@
       ]
     },
     {
+      "id": "mmzvtmdwia79j",
+      "name": "Safety & EHS 安全管理",
+      "links": [
+        {
+          "id": "mmzvtmdwk23bt",
+          "title": "PTW 總表",
+          "url": "https://d9533472.github.io/NMDCPTWRegister/",
+          "icon": "🛡️"
+        },
+        {
+          "id": "mmzvtmdw9r3qd",
+          "title": "環保KPI 填寫表",
+          "url": "https://d9533472.github.io/NMDCEHS-e-system/NMDCENVChecklist.html",
+          "icon": "🌱"
+        }
+      ]
+    },
+    {
       "id": "mmzvtmdw5w553",
       "name": "總表",
       "links": [
@@ -87,48 +100,6 @@
           "title": "環境監測進度總表",
           "url": "https://docs.google.com/spreadsheets/d/10tmThlIKl9A0FYtvXIqMfqFZeAXMRpMWY8yZBjWrS74/edit?gid=0#gid=0",
           "icon": "🔬"
-        }
-      ]
-    },
-    {
-      "id": "mmzvtmdwym7yu",
-      "name": "Dust & Pollution Control 揚塵/汙染防治",
-      "links": [
-        {
-          "id": "mmzvtmdwjf9ck",
-          "title": "灑水紀錄表",
-          "url": "https://example.com",
-          "icon": "💦"
-        },
-        {
-          "id": "mmzvtmdwv4hxz",
-          "title": "防塵網檢查表",
-          "url": "https://example.com",
-          "icon": "🏗️"
-        },
-        {
-          "id": "mmzvtmdwerd74",
-          "title": "水汙染防治計畫",
-          "url": "https://example.com",
-          "icon": "🚰"
-        }
-      ]
-    },
-    {
-      "id": "mmzvtmdwia79j",
-      "name": "Safety & EHS 安全管理",
-      "links": [
-        {
-          "id": "mmzvtmdwk23bt",
-          "title": "PTW 總表",
-          "url": "https://d9533472.github.io/NMDCPTWRegister/",
-          "icon": "🛡️"
-        },
-        {
-          "id": "mmzvtmdw9r3qd",
-          "title": "環保KPI 填寫表",
-          "url": "https://d9533472.github.io/NMDCEHS-e-system/NMDCENVChecklist.html",
-          "icon": "🌱"
         }
       ]
     }
