@@ -110,7 +110,7 @@
     },
     {
       "id": "mmzvtmdw5w553",
-      "name": "Vessel & Marine 船舶海事",
+      "name": "總表",
       "links": [
         {
           "id": "mmzvtmdwvicl3",
@@ -135,6 +135,28 @@
     {
       "url": "https://raw.githubusercontent.com/d9533472/NMDCEHS-e-system/main/schedule/schedule-2-2026-03.jpg?t=1774070610705",
       "label": "班表 2 — 2026 年 03月"
+    }
+  ],
+  "parts": [
+    {
+      "key": "bulletin",
+      "icon": "📢",
+      "title": "公告欄 Bulletin"
+    },
+    {
+      "key": "tracker",
+      "icon": "📋",
+      "title": "追蹤事項 Tracker"
+    },
+    {
+      "key": "links",
+      "icon": "🔗",
+      "title": "系統連結 System Links"
+    },
+    {
+      "key": "schedule",
+      "icon": "📅",
+      "title": "班表 Schedule"
     }
   ]
 }
