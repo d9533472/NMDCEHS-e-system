@@ -1,0 +1,3033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ ENV Weekly Report Tool v21 - Beautiful Edition 💖</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .print-container { box-shadow: none !important; page-break-after: always; }
+            body { margin: 0; padding: 0; }
+            @page { 
+                size: A4; 
+                margin-top: 8mm;
+                margin-bottom: 8mm;
+                margin-left: 6mm;
+                margin-right: 6mm;
+            }
+            
+            /* 基本分頁控制 */
+            .break-inside-avoid { page-break-inside: avoid; }
+            @media print {
+                .print-sections > section { margin-top: 10pt !important; margin-bottom: 0 !important; }
+                .print-sections > section + section { margin-top: 10pt !important; }
+                .print-compact { break-inside: auto !important; page-break-inside: auto !important; }
+                .print-compact .grid { gap: 8pt !important; }
+            }
+            .break-after-avoid { page-break-after: avoid; }
+            
+            /* Issue 項目完全防止跨頁 */
+            .issue-item { 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
+                page-break-before: auto;
+                orphans: 4;
+                widows: 4;
+            }
+            
+            /* Section 標題必須與後續內容保持在同一頁 */
+            .section-header {
+                page-break-after: avoid !important;
+                break-after: avoid-page !important;
+            }
+            
+            /* 所有大標題（h3）不能單獨在頁尾 */
+            h3 {
+                page-break-after: avoid !important;
+                break-after: avoid-page !important;
+                orphans: 4;
+                page-break-before: auto;
+            }
+            
+            /* Section 標題後的第一個元素也不換頁（確保標題至少有一行內容跟著） */
+            section > h3 + * {
+                page-break-before: avoid !important;
+            }
+            
+            /* Issue 標題不能單獨留在頁尾（至少要有描述跟著） */
+            .issue-item h4 {
+                page-break-after: avoid !important;
+                orphans: 2;
+            }
+            
+            /* Issues section 整體控制 */
+            .issues-section {
+                orphans: 3;
+                widows: 3;
+            }
+            
+            /* NCR Dashboard 列印優化 */
+            .ncr-stats-grid {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            
+            .ncr-chart-container {
+                page-break-inside: avoid;
+                break-inside: avoid;
+                overflow: hidden;
+            }
+            
+            .ncr-chart-container canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+            
+            /* Environmental Monitoring 表格列印優化 */
+            .monitoring-table {
+                page-break-inside: auto;
+            }
+            
+            .monitoring-table table {
+                border-collapse: collapse;
+            }
+            
+            .monitoring-row {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            
+            /* KPI Dashboard 列印優化 */
+            .kpi-person-card {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            
+            .kpi-grid {
+                page-break-inside: auto;
+            }
+            
+            /* KPI Dashboard 列印專用樣式 */
+            @media print {
+                .kpi-dashboard-section {
+                    page-break-inside: auto;
+                    margin-bottom: 16px;
+                }
+                
+                .kpi-dashboard-section h3 {
+                    page-break-after: avoid !important;
+                    margin-bottom: 8px !important;
+                }
+                
+                .kpi-grid {
+                    display: grid !important;
+                    grid-template-columns: repeat(4, 1fr) !important;
+                    gap: 8px !important;
+                    margin-bottom: 12px !important;
+                }
+                
+                .kpi-person-card {
+                    font-size: 9px !important;
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+                }
+                
+                .kpi-person-card .kpi-header {
+                    padding: 8px !important;
+                }
+                
+                .kpi-person-card .kpi-header h4 {
+                    font-size: 13px !important;
+                    margin-bottom: 2px !important;
+                }
+                
+                .kpi-person-card .kpi-header p {
+                    font-size: 9px !important;
+                }
+                
+                .kpi-person-card .kpi-stats {
+                    padding: 6px 8px !important;
+                }
+                
+                .kpi-person-card .kpi-stats span {
+                    font-size: 8px !important;
+                }
+                
+                .kpi-person-card .kpi-progress-bar {
+                    height: 8px !important;
+                }
+                
+                .kpi-person-card .kpi-progress-text {
+                    font-size: 7px !important;
+                }
+                
+                .kpi-person-card .kpi-items {
+                    padding: 6px !important;
+                    max-height: none !important;
+                }
+                
+                .kpi-person-card .kpi-item {
+                    padding: 4px 6px !important;
+                    margin-bottom: 3px !important;
+                    font-size: 8px !important;
+                }
+                
+                .kpi-person-card .kpi-item .kpi-checkbox {
+                    width: 12px !important;
+                    height: 12px !important;
+                    min-width: 12px !important;
+                }
+                
+                .kpi-person-card .kpi-item .kpi-checkbox svg {
+                    width: 8px !important;
+                    height: 8px !important;
+                }
+                
+                .kpi-person-card .kpi-item p {
+                    font-size: 8px !important;
+                    line-height: 1.3 !important;
+                }
+                
+                .kpi-person-card .kpi-item .kpi-tag {
+                    font-size: 7px !important;
+                    padding: 1px 4px !important;
+                    margin-top: 2px !important;
+                }
+            }
+            
+            .monitoring-table tbody {
+                orphans: 2;
+                widows: 2;
+            }
+            
+            /* Major Progress 表格列印優化 */
+            .progress-table {
+                page-break-inside: auto;
+            }
+            
+            .progress-table table {
+                border-collapse: collapse;
+            }
+            
+            .progress-row {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            
+            .progress-table tbody {
+                orphans: 2;
+                widows: 2;
+            }
+            
+            /* 縮小整體比例 */
+            html { font-size: 90%; }
+        }
+        
+        /* 圓餅圖容器美化 - 屏幕模式 */
+        @media screen {
+            .ncr-chart-container {
+                background: linear-gradient(135deg, #ffffff 0%, #f3f4f6 100%);
+                box-shadow: 
+                    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+                    0 8px 10px -6px rgba(0, 0, 0, 0.1);
+                transition: all 0.3s ease;
+            }
+            
+            .ncr-chart-container:hover {
+                box-shadow: 
+                    0 20px 35px -5px rgba(0, 0, 0, 0.15),
+                    0 12px 15px -6px rgba(0, 0, 0, 0.12);
+                transform: translateY(-2px);
+            }
+            
+            .ncr-chart-container canvas {
+                transition: transform 0.3s ease;
+            }
+        }
+        
+        .toast {
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translate(-50%, 100%); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        
+        /* 響應式設計 - NCR 統計卡片 */
+        @media screen and (max-width: 1024px) {
+            .ncr-stats-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .ncr-stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+        
+        /* ========== v21 美化樣式 ========== */
+        body {
+            background: linear-gradient(to bottom, #f0f9ff, #e0e7ff) !important;
+        }
+        
+        /* 控制欄美化 */
+        .no-print.sticky {
+            background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9)) !important;
+            backdrop-filter: blur(10px);
+            border-radius: 16px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        /* 按鈕美化 */
+        button {
+            border-radius: 10px !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* 主按鈕漸變 */
+        .bg-blue-600 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        .bg-slate-700 {
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%) !important;
+        }
+        
+        /* Header 美化 */
+        .bg-slate-800 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        }
+        
+        /* 卡片美化 */
+        .shadow-lg, .shadow-2xl {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+        }
+        
+        .rounded-lg {
+            border-radius: 16px !important;
+        }
+
+            /* ── Edit Mode Tab Navigation ── */
+            .edit-tab-nav {
+                display: flex;
+                flex-wrap: wrap;
+                background: #1e293b;
+                border-radius: 12px 12px 0 0;
+                padding: 8px 8px 0 8px;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            }
+            .edit-tab-btn {
+                padding: 8px 14px;
+                border: none;
+                background: transparent;
+                color: #94a3b8;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                border-radius: 8px 8px 0 0;
+                border-bottom: 3px solid transparent;
+                transition: all 0.15s ease;
+                white-space: nowrap;
+            }
+            .edit-tab-btn:hover { color: #e2e8f0; background: rgba(255,255,255,0.08); }
+            .edit-tab-btn.active {
+                color: #ffffff;
+                background: rgba(59,130,246,0.2);
+                border-bottom-color: #3b82f6;
+            }
+            .edit-tab-content {
+                background: white;
+                border: 1px solid #e2e8f0;
+                border-top: none;
+                border-radius: 0 0 12px 12px;
+                padding: 28px;
+                min-height: 400px;
+            }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Error Boundary Component
+        class ErrorBoundary extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = { hasError: false, error: null };
+            }
+
+            static getDerivedStateFromError(error) {
+                return { hasError: true, error };
+            }
+
+            componentDidCatch(error, errorInfo) {
+                console.error('React Error Boundary caught:', error, errorInfo);
+            }
+
+            render() {
+                if (this.state.hasError) {
+                    return (
+                        <div style={{
+                            padding: '40px',
+                            textAlign: 'center',
+                            fontFamily: 'Arial, sans-serif'
+                        }}>
+                            <h1 style={{ color: '#ef4444' }}>😱 發生錯誤</h1>
+                            <p style={{ margin: '20px 0', color: '#666' }}>
+                                {this.state.error?.message || '未知錯誤'}
+                            </p>
+                            <button
+                                onClick={() => window.location.reload()}
+                                style={{
+                                    padding: '10px 20px',
+                                    backgroundColor: '#3b82f6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    cursor: 'pointer',
+                                    fontSize: '16px'
+                                }}
+                            >
+                                🔄 重新載入頁面
+                            </button>
+                        </div>
+                    );
+                }
+
+                return this.props.children;
+            }
+        }
+
+        // --- Icons (SVG Components for UI controls only) ---
+        const Icon = ({ path, className, size = 16, onClick }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width={size} height={size} 
+                viewBox="0 0 24 24" 
+                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                className={className}
+                onClick={onClick}
+                style={{ cursor: onClick ? 'pointer' : 'default' }}
+            >
+                {path}
+            </svg>
+        );
+
+        const icons = {
+            Edit3: <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>,
+            Save: <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>,
+            Printer: <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>,
+            RotateCcw: <path d="M1 4v6h6M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>,
+            Eye: <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></>,
+            File: <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>,
+            Upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></>,
+            Download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></>,
+            Database: <><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></>,
+            Plus: <><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></>,
+            Trash: <><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></>,
+            Archive: <><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></>,
+            BarChart: <><line x1="12" y1="20" x2="12" y2="10"></line><line x1="18" y1="20" x2="18" y2="4"></line><line x1="6" y1="20" x2="6" y2="16"></line></>,
+            PieChart: <><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></>,
+            TrendingUp: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></>,
+            ChevronUp: <polyline points="18 15 12 9 6 15"></polyline>,
+            ChevronDown: <polyline points="6 9 12 15 18 9"></polyline>,
+        };
+
+        const IconComp = ({ name, ...props }) => <Icon path={icons[name]} {...props} />;
+
+        // --- Helper Functions ---
+        function getContrastYIQ(hexcolor) {
+            if (!hexcolor) return '#000000';
+            const r = parseInt(hexcolor.substr(1,2),16);
+            const g = parseInt(hexcolor.substr(3,2),16);
+            const b = parseInt(hexcolor.substr(5,2),16);
+            const yiq = ((r*299)+(g*587)+(b*114))/1000;
+            return (yiq >= 128) ? '#1f2937' : '#ffffff';
+        }
+
+        // --- Initial Data Template ---
+        const initialData = {
+            "sectionTitles": {
+                "summary": "1. Executive Summary",
+                "issues": "2. Key Issues & Challenges",
+                "progress": "3. Major Progress",
+                "photos": "Site Photo Gallery",
+                "kpi": "4. KPI Dashboard",
+                "ncr": "5. NCR Update",
+                "monitoring": "6. Environmental Monitoring",
+                "archivedIssues": "Archived Issues",
+                "mmo": "7. MMO Operation"
+            },
+            "projectInfo": {
+                "contractNo": "",
+                "title": "Environment Protection Weekly Report",
+                "company": "",
+                "companyLogo": "",
+                "projectNo": "",
+                "period": "",
+                "personnel": ""
+            },
+            "summaryItems": [],
+            "issuesItems": [],
+            "archivedIssues": [],
+            "progressItems": [],
+            "ncrDashboard": {
+                "totalNCR": 0,
+                "closedNCR": 0,
+                "openNCR": 0,
+                "weeklyNew": 0,
+                "categories": []
+            },
+            "monitoringItems": {
+                "year": "2026",
+                "quarter": "Q1",
+                "items": []
+            },
+            "kpiDashboard": {
+                "notes": "",
+                "paul": {
+                    "name": "Paul",
+                    "role": "ENV Specialist",
+                    "color": "#8b5cf6",
+                    "items": [
+                        { "task": "Conduct ENV Campaign", "target": "Monthly", "completed": false },
+                        { "task": "Conduct ENV Walkthroughs", "target": "Weekly", "completed": false },
+                        { "task": "Conduct Internal Environmental Meetings", "target": "Monthly", "completed": false },
+                        { "task": "Report ENV Performance", "target": "Monthly", "completed": false },
+                        { "task": "Intelex Observations Analysis", "target": "100% closure", "completed": false }
+                    ]
+                },
+                "raymond": {
+                    "name": "Raymond",
+                    "role": "ENV Officer",
+                    "color": "#06b6d4",
+                    "items": [
+                        { "task": "Participate at ENV Campaign", "target": "Monthly", "completed": false },
+                        { "task": "ENV Inspection", "target": "Daily", "completed": false }
+                    ]
+                },
+                "sean": {
+                    "name": "Sean",
+                    "role": "ENV Officer",
+                    "color": "#10b981",
+                    "items": [
+                        { "task": "Participate at ENV Campaign", "target": "Monthly", "completed": false },
+                        { "task": "ENV Inspection", "target": "Daily", "completed": false }
+                    ]
+                },
+                "jacquline": {
+                    "name": "Jacquline",
+                    "role": "ENV Officer",
+                    "color": "#f59e0b",
+                    "items": [
+                        { "task": "Participate at ENV Campaign", "target": "Monthly", "completed": false },
+                        { "task": "ENV Inspection", "target": "Daily", "completed": false }
+                    ]
+                }
+            },
+            "photos": [],
+            "archivedProgress": [],
+            "archivedNCR": [],
+            "mmoRecords": [],
+            "sectionOrder": ["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"]
+        };
+
+        // --- Main Component ---
+        const WeeklyReport = () => {
+            const [reportData, setReportData] = useState(() => {
+                const saved = localStorage.getItem('weeklyReportData');
+                if (saved) {
+                    try {
+                        const data = JSON.parse(saved);
+                        // Ensure all fields exist
+                        if (!data.sectionTitles) data.sectionTitles = initialData.sectionTitles;
+                        if (!data.sectionTitles.summary) data.sectionTitles.summary = "1. Executive Summary";
+                        if (!data.sectionTitles.issues) data.sectionTitles.issues = "2. Key Issues & Challenges";
+                        if (!data.sectionTitles.progress) data.sectionTitles.progress = "3. Major Progress";
+                        if (!data.sectionTitles.ncr) data.sectionTitles.ncr = "4. NCR Update";
+                        if (!data.sectionTitles.monitoring) {
+                            // Backward compatibility: convert old envMonitoring to monitoring
+                            if (data.sectionTitles.envMonitoring) {
+                                data.sectionTitles.monitoring = data.sectionTitles.envMonitoring;
+                            } else {
+                                data.sectionTitles.monitoring = "5. Environmental Monitoring";
+                            }
+                        }
+                        if (!data.sectionTitles.kpi) data.sectionTitles.kpi = "6. KPI Dashboard";
+                        if (!data.sectionTitles.photos) data.sectionTitles.photos = "Site Photo Gallery";
+                        if (!data.projectInfo) data.projectInfo = initialData.projectInfo;
+                        if (!data.projectInfo.companyLogo) data.projectInfo.companyLogo = "";
+                        if (!data.projectInfo.personnel) data.projectInfo.personnel = "";
+                        if (!data.summaryItems) data.summaryItems = initialData.summaryItems;
+                        if (!data.issuesItems) data.issuesItems = initialData.issuesItems;
+                        if (!data.archivedIssues) data.archivedIssues = [];
+                        if (!data.progressItems) data.progressItems = initialData.progressItems;
+                        if (!data.ncrDashboard) data.ncrDashboard = initialData.ncrDashboard;
+                        if (!data.ncrDashboard.weeklyNew) data.ncrDashboard.weeklyNew = 0;
+                        if (!data.monitoringItems) data.monitoringItems = initialData.monitoringItems;
+                        // Convert old array format to new object format
+                        if (Array.isArray(data.monitoringItems)) {
+                            data.monitoringItems = {
+                                year: "2026",
+                                quarter: "Q1",
+                                items: data.monitoringItems
+                            };
+                        }
+                        // Ensure monitoringItems has correct structure
+                        if (!data.monitoringItems.year) data.monitoringItems.year = "2026";
+                        if (!data.monitoringItems.quarter) data.monitoringItems.quarter = "Q1";
+                        if (!data.monitoringItems.items) data.monitoringItems.items = [];
+                        if (!data.kpiDashboard) data.kpiDashboard = initialData.kpiDashboard;
+                        if (!data.kpiDashboard.notes) data.kpiDashboard.notes = "";
+                        if (!data.photos) data.photos = initialData.photos;
+                        if (!data.archivedProgress) data.archivedProgress = [];
+                        if (!data.archivedNCR) data.archivedNCR = [];
+                        if (!data.mmoRecords) data.mmoRecords = [];
+                        // Migrate old obsDate+obsStartTime/obsEndTime → obsStart/obsEnd
+                        data.mmoRecords = data.mmoRecords.map(r => {
+                            if (r.obsDate && r.obsStartTime && !r.obsStart) r.obsStart = r.obsDate + "T" + r.obsStartTime;
+                            if (r.obsDate && r.obsEndTime && !r.obsEnd) r.obsEnd = r.obsDate + "T" + r.obsEndTime;
+                            if (r.sightingTime && !r.sightingDateTime) r.sightingDateTime = (r.obsDate||"") + "T" + r.sightingTime;
+                            return r;
+                        });
+                        if (!data.sectionTitles.mmo) data.sectionTitles.mmo = "7. MMO Operation";
+                        if (!data.sectionOrder) data.sectionOrder = ["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"];
+                        if (!data.sectionOrder.includes("mmo")) data.sectionOrder.push("mmo");
+                        
+                        return data;
+                    } catch (e) {
+                        return initialData;
+                    }
+                }
+                return initialData;
+            });
+
+            const [isEditing, setIsEditing] = useState(false);
+            const [activeEditTab, setActiveEditTab] = useState('project');
+            const [mmoLocOpts, setMmoLocOpts] = useState(() => {
+                try { return JSON.parse(localStorage.getItem('mmoLocOpts') || '["Taichung","TungHsiao"]'); }
+                catch(e) { return ["Taichung","TungHsiao"]; }
+            });
+            const saveLocs = (arr) => { setMmoLocOpts(arr); localStorage.setItem('mmoLocOpts', JSON.stringify(arr)); };
+            const [toast, setToast] = useState('');
+            const fileInputRef = useRef(null);
+            const chartRefs = useRef({});
+
+            // Safe localStorage save with quota handling
+            const saveToLocalStorage = (data) => {
+                try {
+                    const jsonString = JSON.stringify(data);
+                    localStorage.setItem('weeklyReportData', jsonString);
+                    return true;
+                } catch (error) {
+                    console.error('LocalStorage save error:', error);
+                    // Silently fail without user notification
+                    return false;
+                }
+            };
+
+            useEffect(() => {
+                saveToLocalStorage(reportData);
+            }, [reportData]);
+
+            const showToast = (message) => {
+                setToast(message);
+                setTimeout(() => setToast(''), 2500);
+            };
+
+            const handleSave = () => {
+                if (saveToLocalStorage(reportData)) {
+                    showToast('✅ 資料已暫存到瀏覽器');
+                }
+            };
+
+            const handleExport = () => {
+                const dataStr = JSON.stringify(reportData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `weekly_report_backup_${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                showToast('📦 備份檔案已下載');
+            };
+
+            const handleImport = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const imported = JSON.parse(e.target.result);
+                            setReportData(imported);
+                            showToast('✅ 資料載入成功');
+                        } catch (error) {
+                            alert('檔案格式錯誤');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+            };
+
+            const handleReset = () => {
+                if (confirm('確定要重置所有資料嗎？此操作無法復原！')) {
+                    setReportData(initialData);
+                    localStorage.removeItem('weeklyReportData');
+                    showToast('🔄 已重置為預設值');
+                }
+            };
+
+            const downloadHTML = () => {
+                const htmlContent = document.documentElement.outerHTML;
+                const blob = new Blob([htmlContent], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `Weekly_Report_Tool_${new Date().toISOString().split('T')[0]}.html`;
+                link.click();
+                showToast('💾 HTML 檔案已下載');
+            };
+
+            const clearAllPhotos = () => {
+                if (confirm('⚠️ 確定要清空所有照片嗎？\n\n照片將無法復原，建議先匯出備份！')) {
+                    setReportData(prev => ({
+                        ...prev,
+                        photos: []
+                    }));
+                    showToast('🗑️ 所有照片已清空');
+                }
+            };
+
+            const handlePrint = async () => {
+                showToast('📄 正在生成 PDF...');
+                
+                // Switch to preview mode if in edit mode
+                const wasEditing = isEditing;
+                if (wasEditing) {
+                    setIsEditing(false);
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+
+                window.print();
+
+                // Restore edit mode if needed
+                if (wasEditing) {
+                    setIsEditing(true);
+                }
+            };
+
+            const updateField = (field, value) => {
+                setReportData(prev => ({ ...prev, [field]: value }));
+            };
+
+            const updateNestedField = (parent, field, value) => {
+                setReportData(prev => ({
+                    ...prev,
+                    [parent]: { ...prev[parent], [field]: value }
+                }));
+            };
+
+            const updateArray = (arrayName, index, field, value) => {
+                setReportData(prev => ({
+                    ...prev,
+                    [arrayName]: prev[arrayName].map((item, i) =>
+                        i === index ? { ...item, [field]: value } : item
+                    )
+                }));
+            };
+
+            const addItem = (arrayName, newItem) => {
+                setReportData(prev => ({
+                    ...prev,
+                    [arrayName]: [...prev[arrayName], newItem]
+                }));
+            };
+
+            const removeItem = (arrayName, index) => {
+                setReportData(prev => ({
+                    ...prev,
+                    [arrayName]: prev[arrayName].filter((_, i) => i !== index)
+                }));
+            };
+
+            const archiveIssue = (index) => {
+                const issueToArchive = reportData.issuesItems[index];
+                const archivedIssue = {
+                    ...issueToArchive,
+                    archivedDate: new Date().toLocaleDateString('zh-TW')
+                };
+                
+                setReportData(prev => ({
+                    ...prev,
+                    issuesItems: prev.issuesItems.filter((_, i) => i !== index),
+                    archivedIssues: [...prev.archivedIssues, archivedIssue]
+                }));
+                showToast('📦 Issue 已封存');
+            };
+
+            const restoreIssue = (index) => {
+                const issueToRestore = reportData.archivedIssues[index];
+                const { archivedDate, ...restoredIssue } = issueToRestore;
+                
+                setReportData(prev => ({
+                    ...prev,
+                    archivedIssues: prev.archivedIssues.filter((_, i) => i !== index),
+                    issuesItems: [...prev.issuesItems, restoredIssue]
+                }));
+                showToast('♻️ Issue 已恢復');
+            };
+
+            const deleteArchivedIssue = (index) => {
+                if (!window.confirm('確定要永久刪除這個已封存的 Issue 嗎？')) return;
+                
+                setReportData(prev => ({
+                    ...prev,
+                    archivedIssues: prev.archivedIssues.filter((_, i) => i !== index)
+                }));
+                showToast('🗑️ 已永久刪除');
+            };
+
+
+            const moveItemUp = (arrayName, index) => {
+                if (index === 0) return;
+                setReportData(prev => {
+                    const newArray = [...prev[arrayName]];
+                    [newArray[index - 1], newArray[index]] = [newArray[index], newArray[index - 1]];
+                    return { ...prev, [arrayName]: newArray };
+                });
+                showToast('⬆️ 項目已上移');
+            };
+
+            const moveItemDown = (arrayName, index) => {
+                setReportData(prev => {
+                    if (index >= prev[arrayName].length - 1) return prev;
+                    const newArray = [...prev[arrayName]];
+                    [newArray[index], newArray[index + 1]] = [newArray[index + 1], newArray[index]];
+                    return { ...prev, [arrayName]: newArray };
+                });
+                showToast('⬇️ 項目已下移');
+            };
+
+            const moveActionUp = (issueIndex, actionIndex) => {
+                if (actionIndex === 0) return;
+                const newIssues = [...reportData.issuesItems];
+                const actions = newIssues[issueIndex].actions;
+                [actions[actionIndex - 1], actions[actionIndex]] = [actions[actionIndex], actions[actionIndex - 1]];
+                setReportData(prev => ({ ...prev, issuesItems: newIssues }));
+            };
+
+            const moveActionDown = (issueIndex, actionIndex) => {
+                const newIssues = [...reportData.issuesItems];
+                const actions = newIssues[issueIndex].actions;
+                if (actionIndex >= actions.length - 1) return;
+                [actions[actionIndex], actions[actionIndex + 1]] = [actions[actionIndex + 1], actions[actionIndex]];
+                setReportData(prev => ({ ...prev, issuesItems: newIssues }));
+            };
+
+            const moveCategoryUp = (index) => {
+                if (index === 0) return;
+                const newCategories = [...reportData.ncrDashboard.categories];
+                [newCategories[index - 1], newCategories[index]] = [newCategories[index], newCategories[index - 1]];
+                setReportData(prev => ({
+                    ...prev,
+                    ncrDashboard: { ...prev.ncrDashboard, categories: newCategories }
+                }));
+            };
+
+            const moveCategoryDown = (index) => {
+                const categories = reportData.ncrDashboard.categories;
+                if (index >= categories.length - 1) return;
+                const newCategories = [...categories];
+                [newCategories[index], newCategories[index + 1]] = [newCategories[index + 1], newCategories[index]];
+                setReportData(prev => ({
+                    ...prev,
+                    ncrDashboard: { ...prev.ncrDashboard, categories: newCategories }
+                }));
+            };
+
+            const archiveProgressItem = (idx) => {
+                const item = reportData.progressItems[idx];
+                const archivedItem = {
+                    ...item,
+                    archivedDate: new Date().toLocaleDateString('zh-TW')
+                };
+                setReportData(prev => ({
+                    ...prev,
+                    progressItems: prev.progressItems.filter((_, i) => i !== idx),
+                    archivedProgress: [...prev.archivedProgress, archivedItem]
+                }));
+                showToast('📦 項目已封存');
+            };
+
+            const restoreProgressItem = (idx) => {
+                const restoredItem = reportData.archivedProgress[idx];
+                const { archivedDate, ...itemWithoutArchiveDate } = restoredItem;
+                setReportData(prev => ({
+                    ...prev,
+                    archivedProgress: prev.archivedProgress.filter((_, i) => i !== idx),
+                    progressItems: [...prev.progressItems, itemWithoutArchiveDate]
+                }));
+                showToast('♻️ 項目已還原');
+            };
+
+            const handleImageUpload = (index, event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    showToast('❌ 請選擇圖片檔案');
+                    event.target.value = '';
+                    return;
+                }
+                
+                // Check file size (limit to 10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (file.size > maxSize) {
+                    showToast('❌ 圖片檔案太大，請選擇小於 10MB 的圖片');
+                    event.target.value = '';
+                    return;
+                }
+                
+                // Show loading toast
+                showToast('⏳ 正在壓縮圖片...');
+                
+                // Compress and resize image
+                const img = new Image();
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    img.onload = () => {
+                        try {
+                            // Create canvas for compression
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Calculate new dimensions (max 1200x1200 for better compression)
+                            let width = img.width;
+                            let height = img.height;
+                            const maxDimension = 1200; // Reduced from 1920
+                            
+                            if (width > maxDimension || height > maxDimension) {
+                                if (width > height) {
+                                    height = (height / width) * maxDimension;
+                                    width = maxDimension;
+                                } else {
+                                    width = (width / height) * maxDimension;
+                                    height = maxDimension;
+                                }
+                            }
+                            
+                            canvas.width = width;
+                            canvas.height = height;
+                            
+                            // Draw and compress with higher compression
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            // Convert to base64 with higher compression (0.6 quality)
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                            
+                            updateArray('photos', index, 'imageData', compressedDataUrl);
+                            showToast('✅ 照片已上傳');
+                        } catch (error) {
+                            console.error('Error updating photo:', error);
+                            showToast('❌ 照片處理失敗：' + error.message);
+                        }
+                    };
+                    
+                    img.onerror = () => {
+                        console.error('Image load error');
+                        showToast('❌ 圖片載入失敗，請確認檔案格式正確');
+                        event.target.value = '';
+                    };
+                    
+                    img.src = e.target.result;
+                };
+                
+                reader.onerror = () => {
+                    console.error('FileReader error');
+                    showToast('❌ 讀取圖片失敗');
+                    event.target.value = '';
+                };
+                
+                reader.readAsDataURL(file);
+            };
+
+            const handleLogoUpload = (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        updateNestedField('projectInfo', 'companyLogo', reader.result);
+                        showToast('✅ Logo已上傳');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const handleWeekPeriodChange = (startDateStr) => {
+                if (!startDateStr) return;
+                
+                const startDate = new Date(startDateStr);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+                
+                // Format: YYYY/MM/DD
+                const formatDate = (date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const day = String(date.getDate()).padStart(2, '0');
+                    return `${year}/${month}/${day}`;
+                };
+                
+                const period = `${formatDate(startDate)} ~ ${formatDate(endDate)}`;
+                updateNestedField('projectInfo', 'period', period);
+                showToast('📅 週報區間已更新');
+            };
+
+            const addAction = (issueIndex) => {
+                const newIssues = [...reportData.issuesItems];
+                newIssues[issueIndex].actions.push("");
+                setReportData(prev => ({ ...prev, issuesItems: newIssues }));
+            };
+
+            const updateAction = (issueIndex, actionIndex, value) => {
+                const newIssues = [...reportData.issuesItems];
+                newIssues[issueIndex].actions[actionIndex] = value;
+                setReportData(prev => ({ ...prev, issuesItems: newIssues }));
+            };
+
+            const removeAction = (issueIndex, actionIndex) => {
+                const newIssues = [...reportData.issuesItems];
+                newIssues[issueIndex].actions = newIssues[issueIndex].actions.filter((_, i) => i !== actionIndex);
+                setReportData(prev => ({ ...prev, issuesItems: newIssues }));
+            };
+
+            // NCR Dashboard Category Functions
+            const addNCRCategory = () => {
+                setReportData(prev => ({
+                    ...prev,
+                    ncrDashboard: {
+                        ...prev.ncrDashboard,
+                        categories: [
+                            ...prev.ncrDashboard.categories,
+                            { name: "New Category", count: 0, color: "#6b7280" }
+                        ]
+                    }
+                }));
+            };
+
+            const updateNCRCategory = (index, field, value) => {
+                setReportData(prev => ({
+                    ...prev,
+                    ncrDashboard: {
+                        ...prev.ncrDashboard,
+                        categories: prev.ncrDashboard.categories.map((cat, i) =>
+                            i === index ? { ...cat, [field]: value } : cat
+                        )
+                    }
+                }));
+            };
+
+            const removeNCRCategory = (index) => {
+                setReportData(prev => ({
+                    ...prev,
+                    ncrDashboard: {
+                        ...prev.ncrDashboard,
+                        categories: prev.ncrDashboard.categories.filter((_, i) => i !== index)
+                    }
+                }));
+            };
+
+            // Calculate NCR closure rate
+            const getNCRClosureRate = () => {
+                const { totalNCR, closedNCR } = reportData.ncrDashboard;
+                if (totalNCR === 0) return 0;
+                return Math.round((closedNCR / totalNCR) * 100);
+            };
+
+            // --- Render Functions ---
+            const renderControlBar = () => (
+                <div className="max-w-[210mm] mx-auto mb-6 flex flex-col items-center bg-white p-4 rounded-lg shadow-sm border border-gray-200 no-print gap-4">
+                    <div className="w-full flex justify-between items-center">
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-700 flex items-center">
+                                <IconComp name={isEditing ? "Edit3" : "File"} size={16} className="mr-2 text-blue-600" />
+                                {isEditing ? '編輯模式' : '預覽模式'}
+                            </h2>
+                        </div>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setIsEditing(!isEditing)}
+                                className="flex items-center px-4 py-2 rounded-md transition font-bold shadow-sm bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                            >
+                                <IconComp name={isEditing ? "Eye" : "Edit3"} size={16} className="mr-2" />
+                                {isEditing ? '預覽' : '編輯'}
+                            </button>
+                            <button
+                                onClick={handlePrint}
+                                className="flex items-center px-4 py-2 bg-slate-700 hover:bg-slate-800 text-white rounded-md transition shadow-sm"
+                                title="匯出 PDF"
+                            >
+                                <IconComp name="Printer" size={16} className="mr-2" /> PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div className="w-full flex flex-wrap gap-2 justify-center items-center pt-2 border-t border-gray-100">
+                        <input 
+                            type="file" 
+                            accept=".json" 
+                            ref={fileInputRef}
+                            onChange={handleImport}
+                            style={{ display: 'none' }}
+                        />
+                        <button
+                            onClick={() => fileInputRef.current.click()}
+                            className="text-sm flex items-center px-3 py-1 bg-green-50 hover:bg-green-100 text-green-600 rounded-md transition"
+                            title="從電腦載入備份檔案"
+                        >
+                            <IconComp name="Upload" size={14} className="mr-1" /> 載入資料 (Load JSON)
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className="text-sm flex items-center px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-md transition"
+                            title="暫存到瀏覽器"
+                        >
+                            <IconComp name="Save" size={14} className="mr-1" /> 暫存 (Save)
+                        </button>
+                        <button
+                            onClick={handleExport}
+                            className="text-sm flex items-center px-3 py-1 bg-purple-50 hover:bg-purple-100 text-purple-600 rounded-md transition"
+                            title="匯出文字資料 (JSON)"
+                        >
+                            <IconComp name="Database" size={14} className="mr-1" /> 備份資料
+                        </button>
+                        <button
+                            onClick={downloadHTML}
+                            className="text-sm flex items-center px-3 py-1 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-md transition font-bold border border-orange-200"
+                            title="下載此網頁檔案到電腦"
+                        >
+                            <IconComp name="Download" size={14} className="mr-1" /> 下載本工具 (HTML)
+                        </button>
+                        <button
+                            onClick={clearAllPhotos}
+                            className="text-sm flex items-center px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-md transition border border-red-200"
+                            title="清空所有照片"
+                        >
+                            <IconComp name="Trash" size={14} className="mr-1" /> 清空照片
+                        </button>
+                        <button
+                            onClick={handleReset}
+                            className="text-sm flex items-center px-2 py-1 text-gray-400 hover:text-red-500 rounded-md transition ml-auto"
+                            title="重置回預設值"
+                        >
+                            <IconComp name="RotateCcw" size={14} />
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const renderEditMode = () => {
+                const issueCount = reportData.issuesItems.length;
+                const photoCount = reportData.photos.length;
+                const editTabs = [
+                    { id: 'project',    label: '📋 專案資訊' },
+                    { id: 'summary',    label: '📜 Executive Summary' },
+                    { id: 'issues',     label: issueCount > 0 ? '✅ Issues (' + issueCount + ')' : '✅ Issues' },
+                    { id: 'progress',   label: '🗓️ Progress' },
+                    { id: 'kpi',        label: '📊 KPI Dashboard' },
+                    { id: 'ncr',        label: '🌎 NCR Update' },
+                    { id: 'monitoring', label: '🔍 ENV Monitoring' },
+                    { id: 'photos',     label: photoCount > 0 ? '📸 Photos (' + photoCount + ')' : '📸 Photos' },
+                    { id: 'mmo',        label: '🐬 MMO Operation' },
+                ];
+                return (
+                    <div className="print-container max-w-[210mm] mx-auto">
+                        <div className="edit-tab-nav">
+                            {editTabs.map(tab => (
+                                <button
+                                    key={tab.id}
+                                    className={"edit-tab-btn" + (activeEditTab === tab.id ? " active" : "")}
+                                    onClick={() => setActiveEditTab(tab.id)}
+                                >
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+                        <div className="edit-tab-content">
+
+                            {activeEditTab === 'project' && (
+                                <div className="space-y-4">
+                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                        <h3 className="font-bold text-blue-800 mb-3">📋 專案資訊 / Project Information</h3>
+                        <div className="space-y-2">
+                            <input
+                                type="text"
+                                value={reportData.projectInfo.contractNo}
+                                onChange={(e) => updateNestedField('projectInfo', 'contractNo', e.target.value)}
+                                className="w-full p-2 border rounded text-sm"
+                                placeholder="Contract No."
+                            />
+                            <input
+                                type="text"
+                                value={reportData.projectInfo.title}
+                                onChange={(e) => updateNestedField('projectInfo', 'title', e.target.value)}
+                                className="w-full p-2 border rounded"
+                                placeholder="Report Title"
+                            />
+                            <div className="grid grid-cols-2 gap-2">
+                                <input
+                                    type="text"
+                                    value={reportData.projectInfo.company}
+                                    onChange={(e) => updateNestedField('projectInfo', 'company', e.target.value)}
+                                    className="p-2 border rounded text-sm"
+                                    placeholder="Company"
+                                />
+                                <input
+                                    type="text"
+                                    value={reportData.projectInfo.projectNo}
+                                    onChange={(e) => updateNestedField('projectInfo', 'projectNo', e.target.value)}
+                                    className="p-2 border rounded text-sm"
+                                    placeholder="Project No."
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-600 font-medium">公司Logo (選填)</label>
+                                <div className="flex items-center gap-3">
+                                    {reportData.projectInfo.companyLogo && (
+                                        <div className="relative">
+                                            <img 
+                                                src={reportData.projectInfo.companyLogo} 
+                                                alt="Company Logo" 
+                                                className="h-16 w-auto object-contain border rounded p-1"
+                                            />
+                                            <button
+                                                onClick={() => updateNestedField('projectInfo', 'companyLogo', '')}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    )}
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleLogoUpload}
+                                        className="text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">建議尺寸: 200x80 px，支援 PNG, JPG</p>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-600 font-medium">週報區間 (選擇起始日期)</label>
+                                <div className="flex gap-2 items-center">
+                                    <input
+                                        type="date"
+                                        onChange={(e) => handleWeekPeriodChange(e.target.value)}
+                                        className="p-2 border rounded text-sm"
+                                    />
+                                    <span className="text-gray-400 text-xs">→</span>
+                                    <input
+                                        type="text"
+                                        value={reportData.projectInfo.period}
+                                        onChange={(e) => updateNestedField('projectInfo', 'period', e.target.value)}
+                                        className="flex-1 p-2 border rounded text-sm bg-gray-50"
+                                        placeholder="Period (auto-calculated)"
+                                    />
+                                </div>
+                                <p className="text-xs text-gray-500">選擇起始日期後，自動計算週報區間（起始日期 ~ 起始日期+6天）</p>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-600 font-medium">人員清單 / Personnel List</label>
+                                <textarea
+                                    value={reportData.projectInfo.personnel}
+                                    onChange={(e) => updateNestedField('projectInfo', 'personnel', e.target.value)}
+                                    className="w-full p-2 border rounded text-sm resize-vertical"
+                                    rows="3"
+                                    placeholder="例如：Paul (ENV Specialist), Raymond (ENV Officer), Sean (ENV Officer), Jacquline (ENV Officer)"
+                                />
+                                <p className="text-xs text-gray-500">輸入當前人員清單，會顯示在報告標題下方</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <h3 className="font-bold text-gray-800 mb-1">📝 章節標題 / Section Titles</h3>
+                        <p className="text-xs text-gray-500 mb-3">可編輯標題，並用 ▲▼ 調整預覽中的章節順序</p>
+                        <div className="space-y-2">
+                            {(reportData.sectionOrder || ["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"]).map((sectionId, idx) => {
+                                const sectionLabels = {
+                                    summary:'📜 Summary', issues:'✅ Issues', progress:'🗓️ Progress',
+                                    kpi:'📊 KPI', ncr:'🌎 NCR', monitoring:'🔍 Monitoring',
+                                    mmo:'🐬 MMO', photos:'📸 Photos'
+                                };
+                                const order = reportData.sectionOrder || ["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"];
+                                const moveSection = (fromIdx, toIdx) => {
+                                    const newOrder = [...order];
+                                    const [moved] = newOrder.splice(fromIdx, 1);
+                                    newOrder.splice(toIdx, 0, moved);
+                                    setReportData(prev => ({ ...prev, sectionOrder: newOrder }));
+                                };
+                                return (
+                                    <div key={sectionId} className="flex items-center gap-2 bg-white rounded border border-gray-200 px-2 py-1">
+                                        <div className="flex flex-col">
+                                            <button onClick={() => idx > 0 && moveSection(idx, idx-1)} disabled={idx===0}
+                                                className={"p-0.5 "+(idx===0?"text-gray-200 cursor-not-allowed":"text-gray-500 hover:text-blue-600")} title="上移">
+                                                <IconComp name="ChevronUp" size={12} />
+                                            </button>
+                                            <button onClick={() => idx < order.length-1 && moveSection(idx, idx+1)} disabled={idx===order.length-1}
+                                                className={"p-0.5 "+(idx===order.length-1?"text-gray-200 cursor-not-allowed":"text-gray-500 hover:text-blue-600")} title="下移">
+                                                <IconComp name="ChevronDown" size={12} />
+                                            </button>
+                                        </div>
+                                        <span className="text-xs text-gray-400 w-28 shrink-0">{sectionLabels[sectionId]||sectionId}</span>
+                                        <input
+                                            type="text"
+                                            value={reportData.sectionTitles[sectionId]||''}
+                                            onChange={(e) => updateNestedField('sectionTitles', sectionId, e.target.value)}
+                                            className="flex-1 p-1.5 border rounded text-sm"
+                                            placeholder={sectionLabels[sectionId]||sectionId}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                                </div>
+                            )}
+
+                            {activeEditTab === 'summary' && (
+                    <div className="border-l-4 border-blue-500 pl-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-blue-800">{reportData.sectionTitles.summary}</h3>
+                            <button 
+                                onClick={() => addItem('summaryItems', { date: "", text: "" })}
+                                className="text-blue-600 text-xs flex items-center bg-white px-2 py-1 rounded border"
+                            >
+                                <IconComp name="Plus" size={12} className="mr-1" /> Add
+                            </button>
+                        </div>
+                        {reportData.summaryItems.map((item, i) => (
+                            <div key={i} className="flex gap-2 mb-2 items-start">
+                                <div className="flex flex-col gap-1">
+                                    <button
+                                        onClick={() => moveItemUp('summaryItems', i)}
+                                        disabled={i === 0}
+                                        className={`p-1 ${i === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-blue-600'}`}
+                                        title="上移"
+                                    >
+                                        <IconComp name="ChevronUp" size={14} />
+                                    </button>
+                                    <button
+                                        onClick={() => moveItemDown('summaryItems', i)}
+                                        disabled={i === reportData.summaryItems.length - 1}
+                                        className={`p-1 ${i === reportData.summaryItems.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-blue-600'}`}
+                                        title="下移"
+                                    >
+                                        <IconComp name="ChevronDown" size={14} />
+                                    </button>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={item.date}
+                                    onChange={(e) => updateArray('summaryItems', i, 'date', e.target.value)}
+                                    className="w-20 p-2 border rounded text-xs"
+                                    placeholder="Date"
+                                />
+                                <textarea
+                                    value={item.text}
+                                    onChange={(e) => updateArray('summaryItems', i, 'text', e.target.value)}
+                                    className="flex-1 p-2 border rounded text-sm"
+                                    rows="2"
+                                    placeholder="Summary text..."
+                                />
+                                <button
+                                    onClick={() => removeItem('summaryItems', i)}
+                                    className="text-red-500 hover:text-red-700 p-1"
+                                >
+                                    <IconComp name="Trash" size={14} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                            )}
+
+                            {activeEditTab === 'issues' && (
+                                <div className="space-y-4">
+                    <div className="border-l-4 border-red-500 pl-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-red-800">{reportData.sectionTitles.issues}</h3>
+                            <button 
+                                onClick={() => addItem('issuesItems', {
+                                    id: Date.now(),
+                                    title: "",
+                                    priority: "Medium",
+                                    description: "",
+                                    actions: []
+                                })}
+                                className="text-red-600 text-xs flex items-center bg-white px-2 py-1 rounded border"
+                            >
+                                <IconComp name="Plus" size={12} className="mr-1" /> Add Issue
+                            </button>
+                        </div>
+                        {reportData.issuesItems.map((issue, i) => {
+                            // 根據優先級設定顏色
+                            const getBgColor = (priority) => {
+                                if (priority === 'High') return 'bg-red-50 border-red-200';
+                                if (priority === 'Medium') return 'bg-yellow-50 border-yellow-200';
+                                if (priority === 'Low') return 'bg-green-50 border-green-200';
+                                return 'bg-gray-50 border-gray-200';
+                            };
+                            
+                            return (
+                            <div key={issue.id} className={`p-3 rounded mb-3 border ${getBgColor(issue.priority)}`}>
+                                <div className="flex gap-2 mb-2">
+                                    <div className="flex flex-col gap-1">
+                                        <button
+                                            onClick={() => moveItemUp('issuesItems', i)}
+                                            disabled={i === 0}
+                                            className={`p-1 ${i === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-red-600'}`}
+                                            title="上移"
+                                        >
+                                            <IconComp name="ChevronUp" size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => moveItemDown('issuesItems', i)}
+                                            disabled={i === reportData.issuesItems.length - 1}
+                                            className={`p-1 ${i === reportData.issuesItems.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-red-600'}`}
+                                            title="下移"
+                                        >
+                                            <IconComp name="ChevronDown" size={14} />
+                                        </button>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={issue.title}
+                                        onChange={(e) => updateArray('issuesItems', i, 'title', e.target.value)}
+                                        className="flex-1 p-2 border rounded text-sm font-bold"
+                                        placeholder="Issue Title"
+                                    />
+                                    <select
+                                        value={issue.priority}
+                                        onChange={(e) => updateArray('issuesItems', i, 'priority', e.target.value)}
+                                        className="p-2 border rounded text-xs"
+                                    >
+                                        <option>High</option>
+                                        <option>Medium</option>
+                                        <option>Low</option>
+                                    </select>
+                                    <button
+                                        onClick={() => archiveIssue(i)}
+                                        className="text-orange-500 hover:text-orange-700 p-1"
+                                        title="Archive"
+                                    >
+                                        <IconComp name="Archive" size={14} />
+                                    </button>
+                                    <button
+                                        onClick={() => removeItem('issuesItems', i)}
+                                        className="text-red-500 hover:text-red-700 p-1"
+                                        title="Delete"
+                                    >
+                                        <IconComp name="Trash" size={14} />
+                                    </button>
+                                </div>
+                                <textarea
+                                    value={issue.description}
+                                    onChange={(e) => updateArray('issuesItems', i, 'description', e.target.value)}
+                                    className="w-full p-2 border rounded text-sm mb-2"
+                                    rows="2"
+                                    placeholder="Description..."
+                                />
+                                <div className="space-y-1">
+                                    <div className="flex justify-between items-center">
+                                        <label className="text-xs font-bold text-gray-600">Actions:</label>
+                                        <button
+                                            onClick={() => addAction(i)}
+                                            className="text-xs text-blue-600 hover:text-blue-800"
+                                        >
+                                            + Add Action
+                                        </button>
+                                    </div>
+                                    {issue.actions.map((action, ai) => (
+                                        <div key={ai} className="flex gap-1">
+                                            <div className="flex flex-col">
+                                                <button
+                                                    onClick={() => moveActionUp(i, ai)}
+                                                    disabled={ai === 0}
+                                                    className={`p-0.5 ${ai === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                                                    title="上移"
+                                                >
+                                                    <IconComp name="ChevronUp" size={10} />
+                                                </button>
+                                                <button
+                                                    onClick={() => moveActionDown(i, ai)}
+                                                    disabled={ai === issue.actions.length - 1}
+                                                    className={`p-0.5 ${ai === issue.actions.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:text-blue-600'}`}
+                                                    title="下移"
+                                                >
+                                                    <IconComp name="ChevronDown" size={10} />
+                                                </button>
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={action}
+                                                onChange={(e) => updateAction(i, ai, e.target.value)}
+                                                className="flex-1 p-1 border rounded text-xs"
+                                                placeholder="Action item..."
+                                            />
+                                            <button
+                                                onClick={() => removeAction(i, ai)}
+                                                className="text-red-400 hover:text-red-600 text-xs px-1"
+                                            >
+                                                ×
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Archived Issues */}
+                    {reportData.archivedIssues && reportData.archivedIssues.length > 0 && (
+                        <div className="border-l-4 border-gray-400 pl-4 mt-4">
+                            <h3 className="font-bold text-gray-700 mb-3">📦 {reportData.sectionTitles.archivedIssues}</h3>
+                            <div className="space-y-2">
+                                {reportData.archivedIssues.map((issue, i) => {
+                                    const getBgColor = (priority) => {
+                                        if (priority === 'High') return 'bg-red-50 border-red-200';
+                                        if (priority === 'Medium') return 'bg-yellow-50 border-yellow-200';
+                                        if (priority === 'Low') return 'bg-green-50 border-green-200';
+                                        return 'bg-gray-50 border-gray-200';
+                                    };
+                                    
+                                    return (
+                                        <div key={i} className={`p-3 rounded border ${getBgColor(issue.priority)} opacity-75`}>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex-1">
+                                                    <div className="font-bold text-sm text-gray-700">{issue.title}</div>
+                                                    <div className="text-xs text-gray-500 mt-1">
+                                                        Priority: {issue.priority} • Archived: {issue.archivedDate}
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        onClick={() => restoreIssue(i)}
+                                                        className="text-green-600 hover:text-green-800 text-xs px-2 py-1 bg-white rounded border"
+                                                        title="恢復"
+                                                    >
+                                                        ♻️ Restore
+                                                    </button>
+                                                    <button
+                                                        onClick={() => deleteArchivedIssue(i)}
+                                                        className="text-red-500 hover:text-red-700 p-1"
+                                                        title="永久刪除"
+                                                    >
+                                                        <IconComp name="Trash" size={14} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            {issue.description && (
+                                                <div className="text-xs text-gray-600 mb-2">{issue.description}</div>
+                                            )}
+                                            {issue.actions && issue.actions.length > 0 && (
+                                                <div className="text-xs text-gray-600">
+                                                    <div className="font-semibold mb-1">Actions:</div>
+                                                    <ul className="list-disc list-inside space-y-0.5">
+                                                        {issue.actions.map((action, ai) => (
+                                                            <li key={ai}>{action}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+
+                                </div>
+                            )}
+
+                            {activeEditTab === 'progress' && (
+                                <div className="space-y-4">
+                    <div className="border-l-4 border-blue-500 pl-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-blue-800">{reportData.sectionTitles.progress}</h3>
+                            <button 
+                                onClick={() => addItem('progressItems', {
+                                    date: "",
+                                    category: "",
+                                    item: "",
+                                    status: "In Progress",
+                                    statusColor: "#dbeafe",
+                                    note: ""
+                                })}
+                                className="text-blue-600 text-xs flex items-center bg-white px-2 py-1 rounded border"
+                            >
+                                <IconComp name="Plus" size={12} className="mr-1" /> Add Progress
+                            </button>
+                        </div>
+                        {reportData.progressItems.map((item, i) => (
+                            <div key={i} className="bg-blue-50 p-3 rounded mb-2 border border-blue-200">
+                                <div className="flex gap-2">
+                                    <div className="flex flex-col gap-1">
+                                        <button
+                                            onClick={() => moveItemUp('progressItems', i)}
+                                            disabled={i === 0}
+                                            className={`p-1 ${i === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-blue-600'}`}
+                                            title="上移"
+                                        >
+                                            <IconComp name="ChevronUp" size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => moveItemDown('progressItems', i)}
+                                            disabled={i === reportData.progressItems.length - 1}
+                                            className={`p-1 ${i === reportData.progressItems.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-blue-600'}`}
+                                            title="下移"
+                                        >
+                                            <IconComp name="ChevronDown" size={14} />
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 grid grid-cols-12 gap-2">
+                                        <input
+                                            type="text"
+                                            value={item.date}
+                                            onChange={(e) => updateArray('progressItems', i, 'date', e.target.value)}
+                                            className="col-span-2 p-2 border rounded text-xs"
+                                            placeholder="Date"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={item.category}
+                                            onChange={(e) => updateArray('progressItems', i, 'category', e.target.value)}
+                                            className="col-span-2 p-2 border rounded text-xs"
+                                            placeholder="Category"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={item.item}
+                                            onChange={(e) => updateArray('progressItems', i, 'item', e.target.value)}
+                                            className="col-span-3 p-2 border rounded text-xs"
+                                            placeholder="Item"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={item.note}
+                                            onChange={(e) => updateArray('progressItems', i, 'note', e.target.value)}
+                                            className="col-span-3 p-2 border rounded text-xs"
+                                            placeholder="Updates..."
+                                        />
+                                        <input
+                                            type="text"
+                                            value={item.status}
+                                            onChange={(e) => updateArray('progressItems', i, 'status', e.target.value)}
+                                            className="col-span-1 p-2 border rounded text-xs"
+                                            placeholder="Status"
+                                        />
+                                        <input
+                                            type="color"
+                                            value={item.statusColor || "#dbeafe"}
+                                            onChange={(e) => updateArray('progressItems', i, 'statusColor', e.target.value)}
+                                            className="col-span-1 p-0 border rounded h-9"
+                                            title="Status Color"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <button
+                                            onClick={() => archiveProgressItem(i)}
+                                            className="text-gray-500 hover:text-gray-700 p-1"
+                                            title="Archive"
+                                        >
+                                            <IconComp name="Archive" size={14} />
+                                        </button>
+                                        <button
+                                            onClick={() => removeItem('progressItems', i)}
+                                            className="text-red-500 hover:text-red-700 p-1"
+                                            title="Delete"
+                                        >
+                                            <IconComp name="Trash" size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {reportData.archivedProgress.length > 0 && (
+                        <div className="border-l-4 border-gray-400 pl-4">
+                            <h3 className="font-bold text-gray-700 mb-3">📦 Archived Progress Items</h3>
+                            <div className="space-y-2">
+                                {reportData.archivedProgress.map((item, i) => (
+                                    <div key={i} className="bg-gray-100 p-3 rounded flex justify-between items-start opacity-75">
+                                        <div className="flex-1">
+                                            <div className="text-xs text-gray-500 mb-1">
+                                                {item.date} • {item.category} • Archived: {item.archivedDate}
+                                            </div>
+                                            <div className="font-bold text-sm">{item.item}</div>
+                                            <div className="text-xs text-gray-600 mt-1">{item.note}</div>
+                                        </div>
+                                        <button
+                                            onClick={() => restoreProgressItem(i)}
+                                            className="text-blue-500 hover:text-blue-700 text-xs ml-2"
+                                            title="Restore"
+                                        >
+                                            ♻️ Restore
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                                </div>
+                            )}
+
+                            {activeEditTab === 'kpi' && (
+                    <div className="border-l-4 border-indigo-500 pl-4">
+                        <h3 className="font-bold text-indigo-800 mb-4">{reportData.sectionTitles.kpi}</h3>
+                        
+                        {/* KPI Dashboard Component in Edit Mode */}
+                        <KPIDashboard reportData={reportData} setReportData={setReportData} isEditing={true} />
+                    </div>
+
+
+                            )}
+
+                            {activeEditTab === 'ncr' && (
+                    <div className="border-l-4 border-purple-500 pl-4">
+                        <h3 className="font-bold text-purple-800 mb-3">{reportData.sectionTitles.ncr}</h3>
+                        
+                        {/* NCR Statistics Input */}
+                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 mb-4">
+                            <h4 className="text-sm font-bold text-purple-800 mb-3">📊 NCR 統計數據</h4>
+                            <div className="grid grid-cols-4 gap-3">
+                                <div>
+                                    <label className="text-xs text-gray-600 block mb-1">Total NCR</label>
+                                    <input
+                                        type="number"
+                                        value={reportData.ncrDashboard.totalNCR}
+                                        onChange={(e) => updateNestedField('ncrDashboard', 'totalNCR', parseInt(e.target.value) || 0)}
+                                        className="w-full p-2 border rounded text-sm font-bold"
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-600 block mb-1">Closed NCR</label>
+                                    <input
+                                        type="number"
+                                        value={reportData.ncrDashboard.closedNCR}
+                                        onChange={(e) => updateNestedField('ncrDashboard', 'closedNCR', parseInt(e.target.value) || 0)}
+                                        className="w-full p-2 border rounded text-sm font-bold"
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-600 block mb-1">Open NCR</label>
+                                    <input
+                                        type="number"
+                                        value={reportData.ncrDashboard.openNCR}
+                                        onChange={(e) => updateNestedField('ncrDashboard', 'openNCR', parseInt(e.target.value) || 0)}
+                                        className="w-full p-2 border rounded text-sm font-bold"
+                                        min="0"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-xs text-gray-600 block mb-1">Weekly New</label>
+                                    <input
+                                        type="number"
+                                        value={reportData.ncrDashboard.weeklyNew || 0}
+                                        onChange={(e) => updateNestedField('ncrDashboard', 'weeklyNew', parseInt(e.target.value) || 0)}
+                                        className="w-full p-2 border rounded text-sm font-bold"
+                                        min="0"
+                                    />
+                                </div>
+                            </div>
+                            <div className="mt-2 text-center">
+                                <span className="text-xs text-gray-600">Closure Rate: </span>
+                                <span className="text-lg font-bold text-purple-700">{getNCRClosureRate()}%</span>
+                            </div>
+                        </div>
+
+                        {/* NCR Categories Input */}
+                        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+                            <div className="flex justify-between items-center mb-3">
+                                <h4 className="text-sm font-bold text-purple-800">🎯 NCR 分類統計</h4>
+                                <button
+                                    onClick={addNCRCategory}
+                                    className="text-purple-600 text-xs flex items-center bg-white px-2 py-1 rounded border hover:bg-purple-50"
+                                >
+                                    <IconComp name="Plus" size={12} className="mr-1" /> Add Category
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                {reportData.ncrDashboard.categories.map((cat, i) => (
+                                    <div key={i} className="flex gap-2 items-center bg-white p-2 rounded border">
+                                        <div className="flex flex-col gap-1">
+                                            <button
+                                                onClick={() => moveCategoryUp(i)}
+                                                disabled={i === 0}
+                                                className={`p-1 ${i === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-purple-600'}`}
+                                                title="上移"
+                                            >
+                                                <IconComp name="ChevronUp" size={12} />
+                                            </button>
+                                            <button
+                                                onClick={() => moveCategoryDown(i)}
+                                                disabled={i === reportData.ncrDashboard.categories.length - 1}
+                                                className={`p-1 ${i === reportData.ncrDashboard.categories.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-purple-600'}`}
+                                                title="下移"
+                                            >
+                                                <IconComp name="ChevronDown" size={12} />
+                                            </button>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={cat.name}
+                                            onChange={(e) => updateNCRCategory(i, 'name', e.target.value)}
+                                            className="flex-1 p-2 border rounded text-xs"
+                                            placeholder="Category Name"
+                                        />
+                                        <input
+                                            type="number"
+                                            value={cat.count}
+                                            onChange={(e) => updateNCRCategory(i, 'count', parseInt(e.target.value) || 0)}
+                                            className="w-20 p-2 border rounded text-xs text-center font-bold"
+                                            min="0"
+                                            placeholder="Count"
+                                        />
+                                        <input
+                                            type="color"
+                                            value={cat.color}
+                                            onChange={(e) => updateNCRCategory(i, 'color', e.target.value)}
+                                            className="w-12 h-9 border rounded cursor-pointer"
+                                            title="Category Color"
+                                        />
+                                        <button
+                                            onClick={() => removeNCRCategory(i)}
+                                            className="text-red-500 hover:text-red-700 p-1"
+                                        >
+                                            <IconComp name="Trash" size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+
+                            )}
+
+                            {activeEditTab === 'monitoring' && (
+                    <div className="border-l-4 border-teal-500 pl-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-teal-800">{reportData.sectionTitles.monitoring}</h3>
+                            <button 
+                                onClick={() => {
+                                    const newItems = [...(reportData.monitoringItems.items || []), { date: "", category: "", status: "Plan" }];
+                                    setReportData(prev => ({
+                                        ...prev,
+                                        monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                    }));
+                                }}
+                                className="text-teal-600 text-xs flex items-center bg-white px-2 py-1 rounded border"
+                            >
+                                <IconComp name="Plus" size={12} className="mr-1" /> Add
+                            </button>
+                        </div>
+                        
+                        {/* Year and Quarter Selectors */}
+                        <div className="bg-teal-50 p-3 rounded-lg border border-teal-200 mb-4">
+                            <div className="flex gap-4 items-center">
+                                <label className="text-sm font-medium text-teal-800">報告期間:</label>
+                                <select
+                                    value={reportData.monitoringItems?.year || "2026"}
+                                    onChange={(e) => setReportData(prev => ({
+                                        ...prev,
+                                        monitoringItems: { ...prev.monitoringItems, year: e.target.value }
+                                    }))}
+                                    className="p-2 border rounded text-sm font-medium"
+                                >
+                                    {[2024, 2025, 2026, 2027, 2028, 2029, 2030].map(year => (
+                                        <option key={year} value={year}>{year} 年</option>
+                                    ))}
+                                </select>
+                                <select
+                                    value={reportData.monitoringItems?.quarter || "Q1"}
+                                    onChange={(e) => setReportData(prev => ({
+                                        ...prev,
+                                        monitoringItems: { ...prev.monitoringItems, quarter: e.target.value }
+                                    }))}
+                                    className="p-2 border rounded text-sm font-medium"
+                                >
+                                    <option value="Q1">Q1 (第一季)</option>
+                                    <option value="Q2">Q2 (第二季)</option>
+                                    <option value="Q3">Q3 (第三季)</option>
+                                    <option value="Q4">Q4 (第四季)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {/* Monitoring Items */}
+                        {(reportData.monitoringItems?.items || []).map((item, i) => (
+                            <div key={i} className="flex gap-2 mb-2 items-center">
+                                <div className="flex flex-col gap-1">
+                                    <button
+                                        onClick={() => {
+                                            if (i === 0) return;
+                                            const newItems = [...reportData.monitoringItems.items];
+                                            [newItems[i - 1], newItems[i]] = [newItems[i], newItems[i - 1]];
+                                            setReportData(prev => ({
+                                                ...prev,
+                                                monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                            }));
+                                            showToast('⬆️ 項目已上移');
+                                        }}
+                                        disabled={i === 0}
+                                        className={`p-1 ${i === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-teal-600'}`}
+                                        title="上移"
+                                    >
+                                        <IconComp name="ChevronUp" size={14} />
+                                    </button>
+                                    <button
+                                        onClick={() => {
+                                            const items = reportData.monitoringItems.items;
+                                            if (i >= items.length - 1) return;
+                                            const newItems = [...items];
+                                            [newItems[i], newItems[i + 1]] = [newItems[i + 1], newItems[i]];
+                                            setReportData(prev => ({
+                                                ...prev,
+                                                monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                            }));
+                                            showToast('⬇️ 項目已下移');
+                                        }}
+                                        disabled={i >= (reportData.monitoringItems.items?.length || 0) - 1}
+                                        className={`p-1 ${i >= (reportData.monitoringItems.items?.length || 0) - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-teal-600'}`}
+                                        title="下移"
+                                    >
+                                        <IconComp name="ChevronDown" size={14} />
+                                    </button>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={item.date}
+                                    onChange={(e) => {
+                                        const newItems = reportData.monitoringItems.items.map((itm, idx) =>
+                                            idx === i ? { ...itm, date: e.target.value } : itm
+                                        );
+                                        setReportData(prev => ({
+                                            ...prev,
+                                            monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                        }));
+                                    }}
+                                    className="w-32 p-2 border rounded text-xs"
+                                    placeholder="Date"
+                                />
+                                <input
+                                    type="text"
+                                    value={item.category}
+                                    onChange={(e) => {
+                                        const newItems = reportData.monitoringItems.items.map((itm, idx) =>
+                                            idx === i ? { ...itm, category: e.target.value } : itm
+                                        );
+                                        setReportData(prev => ({
+                                            ...prev,
+                                            monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                        }));
+                                    }}
+                                    className="flex-1 p-2 border rounded text-sm"
+                                    placeholder="Category"
+                                />
+                                <select
+                                    value={item.status}
+                                    onChange={(e) => {
+                                        const newItems = reportData.monitoringItems.items.map((itm, idx) =>
+                                            idx === i ? { ...itm, status: e.target.value } : itm
+                                        );
+                                        setReportData(prev => ({
+                                            ...prev,
+                                            monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                        }));
+                                    }}
+                                    className="w-28 p-2 border rounded text-xs"
+                                >
+                                    <option>Plan</option>
+                                    <option>Executed</option>
+                                    <option>Completed</option>
+                                    <option>Cancelled</option>
+                                </select>
+                                <button
+                                    onClick={() => {
+                                        const newItems = reportData.monitoringItems.items.filter((_, idx) => idx !== i);
+                                        setReportData(prev => ({
+                                            ...prev,
+                                            monitoringItems: { ...prev.monitoringItems, items: newItems }
+                                        }));
+                                    }}
+                                    className="text-red-500 hover:text-red-700 p-1"
+                                >
+                                    <IconComp name="Trash" size={14} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+
+                            )}
+
+                            {activeEditTab === 'photos' && (
+                    <div className="border-l-4 border-blue-500 pl-4">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="font-bold text-blue-800">{reportData.sectionTitles.photos}</h3>
+                            <button 
+                                onClick={() => addItem('photos', { id: Date.now(), title: "", description: "", date: "", imageData: "" })}
+                                className="text-blue-600 text-xs flex items-center bg-white px-2 py-1 rounded border"
+                            >
+                                <IconComp name="Plus" size={12} className="mr-1" /> Add Photo
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            {reportData.photos.map((photo, i) => (
+                                <div key={photo.id} className="border rounded-lg p-3 bg-gray-50">
+                                    <div className="mb-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => handleImageUpload(i, e)}
+                                            className="text-xs mb-2"
+                                        />
+                                        {photo.imageData && (
+                                            <img src={photo.imageData} alt="" className="w-full h-32 object-cover rounded mb-2" />
+                                        )}
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={photo.title}
+                                        onChange={(e) => updateArray('photos', i, 'title', e.target.value)}
+                                        className="w-full p-2 border rounded text-sm mb-2"
+                                        placeholder="Photo Title"
+                                    />
+                                    <textarea
+                                        value={photo.description}
+                                        onChange={(e) => updateArray('photos', i, 'description', e.target.value)}
+                                        className="w-full p-2 border rounded text-xs mb-2"
+                                        rows="2"
+                                        placeholder="Description"
+                                    />
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="text"
+                                            value={photo.date}
+                                            onChange={(e) => updateArray('photos', i, 'date', e.target.value)}
+                                            className="flex-1 p-2 border rounded text-xs"
+                                            placeholder="Date"
+                                        />
+                                        <div className="flex gap-1">
+                                            <button
+                                                onClick={() => moveItemUp('photos', i)}
+                                                disabled={i === 0}
+                                                className={`p-1 ${i === 0 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-green-600'}`}
+                                                title="上移"
+                                            >
+                                                <IconComp name="ChevronUp" size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => moveItemDown('photos', i)}
+                                                disabled={i === reportData.photos.length - 1}
+                                                className={`p-1 ${i === reportData.photos.length - 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-600 hover:text-green-600'}`}
+                                                title="下移"
+                                            >
+                                                <IconComp name="ChevronDown" size={14} />
+                                            </button>
+                                            <button
+                                                onClick={() => removeItem('photos', i)}
+                                                className="text-red-500 hover:text-red-700 p-1"
+                                            >
+                                                <IconComp name="Trash" size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+
+                            )}
+
+                            {activeEditTab === 'mmo' && (
+                                <div>
+                                    {/* Location options manager */}
+                                    <div className="bg-cyan-50 border border-cyan-200 rounded-lg px-3 py-2 mb-3 flex items-center gap-2 flex-wrap">
+                                        <span className="text-xs font-semibold text-cyan-700 shrink-0">Location Options:</span>
+                                        {mmoLocOpts.map((loc, li) => (
+                                            <span key={li} className="flex items-center gap-1 bg-white border border-cyan-300 rounded px-2 py-0.5 text-xs">
+                                                {loc}
+                                                <button onClick={() => saveLocs(mmoLocOpts.filter((_,idx)=>idx!==li))} className="text-red-400 hover:text-red-600 ml-1 font-bold">×</button>
+                                            </span>
+                                        ))}
+                                        <input
+                                            type="text"
+                                            placeholder="+ Add option"
+                                            className="border border-dashed border-cyan-400 rounded px-2 py-0.5 text-xs w-28 focus:outline-none focus:border-cyan-600"
+                                            onKeyDown={e => { if((e.key==='Enter'||e.key===',')&&e.target.value.trim()){saveLocs([...mmoLocOpts,e.target.value.trim()]);e.target.value='';e.preventDefault();}}}
+                                        />
+                                        <span className="text-xs text-gray-400">Enter to add</span>
+                                    </div>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <div>
+                                            <h3 className="font-bold text-cyan-800 text-base">🐬 MMO Operation Log</h3>
+                                            <p className="text-xs text-gray-500 mt-0.5">Marine Mammal Observer — Observation Log</p>
+                                        </div>
+                                        <button
+                                            onClick={() => {
+                                                const newRec = { id:Date.now(), obsStart:"", obsEnd:"", vessel:"", location:"", cetaceanSeen:false, sightingDateTime:"", species:"", count:"", workStopped:false, remarks:"" };
+                                                setReportData(prev => ({ ...prev, mmoRecords: [...prev.mmoRecords, newRec] }));
+                                                showToast("✅ New MMO record added");
+                                            }}
+                                            className="text-cyan-600 text-xs flex items-center bg-white px-3 py-1.5 rounded border border-cyan-300 hover:bg-cyan-50"
+                                        >
+                                            <IconComp name="Plus" size={12} className="mr-1" /> Add Record
+                                        </button>
+                                    </div>
+                                    <div className="overflow-x-auto rounded-lg border border-gray-200">
+                                        <table className="min-w-full text-xs">
+                                            <thead>
+                                                <tr className="bg-slate-800 text-white">
+                                                    <th className="px-3 py-2 text-left w-8">#</th>
+                                                    <th className="px-3 py-2 text-left">Obs. Period</th>
+                                                    <th className="px-3 py-2 text-left">Vessel</th>
+                                                    <th className="px-3 py-2 text-left">Location</th>
+                                                    <th className="px-3 py-2 text-center">Sighting?</th>
+                                                    <th className="px-3 py-2 text-left">Sighting Date &amp; Time</th>
+                                                    <th className="px-3 py-2 text-left">Species</th>
+                                                    <th className="px-3 py-2 text-left">Est. Count</th>
+                                                    <th className="px-3 py-2 text-center">Work Stopped?</th>
+                                                    <th className="px-3 py-2 text-left">Remarks</th>
+                                                    <th className="px-3 py-2 w-8"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {reportData.mmoRecords.length === 0 && (
+                                                    <tr><td colSpan={11} className="px-4 py-8 text-center text-gray-400">No records yet. Click "Add Record" to start.</td></tr>
+                                                )}
+                                                {reportData.mmoRecords.map((rec, i) => (
+                                                    <tr key={rec.id} className={"border-b border-gray-100 "+(i%2===0?"bg-white":"bg-gray-50")}>
+                                                        <td className="px-3 py-2 text-gray-400 font-mono">{i+1}</td>
+                                                        <td className="px-2 py-1">
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="flex items-center gap-1"><span className="text-gray-400 w-8 shrink-0 text-right">Start</span><input type="datetime-local" value={rec.obsStart||""} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],obsStart:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-40"/></div>
+                                                                <div className="flex items-center gap-1"><span className="text-gray-400 w-8 shrink-0 text-right">End</span><input type="datetime-local" value={rec.obsEnd||""} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],obsEnd:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-40"/></div>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <input type="text" value={rec.vessel} placeholder="Vessel" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],vessel:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-28"/>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <input list={"loc-opts-"+i} type="text" value={rec.location||""} placeholder="Location" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],location:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-28"/>
+                                                            <datalist id={"loc-opts-"+i}>{mmoLocOpts.map((o,oi)=><option key={oi} value={o}/>)}</datalist>
+                                                        </td>
+                                                        <td className="px-2 py-1 text-center">
+                                                            <select value={rec.cetaceanSeen?"yes":"no"} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],cetaceanSeen:e.target.value==="yes"};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs font-bold "+(rec.cetaceanSeen?"bg-orange-100 text-orange-700 border-orange-300":"bg-green-50 text-green-700")}>
+                                                                <option value="no">No</option>
+                                                                <option value="yes">Yes ⚠️</option>
+                                                            </select>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <input type="datetime-local" value={rec.sightingDateTime||""} disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],sightingDateTime:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-40 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <input type="text" value={rec.species} placeholder="Species" disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],species:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-24 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <input type="text" value={rec.count} placeholder="Count" disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],count:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-16 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/>
+                                                        </td>
+                                                        <td className="px-2 py-1 text-center">
+                                                            <select value={rec.workStopped?"yes":"no"} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],workStopped:e.target.value==="yes"};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs font-bold "+(rec.workStopped?"bg-red-100 text-red-700 border-red-300":"bg-gray-50 text-gray-600")}>
+                                                                <option value="no">No</option>
+                                                                <option value="yes">Yes 🛑</option>
+                                                            </select>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <input type="text" value={rec.remarks} placeholder="Remarks" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],remarks:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-32"/>
+                                                        </td>
+                                                        <td className="px-2 py-1">
+                                                            <button onClick={()=>{const r=reportData.mmoRecords.filter((_,idx)=>idx!==i);setReportData(p=>({...p,mmoRecords:r}));}} className="text-red-400 hover:text-red-600 p-1">
+                                                                <IconComp name="Trash" size={13}/>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
+                );
+            };
+
+
+            const renderSectionPreview = (sectionId) => {
+                const d = reportData;
+                switch(sectionId) {
+                    case 'summary': return (
+                        <section key="summary">
+                            <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">📜</span> {d.sectionTitles.summary}
+                            </h3>
+                            <ul className="list-none ml-0 space-y-2 text-gray-700 text-sm">
+                                {d.summaryItems.map((item,i)=>(
+                                    <li key={i} className="flex items-start">
+                                        <span className="font-bold mr-2 text-blue-800 shrink-0">[{item.date}]</span>
+                                        <span className="whitespace-pre-wrap">{item.text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </section>
+                    );
+                    case 'issues': return (
+                        <section key="issues" className="issues-section">
+                            <h3 className="flex items-center text-red-700 font-bold text-lg border-b border-gray-200 pb-2 mb-4 section-header">
+                                <span className="mr-2 text-2xl">✅</span> {d.sectionTitles.issues}
+                            </h3>
+                            <div className="space-y-3">
+                                {d.issuesItems.map((issue,i)=>{
+                                    const pColors={'High':{bg:'#fee2e2',border:'#ef4444',badge:'bg-red-200 text-red-800',title:'text-red-900'},'Medium':{bg:'#fef3c7',border:'#f59e0b',badge:'bg-yellow-200 text-yellow-800',title:'text-yellow-900'},'Low':{bg:'#dcfce7',border:'#10b981',badge:'bg-green-200 text-green-800',title:'text-green-900'}};
+                                    const c=pColors[issue.priority]||pColors['Medium'];
+                                    return(<div key={issue.id} className="issue-item border-l-4 p-4 rounded-r-md" style={{backgroundColor:c.bg,borderColor:c.border}}>
+                                        <div className="flex justify-between items-start mb-1">
+                                            <h4 className={"font-bold text-sm "+c.title}>{i+1}. {issue.title}</h4>
+                                            <span className={"text-xs px-2 py-1 rounded font-bold uppercase "+c.badge}>{issue.priority}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-700 mb-2 whitespace-pre-wrap">{issue.description}</p>
+                                        {issue.actions.length>0&&<div className="mt-2 space-y-1">{issue.actions.map((a,ai)=><div key={ai} className="flex items-start text-xs font-medium text-gray-600"><span className="mr-2 text-gray-400 font-bold">&gt;</span><span>{a}</span></div>)}</div>}
+                                    </div>);
+                                })}
+                            </div>
+                        </section>
+                    );
+                    case 'progress': return d.progressItems.length>0?(
+                        <section key="progress">
+                            <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">🗓️</span> {d.sectionTitles.progress}
+                            </h3>
+                            <div className="overflow-hidden border border-gray-200 rounded-lg progress-table">
+                                <table className="min-w-full text-sm">
+                                    <thead className="bg-gray-100 text-gray-700"><tr>
+                                        <th className="px-4 py-2 text-left w-24">Date</th>
+                                        <th className="px-4 py-2 text-left">Category</th>
+                                        <th className="px-4 py-2 text-left">Item</th>
+                                        <th className="px-4 py-2 text-left">Updates</th>
+                                        <th className="px-4 py-2 text-center">Status</th>
+                                    </tr></thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                        {d.progressItems.map((row,i)=>(
+                                            <tr key={i} className="bg-white progress-row">
+                                                <td className="px-4 py-3 text-gray-600 font-bold text-xs whitespace-nowrap">{row.date}</td>
+                                                <td className="px-4 py-3 text-gray-500 font-medium">{row.category}</td>
+                                                <td className="px-4 py-3 text-gray-800 font-bold">{row.item}</td>
+                                                <td className="px-4 py-3 text-gray-600 text-xs">{row.note}</td>
+                                                <td className="px-4 py-3 text-center"><span className="inline-block px-2 py-1 rounded text-xs font-semibold" style={{backgroundColor:row.statusColor||'#dbeafe',color:getContrastYIQ(row.statusColor||'#dbeafe')}}>{row.status}</span></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    ):null;
+                    case 'kpi': return (
+                        <section key="kpi" className="kpi-dashboard-section" style={{pageBreakBefore:'auto'}}>
+                            <h3 className="flex items-center text-indigo-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">📊</span> {d.sectionTitles.kpi}
+                            </h3>
+                            <KPIDashboard reportData={reportData} setReportData={setReportData} isEditing={isEditing} />
+                        </section>
+                    );
+                    case 'ncr': return (
+                        <section key="ncr" className="break-inside-avoid">
+                            <h3 className="flex items-center text-purple-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">🌎</span> {d.sectionTitles.ncr}
+                            </h3>
+                            <NCRDashboard reportData={reportData} chartRefs={chartRefs} />
+                        </section>
+                    );
+                    case 'monitoring': return (d.monitoringItems?.items?.length>0)?(
+                        <section key="monitoring">
+                            <h3 className="flex items-center text-teal-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">🔍</span> {d.sectionTitles.monitoring}
+                                <span className="ml-2 text-sm text-gray-500 font-normal">({d.monitoringItems?.year||'2026'} {d.monitoringItems?.quarter||'Q1'})</span>
+                            </h3>
+                            <div className="overflow-hidden border border-gray-200 rounded-lg monitoring-table">
+                                <table className="min-w-full text-sm">
+                                    <thead className="bg-gray-100 text-gray-700"><tr>
+                                        <th className="px-4 py-2 text-left w-32">Date</th>
+                                        <th className="px-4 py-2 text-left">Category</th>
+                                        <th className="px-4 py-2 text-center w-32">Status</th>
+                                    </tr></thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                        {(d.monitoringItems?.items||[]).map((row,i)=>(
+                                            <tr key={i} className="bg-white hover:bg-gray-50 monitoring-row">
+                                                <td className="px-4 py-3 text-gray-600 font-bold text-xs">{row.date}</td>
+                                                <td className="px-4 py-3 text-gray-800 font-medium">{row.category}</td>
+                                                <td className="px-4 py-3 text-center"><span className={"inline-block px-3 py-1 rounded text-xs font-bold "+(row.status==='Executed'?'bg-green-100 text-green-700':row.status==='Completed'?'bg-blue-100 text-blue-700':row.status==='Cancelled'?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700')}>{row.status}</span></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    ):null;
+                    case 'mmo': return d.mmoRecords.length>0?(
+                        <section key="mmo" className="print-compact">
+                            <h3 className="flex items-center text-cyan-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">🐬</span> {d.sectionTitles.mmo||"MMO Operation"}
+                            </h3>
+                            <div className="overflow-hidden border border-gray-200 rounded-lg">
+                                <table className="min-w-full text-xs">
+                                    <thead className="bg-slate-800 text-white"><tr>
+                                        <th className="px-3 py-2 text-left">#</th>
+                                        <th className="px-3 py-2 text-left">Obs. Period</th>
+                                        <th className="px-3 py-2 text-left">Vessel</th>
+                                        <th className="px-3 py-2 text-left">Location</th>
+                                        <th className="px-3 py-2 text-center">Sighting?</th>
+                                        <th className="px-3 py-2 text-left">Sighting Details</th>
+                                        <th className="px-3 py-2 text-center">Work Stopped?</th>
+                                        <th className="px-3 py-2 text-left">Remarks</th>
+                                    </tr></thead>
+                                    <tbody className="divide-y divide-gray-100">
+                                        {d.mmoRecords.map((rec,i)=>(
+                                            <tr key={rec.id} className={i%2===0?"bg-white":"bg-cyan-50"}>
+                                                <td className="px-3 py-2 text-gray-400 font-mono">{i+1}</td>
+                                                <td className="px-3 py-2 font-mono text-gray-700 text-xs">
+                                                    <div>{rec.obsStart ? rec.obsStart.replace("T"," ") : "—"}</div>
+                                                    <div className="text-gray-400">→ {rec.obsEnd ? rec.obsEnd.replace("T"," ") : "—"}</div>
+                                                </td>
+                                                <td className="px-3 py-2">{rec.vessel}</td>
+                                                <td className="px-3 py-2 text-gray-600">{rec.location}</td>
+                                                <td className="px-3 py-2 text-center">{rec.cetaceanSeen?<span className="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 rounded font-bold">Yes ⚠️</span>:<span className="inline-block px-2 py-0.5 bg-green-50 text-green-700 rounded">No</span>}</td>
+                                                <td className="px-3 py-2 text-gray-600">{rec.cetaceanSeen?<span>{rec.sightingDateTime&&<b>{rec.sightingDateTime.replace("T"," ")}</b>}{rec.species&&" / "+rec.species}{rec.count&&" / ~"+rec.count+" ind."}</span>:<span className="text-gray-300">—</span>}</td>
+                                                <td className="px-3 py-2 text-center">{rec.workStopped?<span className="inline-block px-2 py-0.5 bg-red-100 text-red-700 rounded font-bold">Yes 🛑</span>:<span className="inline-block px-2 py-0.5 bg-gray-50 text-gray-500 rounded">No</span>}</td>
+                                                <td className="px-3 py-2 text-gray-600">{rec.remarks}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    ):null;
+                    case 'photos': return d.photos.length>0?(
+                        <section key="photos" className="break-inside-avoid print-compact">
+                            <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">📸</span> {d.sectionTitles.photos}
+                            </h3>
+                            <div className="grid grid-cols-2 gap-4">
+                                {d.photos.map((photo,i)=>(
+                                    <div key={photo.id} className="border border-gray-200 rounded-lg overflow-hidden shadow-sm break-inside-avoid bg-white">
+                                        <div className="aspect-video w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                                            {photo.imageData?<img src={photo.imageData} alt={photo.title} className="w-full h-full object-cover"/>:<div className="text-gray-400 text-xs">No Image</div>}
+                                        </div>
+                                        <div className="p-3">
+                                            <h5 className="font-bold text-gray-800 text-sm break-words">{photo.title}</h5>
+                                            <p className="text-xs text-gray-600 mt-1 line-clamp-2">{photo.description}</p>
+                                            <div className="mt-2 text-[10px] text-gray-400 text-right">{photo.date}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    ):null;
+                    default: return null;
+                }
+            };
+
+            const renderPreviewMode = () => (
+                <div className="print-container max-w-[210mm] min-h-[297mm] mx-auto bg-white shadow-2xl overflow-hidden relative print:shadow-none print:w-full">
+                    {/* Header */}
+                    <header className="bg-slate-800 text-white p-8 border-b-4 border-blue-500 print:bg-slate-800 print:text-white">
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <div className="text-blue-300 text-xs font-bold tracking-wider mb-1">
+                                    {reportData.projectInfo.contractNo}
+                                </div>
+                                <h1 className="text-2xl font-bold uppercase tracking-tight">
+                                    {reportData.projectInfo.title}
+                                </h1>
+                                <div className="mt-2 flex items-center text-sm opacity-90">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                    </svg>
+                                    <span>Period: {reportData.projectInfo.period}</span>
+                                </div>
+                                {reportData.projectInfo.personnel && (
+                                    <div className="mt-2 flex items-start text-sm opacity-90">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2 mt-0.5 flex-shrink-0">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                            <circle cx="9" cy="7" r="4"></circle>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                        </svg>
+                                        <span className="leading-relaxed whitespace-pre-wrap">{reportData.projectInfo.personnel}</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="text-right">
+                                {reportData.projectInfo.companyLogo ? (
+                                    <div className="mb-2">
+                                        <img 
+                                            src={reportData.projectInfo.companyLogo} 
+                                            alt={reportData.projectInfo.company}
+                                            className="h-16 w-auto ml-auto object-contain"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="text-xl font-bold text-blue-400">{reportData.projectInfo.company}</div>
+                                )}
+                                <div className="text-sm opacity-75">{reportData.projectInfo.projectNo}</div>
+                                <div className="mt-4 inline-block bg-blue-600 px-3 py-1 rounded text-xs font-semibold print:text-white">
+                                    CONFIDENTIAL
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Content */}
+                    <div className="p-8 space-y-6 pb-20 print-sections">
+                        {(reportData.sectionOrder||["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"]).map(sid=>renderSectionPreview(sid))}
+
+                        {reportData.archivedIssues&&reportData.archivedIssues.length>0&&(
+                            <section className="break-inside-avoid mt-8 opacity-75">
+                                <h3 className="flex items-center text-gray-700 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                    <span className="mr-2 text-2xl">📦</span> {reportData.sectionTitles.archivedIssues}
+                                </h3>
+                                <div className="space-y-3">
+                                    {reportData.archivedIssues.map((issue,i)=>{
+                                        const bg=issue.priority==='High'?'bg-red-50 border-red-200':issue.priority==='Medium'?'bg-yellow-50 border-yellow-200':issue.priority==='Low'?'bg-green-50 border-green-200':'bg-gray-50 border-gray-200';
+                                        const pc=issue.priority==='High'?'text-red-700 bg-red-100':issue.priority==='Medium'?'text-yellow-700 bg-yellow-100':issue.priority==='Low'?'text-green-700 bg-green-100':'text-gray-700 bg-gray-100';
+                                        return(<div key={i} className={"p-4 rounded-lg border-2 "+bg}>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <h4 className="font-bold text-gray-800 text-base">{issue.title}</h4>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={"px-2 py-1 rounded text-xs font-bold "+pc}>{issue.priority}</span>
+                                                    <span className="text-xs text-gray-500 italic">Archived: {issue.archivedDate}</span>
+                                                </div>
+                                            </div>
+                                            {issue.description&&<p className="text-sm text-gray-700 mb-3 leading-relaxed">{issue.description}</p>}
+                                            {issue.actions&&issue.actions.length>0&&<div className="mt-3 pt-3 border-t border-gray-300"><div className="text-xs font-bold text-gray-600 mb-2">Actions Taken:</div><ul className="space-y-1">{issue.actions.map((a,ai)=><li key={ai} className="flex items-start text-sm text-gray-600"><span className="mr-2 text-gray-400">•</span><span>{a}</span></li>)}</ul></div>}
+                                        </div>);
+                                    })}
+                                </div>
+                            </section>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="absolute bottom-0 w-full p-4 bg-gray-50 border-t border-gray-200 text-center text-xs text-gray-400">
+                        Generated by ENV Team • NMDC Project 2913
+                    </div>
+                </div>
+            );;
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    {renderControlBar()}
+                    {isEditing ? renderEditMode() : renderPreviewMode()}
+                    {toast && (
+                        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg flex items-center toast z-[9999]">
+                            {toast}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // NCR Dashboard Component
+        const NCRDashboard = ({ reportData, chartRefs }) => {
+            const { totalNCR, closedNCR, openNCR, weeklyNew, categories } = reportData.ncrDashboard;
+            const closureRate = totalNCR > 0 ? Math.round((closedNCR / totalNCR) * 100) : 0;
+            const canvasRef = useRef(null);
+            const chartInstanceRef = useRef(null);
+
+            useEffect(() => {
+                if (canvasRef.current && categories.length > 0) {
+                    // Destroy existing chart
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                    }
+
+                    const ctx = canvasRef.current.getContext('2d');
+                    
+                    // Create gradient colors for each category
+                    const createGradient = (color) => {
+                        const gradient = ctx.createRadialGradient(150, 150, 0, 150, 150, 150);
+                        // Lighter color in center
+                        gradient.addColorStop(0, color + 'dd'); // More transparent
+                        gradient.addColorStop(0.5, color);
+                        gradient.addColorStop(1, color + 'cc'); // Slightly darker at edge
+                        return gradient;
+                    };
+                    
+                    // Register datalabels plugin if available
+                    const plugins = [];
+                    if (typeof ChartDataLabels !== 'undefined') {
+                        plugins.push(ChartDataLabels);
+                    }
+                    
+                    chartInstanceRef.current = new Chart(ctx, {
+                        type: 'doughnut',
+                        plugins: plugins,
+                        data: {
+                            labels: categories.map(c => c.name),
+                            datasets: [{
+                                data: categories.map(c => c.count),
+                                backgroundColor: categories.map(c => c.color),
+                                borderWidth: 3,
+                                borderColor: '#ffffff',
+                                hoverOffset: 15,
+                                hoverBorderWidth: 4,
+                                hoverBorderColor: '#ffffff'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            aspectRatio: 1.8,
+                            cutout: '50%',
+                            animation: {
+                                animateRotate: true,
+                                animateScale: true,
+                                duration: 1000,
+                                easing: 'easeInOutQuart'
+                            },
+                            plugins: {
+                                datalabels: {
+                                    color: '#ffffff',
+                                    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                                    borderRadius: 4,
+                                    padding: {
+                                        top: 4,
+                                        bottom: 4,
+                                        left: 6,
+                                        right: 6
+                                    },
+                                    font: {
+                                        weight: 'bold',
+                                        size: 13,
+                                        family: 'Arial, sans-serif'
+                                    },
+                                    formatter: (value, context) => {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = ((value / total) * 100).toFixed(1);
+                                        return percentage + '%';
+                                    },
+                                    display: (context) => {
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = (context.dataset.data[context.dataIndex] / total) * 100;
+                                        return percentage >= 5;
+                                    }
+                                },
+                                legend: {
+                                    position: 'right',
+                                    labels: {
+                                        font: { 
+                                            size: 11,
+                                            weight: '500'
+                                        },
+                                        padding: 10,
+                                        boxWidth: 15,
+                                        boxHeight: 15,
+                                        usePointStyle: true,
+                                        pointStyle: 'circle',
+                                        generateLabels: function(chart) {
+                                            const data = chart.data;
+                                            return data.labels.map((label, i) => ({
+                                                text: `${label}: ${data.datasets[0].data[i]}`,
+                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                hidden: false,
+                                                index: i
+                                            }));
+                                        }
+                                    }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                    padding: 12,
+                                    cornerRadius: 8,
+                                    titleFont: {
+                                        size: 13,
+                                        weight: 'bold'
+                                    },
+                                    bodyFont: {
+                                        size: 12
+                                    },
+                                    callbacks: {
+                                        label: function(context) {
+                                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                            const value = context.parsed;
+                                            const percentage = ((value / total) * 100).toFixed(1);
+                                            return `${context.label}: ${value} (${percentage}%)`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    chartRefs.current['ncrPie'] = chartInstanceRef.current;
+                }
+
+                return () => {
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                    }
+                };
+            }, [categories]);
+
+            return (
+                <div className="space-y-4">
+                    {/* Statistics Cards */}
+                    <div className="grid grid-cols-5 gap-3 ncr-stats-grid">
+                        {/* Total NCR */}
+                        <div className="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg p-4 shadow-md">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold opacity-90">Total NCR</span>
+                                <IconComp name="BarChart" size={16} className="opacity-75" />
+                            </div>
+                            <div className="text-3xl font-bold">{totalNCR}</div>
+                            <div className="text-xs opacity-75 mt-1">All Issues</div>
+                        </div>
+
+                        {/* Closed NCR */}
+                        <div className="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg p-4 shadow-md">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold opacity-90">Closed</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-75">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                            </div>
+                            <div className="text-3xl font-bold">{closedNCR}</div>
+                            <div className="text-xs opacity-75 mt-1">Resolved</div>
+                        </div>
+
+                        {/* Open NCR */}
+                        <div className="bg-gradient-to-br from-red-500 to-red-600 text-white rounded-lg p-4 shadow-md">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold opacity-90">Open</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-75">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                            </div>
+                            <div className="text-3xl font-bold">{openNCR}</div>
+                            <div className="text-xs opacity-75 mt-1">Pending</div>
+                        </div>
+
+                        {/* Closure Rate */}
+                        <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-4 shadow-md">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold opacity-90">Closure Rate</span>
+                                <IconComp name="TrendingUp" size={16} className="opacity-75" />
+                            </div>
+                            <div className="text-3xl font-bold">{closureRate}%</div>
+                            <div className="text-xs opacity-75 mt-1">Performance</div>
+                        </div>
+
+                        {/* Weekly New */}
+                        <div className="bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg p-4 shadow-md">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold opacity-90">Weekly New</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-75">
+                                    <path d="M12 5v14M5 12h14"></path>
+                                </svg>
+                            </div>
+                            <div className="text-3xl font-bold">{weeklyNew || 0}</div>
+                            <div className="text-xs opacity-75 mt-1">This Week</div>
+                        </div>
+                    </div>
+
+                    {/* Pie Chart Section */}
+                    {categories.length > 0 && (
+                        <div className="bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 rounded-xl p-6 ncr-chart-container shadow-lg">
+                            <h4 className="text-sm font-bold text-gray-700 mb-4 flex items-center">
+                                <IconComp name="PieChart" size={14} className="mr-2 text-purple-600" />
+                                NCR Category Distribution
+                            </h4>
+                            <div style={{height: '250px', maxWidth: '600px', margin: '0 auto', position: 'relative'}}>
+                                <canvas ref={canvasRef} style={{filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1))'}}></canvas>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // KPI Dashboard Component
+        const KPIDashboard = ({ reportData, setReportData, isEditing }) => {
+            const { paul, raymond, sean, jacquline, notes } = reportData.kpiDashboard || {};
+
+            const toggleKPI = (person, itemIndex) => {
+                if (!isEditing) return;
+                
+                setReportData(prev => ({
+                    ...prev,
+                    kpiDashboard: {
+                        ...prev.kpiDashboard,
+                        [person]: {
+                            ...prev.kpiDashboard[person],
+                            items: prev.kpiDashboard[person].items.map((item, i) =>
+                                i === itemIndex ? { ...item, completed: !item.completed } : item
+                            )
+                        }
+                    }
+                }));
+            };
+
+            const updateKPITask = (person, itemIndex, field, value) => {
+                setReportData(prev => ({
+                    ...prev,
+                    kpiDashboard: {
+                        ...prev.kpiDashboard,
+                        [person]: {
+                            ...prev.kpiDashboard[person],
+                            items: prev.kpiDashboard[person].items.map((item, i) =>
+                                i === itemIndex ? { ...item, [field]: value } : item
+                            )
+                        }
+                    }
+                }));
+            };
+
+            const addKPITask = (person) => {
+                setReportData(prev => ({
+                    ...prev,
+                    kpiDashboard: {
+                        ...prev.kpiDashboard,
+                        [person]: {
+                            ...prev.kpiDashboard[person],
+                            items: [
+                                ...prev.kpiDashboard[person].items,
+                                { task: "New Task", target: "Monthly", completed: false }
+                            ]
+                        }
+                    }
+                }));
+            };
+
+            const deleteKPITask = (person, itemIndex) => {
+                if (!window.confirm('確定要刪除這個任務嗎？')) return;
+                
+                setReportData(prev => ({
+                    ...prev,
+                    kpiDashboard: {
+                        ...prev.kpiDashboard,
+                        [person]: {
+                            ...prev.kpiDashboard[person],
+                            items: prev.kpiDashboard[person].items.filter((_, i) => i !== itemIndex)
+                        }
+                    }
+                }));
+            };
+
+            const updateNotes = (value) => {
+                setReportData(prev => ({
+                    ...prev,
+                    kpiDashboard: {
+                        ...prev.kpiDashboard,
+                        notes: value
+                    }
+                }));
+            };
+
+            const calculateCompletion = (items) => {
+                if (!items || items.length === 0) return 0;
+                const completed = items.filter(item => item.completed).length;
+                return Math.round((completed / items.length) * 100);
+            };
+
+            const resetAllKPI = () => {
+                if (!window.confirm('確定要重置所有KPI狀態嗎？')) return;
+                
+                setReportData(prev => ({
+                    ...prev,
+                    kpiDashboard: {
+                        ...prev.kpiDashboard,
+                        paul: {
+                            ...prev.kpiDashboard.paul,
+                            items: prev.kpiDashboard.paul.items.map(item => ({ ...item, completed: false }))
+                        },
+                        raymond: {
+                            ...prev.kpiDashboard.raymond,
+                            items: prev.kpiDashboard.raymond.items.map(item => ({ ...item, completed: false }))
+                        },
+                        sean: {
+                            ...prev.kpiDashboard.sean,
+                            items: prev.kpiDashboard.sean.items.map(item => ({ ...item, completed: false }))
+                        },
+                        jacquline: {
+                            ...prev.kpiDashboard.jacquline,
+                            items: prev.kpiDashboard.jacquline.items.map(item => ({ ...item, completed: false }))
+                        }
+                    }
+                }));
+            };
+
+            const renderPersonCard = (personKey, personData) => {
+                if (!personData) return null;
+                
+                const completionRate = calculateCompletion(personData.items);
+                const completedCount = personData.items.filter(item => item.completed).length;
+                const totalCount = personData.items.length;
+
+                return (
+                    <div 
+                        key={personKey}
+                        className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 kpi-person-card"
+                    >
+                        {/* Header with gradient */}
+                        <div 
+                            className="p-4 text-white relative overflow-hidden kpi-header"
+                            style={{ 
+                                background: `linear-gradient(135deg, ${personData.color} 0%, ${personData.color}dd 100%)`
+                            }}
+                        >
+                            <div className="relative z-10">
+                                <h4 className="text-xl font-bold">{personData.name}</h4>
+                                <p className="text-sm opacity-90 mt-1">{personData.role}</p>
+                            </div>
+                            {/* Decorative circle */}
+                            <div 
+                                className="absolute -right-8 -top-8 w-32 h-32 rounded-full opacity-10"
+                                style={{ backgroundColor: '#ffffff' }}
+                            ></div>
+                        </div>
+
+                        {/* Stats Bar */}
+                        <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 kpi-stats">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-semibold text-gray-600">Completion Rate</span>
+                                <span className="text-xs font-bold" style={{ color: personData.color }}>
+                                    {completedCount}/{totalCount} Tasks
+                                </span>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden kpi-progress-bar">
+                                <div 
+                                    className="h-full rounded-full transition-all duration-500 ease-out flex items-center justify-end pr-2"
+                                    style={{ 
+                                        width: `${completionRate}%`,
+                                        background: `linear-gradient(90deg, ${personData.color}dd 0%, ${personData.color} 100%)`
+                                    }}
+                                >
+                                    {completionRate > 15 && (
+                                        <span className="text-[10px] font-bold text-white kpi-progress-text">{completionRate}%</span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* KPI Items */}
+                        <div className="p-4 space-y-2 max-h-[400px] overflow-y-auto kpi-items">
+                            {personData.items.map((item, index) => (
+                                <div 
+                                    key={index}
+                                    className={`flex items-start gap-3 p-3 rounded-lg border transition-all duration-200 kpi-item ${
+                                        item.completed 
+                                            ? 'bg-green-50 border-green-200' 
+                                            : 'bg-white border-gray-200 hover:border-gray-300'
+                                    }`}
+                                >
+                                    {/* Checkbox */}
+                                    {!isEditing ? (
+                                        <div className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all kpi-checkbox ${
+                                            item.completed 
+                                                ? 'border-green-500 bg-green-500' 
+                                                : 'border-gray-300 bg-white'
+                                        }`}>
+                                            {item.completed && (
+                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div 
+                                            className={`flex-shrink-0 w-5 h-5 rounded border-2 flex items-center justify-center transition-all cursor-pointer kpi-checkbox ${
+                                                item.completed 
+                                                    ? 'border-green-500 bg-green-500' 
+                                                    : 'border-gray-300 bg-white'
+                                            }`}
+                                            onClick={() => toggleKPI(personKey, index)}
+                                        >
+                                            {item.completed && (
+                                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {/* Task Info */}
+                                    <div className="flex-grow min-w-0">
+                                        {isEditing ? (
+                                            <>
+                                                <input
+                                                    type="text"
+                                                    value={item.task}
+                                                    onChange={(e) => updateKPITask(personKey, index, 'task', e.target.value)}
+                                                    className="w-full text-sm font-medium border border-gray-300 rounded px-2 py-1 mb-2"
+                                                    placeholder="Task name"
+                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <select
+                                                        value={item.target}
+                                                        onChange={(e) => updateKPITask(personKey, index, 'target', e.target.value)}
+                                                        className="text-[10px] font-semibold border border-gray-300 rounded px-2 py-1"
+                                                    >
+                                                        <option value="Daily">Daily</option>
+                                                        <option value="Weekly">Weekly</option>
+                                                        <option value="Monthly">Monthly</option>
+                                                        <option value="100% closure">100% closure</option>
+                                                    </select>
+                                                    <button
+                                                        onClick={() => deleteKPITask(personKey, index)}
+                                                        className="text-red-500 hover:text-red-700 text-xs"
+                                                        title="Delete task"
+                                                    >
+                                                        🗑️
+                                                    </button>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <p className={`text-sm font-medium break-words ${
+                                                    item.completed ? 'text-gray-500 line-through' : 'text-gray-800'
+                                                }`}>
+                                                    {item.task}
+                                                </p>
+                                                <span className={`inline-block mt-1 px-2 py-0.5 rounded text-[10px] font-semibold kpi-tag ${
+                                                    item.target.toLowerCase().includes('daily') ? 'bg-red-100 text-red-700' :
+                                                    item.target.toLowerCase().includes('weekly') ? 'bg-yellow-100 text-yellow-700' :
+                                                    item.target.toLowerCase().includes('monthly') ? 'bg-blue-100 text-blue-700' :
+                                                    'bg-purple-100 text-purple-700'
+                                                }`}>
+                                                    {item.target}
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {/* Add Task Button in Edit Mode */}
+                            {isEditing && (
+                                <button
+                                    onClick={() => addKPITask(personKey)}
+                                    className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors text-sm font-medium"
+                                >
+                                    + Add Task
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div>
+                    {/* Edit Mode Info Banner */}
+                    {isEditing && (
+                        <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg no-print flex items-center justify-between">
+                            <p className="text-sm text-blue-800 flex items-center">
+                                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                </svg>
+                                <strong className="mr-1">編輯模式：</strong>可編輯任務名稱、頻率，點擊勾選框完成任務
+                            </p>
+                            <button
+                                onClick={resetAllKPI}
+                                className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-xs font-semibold rounded transition-colors flex items-center gap-1"
+                            >
+                                <IconComp name="RotateCcw" size={12} />
+                                重置所有KPI
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Grid Layout - 4 columns for desktop, responsive for smaller screens */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 kpi-grid">
+                        {renderPersonCard('paul', paul)}
+                        {renderPersonCard('raymond', raymond)}
+                        {renderPersonCard('sean', sean)}
+                        {renderPersonCard('jacquline', jacquline)}
+                    </div>
+
+                    {/* Notes Section */}
+                    <div className="mt-6 bg-white border-2 border-gray-200 rounded-xl p-4 shadow-lg">
+                        <h4 className="text-sm font-bold text-gray-700 mb-3 flex items-center">
+                            <span className="mr-2">📝</span> Notes / Remarks
+                        </h4>
+                        {isEditing ? (
+                            <textarea
+                                value={notes || ''}
+                                onChange={(e) => updateNotes(e.target.value)}
+                                className="w-full border border-gray-300 rounded-lg p-3 text-sm resize-vertical min-h-[100px]"
+                                placeholder="Add any notes or remarks about KPI Dashboard here..."
+                            />
+                        ) : (
+                            <div className="text-sm text-gray-700 whitespace-pre-wrap">
+                                {notes || <span className="text-gray-400 italic">No notes added</span>}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Global error handler
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            alert('發生錯誤：' + event.error.message + '\n\n請重新整理頁面。如果問題持續，請清除瀏覽器快取。');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            alert('發生錯誤：' + event.reason + '\n\n請重新整理頁面。');
+        });
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <ErrorBoundary>
+                <WeeklyReport />
+            </ErrorBoundary>
+        );
+    </script>
+
+</body>
+</html>
