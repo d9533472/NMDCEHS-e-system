@@ -128,6 +128,11 @@
       "title": "追蹤事項 Tracker"
     },
     {
+      "key": "documents",
+      "icon": "📑",
+      "title": "紙本文件紀錄 Document Records"
+    },
+    {
       "key": "links",
       "icon": "🔗",
       "title": "系統連結 System Links"
@@ -137,5 +142,125 @@
       "icon": "📅",
       "title": "班表 Schedule"
     }
-  ]
+  ],
+  "documents": [
+    {
+      "id": "mn045s8eocbui",
+      "name": "主管機關核備公函",
+      "tc": "O",
+      "ts": "O",
+      "person": "Paul",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8e12m5t",
+      "name": "環境保護自主檢查表",
+      "tc": "O",
+      "ts": "O",
+      "person": "Paul",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8equ9la",
+      "name": "灑水紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Raymond",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8es9kdw",
+      "name": "洗車台/沉砂池清理紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Raymond",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8ehh9ux",
+      "name": "洗車設備作業紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Raymond",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8ebfcqk",
+      "name": "噪音檢測紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Sean",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8eofv7v",
+      "name": "水質檢驗紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Sean",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8e4vpfs",
+      "name": "流動廁所清潔維護紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Jacqueline",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8efjd0u",
+      "name": "廢棄物合約及處理紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Jacqueline",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8e8swde",
+      "name": "逕流廢水自主檢查表",
+      "tc": "O",
+      "ts": "O",
+      "person": "Sean",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8esdskl",
+      "name": "施工機具管理標章",
+      "tc": "O",
+      "ts": "O",
+      "person": "Paul",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8e7agys",
+      "name": "化學穩定劑噴灑紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Raymond",
+      "complete": "yes",
+      "note": ""
+    },
+    {
+      "id": "mn045s8eqmoc5",
+      "name": "油品購買紀錄",
+      "tc": "O",
+      "ts": "O",
+      "person": "Jacqueline",
+      "complete": "yes",
+      "note": ""
+    }
+  ],
+  "docLastUpdated": "2026-03-21"
 }
