@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMDC ENERGY - Environmental Inspection MFY | 環境檢查清單</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, 'Microsoft JhengHei', sans-serif;
+            background: #f5f5f5;
+            padding: 10px;
+        }
+
+        .page-container {
+            background: white;
+            margin: 0 auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        /* A3 Landscape dimensions */
+        .page {
+            width: 420mm;
+            min-height: 297mm;
+            max-height: 297mm;
+            padding: 3mm;
+            background: white;
+            page-break-after: always;
+            overflow: hidden;
+        }
+
+        .page:last-child {
+            page-break-after: avoid;
+        }
+
+        .header-container {
+            border: 3px solid #000;
+            margin-bottom: 1mm;
+        }
+
+        .header-top {
+            display: grid;
+            grid-template-columns: 60mm 1fr 130mm;
+            border-bottom: 2px solid #000;
+        }
+
+        .logo-section {
+            border-right: 2px solid #000;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #006633;
+            line-height: 1.2;
+        }
+
+        .team-members {
+            border-right: 2px solid #000;
+            padding: 3px 6px;
+        }
+
+        .team-members-label {
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 9px;
+        }
+
+        .title-section {
+            text-align: center;
+            padding: 4px;
+        }
+
+        .main-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .sub-title {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .sub-title-zh {
+            font-size: 13px;
+            color: #333;
+            margin-top: 1px;
+        }
+
+        .header-bottom {
+            display: grid;
+            grid-template-columns: 80mm 1fr 70mm 70mm 50mm;
+        }
+
+        .header-field {
+            border-right: 2px solid #000;
+            padding: 2px 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .header-field:last-child {
+            border-right: none;
+        }
+
+        .field-label {
+            font-weight: bold;
+            font-size: 9px;
+            white-space: nowrap;
+        }
+
+        .field-label-zh {
+            font-size: 8px;
+            color: #666;
+        }
+
+        .field-input {
+            border: none;
+            border-bottom: 1px solid #000;
+            font-size: 9px;
+            padding: 1px 3px;
+            flex: 1;
+        }
+
+        .doc-info {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            padding: 2px 6px;
+            font-size: 9px;
+            border-right: 2px solid #000;
+        }
+
+        .doc-number {
+            font-style: italic;
+        }
+
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+            border: 2px solid #000;
+        }
+
+        .checklist-column {
+            border-right: 2px solid #000;
+            border-bottom: 2px solid #000;
+        }
+
+        .checklist-column:nth-child(4n) {
+            border-right: none;
+        }
+
+        .checklist-column:nth-child(n+13) {
+            border-bottom: none;
+        }
+
+        .category-header {
+            background: #f0f0f0;
+            font-weight: bold;
+            font-size: 9px;
+            padding: 4px 6px;
+            border-bottom: 2px solid #000;
+            text-align: left;
+            line-height: 1.3;
+        }
+
+        .category-header-zh {
+            font-size: 8.5px;
+            color: #444;
+            font-weight: normal;
+        }
+
+        .checkbox-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .checkbox-table tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .checkbox-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .checkbox-table td {
+            padding: 2.5px 5px;
+            font-size: 8px;
+            vertical-align: middle;
+            line-height: 1.3;
+        }
+
+        .item-label {
+            width: 100%;
+        }
+
+        .item-zh {
+            color: #666;
+            font-size: 7.5px;
+            display: block;
+            margin-top: 1px;
+        }
+
+        .checkbox-cell {
+            text-align: center;
+            width: 22px;
+            border-left: 1px solid #ddd;
+        }
+
+        .checkbox-input {
+            width: 11px;
+            height: 11px;
+            cursor: pointer;
+            margin: 0;
+        }
+
+        .checkbox-header {
+            font-weight: bold;
+            text-align: center;
+            background: #f9f9f9;
+            border-bottom: 1px solid #999;
+            font-size: 7.5px;
+        }
+
+        /* Page 2 styles */
+        .observations-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+            margin-bottom: 2mm;
+        }
+
+        .observations-table th {
+            background: #f0f0f0;
+            font-weight: bold;
+            font-size: 10px;
+            padding: 5px 4px;
+            border: 1px solid #000;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        .observations-table td {
+            border: 1px solid #000;
+            padding: 3px 4px;
+            font-size: 9px;
+            vertical-align: top;
+        }
+
+        .observations-table input,
+        .observations-table textarea,
+        .observations-table select {
+            width: 100%;
+            border: none;
+            font-size: 9px;
+            padding: 2px;
+            font-family: Arial, 'Microsoft JhengHei', sans-serif;
+        }
+
+        .observations-table textarea {
+            min-height: 40px;
+            resize: vertical;
+        }
+
+        .sn-col { width: 25px; text-align: center; }
+        .photo-col { width: 80px; text-align: center; }
+        .obs-col { width: 22%; }
+        .rec-col { width: 22%; }
+        .action-col { width: 10%; }
+        .date-col { width: 8%; }
+        .status-col { width: 8%; }
+        .closeout-col { width: 8%; }
+
+        .photo-upload {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .photo-preview {
+            width: 70px;
+            height: 50px;
+            border: 1px dashed #999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            color: transparent;
+            overflow: hidden;
+            background: #f9f9f9;
+        }
+
+        .photo-preview.has-image {
+            border: 1px solid #999;
+        }
+
+        .photo-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .photo-upload input[type="file"] {
+            display: none;
+        }
+
+        .photo-upload-btn {
+            font-size: 7px;
+            padding: 2px 6px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .photo-upload-btn:hover {
+            background: #5568d3;
+        }
+
+        .signature-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border: 2px solid #000;
+        }
+
+        .signature-box {
+            border-right: 2px solid #000;
+            padding: 8px;
+        }
+
+        .signature-box:last-child {
+            border-right: none;
+        }
+
+        .signature-label {
+            font-weight: bold;
+            font-size: 10px;
+            margin-bottom: 3px;
+        }
+
+        .signature-label-zh {
+            font-size: 9px;
+            color: #666;
+            display: block;
+        }
+
+        .signature-name-input {
+            border: none;
+            border-bottom: 1px solid #000;
+            width: 100%;
+            font-size: 10px;
+            padding: 3px;
+            margin-bottom: 6px;
+            font-family: Arial, 'Microsoft JhengHei', sans-serif;
+        }
+
+        .signature-field {
+            margin-top: 4px;
+        }
+
+        .signature-input {
+            border: none;
+            border-bottom: 1px solid #000;
+            width: 100%;
+            font-size: 10px;
+            padding: 3px;
+            font-family: Arial, 'Microsoft JhengHei', sans-serif;
+        }
+
+        .distribution-textarea {
+            width: 100%;
+            height: 75px;
+            border: none;
+            border-bottom: 1px solid #000;
+            font-size: 9px;
+            padding: 3px;
+            resize: none;
+            font-family: Arial, 'Microsoft JhengHei', sans-serif;
+        }
+
+        .action-buttons {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .action-buttons button {
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+
+        .download-pdf {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .download-pdf:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .print-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(72, 187, 120, 0.4);
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #fc8181 0%, #f56565 100%);
+            color: white;
+        }
+
+        .reset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(245, 101, 101, 0.4);
+        }
+
+        @media print {
+            @page {
+                size: A3 landscape;
+                margin: 3mm;
+            }
+            
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .page-container {
+                box-shadow: none;
+                margin: 0;
+            }
+            
+            .page {
+                width: 420mm;
+                margin: 0;
+                padding: 3mm;
+                box-shadow: none;
+                page-break-after: always;
+                max-height: none;
+                min-height: auto;
+            }
+            
+            .page:last-child {
+                page-break-after: avoid;
+            }
+            
+            /* Ensure header repeats on each page */
+            .header-container {
+                page-break-inside: avoid;
+                margin-bottom: 1mm;
+            }
+            
+            .action-buttons {
+                display: none !important;
+            }
+            
+            button {
+                display: none !important;
+            }
+            
+            /* Hide rows without photos or observations */
+            .observations-table tbody tr.empty-row {
+                display: none;
+            }
+            
+            /* Hide HSE select and show text */
+            #hse-name {
+                display: none !important;
+            }
+            #hse-name-print {
+                display: block !important;
+            }
+            
+            /* Remove extra spacing */
+            .checklist-grid {
+                margin-bottom: 0;
+            }
+            
+            .observations-table {
+                margin-bottom: 1mm;
+            }
+            
+            .signature-section {
+                margin: 0;
+            }
+        }
+
+        @media screen and (max-width: 1400px) {
+            .page {
+                transform: scale(0.75);
+                transform-origin: top center;
+                margin-bottom: -75mm;
+            }
+        }
+
+        @media screen and (max-width: 1100px) {
+            .page {
+                transform: scale(0.55);
+                transform-origin: top center;
+                margin-bottom: -135mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container" id="content">
+        <!-- PAGE 1 -->
+        <div class="page">
+            <div class="header-container">
+                <div class="header-top">
+                    <div class="logo-section">
+                        <img src="data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAbAE4DASIAAhEBAxEB/8QAGgAAAQUBAAAAAAAAAAAAAAAABwADBQYIBP/EADAQAAEDAwQBAwQABQUAAAAAAAECAwQFBhEABxIhMQgTQRQVUWEiIzJCcVKBgpGh/8QAGQEAAwEBAQAAAAAAAAAAAAAAAQIDAAQF/8QAIREAAgIBBAIDAAAAAAAAAAAAAQIAAxEEEiExQVEicdH/2gAMAwEAAhEDEQA/ANBDeS1Yu6tQ28rb32qoMFv6V99QDMnmkK4hX9qu8YPn4Pxok6wV6jqG7c/qqlW5HfaYfqT8SK244CUoUtCQCcd4zonbB3huhZG5dP2jv+E7Kiyg4IMp9ZUpCUIKgW3PDiOsYPaf/NXaobQRILcdxBhd203mtS9K/ULa977bXoMl1gw31j+eEKI5tK8K8Zx5H4+dErWet9vThAuaW9dNiPpotx8y+toLKGZLnnkCO23M/wBw6Pz+dU6wt8NzqM3OsK7aGt65YaEpjypCD7xBOBySBh0/hQ8/OdI4ULvHiSv1Q01Ze7oeppK/L1oVm00yqrJBeUklmM3266f0Pgfs9apm9e7cjb7biiXbGorc5VTeabMdx4p9sLaK/IHeMY1mL1DSLxtdcCRX3D91rcZ2QVvL5OMoSQMEeAe+gPGiL6rFqX6YNv3HFlSlKglSieyTEV3paUZiGYcGcWj1eqvL2WLsXHxHn7P5HqX6tpjX08u4Nu5rFLfICZUZ4kYz5TySAr/GRrQdPv21Zu3wvxmqtCgfTmQqSsY4JHRSoeQoEY4+c9ayo/utYbXpHj2E7KM64HKf9MiIlgn2HSskLKiMDjnPXeehqbom215Pei2dR0xJKKnJnfdWYBSQ6pgKQfb4/lQSVY/f51dq19Y5noJY3vPEmXfVDXq3U5SbC2yqVap0UkuPq5lZT/qKUJIR18EnRl2Wv9zca0fvzlt1GhEOlr25WCHCPKkHolOeuwO/zoA+lzezb+y9tzbFyuOUeow5Drji/p1KEnkc56GeY/pIP4GtD7U7h21uRbzlZtp10stPqZeaeb4ONLBz2P2MH/fS2rjgLGqbdyWnbMsWzplyouWVbVMerLbiHETlsAvJUn+khXnIwMam5MOJJejvyIrLrsZZWwtaAVNKIwSk/BwSOtP6Wo5MtgRa5H6XTX6mxU3oEVycwkoZkKaSXG0nyArGQNdeloTEA9yv3XZNo3W+y/cluU2rOsIKGlymEuFCSckDPgHTlbtC163RYlFq9Bp86mw+P00V5kKba4p4p4g+MDrU5paOTNgQOB/Z60K1WlxLEiRpVBWymRJj0tpSklwpA4d8+uQJOB0D51Zk7sWst8NsInvtmnyKj7zbaOHss8+RGVAkn21YAB+M41Z1W3QVVGRUVUqMqVJKFPOFGS4UkFJP5IIH/WmG7OtZstluhQUe2wuOgJaAAbXy5owOsHkrr9nTZB7igEdQZS5mzV5TKZVJ9kRpkmpqB+ofhMoKMu+0guL5gK5L/hHErzohbdVK35tMkRLborlJh098xlsmGI6Eup6WgJHyk9E+PwTrudtO2nXYrq6JBK4jpdjn2h/LUVc8j/kOX+e/OpSLFjRQ6IzKGvdcU65xGOS1eVH9nQLAiELgz//Z" alt="NMDC ENERGY" style="max-width: 100%; max-height: 40px; object-fit: contain;">
+                    </div>
+                    <div class="team-members">
+                        <div class="team-members-label">TEAM MEMBERS: / 團隊成員:</div>
+                        <input type="text" class="field-input" id="team-members" style="margin-top: 3px; width: 100%;">
+                    </div>
+                    <div class="title-section">
+                        <div class="main-title">NMDC ENERGY</div>
+                        <div class="sub-title">ENVIRONMENTAL INSPECTION - MFY</div>
+                        <div class="sub-title-zh">環境檢查清單 - MFY</div>
+                    </div>
+                </div>
+                <div class="header-bottom">
+                    <div class="doc-info">
+                        <span class="doc-number">DOCUMENT NO: HSE-106-IC-13</span>
+                        <span class="doc-number">REV. 01</span>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">PROJECT</span>
+                            <span class="field-label-zh">專案</span>
+                        </div>
+                        <div style="flex: 1; font-size: 7px; line-height: 1.2; padding: 2px;">
+                            TAIWAN POWER COMPANY TUNG-HSIAO POWER PLANT 2ND STAGE RENEWAL PROJECT TURN-KEY CONTRACT OF SUBSEA GAS PIPELINE
+                        </div>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">LOCATION</span>
+                            <span class="field-label-zh">地點</span>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                            <select class="field-input" id="location-select" onchange="handleLocationChange()" style="border: none; border-bottom: 1px solid #000;">
+                                <option value="">Select / 選擇</option>
+                                <option value="Taichung">Taichung / 台中</option>
+                                <option value="TungHsiao">TungHsiao / 通霄</option>
+                                <option value="Other">Other / 其他</option>
+                            </select>
+                            <input type="text" class="field-input" id="location-other" placeholder="Please specify / 請註明" style="display: none; border: none; border-bottom: 1px solid #000; font-size: 8px;">
+                        </div>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">DATE</span>
+                            <span class="field-label-zh">日期</span>
+                        </div>
+                        <input type="date" class="field-input" id="date">
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">TIME</span>
+                            <span class="field-label-zh">時間</span>
+                        </div>
+                        <input type="time" class="field-input" id="time">
+                    </div>
+                </div>
+            </div>
+
+            <div class="checklist-grid">
+                <!-- Column 1: OIL/CHEMICAL STORAGE -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            1. OIL/ CHEMICAL STORAGE<br>
+                            <span class="category-header-zh">油品/化學品儲存</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(1, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(1, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. SDS availability<span class="item-zh">安全資料表可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. SDS compliance<span class="item-zh">安全資料表符合性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Awareness / training<span class="item-zh">認知/訓練</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. P.P.E availability<span class="item-zh">個人防護具可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Labeling<span class="item-zh">標示</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Storage requirements<span class="item-zh">儲存要求</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1f-no"></td>
+                        </tr>
+                        <tr>
+                            <td>g. Storage compatibility<span class="item-zh">儲存相容性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1g-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1g-no"></td>
+                        </tr>
+                        <tr>
+                            <td>h. Spillage control<span class="item-zh">洩漏控制</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1h-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1h-no"></td>
+                        </tr>
+                        <tr>
+                            <td>i. Unattended drums / cans<span class="item-zh">無人看管桶罐</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1i-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1i-no"></td>
+                        </tr>
+                        <tr>
+                            <td>j. HazMat inventory<span class="item-zh">危險物品清冊</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1j-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1j-no"></td>
+                        </tr>
+                        <tr>
+                            <td>k. Eyewash station<span class="item-zh">洗眼站</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1k-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1k-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 2: PAINT STORAGE -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            2. PAINT STORAGE<br>
+                            <span class="category-header-zh">油漆儲存</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(2, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(2, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. SDS availability<span class="item-zh">安全資料表可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. SDS compliance<span class="item-zh">安全資料表符合性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Awareness / Training<span class="item-zh">認知/訓練</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Labeling<span class="item-zh">標示</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Unattended drums / cans<span class="item-zh">無人看管桶罐</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Storage compatibility<span class="item-zh">儲存相容性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2f-no"></td>
+                        </tr>
+                        <tr>
+                            <td>g. Spillage control<span class="item-zh">洩漏控制</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2g-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2g-no"></td>
+                        </tr>
+                        <tr>
+                            <td>h. P.P.E availability<span class="item-zh">個人防護具可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2h-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2h-no"></td>
+                        </tr>
+                        <tr>
+                            <td>i. Ventilation<span class="item-zh">通風</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2i-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2i-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 3: WASTE MANAGEMENT -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            3. WASTE MANAGEMENT<br>
+                            <span class="category-header-zh">廢棄物管理</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(3, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(3, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Availability of skips<span class="item-zh">垃圾桶可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Waste segregation<span class="item-zh">廢棄物分類</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Color codes and labeling<span class="item-zh">色碼與標示</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Skips overflowing<span class="item-zh">垃圾桶溢出</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Paint tins disposal<span class="item-zh">油漆罐處置</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Posters and signages<span class="item-zh">海報與標示牌</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3f-no"></td>
+                        </tr>
+                        <tr>
+                            <td>g. Delay Collection<span class="item-zh">延遲收集</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3g-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3g-no"></td>
+                        </tr>
+                        <tr>
+                            <td>h. Storage/disposal of Haz. waste<span class="item-zh">有害廢棄物儲存/處置</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3h-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3h-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 4: GAS CYLINDER STORAGE -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            4. GAS CYLINDER STORAGE<br>
+                            <span class="category-header-zh">氣瓶儲存</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(4, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(4, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Cylinder condition<span class="item-zh">氣瓶狀況</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Labels /soap water<span class="item-zh">標籤/肥皂水</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Separation<span class="item-zh">分隔</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Area allocation<span class="item-zh">區域配置</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Protection from direct sunlight<span class="item-zh">避免陽光直射</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Cap/ gauge availability<span class="item-zh">蓋子/壓力表可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4f-no"></td>
+                        </tr>
+                        <tr>
+                            <td>g. HazMat signages<span class="item-zh">危險物標示</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4g-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4g-no"></td>
+                        </tr>
+                        <tr>
+                            <td>h. Storage compatibility<span class="item-zh">儲存相容性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4h-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4h-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Row 2 -->
+                <!-- Column 5: SOIL CONTAMINATION -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            5. SOIL CONTAMINATION<br>
+                            <span class="category-header-zh">土壤污染</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(5, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(5, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. HazMat secondary containment<span class="item-zh">危險物二次圍堵</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Chemical spillage/leaks<span class="item-zh">化學品洩漏</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Contaminated soil removed<span class="item-zh">污染土壤移除</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Machinery inspection<span class="item-zh">機具檢查</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Impervious maintenance area<span class="item-zh">不透水維修區</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Equipment washing area<span class="item-zh">設備清洗區</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5f-no"></td>
+                        </tr>
+                        <tr>
+                            <td>g. Recovery of oily water<span class="item-zh">含油廢水回收</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5g-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5g-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 6: SPILL CONTROL -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            6. SPILL CONTROL<br>
+                            <span class="category-header-zh">洩漏控制</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(6, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(6, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Spill kits availability<span class="item-zh">洩漏處理包可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Neutralizing agent availability<span class="item-zh">中和劑可用性</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Salvage drums<span class="item-zh">搶救桶</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Oil / chemical spill patches<span class="item-zh">油品/化學品洩漏痕跡</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Awareness/Training<span class="item-zh">認知/訓練</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Emergency contacts<span class="item-zh">緊急聯絡人</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6f-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 7: BLASTING -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            7. BLASTING<br>
+                            <span class="category-header-zh">噴砂作業</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(7, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(7, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Respiratory protection<span class="item-zh">呼吸防護</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Hearing protection<span class="item-zh">聽力防護</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Area enclosure<span class="item-zh">區域圍封</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Storage blasting materials<span class="item-zh">噴砂材料儲存</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7d-no"></td>
+                        </tr>
+                        <tr>
+                            <td>e. Breathing air filter<span class="item-zh">呼吸空氣過濾器</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7e-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7e-no"></td>
+                        </tr>
+                        <tr>
+                            <td>f. Pressure hoses<span class="item-zh">壓力軟管</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7f-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7f-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 8: WATER POLLUTION -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            8. WATER POLLUTION<br>
+                            <span class="category-header-zh">水污染</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(8, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(8, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Effluent discharge<span class="item-zh">廢水排放</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Loose materials storage<span class="item-zh">散裝材料儲存</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Storage area – waterways distance<span class="item-zh">儲存區與水道距離</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8c-no"></td>
+                        </tr>
+                        <tr>
+                            <td>d. Hazardous liquid containment<span class="item-zh">危險液體圍堵</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8d-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8d-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Row 3 -->
+                <!-- Column 9: AIR POLLUTION -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            9. AIR POLLUTION<br>
+                            <span class="category-header-zh">空氣污染</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(9, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(9, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Excess smoke from equipment<span class="item-zh">設備排放過多煙霧</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Emission monitoring data<span class="item-zh">排放監測資料</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Dust suppression<span class="item-zh">抑塵措施</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9c-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 10: HOUSEKEEPING -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            10. HOUSEKEEPING<br>
+                            <span class="category-header-zh">現場整潔</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(10, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(10, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Material storage<span class="item-zh">材料儲存</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Area tidiness<span class="item-zh">區域整潔</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Waste materials<span class="item-zh">廢棄材料</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10c-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 11: HYGIENE / WELFARE -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            11. HYGIENE / WELFARE<br>
+                            <span class="category-header-zh">衛生/福利</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(11, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(11, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Drinking water cleanliness<span class="item-zh">飲用水清潔</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Toilet facilities<span class="item-zh">廁所設施</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Rest area<span class="item-zh">休息區</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11c-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 12: NOISE -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            12. NOISE<br>
+                            <span class="category-header-zh">噪音</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(12, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(12, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Noise monitoring<span class="item-zh">噪音監測</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Hearing protection<span class="item-zh">聽力防護</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. Signages<span class="item-zh">標示</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12c-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Row 4 -->
+                <!-- Column 13: P.P.E. -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            13. P.P.E.<br>
+                            <span class="category-header-zh">個人防護具</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(13, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(13, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Eye / Ear protection<span class="item-zh">眼耳防護</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Gloves/ Coveralls / Aprons<span class="item-zh">手套/工作服/圍裙</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13b-no"></td>
+                        </tr>
+                        <tr>
+                            <td>c. RP/ Filter/ Dust mask<span class="item-zh">呼吸器/濾芯/防塵口罩</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13c-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13c-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 14: AWARENESS / NOTICES -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            14. AWARENESS / NOTICES<br>
+                            <span class="category-header-zh">認知/告示</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(14, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(14, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Posters and signages<span class="item-zh">海報與標示牌</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. HIP talks<span class="item-zh">HIP 宣導</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14b-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 15: SUSTAINABILITY -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            15. SUSTAINABILITY<br>
+                            <span class="category-header-zh">永續性</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(15, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(15, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td>a. Water Consumption<span class="item-zh">用水量</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15a-no"></td>
+                        </tr>
+                        <tr>
+                            <td>b. Energy Conservation<span class="item-zh">節能</span></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15b-no"></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Column 16: OTHERS, IF ANY -->
+                <div class="checklist-column">
+                    <div class="category-header" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            16. OTHERS, IF ANY<br>
+                            <span class="category-header-zh">其他事項</span>
+                        </div>
+                        <div style="display: flex; gap: 3px;">
+                            <button onclick="checkSection(16, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
+                            <button onclick="checkSection(16, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                        </div>
+                    </div>
+                    <table class="checkbox-table">
+                        <tr class="checkbox-header">
+                            <td class="item-label">ITEMS / 檢查項目</td>
+                            <td class="checkbox-cell">Yes<br>是</td>
+                            <td class="checkbox-cell">No<br>否</td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" style="width:100%; border:none; font-size:8px; font-family: Arial, 'Microsoft JhengHei', sans-serif;" placeholder="Specify item / 請註明項目..."></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16a-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16a-no"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" style="width:100%; border:none; font-size:8px; font-family: Arial, 'Microsoft JhengHei', sans-serif;" placeholder="Specify item / 請註明項目..."></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16b-yes"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16b-no"></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 2 -->
+        <div class="page">
+            <div class="header-container">
+                <div class="header-top">
+                    <div class="logo-section">
+                        <img src="data:image/png;base64,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" alt="NMDC ENERGY" style="max-width: 100%; max-height: 40px; object-fit: contain;">
+                    </div>
+                    <div class="team-members">
+                        <div class="team-members-label">TEAM MEMBERS: / 團隊成員:</div>
+                        <div style="font-size:9px; margin-top:3px;" id="team-members-display"></div>
+                    </div>
+                    <div class="title-section">
+                        <div class="main-title">NMDC ENERGY</div>
+                        <div class="sub-title">ENVIRONMENTAL INSPECTION - MFY</div>
+                        <div class="sub-title-zh">環境檢查清單 - MFY</div>
+                    </div>
+                </div>
+                <div class="header-bottom">
+                    <div class="doc-info">
+                        <span class="doc-number">DOCUMENT NO: HSE-106-IC-13</span>
+                        <span class="doc-number">REV. 01</span>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">PROJECT</span>
+                            <span class="field-label-zh">專案</span>
+                        </div>
+                        <div style="flex: 1; font-size: 7px; line-height: 1.2; padding: 2px;">
+                            TAIWAN POWER COMPANY TUNG-HSIAO POWER PLANT 2ND STAGE RENEWAL PROJECT TURN-KEY CONTRACT OF SUBSEA GAS PIPELINE
+                        </div>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">LOCATION</span>
+                            <span class="field-label-zh">地點</span>
+                        </div>
+                        <span id="location-display" style="font-size:9px;"></span>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">DATE</span>
+                            <span class="field-label-zh">日期</span>
+                        </div>
+                        <span id="date-display" style="font-size:9px;"></span>
+                    </div>
+                    <div class="header-field">
+                        <div style="display: flex; flex-direction: column;">
+                            <span class="field-label">TIME</span>
+                            <span class="field-label-zh">時間</span>
+                        </div>
+                        <span id="time-display" style="font-size:9px;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <table class="observations-table">
+                <thead>
+                    <tr>
+                        <th class="sn-col">S/N<br>序號</th>
+                        <th class="photo-col">PHOTO<br>照片</th>
+                        <th class="obs-col">OBSERVATIONS<br>觀察事項</th>
+                        <th class="rec-col">RECOMMENDATIONS<br>建議措施</th>
+                        <th class="action-col">ACTION BY<br>負責人</th>
+                        <th class="date-col">TARGET<br>DATE<br>目標日期</th>
+                        <th class="status-col">STATUS<br>狀態</th>
+                        <th class="closeout-col">CLOSEOUT<br>DATE<br>完成日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="sn-col">1</td>
+                        <td class="photo-col">
+                            <div class="photo-upload">
+                                <div class="photo-preview" id="preview1"></div>
+                                <input type="file" id="photo1" accept="image/*" onchange="handlePhotoUpload(1)">
+                                <button class="photo-upload-btn" onclick="document.getElementById('photo1').click()">Upload / 上傳</button>
+                            </div>
+                        </td>
+                        <td><textarea id="obs1"></textarea></td>
+                        <td><textarea id="rec1"></textarea></td>
+                        <td><input type="text" id="action1"></td>
+                        <td><input type="date" id="target1"></td>
+                        <td>
+                            <select id="status1">
+                                <option value=""></option>
+                                <option value="Open">Open/進行中</option>
+                                <option value="Closed">Closed/已關閉</option>
+                            </select>
+                        </td>
+                        <td><input type="date" id="closeout1"></td>
+                    </tr>
+                    <tr>
+                        <td class="sn-col">2</td>
+                        <td class="photo-col">
+                            <div class="photo-upload">
+                                <div class="photo-preview" id="preview2"></div>
+                                <input type="file" id="photo2" accept="image/*" onchange="handlePhotoUpload(2)">
+                                <button class="photo-upload-btn" onclick="document.getElementById('photo2').click()">Upload / 上傳</button>
+                            </div>
+                        </td>
+                        <td><textarea id="obs2"></textarea></td>
+                        <td><textarea id="rec2"></textarea></td>
+                        <td><input type="text" id="action2"></td>
+                        <td><input type="date" id="target2"></td>
+                        <td>
+                            <select id="status2">
+                                <option value=""></option>
+                                <option value="Open">Open/進行中</option>
+                                <option value="Closed">Closed/已關閉</option>
+                            </select>
+                        </td>
+                        <td><input type="date" id="closeout2"></td>
+                    </tr>
+                    <tr>
+                        <td class="sn-col">3</td>
+                        <td class="photo-col">
+                            <div class="photo-upload">
+                                <div class="photo-preview" id="preview3"></div>
+                                <input type="file" id="photo3" accept="image/*" onchange="handlePhotoUpload(3)">
+                                <button class="photo-upload-btn" onclick="document.getElementById('photo3').click()">Upload / 上傳</button>
+                            </div>
+                        </td>
+                        <td><textarea id="obs3"></textarea></td>
+                        <td><textarea id="rec3"></textarea></td>
+                        <td><input type="text" id="action3"></td>
+                        <td><input type="date" id="target3"></td>
+                        <td>
+                            <select id="status3">
+                                <option value=""></option>
+                                <option value="Open">Open/進行中</option>
+                                <option value="Closed">Closed/已關閉</option>
+                            </select>
+                        </td>
+                        <td><input type="date" id="closeout3"></td>
+                    </tr>
+                    <tr>
+                        <td class="sn-col">4</td>
+                        <td class="photo-col">
+                            <div class="photo-upload">
+                                <div class="photo-preview" id="preview4"></div>
+                                <input type="file" id="photo4" accept="image/*" onchange="handlePhotoUpload(4)">
+                                <button class="photo-upload-btn" onclick="document.getElementById('photo4').click()">Upload / 上傳</button>
+                            </div>
+                        </td>
+                        <td><textarea id="obs4"></textarea></td>
+                        <td><textarea id="rec4"></textarea></td>
+                        <td><input type="text" id="action4"></td>
+                        <td><input type="date" id="target4"></td>
+                        <td>
+                            <select id="status4">
+                                <option value=""></option>
+                                <option value="Open">Open/進行中</option>
+                                <option value="Closed">Closed/已關閉</option>
+                            </select>
+                        </td>
+                        <td><input type="date" id="closeout4"></td>
+                    </tr>
+                    <tr>
+                        <td class="sn-col">5</td>
+                        <td class="photo-col">
+                            <div class="photo-upload">
+                                <div class="photo-preview" id="preview5"></div>
+                                <input type="file" id="photo5" accept="image/*" onchange="handlePhotoUpload(5)">
+                                <button class="photo-upload-btn" onclick="document.getElementById('photo5').click()">Upload / 上傳</button>
+                            </div>
+                        </td>
+                        <td><textarea id="obs5"></textarea></td>
+                        <td><textarea id="rec5"></textarea></td>
+                        <td><input type="text" id="action5"></td>
+                        <td><input type="date" id="target5"></td>
+                        <td>
+                            <select id="status5">
+                                <option value=""></option>
+                                <option value="Open">Open/進行中</option>
+                                <option value="Closed">Closed/已關閉</option>
+                            </select>
+                        </td>
+                        <td><input type="date" id="closeout5"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="signature-section">
+                <div class="signature-box">
+                    <div class="signature-label">
+                        HSE Representative(s):
+                        <span class="signature-label-zh">HSE 代表:</span>
+                    </div>
+                    <select class="signature-name-input" id="hse-name" multiple size="4" style="border: 1px solid #ccc; padding: 3px; font-size: 9px;">
+                        <option value="Paul Tong">Paul Tong</option>
+                        <option value="Raymond Huang">Raymond Huang</option>
+                        <option value="Sean Chu">Sean Chu</option>
+                        <option value="Jacquline Peng">Jacquline Peng</option>
+                    </select>
+                    <div id="hse-name-print" style="display: none; border-bottom: 1px solid #000; padding: 3px; min-height: 20px; font-size: 10px;"></div>
+                    <div style="font-size: 7px; color: #666; margin-top: 2px;">Hold Ctrl/Cmd to select multiple / 按住 Ctrl/Cmd 多選</div>
+                    
+                    <div class="signature-field">
+                        <div class="signature-label">Signature / 簽名:</div>
+                        <input type="text" class="signature-input" id="hse-signature" placeholder="(Please sign / 請簽名)">
+                    </div>
+                </div>
+
+                <div class="signature-box">
+                    <div class="signature-label">
+                        Section Representative(s):
+                        <span class="signature-label-zh">單位代表:</span>
+                    </div>
+                    <input type="text" class="signature-name-input" id="section-name" placeholder="Name / 姓名">
+                    
+                    <div class="signature-field">
+                        <div class="signature-label">Signature / 簽名:</div>
+                        <input type="text" class="signature-input" id="section-signature" placeholder="(Please sign / 請簽名)">
+                    </div>
+                </div>
+
+                <div class="signature-box">
+                    <div class="signature-label">
+                        Distribution:
+                        <span class="signature-label-zh">分發:</span>
+                    </div>
+                    <textarea class="distribution-textarea" id="distribution" placeholder="Enter distribution list / 輸入分發名單"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="print-btn" onclick="window.print()">
+            🖨️ Print / 列印
+        </button>
+        <button class="reset-btn" onclick="resetForm()">
+            🔄 Reset / 重置
+        </button>
+    </div>
+
+    <script>
+        // Check all YES or NO for a specific section
+        function checkSection(sectionNum, type) {
+            const prefix = sectionNum + '';
+            const checkboxes = document.querySelectorAll('.checkbox-input');
+            
+            checkboxes.forEach(checkbox => {
+                const name = checkbox.name;
+                // Check if this checkbox belongs to the current section
+                if (name.startsWith(prefix)) {
+                    if (type === 'yes' && name.includes('-yes')) {
+                        checkbox.checked = true;
+                        // Uncheck corresponding NO checkbox
+                        const noName = name.replace('-yes', '-no');
+                        const noCheckbox = document.querySelector(`input[name="${noName}"]`);
+                        if (noCheckbox) noCheckbox.checked = false;
+                    } else if (type === 'no' && name.includes('-no')) {
+                        checkbox.checked = true;
+                        // Uncheck corresponding YES checkbox
+                        const yesName = name.replace('-no', '-yes');
+                        const yesCheckbox = document.querySelector(`input[name="${yesName}"]`);
+                        if (yesCheckbox) yesCheckbox.checked = false;
+                    }
+                }
+            });
+        }
+
+        // Uncheck all checkboxes
+        function uncheckAll() {
+            const checkboxes = document.querySelectorAll('.checkbox-input');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        }
+
+        // Photo upload handler
+        function handlePhotoUpload(rowNumber) {
+            const input = document.getElementById(`photo${rowNumber}`);
+            const preview = document.getElementById(`preview${rowNumber}`);
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Photo ${rowNumber}">`;
+                    preview.classList.add('has-image');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Handle location selection
+        function handleLocationChange() {
+            const select = document.getElementById('location-select');
+            const otherInput = document.getElementById('location-other');
+            
+            if (select.value === 'Other') {
+                otherInput.style.display = 'block';
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.value = '';
+            }
+        }
+
+        // Get location value (from select or other input)
+        function getLocationValue() {
+            const select = document.getElementById('location-select');
+            const otherInput = document.getElementById('location-other');
+            
+            if (select.value === 'Other' && otherInput.value) {
+                return otherInput.value;
+            }
+            return select.value;
+        }
+
+        // Get HSE names (multiple selection)
+        function getHSENames() {
+            const select = document.getElementById('hse-name');
+            const selected = Array.from(select.selectedOptions).map(opt => opt.value);
+            return selected.join(', ');
+        }
+
+        // Sync header data between pages
+        function syncHeaderData() {
+            document.getElementById('team-members-display').textContent = document.getElementById('team-members').value;
+            document.getElementById('location-display').textContent = getLocationValue();
+            document.getElementById('date-display').textContent = document.getElementById('date').value;
+            document.getElementById('time-display').textContent = document.getElementById('time').value;
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default date and time
+            const now = new Date();
+            document.getElementById('date').valueAsDate = now;
+            document.getElementById('time').value = now.toTimeString().slice(0,5);
+            
+            // Add change listeners for header fields
+            ['team-members', 'date', 'time'].forEach(id => {
+                document.getElementById(id).addEventListener('change', syncHeaderData);
+                document.getElementById(id).addEventListener('input', syncHeaderData);
+            });
+            
+            // Add listeners for location fields
+            document.getElementById('location-select').addEventListener('change', syncHeaderData);
+            document.getElementById('location-other').addEventListener('input', syncHeaderData);
+        });
+        
+        // Prepare data for printing
+        function prepareForPrint() {
+            // Update HSE names for print
+            const hseSelect = document.getElementById('hse-name');
+            const hsePrint = document.getElementById('hse-name-print');
+            const selected = Array.from(hseSelect.selectedOptions).map(opt => opt.value);
+            hsePrint.textContent = selected.join(', ');
+            
+            // Mark empty observation rows
+            const rows = document.querySelectorAll('.observations-table tbody tr');
+            rows.forEach((row, index) => {
+                const rowNum = index + 1;
+                const obs = document.getElementById(`obs${rowNum}`);
+                const photo = document.getElementById(`photo${rowNum}`);
+                const preview = document.getElementById(`preview${rowNum}`);
+                
+                // Check if row is empty (no observation text and no photo)
+                if (obs && photo && preview) {
+                    const hasText = obs.value && obs.value.trim() !== '';
+                    const hasPhoto = photo.files && photo.files.length > 0;
+                    
+                    if (!hasText && !hasPhoto) {
+                        row.classList.add('empty-row');
+                    } else {
+                        row.classList.remove('empty-row');
+                    }
+                }
+            });
+        }
+
+        // Add print event listener
+        window.addEventListener('beforeprint', prepareForPrint);
+        
+        // Reset form function
+        function resetForm() {
+            if (confirm('Are you sure you want to reset all fields? / 確定要重置所有欄位嗎？')) {
+                // Reset text inputs
+                document.querySelectorAll('input[type="text"], input[type="time"], textarea').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Reset date inputs
+                document.querySelectorAll('input[type="date"]').forEach(input => {
+                    input.value = '';
+                });
+                
+                // Reset select inputs
+                document.querySelectorAll('select').forEach(select => {
+                    select.selectedIndex = 0;
+                });
+                
+                // Reset checkboxes - use uncheckAll function
+                uncheckAll();
+                
+                // Reset photos
+                for (let i = 1; i <= 5; i++) {
+                    document.getElementById(`photo${i}`).value = '';
+                    const preview = document.getElementById(`preview${i}`);
+                    preview.innerHTML = '';
+                    preview.classList.remove('has-image');
+                }
+                
+                // Hide location other input
+                document.getElementById('location-other').style.display = 'none';
+                
+                // Reset default date and time
+                const now = new Date();
+                document.getElementById('date').valueAsDate = now;
+                document.getElementById('time').value = now.toTimeString().slice(0,5);
+                
+                syncHeaderData();
+            }
+        }
+    </script>
+</body>
+</html>
