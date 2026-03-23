@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>柴油車自主管理標章系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#0f1419;--bg1:#1a2332;--bg2:#1e2a3a;--bg3:#253347;--bd:#2d3f54;--bdf:#f59e0b;--t1:#e8edf3;--t2:#8899aa;--t3:#5a6e82;--acc:#f59e0b;--acc2:#d97706;--accd:rgba(245,158,11,.1);--ok:#10b981;--okd:rgba(16,185,129,.1);--no:#ef4444;--nod:rgba(239,68,68,.1);--info:#3b82f6;--infod:rgba(59,130,246,.1);--gold:#fbbf24;--silver:#94a3b8;--bronze:#d97706;--r:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg0);color:var(--t1);min-height:100vh}
+.hdr{background:linear-gradient(135deg,#1a2332,#0f1419);border-bottom:2px solid var(--acc);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr h1{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+.hdr .sub{font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-weight:400}
+.hdr-r{display:flex;align-items:center;gap:10px}
+.rc{background:var(--accd);color:var(--acc);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.sync-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans TC',sans-serif;transition:all .2s}
+.sync-online{background:var(--okd);color:var(--ok)}
+.sync-offline{background:var(--nod);color:var(--no)}
+.sync-syncing{background:var(--infod);color:var(--info);animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.tabs{display:flex;background:var(--bg1);border-bottom:1px solid var(--bd);padding:0 12px;overflow-x:auto}
+.tab{background:none;border:none;color:var(--t3);padding:13px 18px;font-size:13px;font-weight:500;cursor:pointer;position:relative;white-space:nowrap;font-family:'Noto Sans TC',sans-serif;transition:color .2s}
+.tab:hover{color:var(--t2)}.tab.on{color:var(--acc)}
+.tab.on::after{content:'';position:absolute;bottom:0;left:6px;right:6px;height:2px;background:var(--acc);border-radius:2px 2px 0 0}
+.wrap{padding:16px;max-width:1400px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.ctit{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--acc);letter-spacing:1px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px}
+.fi .req::after{content:' *';color:var(--no)}
+input,select,textarea{background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:9px 11px;color:var(--t1);font-size:13px;font-family:'Noto Sans TC',sans-serif;transition:border-color .2s;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--bdf)}
+select{cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans TC',sans-serif;transition:all .2s;white-space:nowrap}
+.bp{background:var(--acc);color:#000}.bp:hover{background:var(--acc2)}
+.bs{background:var(--bg3);color:var(--t1);border:1px solid var(--bd)}.bs:hover{border-color:var(--t3)}
+.bd{background:var(--nod);color:var(--no);border:1px solid transparent}.bd:hover{border-color:var(--no)}
+.binfo{background:var(--infod);color:var(--info);border:1px solid transparent}.binfo:hover{border-color:var(--info)}
+.bsm{padding:5px 10px;font-size:11px}
+.upa{border:2px dashed var(--bd);border-radius:var(--r);padding:16px;text-align:center;cursor:pointer;transition:border-color .2s;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.upa:hover{border-color:var(--acc)}
+.upa .ui{font-size:28px;opacity:.5}.upa .ut{font-size:11px;color:var(--t3)}
+.ppc{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.pp{width:110px;height:80px;border-radius:6px;overflow:hidden;position:relative;border:1px solid var(--bd)}
+.pp img{width:100%;height:100%;object-fit:cover}
+.pp .rp{position:absolute;top:3px;right:3px;background:rgba(239,68,68,.9);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+.tc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--bg1)}
+th{padding:10px 12px;text-align:left;font-weight:600;color:var(--t3);font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--bd);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr:hover td{background:rgba(245,158,11,.03)}
+.bt{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.bg{background:rgba(251,191,36,.15);color:var(--gold)}
+.bsi{background:rgba(148,163,184,.15);color:var(--silver)}
+.bbr{background:rgba(217,119,6,.15);color:var(--bronze)}
+.bok{background:var(--okd);color:var(--ok)}
+.bno{background:var(--nod);color:var(--no)}
+.bin{background:var(--infod);color:var(--info)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.sc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center}
+.sc .sn{font-size:28px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
+.sc .sl{font-size:10px;color:var(--t3);margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
+/* Dashboard category cards */
+.dash-cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:16px}
+.dash-cat-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;position:relative;overflow:hidden}
+.dash-cat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dash-cat-card.cat-eq::before{background:linear-gradient(90deg,var(--gold),var(--acc2))}
+.dash-cat-card.cat-tr::before{background:linear-gradient(90deg,var(--ok),var(--info))}
+.dash-cat-card .dcc-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.dash-cat-card.cat-eq .dcc-title{color:var(--gold)}
+.dash-cat-card.cat-tr .dcc-title{color:var(--ok)}
+.dcc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
+.dcc-stat .dcc-num{font-size:26px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
+.dcc-stat .dcc-lbl{font-size:10px;color:var(--t3);margin-top:4px;text-transform:uppercase}
+.dcc-bar{margin-top:14px}
+.dcc-bar-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.dcc-bar-label span:first-child{color:var(--t2)}
+.dcc-bar-label span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700}
+.dt{width:100%;border-collapse:collapse;margin-top:10px}
+.dt th{background:var(--bg1);padding:9px 12px;font-size:11px;text-align:center;color:var(--t3);border-bottom:2px solid var(--bd)}
+.dt td{padding:9px 12px;text-align:center;border-bottom:1px solid var(--bd);font-size:12px}
+.dt tr:last-child{font-weight:700;background:var(--accd)}
+.pb{width:100%;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.pf{height:100%;border-radius:4px;transition:width .5s}
+.tb{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.tb input,.tb select{flex:1;min-width:160px}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center;padding:20px}
+.mo.on{display:flex}
+.md{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;max-width:460px;width:100%}
+.md h3{margin-bottom:10px;font-size:15px}.md p{font-size:13px;color:var(--t2);margin-bottom:18px}
+.ma{display:flex;gap:8px;justify-content:flex-end}
+.pp2{background:#fff;color:#000;padding:24px 28px;margin-bottom:16px;border-radius:var(--r);page-break-after:always;font-size:13px}
+.pp2 h2{font-size:18px;text-align:center;margin-bottom:3px;border-bottom:2.5px solid #000;padding-bottom:7px}
+.pp2 .ps{text-align:center;font-size:11px;color:#666;margin-bottom:14px}
+.pig{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-bottom:16px}
+.pii{display:flex;gap:6px;font-size:13px;padding:4px 0;border-bottom:1px dotted #ccc}
+.pii .pl{font-weight:700;min-width:110px;color:#333}
+.ppg{display:grid;gap:12px}.ppg.cols2{grid-template-columns:1fr 1fr}.ppg.cols3{grid-template-columns:1fr 1fr 1fr}.ppg.cols1{grid-template-columns:1fr}
+.ppb{border:1px solid #bbb;border-radius:6px;overflow:hidden;text-align:center;display:flex;flex-direction:column}
+.ppb .ppb-img-wrap{flex:1;height:260px;display:flex;align-items:center;justify-content:center;background:#f8f8f8}
+.ppb .ppb-img-wrap img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ppb .pbl{font-size:11px;padding:5px;background:#eee;font-weight:600;border-top:1px solid #ccc;flex-shrink:0}
+.tl{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.tg{display:inline-flex;align-items:center;gap:3px;background:var(--accd);color:var(--acc);padding:3px 9px;border-radius:10px;font-size:11px}
+.tg .rt{background:none;border:none;color:var(--acc);cursor:pointer;font-size:13px;padding:0 2px}
+.rg{display:flex;gap:10px;flex-wrap:wrap}
+.ro{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px}
+.ro input[type="radio"]{accent-color:var(--acc);width:15px;height:15px;cursor:pointer}
+.swo{display:flex;gap:6px}.swo select{flex:1}.swo input{flex:1;display:none}.swo input.sh{display:block}
+.es{text-align:center;padding:50px 16px;color:var(--t3)}
+.es .ei{font-size:40px;margin-bottom:10px;opacity:.4}.es p{font-size:13px}
+.toast{position:fixed;top:20px;right:20px;background:var(--ok);color:#fff;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:600;z-index:300;transform:translateX(120%);transition:transform .3s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.show{transform:translateX(0)}.toast.err{background:var(--no)}
+.query-row{display:flex;gap:6px;align-items:center;margin-top:4px}
+.query-hint{font-size:11px;color:var(--t3);margin-top:6px;line-height:1.5}
+.query-hint a{color:var(--info);text-decoration:none}.query-hint a:hover{text-decoration:underline}
+/* Export filter panel */
+.exp-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px}
+.exp-filter-group{display:flex;flex-direction:column;gap:6px}
+.exp-filter-group label.flbl{font-size:12px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:.5px}
+.chk-grid{display:flex;flex-wrap:wrap;gap:6px}
+.chk-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--bd);transition:all .2s;user-select:none}
+.chk-item:hover{border-color:var(--acc)}
+.chk-item input[type="checkbox"]{accent-color:var(--acc);width:14px;height:14px;cursor:pointer}
+.chk-item.checked{background:var(--accd);border-color:var(--acc)}
+.exp-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+.exp-count{font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace}
+.exp-preview-area{}
+/* Setup banner */
+.setup-banner{background:linear-gradient(135deg,#1e3a5f,#1a2332);border:1px solid var(--info);border-radius:var(--r);padding:16px;margin-bottom:16px;font-size:13px;line-height:1.7}
+.setup-banner h3{color:var(--info);margin-bottom:8px;font-size:14px}
+.setup-banner code{background:var(--bg3);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--acc)}
+.setup-banner .gas-input{display:flex;gap:8px;margin-top:8px}
+.setup-banner .gas-input input{flex:1;font-family:'JetBrains Mono',monospace;font-size:12px}
+.loading-overlay{position:fixed;inset:0;background:rgba(15,20,25,.8);z-index:250;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay .spinner{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{font-size:13px;color:var(--t2)}
+@media(max-width:768px){.fg{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}.wrap{padding:10px}.hdr h1{font-size:15px}.tab{padding:11px 12px;font-size:12px}}
+@media print{body{background:#fff!important}.hdr,.tabs,.np{display:none!important}.wrap{padding:0;max-width:100%}.pp2{box-shadow:none;border:none;margin:0;padding:20px;page-break-inside:avoid}.ppb .ppb-img-wrap{height:220px}.card{display:none!important}.exp-preview-area{display:block!important}.exp-preview-area .pp2{display:block!important}}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.fi-anim{animation:fi .3s ease}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>🚛 <div>柴油車自主管理標章系統<div class="sub">Diesel Vehicle Self-Management Badge System</div></div></h1>
+  <div class="hdr-r">
+    <button class="btn bsm binfo" onclick="App.pushToCloud()" title="將所有本地資料同步到 Google Sheets 及 Drive" id="syncBtn">☁️ 儲存紀錄到雲端</button>
+    <button class="sync-badge sync-offline" id="syncBadge" onclick="App.manualSync()" title="從雲端拉取最新資料">⏸ 離線模式</button>
+    <span class="rc" id="rc">0 筆</span>
+  </div>
+</div>
+
+<div class="tabs" id="tabBar"></div>
+<div class="wrap" id="appRoot"></div>
+<div class="toast" id="toast"></div>
+
+<div class="mo" id="dupModal">
+  <div class="md"><h3>⚠️ 發現重複車號</h3><p id="dupMsg"></p>
+    <div class="ma"><button class="btn bs" onclick="App.closeDup()">取消</button><button class="btn bp" onclick="App.loadDup()">叫出該筆資料</button></div>
+  </div>
+</div>
+<div class="mo" id="delModal">
+  <div class="md"><h3>⚠️ 確認刪除</h3><p>確定要刪除這筆資料嗎？此操作無法復原。</p>
+    <div class="ma"><button class="btn bs" onclick="App.closeDel()">取消</button><button class="btn bd" onclick="App.execDel()">確認刪除</button></div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay" style="display:none">
+  <div class="spinner"></div>
+  <p id="loadingMsg">同步中...</p>
+</div>
+
+<script>
+const MOENV_URL = 'https://mobile.moenv.gov.tw/dce/Detect_Search.aspx';
+const GAS_URL_KEY = 'dbs_gas_url';
+const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbzJofN9BEpbIJx7q6FdajSS5L19S66QTWDuy1ubwFSXR4xRxxUYW0U-7zmh7yfYDjDl/exec';
+
+const App = (() => {
+  const SK = 'dbs_records_v3';
+  const CK = 'dbs_contractors_v3';
+  let records = [];
+  let contractors = [];
+  let dupId = null, delId = null, currentTab = 'list', editingId = '';
+  let photoData = { v1:'', v2:'', web:'' };
+  // Photo IDs for cloud (Drive file IDs)
+  let photoIds = { v1:'', v2:'', web:'' };
+  let isCloud = false;
+
+  function getGasUrl() {
+    // Always use DEFAULT unless user explicitly overrides in settings
+    const custom = localStorage.getItem(GAS_URL_KEY);
+    const url = (custom && custom !== 'undefined' && custom.startsWith('https://')) ? custom : DEFAULT_GAS_URL;
+    return url;
+  }
+  function setGasUrl(url) { localStorage.setItem(GAS_URL_KEY, url); }
+
+  // ---- Storage (local fallback) ----
+  function loadLocal() {
+    try { records = JSON.parse(localStorage.getItem(SK)) || []; } catch { records = []; }
+    try { contractors = JSON.parse(localStorage.getItem(CK)) || ['樺棋營造','華電聯工','亞翔工程','台朔環保']; } catch { contractors = ['樺棋營造','華電聯工','亞翔工程','台朔環保']; }
+  }
+  function saveLocal() {
+    try {
+      // Save without photo base64 to save space (photos are on Drive)
+      const lite = records.map(r => {
+        const copy = {...r};
+        // Keep local base64 only if no cloud IDs
+        if (copy.photoVehicle1Id) copy.photoVehicle1 = '';
+        if (copy.photoVehicle2Id) copy.photoVehicle2 = '';
+        if (copy.photoWebsiteId) copy.photoWebsite = '';
+        return copy;
+      });
+      localStorage.setItem(SK, JSON.stringify(lite));
+    } catch { try { localStorage.setItem(SK, JSON.stringify(records.map(r => ({...r, photoVehicle1:'',photoVehicle2:'',photoWebsite:''})))); } catch {} }
+    try { localStorage.setItem(CK, JSON.stringify(contractors)); } catch {}
+    updCount();
+  }
+  function updCount() { document.getElementById('rc').textContent = records.length + ' 筆'; }
+
+  // ---- Debug Log ----
+  let debugLogs = [];
+  function dlog(msg, data) {
+    const time = new Date().toLocaleTimeString('zh-TW');
+    const entry = `[${time}] ${msg}`;
+    debugLogs.unshift(data ? entry + ' → ' + (typeof data === 'string' ? data : JSON.stringify(data).slice(0,300)) : entry);
+    if (debugLogs.length > 50) debugLogs.length = 50;
+    const el = document.getElementById('debugContent');
+    if (el) el.textContent = debugLogs.join('\n');
+    console.log(entry, data || '');
+  }
+
+  // ---- Cloud API (XHR handles GAS 302 redirects better than fetch) ----
+  function cloudGet(params) {
+    const url = getGasUrl();
+    if (!url) { dlog('❌ GET: 沒有 GAS URL'); return Promise.resolve(null); }
+    const fullUrl = url + '?' + new URLSearchParams(params).toString();
+    dlog('⬆️ GET: ' + params.action + ' → ' + fullUrl.slice(0,100));
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', fullUrl);
+      xhr.onload = function() {
+        dlog('📥 GET 回應: status=' + xhr.status + ', ' + xhr.responseText.length + ' chars');
+        try {
+          const json = JSON.parse(xhr.responseText);
+          dlog('✅ GET 成功', json);
+          resolve(json);
+        } catch(e) {
+          dlog('❌ GET JSON 解析失敗', xhr.responseText.slice(0,200));
+          resolve(null);
+        }
+      };
+      xhr.onerror = function() {
+        dlog('❌ GET 網路錯誤 (XHR onerror)');
+        resolve(null);
+      };
+      xhr.ontimeout = function() {
+        dlog('❌ GET 逾時');
+        resolve(null);
+      };
+      xhr.timeout = 30000;
+      xhr.send();
+    });
+  }
+
+  function cloudPost(payload) {
+    const url = getGasUrl();
+    if (!url) { dlog('❌ POST: 沒有 GAS URL'); return Promise.resolve(null); }
+    const bodyStr = JSON.stringify(payload);
+    dlog('⬆️ POST: ' + payload.action + ' (' + Math.round(bodyStr.length/1024) + 'KB) → ' + url.slice(0,80));
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', url);
+      xhr.onload = function() {
+        dlog('📥 POST 回應: status=' + xhr.status + ', ' + xhr.responseText.length + ' chars');
+        try {
+          const json = JSON.parse(xhr.responseText);
+          dlog('✅ POST 成功', json);
+          resolve(json);
+        } catch(e) {
+          dlog('❌ POST JSON 解析失敗', xhr.responseText.slice(0,300));
+          resolve(null);
+        }
+      };
+      xhr.onerror = function() {
+        dlog('❌ POST 網路錯誤 (XHR onerror)');
+        resolve(null);
+      };
+      xhr.ontimeout = function() {
+        dlog('❌ POST 逾時');
+        resolve(null);
+      };
+      xhr.timeout = 60000;
+      xhr.send(bodyStr);
+    });
+  }
+
+  function showLoading(msg) {
+    document.getElementById('loadingMsg').textContent = msg || '同步中...';
+    document.getElementById('loadingOverlay').style.display = 'flex';
+  }
+  function hideLoading() { document.getElementById('loadingOverlay').style.display = 'none'; }
+
+  function updateSyncBadge(status) {
+    const b = document.getElementById('syncBadge');
+    if (status === 'online') { b.className = 'sync-badge sync-online'; b.innerHTML = '☁️ 雲端已連線'; isCloud = true; }
+    else if (status === 'syncing') { b.className = 'sync-badge sync-syncing'; b.innerHTML = '🔄 同步中...'; }
+    else { b.className = 'sync-badge sync-offline'; b.innerHTML = '⏸ 離線模式'; isCloud = false; }
+  }
+
+  // ---- Sync from cloud ----
+  async function syncFromCloud() {
+    if (!getGasUrl()) { updateSyncBadge('offline'); return false; }
+    updateSyncBadge('syncing');
+    try {
+      const [recResult, conResult] = await Promise.all([
+        cloudGet({ action: 'getAll' }),
+        cloudGet({ action: 'getContractors' })
+      ]);
+      if (recResult && recResult.records) {
+        records = recResult.records;
+      }
+      if (conResult && conResult.contractors && conResult.contractors.length > 0) {
+        contractors = conResult.contractors;
+      }
+      saveLocal();
+      updateSyncBadge('online');
+      return true;
+    } catch (e) {
+      console.error('Sync failed:', e);
+      updateSyncBadge('offline');
+      return false;
+    }
+  }
+
+  async function manualSync() {
+    showLoading('正在從雲端同步資料...');
+    const ok = await syncFromCloud();
+    hideLoading();
+    if (ok) { toast('☁️ 雲端同步完成！'); renderPanel(); }
+    else { toast('⚠️ 無法連線雲端，使用本地資料', true); }
+  }
+
+  async function pushToCloud() {
+    const url = getGasUrl();
+    if (!url) { toast('⚠️ 尚未設定 Apps Script URL，請到設定頁設定', true); return; }
+    if (!records.length) { toast('⚠️ 沒有資料可同步', true); return; }
+
+    showLoading(`正在將 ${records.length} 筆資料同步到 Google Sheets...`);
+    dlog('⬆️ pushToCloud: syncAll ' + records.length + ' 筆');
+
+    const result = await cloudPost({
+      action: 'syncAll',
+      records: records,
+      contractors: contractors
+    });
+    hideLoading();
+    saveLocal();
+
+    if (result && result.success) {
+      const now = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      toast(`☁️ 同步成功！${result.recordCount} 筆（${now}）`);
+      updateSyncBadge('online');
+      document.getElementById('syncBtn').innerHTML = `☁️ 已同步 ${now}`;
+      setTimeout(() => {
+        const btn = document.getElementById('syncBtn');
+        if (btn) btn.innerHTML = '☁️ 儲存紀錄到雲端';
+      }, 5000);
+    } else {
+      toast('❌ 同步失敗：' + (result?.error || '未知錯誤'), true);
+    }
+  }
+
+  // uploadPhotoToCloud is no longer used — photos are uploaded via saveRecordWithPhotos
+
+  // Get displayable photo URL from Drive URL or ID
+  function driveThumbUrl(urlOrId) {
+    if (!urlOrId) return '';
+    // If it's already a data: URL, return as-is
+    if (urlOrId.startsWith('data:')) return urlOrId;
+    // Extract file ID from Drive URL
+    const match = urlOrId.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    const fileId = match ? match[1] : urlOrId;
+    return 'https://lh3.googleusercontent.com/d/' + fileId + '=w800';
+  }
+
+  // ---- Toast ----
+  function toast(msg, isErr) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast show' + (isErr ? ' err' : '');
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  // ---- Image Compression ----
+  function compressImage(file, maxW = 800, quality = 0.6) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve('');
+        img.src = e.target.result;
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function queryMoenv(plate) {
+    if (!plate) { toast('請先輸入車號', true); return; }
+    navigator.clipboard.writeText(plate).then(() => {
+      toast('✅ 車號已複製！正在開啟查詢網站...');
+      setTimeout(() => window.open(MOENV_URL, '_blank'), 300);
+    }).catch(() => {
+      const ta = document.createElement('textarea'); ta.value = plate; document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+      toast('✅ 車號已複製！正在開啟查詢網站...');
+      setTimeout(() => window.open(MOENV_URL, '_blank'), 300);
+    });
+  }
+
+  // ---- Tabs ----
+  const TABS = [
+    {id:'list',icon:'📋',label:'資料列表'},{id:'form',icon:'➕',label:'新增資料'},
+    {id:'dash',icon:'📊',label:'Dashboard'},{id:'export',icon:'🖨️',label:'輸出資料'},
+    {id:'settings',icon:'⚙️',label:'設定'},
+  ];
+  function renderTabs() {
+    document.getElementById('tabBar').innerHTML = TABS.map(t =>
+      `<button class="tab${t.id===currentTab?' on':''}" onclick="App.switchTab('${t.id}')">${t.icon} ${t.label}</button>`
+    ).join('');
+  }
+  function switchTab(id) { currentTab = id; renderTabs(); renderPanel(); }
+  function renderPanel() {
+    const root = document.getElementById('appRoot');
+    switch(currentTab) {
+      case 'list': renderList(root); break;
+      case 'form': renderForm(root); break;
+      case 'dash': renderDash(root); break;
+      case 'export': renderExport(root); break;
+      case 'settings': renderSettings(root); break;
+    }
+  }
+
+  // ==================== LIST ====================
+  function renderList(root) {
+    const s = (root._search || '').toUpperCase();
+    const fT = root._fType||'', fL = root._fLoc||'', fB = root._fBadge||'';
+    let f = records.filter(r => {
+      if (s && !r.plateNumber.toUpperCase().includes(s) && !r.contractor.toUpperCase().includes(s) && !r.vehicleType.toUpperCase().includes(s)) return false;
+      if (fT && r.category !== fT) return false;
+      if (fL && r.location !== fL) return false;
+      if (fB && r.hasBadge !== fB) return false;
+      return true;
+    });
+    let html = `<div class="tb np">
+      <input type="text" placeholder="🔍 搜尋車號、承攬商、車輛型式..." value="${esc(root._search||'')}" oninput="App.filterList(this.value,'s')">
+      <select onchange="App.filterList(this.value,'t')"><option value="">全部類型</option><option value="施工機具"${fT==='施工機具'?' selected':''}>施工機具</option><option value="運輸車輛"${fT==='運輸車輛'?' selected':''}>運輸車輛</option></select>
+      <select onchange="App.filterList(this.value,'l')"><option value="">全部地點</option><option value="台中"${fL==='台中'?' selected':''}>台中</option><option value="通霄"${fL==='通霄'?' selected':''}>通霄</option><option value="天力"${fL==='天力'?' selected':''}>天力</option></select>
+      <select onchange="App.filterList(this.value,'b')"><option value="">全部標章</option><option value="是"${fB==='是'?' selected':''}>已取得</option><option value="否"${fB==='否'?' selected':''}>未取得</option></select>
+      <button class="btn bp" onclick="App.newRecord()">➕ 新增資料</button>
+    </div><div class="card">`;
+    if (!f.length) {
+      html += '<div class="es"><div class="ei">📭</div><p>尚無資料，請點擊「新增資料」開始建立</p></div>';
+    } else {
+      html += '<div class="tc"><table><thead><tr><th>#</th><th>類型</th><th>車號</th><th>地點</th><th>承攬商</th><th>車輛機具</th><th>燃油</th><th>標章</th><th>等級</th><th>編號</th><th>操作</th></tr></thead><tbody>';
+      f.forEach((r,i) => {
+        const bc = badgeCls(r), bt2 = r.hasBadge==='是'?r.badgeLevel:'未取得';
+        html += `<tr>
+          <td style="color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:11px">${i+1}</td>
+          <td><span class="bt ${r.category==='施工機具'?'bg':'bok'}">${r.category}</span></td>
+          <td style="font-weight:600;font-family:'JetBrains Mono',monospace">${esc(r.plateNumber)}</td>
+          <td>${esc(r.location)}</td><td>${esc(r.contractor)}</td><td>${esc(r.vehicleType)}</td><td>${r.fuelType}</td>
+          <td><span class="bt ${r.hasBadge==='是'?'bok':'bno'}">${r.hasBadge}</span></td>
+          <td><span class="bt ${bc}">${bt2}</span></td>
+          <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.badgeNumber||'—'}</td>
+          <td style="white-space:nowrap">
+            <button class="btn bsm binfo" onclick="App.queryMoenv('${esc(r.plateNumber)}')" title="查詢環保署">🔍</button>
+            <button class="btn bsm bs" onclick="App.editRecord('${r.id}')">✏️</button>
+            <button class="btn bsm bd" onclick="App.confirmDel('${r.id}')">🗑️</button>
+          </td></tr>`;
+      });
+      html += '</tbody></table></div>';
+    }
+    html += '</div>';
+    root.innerHTML = html;
+  }
+  function filterList(val, type) {
+    const root = document.getElementById('appRoot');
+    if (type==='s') root._search=val; if (type==='t') root._fType=val;
+    if (type==='l') root._fLoc=val; if (type==='b') root._fBadge=val;
+    renderList(root);
+  }
+
+  // ==================== FORM ====================
+  function newRecord() { editingId=''; photoData={v1:'',v2:'',web:''}; photoIds={v1:'',v2:'',web:''}; currentTab='form'; renderTabs(); renderPanel(); }
+  function editRecord(id) {
+    const r = records.find(x=>x.id===id); if (!r) return;
+    editingId = id;
+    photoIds = { v1:r.photoVehicle1Id||'', v2:r.photoVehicle2Id||'', web:r.photoWebsiteId||'' };
+    photoData = {
+      v1: r.photoVehicle1 || (photoIds.v1 ? driveThumbUrl(photoIds.v1) : ''),
+      v2: r.photoVehicle2 || (photoIds.v2 ? driveThumbUrl(photoIds.v2) : ''),
+      web: r.photoWebsite || (photoIds.web ? driveThumbUrl(photoIds.web) : '')
+    };
+    currentTab='form'; renderTabs(); renderForm(document.getElementById('appRoot'), r);
+  }
+  function renderForm(root, prefill) {
+    const r = prefill || {};
+    const title = editingId ? `✏️ 編輯 — ${r.plateNumber||''}` : '📝 新增資料';
+    const catEq=r.category==='施工機具'?' checked':'', catTr=r.category==='運輸車輛'?' checked':'';
+    const locIsOther = r.location && !['台中','通霄','天力'].includes(r.location);
+    const VT_LIST = ['挖土機','推土機','鏟裝機','起重機','混凝土攪拌車','混凝土泵車','鑽孔機','堆高機','壓路機','拖車','小貨車','山貓','砂石車','發電機','灑水車','抽水肥車','吊卡車','垃圾車','加油車','吊車'];
+    const vtIsOther = r.vehicleType && !VT_LIST.includes(r.vehicleType);
+    const hasBY=r.hasBadge==='是'?' checked':'', hasBN=r.hasBadge==='否'?' checked':'';
+    const showB = r.hasBadge==='是';
+    let blO='<option value="">請選擇</option>';
+    if (r.category==='施工機具') blO += ['金級','銀級','普級'].map(l=>`<option value="${l}"${r.badgeLevel===l?' selected':''}>${l}</option>`).join('');
+    else if (r.category==='運輸車輛') blO += ['新購五期車','新購六期車','優級','合格'].map(l=>`<option value="${l}"${r.badgeLevel===l?' selected':''}>${l}</option>`).join('');
+    const cO='<option value="">請選擇</option>'+contractors.map(c=>`<option value="${esc(c)}"${r.contractor===c?' selected':''}>${esc(c)}</option>`).join('');
+    const vtO='<option value="">請選擇</option>'+VT_LIST.map(v=>`<option value="${v}"${(!vtIsOther&&r.vehicleType===v)?' selected':''}>${v}</option>`).join('')+`<option value="__other__"${vtIsOther?' selected':''}>其他</option>`;
+    function pb(key,label,icon){
+      const src=photoData[key];
+      if(src) return `<div class="fi"><label>${label}</label><div class="ppc"><div class="pp"><img src="${src}" onerror="this.src='';this.alt='⚠️'"><button class="rp" onclick="App.removePhoto('${key}')">&times;</button></div></div></div>`;
+      return `<div class="fi"><label>${label}</label><div class="upa" onclick="document.getElementById('file_${key}').click()"><div class="ui">${icon}</div><div class="ut">點擊上傳</div></div><input type="file" id="file_${key}" accept="image/*" style="display:none" onchange="App.uploadPhoto('${key}',this)"></div>`;
+    }
+    root.innerHTML = `<div class="card fi-anim"><div class="ctit">${title}</div>
+      <div class="fg">
+        <div class="fi"><label><span class="req">施工機具 / 運輸車輛</span></label><div class="rg"><label class="ro"><input type="radio" name="cat" value="施工機具"${catEq} onchange="App.catChanged()"> 施工機具</label><label class="ro"><input type="radio" name="cat" value="運輸車輛"${catTr} onchange="App.catChanged()"> 運輸車輛</label></div></div>
+        <div class="fi"><label><span class="req">車號</span></label>
+          <input type="text" id="fPlate" value="${esc(r.plateNumber||'')}" placeholder="輸入車號" oninput="App.chkDup()">
+          <div class="query-row">
+            <button class="btn bsm binfo" type="button" onclick="App.queryMoenv(document.getElementById('fPlate').value.trim().toUpperCase())">🔍 查詢環保署檢測資料</button>
+          </div>
+          <div class="query-hint">自動複製車號並開啟<a href="${MOENV_URL}" target="_blank">環保部柴油車檢測查詢系統</a>，貼上車號即可查詢</div>
+          <div id="dupWarn" style="font-size:11px;color:var(--acc);display:none"></div>
+        </div>
+        <div class="fi"><label><span class="req">地點</span></label><div class="swo"><select id="fLocSel" onchange="App.togOther('fLocSel','fLocOth')"><option value="">請選擇</option><option value="台中"${r.location==='台中'?' selected':''}>台中</option><option value="通霄"${r.location==='通霄'?' selected':''}>通霄</option><option value="天力"${r.location==='天力'?' selected':''}>天力</option><option value="__other__"${locIsOther?' selected':''}>其他</option></select><input type="text" id="fLocOth" class="${locIsOther?'sh':''}" value="${locIsOther?esc(r.location):''}" placeholder="自行填寫"></div></div>
+        <div class="fi"><label><span class="req">承攬商名稱</span></label><select id="fContr">${cO}</select></div>
+        <div class="fi"><label><span class="req">車輛機具</span></label><div class="swo"><select id="fVtSel" onchange="App.togOther('fVtSel','fVtOth')">${vtO}</select><input type="text" id="fVtOth" class="${vtIsOther?'sh':''}" value="${vtIsOther?esc(r.vehicleType):''}" placeholder="自行填寫"></div></div>
+        <div class="fi"><label><span class="req">汽油 / 柴油</span></label><div class="rg"><label class="ro"><input type="radio" name="fuel" value="柴油"${r.fuelType!=='汽油'?' checked':''}> 柴油</label><label class="ro"><input type="radio" name="fuel" value="汽油"${r.fuelType==='汽油'?' checked':''}> 汽油</label></div></div>
+        <div class="fi"><label><span class="req">是否取得標章</span></label><div class="rg"><label class="ro"><input type="radio" name="badge" value="是"${hasBY} onchange="App.badgeChanged()"> 是</label><label class="ro"><input type="radio" name="badge" value="否"${hasBN} onchange="App.badgeChanged()"> 否</label></div></div>
+        <div class="fi" id="blGrp" style="display:${showB?'flex':'none'}"><label>標章等級</label><select id="fBLevel">${blO}</select></div>
+        <div class="fi" id="bnGrp" style="display:${showB?'flex':'none'}"><label>標章編號</label><input type="text" id="fBNum" value="${esc(r.badgeNumber||'')}" placeholder="標章編號"></div>
+      </div>
+      <div style="margin-top:16px"><div class="fg" style="grid-template-columns:1fr 1fr 1fr">
+        ${pb('v1','車輛照片 1','📸')}${pb('v2','車輛照片 2','📸')}${pb('web','網站查詢結果','🌐')}
+      </div></div>
+      <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end">
+        <button class="btn bs" onclick="App.cancelForm()">✖ 取消</button>
+        <button class="btn bp" onclick="App.saveForm()">💾 儲存</button>
+      </div>
+    </div>`;
+  }
+
+  function catChanged(){const c=document.querySelector('input[name="cat"]:checked')?.value;const s=document.getElementById('fBLevel');if(!s)return;s.innerHTML='<option value="">請選擇</option>';if(c==='施工機具')['金級','銀級','普級'].forEach(l=>s.innerHTML+=`<option value="${l}">${l}</option>`);else if(c==='運輸車輛')['新購五期車','新購六期車','優級','合格'].forEach(l=>s.innerHTML+=`<option value="${l}">${l}</option>`);}
+  function badgeChanged(){const v=document.querySelector('input[name="badge"]:checked')?.value;const sh=v==='是';const a=document.getElementById('blGrp'),b=document.getElementById('bnGrp');if(a)a.style.display=sh?'flex':'none';if(b)b.style.display=sh?'flex':'none';}
+  function togOther(sId,oId){const s=document.getElementById(sId),o=document.getElementById(oId);if(s.value==='__other__'){o.classList.add('sh');o.focus();}else{o.classList.remove('sh');o.value='';}}
+
+  async function uploadPhoto(key, input) {
+    const file = input.files[0]; if (!file) return;
+    toast('📸 壓縮照片中...');
+    const compressed = await compressImage(file);
+    if (!compressed) return;
+    photoData[key] = compressed;
+    toast('✅ 照片已選取（按儲存後上傳雲端）');
+    const formVals = readFormValues();
+    renderForm(document.getElementById('appRoot'), {...formVals, id: editingId});
+  }
+  function removePhoto(key) {
+    photoData[key]=''; photoIds[key]='';
+    const fv=readFormValues(); renderForm(document.getElementById('appRoot'),{...fv,id:editingId});
+  }
+
+  function readFormValues() {
+    return {
+      category:document.querySelector('input[name="cat"]:checked')?.value||'',
+      plateNumber:(document.getElementById('fPlate')?.value||'').trim().toUpperCase(),
+      location:document.getElementById('fLocSel')?.value==='__other__'?(document.getElementById('fLocOth')?.value||'').trim():(document.getElementById('fLocSel')?.value||''),
+      contractor:document.getElementById('fContr')?.value||'',
+      vehicleType:document.getElementById('fVtSel')?.value==='__other__'?(document.getElementById('fVtOth')?.value||'').trim():(document.getElementById('fVtSel')?.value||''),
+      fuelType:document.querySelector('input[name="fuel"]:checked')?.value||'柴油',
+      hasBadge:document.querySelector('input[name="badge"]:checked')?.value||'',
+      badgeLevel:document.getElementById('fBLevel')?.value||'',
+      badgeNumber:(document.getElementById('fBNum')?.value||'').trim(),
+    };
+  }
+  function chkDup(){const p=(document.getElementById('fPlate')?.value||'').trim().toUpperCase();const w=document.getElementById('dupWarn');if(!w)return;if(!p){w.style.display='none';return;}const fd=records.find(r=>r.plateNumber.toUpperCase()===p&&r.id!==editingId);if(fd){w.style.display='block';w.innerHTML=`⚠️ <b>${p}</b> 已存在（${esc(fd.contractor)} - ${esc(fd.vehicleType)}）<button class="btn bsm bp" style="margin-left:6px" onclick="App.showDup('${fd.id}','${p}')">叫出該筆資料</button>`;}else{w.style.display='none';}}
+  function showDup(id,plate){dupId=id;document.getElementById('dupMsg').innerHTML=`車號 <b>${plate}</b> 已有資料，是否叫出該筆資料進行編輯？`;document.getElementById('dupModal').classList.add('on');}
+  function closeDup(){document.getElementById('dupModal').classList.remove('on');}
+  function loadDup(){closeDup();if(dupId)editRecord(dupId);}
+
+  async function saveForm() {
+    const d = readFormValues();
+    if (!d.category){toast('請選擇施工機具或運輸車輛',true);return;}
+    if (!d.plateNumber){toast('請輸入車號',true);return;}
+    if (!d.location){toast('請選擇或填寫地點',true);return;}
+    if (!d.contractor){toast('請選擇承攬商',true);return;}
+    if (!d.vehicleType){toast('請選擇或填寫車輛機具',true);return;}
+    if (!d.hasBadge){toast('請選擇是否取得標章',true);return;}
+
+    const recId = editingId || Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    const hasGas = !!getGasUrl();
+
+    // Build record
+    const rec = {
+      ...d,
+      id: recId,
+      photoVehicle1Id: photoIds.v1 || '',
+      photoVehicle2Id: photoIds.v2 || '',
+      photoWebsiteId: photoIds.web || '',
+      updatedAt: new Date().toISOString()
+    };
+
+    // Check duplicate
+    if (!editingId) {
+      const dup = records.find(r=>r.plateNumber===d.plateNumber);
+      if (dup){showDup(dup.id,d.plateNumber);return;}
+    }
+
+    if (hasGas) {
+      showLoading('正在儲存到雲端（含照片上傳）...');
+
+      // Build photos payload — only send base64 if new photo (not already a Drive URL)
+      const photos = {};
+      const keys = {v1:'photoVehicle1Id', v2:'photoVehicle2Id', web:'photoWebsiteId'};
+      for (const k of ['v1','v2','web']) {
+        if (photoData[k] && photoData[k].startsWith('data:')) {
+          // New photo, need to upload
+          const match = photoData[k].match(/^data:(.*?);base64,(.*)$/);
+          if (match) {
+            photos[k] = { base64: match[2], mime: match[1] };
+            dlog('📸 準備上傳 ' + k + ': ' + Math.round(match[2].length/1024) + 'KB');
+          }
+        }
+        // else: existing Drive URL stays in rec via photoIds
+      }
+
+      dlog('⬆️ saveRecord + photos: ' + rec.plateNumber + ', 照片: ' + Object.keys(photos).length + ' 張新照片');
+
+      const result = await cloudPost({
+        action: 'saveRecord',
+        data: rec,
+        photos: photos
+      });
+
+      hideLoading();
+
+      if (result && result.success) {
+        // GAS returned the Drive URLs — update our local record
+        if (result.photos) {
+          if (result.photos.v1) rec.photoVehicle1Id = result.photos.v1;
+          if (result.photos.v2) rec.photoVehicle2Id = result.photos.v2;
+          if (result.photos.web) rec.photoWebsiteId = result.photos.web;
+        }
+        dlog('✅ 儲存成功! photos: ' + JSON.stringify(result.photos || {}));
+        toast('☁️ 已儲存到雲端（Sheet + Drive）！');
+        updateSyncBadge('online');
+      } else {
+        dlog('❌ 儲存失敗', result);
+        toast('⚠️ 雲端儲存失敗：' + (result?.error||'未知錯誤'), true);
+      }
+    } else {
+      // Offline: keep base64 in record
+      rec.photoVehicle1 = (photoData.v1 && photoData.v1.startsWith('data:')) ? photoData.v1 : '';
+      rec.photoVehicle2 = (photoData.v2 && photoData.v2.startsWith('data:')) ? photoData.v2 : '';
+      rec.photoWebsite = (photoData.web && photoData.web.startsWith('data:')) ? photoData.web : '';
+      toast('✅ 儲存成功（本地）');
+    }
+
+    // Update local records array
+    if (editingId) {
+      const idx = records.findIndex(r=>r.id===editingId);
+      if (idx!==-1) records[idx]=rec; else records.push(rec);
+    } else {
+      records.push(rec);
+    }
+    saveLocal();
+
+    editingId=''; photoData={v1:'',v2:'',web:''}; photoIds={v1:'',v2:'',web:''};
+    switchTab('list');
+  }
+  function cancelForm(){editingId='';photoData={v1:'',v2:'',web:''};photoIds={v1:'',v2:'',web:''};switchTab('list');}
+
+  // ==================== DELETE ====================
+  function confirmDel(id){delId=id;document.getElementById('delModal').classList.add('on');}
+  function closeDel(){document.getElementById('delModal').classList.remove('on');}
+  async function execDel() {
+    const hasGas = !!getGasUrl();
+    // Remove from local
+    records = records.filter(r=>r.id!==delId);
+    saveLocal(); closeDel();
+
+    // Delete from Sheet + Drive photos
+    if (hasGas) {
+      showLoading('正在從雲端刪除資料及照片...');
+      const result = await cloudPost({action:'deleteRecord', id:delId});
+      hideLoading();
+      if (result?.success) toast('☁️ 已從雲端刪除（含 Drive 照片）');
+      else toast('⚠️ 本地已刪除，雲端刪除失敗', true);
+    } else {
+      toast('🗑️ 已刪除（本地）');
+    }
+    renderPanel();
+  }
+
+  // ==================== DASHBOARD ====================
+  function renderDash(root) {
+    const total = records.length;
+    const eq = records.filter(r=>r.category==='施工機具');
+    const tr = records.filter(r=>r.category==='運輸車輛');
+    const eqPass = eq.filter(r=>r.hasBadge==='是').length;
+    const trPass = tr.filter(r=>r.hasBadge==='是').length;
+    const eqPct = eq.length>0 ? Math.round(eqPass/eq.length*100) : 0;
+    const trPct = tr.length>0 ? Math.round(trPass/tr.length*100) : 0;
+    const eqPctColor = eqPct>=80?'var(--ok)':eqPct>=50?'var(--acc)':'var(--no)';
+    const trPctColor = trPct>=80?'var(--ok)':trPct>=50?'var(--acc)':'var(--no)';
+
+    root.innerHTML = `
+      <!-- 總筆數 -->
+      <div class="sg" style="grid-template-columns:1fr;max-width:200px;margin-bottom:16px">
+        <div class="sc"><div class="sn" style="color:var(--acc)">${total}</div><div class="sl">總筆數</div></div>
+      </div>
+
+      <!-- 施工機具 / 運輸車輛 摘要卡 -->
+      <div class="dash-cat">
+        <div class="dash-cat-card cat-eq">
+          <div class="dcc-title">🏗️ 施工機具</div>
+          <div class="dcc-stats">
+            <div class="dcc-stat"><div class="dcc-num" style="color:var(--ok)">${eqPass}</div><div class="dcc-lbl">取得標章</div></div>
+            <div class="dcc-stat"><div class="dcc-num" style="color:var(--no)">${eq.length - eqPass}</div><div class="dcc-lbl">未取得標章</div></div>
+            <div class="dcc-stat"><div class="dcc-num" style="color:${eqPctColor}">${eqPct}%</div><div class="dcc-lbl">通過率</div></div>
+          </div>
+          <div class="dcc-bar">
+            <div class="dcc-bar-label"><span>查驗 ${eq.length} 台</span><span style="color:${eqPctColor}">${eqPass} / ${eq.length} 通過</span></div>
+            <div class="pb"><div class="pf" style="width:${eqPct}%;background:${eqPctColor}"></div></div>
+          </div>
+        </div>
+        <div class="dash-cat-card cat-tr">
+          <div class="dcc-title">🚚 運輸車輛</div>
+          <div class="dcc-stats">
+            <div class="dcc-stat"><div class="dcc-num" style="color:var(--ok)">${trPass}</div><div class="dcc-lbl">取得標章</div></div>
+            <div class="dcc-stat"><div class="dcc-num" style="color:var(--no)">${tr.length - trPass}</div><div class="dcc-lbl">未取得標章</div></div>
+            <div class="dcc-stat"><div class="dcc-num" style="color:${trPctColor}">${trPct}%</div><div class="dcc-lbl">通過率</div></div>
+          </div>
+          <div class="dcc-bar">
+            <div class="dcc-bar-label"><span>查驗 ${tr.length} 台</span><span style="color:${trPctColor}">${trPass} / ${tr.length} 通過</span></div>
+            <div class="pb"><div class="pf" style="width:${trPct}%;background:${trPctColor}"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 施工機具 - 依車輛型式統計 -->
+      <div class="card"><div class="ctit">🏗️ 施工機具 — 依車輛機具型式</div>${dTable(eq)}</div>
+
+      <!-- 運輸車輛 - 依車輛型式統計 -->
+      <div class="card" style="margin-top:12px"><div class="ctit">🚚 運輸車輛 — 依車輛機具型式</div>${dTable(tr)}</div>`;
+  }
+  function dTable(recs){
+    const ty={};
+    recs.forEach(r=>{
+      if(!ty[r.vehicleType]) ty[r.vehicleType]={t:0,p:0};
+      ty[r.vehicleType].t++;
+      if(r.hasBadge==='是') ty[r.vehicleType].p++;
+    });
+    const en=Object.entries(ty).sort((a,b)=>b[1].t - a[1].t);
+    if(!en.length) return '<div class="es" style="padding:24px"><p>尚無資料</p></div>';
+    let tA=0, pA=0;
+    let rows = en.map(([k,d])=>{
+      tA+=d.t; pA+=d.p;
+      const p = d.t>0 ? Math.round(d.p/d.t*100) : 0;
+      const c = p>=80?'var(--ok)':p>=50?'var(--acc)':'var(--no)';
+      return `<tr>
+        <td style="text-align:left;font-weight:500">${esc(k)}</td>
+        <td>${d.t}</td>
+        <td>${d.p}</td>
+        <td>${d.t - d.p}</td>
+        <td><div style="display:flex;align-items:center;gap:6px;justify-content:center">
+          <div class="pb" style="width:70px"><div class="pf" style="width:${p}%;background:${c}"></div></div>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c}">${p}%</span>
+        </div></td>
+      </tr>`;
+    }).join('');
+    const tp = tA>0 ? Math.round(pA/tA*100) : 0;
+    rows += `<tr>
+      <td style="text-align:left">合計</td>
+      <td>${tA}</td><td>${pA}</td><td>${tA-pA}</td>
+      <td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--acc)">${tp}%</span></td>
+    </tr>`;
+    return `<table class="dt">
+      <thead><tr><th style="text-align:left">車輛機具型式</th><th>查驗量</th><th>通過量</th><th>未通過</th><th>通過率</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+
+  // ==================== EXPORT ====================
+  let exportPreviewShown = false;
+
+  function renderExport(root) {
+    if (!records.length){root.innerHTML='<div class="es"><p>尚無資料可輸出</p></div>';return;}
+
+    // Collect unique values for filters
+    const allContractors = [...new Set(records.map(r=>r.contractor))].sort();
+    const allLocations = [...new Set(records.map(r=>r.location))].sort();
+    // Date range: find min/max updatedAt
+    const dates = records.map(r=>r.updatedAt?.slice(0,10)).filter(Boolean).sort();
+    const minDate = dates[0] || new Date().toISOString().slice(0,10);
+    const maxDate = dates[dates.length-1] || new Date().toISOString().slice(0,10);
+
+    let html = `<div class="card np fi-anim">
+      <div class="ctit">🔎 輸出篩選條件</div>
+      <div class="exp-filters">
+        <div class="exp-filter-group">
+          <label class="flbl">輸出範圍</label>
+          <div class="rg">
+            <label class="ro"><input type="radio" name="expRange" value="all" checked onchange="App.toggleDateRange()"> 全部輸出</label>
+            <label class="ro"><input type="radio" name="expRange" value="date" onchange="App.toggleDateRange()"> 日期區間</label>
+          </div>
+          <div id="dateRangeBox" style="display:none;margin-top:6px;display:none">
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="date" id="expDateFrom" value="${minDate}" style="width:auto">
+              <span style="color:var(--t3);font-size:12px">～</span>
+              <input type="date" id="expDateTo" value="${maxDate}" style="width:auto">
+            </div>
+          </div>
+        </div>
+        <div class="exp-filter-group">
+          <label class="flbl">機具種類</label>
+          <div class="chk-grid">
+            <label class="chk-item checked"><input type="checkbox" value="施工機具" checked onchange="App.toggleChk(this)"> 施工機具</label>
+            <label class="chk-item checked"><input type="checkbox" value="運輸車輛" checked onchange="App.toggleChk(this)"> 運輸車輛</label>
+          </div>
+        </div>
+        <div class="exp-filter-group">
+          <label class="flbl">地點</label>
+          <div class="chk-grid" id="expLocChks">
+            ${allLocations.map(l=>`<label class="chk-item checked"><input type="checkbox" value="${esc(l)}" checked onchange="App.toggleChk(this)"> ${esc(l)}</label>`).join('')}
+          </div>
+        </div>
+        <div class="exp-filter-group">
+          <label class="flbl">承攬商</label>
+          <div class="chk-grid" id="expContrChks">
+            ${allContractors.map(c=>`<label class="chk-item checked"><input type="checkbox" value="${esc(c)}" checked onchange="App.toggleChk(this)"> ${esc(c)}</label>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="exp-actions">
+        <button class="btn bp" onclick="App.generatePreview()">👁️ 預覽 / 列印</button>
+        <button class="btn bs" onclick="App.expJSON()">📥 匯出 JSON</button>
+        <label class="btn bs" style="cursor:pointer">📤 匯入 JSON<input type="file" accept=".json" style="display:none" onchange="App.impJSON(event)"></label>
+        <span class="exp-count" id="expCount"></span>
+      </div>
+    </div>
+    <div id="expPreviewArea" class="exp-preview-area"></div>`;
+    root.innerHTML = html;
+    updateExpCount();
+  }
+
+  function toggleDateRange() {
+    const isDate = document.querySelector('input[name="expRange"][value="date"]')?.checked;
+    const box = document.getElementById('dateRangeBox');
+    if (box) box.style.display = isDate ? 'block' : 'none';
+  }
+
+  function toggleChk(el) {
+    const label = el.closest('.chk-item');
+    if (el.checked) label.classList.add('checked');
+    else label.classList.remove('checked');
+    updateExpCount();
+  }
+
+  function getExportFiltered() {
+    const isAll = document.querySelector('input[name="expRange"][value="all"]')?.checked;
+    const dateFrom = document.getElementById('expDateFrom')?.value || '';
+    const dateTo = document.getElementById('expDateTo')?.value || '';
+
+    // Category checkboxes
+    const catBoxes = document.querySelectorAll('.exp-filter-group:nth-child(2) input[type="checkbox"]');
+    const selectedCats = [...catBoxes].filter(c=>c.checked).map(c=>c.value);
+
+    // Location checkboxes
+    const locBoxes = document.querySelectorAll('#expLocChks input[type="checkbox"]');
+    const selectedLocs = [...locBoxes].filter(c=>c.checked).map(c=>c.value);
+
+    // Contractor checkboxes
+    const conBoxes = document.querySelectorAll('#expContrChks input[type="checkbox"]');
+    const selectedCons = [...conBoxes].filter(c=>c.checked).map(c=>c.value);
+
+    return records.filter(r => {
+      // Date filter
+      if (!isAll && dateFrom && dateTo && r.updatedAt) {
+        const d = r.updatedAt.slice(0,10);
+        if (d < dateFrom || d > dateTo) return false;
+      }
+      // Category
+      if (selectedCats.length > 0 && !selectedCats.includes(r.category)) return false;
+      // Location
+      if (selectedLocs.length > 0 && !selectedLocs.includes(r.location)) return false;
+      // Contractor
+      if (selectedCons.length > 0 && !selectedCons.includes(r.contractor)) return false;
+      return true;
+    });
+  }
+
+  function updateExpCount() {
+    const filtered = getExportFiltered();
+    const el = document.getElementById('expCount');
+    if (el) el.textContent = `符合條件：${filtered.length} / ${records.length} 筆`;
+  }
+
+  function generatePreview() {
+    const filtered = getExportFiltered();
+    const area = document.getElementById('expPreviewArea');
+    if (!area) return;
+
+    if (!filtered.length) {
+      area.innerHTML = '<div class="es" style="padding:30px"><p>沒有符合條件的資料</p></div>';
+      return;
+    }
+
+    let html = `<div class="np" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:13px;color:var(--t2)">預覽 ${filtered.length} 筆資料</span>
+      <button class="btn bp" onclick="window.print()">🖨️ 列印 / 輸出 PDF</button>
+    </div>`;
+
+    html += filtered.map(r => {
+      const bt=r.hasBadge==='是'?`${r.badgeLevel}（${r.badgeNumber||'—'}）`:'未取得';
+      const p1 = r.photoVehicle1 || (r.photoVehicle1Id ? driveThumbUrl(r.photoVehicle1Id) : '');
+      const p2 = r.photoVehicle2 || (r.photoVehicle2Id ? driveThumbUrl(r.photoVehicle2Id) : '');
+      const pw = r.photoWebsite || (r.photoWebsiteId ? driveThumbUrl(r.photoWebsiteId) : '');
+      let ph = '';
+      if (p1 || p2 || pw) {
+        // Row 1: 車輛照片1 + 車輛照片2 並排
+        if (p1 || p2) {
+          ph += '<div class="ppg cols2">';
+          if (p1) ph += `<div class="ppb"><div class="ppb-img-wrap"><img src="${p1}" onerror="this.style.display='none'"></div><div class="pbl">車輛照片 1</div></div>`;
+          else ph += '<div class="ppb"><div class="ppb-img-wrap" style="color:#aaa;font-size:12px">無照片</div><div class="pbl">車輛照片 1</div></div>';
+          if (p2) ph += `<div class="ppb"><div class="ppb-img-wrap"><img src="${p2}" onerror="this.style.display='none'"></div><div class="pbl">車輛照片 2</div></div>`;
+          else ph += '<div class="ppb"><div class="ppb-img-wrap" style="color:#aaa;font-size:12px">無照片</div><div class="pbl">車輛照片 2</div></div>';
+          ph += '</div>';
+        }
+        // Row 2: 網站查詢結果 全寬
+        if (pw) {
+          ph += `<div class="ppg cols1" style="margin-top:12px"><div class="ppb"><div class="ppb-img-wrap"><img src="${pw}" onerror="this.style.display='none'"></div><div class="pbl">網站查詢結果</div></div></div>`;
+        }
+      } else {
+        ph = '<p style="color:#999;font-size:11px;text-align:center">無照片</p>';
+      }
+      return`<div class="pp2"><h2>柴油車自主管理標章</h2><div class="ps">NMDC Energy — Tongxiao Power Plant Phase II</div>
+        <div class="pig">
+          <div class="pii"><span class="pl">類型</span><span>${r.category}</span></div>
+          <div class="pii"><span class="pl">車號</span><span style="font-weight:700">${esc(r.plateNumber)}</span></div>
+          <div class="pii"><span class="pl">地點</span><span>${esc(r.location)}</span></div>
+          <div class="pii"><span class="pl">承攬商</span><span>${esc(r.contractor)}</span></div>
+          <div class="pii"><span class="pl">車輛機具</span><span>${esc(r.vehicleType)}</span></div>
+          <div class="pii"><span class="pl">燃油類型</span><span>${r.fuelType}</span></div>
+          <div class="pii"><span class="pl">取得標章</span><span style="color:${r.hasBadge==='是'?'green':'red'};font-weight:700">${r.hasBadge}</span></div>
+          <div class="pii"><span class="pl">標章等級/編號</span><span>${bt}</span></div>
+        </div>${ph}</div>`;
+    }).join('');
+    area.innerHTML = html;
+    // Scroll to preview
+    area.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  function expJSON(){const d={records,contractors,exportDate:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`柴油車標章系統_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);}
+  function impJSON(event){const f=event.target.files[0];if(!f)return;const r=new FileReader();r.onload=(e)=>{try{const d=JSON.parse(e.target.result);if(d.records){let a=0;d.records.forEach(r=>{if(!records.find(m=>m.id===r.id)){records.push(r);a++;}});if(d.contractors)d.contractors.forEach(c=>{if(!contractors.includes(c))contractors.push(c);});saveLocal();toast(`✅ 匯入 ${a} 筆`);renderPanel();}}catch{toast('❌ JSON 格式錯誤',true);}};r.readAsText(f);event.target.value='';}
+
+  // ==================== SETTINGS ====================
+  function renderSettings(root) {
+    const gasUrl = getGasUrl();
+    root.innerHTML = `
+      <div class="setup-banner">
+        <h3>☁️ Google Sheets + Drive 雲端連線</h3>
+        <p>貼上你的 Google Apps Script 部署網址來啟用雲端同步。<br>未設定時系統以離線模式運作（資料存在瀏覽器 localStorage）。</p>
+        <div class="gas-input">
+          <input type="text" id="gasUrlInput" value="${esc(gasUrl)}" placeholder="https://script.google.com/macros/s/xxxxx/exec">
+          <button class="btn bp" onclick="App.saveGasUrl()">💾 儲存</button>
+          ${gasUrl ? '<button class="btn binfo" onclick="App.testConnection()">🔗 測試連線</button>' : ''}
+          <button class="btn bd" onclick="localStorage.removeItem('dbs_gas_url');location.reload()" style="font-size:11px">🧹 清除 URL 快取</button>
+        </div>
+        <p style="margin-top:6px;font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;word-break:break-all">目前使用: ${esc(getGasUrl())}</p>
+        ${gasUrl ? `<p style="margin-top:4px;font-size:11px;color:var(--ok)">✅ 已設定</p>` : `<p style="margin-top:4px;font-size:11px;color:var(--ok)">✅ 使用內建預設 URL</p>`}
+      </div>
+      <div class="card fi-anim"><div class="ctit">🏢 承攬商管理</div>
+        <p style="font-size:12px;color:var(--t2);margin-bottom:10px">新增或移除承攬商名單</p>
+        <div style="display:flex;gap:6px;margin-bottom:10px">
+          <input type="text" id="newContr" placeholder="輸入承攬商名稱" style="flex:1" onkeydown="if(event.key==='Enter')App.addContr()">
+          <button class="btn bp" onclick="App.addContr()">➕ 新增</button>
+        </div>
+        <div class="tl">${contractors.map((c,i)=>`<span class="tg">${esc(c)} <button class="rt" onclick="App.rmContr(${i})">&times;</button></span>`).join('')}</div>
+      </div>
+      <div class="card" style="margin-top:12px"><div class="ctit">🗑️ 資料管理</div>
+        <button class="btn bd" onclick="App.clearAll()">清除所有資料</button>
+      </div>
+      <div class="card" style="margin-top:12px"><div class="ctit">🐛 Debug Log（雲端連線紀錄）</div>
+        <p style="font-size:11px;color:var(--t2);margin-bottom:8px">顯示所有與 Google Sheets/Drive 的通訊紀錄，方便排錯</p>
+        <pre id="debugContent" style="background:var(--bg0);border:1px solid var(--bd);border-radius:6px;padding:12px;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--t2);max-height:300px;overflow-y:auto;white-space:pre-wrap;word-break:break-all">${debugLogs.join('\n') || '尚無紀錄'}</pre>
+      </div>`;
+  }
+
+  function saveGasUrl() {
+    const url = (document.getElementById('gasUrlInput')?.value||'').trim();
+    setGasUrl(url);
+    if (url) { toast('✅ Apps Script URL 已儲存'); syncFromCloud().then(()=>renderPanel()); }
+    else { toast('已清除 URL，切換離線模式'); updateSyncBadge('offline'); renderSettings(document.getElementById('appRoot')); }
+  }
+
+  async function testConnection() {
+    showLoading('測試連線中...');
+    const result = await cloudGet({ action: 'getAll' });
+    hideLoading();
+    if (result && !result.error) {
+      toast(`✅ 連線成功！雲端有 ${(result.records||[]).length} 筆資料`);
+      updateSyncBadge('online');
+    } else {
+      toast('❌ 連線失敗：' + (result?.error || '無法連線'), true);
+      updateSyncBadge('offline');
+    }
+  }
+
+  async function addContr() {
+    const input=document.getElementById('newContr');const name=(input?.value||'').trim();if(!name)return;
+    if(contractors.includes(name)){toast('承攬商已存在',true);return;}
+    contractors.push(name);saveLocal();
+    if(getGasUrl()) await cloudPost({action:'addContractor',name});
+    toast('✅ 已新增');renderSettings(document.getElementById('appRoot'));
+  }
+  async function rmContr(idx) {
+    const name = contractors[idx];
+    contractors.splice(idx,1);saveLocal();
+    if(getGasUrl()) await cloudPost({action:'removeContractor',name});
+    renderSettings(document.getElementById('appRoot'));
+  }
+  async function clearAll() {
+    if(!confirm('確定要清除所有資料嗎？'))return;
+    records=[];saveLocal();
+    if(getGasUrl()) await cloudPost({action:'clearAll'});
+    toast('🗑️ 已清除');renderPanel();
+  }
+
+  // ==================== HELPERS ====================
+  function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function badgeCls(r){if(r.hasBadge!=='是')return'bno';if(r.badgeLevel==='金級')return'bg';if(['銀級','優級','新購六期車'].includes(r.badgeLevel))return'bsi';if(['普級','合格','新購五期車'].includes(r.badgeLevel))return'bbr';return'bin';}
+
+  // ---- INIT ----
+  // Clear any broken localStorage URL
+  const storedUrl = localStorage.getItem(GAS_URL_KEY);
+  if (storedUrl && (!storedUrl.startsWith('https://') || storedUrl === 'undefined')) {
+    localStorage.removeItem(GAS_URL_KEY);
+  }
+  loadLocal(); renderTabs(); renderPanel(); updCount();
+  dlog('🚀 系統啟動');
+  dlog('🔗 GAS URL: ' + getGasUrl().slice(0,80) + '...');
+  dlog('📊 本地資料: ' + records.length + ' 筆');
+  if (getGasUrl()) { dlog('☁️ 開始自動同步...'); syncFromCloud().then(() => renderPanel()); }
+
+  return {
+    switchTab,filterList,newRecord,editRecord,saveForm,cancelForm,
+    catChanged,badgeChanged,togOther,uploadPhoto,removePhoto,chkDup,
+    showDup,closeDup,loadDup,queryMoenv,
+    confirmDel,closeDel,execDel,
+    expJSON,impJSON,addContr,rmContr,clearAll,
+    manualSync,pushToCloud,saveGasUrl,testConnection,
+    toggleDateRange,toggleChk,generatePreview
+  };
+})();
+</script>
+</body>
+</html>
