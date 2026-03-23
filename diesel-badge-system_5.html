@@ -861,7 +861,7 @@ const App = (() => {
         <h3>☁️ Google Sheets + Drive 雲端連線</h3>
         <p>貼上你的 Google Apps Script 部署網址來啟用雲端同步。<br>未設定時系統以離線模式運作（資料存在瀏覽器 localStorage）。</p>
         <div class="gas-input">
-          <input type="text" id="gasUrlInput" value="${esc(gasUrl)}" placeholder="https://script.google.com/macros/s/xxxxx/exec">
+          <input type="text" id="gasUrlInput" value="${esc(gasUrl)}" placeholder="https://script.google.com/macros/s/AKfycbwV07EdyMexbV9cluI2TL5FY2lx9vcwaJV5VCv83rCVnCB4r7FmaD13dGRfj3ZZsoGMhg/exec">
           <button class="btn bp" onclick="App.saveGasUrl()">💾 儲存</button>
           ${gasUrl ? '<button class="btn binfo" onclick="App.testConnection()">🔗 測試連線</button>' : ''}
         </div>
