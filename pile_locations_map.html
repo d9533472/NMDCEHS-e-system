@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通霄電廠二期 — 打樁位置圖</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans TC', sans-serif;
+    background: #0a0f1a;
+    color: #e0e6f0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    background: linear-gradient(135deg, #0d1526 0%, #131d36 100%);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+    flex-shrink: 0;
+    z-index: 1000;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, #38bdf8, #2563eb);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 900; color: #fff;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+  }
+
+  h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    background: linear-gradient(90deg, #e0f2fe, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  h1 span {
+    font-size: 12px;
+    font-weight: 400;
+    opacity: 0.7;
+    display: block;
+    background: none;
+    -webkit-text-fill-color: #94a3b8;
+    margin-top: 1px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #94a3b8;
+  }
+
+  .stat-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .stat-pill .count {
+    font-weight: 600;
+    color: #e0e6f0;
+  }
+
+  #map {
+    flex: 1;
+    z-index: 1;
+  }
+
+  /* Legend Panel */
+  .legend-panel {
+    position: absolute;
+    bottom: 28px;
+    left: 16px;
+    z-index: 1000;
+    background: rgba(13, 21, 38, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    border-radius: 14px;
+    padding: 16px 20px;
+    min-width: 240px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .legend-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #64748b;
+    margin-bottom: 12px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    user-select: none;
+  }
+
+  .legend-item:hover { opacity: 0.8; }
+
+  .legend-item.disabled {
+    opacity: 0.3;
+  }
+
+  .legend-marker {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.2);
+    flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+  }
+
+  .legend-label {
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .legend-count {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #64748b;
+  }
+
+  /* Info Panel (top right) */
+  .info-panel {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 1000;
+    display: flex;
+    gap: 8px;
+  }
+
+  .info-btn {
+    background: rgba(13, 21, 38, 0.88);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .info-btn:hover {
+    background: rgba(13, 21, 38, 0.95);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: #e0e6f0;
+  }
+
+  .info-btn.active {
+    background: rgba(37, 99, 235, 0.3);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #38bdf8;
+  }
+
+  /* Custom popup */
+  .leaflet-popup-content-wrapper {
+    background: rgba(13, 21, 38, 0.95) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    border-radius: 12px !important;
+    color: #e0e6f0 !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+    backdrop-filter: blur(16px);
+  }
+
+  .leaflet-popup-tip {
+    background: rgba(13, 21, 38, 0.95) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+  }
+
+  .leaflet-popup-content {
+    margin: 12px 16px !important;
+    font-family: 'Noto Sans TC', sans-serif !important;
+    line-height: 1.6 !important;
+  }
+
+  .popup-header {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .popup-header .tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .popup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: 12px;
+  }
+
+  .popup-row .label {
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .popup-row .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    color: #93c5fd;
+  }
+
+  /* Connection lines */
+  .leaflet-overlay-pane svg path {
+    filter: drop-shadow(0 0 4px rgba(0,0,0,0.4));
+  }
+
+  /* Zoom controls */
+  .leaflet-control-zoom a {
+    background: rgba(13, 21, 38, 0.88) !important;
+    color: #94a3b8 !important;
+    border: 1px solid rgba(56, 189, 248, 0.15) !important;
+    backdrop-filter: blur(12px);
+  }
+
+  .leaflet-control-zoom a:hover {
+    background: rgba(13, 21, 38, 0.95) !important;
+    color: #38bdf8 !important;
+  }
+
+  .leaflet-control-attribution {
+    background: rgba(13, 21, 38, 0.7) !important;
+    color: #475569 !important;
+    font-size: 10px !important;
+  }
+
+  .leaflet-control-attribution a {
+    color: #64748b !important;
+  }
+
+  /* Depth scale bar */
+  .depth-scale {
+    position: absolute;
+    bottom: 28px;
+    right: 16px;
+    z-index: 1000;
+    background: rgba(13, 21, 38, 0.92);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(56, 189, 248, 0.15);
+    border-radius: 14px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .depth-scale .ds-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+
+  .depth-bar {
+    width: 160px;
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, #67e8f9, #2563eb, #4338ca);
+    margin-bottom: 6px;
+  }
+
+  .depth-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    color: #64748b;
+  }
+
+  @media (max-width: 640px) {
+    header { padding: 10px 14px; }
+    h1 { font-size: 15px; }
+    h1 span { font-size: 10px; }
+    .stat-pill { display: none; }
+    .legend-panel { bottom: 16px; left: 10px; min-width: 200px; padding: 12px 14px; }
+    .depth-scale { bottom: 16px; right: 10px; padding: 10px 14px; }
+    .depth-bar { width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">⚓</div>
+    <h1>
+      通霄電廠二期 — 打樁位置圖
+      <span>Tongxiao Phase II · Pile Location Map · TWD97 → WGS84</span>
+    </h1>
+  </div>
+  <div class="header-right">
+    <div class="stat-pill">
+      <div class="dot" style="background:#f472b6"></div>
+      排水管 <span class="count">21</span>
+    </div>
+    <div class="stat-pill">
+      <div class="dot" style="background:#34d399"></div>
+      取水管 <span class="count">27</span>
+    </div>
+    <div class="stat-pill">
+      <div class="dot" style="background:#fbbf24"></div>
+      基座 <span class="count">10</span>
+    </div>
+  </div>
+</header>
+
+<div id="map"></div>
+
+<!-- Legend -->
+<div class="legend-panel">
+  <div class="legend-title">圖層切換 Layers</div>
+  <div class="legend-item" data-layer="discharge" onclick="toggleLayer('discharge')">
+    <div class="legend-marker" style="background:#f472b6"></div>
+    <span class="legend-label">排水管管床架</span>
+    <span class="legend-count">21</span>
+  </div>
+  <div class="legend-item" data-layer="intake" onclick="toggleLayer('intake')">
+    <div class="legend-marker" style="background:#34d399"></div>
+    <span class="legend-label">取水管管床架</span>
+    <span class="legend-count">27</span>
+  </div>
+  <div class="legend-item" data-layer="base" onclick="toggleLayer('base')">
+    <div class="legend-marker" style="background:#fbbf24"></div>
+    <span class="legend-label">取排水頭基座</span>
+    <span class="legend-count">10</span>
+  </div>
+</div>
+
+<!-- Depth Scale -->
+<div class="depth-scale">
+  <div class="ds-title">水深 Depth</div>
+  <div class="depth-bar"></div>
+  <div class="depth-labels">
+    <span>-14m</span>
+    <span>-18m</span>
+    <span>-22m</span>
+  </div>
+</div>
+
+<!-- Map controls -->
+<div class="info-panel">
+  <button class="info-btn" id="btn-labels" onclick="toggleLabels()">
+    🏷️ 標籤
+  </button>
+  <button class="info-btn" id="btn-lines" onclick="toggleLines()">
+    📐 連線
+  </button>
+  <button class="info-btn" onclick="resetView()">
+    🎯 重置視野
+  </button>
+</div>
+
+<script>
+// ─── Data ───
+const table1 = [
+  {seq:"01",name:"試樁C",lat:24.49778615,lon:120.66151471,depth:-16.57},
+  {seq:"02",name:"試樁D",lat:24.49673280,lon:120.66298784,depth:-15.61},
+  {seq:"03",name:"DA1",lat:24.49591297,lon:120.66417195,depth:-14.62},
+  {seq:"04",name:"DA2",lat:24.49614281,lon:120.66383998,depth:-15.07},
+  {seq:"05",name:"DA3",lat:24.49633947,lon:120.66355594,depth:-15.25},
+  {seq:"06",name:"DA4",lat:24.49653614,lon:120.66327189,depth:-15.43},
+  {seq:"07",name:"DA5",lat:24.49673280,lon:120.66298784,depth:-15.61},
+  {seq:"08",name:"DA6",lat:24.49692947,lon:120.66270378,depth:-15.79},
+  {seq:"09",name:"DA7",lat:24.49712613,lon:120.66241973,depth:-15.97},
+  {seq:"10",name:"DA8",lat:24.49732279,lon:120.66213567,depth:-16.12},
+  {seq:"11",name:"DA9",lat:24.49758074,lon:120.66176309,depth:-16.39},
+  {seq:"12",name:"DB1",lat:24.49807969,lon:120.66172922,depth:-16.62},
+  {seq:"13",name:"DB2",lat:24.49794218,lon:120.66165427,depth:-16.57},
+  {seq:"14",name:"DB3",lat:24.49786460,lon:120.66158463,depth:-16.58},
+  {seq:"15",name:"DB4",lat:24.49778615,lon:120.66151471,depth:-16.57},
+  {seq:"16",name:"DB5",lat:24.49828678,lon:120.66174299,depth:-16.71},
+  {seq:"17",name:"DB6",lat:24.49848748,lon:120.66162717,depth:-16.71},
+  {seq:"18",name:"DB7",lat:24.49836886,lon:120.66153685,depth:-16.71},
+  {seq:"19",name:"DB8",lat:24.49825233,lon:120.66144351,depth:-16.71},
+  {seq:"20",name:"DB9",lat:24.49813591,lon:120.66135001,depth:-16.71},
+  {seq:"21",name:"DB10",lat:24.49801080,lon:120.66126907,depth:-16.71},
+];
+
+const table2 = [
+  {seq:"01",name:"試樁A",lat:24.49724081,lon:120.65873792,depth:-20.21},
+  {seq:"02",name:"試樁B",lat:24.49586344,lon:120.66008658,depth:-17.04},
+  {seq:"03",name:"IA1",lat:24.49482036,lon:120.66159318,depth:-14.65},
+  {seq:"04",name:"IA2",lat:24.49501686,lon:120.66130936,depth:-14.87},
+  {seq:"05",name:"IA3",lat:24.49521367,lon:120.66102510,depth:-15.08},
+  {seq:"06",name:"IA4",lat:24.49547019,lon:120.66065458,depth:-15.71},
+  {seq:"07",name:"IA5",lat:24.49566681,lon:120.66037058,depth:-16.37},
+  {seq:"08",name:"IA6",lat:24.49586344,lon:120.66008658,depth:-17.04},
+  {seq:"09",name:"IA7",lat:24.49606007,lon:120.65980256,depth:-17.69},
+  {seq:"10",name:"IA8",lat:24.49625669,lon:120.65951856,depth:-18.34},
+  {seq:"11",name:"IA9",lat:24.49647586,lon:120.65920198,depth:-19.06},
+  {seq:"12",name:"IB1",lat:24.49694126,lon:120.65887828,depth:-19.77},
+  {seq:"13",name:"IB2",lat:24.49694690,lon:120.65877713,depth:-19.89},
+  {seq:"14",name:"IB3",lat:24.49686864,lon:120.65870687,depth:-19.87},
+  {seq:"15",name:"IB4",lat:24.49682537,lon:120.65858782,depth:-19.84},
+  {seq:"16",name:"IB5",lat:24.49674524,lon:120.65853009,depth:-19.79},
+  {seq:"17",name:"IB6",lat:24.49724081,lon:120.65873792,depth:-20.21},
+  {seq:"18",name:"IB7",lat:24.49723372,lon:120.65860797,depth:-20.35},
+  {seq:"19",name:"IB8",lat:24.49714058,lon:120.65851057,depth:-20.37},
+  {seq:"20",name:"IB9",lat:24.49701843,lon:120.65842360,depth:-20.29},
+  {seq:"21",name:"IB10",lat:24.49691920,lon:120.65834210,depth:-20.27},
+  {seq:"22",name:"IB11",lat:24.49746567,lon:120.65863256,depth:-20.53},
+  {seq:"23",name:"IB12",lat:24.49769243,lon:120.65852631,depth:-20.71},
+  {seq:"24",name:"IB13",lat:24.49755611,lon:120.65841784,depth:-20.71},
+  {seq:"25",name:"IB14",lat:24.49742065,lon:120.65830840,depth:-20.71},
+  {seq:"26",name:"IB15",lat:24.49728464,lon:120.65819712,depth:-20.71},
+  {seq:"27",name:"IB16",lat:24.49715386,lon:120.65808851,depth:-20.71},
+];
+
+const table3 = [
+  {seq:"01",name:"4PI(3)",lat:24.49780392,lon:120.65843756,depth:-22.00},
+  {seq:"02",name:"5PI(1)",lat:24.49765992,lon:120.65831850,depth:-22.00},
+  {seq:"03",name:"6PI(4)",lat:24.49751591,lon:120.65819944,depth:-22.00},
+  {seq:"04",name:"7PI(2)",lat:24.49737191,lon:120.65808037,depth:-22.00},
+  {seq:"05",name:"8PI(5)",lat:24.49722790,lon:120.65796131,depth:-22.00},
+  {seq:"06",name:"4PD",lat:24.49806817,lon:120.66113060,depth:-18.70},
+  {seq:"07",name:"5PD",lat:24.49818337,lon:120.66122586,depth:-18.70},
+  {seq:"08",name:"6PD",lat:24.49829857,lon:120.66132111,depth:-18.70},
+  {seq:"09",name:"7PD",lat:24.49841378,lon:120.66141636,depth:-18.70},
+  {seq:"10",name:"8PD",lat:24.49852899,lon:120.66151162,depth:-18.70},
+];
+
+// ─── Map ───
+const map = L.map('map', {
+  center: [24.4968, 120.6600],
+  zoom: 16,
+  zoomControl: true
+});
+
+// Tile layers
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap'
+});
+
+const esriSatellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19,
+  attribution: '© Esri'
+});
+
+const esriLabels = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 19
+});
+
+// Default to satellite
+esriSatellite.addTo(map);
+esriLabels.addTo(map);
+
+L.control.layers({
+  "🛰️ 衛星圖 Satellite": L.layerGroup([esriSatellite, esriLabels]),
+  "🗺️ 街道圖 Street": osmLayer
+}, null, { position: 'topright' }).addTo(map);
+
+// ─── Helpers ───
+function depthColor(d) {
+  const t = (Math.abs(d) - 14) / 8; // 14-22 range
+  const r = Math.round(103 + (67 - 103) * t);
+  const g = Math.round(232 + (56 - 232) * t);
+  const b = Math.round(249 + (202 - 249) * t);
+  return `rgb(${r},${g},${b})`;
+}
+
+function createIcon(color, size = 10) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:${size}px; height:${size}px;
+      background:${color};
+      border: 2px solid rgba(255,255,255,0.8);
+      border-radius: 50%;
+      box-shadow: 0 0 8px ${color}88, 0 2px 6px rgba(0,0,0,0.4);
+    "></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2]
+  });
+}
+
+function createTestIcon(color) {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:14px; height:14px;
+      background:${color};
+      border: 2.5px solid #fff;
+      border-radius: 3px;
+      box-shadow: 0 0 12px ${color}88, 0 2px 8px rgba(0,0,0,0.5);
+      transform: rotate(45deg);
+    "></div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7]
+  });
+}
+
+function popupContent(item, category, catColor) {
+  return `
+    <div class="popup-header">
+      ${item.name}
+      <span class="tag" style="background:${catColor}33; color:${catColor}">${category}</span>
+    </div>
+    <div class="popup-row"><span class="label">打樁序</span><span class="value">#${item.seq}</span></div>
+    <div class="popup-row"><span class="label">水深</span><span class="value">${item.depth} m</span></div>
+    <div class="popup-row"><span class="label">WGS84</span><span class="value">${item.lat.toFixed(6)}, ${item.lon.toFixed(6)}</span></div>
+  `;
+}
+
+// ─── Layers ───
+const layers = { discharge: [], intake: [], base: [] };
+const labelMarkers = { discharge: [], intake: [], base: [] };
+const lineGroups = {};
+let showLabels = false;
+let showLines = true;
+
+// Table 1 — Discharge (排水管) — Pink
+const dischargeGroup = L.layerGroup().addTo(map);
+table1.forEach(p => {
+  const isTest = p.name.startsWith('試樁');
+  const icon = isTest ? createTestIcon('#f472b6') : createIcon('#f472b6', 10);
+  const m = L.marker([p.lat, p.lon], { icon })
+    .bindPopup(popupContent(p, '排水管', '#f472b6'));
+  m.addTo(dischargeGroup);
+  layers.discharge.push(m);
+
+  const label = L.marker([p.lat, p.lon], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="font-size:10px;font-weight:600;color:#f9a8d4;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;pointer-events:none;transform:translate(8px,-6px)">${p.name}</div>`,
+      iconSize: [0,0]
+    })
+  });
+  labelMarkers.discharge.push(label);
+});
+
+// DA line
+const daPoints = table1.filter(p => p.name.startsWith('DA')).map(p => [p.lat, p.lon]);
+const dbPoints = table1.filter(p => p.name.startsWith('DB')).sort((a,b) => parseInt(a.seq) - parseInt(b.seq)).map(p => [p.lat, p.lon]);
+const dischargeLine = L.layerGroup([
+  L.polyline(daPoints, { color: '#f472b6', weight: 2, opacity: 0.6, dashArray: '6,4' }),
+  L.polyline(dbPoints, { color: '#f472b6', weight: 2, opacity: 0.4, dashArray: '4,4' })
+]).addTo(map);
+lineGroups.discharge = dischargeLine;
+
+// Table 2 — Intake (取水管) — Emerald
+const intakeGroup = L.layerGroup().addTo(map);
+table2.forEach(p => {
+  const isTest = p.name.startsWith('試樁');
+  const icon = isTest ? createTestIcon('#34d399') : createIcon('#34d399', 10);
+  const m = L.marker([p.lat, p.lon], { icon })
+    .bindPopup(popupContent(p, '取水管', '#34d399'));
+  m.addTo(intakeGroup);
+  layers.intake.push(m);
+
+  const label = L.marker([p.lat, p.lon], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="font-size:10px;font-weight:600;color:#6ee7b7;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;pointer-events:none;transform:translate(8px,-6px)">${p.name}</div>`,
+      iconSize: [0,0]
+    })
+  });
+  labelMarkers.intake.push(label);
+});
+
+const iaPoints = table2.filter(p => p.name.startsWith('IA')).map(p => [p.lat, p.lon]);
+const ibPoints = table2.filter(p => p.name.startsWith('IB')).sort((a,b) => parseInt(a.seq) - parseInt(b.seq)).map(p => [p.lat, p.lon]);
+const intakeLine = L.layerGroup([
+  L.polyline(iaPoints, { color: '#34d399', weight: 2, opacity: 0.6, dashArray: '6,4' }),
+  L.polyline(ibPoints, { color: '#34d399', weight: 2, opacity: 0.4, dashArray: '4,4' })
+]).addTo(map);
+lineGroups.intake = intakeLine;
+
+// Table 3 — Base (基座) — Amber
+const baseGroup = L.layerGroup().addTo(map);
+table3.forEach(p => {
+  const icon = createIcon('#fbbf24', 12);
+  const m = L.marker([p.lat, p.lon], { icon })
+    .bindPopup(popupContent(p, '基座', '#fbbf24'));
+  m.addTo(baseGroup);
+  layers.base.push(m);
+
+  const label = L.marker([p.lat, p.lon], {
+    icon: L.divIcon({
+      className: '',
+      html: `<div style="font-size:10px;font-weight:600;color:#fcd34d;text-shadow:0 1px 3px #000,0 0 6px #000;white-space:nowrap;pointer-events:none;transform:translate(8px,-6px)">${p.name}</div>`,
+      iconSize: [0,0]
+    })
+  });
+  labelMarkers.base.push(label);
+});
+
+// PI line & PD line
+const piPoints = table3.filter(p => p.name.includes('PI')).map(p => [p.lat, p.lon]);
+const pdPoints = table3.filter(p => p.name.includes('PD')).map(p => [p.lat, p.lon]);
+const baseLine = L.layerGroup([
+  L.polyline(piPoints, { color: '#fbbf24', weight: 2.5, opacity: 0.7, dashArray: '6,4' }),
+  L.polyline(pdPoints, { color: '#fbbf24', weight: 2.5, opacity: 0.7, dashArray: '6,4' })
+]).addTo(map);
+lineGroups.base = baseLine;
+
+const layerGroupMap = { discharge: dischargeGroup, intake: intakeGroup, base: baseGroup };
+const layerVisibility = { discharge: true, intake: true, base: true };
+
+// ─── Controls ───
+function toggleLayer(key) {
+  layerVisibility[key] = !layerVisibility[key];
+  const el = document.querySelector(`.legend-item[data-layer="${key}"]`);
+  if (layerVisibility[key]) {
+    map.addLayer(layerGroupMap[key]);
+    if (showLines && lineGroups[key]) map.addLayer(lineGroups[key]);
+    if (showLabels) labelMarkers[key].forEach(l => l.addTo(map));
+    el.classList.remove('disabled');
+  } else {
+    map.removeLayer(layerGroupMap[key]);
+    if (lineGroups[key]) map.removeLayer(lineGroups[key]);
+    labelMarkers[key].forEach(l => map.removeLayer(l));
+    el.classList.add('disabled');
+  }
+}
+
+function toggleLabels() {
+  showLabels = !showLabels;
+  document.getElementById('btn-labels').classList.toggle('active', showLabels);
+  for (const key of ['discharge', 'intake', 'base']) {
+    if (!layerVisibility[key]) continue;
+    labelMarkers[key].forEach(l => {
+      showLabels ? l.addTo(map) : map.removeLayer(l);
+    });
+  }
+}
+
+function toggleLines() {
+  showLines = !showLines;
+  document.getElementById('btn-lines').classList.toggle('active', showLines);
+  for (const key of ['discharge', 'intake', 'base']) {
+    if (!layerVisibility[key]) continue;
+    if (lineGroups[key]) {
+      showLines ? map.addLayer(lineGroups[key]) : map.removeLayer(lineGroups[key]);
+    }
+  }
+}
+
+// default: lines on
+document.getElementById('btn-lines').classList.add('active');
+
+function resetView() {
+  const allPoints = [...table1, ...table2, ...table3].map(p => [p.lat, p.lon]);
+  map.fitBounds(L.latLngBounds(allPoints).pad(0.1));
+}
+
+// Fit all points
+resetView();
+</script>
+</body>
+</html>
