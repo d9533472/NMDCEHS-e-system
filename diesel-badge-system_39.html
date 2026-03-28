@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>柴油車自主管理標章系統</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg0:#0f1419;--bg1:#1a2332;--bg2:#1e2a3a;--bg3:#253347;--bd:#2d3f54;--bdf:#f59e0b;--t1:#e8edf3;--t2:#8899aa;--t3:#5a6e82;--acc:#f59e0b;--acc2:#d97706;--accd:rgba(245,158,11,.1);--ok:#10b981;--okd:rgba(16,185,129,.1);--no:#ef4444;--nod:rgba(239,68,68,.1);--info:#3b82f6;--infod:rgba(59,130,246,.1);--gold:#fbbf24;--silver:#94a3b8;--bronze:#d97706;--r:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg0);color:var(--t1);min-height:100vh}
+.hdr{background:linear-gradient(135deg,#1a2332,#0f1419);border-bottom:2px solid var(--acc);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr h1{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+.hdr .sub{font-size:10px;color:var(--t3);letter-spacing:2px;text-transform:uppercase;font-weight:400}
+.hdr-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rc{background:var(--accd);color:var(--acc);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.tabs{display:flex;background:var(--bg1);border-bottom:1px solid var(--bd);padding:0 12px;overflow-x:auto}
+.tab{background:none;border:none;color:var(--t3);padding:13px 18px;font-size:13px;font-weight:500;cursor:pointer;position:relative;white-space:nowrap;font-family:'Noto Sans TC',sans-serif;transition:color .2s}
+.tab:hover{color:var(--t2)}.tab.on{color:var(--acc)}
+.tab.on::after{content:'';position:absolute;bottom:0;left:6px;right:6px;height:2px;background:var(--acc);border-radius:2px 2px 0 0}
+.wrap{padding:16px;max-width:1400px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.ctit{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:var(--acc);letter-spacing:1px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.5px}
+.fi .req::after{content:' *';color:var(--no)}
+input,select{background:var(--bg3);border:1px solid var(--bd);border-radius:6px;padding:9px 11px;color:var(--t1);font-size:13px;font-family:'Noto Sans TC',sans-serif;transition:border-color .2s;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--bdf)}
+select{cursor:pointer}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:9px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Noto Sans TC',sans-serif;transition:all .2s;white-space:nowrap}
+.bp{background:var(--acc);color:#000}.bp:hover{background:var(--acc2)}
+.bs{background:var(--bg3);color:var(--t1);border:1px solid var(--bd)}.bs:hover{border-color:var(--t3)}
+.bd{background:var(--nod);color:var(--no);border:1px solid transparent}.bd:hover{border-color:var(--no)}
+.binfo{background:var(--infod);color:var(--info);border:1px solid transparent}.binfo:hover{border-color:var(--info)}
+.bsm{padding:5px 10px;font-size:11px}
+.upa{border:2px dashed var(--bd);border-radius:var(--r);padding:16px;text-align:center;cursor:pointer;transition:border-color .2s;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.upa:hover{border-color:var(--acc)}
+.upa .ui{font-size:28px;opacity:.5}.upa .ut{font-size:11px;color:var(--t3)}
+.pp{width:110px;height:80px;border-radius:6px;overflow:hidden;position:relative;border:1px solid var(--bd)}
+.pp img{width:100%;height:100%;object-fit:cover}
+.pp .rp{position:absolute;top:3px;right:3px;background:rgba(239,68,68,.9);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center}
+.tc{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead{background:var(--bg1)}
+th{padding:10px 12px;text-align:left;font-weight:600;color:var(--t3);font-size:10px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid var(--bd);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr:hover td{background:rgba(245,158,11,.03)}
+.bt{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600}
+.bg{background:rgba(251,191,36,.15);color:var(--gold)}.bsi{background:rgba(148,163,184,.15);color:var(--silver)}.bbr{background:rgba(217,119,6,.15);color:var(--bronze)}.bok{background:var(--okd);color:var(--ok)}.bno{background:var(--nod);color:var(--no)}.bin{background:var(--infod);color:var(--info)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+.sc{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;text-align:center}
+.sc .sn{font-size:28px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
+.sc .sl{font-size:10px;color:var(--t3);margin-top:5px;text-transform:uppercase;letter-spacing:.5px}
+.dash-cat{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-bottom:16px}
+.dash-cat-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:18px;position:relative;overflow:hidden}
+.dash-cat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.dash-cat-card.cat-eq::before{background:linear-gradient(90deg,var(--gold),var(--acc2))}
+.dash-cat-card.cat-tr::before{background:linear-gradient(90deg,var(--ok),var(--info))}
+.dash-cat-card .dcc-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.dash-cat-card.cat-eq .dcc-title{color:var(--gold)}.dash-cat-card.cat-tr .dcc-title{color:var(--ok)}
+.dcc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
+.dcc-stat .dcc-num{font-size:26px;font-weight:900;font-family:'JetBrains Mono',monospace;line-height:1}
+.dcc-stat .dcc-lbl{font-size:10px;color:var(--t3);margin-top:4px;text-transform:uppercase}
+.dcc-bar{margin-top:14px}.dcc-bar-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.dcc-bar-label span:first-child{color:var(--t2)}.dcc-bar-label span:last-child{font-family:'JetBrains Mono',monospace;font-weight:700}
+.dt{width:100%;border-collapse:collapse;margin-top:10px}
+.dt th{background:var(--bg1);padding:9px 12px;font-size:11px;text-align:center;color:var(--t3);border-bottom:2px solid var(--bd)}
+.dt td{padding:9px 12px;text-align:center;border-bottom:1px solid var(--bd);font-size:12px}
+.dt tr:last-child{font-weight:700;background:var(--accd)}
+.pb{width:100%;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.pf{height:100%;border-radius:4px;transition:width .5s}
+.tb{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.tb input,.tb select{flex:1;min-width:160px}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;justify-content:center;align-items:center;padding:20px}
+.mo.on{display:flex}
+.md{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r);padding:22px;max-width:460px;width:100%}
+.md h3{margin-bottom:10px;font-size:15px}.md p{font-size:13px;color:var(--t2);margin-bottom:18px}
+.ma{display:flex;gap:8px;justify-content:flex-end}
+.rg{display:flex;gap:10px;flex-wrap:wrap}
+.ro{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px}
+.ro input[type="radio"]{accent-color:var(--acc);width:15px;height:15px;cursor:pointer}
+.swo{display:flex;gap:6px}.swo select{flex:1}.swo input{flex:1;display:none}.swo input.sh{display:block}
+.es{text-align:center;padding:50px 16px;color:var(--t3)}.es .ei{font-size:40px;margin-bottom:10px;opacity:.4}.es p{font-size:13px}
+.toast{position:fixed;top:20px;right:20px;background:var(--ok);color:#fff;padding:12px 20px;border-radius:var(--r);font-size:13px;font-weight:600;z-index:300;transform:translateX(120%);transition:transform .3s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.toast.show{transform:translateX(0)}.toast.err{background:var(--no)}
+.pp2{background:#fff;color:#000;padding:24px 28px;margin-bottom:16px;border-radius:var(--r);page-break-after:always;font-size:13px}
+.pp2 h2{font-size:18px;text-align:center;margin-bottom:3px;border-bottom:2.5px solid #000;padding-bottom:7px}
+.pp2 .ps{text-align:center;font-size:11px;color:#666;margin-bottom:14px}
+.pig{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-bottom:16px}
+.pii{display:flex;gap:6px;font-size:13px;padding:4px 0;border-bottom:1px dotted #ccc}
+.pii .pl{font-weight:700;min-width:110px;color:#333}
+.ppg{display:grid;gap:12px}.ppg.c2{grid-template-columns:1fr 1fr}.ppg.c1{grid-template-columns:1fr}
+.ppb{border:1px solid #bbb;border-radius:6px;overflow:hidden;text-align:center;display:flex;flex-direction:column}
+.ppb .iw{flex:1;height:260px;display:flex;align-items:center;justify-content:center;background:#f8f8f8}
+.ppb .iw img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ppb .il{font-size:11px;padding:5px;background:#eee;font-weight:600;border-top:1px solid #ccc;flex-shrink:0}
+.chk-grid{display:flex;flex-wrap:wrap;gap:6px}
+.chk-item{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid var(--bd);transition:all .2s;user-select:none}
+.chk-item:hover{border-color:var(--acc)}.chk-item input[type="checkbox"]{accent-color:var(--acc);width:14px;height:14px}.chk-item.checked{background:var(--accd);border-color:var(--acc)}
+.exp-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+@media(max-width:768px){.fg{grid-template-columns:1fr}.sg{grid-template-columns:repeat(2,1fr)}.wrap{padding:10px}.hdr h1{font-size:15px}.tab{padding:11px 12px;font-size:12px}.hdr-r{gap:4px}}
+.print-header,.print-footer{display:none}
+@page{size:A4;margin:10mm 12mm 10mm 12mm}
+@media print{
+  body{background:#fff!important}
+  .hdr,.tabs,.np{display:none!important}
+  .wrap{padding:0;max-width:100%}
+  .pp2{box-shadow:none;border:none;margin:0;padding:0;page-break-after:always;page-break-inside:avoid;height:277mm;display:table;width:100%;table-layout:fixed}
+  .pp2 .page-content{display:table-row;height:100%}
+  .pp2 .page-content>div{padding:10px 0}
+  .ppb .iw{height:200px}
+  .card{display:none!important}
+  .exp-area{display:block!important}
+  .exp-area .pp2{display:table!important}
+  .print-header{display:table-header-group!important}
+  .print-header>div{text-align:center;font-size:10px;color:#333;font-weight:700;padding:6px 0}
+  .print-footer{display:table-footer-group!important}
+  .print-footer>div{text-align:center;font-size:9px;color:#666;padding:6px 0}
+}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.fi-anim{animation:fi .3s ease}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>🚛<div>柴油車自主管理標章系統<div class="sub">Diesel Vehicle Self-Management Badge System</div></div></h1>
+  <div class="hdr-r">
+    <button class="btn bsm bp" onclick="App.saveDrive()">☁️ 儲存到 Drive</button>
+    <button class="btn bsm binfo" onclick="App.openPicker()">📂 從 Drive 載入</button>
+    <button class="btn bsm bs" onclick="App.expJSON()">📥 匯出</button>
+    <label class="btn bsm bs" style="cursor:pointer">📤 匯入<input type="file" accept=".json" style="display:none" onchange="App.impJSON(event)"></label>
+    <span class="rc" id="rc">0 筆</span>
+  </div>
+</div>
+<div class="tabs" id="tabBar"></div>
+<div class="wrap" id="root"></div>
+<div class="toast" id="toast"></div>
+<div class="mo" id="dupMo"><div class="md"><h3>⚠️ 發現重複車號</h3><p id="dupMsg"></p><div class="ma"><button class="btn bs" onclick="App.closeDup()">取消</button><button class="btn bp" onclick="App.loadDup()">叫出該筆資料</button></div></div></div>
+<div class="mo" id="delMo"><div class="md"><h3>⚠️ 確認刪除</h3><p>確定要刪除這筆資料嗎？</p><div class="ma"><button class="btn bs" onclick="App.closeDel()">取消</button><button class="btn bd" onclick="App.doDel()">確認刪除</button></div></div></div>
+<div class="mo" id="pickMo"><div class="md" style="max-width:560px"><h3 style="display:flex;justify-content:space-between;align-items:center">📂 從 Google Drive 載入<button class="btn bsm bs" onclick="App.closePicker()">&times;</button></h3><p>選擇要載入的 JSON 檔案</p><div id="pickList" style="max-height:400px;overflow-y:auto;border:1px solid var(--bd);border-radius:6px"></div></div></div>
+
+<div id="syncOverlay" style="position:fixed;inset:0;background:rgba(15,20,25,.95);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+  <div style="font-size:40px">☁️</div>
+  <div style="font-size:16px;font-weight:700;color:#f59e0b">同步中</div>
+  <div id="syncMsg" style="font-size:12px;color:#8899aa">正在從 Google Drive 載入最新資料...</div>
+  <div style="width:200px;height:4px;background:#253347;border-radius:4px;overflow:hidden;margin-top:8px"><div style="width:60%;height:100%;background:#f59e0b;border-radius:4px;animation:syncPulse 1.2s ease-in-out infinite"></div></div>
+</div>
+<style>@keyframes syncPulse{0%{width:20%}50%{width:80%}100%{width:20%}}</style>
+
+<script>
+const MOENV = 'https://mobile.moenv.gov.tw/dce/Detect_Search.aspx';
+const API = 'https://script.google.com/macros/s/AKfycbwKTKaXyvy-tN5PfF3eS7nGVjLmx_1XuQt16cj1MwHcHpRc0A7ydGVXespF5xRIzFyT/exec';
+
+const App=(()=>{
+const SK='dbs5r',CK='dbs5c';
+let R=[],C=[],dupId=null,delId=null,tab='list',editId='',PD={v1:'',v2:'',web:''};
+
+// === Drive JSON API ===
+function dPost(b){if(!API)return Promise.resolve(null);return fetch(API,{method:'POST',body:JSON.stringify(b)}).then(r=>r.json()).catch(()=>null);}
+function dGet(p){if(!API)return Promise.resolve(null);return fetch(API+'?'+new URLSearchParams(p)).then(r=>r.json()).catch(()=>null);}
+
+async function saveDrive(){
+  if(!API){toast('未設定 API',true);return;}
+  if(!R.length){toast('沒有資料',true);return;}
+  const now=new Date();
+  const ts=now.getFullYear()+p2(now.getMonth()+1)+p2(now.getDate())+'_'+p2(now.getHours())+p2(now.getMinutes())+p2(now.getSeconds());
+  toast('☁️ 儲存中...');
+  const res=await dPost({action:'saveFile',filename:'自主管理標章_'+ts+'.json',jsonData:{records:R,contractors:C,savedAt:now.toISOString()}});
+  if(res&&res.success)toast('☁️ 已儲存！'+res.filename+' ('+Math.round(res.size/1024)+'KB)');
+  else toast('❌ 失敗：'+(res?.error||'未知'),true);
+}
+function p2(n){return('0'+n).slice(-2);}
+
+async function openPicker(){
+  if(!API){toast('未設定 API',true);return;}
+  document.getElementById('pickMo').classList.add('on');
+  document.getElementById('pickList').innerHTML='<p style="text-align:center;padding:20px;color:var(--t3)">載入中...</p>';
+  const res=await dGet({action:'listFiles'});
+  const files=(res&&res.files)?res.files:[];
+  if(!files.length){document.getElementById('pickList').innerHTML='<p style="text-align:center;padding:20px;color:var(--t3)">資料夾內沒有 JSON 檔案</p>';return;}
+  document.getElementById('pickList').innerHTML=files.map(f=>{
+    const d=new Date(f.updated);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-bottom:1px solid var(--bd);cursor:pointer" onclick="App.pickFile('${f.id}')" onmouseover="this.style.background='var(--accd)'" onmouseout="this.style.background=''"><div><div style="font-weight:600;font-size:13px">${esc(f.name)}</div><div style="font-size:11px;color:var(--t3)">${d.toLocaleDateString('zh-TW')} ${d.toLocaleTimeString('zh-TW')} • ${Math.round(f.size/1024)}KB</div></div><button class="btn bsm bp">載入</button></div>`;
+  }).join('');
+}
+function closePicker(){document.getElementById('pickMo').classList.remove('on');}
+
+async function pickFile(id){
+  toast('☁️ 讀取中...');
+  const res=await dGet({action:'readFile',fileId:id});
+  if(res&&res.success&&res.data){
+    if(res.data.records)R=res.data.records;
+    if(res.data.contractors&&res.data.contractors.length)C=res.data.contractors;
+    sav();toast('☁️ 已載入 '+res.filename+'（'+R.length+' 筆）');render();closePicker();
+  }else toast('❌ 讀取失敗',true);
+}
+
+// === Storage ===
+function ld(){try{R=JSON.parse(localStorage.getItem(SK))||[];}catch{R=[];}try{C=JSON.parse(localStorage.getItem(CK))||[];}catch{C=[];}}
+function sav(){try{const l=R.map(r=>({...r,photo1:'',photo2:'',photoWeb:''}));localStorage.setItem(SK,JSON.stringify(l));}catch{}try{localStorage.setItem(CK,JSON.stringify(C));}catch{}document.getElementById('rc').textContent=R.length+' 筆';}
+
+// === Toast ===
+function toast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast show'+(e?' err':'');setTimeout(()=>t.className='toast',3000);}
+
+// === Compress ===
+function compress(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>800){h=Math.round(h*800/w);w=800;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',0.5));};img.onerror=()=>res('');img.src=e.target.result;};r.onerror=()=>res('');r.readAsDataURL(file);});}
+
+function queryMoenv(p){if(!p){toast('請先輸入車號',true);return;}navigator.clipboard.writeText(p).then(()=>{toast('✅ 車號已複製！');setTimeout(()=>window.open(MOENV,'_blank'),300);}).catch(()=>{toast('✅ 已複製！');window.open(MOENV,'_blank');});}
+
+// === JSON ===
+function expJSON(){const d=JSON.stringify({records:R,contractors:C,exportDate:new Date().toISOString()});const b=new Blob([d],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='柴油車標章_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('📥 已匯出 ('+Math.round(d.length/1024)+'KB)');}
+function impJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.records){let a=0,u=0;d.records.forEach(r=>{const ex=R.find(m=>m.id===r.id);if(ex){Object.assign(ex,r);u++;}else{R.push(r);a++;}});if(d.contractors)d.contractors.forEach(c=>{if(!C.includes(c))C.push(c);});sav();toast('📤 新增'+a+'筆，更新'+u+'筆');render();}}catch{toast('❌ 格式錯誤',true);}};r.readAsText(f);ev.target.value='';}
+
+// === Tabs ===
+const TABS=[{id:'list',i:'📋',l:'資料列表'},{id:'form',i:'➕',l:'新增資料'},{id:'dash',i:'📊',l:'Dashboard'},{id:'export',i:'🖨️',l:'輸出資料'},{id:'settings',i:'⚙️',l:'設定'}];
+function renderTabs(){document.getElementById('tabBar').innerHTML=TABS.map(t=>`<button class="tab${t.id===tab?' on':''}" onclick="App.go('${t.id}')">${t.i} ${t.l}</button>`).join('');}
+function go(id){tab=id;renderTabs();render();}
+function render(){const root=document.getElementById('root');({list:renderList,form:renderForm,dash:renderDash,export:renderExport,settings:renderSettings})[tab](root);}
+
+// === LIST ===
+function renderList(root){
+  const s=(root._s||'').toUpperCase(),fT=root._t||'',fB=root._b||'';
+  let f=R.filter(r=>{
+    if(s&&!r.plateNumber.toUpperCase().includes(s)&&!r.vehicleType.toUpperCase().includes(s))return false;
+    if(fT&&r.category!==fT)return false;
+    if(fB&&r.hasBadge!==fB)return false;
+    return true;
+  });
+  let h=`<div class="tb np">
+    <input type="text" placeholder="🔍 搜尋車號、車輛型式..." value="${esc(root._s||'')}" oninput="App.fl(this.value,'s')">
+    <select onchange="App.fl(this.value,'t')"><option value="">全部類型</option><option value="施工機具"${fT==='施工機具'?' selected':''}>施工機具</option><option value="運輸車輛"${fT==='運輸車輛'?' selected':''}>運輸車輛</option></select>
+    <select onchange="App.fl(this.value,'b')"><option value="">全部標章</option><option value="是"${fB==='是'?' selected':''}>已取得</option><option value="否"${fB==='否'?' selected':''}>未取得</option></select>
+    <button class="btn bp" onclick="App.newRec()">➕ 新增資料</button>
+  </div><div class="card">`;
+  if(!f.length){h+='<div class="es"><div class="ei">📭</div><p>尚無資料</p></div>';}
+  else{h+='<div class="tc"><table><thead><tr><th>#</th><th>統計</th><th>類型</th><th>車號</th><th>車輛機具</th><th>燃油</th><th>標章</th><th>等級</th><th>編號</th><th>操作</th></tr></thead><tbody>';
+    f.forEach((r,i)=>{const bc=bCls(r),bt=r.hasBadge==='是'?r.badgeLevel:'未取得';const ex=r.excluded;
+      h+=`<tr style="${ex?'opacity:.45':''}"><td style="color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:11px">${i+1}</td><td style="text-align:center"><input type="checkbox" ${ex?'':'checked'} onchange="App.togEx('${r.id}')" style="accent-color:var(--ok);width:16px;height:16px;cursor:pointer" title="${ex?'已排除統計，點擊納入':'納入統計中，點擊排除'}"></td><td><span class="bt ${r.category==='施工機具'?'bg':'bok'}">${r.category}</span></td><td style="font-weight:600;font-family:'JetBrains Mono',monospace">${esc(r.plateNumber)}</td><td>${esc(r.vehicleType)}</td><td>${r.fuelType}</td><td><span class="bt ${r.hasBadge==='是'?'bok':'bno'}">${r.hasBadge}</span></td><td><span class="bt ${bc}">${bt}</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.badgeNumber||'—'}</td><td style="white-space:nowrap"><button class="btn bsm binfo" onclick="App.queryMoenv('${esc(r.plateNumber)}')">🔍</button> <button class="btn bsm bs" onclick="App.editRec('${r.id}')">✏️</button> <button class="btn bsm bd" onclick="App.confirmDel('${r.id}')">🗑️</button></td></tr>`;
+    });h+='</tbody></table></div>';}
+  h+='</div>';root.innerHTML=h;
+}
+function fl(v,k){const r=document.getElementById('root');r['_'+k]=v;renderList(r);}
+function togEx(id){const r=R.find(x=>x.id===id);if(r){r.excluded=!r.excluded;sav();render();}}
+
+// === FORM ===
+function newRec(){editId='';PD={v1:'',v2:'',web:''};tab='form';renderTabs();render();}
+function editRec(id){const r=R.find(x=>x.id===id);if(!r)return;editId=id;PD={v1:r.photo1||'',v2:r.photo2||'',web:r.photoWeb||''};tab='form';renderTabs();renderForm(document.getElementById('root'),r);}
+
+function renderForm(root,pf){
+  const r=pf||{};const title=editId?'✏️ 編輯 — '+r.plateNumber:'📝 新增資料';
+  const VT=['挖土機','推土機','鏟裝機','起重機','混凝土攪拌車','混凝土泵車','鑽孔機','堆高機','壓路機','拖車','小貨車','山貓','砂石車','發電機','灑水車','抽水肥車','吊卡車','垃圾車','加油車','吊車'];
+  const vtO=r.vehicleType&&!VT.includes(r.vehicleType);
+  const showB=r.hasBadge==='是';
+  let blO='<option value="">請選擇</option>';
+  if(r.category==='施工機具')['金級','銀級','普級'].forEach(l=>{blO+=`<option value="${l}"${r.badgeLevel===l?' selected':''}>${l}</option>`;});
+  else if(r.category==='運輸車輛')['新購五期車','新購六期車','優級','合格'].forEach(l=>{blO+=`<option value="${l}"${r.badgeLevel===l?' selected':''}>${l}</option>`;});
+  function pb(k,lbl,ic){const s=PD[k];if(s)return`<div class="fi"><label>${lbl}</label><div style="display:flex;gap:8px;margin-top:4px"><div class="pp"><img src="${s}"><button class="rp" onclick="App.rmP('${k}')">&times;</button></div></div></div>`;return`<div class="fi"><label>${lbl}</label><div class="upa" onclick="document.getElementById('f_${k}').click()"><div class="ui">${ic}</div><div class="ut">點擊上傳</div></div><input type="file" id="f_${k}" accept="image/*" style="display:none" onchange="App.upP('${k}',this)"></div>`;}
+
+  root.innerHTML=`<div class="card fi-anim"><div class="ctit">${title}</div><div class="fg">
+    <div class="fi"><label><span class="req">施工機具 / 運輸車輛</span></label><div class="rg"><label class="ro"><input type="radio" name="cat" value="施工機具"${r.category==='施工機具'?' checked':''} onchange="App.catCh()"> 施工機具</label><label class="ro"><input type="radio" name="cat" value="運輸車輛"${r.category==='運輸車輛'?' checked':''} onchange="App.catCh()"> 運輸車輛</label></div></div>
+    <div class="fi"><label><span class="req">車號</span></label><input type="text" id="fPlate" value="${esc(r.plateNumber||'')}" placeholder="輸入車號" oninput="App.chkDup()"><div style="margin-top:4px"><button class="btn bsm binfo" type="button" onclick="App.queryMoenv(document.getElementById('fPlate').value.trim().toUpperCase())">🔍 查詢環保署</button></div><div id="dupW" style="font-size:11px;color:var(--acc);display:none"></div></div>
+    <div class="fi"><label><span class="req">車輛機具</span></label><div class="swo"><select id="fVtSel" onchange="var o=document.getElementById('fVtO');if(this.value==='__o__'){o.classList.add('sh');o.focus();}else{o.classList.remove('sh');o.value='';}"><option value="">請選擇</option>${VT.map(v=>`<option value="${v}"${(!vtO&&r.vehicleType===v)?' selected':''}>${v}</option>`).join('')}<option value="__o__"${vtO?' selected':''}>其他</option></select><input type="text" id="fVtO" class="${vtO?'sh':''}" value="${vtO?esc(r.vehicleType):''}" placeholder="自行填寫"></div></div>
+    <div class="fi"><label><span class="req">汽油 / 柴油</span></label><div class="rg"><label class="ro"><input type="radio" name="fuel" value="柴油"${r.fuelType!=='汽油'?' checked':''}> 柴油</label><label class="ro"><input type="radio" name="fuel" value="汽油"${r.fuelType==='汽油'?' checked':''}> 汽油</label></div></div>
+    <div class="fi"><label><span class="req">是否取得標章</span></label><div class="rg"><label class="ro"><input type="radio" name="badge" value="是"${r.hasBadge==='是'?' checked':''} onchange="App.badgeCh()"> 是</label><label class="ro"><input type="radio" name="badge" value="否"${r.hasBadge==='否'?' checked':''} onchange="App.badgeCh()"> 否</label></div></div>
+    <div class="fi" id="blG" style="display:${showB?'flex':'none'}"><label>標章等級</label><select id="fBL">${blO}</select></div>
+    <div class="fi" id="bnG" style="display:${showB?'flex':'none'}"><label>標章編號</label><input type="text" id="fBN" value="${esc(r.badgeNumber||'')}" placeholder="標章編號"></div>
+  </div>
+  <div style="margin-top:16px"><div class="fg" style="grid-template-columns:1fr 1fr 1fr">${pb('v1','車輛照片 1','📸')}${pb('v2','車輛照片 2','📸')}${pb('web','網站查詢結果','🌐')}</div></div>
+  <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end"><button class="btn bs" onclick="App.cancel()">✖ 取消</button><button class="btn bp" onclick="App.saveForm()">💾 儲存</button></div></div>`;
+}
+function catCh(){const c=document.querySelector('input[name="cat"]:checked')?.value;const s=document.getElementById('fBL');if(!s)return;s.innerHTML='<option value="">請選擇</option>';if(c==='施工機具')['金級','銀級','普級'].forEach(l=>s.innerHTML+=`<option value="${l}">${l}</option>`);else if(c==='運輸車輛')['新購五期車','新購六期車','優級','合格'].forEach(l=>s.innerHTML+=`<option value="${l}">${l}</option>`);}
+function badgeCh(){const v=document.querySelector('input[name="badge"]:checked')?.value==='是';document.getElementById('blG').style.display=v?'flex':'none';document.getElementById('bnG').style.display=v?'flex':'none';}
+async function upP(k,inp){const f=inp.files[0];if(!f)return;toast('📸 壓縮中...');const c=await compress(f);if(c){PD[k]=c;toast('✅ 已選取');const fv=readF();renderForm(document.getElementById('root'),{...fv,id:editId});}}
+function rmP(k){PD[k]='';const fv=readF();renderForm(document.getElementById('root'),{...fv,id:editId});}
+function readF(){return{category:document.querySelector('input[name="cat"]:checked')?.value||'',plateNumber:(document.getElementById('fPlate')?.value||'').trim().toUpperCase(),vehicleType:document.getElementById('fVtSel')?.value==='__o__'?(document.getElementById('fVtO')?.value||'').trim():(document.getElementById('fVtSel')?.value||''),fuelType:document.querySelector('input[name="fuel"]:checked')?.value||'柴油',hasBadge:document.querySelector('input[name="badge"]:checked')?.value||'',badgeLevel:document.getElementById('fBL')?.value||'',badgeNumber:(document.getElementById('fBN')?.value||'').trim()};}
+function chkDup(){const p=(document.getElementById('fPlate')?.value||'').trim().toUpperCase();const w=document.getElementById('dupW');if(!w)return;if(!p){w.style.display='none';return;}const fd=R.find(r=>r.plateNumber.toUpperCase()===p&&r.id!==editId);if(fd){w.style.display='block';w.innerHTML=`⚠️ <b>${p}</b> 已存在 <button class="btn bsm bp" style="margin-left:6px" onclick="App.showDup('${fd.id}','${p}')">叫出</button>`;}else w.style.display='none';}
+function showDup(id,pl){dupId=id;document.getElementById('dupMsg').innerHTML=`車號 <b>${pl}</b> 已有資料，要編輯嗎？`;document.getElementById('dupMo').classList.add('on');}
+function closeDup(){document.getElementById('dupMo').classList.remove('on');}
+function loadDup(){closeDup();if(dupId)editRec(dupId);}
+function saveForm(){
+  const d=readF();
+  if(!d.category){toast('請選擇施工機具或運輸車輛',true);return;}
+  if(!d.plateNumber){toast('請輸入車號',true);return;}
+  if(!d.vehicleType){toast('請選擇車輛機具',true);return;}
+  if(!d.hasBadge){toast('請選擇是否取得標章',true);return;}
+  if(!editId){const dup=R.find(r=>r.plateNumber===d.plateNumber);if(dup){showDup(dup.id,d.plateNumber);return;}}
+  const rec={...d,id:editId||Date.now().toString(36)+Math.random().toString(36).slice(2,6),photo1:PD.v1,photo2:PD.v2,photoWeb:PD.web,updatedAt:new Date().toISOString()};
+  if(editId){const i=R.findIndex(r=>r.id===editId);if(i!==-1)R[i]=rec;else R.push(rec);}else R.push(rec);
+  sav();toast('✅ 儲存成功！');editId='';PD={v1:'',v2:'',web:''};go('list');
+}
+function cancel(){editId='';PD={v1:'',v2:'',web:''};go('list');}
+function confirmDel(id){delId=id;document.getElementById('delMo').classList.add('on');}
+function closeDel(){document.getElementById('delMo').classList.remove('on');}
+function doDel(){R=R.filter(r=>r.id!==delId);sav();closeDel();toast('🗑️ 已刪除');render();}
+
+// === DASHBOARD ===
+function renderDash(root){
+  const active=R.filter(r=>!r.excluded);
+  const exCnt=R.length-active.length;
+  const eq=active.filter(r=>r.category==='施工機具'),tr=active.filter(r=>r.category==='運輸車輛');
+  const eqP=eq.filter(r=>r.hasBadge==='是').length,trP=tr.filter(r=>r.hasBadge==='是').length;
+  const eqPct=eq.length?Math.round(eqP/eq.length*100):0,trPct=tr.length?Math.round(trP/tr.length*100):0;
+  const eqC=eqPct>=80?'var(--ok)':eqPct>=50?'var(--acc)':'var(--no)',trC=trPct>=80?'var(--ok)':trPct>=50?'var(--acc)':'var(--no)';
+  root.innerHTML=`
+    <div class="sg" style="grid-template-columns:1fr 1fr;max-width:360px;margin-bottom:16px"><div class="sc"><div class="sn" style="color:var(--acc)">${active.length}</div><div class="sl">統計筆數</div></div><div class="sc"><div class="sn" style="color:var(--t3);font-size:18px">${exCnt}</div><div class="sl">已排除</div></div></div>
+    <div class="dash-cat">
+      <div class="dash-cat-card cat-eq"><div class="dcc-title">🏗️ 施工機具</div><div class="dcc-stats"><div class="dcc-stat"><div class="dcc-num" style="color:var(--ok)">${eqP}</div><div class="dcc-lbl">取得標章</div></div><div class="dcc-stat"><div class="dcc-num" style="color:var(--no)">${eq.length-eqP}</div><div class="dcc-lbl">未取得</div></div><div class="dcc-stat"><div class="dcc-num" style="color:${eqC}">${eqPct}%</div><div class="dcc-lbl">通過率</div></div></div><div class="dcc-bar"><div class="dcc-bar-label"><span>查驗 ${eq.length} 台</span><span style="color:${eqC}">${eqP}/${eq.length}</span></div><div class="pb"><div class="pf" style="width:${eqPct}%;background:${eqC}"></div></div></div></div>
+      <div class="dash-cat-card cat-tr"><div class="dcc-title">🚚 運輸車輛</div><div class="dcc-stats"><div class="dcc-stat"><div class="dcc-num" style="color:var(--ok)">${trP}</div><div class="dcc-lbl">取得標章</div></div><div class="dcc-stat"><div class="dcc-num" style="color:var(--no)">${tr.length-trP}</div><div class="dcc-lbl">未取得</div></div><div class="dcc-stat"><div class="dcc-num" style="color:${trC}">${trPct}%</div><div class="dcc-lbl">通過率</div></div></div><div class="dcc-bar"><div class="dcc-bar-label"><span>查驗 ${tr.length} 台</span><span style="color:${trC}">${trP}/${tr.length}</span></div><div class="pb"><div class="pf" style="width:${trPct}%;background:${trC}"></div></div></div></div>
+    </div>
+    <div class="card"><div class="ctit">🏗️ 施工機具 — 型式統計</div>${dtbl(eq)}</div>
+    <div class="card" style="margin-top:12px"><div class="ctit">🚚 運輸車輛 — 型式統計</div>${dtbl(tr)}</div>`;
+}
+function dtbl(recs){const ty={};recs.forEach(r=>{if(!ty[r.vehicleType])ty[r.vehicleType]={t:0,p:0};ty[r.vehicleType].t++;if(r.hasBadge==='是')ty[r.vehicleType].p++;});const en=Object.entries(ty).sort((a,b)=>b[1].t-a[1].t);if(!en.length)return'<div class="es" style="padding:20px"><p>尚無資料</p></div>';let tA=0,pA=0;let rows=en.map(([k,d])=>{tA+=d.t;pA+=d.p;const p=d.t?Math.round(d.p/d.t*100):0;const c=p>=80?'var(--ok)':p>=50?'var(--acc)':'var(--no)';return`<tr><td style="text-align:left;font-weight:500">${esc(k)}</td><td>${d.t}</td><td>${d.p}</td><td>${d.t-d.p}</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:center"><div class="pb" style="width:70px"><div class="pf" style="width:${p}%;background:${c}"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c}">${p}%</span></div></td></tr>`;}).join('');const tp=tA?Math.round(pA/tA*100):0;rows+=`<tr><td style="text-align:left">合計</td><td>${tA}</td><td>${pA}</td><td>${tA-pA}</td><td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--acc)">${tp}%</span></td></tr>`;return`<table class="dt"><thead><tr><th style="text-align:left">車輛機具型式</th><th>查驗量</th><th>通過量</th><th>未通過</th><th>通過率</th></tr></thead><tbody>${rows}</tbody></table>`;}
+
+// === EXPORT ===
+function renderExport(root){
+  if(!R.length){root.innerHTML='<div class="es"><p>尚無資料</p></div>';return;}
+  const dates=R.map(r=>r.updatedAt?.slice(0,10)).filter(Boolean).sort();
+  const minD=dates[0]||new Date().toISOString().slice(0,10),maxD=dates[dates.length-1]||minD;
+  root.innerHTML=`<div class="card np fi-anim"><div class="ctit">🔎 篩選</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px">
+      <div class="fi"><label style="color:var(--acc);font-weight:700">輸出範圍</label><div class="rg"><label class="ro"><input type="radio" name="expR" value="all" checked onchange="document.getElementById('drB').style.display='none'"> 全部</label><label class="ro"><input type="radio" name="expR" value="date" onchange="document.getElementById('drB').style.display='block'"> 日期區間</label></div><div id="drB" style="display:none;margin-top:6px"><div style="display:flex;gap:6px;align-items:center"><input type="date" id="eDF" value="${minD}" style="width:auto"><span style="color:var(--t3)">～</span><input type="date" id="eDT" value="${maxD}" style="width:auto"></div></div></div>
+      <div class="fi"><label style="color:var(--acc);font-weight:700">機具種類</label><div class="chk-grid"><label class="chk-item checked"><input type="checkbox" value="施工機具" checked onchange="this.parentElement.classList.toggle('checked',this.checked)"> 施工機具</label><label class="chk-item checked"><input type="checkbox" value="運輸車輛" checked onchange="this.parentElement.classList.toggle('checked',this.checked)"> 運輸車輛</label></div></div>
+      <div class="fi"><label style="color:var(--acc);font-weight:700">排除項目</label><div class="chk-grid"><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expInclEx" onchange="this.parentElement.classList.toggle('checked',this.checked)"> 包含已排除統計的紀錄</label></div></div>
+    </div>
+    <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
+  </div><div id="expA" class="exp-area"></div>`;
+  updCnt();
+}
+function getFiltered(){
+  const isAll=document.querySelector('input[name="expR"][value="all"]')?.checked;
+  const df=document.getElementById('eDF')?.value||'',dt=document.getElementById('eDT')?.value||'';
+  const cats=[...document.querySelectorAll('.chk-item input:checked')].map(c=>c.value).filter(v=>v==='施工機具'||v==='運輸車輛');
+  const inclEx=document.getElementById('expInclEx')?.checked;
+  return R.filter(r=>{if(!inclEx&&r.excluded)return false;if(!isAll&&df&&dt&&r.updatedAt){const d=r.updatedAt.slice(0,10);if(d<df||d>dt)return false;}if(cats.length&&!cats.includes(r.category))return false;return true;});
+}
+function updCnt(){const el=document.getElementById('eCnt');if(el)el.textContent='符合：'+getFiltered().length+'/'+R.length+' 筆';}
+function genPrev(){
+  const f=getFiltered();const a=document.getElementById('expA');if(!a)return;
+  if(!f.length){a.innerHTML='<div class="es" style="padding:30px"><p>無資料</p></div>';return;}
+  let h=`<div class="np" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--t2)">預覽 ${f.length+1} 頁（含總表）</span><button class="btn bp" onclick="window.print()">🖨️ 列印 / PDF</button></div>`;
+
+  // === 第一頁：總表（一頁內） ===
+  const eq=f.filter(r=>r.category==='施工機具'),tr=f.filter(r=>r.category==='運輸車輛');
+  const eqP=eq.filter(r=>r.hasBadge==='是').length,trP=tr.filter(r=>r.hasBadge==='是').length;
+  const eqPct=eq.length?Math.round(eqP/eq.length*100):0,trPct=tr.length?Math.round(trP/tr.length*100):0;
+  const today=new Date();const todayStr=today.getFullYear()+'/'+(today.getMonth()+1).toString().padStart(2,'0')+'/'+today.getDate().toString().padStart(2,'0');
+
+  function pTbl(recs,title,icon,color){
+    const ty={};recs.forEach(r=>{if(!ty[r.vehicleType])ty[r.vehicleType]={t:0,p:0};ty[r.vehicleType].t++;if(r.hasBadge==='是')ty[r.vehicleType].p++;});
+    const en=Object.entries(ty).sort((a,b)=>b[1].t-a[1].t);if(!en.length)return'<div style="color:#999;font-size:11px;padding:6px">尚無資料</div>';
+    let tA=0,pA=0;
+    let rows=en.map(([k,d],i)=>{tA+=d.t;pA+=d.p;const p=d.t?Math.round(d.p/d.t*100):0;const bg=i%2===0?'#fff':'#f9f9f9';const pc=p>=80?'#16a34a':p>=50?'#b45309':'#dc2626';return'<tr style="background:'+bg+'"><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;font-size:12px">'+esc(k)+'</td><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:12px">'+d.t+'</td><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:12px;color:#16a34a;font-weight:600">'+d.p+'</td><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:12px;color:'+pc+';font-weight:700">'+p+'%</td></tr>';}).join('');
+    const tp=tA?Math.round(pA/tA*100):0;
+    rows+='<tr style="background:'+color+'18"><td style="padding:5px 10px;font-weight:700;font-size:12px">合計</td><td style="padding:5px 10px;text-align:center;font-weight:700;font-size:12px">'+tA+'</td><td style="padding:5px 10px;text-align:center;font-weight:700;font-size:12px;color:#16a34a">'+pA+'</td><td style="padding:5px 10px;text-align:center;font-weight:900;font-size:13px;color:'+color+'">'+tp+'%</td></tr>';
+    return'<div><div style="font-size:13px;font-weight:700;padding:6px 10px;background:'+color+';color:#fff;border-radius:4px 4px 0 0;letter-spacing:1px">'+icon+' '+title+'</div><table style="width:100%;border-collapse:collapse;border:1px solid #ddd;border-top:none"><thead><tr style="background:#f5f5f5"><th style="padding:5px 10px;text-align:left;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">車輛機具型式</th><th style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">數量</th><th style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">有標章數</th><th style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">通過率</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  }
+
+  h+=`<div class="pp2">
+    <div class="print-header"><div>通霄電廠二期更新改建計畫海底輸氣管線統包工程</div></div>
+    <div class="page-content"><div>
+    <h2 style="font-size:16px;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:2px;text-align:center">柴油車自主管理標章 — 統計總表</h2>
+    <div class="ps" style="margin-bottom:12px;font-size:10px">NMDC Energy — Tongxiao Power Plant Phase II</div>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:12px;border:2px solid #333">
+      <tr>
+        <td style="padding:6px 10px;border:1px solid #ddd;text-align:center;background:#1a2332;color:#fff;font-weight:700;font-size:11px;width:50%">📊 資料總筆數</td>
+        <td style="padding:6px 10px;border:1px solid #ddd;text-align:center;background:#1a2332;color:#fff;font-weight:700;font-size:11px;width:50%">📅 統計期間</td>
+      </tr>
+      <tr>
+        <td style="padding:8px;border:1px solid #ddd;text-align:center;font-size:20px;font-weight:900;font-family:'JetBrains Mono',monospace">${f.length} <span style="font-size:11px;font-weight:400;color:#666">筆</span></td>
+        <td style="padding:8px;border:1px solid #ddd;text-align:center;font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace">2025/09/01 ～ ${todayStr}</td>
+      </tr>
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:12px;border:2px solid #333">
+      <tr>
+        <td style="padding:5px;border:1px solid #ddd;background:#b45309;color:#fff;font-weight:700;font-size:11px;text-align:center" colspan="3">🏗️ 施工機具</td>
+        <td style="padding:5px;border:1px solid #ddd;background:#0e7490;color:#fff;font-weight:700;font-size:11px;text-align:center" colspan="3">🚚 運輸車輛</td>
+      </tr>
+      <tr style="background:#f8f8f8;font-size:10px;color:#555;font-weight:600">
+        <td style="padding:3px 6px;border:1px solid #ddd;text-align:center">總數</td>
+        <td style="padding:3px 6px;border:1px solid #ddd;text-align:center">通過標章數</td>
+        <td style="padding:3px 6px;border:1px solid #ddd;text-align:center">通過比例</td>
+        <td style="padding:3px 6px;border:1px solid #ddd;text-align:center">總數</td>
+        <td style="padding:3px 6px;border:1px solid #ddd;text-align:center">通過標章數</td>
+        <td style="padding:3px 6px;border:1px solid #ddd;text-align:center">通過比例</td>
+      </tr>
+      <tr style="font-family:'JetBrains Mono',monospace">
+        <td style="padding:8px 6px;border:1px solid #ddd;text-align:center;font-size:18px;font-weight:900">${eq.length}</td>
+        <td style="padding:8px 6px;border:1px solid #ddd;text-align:center;font-size:18px;font-weight:900;color:#16a34a">${eqP}</td>
+        <td style="padding:8px 6px;border:1px solid #ddd;text-align:center;font-size:18px;font-weight:900;color:${eqPct>=80?'#16a34a':eqPct>=50?'#b45309':'#dc2626'}">${eqPct}%</td>
+        <td style="padding:8px 6px;border:1px solid #ddd;text-align:center;font-size:18px;font-weight:900">${tr.length}</td>
+        <td style="padding:8px 6px;border:1px solid #ddd;text-align:center;font-size:18px;font-weight:900;color:#16a34a">${trP}</td>
+        <td style="padding:8px 6px;border:1px solid #ddd;text-align:center;font-size:18px;font-weight:900;color:${trPct>=80?'#16a34a':trPct>=50?'#b45309':'#dc2626'}">${trPct}%</td>
+      </tr>
+    </table>
+
+    ${pTbl(eq,'施工機具','🏗️','#b45309')}
+    <div style="height:10px"></div>
+    ${pTbl(tr,'運輸車輛','🚚','#0e7490')}
+    </div></div>
+    <div class="print-footer"><div></div></div>
+  </div>`;
+
+  // === 後續頁：每台一頁 ===
+  h+=f.map(r=>{
+    const bt=r.hasBadge==='是'?r.badgeLevel+'（'+(r.badgeNumber||'—')+'）':'未取得';
+    let ph='';
+    if(r.photo1||r.photo2||r.photoWeb){
+      if(r.photo1||r.photo2){ph+='<div class="ppg c2">';
+        ph+=r.photo1?'<div class="ppb"><div class="iw"><img src="'+r.photo1+'"></div><div class="il">車輛照片 1</div></div>':'<div class="ppb"><div class="iw" style="color:#aaa;font-size:12px">無照片</div><div class="il">車輛照片 1</div></div>';
+        ph+=r.photo2?'<div class="ppb"><div class="iw"><img src="'+r.photo2+'"></div><div class="il">車輛照片 2</div></div>':'<div class="ppb"><div class="iw" style="color:#aaa;font-size:12px">無照片</div><div class="il">車輛照片 2</div></div>';
+        ph+='</div>';}
+      if(r.photoWeb)ph+='<div class="ppg c1" style="margin-top:12px"><div class="ppb"><div class="iw"><img src="'+r.photoWeb+'"></div><div class="il">網站查詢結果</div></div></div>';
+    }else ph='<p style="color:#999;font-size:11px;text-align:center">無照片</p>';
+    const badgeColor=r.hasBadge==='是'?'#16a34a':'#dc2626';
+    const catColor=r.category==='施工機具'?'#b45309':'#0e7490';
+    const catIcon=r.category==='施工機具'?'🏗️':'🚚';
+    return'<div class="pp2">'+
+      '<div class="print-header"><div>通霄電廠二期更新改建計畫海底輸氣管線統包工程</div></div>'+
+      '<div class="page-content"><div>'+
+      '<h2 style="font-size:17px;border-bottom:2.5px solid #000;padding-bottom:7px;margin-bottom:3px;text-align:center">柴油車自主管理標章</h2>'+
+      '<div class="ps" style="margin-bottom:14px">NMDC Energy — Tongxiao Power Plant Phase II</div>'+
+      '<table style="width:100%;border-collapse:collapse;margin-bottom:16px;border:2px solid #333">'+
+        '<tr><td style="padding:8px 14px;background:'+catColor+';color:#fff;font-weight:700;font-size:13px;width:25%;border:1px solid #ddd" rowspan="2">'+catIcon+' '+r.category+'</td>'+
+        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">車號</td>'+
+        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">車輛機具</td>'+
+        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">燃油類型</td></tr>'+
+        '<tr><td style="padding:8px 14px;font-size:16px;font-weight:900;font-family:JetBrains Mono,monospace;border:1px solid #ddd">'+esc(r.plateNumber)+'</td>'+
+        '<td style="padding:8px 14px;font-size:14px;font-weight:600;border:1px solid #ddd">'+esc(r.vehicleType)+'</td>'+
+        '<td style="padding:8px 14px;font-size:14px;border:1px solid #ddd">'+r.fuelType+'</td></tr>'+
+        '<tr><td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd">取得標章</td>'+
+        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd">標章等級</td>'+
+        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd" colspan="2">標章編號</td></tr>'+
+        '<tr><td style="padding:8px 14px;font-size:15px;font-weight:800;color:'+badgeColor+';border:1px solid #ddd">'+r.hasBadge+'</td>'+
+        '<td style="padding:8px 14px;font-size:14px;font-weight:600;border:1px solid #ddd">'+(r.badgeLevel||'—')+'</td>'+
+        '<td style="padding:8px 14px;font-size:14px;font-family:JetBrains Mono,monospace;border:1px solid #ddd" colspan="2">'+(r.badgeNumber||'—')+'</td></tr>'+
+      '</table>'+ph+
+      '</div></div>'+
+      '<div class="print-footer"><div></div></div>'+
+    '</div>';
+  }).join('');
+  a.innerHTML=h;
+  // Add page numbers
+  const footers=a.querySelectorAll('.print-footer>div');
+  footers.forEach((ft,i)=>{ft.textContent='第 '+(i+1)+' 頁';});
+  // Remove page-break on last page to avoid blank page
+  const pages=a.querySelectorAll('.pp2');
+  if(pages.length) pages[pages.length-1].style.pageBreakAfter='auto';
+  a.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// === SETTINGS ===
+function renderSettings(root){
+  root.innerHTML=`
+    <div class="card fi-anim"><div class="ctit">☁️ Google Drive</div>
+      <p style="font-size:12px;color:var(--t2);margin-bottom:8px">${API?'<span style="color:var(--ok)">✅ 已連線</span>':'<span style="color:var(--no)">⏸ 未設定</span>'}</p>
+      ${API?'<p style="font-size:10px;color:var(--t3);word-break:break-all;font-family:monospace">'+API.slice(0,80)+'...</p>':''}
+    </div>
+    <div class="card" style="margin-top:12px"><div class="ctit">💾 資料</div>
+      <p style="font-size:12px;color:var(--t2);margin-bottom:10px">${R.length} 筆，約 ${Math.round(JSON.stringify(R).length/1024)}KB</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn bp" onclick="App.expJSON()">📥 匯出 JSON</button>
+        <label class="btn bs" style="cursor:pointer">📤 匯入<input type="file" accept=".json" style="display:none" onchange="App.impJSON(event)"></label>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="ctit">🗑️ 清除</div><button class="btn bd" onclick="if(confirm('確定？')){App.clearAll();}">清除所有資料</button></div>`;
+}
+function clearAll(){R=[];sav();toast('🗑️ 已清除');render();}
+
+// === HELPERS ===
+function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function bCls(r){if(r.hasBadge!=='是')return'bno';if(r.badgeLevel==='金級')return'bg';if(['銀級','優級','新購六期車'].includes(r.badgeLevel))return'bsi';if(['普級','合格','新購五期車'].includes(r.badgeLevel))return'bbr';return'bin';}
+
+// === INIT ===
+ld();renderTabs();render();
+
+// Auto-load latest JSON from Drive
+if(API){
+  (async()=>{
+    const ov=document.getElementById('syncOverlay');
+    const msg=document.getElementById('syncMsg');
+    try{
+      msg.textContent='正在取得檔案列表...';
+      const res=await dGet({action:'listFiles'});
+      const files=(res&&res.files)?res.files:[];
+      if(files.length){
+        msg.textContent='載入 '+files[0].name+'...';
+        const data=await dGet({action:'readFile',fileId:files[0].id});
+        if(data&&data.success&&data.data){
+          if(data.data.records)R=data.data.records;
+          if(data.data.contractors&&data.data.contractors.length)C=data.data.contractors;
+          sav();render();
+          msg.textContent='✅ 已載入 '+files[0].name+'（'+R.length+' 筆）';
+        }else{
+          msg.textContent='⚠️ 讀取失敗，使用本地資料';
+        }
+      }else{
+        msg.textContent='Drive 資料夾無檔案，使用本地資料';
+      }
+    }catch(e){
+      msg.textContent='⚠️ 連線失敗，使用本地資料';
+    }
+    setTimeout(()=>{ov.style.opacity='0';ov.style.transition='opacity .3s';setTimeout(()=>ov.remove(),300);},800);
+  })();
+}else{
+  document.getElementById('syncOverlay').remove();
+}
+
+return{go,fl,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,saveDrive,openPicker,closePicker,pickFile};
+})();
+</script>
+</body>
+</html>
