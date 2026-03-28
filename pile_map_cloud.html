@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>通霄電廠 海管打樁地圖</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans TC',sans-serif;background:#0a1628;color:#e0e6f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+#topbar{background:#131d36;border-bottom:1px solid rgba(255,255,255,.08);padding:8px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0;z-index:1000}
+#topbar h1{font-size:13px;font-weight:700;color:#38bdf8;flex:1}
+#container{flex:1;display:flex;overflow:hidden;position:relative}
+#map{flex:1;z-index:1}
+#sidebar{width:270px;background:#131d36;border-left:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;z-index:2}
+.sec{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.sec-title{font-size:10px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.lbtn{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;border:none;background:none;color:#e0e6f0;cursor:pointer;width:100%;font-size:12px;transition:background .15s;margin-bottom:3px;font-family:inherit}
+.lbtn:hover{background:rgba(255,255,255,.06)}
+.lbtn.active{background:rgba(56,189,248,.12)}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dmd{width:11px;height:11px;border-radius:2px;transform:rotate(45deg);flex-shrink:0}
+.crow{display:flex;gap:5px;flex-wrap:wrap}
+.cbtn{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 9px;color:#e0e6f0;font-size:11px;cursor:pointer;transition:all .15s;font-family:inherit;white-space:nowrap}
+.cbtn:hover{background:rgba(255,255,255,.12)}
+.cbtn.active{background:rgba(56,189,248,.2);border-color:#38bdf8;color:#38bdf8}
+#cloud-list{flex:1;overflow-y:auto;padding:6px 10px}
+.mki{display:flex;align-items:flex-start;gap:7px;padding:6px 7px;border-radius:6px;border:1px solid rgba(255,255,255,.06);margin-bottom:5px;cursor:pointer;transition:background .15s}
+.mki:hover{background:rgba(255,255,255,.05)}
+.mki-em{font-size:18px;flex-shrink:0;line-height:1.2}
+.mki-inf{flex:1;min-width:0}
+.mki-n{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mki-s{font-size:10px;color:#64748b;margin-top:1px}
+.mki-d{background:none;border:none;color:#475569;cursor:pointer;font-size:13px;padding:2px 5px;border-radius:4px;line-height:1}
+.mki-d:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+#add-form{padding:8px 12px;border-top:1px solid rgba(255,255,255,.06);background:#0d1629}
+.finp{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:5px 8px;color:#e0e6f0;font-size:12px;font-family:inherit;margin-bottom:5px}
+.finp:focus{outline:none;border-color:#38bdf8}
+.finp::placeholder{color:#475569}
+.frow{display:flex;gap:5px;margin-bottom:5px}
+.frow .finp{margin-bottom:0}
+.fbtn{background:linear-gradient(135deg,#2563eb,#1d4ed8);border:none;border-radius:6px;padding:6px 12px;color:#fff;font-size:12px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap}
+.fbtn:hover{filter:brightness(1.15)}
+.fbtn.g{background:linear-gradient(135deg,#059669,#047857)}
+.fbtn.r{background:linear-gradient(135deg,#dc2626,#b91c1c)}
+.igrid{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
+.iopt{font-size:16px;padding:3px 5px;border-radius:5px;cursor:pointer;border:2px solid transparent;transition:all .15s;line-height:1}
+.iopt:hover,.iopt.sel{border-color:#38bdf8;background:rgba(56,189,248,.15)}
+#statusbar{background:#0d1629;border-top:1px solid rgba(255,255,255,.06);padding:3px 12px;font-size:10px;color:#475569;display:flex;gap:12px;flex-shrink:0}
+.sdot{width:5px;height:5px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
+.sdot.g{background:#10b981}.sdot.r{background:#ef4444}.sdot.y{background:#f59e0b}
+#click-hint{position:absolute;top:50px;left:50%;transform:translateX(-50%);background:#2563eb;color:#fff;padding:7px 16px;border-radius:20px;font-size:12px;z-index:900;display:none;white-space:nowrap;pointer-events:none;box-shadow:0 4px 20px rgba(37,99,235,.4)}
+#setup-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:center;justify-content:center}
+.mbox{background:#1e2d4a;border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:22px;width:460px;max-width:92vw}
+.mbox h2{font-size:15px;color:#38bdf8;margin-bottom:6px}
+.mbox p{font-size:12px;color:#94a3b8;margin-bottom:14px;line-height:1.65}
+.mbox ol{font-size:11px;color:#64748b;margin-left:16px;line-height:2}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .7s linear infinite;display:inline-block}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <h1>🔩 通霄電廠 海管打樁地圖</h1>
+  <span id="conn-badge" style="font-size:10px;padding:3px 8px;border-radius:10px;background:rgba(245,158,11,.2);color:#f59e0b;">未連線</span>
+</div>
+
+<div id="container">
+  <div id="map"></div>
+  <div id="click-hint">點擊地圖選取座標 — 再點一次取消</div>
+  
+  <div id="sidebar">
+    <!-- Layer toggles -->
+    <div class="sec">
+      <div class="sec-title">樁位圖層</div>
+      <button class="lbtn active" id="lyr-discharge" onclick="toggleLayer('discharge',this)">
+        <div class="dot" style="background:#f9a8d4"></div>排水管管床架 (21)
+      </button>
+      <button class="lbtn active" id="lyr-intake" onclick="toggleLayer('intake',this)">
+        <div class="dot" style="background:#6ee7b7"></div>取水管管床架 (27)
+      </button>
+      <button class="lbtn active" id="lyr-base" onclick="toggleLayer('base',this)">
+        <div class="dot" style="background:#fcd34d"></div>取排水頭基座 (10)
+      </button>
+    </div>
+    
+    <!-- Controls -->
+    <div class="sec">
+      <div class="sec-title">顯示控制</div>
+      <div class="crow">
+        <button class="cbtn" id="btn-labels" onclick="toggleLabels()">🏷️ 標籤</button>
+        <button class="cbtn active" id="btn-lines" onclick="toggleLines()">〰️ 管線</button>
+        <button class="cbtn active" id="btn-750" onclick="toggle750()">📏 750m</button>
+        <button class="cbtn" onclick="resetView()">🎯 重置</button>
+      </div>
+    </div>
+    
+    <!-- Cloud markers header -->
+    <div class="sec">
+      <div class="sec-title">
+        ☁️ 雲端標記
+        <div style="display:flex;gap:4px">
+          <button class="cbtn" onclick="refreshCloud()" id="btn-ref" style="padding:2px 7px;font-size:10px">↻</button>
+          <button class="cbtn active" onclick="toggleAddForm()" id="btn-add" style="padding:2px 7px;font-size:10px">+ 新增</button>
+        </div>
+      </div>
+      <div id="cloud-status" style="font-size:10px;color:#64748b;min-height:14px"></div>
+    </div>
+    
+    <div id="cloud-list">
+      <div style="text-align:center;color:#475569;font-size:12px;padding:16px 0" id="cloud-empty">載入中...</div>
+    </div>
+    
+    <!-- Add form -->
+    <div id="add-form" style="display:none">
+      <div class="sec-title" style="margin-bottom:8px">➕ 新增標記</div>
+      <div class="igrid" id="igrid"></div>
+      <input class="finp" id="mk-name" placeholder="名稱（如：Arzana、浮標A）" />
+      <input class="finp" id="mk-notes" placeholder="備註（可空白）" />
+      <div class="frow">
+        <input class="finp" id="mk-lat" placeholder="緯度" style="font-size:11px;font-family:monospace" />
+        <input class="finp" id="mk-lon" placeholder="經度" style="font-size:11px;font-family:monospace" />
+      </div>
+      <div class="frow">
+        <input class="finp" id="mk-by" placeholder="你的名字" />
+        <button class="fbtn" onclick="submitMarker()">儲存</button>
+      </div>
+      <button class="cbtn" onclick="startClickMode()" id="btn-click" style="width:100%;text-align:center;margin-top:2px;font-size:11px">🖱️ 點地圖選座標</button>
+    </div>
+  </div>
+</div>
+
+<div id="statusbar">
+  <span id="st-conn"><span class="sdot y"></span>連接中...</span>
+  <span id="st-count">雲端標記：0</span>
+  <span id="st-time"></span>
+</div>
+
+<!-- Setup modal -->
+<div id="setup-modal">
+  <div class="mbox">
+    <h2>⚙️ 雲端設定（首次使用）</h2>
+    <p>請在 Google Sheets 部署 Apps Script 後，將網址貼到下方。<br>設定完成後所有人新增的標記都會自動同步。</p>
+    <div class="frow" style="margin-bottom:10px">
+      <input class="finp" id="gas-url-input" placeholder="https://script.google.com/macros/s/..." style="font-size:11px;margin:0" />
+    </div>
+    <div class="frow" style="margin-bottom:14px">
+      <button class="fbtn g" onclick="saveGasUrl()">✓ 確認連接</button>
+      <button class="cbtn" onclick="skipSetup()">先跳過（離線使用）</button>
+    </div>
+    <div style="font-size:11px;color:#475569;line-height:1.8">
+      <strong style="color:#94a3b8">📋 GAS 部署步驟：</strong><ol>
+      <li>開啟 Google Sheets → 擴充功能 → Apps Script</li>
+      <li>貼上提供的 <code style="background:#0a1628;padding:1px 5px;border-radius:3px;color:#7dd3fc">gas_backend.js</code> 代碼</li>
+      <li>部署 → 新增部署 → 類型：網路應用程式</li>
+      <li>執行身分：我、存取權：<strong>所有人</strong></li>
+      <li>複製部署網址貼到上方</li></ol>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG
+// ══════════════════════════════════════════
+const GAS_HARDCODED = 'https://script.google.com/macros/s/AKfycbyS2iiav7k70yhTKFhwGQh9e7TIisUuawBbBPSjBeGIAnhVp9sjIZbSOS674bdur7fYzQ/exec';
+let GAS_URL = GAS_HARDCODED;
+
+// ══════════════════════════════════════════
+// PILE DATA (WGS84)
+// ══════════════════════════════════════════
+const table1=[
+  {seq:"01",name:"試樁C",lat:24.4977862,lon:120.6615147,depth:-16.57},
+  {seq:"02",name:"試樁D",lat:24.4967328,lon:120.6629878,depth:-15.61},
+  {seq:"03",name:"DA1",lat:24.4959130,lon:120.6641719,depth:-14.62},
+  {seq:"04",name:"DA2",lat:24.4961428,lon:120.6638400,depth:-15.07},
+  {seq:"05",name:"DA3",lat:24.4963395,lon:120.6635559,depth:-15.25},
+  {seq:"06",name:"DA4",lat:24.4965361,lon:120.6632719,depth:-15.43},
+  {seq:"07",name:"DA5",lat:24.4967328,lon:120.6629878,depth:-15.61},
+  {seq:"08",name:"DA6",lat:24.4969295,lon:120.6627038,depth:-15.79},
+  {seq:"09",name:"DA7",lat:24.4971261,lon:120.6624197,depth:-15.97},
+  {seq:"10",name:"DA8",lat:24.4973228,lon:120.6621357,depth:-16.12},
+  {seq:"11",name:"DA9",lat:24.4975807,lon:120.6617631,depth:-16.39},
+  {seq:"12",name:"DB1",lat:24.4980797,lon:120.6617292,depth:-16.62},
+  {seq:"13",name:"DB2",lat:24.4979422,lon:120.6616543,depth:-16.57},
+  {seq:"14",name:"DB3",lat:24.4978646,lon:120.6615846,depth:-16.58},
+  {seq:"15",name:"DB4",lat:24.4977862,lon:120.6615147,depth:-16.57},
+  {seq:"16",name:"DB5",lat:24.4982868,lon:120.6617430,depth:-16.71},
+  {seq:"17",name:"DB6",lat:24.4984875,lon:120.6616272,depth:-16.71},
+  {seq:"18",name:"DB7",lat:24.4983689,lon:120.6615369,depth:-16.71},
+  {seq:"19",name:"DB8",lat:24.4982523,lon:120.6614435,depth:-16.71},
+  {seq:"20",name:"DB9",lat:24.4981359,lon:120.6613500,depth:-16.71},
+  {seq:"21",name:"DB10",lat:24.4980108,lon:120.6612691,depth:-16.71},
+];
+const table2=[
+  {seq:"01",name:"試樁A",lat:24.4972408,lon:120.6587379,depth:-20.21},
+  {seq:"02",name:"試樁B",lat:24.4958634,lon:120.6600866,depth:-17.04},
+  {seq:"03",name:"IA1",lat:24.4948204,lon:120.6615932,depth:-14.65},
+  {seq:"04",name:"IA2",lat:24.4950169,lon:120.6613094,depth:-14.87},
+  {seq:"05",name:"IA3",lat:24.4952137,lon:120.6610251,depth:-15.08},
+  {seq:"06",name:"IA4",lat:24.4954702,lon:120.6606546,depth:-15.71},
+  {seq:"07",name:"IA5",lat:24.4956668,lon:120.6603706,depth:-16.37},
+  {seq:"08",name:"IA6",lat:24.4958634,lon:120.6600866,depth:-17.04},
+  {seq:"09",name:"IA7",lat:24.4960601,lon:120.6598026,depth:-17.69},
+  {seq:"10",name:"IA8",lat:24.4962567,lon:120.6595186,depth:-18.34},
+  {seq:"11",name:"IA9",lat:24.4964759,lon:120.6592020,depth:-19.06},
+  {seq:"12",name:"IB1",lat:24.4969413,lon:120.6588783,depth:-19.77},
+  {seq:"13",name:"IB2",lat:24.4969469,lon:120.6587771,depth:-19.89},
+  {seq:"14",name:"IB3",lat:24.4968686,lon:120.6587069,depth:-19.87},
+  {seq:"15",name:"IB4",lat:24.4968254,lon:120.6585878,depth:-19.84},
+  {seq:"16",name:"IB5",lat:24.4967452,lon:120.6585301,depth:-19.79},
+  {seq:"17",name:"IB6",lat:24.4972408,lon:120.6587379,depth:-20.21},
+  {seq:"18",name:"IB7",lat:24.4972337,lon:120.6586080,depth:-20.35},
+  {seq:"19",name:"IB8",lat:24.4971406,lon:120.6585106,depth:-20.37},
+  {seq:"20",name:"IB9",lat:24.4970184,lon:120.6584236,depth:-20.29},
+  {seq:"21",name:"IB10",lat:24.4969192,lon:120.6583421,depth:-20.27},
+  {seq:"22",name:"IB11",lat:24.4974657,lon:120.6586326,depth:-20.53},
+  {seq:"23",name:"IB12",lat:24.4976924,lon:120.6585263,depth:-20.71},
+  {seq:"24",name:"IB13",lat:24.4975561,lon:120.6584178,depth:-20.71},
+  {seq:"25",name:"IB14",lat:24.4974207,lon:120.6583084,depth:-20.71},
+  {seq:"26",name:"IB15",lat:24.4972846,lon:120.6581971,depth:-20.71},
+  {seq:"27",name:"IB16",lat:24.4971539,lon:120.6580885,depth:-20.71},
+];
+const table3=[
+  {seq:"01",name:"4PI(3)",lat:24.4978039,lon:120.6584376,depth:-22.0},
+  {seq:"02",name:"5PI(1)",lat:24.4976599,lon:120.6583185,depth:-22.0},
+  {seq:"03",name:"6PI(4)",lat:24.4975159,lon:120.6581994,depth:-22.0},
+  {seq:"04",name:"7PI(2)",lat:24.4973719,lon:120.6580804,depth:-22.0},
+  {seq:"05",name:"8PI(5)",lat:24.4972279,lon:120.6579613,depth:-22.0},
+  {seq:"06",name:"4PD",lat:24.4980682,lon:120.6611306,depth:-18.7},
+  {seq:"07",name:"5PD",lat:24.4981834,lon:120.6612259,depth:-18.7},
+  {seq:"08",name:"6PD",lat:24.4982986,lon:120.6613211,depth:-18.7},
+  {seq:"09",name:"7PD",lat:24.4984138,lon:120.6614164,depth:-18.7},
+  {seq:"10",name:"8PD",lat:24.4985290,lon:120.6615116,depth:-18.7},
+];
+
+// ══════════════════════════════════════════
+// MAP INIT
+// ══════════════════════════════════════════
+const map = L.map('map',{center:[24.4968,120.6600],zoom:16,zoomControl:true});
+const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20,attribution:'© Esri'});
+const esriLbl = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',{maxZoom:20});
+const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OSM'});
+esriSat.addTo(map); esriLbl.addTo(map);
+L.control.layers({'🛰️ 衛星圖':L.layerGroup([esriSat,esriLbl]),'🗺️ 街道圖':osmLayer},null,{position:'topright'}).addTo(map);
+
+// ══════════════════════════════════════════
+// ICONS
+// ══════════════════════════════════════════
+function mkIcon(color,sz=10){return L.divIcon({className:'',html:`<div style="width:${sz}px;height:${sz}px;background:${color};border:2px solid rgba(255,255,255,.8);border-radius:50%;box-shadow:0 0 8px ${color}88,0 2px 6px rgba(0,0,0,.5)"></div>`,iconSize:[sz,sz],iconAnchor:[sz/2,sz/2]})}
+function mkTestIcon(color){return L.divIcon({className:'',html:`<div style="width:13px;height:13px;background:${color};border:2.5px solid #fff;border-radius:2px;transform:rotate(45deg);box-shadow:0 0 10px ${color}88"></div>`,iconSize:[13,13],iconAnchor:[6,6]})}
+function mkCloudIcon(em){return L.divIcon({className:'',html:`<div style="font-size:24px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.6))">${em}</div>`,iconSize:[28,28],iconAnchor:[14,24]})}
+
+function popHTML(item,cat,col){
+  return`<div style="font-family:'Noto Sans TC',sans-serif;min-width:170px">
+    <div style="font-weight:700;font-size:14px;margin-bottom:6px">${item.name} <span style="font-size:10px;background:${col}33;color:${col};padding:1px 6px;border-radius:4px">${cat}</span></div>
+    <div style="font-size:11px;color:#555;display:grid;grid-template-columns:auto 1fr;gap:2px 8px">
+      <span style="color:#888">序號</span><span>#${item.seq}</span>
+      <span style="color:#888">水深</span><span>${item.depth} m</span>
+      <span style="color:#888">座標</span><span style="font-size:10px">${item.lat.toFixed(6)}, ${item.lon.toFixed(6)}</span>
+    </div>
+  </div>`
+}
+
+// ══════════════════════════════════════════
+// PILE MARKERS
+// ══════════════════════════════════════════
+const pileGroups={discharge:L.layerGroup(),intake:L.layerGroup(),base:L.layerGroup()};
+const labelMarkers={discharge:[],intake:[],base:[]};
+const lineGroups={discharge:null,intake:null,base:null};
+let showLabels=false, showLines=true, show750=true;
+const layerVis={discharge:true,intake:true,base:true};
+
+function addGroup(data,key,color,cat){
+  const coords=[];
+  data.forEach(p=>{
+    const isT=p.name.startsWith('試樁');
+    const icon=isT?mkTestIcon(color):mkIcon(color,9);
+    const m=L.marker([p.lat,p.lon],{icon}).bindPopup(popHTML(p,cat,color));
+    m.addTo(pileGroups[key]);
+    const lbl=L.marker([p.lat,p.lon],{icon:L.divIcon({className:'',html:`<div style="background:rgba(0,0,0,.75);color:#fff;font-size:9px;padding:1px 4px;border-radius:3px;white-space:nowrap;margin-left:6px">${p.name}</div>`,iconAnchor:[0,5]}),interactive:false});
+    labelMarkers[key].push(lbl);
+    coords.push([p.lat,p.lon]);
+  });
+  if(coords.length>1) lineGroups[key]=L.polyline(coords,{color:color,weight:1.5,opacity:.6,dashArray:'4,3'});
+  pileGroups[key].addTo(map);
+  if(showLines && lineGroups[key]) lineGroups[key].addTo(map);
+}
+
+addGroup(table1,'discharge','#f9a8d4','排水管');
+addGroup(table2,'intake','#6ee7b7','取水管');
+addGroup(table3,'base','#fcd34d','基座');
+
+// ══════════════════════════════════════════
+// 750m LINES
+// ══════════════════════════════════════════
+// Calculate bounds of all piles
+const allLats=[...table1,...table2,...table3].map(p=>p.lat);
+const allLons=[...table1,...table2,...table3].map(p=>p.lon);
+const minLat=Math.min(...allLats), maxLat=Math.max(...allLats);
+const minLon=Math.min(...allLons), maxLon=Math.max(...allLons);
+const off750 = 750/111320; // degrees per 750m
+const lonPad = 0.005;
+const northLat = maxLat + off750;
+const southLat = minLat - off750;
+const lineW = [minLon - lonPad, maxLon + lonPad];
+
+const line750N = L.polyline([[northLat, lineW[0]],[northLat, lineW[1]]],{
+  color:'#f97316',weight:2,dashArray:'8,5',opacity:.9
+}).bindTooltip('北側 750m',{permanent:false,direction:'top'});
+const line750S = L.polyline([[southLat, lineW[0]],[southLat, lineW[1]]],{
+  color:'#f97316',weight:2,dashArray:'8,5',opacity:.9
+}).bindTooltip('南側 750m',{permanent:false,direction:'bottom'});
+
+const group750 = L.layerGroup([line750N, line750S]).addTo(map);
+
+// N/S labels
+L.marker([northLat, (lineW[0]+lineW[1])/2], {
+  icon:L.divIcon({className:'',html:'<div style="background:#f97316;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap">北側 750m</div>',iconAnchor:[30,10]}),
+  interactive:false
+}).addTo(group750);
+L.marker([southLat, (lineW[0]+lineW[1])/2], {
+  icon:L.divIcon({className:'',html:'<div style="background:#f97316;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap">南側 750m</div>',iconAnchor:[30,-4]}),
+  interactive:false
+}).addTo(group750);
+
+// ══════════════════════════════════════════
+// TOGGLE FUNCTIONS
+// ══════════════════════════════════════════
+function toggleLayer(key,btn){
+  layerVis[key]=!layerVis[key];
+  btn.classList.toggle('active',layerVis[key]);
+  layerVis[key]?map.addLayer(pileGroups[key]):map.removeLayer(pileGroups[key]);
+  if(lineGroups[key]){layerVis[key]&&showLines?map.addLayer(lineGroups[key]):map.removeLayer(lineGroups[key]);}
+  if(showLabels) labelMarkers[key].forEach(l=>layerVis[key]?l.addTo(map):map.removeLayer(l));
+}
+function toggleLabels(){
+  showLabels=!showLabels;
+  document.getElementById('btn-labels').classList.toggle('active',showLabels);
+  ['discharge','intake','base'].forEach(k=>{
+    if(!layerVis[k])return;
+    labelMarkers[k].forEach(l=>showLabels?l.addTo(map):map.removeLayer(l));
+  });
+}
+function toggleLines(){
+  showLines=!showLines;
+  document.getElementById('btn-lines').classList.toggle('active',showLines);
+  ['discharge','intake','base'].forEach(k=>{
+    if(!layerVis[k]||!lineGroups[k])return;
+    showLines?map.addLayer(lineGroups[k]):map.removeLayer(lineGroups[k]);
+  });
+}
+function toggle750(){
+  show750=!show750;
+  document.getElementById('btn-750').classList.toggle('active',show750);
+  show750?map.addLayer(group750):map.removeLayer(group750);
+}
+function resetView(){
+  const pts=[...table1,...table2,...table3].map(p=>[p.lat,p.lon]);
+  map.fitBounds(L.latLngBounds(pts).pad(0.08));
+}
+
+// ══════════════════════════════════════════
+// CLOUD MARKERS
+// ══════════════════════════════════════════
+const ICONS=['🚢','⚓','🚤','🛟','📍','🔴','🟡','🟢','⚠️','🏗️','👷','📡','🔭','🌊','🐬'];
+let selectedIcon = ICONS[0];
+const cloudMarkers = {}; // id -> leaflet marker
+let clickMode = false;
+let addFormOpen = false;
+
+// Build icon grid
+const igrid = document.getElementById('igrid');
+ICONS.forEach(em=>{
+  const d=document.createElement('div');
+  d.className='iopt'+(em===selectedIcon?' sel':'');
+  d.textContent=em;
+  d.onclick=()=>{selectedIcon=em;document.querySelectorAll('.iopt').forEach(x=>x.classList.remove('sel'));d.classList.add('sel');};
+  igrid.appendChild(d);
+});
+
+function toggleAddForm(){
+  addFormOpen=!addFormOpen;
+  document.getElementById('add-form').style.display=addFormOpen?'block':'none';
+  document.getElementById('btn-add').classList.toggle('active',addFormOpen);
+}
+
+function startClickMode(){
+  clickMode=true;
+  document.getElementById('click-hint').style.display='block';
+  document.getElementById('btn-click').textContent='❌ 取消點選';
+  map.getContainer().style.cursor='crosshair';
+}
+function stopClickMode(){
+  clickMode=false;
+  document.getElementById('click-hint').style.display='none';
+  document.getElementById('btn-click').textContent='🖱️ 點地圖選座標';
+  map.getContainer().style.cursor='';
+}
+map.on('click',function(e){
+  if(!clickMode)return;
+  document.getElementById('mk-lat').value=e.latlng.lat.toFixed(6);
+  document.getElementById('mk-lon').value=e.latlng.lng.toFixed(6);
+  stopClickMode();
+});
+
+function gasXHR(method, data, callback){
+  if(!GAS_URL){callback(new Error('no_url'),null);return;}
+  const req = new XMLHttpRequest();
+  const url = method==='GET' ? GAS_URL : GAS_URL;
+  req.open(method, url, true);
+  if(method==='POST') req.setRequestHeader('Content-Type','text/plain');
+  req.onreadystatechange = function(){
+    if(req.readyState===4){
+      try{ callback(null, JSON.parse(req.responseText)); }
+      catch(e){ callback(e,null); }
+    }
+  };
+  req.onerror = function(){ callback(new Error('network_error'),null); };
+  req.send(data ? JSON.stringify(data) : null);
+}
+
+function renderCloudList(markers){
+  const list = document.getElementById('cloud-list');
+  const empty = document.getElementById('cloud-empty');
+  // Remove old cloud markers from map
+  Object.values(cloudMarkers).forEach(m=>map.removeLayer(m));
+  for(const k in cloudMarkers) delete cloudMarkers[k];
+  
+  if(!markers||markers.length===0){
+    empty.style.display='block';
+    empty.textContent='尚無雲端標記';
+    return;
+  }
+  empty.style.display='none';
+  
+  // Clear list items
+  Array.from(list.querySelectorAll('.mki')).forEach(el=>el.remove());
+  
+  markers.forEach(mk=>{
+    const lat=parseFloat(mk.lat), lon=parseFloat(mk.lon);
+    if(isNaN(lat)||isNaN(lon)) return;
+    
+    // Add to map
+    const lm = L.marker([lat,lon],{icon:mkCloudIcon(mk.emoji||'📍')})
+      .bindPopup(`<div style="font-family:'Noto Sans TC',sans-serif;min-width:160px">
+        <div style="font-size:16px">${mk.emoji||'📍'} <strong>${mk.name||'未命名'}</strong></div>
+        ${mk.notes?`<div style="font-size:11px;color:#666;margin-top:4px">${mk.notes}</div>`:''}
+        <div style="font-size:10px;color:#999;margin-top:4px">${mk.addedat||mk.timestamp||''}</div>
+        <div style="font-size:10px;color:#999">${mk.addedby||''}</div>
+      </div>`);
+    lm.addTo(map);
+    cloudMarkers[mk.id] = lm;
+    
+    // Add to sidebar list
+    const div = document.createElement('div');
+    div.className='mki';
+    div.innerHTML=`<div class="mki-em">${mk.emoji||'📍'}</div>
+      <div class="mki-inf">
+        <div class="mki-n">${mk.name||'未命名'}</div>
+        <div class="mki-s">${mk.addedby||''} · ${(mk.addedat||mk.timestamp||'').slice(0,10)}</div>
+      </div>
+      <button class="mki-d" onclick="deleteMarker('${mk.id}',event)" title="刪除">✕</button>`;
+    div.onclick=function(e){if(e.target.classList.contains('mki-d'))return;map.setView([lat,lon],17);cloudMarkers[mk.id]&&cloudMarkers[mk.id].openPopup();};
+    list.appendChild(div);
+  });
+  
+  document.getElementById('st-count').textContent='雲端標記：'+markers.length;
+}
+
+function refreshCloud(){
+  const btn=document.getElementById('btn-ref');
+  btn.innerHTML='<span class="spin">↻</span>';
+  document.getElementById('cloud-status').textContent='載入中...';
+  gasXHR('GET',null,function(err,data){
+    btn.textContent='↻';
+    if(err||!data||!data.success){
+      document.getElementById('cloud-status').textContent='❌ 載入失敗';
+      setStatus(false); return;
+    }
+    renderCloudList(data.markers||[]);
+    setStatus(true);
+    document.getElementById('cloud-status').textContent='上次更新：'+new Date().toLocaleTimeString('zh-TW');
+    document.getElementById('st-time').textContent=new Date().toLocaleTimeString('zh-TW');
+  });
+}
+
+function submitMarker(){
+  const name=document.getElementById('mk-name').value.trim();
+  const lat=parseFloat(document.getElementById('mk-lat').value);
+  const lon=parseFloat(document.getElementById('mk-lon').value);
+  const notes=document.getElementById('mk-notes').value.trim();
+  const by=document.getElementById('mk-by').value.trim() || localStorage.getItem('pile_map_username') || '';
+  
+  if(!name){alert('請輸入名稱');return;}
+  if(isNaN(lat)||isNaN(lon)){alert('請輸入有效座標，或點擊地圖選取');return;}
+  if(!GAS_URL){alert('尚未設定 GAS URL，請重新整理頁面完成設定');return;}
+  
+  if(by) localStorage.setItem('pile_map_username',by);
+  
+  const payload={action:'add',name,lat,lon,emoji:selectedIcon,notes,addedby:by};
+  document.getElementById('cloud-status').textContent='儲存中...';
+  
+  gasXHR('POST',payload,function(err,data){
+    if(err||!data||!data.success){
+      alert('儲存失敗，請確認 GAS 已正確部署');
+      document.getElementById('cloud-status').textContent='❌ 儲存失敗';
+      return;
+    }
+    document.getElementById('mk-name').value='';
+    document.getElementById('mk-lat').value='';
+    document.getElementById('mk-lon').value='';
+    document.getElementById('mk-notes').value='';
+    refreshCloud();
+  });
+}
+
+function deleteMarker(id, e){
+  e.stopPropagation();
+  if(!confirm('確定刪除這個標記？')) return;
+  gasXHR('POST',{action:'delete',id},function(err,data){
+    if(err||!data||!data.success){alert('刪除失敗');return;}
+    refreshCloud();
+  });
+}
+
+// ══════════════════════════════════════════
+// STATUS
+// ══════════════════════════════════════════
+function setStatus(ok){
+  const badge=document.getElementById('conn-badge');
+  const st=document.getElementById('st-conn');
+  if(ok){
+    badge.style.background='rgba(16,185,129,.2)';badge.style.color='#10b981';badge.textContent='已連線';
+    st.innerHTML='<span class="sdot g"></span>已連線';
+  } else {
+    badge.style.background='rgba(239,68,68,.2)';badge.style.color='#ef4444';badge.textContent='離線';
+    st.innerHTML='<span class="sdot r"></span>離線';
+  }
+}
+
+// ══════════════════════════════════════════
+// SETUP MODAL
+// ══════════════════════════════════════════
+function saveGasUrl(){
+  const u=document.getElementById('gas-url-input').value.trim();
+  if(!u||!u.startsWith('https://script.google.com')){alert('請貼上正確的 GAS 網址');return;}
+  GAS_URL=u;
+  localStorage.setItem('pile_map_gas_url',u);
+  document.getElementById('setup-modal').style.display='none';
+  refreshCloud();
+}
+function skipSetup(){
+  document.getElementById('setup-modal').style.display='none';
+  document.getElementById('cloud-empty').textContent='未連線（離線模式）';
+  setStatus(false);
+}
+function openSetup(){
+  document.getElementById('gas-url-input').value=GAS_URL;
+  document.getElementById('setup-modal').style.display='flex';
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+// GAS URL is hardcoded, skip setup modal
+document.getElementById('setup-modal').style.display='none';
+refreshCloud();
+
+// Preset username if saved
+const savedName=localStorage.getItem('pile_map_username');
+if(savedName) document.getElementById('mk-by').value=savedName;
+
+resetView();
+
+// Auto-refresh every 60s
+setInterval(function(){if(GAS_URL) refreshCloud();}, 60000);
+</script>
+</body>
+</html>
