@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>溝通單自動生成系統</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📋</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Noto Sans TC',sans-serif;background:#eef1f5;color:#1a1a2e;min-height:100vh}
+
+  /* ===== Toast ===== */
+  .toast-container{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+  .toast{padding:12px 20px;border-radius:10px;color:#fff;font-size:13px;font-weight:500;
+    box-shadow:0 4px 20px rgba(0,0,0,.2);animation:toastIn .3s ease;max-width:320px;display:flex;align-items:center;gap:8px}
+  .toast.success{background:#27ae60}.toast.error{background:#e74c3c}.toast.info{background:#2980b9}
+  @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+  /* ===== Sync Indicator ===== */
+  .sync-bar{position:fixed;top:0;left:0;right:0;height:3px;z-index:9998;background:transparent;pointer-events:none}
+  .sync-bar.active{background:linear-gradient(90deg,#3498db,#2ecc71,#3498db);background-size:200%;animation:syncPulse 1.2s ease infinite}
+  @keyframes syncPulse{0%{background-position:0%}100%{background-position:200%}}
+
+  /* ===== Nav Tabs ===== */
+  .nav-bar{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);padding:12px 16px;position:sticky;top:0;z-index:100;
+    display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+    box-shadow:0 2px 16px rgba(0,0,0,.25)}
+  .nav-brand{display:flex;align-items:center;gap:10px;color:#fff}
+  .nav-brand h1{font-size:18px;font-weight:700;letter-spacing:.5px}
+  .nav-tabs{display:flex;gap:4px}
+  .nav-tab{padding:8px 18px;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;
+    font-family:inherit;transition:all .2s;background:rgba(255,255,255,.08);color:rgba(255,255,255,.7)}
+  .nav-tab:hover{background:rgba(255,255,255,.15);color:#fff}
+  .nav-tab.active{background:#e94560;color:#fff}
+  .nav-status{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.6);font-size:12px}
+  .nav-status .dot{width:8px;height:8px;border-radius:50%}
+  .nav-status .dot.online{background:#2ecc71}.nav-status .dot.offline{background:#e74c3c}
+
+  /* ===== Container ===== */
+  .container{max-width:960px;margin:0 auto;padding:16px}
+
+  /* ===== Card ===== */
+  .card{background:#fff;border-radius:14px;padding:22px;margin-bottom:14px;
+    box-shadow:0 1px 8px rgba(0,0,0,.05);border:1px solid #e2e8f0}
+  .card-title{font-size:14px;font-weight:700;color:#0f172a;margin-bottom:14px;padding-bottom:10px;
+    border-bottom:2px solid #e94560;display:flex;align-items:center;gap:8px}
+
+  /* ===== Form Elements ===== */
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .form-grid.c1{grid-template-columns:1fr}.form-grid.c3{grid-template-columns:1fr 1fr 1fr}
+  .fg{display:flex;flex-direction:column;gap:3px}
+  .fg label{font-size:12px;font-weight:600;color:#64748b}
+  .fg input,.fg textarea,.fg select{padding:9px 11px;border:1.5px solid #e2e8f0;border-radius:8px;
+    font-size:13px;font-family:inherit;transition:all .2s;outline:none;background:#f8fafc}
+  .fg input:focus,.fg textarea:focus{border-color:#3b82f6;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+  .fg textarea{resize:vertical;min-height:56px}
+
+  /* ===== Buttons ===== */
+  .btn{padding:9px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+    font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+  .btn:active{transform:scale(.97)}
+  .btn-red{background:#e94560;color:#fff}.btn-red:hover{background:#d63851}
+  .btn-blue{background:#3b82f6;color:#fff}.btn-blue:hover{background:#2563eb}
+  .btn-green{background:#10b981;color:#fff}.btn-green:hover{background:#059669}
+  .btn-ghost{background:transparent;color:#64748b;border:1.5px solid #e2e8f0}.btn-ghost:hover{background:#f1f5f9;color:#1e293b}
+  .btn-dark{background:#1e293b;color:#fff}.btn-dark:hover{background:#334155}
+  .btn-sm{padding:6px 12px;font-size:12px}
+  .btn-xs{padding:4px 10px;font-size:11px;border-radius:6px}
+
+  /* ===== Item Card ===== */
+  .item-card{background:#fff;border-radius:14px;margin-bottom:14px;overflow:hidden;
+    box-shadow:0 1px 8px rgba(0,0,0,.05);border:1px solid #e2e8f0}
+  .item-hd{background:linear-gradient(90deg,#1e293b,#334155);color:#fff;padding:12px 18px;
+    display:flex;justify-content:space-between;align-items:center}
+  .item-hd span{font-weight:700;font-size:14px}
+  .item-bd{padding:18px}
+
+  /* ===== Photo ===== */
+  .photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+  .photo-slot{border:2px dashed #cbd5e1;border-radius:10px;padding:14px;text-align:center;position:relative;
+    min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    transition:all .2s;background:#f8fafc;cursor:pointer}
+  .photo-slot:hover{border-color:#3b82f6;background:#eff6ff}
+  .photo-slot.has-photo{cursor:default;border-style:solid;border-color:#e2e8f0}
+  .photo-slot img{max-width:100%;max-height:150px;border-radius:6px;object-fit:contain}
+  .photo-slot input[type=file]{display:none}
+  .photo-slot .ph-icon{font-size:28px;opacity:.4}
+  .photo-slot .ph-text{font-size:12px;color:#94a3b8}
+  .photo-rm{position:absolute;top:6px;right:6px;background:#ef4444;color:#fff;border:none;
+    border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+  .photo-cap input{width:100%;padding:5px 8px;border:1px solid #e2e8f0;border-radius:6px;
+    font-size:11px;text-align:center;font-family:inherit;margin-top:6px}
+
+  .add-btn{width:100%;padding:14px;border:2px dashed #3b82f6;border-radius:12px;background:transparent;
+    color:#3b82f6;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:14px;transition:all .2s}
+  .add-btn:hover{background:#3b82f6;color:#fff}
+
+  /* ===== Signature ===== */
+  .sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .sig-box{border:1.5px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center}
+  .sig-box label{font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:6px}
+  .sig-box input{width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-family:inherit;text-align:center;font-size:13px}
+
+  /* ===== Record List ===== */
+  .record-row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid #f1f5f9;
+    cursor:pointer;transition:background .15s;gap:14px}
+  .record-row:hover{background:#f8fafc}
+  .record-row:last-child{border-bottom:none}
+  .rr-num{font-weight:700;font-size:14px;color:#1e293b;min-width:110px}
+  .rr-subj{flex:1;font-size:13px;color:#475569;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rr-date{font-size:12px;color:#94a3b8;min-width:80px;text-align:right}
+  .rr-badge{font-size:11px;padding:2px 8px;border-radius:20px;background:#dbeafe;color:#2563eb;font-weight:500}
+  .empty-state{text-align:center;padding:48px 20px;color:#94a3b8}
+  .empty-state .em-icon{font-size:48px;margin-bottom:12px}
+
+  /* ===== Print ===== */
+  .print-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+    background:rgba(15,23,42,.6);z-index:1000;overflow-y:auto;backdrop-filter:blur(4px)}
+  .print-overlay.active{display:block}
+  .print-toolbar{position:fixed;top:0;left:0;right:0;background:#1e293b;color:#fff;
+    padding:10px 20px;display:flex;justify-content:space-between;align-items:center;z-index:1001}
+  .print-content{max-width:210mm;margin:56px auto 40px;background:#fff}
+
+  .print-page{width:210mm;min-height:295mm;padding:12mm 15mm 15mm;background:#fff;position:relative;page-break-after:always}
+  .print-page:last-child{page-break-after:auto}
+  .pf-company{text-align:center;font-size:22px;font-weight:700;font-family:'標楷體','Noto Sans TC',serif;padding:6px 0}
+  .pf-title{text-align:center;font-size:18px;font-weight:700;font-family:'標楷體','Noto Sans TC',serif;padding:4px 0}
+  .pf-table{width:100%;border-collapse:collapse;font-family:'標楷體','Noto Sans TC',serif;font-size:13px}
+  .pf-table td,.pf-table th{border:1.5px solid #000;padding:4px 6px;vertical-align:top}
+  .pf-table .td-no{width:30px;text-align:center;vertical-align:middle;font-weight:700}
+  .pf-table .td-remark{width:28%;vertical-align:top;font-size:11px;white-space:pre-wrap;line-height:1.6}
+  .pf-photo-row{display:flex;gap:8px}
+  .pf-photo-box{flex:1;text-align:center}
+  .pf-photo-box img{max-width:100%;max-height:200px;object-fit:contain;border:1px solid #ccc}
+  .pf-photo-box .caption{font-size:11px;margin-top:3px;color:#333}
+  .pf-sig-table{width:100%;border-collapse:collapse;font-family:'標楷體','Noto Sans TC',serif;font-size:13px}
+  .pf-sig-table td{border:1.5px solid #000;padding:6px;text-align:center;vertical-align:middle}
+  .pf-improve{width:100%;border:1.5px solid #000;border-top:none;min-height:120px;
+    font-family:'標楷體','Noto Sans TC',serif;font-size:13px;padding:8px;white-space:pre-wrap}
+
+  @media print{
+    body{background:#fff!important}
+    .nav-bar,.container,.print-toolbar,.toast-container,.sync-bar{display:none!important}
+    .print-overlay{display:block!important;position:static!important;background:transparent!important}
+    .print-content{margin:0!important;box-shadow:none!important}
+    .print-page{padding:10mm 12mm}
+    @page{size:A4 portrait;margin:0}
+  }
+  @media(max-width:768px){
+    .form-grid,.sig-grid{grid-template-columns:1fr}
+    .form-grid.c3{grid-template-columns:1fr}
+    .photo-grid{grid-template-columns:1fr}
+    .nav-bar{padding:10px 12px}
+    .nav-brand h1{font-size:15px}
+    .container{padding:10px}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useRef,useEffect,useCallback} = React;
+
+// ============================================================
+// ★★★ 請在此貼上你的 GAS 部署網址 ★★★
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyUpNwmnGecYAiZpZkO-K6uO-zCT_kIJ-gD3iW528Kco0-MS4lYaRbG-suRqsQj0dk-/exec';
+// ============================================================
+
+// ===== XHR 工具（Mobile Safari 相容）=====
+function gasRequest(action, params={}, postBody=null) {
+  return new Promise((resolve, reject) => {
+    const qs = new URLSearchParams({action, ...params}).toString();
+    const url = GAS_URL + '?' + qs;
+    const xhr = new XMLHttpRequest();
+    xhr.open(postBody ? 'POST' : 'GET', url, true);
+    xhr.onload = function() {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch(e) { reject(new Error('回應解析失敗')); }
+    };
+    xhr.onerror = () => reject(new Error('網路錯誤'));
+    xhr.ontimeout = () => reject(new Error('請求逾時'));
+    xhr.timeout = 30000;
+    if (postBody) {
+      xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+      xhr.send(JSON.stringify(postBody));
+    } else {
+      xhr.send();
+    }
+  });
+}
+
+// ===== Default Data =====
+const DEFAULT_HEADER = {
+  company:'碳集應用科技股份有限公司',
+  formTitle:'溝通單',
+  projectName:'台中減碳技術園區(A標)小規模碳捕集廠設備採購帶安裝及運轉維護與測試服務案',
+  subject:'',
+  date: new Date().toISOString().slice(0,10),
+  formNumber:'',
+  replyDate:'',
+};
+const makeItem = (id) => ({id, title:'', photos:[{data:null,caption:''},{data:null,caption:''}], remark:''});
+const DEFAULT_SIGS = {site:'',safety:'',contractor:''};
+
+// ===== Toast =====
+let toastId = 0;
+function ToastContainer({toasts}) {
+  return <div className="toast-container">{toasts.map(t =>
+    <div key={t.id} className={`toast ${t.type}`}>{t.icon} {t.msg}</div>
+  )}</div>;
+}
+
+// ===== App =====
+function App() {
+  const [tab, setTab] = useState('list'); // list | edit
+  const [records, setRecords] = useState([]);
+  const [currentId, setCurrentId] = useState(null);
+  const [header, setHeader] = useState({...DEFAULT_HEADER});
+  const [items, setItems] = useState([makeItem(1)]);
+  const [sigs, setSigs] = useState({...DEFAULT_SIGS});
+  const [syncing, setSyncing] = useState(false);
+  const [toasts, setToasts] = useState([]);
+  const [showPreview, setShowPreview] = useState(false);
+  const [connected, setConnected] = useState(!!GAS_URL);
+  const fileRefs = useRef({});
+
+  const toast = useCallback((msg, type='info', icon='ℹ️') => {
+    const id = ++toastId;
+    if (type==='success') icon='✅';
+    if (type==='error') icon='❌';
+    setToasts(p => [...p, {id,msg,type,icon}]);
+    setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 3500);
+  },[]);
+
+  // ===== Load record list =====
+  const loadList = useCallback(async () => {
+    if (!GAS_URL) return;
+    setSyncing(true);
+    try {
+      const res = await gasRequest('list');
+      if (res.success) setRecords(res.data || []);
+      else toast(res.error,'error');
+    } catch(e) { toast(e.message,'error'); }
+    finally { setSyncing(false); }
+  },[toast]);
+
+  useEffect(() => { loadList(); }, [loadList]);
+
+  // ===== Cloud Save =====
+  const cloudSave = async () => {
+    if (!GAS_URL) { toast('請先設定 GAS_URL','error'); return; }
+    setSyncing(true);
+    try {
+      const record = {
+        id: currentId || undefined,
+        header, items, signatures: sigs,
+      };
+      const res = await gasRequest('save', {}, {record});
+      if (res.success) {
+        setCurrentId(res.data.id);
+        toast('已儲存至雲端','success');
+        loadList();
+      } else {
+        toast(res.error,'error');
+      }
+    } catch(e) { toast(e.message,'error'); }
+    finally { setSyncing(false); }
+  };
+
+  // ===== Cloud Load =====
+  const cloudLoad = async (id) => {
+    if (!GAS_URL) return;
+    setSyncing(true);
+    try {
+      const res = await gasRequest('load', {id});
+      if (res.success) {
+        const d = res.data;
+        setCurrentId(d.id);
+        setHeader(d.header || {...DEFAULT_HEADER});
+        setItems((d.items || [makeItem(1)]).map((it,i) => ({...makeItem(i+1), ...it, id:i+1})));
+        setSigs(d.signatures || {...DEFAULT_SIGS});
+        setTab('edit');
+        toast('已載入紀錄','success');
+      } else toast(res.error,'error');
+    } catch(e) { toast(e.message,'error'); }
+    finally { setSyncing(false); }
+  };
+
+  // ===== Cloud Delete =====
+  const cloudDelete = async (id) => {
+    if (!window.confirm('確定要刪除此紀錄？')) return;
+    setSyncing(true);
+    try {
+      const res = await gasRequest('delete', {id});
+      if (res.success) { toast('已刪除','success'); loadList(); }
+      else toast(res.error,'error');
+    } catch(e) { toast(e.message,'error'); }
+    finally { setSyncing(false); }
+  };
+
+  // ===== Auto Number =====
+  const autoNumber = async () => {
+    if (!GAS_URL) {
+      const d = header.date.replace(/-/g,'');
+      updateH('formNumber', d.slice(0,6) + '001');
+      return;
+    }
+    const prefix = header.date.replace(/-/g,'').slice(0,6);
+    try {
+      const res = await gasRequest('nextNumber', {prefix});
+      if (res.success) updateH('formNumber', res.data);
+    } catch(e) {
+      updateH('formNumber', prefix + '001');
+    }
+  };
+
+  const autoReply = () => {
+    if (!header.date) return;
+    const d = new Date(header.date);
+    d.setDate(d.getDate() + 7);
+    updateH('replyDate', d.toISOString().slice(0,10));
+  };
+
+  // ===== Helpers =====
+  const updateH = (k,v) => setHeader(p=>({...p,[k]:v}));
+  const updateS = (k,v) => setSigs(p=>({...p,[k]:v}));
+  const updateItem = (idx,k,v) => setItems(p=>p.map((it,i)=>i===idx?{...it,[k]:v}:it));
+  const addItem = () => setItems(p=>[...p, makeItem(p.length+1)]);
+  const removeItem = (idx) => {
+    if(items.length<=1) return;
+    setItems(p=>p.filter((_,i)=>i!==idx).map((it,i)=>({...it,id:i+1})));
+  };
+  const handlePhoto = (ii,pi,e) => {
+    const file = e.target.files[0]; if(!file) return;
+    // Compress image
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 800;
+        let w = img.width, h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.7);
+        setItems(p=>p.map((it,i)=>{
+          if(i!==ii) return it;
+          const ph=[...it.photos]; ph[pi]={...ph[pi],data:compressed}; return{...it,photos:ph};
+        }));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+  const removePhoto = (ii,pi) => setItems(p=>p.map((it,i)=>{
+    if(i!==ii) return it;
+    const ph=[...it.photos]; ph[pi]={data:null,caption:''}; return{...it,photos:ph};
+  }));
+  const updateCap = (ii,pi,v) => setItems(p=>p.map((it,i)=>{
+    if(i!==ii) return it;
+    const ph=[...it.photos]; ph[pi]={...ph[pi],caption:v}; return{...it,photos:ph};
+  }));
+
+  const newRecord = () => {
+    setCurrentId(null);
+    setHeader({...DEFAULT_HEADER, date: new Date().toISOString().slice(0,10)});
+    setItems([makeItem(1)]);
+    setSigs({...DEFAULT_SIGS});
+    setTab('edit');
+  };
+
+  const fmtDate = d => d ? d.replace(/-/g,'/') : '';
+
+  // ===== RENDER =====
+  return (
+    <React.Fragment>
+      <div className={`sync-bar${syncing?' active':''}`}/>
+      <ToastContainer toasts={toasts}/>
+
+      {/* Nav */}
+      <div className="nav-bar">
+        <div className="nav-brand">
+          <span style={{fontSize:24}}>📋</span>
+          <h1>溝通單系統</h1>
+        </div>
+        <div className="nav-tabs">
+          <button className={`nav-tab${tab==='list'?' active':''}`} onClick={()=>{setTab('list');loadList()}}>紀錄列表</button>
+          <button className={`nav-tab${tab==='edit'?' active':''}`} onClick={()=>setTab('edit')}>編輯表單</button>
+        </div>
+        <div className="nav-status">
+          <span className={`dot ${GAS_URL?'online':'offline'}`}/>
+          {GAS_URL ? '雲端已連線' : '離線模式'}
+        </div>
+      </div>
+
+      {/* ===== LIST TAB ===== */}
+      {tab==='list' && (
+        <div className="container">
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
+            <span style={{fontSize:15,fontWeight:700,color:'#1e293b'}}>所有溝通單</span>
+            <div style={{display:'flex',gap:8}}>
+              <button className="btn btn-ghost btn-sm" onClick={loadList}>🔄 重新整理</button>
+              <button className="btn btn-blue btn-sm" onClick={newRecord}>＋ 新增溝通單</button>
+            </div>
+          </div>
+          <div className="card" style={{padding:0,overflow:'hidden'}}>
+            {records.length === 0 ? (
+              <div className="empty-state">
+                <div className="em-icon">📭</div>
+                <div style={{fontSize:15,fontWeight:600,marginBottom:6}}>{GAS_URL ? '尚無紀錄' : '請先設定 GAS_URL'}</div>
+                <div style={{fontSize:13}}>點擊上方「新增溝通單」開始建立</div>
+              </div>
+            ) : records.map(r => (
+              <div className="record-row" key={r.id} onClick={()=>cloudLoad(r.id)}>
+                <span className="rr-num">{r.formNumber || '(未編號)'}</span>
+                <span className="rr-subj">{r.subject || '(無主旨)'}</span>
+                <span className="rr-badge">{r.itemCount || 0} 項</span>
+                <span className="rr-date">{r.date}</span>
+                <button className="btn btn-ghost btn-xs" onClick={e=>{e.stopPropagation();cloudDelete(r.id)}}>刪除</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ===== EDIT TAB ===== */}
+      {tab==='edit' && (
+        <div className="container">
+          {/* Toolbar */}
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14,flexWrap:'wrap',gap:8}}>
+            <span style={{fontSize:14,fontWeight:700,color:'#1e293b'}}>
+              {currentId ? `編輯中 — ${header.formNumber||'未編號'}` : '新增溝通單'}
+            </span>
+            <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+              <button className="btn btn-ghost btn-sm" onClick={newRecord}>📄 新建空白</button>
+              <button className="btn btn-green btn-sm" onClick={cloudSave} disabled={syncing}>
+                {syncing ? '⏳ 儲存中...' : '☁️ 儲存雲端'}
+              </button>
+              <button className="btn btn-dark btn-sm" onClick={()=>setShowPreview(true)}>👁 預覽列印</button>
+            </div>
+          </div>
+
+          {/* Header Card */}
+          <div className="card">
+            <div className="card-title">📌 表頭資訊（每頁重複）</div>
+            <div className="form-grid">
+              <div className="fg"><label>公司名稱</label>
+                <input value={header.company} onChange={e=>updateH('company',e.target.value)} placeholder="例：碳集應用科技股份有限公司"/></div>
+              <div className="fg"><label>表單標題</label>
+                <input value={header.formTitle} onChange={e=>updateH('formTitle',e.target.value)}/></div>
+            </div>
+            <div className="form-grid c1" style={{marginTop:10}}>
+              <div className="fg"><label>工程名稱</label>
+                <input value={header.projectName} onChange={e=>updateH('projectName',e.target.value)}/></div>
+              <div className="fg"><label>溝通主旨</label>
+                <input value={header.subject} onChange={e=>updateH('subject',e.target.value)}
+                  placeholder="例：作業區旁大量鋼筋裸露及動線雜亂之穿刺風險預防案"/></div>
+            </div>
+            <div className="form-grid c3" style={{marginTop:10}}>
+              <div className="fg"><label>日期</label>
+                <input type="date" value={header.date} onChange={e=>updateH('date',e.target.value)}/></div>
+              <div className="fg"><label>溝通單編號</label>
+                <div style={{display:'flex',gap:4}}>
+                  <input value={header.formNumber} onChange={e=>updateH('formNumber',e.target.value)} placeholder="自動或手動" style={{flex:1}}/>
+                  <button className="btn btn-green btn-xs" onClick={autoNumber}>自動</button>
+                </div>
+              </div>
+              <div className="fg"><label>回覆期限</label>
+                <div style={{display:'flex',gap:4}}>
+                  <input type="date" value={header.replyDate} onChange={e=>updateH('replyDate',e.target.value)} style={{flex:1}}/>
+                  <button className="btn btn-green btn-xs" onClick={autoReply}>+7天</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Items */}
+          {items.map((item,idx) => (
+            <div className="item-card" key={idx}>
+              <div className="item-hd">
+                <span>項目 {item.id}</span>
+                {items.length>1 && <button className="btn btn-ghost btn-xs" style={{color:'#fff',borderColor:'rgba(255,255,255,.3)'}}
+                  onClick={()=>removeItem(idx)}>✕ 移除</button>}
+              </div>
+              <div className="item-bd">
+                <div className="fg"><label>溝通說明標題</label>
+                  <input value={item.title} onChange={e=>updateItem(idx,'title',e.target.value)}
+                    placeholder="例：拆除作業後之廢棄鋼筋未妥善清理"/></div>
+                <div className="fg" style={{marginTop:8}}><label>備註 / 違反法規依據</label>
+                  <textarea value={item.remark} onChange={e=>updateItem(idx,'remark',e.target.value)} rows={3}
+                    placeholder="例：違反《職業安全衛生設施規則》第 156 條..."/></div>
+                <label style={{fontSize:12,fontWeight:600,color:'#64748b',marginTop:12,display:'block'}}>照片（最多 2 張，自動壓縮）</label>
+                <div className="photo-grid">
+                  {item.photos.map((ph,pi) => (
+                    <div key={pi} className={`photo-slot${ph.data?' has-photo':''}`}
+                      onClick={()=>{if(!ph.data) fileRefs.current[`${idx}-${pi}`]?.click()}}>
+                      <input type="file" accept="image/*" capture="environment"
+                        ref={el=>{fileRefs.current[`${idx}-${pi}`]=el}}
+                        onChange={e=>handlePhoto(idx,pi,e)}/>
+                      {ph.data ? (
+                        <React.Fragment>
+                          <button className="photo-rm" onClick={e=>{e.stopPropagation();removePhoto(idx,pi)}}>✕</button>
+                          <img src={ph.data} alt=""/>
+                          <div className="photo-cap">
+                            <input placeholder={`照片${pi+1}說明`} value={ph.caption}
+                              onClick={e=>e.stopPropagation()} onChange={e=>updateCap(idx,pi,e.target.value)}/>
+                          </div>
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <div className="ph-icon">📷</div>
+                          <div className="ph-text">點擊上傳照片 {pi+1}</div>
+                        </React.Fragment>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+          <button className="add-btn" onClick={addItem}>＋ 新增溝通項目</button>
+
+          {/* Signatures */}
+          <div className="card">
+            <div className="card-title">✍️ 簽名欄</div>
+            <div className="sig-grid">
+              <div className="sig-box"><label>工地負責人</label>
+                <input value={sigs.site} onChange={e=>updateS('site',e.target.value)} placeholder="姓名"/></div>
+              <div className="sig-box"><label>職安人員</label>
+                <input value={sigs.safety} onChange={e=>updateS('safety',e.target.value)} placeholder="姓名"/></div>
+              <div className="sig-box"><label>承攬商人員</label>
+                <input value={sigs.contractor} onChange={e=>updateS('contractor',e.target.value)} placeholder="姓名"/></div>
+            </div>
+          </div>
+
+          {/* Bottom save bar */}
+          <div style={{display:'flex',gap:8,justifyContent:'center',padding:'8px 0 24px'}}>
+            <button className="btn btn-green" onClick={cloudSave} disabled={syncing}>
+              {syncing ? '⏳ 儲存中...' : '☁️ 儲存至雲端'}
+            </button>
+            <button className="btn btn-dark" onClick={()=>setShowPreview(true)}>👁 預覽 / 列印</button>
+          </div>
+        </div>
+      )}
+
+      {/* ===== PRINT PREVIEW ===== */}
+      <div className={`print-overlay${showPreview?' active':''}`}>
+        <div className="print-toolbar">
+          <span style={{fontWeight:600,fontSize:14}}>列印預覽</span>
+          <div style={{display:'flex',gap:8}}>
+            <button className="btn btn-red btn-sm" onClick={()=>window.print()}>🖨 列印 / PDF</button>
+            <button className="btn btn-ghost btn-sm" style={{color:'#fff',borderColor:'rgba(255,255,255,.3)'}} onClick={()=>setShowPreview(false)}>✕ 關閉</button>
+          </div>
+        </div>
+        <div className="print-content">
+          <div className="print-page">
+            <div className="pf-company">{header.company}</div>
+            <div className="pf-title">{header.formTitle}</div>
+            <table className="pf-table" style={{marginTop:6}}>
+              <tbody>
+                <tr><td colSpan={4} style={{fontSize:13,fontWeight:500}}>工程名稱：{header.projectName}</td></tr>
+                <tr><td colSpan={4} style={{fontSize:13,fontWeight:500}}>溝通主旨：{header.subject}</td></tr>
+                <tr><td colSpan={2} style={{fontSize:13}}>日期：{fmtDate(header.date)}</td>
+                    <td colSpan={2} style={{fontSize:13}}>溝通單編號：{header.formNumber}</td></tr>
+                <tr style={{background:'#f5f5f5'}}>
+                  <td style={{width:30,textAlign:'center',fontWeight:700}}>項目</td>
+                  <td colSpan={2} style={{textAlign:'center',fontWeight:700}}>溝通說明</td>
+                  <td style={{width:'28%',textAlign:'center',fontWeight:700}}>備註</td>
+                </tr>
+                {items.map((it,idx)=>(
+                  <React.Fragment key={idx}>
+                    <tr>
+                      <td style={{textAlign:'center',verticalAlign:'middle',fontWeight:700,fontSize:16}} rowSpan={3}>{it.id}</td>
+                      <td colSpan={2} style={{fontWeight:500,fontSize:13}}>{it.title}</td>
+                      <td rowSpan={3} style={{width:'28%',whiteSpace:'pre-wrap',lineHeight:1.6,fontSize:11,verticalAlign:'top'}}>{it.remark}</td>
+                    </tr>
+                    <tr><td colSpan={2} style={{padding:6}}>
+                      <div className="pf-photo-row">
+                        {it.photos.map((ph,pi)=> ph.data ? (
+                          <div className="pf-photo-box" key={pi}>
+                            <img src={ph.data} alt=""/>
+                            {ph.caption && <div className="caption">說明：{ph.caption}</div>}
+                          </div>
+                        ) : null)}
+                        {!it.photos[0].data && !it.photos[1].data && (
+                          <div style={{color:'#999',fontStyle:'italic',fontSize:12,padding:16,textAlign:'center',width:'100%'}}>（未上傳照片）</div>
+                        )}
+                      </div>
+                    </td></tr>
+                    <tr><td colSpan={2} style={{fontSize:12,minHeight:20}}>
+                      {it.photos.filter(p=>p.data&&p.caption).map((p,i)=>(
+                        <span key={i} style={{display:'block'}}>說明{i+1}：{p.caption}</span>
+                      ))}
+                      {!it.photos.some(p=>p.caption) && <span>&nbsp;</span>}
+                    </td></tr>
+                  </React.Fragment>
+                ))}
+              </tbody>
+            </table>
+            <table className="pf-sig-table">
+              <tbody>
+                <tr>
+                  <td style={{width:'33%',fontWeight:700}}>工地負責人</td>
+                  <td style={{width:'33%',fontWeight:700}}>職安人員</td>
+                  <td style={{width:'34%',fontWeight:700}}>承攬商人員</td>
+                </tr>
+                <tr>
+                  <td style={{height:50}}>{sigs.site}</td>
+                  <td style={{height:50}}>{sigs.safety}</td>
+                  <td style={{height:50}}>{sigs.contractor}</td>
+                </tr>
+              </tbody>
+            </table>
+            <div className="pf-improve">
+              承攬商改善對策說明：請於{fmtDate(header.replyDate)||'＿＿＿＿'}回復改善措施及預防再發說明：{'\n\n\n\n\n\n\n\n'}
+            </div>
+          </div>
+        </div>
+      </div>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.render(<App/>, document.getElementById('root'));
+</script>
+</body>
+</html>
