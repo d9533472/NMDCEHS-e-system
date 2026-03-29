@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>改善照片表產生器</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f5f0eb;--bg2:#fffdf9;--card:#fff;--border:#d4c9b8;--text:#2c2418;--text2:#6b5d4d;--text3:#9a8c7a;--accent:#1a6b4a;--accent-bg:rgba(26,107,74,.06);--red:#c0392b;--orange:#d4770b;--blue:#2471a3;--shadow:0 2px 12px rgba(44,36,24,.08);--radius:8px}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app-header{background:linear-gradient(135deg,#1a3c34,#2d6b4e);color:#fff;padding:20px 24px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.app-header h1{font-size:20px;font-weight:700;letter-spacing:1px}
+.app-header p{font-size:12px;opacity:.7;margin-top:2px}
+.sync-bar{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11px;opacity:.9}
+.sync-bar .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.sync-bar .dot.on{background:#4ade80}.sync-bar .dot.off{background:#f87171}
+.sync-bar .dot.spin{background:#fbbf24;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:var(--radius);padding:4px;margin-bottom:16px;box-shadow:var(--shadow)}
+.tab{flex:1;padding:10px 8px;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;border-radius:6px;transition:all .2s;font-family:inherit}
+.tab.active{background:var(--accent);color:#fff;font-weight:700}
+.tab:not(.active):hover{background:var(--accent-bg)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;border:1px solid rgba(0,0,0,.04)}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-header .icon.before{background:rgba(192,57,43,.1);color:var(--red)}
+.card-header .icon.during{background:rgba(212,119,11,.1);color:var(--orange)}
+.card-header .icon.after{background:rgba(26,107,74,.1);color:var(--accent)}
+.card-header .icon.info{background:rgba(36,113,163,.1);color:var(--blue)}
+.card-header .icon.cloud{background:rgba(74,222,128,.1);color:#16a34a}
+.card-header h3{font-size:15px;font-weight:700}
+.card-header small{font-size:11px;color:var(--text3);display:block;margin-top:1px}
+.card-body{padding:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.field input,.field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:var(--bg2);color:var(--text);transition:border .2s}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field .hint-text{font-size:11px;color:var(--text3);margin-top:3px}
+.photo-zone{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .25s;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg2)}
+.photo-zone:hover,.photo-zone.dragover{border-color:var(--accent);background:var(--accent-bg)}
+.photo-zone:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(26,107,74,.15)}
+.photo-zone .hint{font-size:13px;color:var(--text3);margin-top:8px}
+.photo-zone .hint b{color:var(--accent)}
+.photo-zone input[type=file]{display:none}
+.photo-preview{position:relative;width:100%;border-radius:8px;overflow:hidden;background:#f0ece6}
+.photo-preview img{width:100%;max-height:340px;object-fit:contain;display:block;margin:0 auto}
+.photo-preview .remove-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.photo-preview .remove-btn:hover{background:rgba(192,57,43,.9)}
+.photo-loading{border:2px solid var(--border);border-radius:8px;padding:30px;text-align:center;background:var(--bg2);color:var(--text3);font-size:13px}
+.photo-loading .mini-spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px}
+.preview-doc{background:#fff;border:1px solid #ccc;padding:40px 50px;max-width:780px;margin:0 auto;font-family:'Noto Serif TC','DFKai-SB','標楷體',serif;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+.preview-doc .doc-org{text-align:center;font-size:16pt;margin-bottom:4px;letter-spacing:2px}
+.preview-doc .doc-title{text-align:center;font-size:16pt;margin-bottom:10px;letter-spacing:6px}
+.preview-doc .doc-project{font-size:12pt;margin-bottom:14px}
+.preview-table{width:100%;border-collapse:collapse;font-size:11pt}
+.preview-table td{border:1.5px solid #000;padding:8px;vertical-align:top}
+.preview-table .label-cell{width:30px;writing-mode:vertical-rl;text-align:center;font-size:10pt;letter-spacing:2px;line-height:1.8;padding:6px 4px}
+.preview-table .photo-cell{width:55%;text-align:center;padding:6px}
+.preview-table .photo-cell img{max-width:100%;max-height:240px;object-fit:contain}
+.preview-table .desc-cell{width:auto;font-size:10.5pt;line-height:1.7;padding:10px}
+.preview-table .desc-title{font-weight:700;margin-bottom:4px}
+.no-photo-placeholder{color:#999;padding:40px;font-size:12px}
+.btn{padding:12px 24px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover:not(:disabled){background:#155a3e;transform:translateY(-1px)}
+.btn-sync{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-sync:hover:not(:disabled){background:linear-gradient(135deg,#1d4ed8,#1e40af);transform:translateY(-1px)}
+.btn-load{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff}
+.btn-load:hover:not(:disabled){background:linear-gradient(135deg,#0e7490,#155e75);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:#ebe5dc}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.record-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.record-item:hover{background:var(--accent-bg)}
+.record-item:last-child{border-bottom:none}
+.record-item .rec-idx{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.record-item .rec-info{flex:1;min-width:0}
+.record-item .rec-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-item .rec-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.record-item .rec-photos{display:flex;gap:2px}
+.record-item .rec-photos .dot{width:8px;height:8px;border-radius:50%}
+.record-item .rec-photos .dot.filled{background:var(--accent)}.record-item .rec-photos .dot.empty{background:var(--border)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:all .35s ease}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.loading-overlay{position:fixed;inset:0;background:rgba(245,240,235,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200}
+.loading-overlay .spinner{width:40px;height:40px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{margin-top:16px;font-size:14px;color:var(--text2)}
+.record-loading{text-align:center;padding:60px 20px;color:var(--text3)}
+.record-loading .spinner-sm{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+@media(max-width:600px){.container{padding:10px}.preview-doc{padding:20px 16px}.card-body{padding:14px}.btn-group{flex-direction:column}.btn{width:100%;justify-content:center}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast-el" class="toast"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef,useCallback} = React;
+
+// ============================================================
+const GAS_URL = '';  // ← 貼上 GAS Web App URL
+// ============================================================
+
+const DEFAULT_HEADER = {
+  org:'台灣電力公司綜合施工處', title:'改 善 照 片 表',
+  project:'台中減碳技術園區(A標)小規模碳捕集廠設備採購帶安裝及運轉維護與測試服務案',
+};
+
+function toast(msg,ms=2500){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms)}
+
+function xhrGet(url){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('GET',url,true);x.onload=()=>{try{ok(JSON.parse(x.responseText))}catch{no(new Error('JSON parse'))}};x.onerror=()=>no(new Error('Network'));x.timeout=30000;x.ontimeout=()=>no(new Error('Timeout'));x.send()})}
+function xhrPost(url,data){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST',url,true);x.setRequestHeader('Content-Type','text/plain');x.onload=()=>{try{ok(JSON.parse(x.responseText))}catch{no(new Error('JSON parse'))}};x.onerror=()=>no(new Error('Network'));x.timeout=60000;x.ontimeout=()=>no(new Error('Timeout'));x.send(JSON.stringify(data))})}
+
+function compressImage(dataUrl,maxW=1400,q=0.7){return new Promise(r=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxW){h=h*maxW/w;w=maxW}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);r(c.toDataURL('image/jpeg',q))};img.src=dataUrl})}
+
+function emptyRecord(){return{id:Date.now(),date:new Date().toISOString().slice(0,10),label:'',beforeDesc:'',duringDesc:'',afterDesc:'',beforePhotoId:'',duringPhotoId:'',afterPhotoId:''}}
+
+// ---- 單張照片非同步讀取 ----
+function usePhotoLoader(fileId) {
+  const [src, setSrc] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  useEffect(() => {
+    if (!fileId || !GAS_URL) { setSrc(''); setLoading(false); return; }
+    let cancelled = false;
+    setLoading(true); setError(false); setSrc('');
+    xhrGet(GAS_URL + '?action=photo&fileId=' + fileId)
+      .then(res => { if (!cancelled && res.ok) setSrc(res.dataUrl); })
+      .catch(() => { if (!cancelled) setError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [fileId]);
+  return { src, loading, error };
+}
+
+// ---- PhotoUploader (支援已有 fileId 的非同步載入) ----
+function PhotoUploader({localSrc, fileId, onChange, label}) {
+  const inputRef = useRef();
+  const [dragover, setDragover] = useState(false);
+  const remote = usePhotoLoader(!localSrc ? fileId : ''); // 有本機圖就不讀雲端
+  const displaySrc = localSrc || remote.src;
+
+  const handleFile = useCallback(async(file)=>{
+    if(!file||!file.type.startsWith('image/')){toast('⚠️ 請選擇圖片');return}
+    const reader=new FileReader();
+    reader.onload=async(e)=>{onChange(await compressImage(e.target.result));toast('✅ 照片已載入')};
+    reader.readAsDataURL(file);
+  },[onChange]);
+  const handlePaste = useCallback((e)=>{
+    const items=e.clipboardData?.items;if(!items)return;
+    for(const item of items){if(item.type.startsWith('image/')){e.preventDefault();e.stopPropagation();handleFile(item.getAsFile());return}}
+  },[handleFile]);
+  const onDrop=(e)=>{e.preventDefault();setDragover(false);handleFile(e.dataTransfer.files?.[0])};
+
+  // 載入中
+  if (!displaySrc && remote.loading) return (
+    <div className="photo-loading"><div className="mini-spin"></div>☁️ 載入{label}照片中...</div>
+  );
+  // 載入失敗
+  if (!displaySrc && remote.error) return (
+    <div className="photo-loading" style={{color:'var(--red)'}}>⚠️ {label}照片載入失敗<br/><button className="btn btn-secondary" style={{marginTop:8,padding:'6px 16px',fontSize:12}} onClick={()=>inputRef.current?.click()}>重新上傳</button>
+      <input type="file" accept="image/*" ref={inputRef} style={{display:'none'}} onChange={e=>handleFile(e.target.files?.[0])} /></div>
+  );
+  // 有照片
+  if (displaySrc) return (
+    <div className="photo-preview">
+      <img src={displaySrc} alt={label} />
+      <button className="remove-btn" onClick={()=>onChange('')} title="移除">×</button>
+    </div>
+  );
+  // 空白上傳區
+  return (
+    <div className={`photo-zone ${dragover?'dragover':''}`} tabIndex={0}
+      onClick={()=>inputRef.current?.click()} onPaste={handlePaste}
+      onDragOver={e=>{e.preventDefault();setDragover(true)}} onDragLeave={()=>setDragover(false)} onDrop={onDrop}>
+      <div style={{fontSize:36,opacity:.3}}>📷</div>
+      <div className="hint">點擊 / 拖放 / <b>Ctrl+V</b></div>
+      <input type="file" accept="image/*" ref={inputRef} onChange={e=>handleFile(e.target.files?.[0])} />
+    </div>
+  );
+}
+
+// ============================ APP ============================
+function App(){
+  const [tab,setTab]=useState('list');
+  const [header,setHeader]=useState(DEFAULT_HEADER);
+  const [index,setIndex]=useState([]);
+  // current record: 文字+fileIds (from cloud) + local base64 (new uploads)
+  const [rec,setRec]=useState(null);
+  const [localPhotos,setLocalPhotos]=useState({before:'',during:'',after:''}); // 新上傳的本機 base64
+  const [currentIdx,setCurrentIdx]=useState(-1);
+  const [loadingApp,setLoadingApp]=useState(true);
+  const [loadingRec,setLoadingRec]=useState(false);
+  const [syncing,setSyncing]=useState(false);
+  const [dirty,setDirty]=useState(false);
+
+  // ===== Load index =====
+  useEffect(()=>{
+    if(!GAS_URL){setLoadingApp(false);return}
+    xhrGet(GAS_URL+'?action=index')
+      .then(res=>{if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);if(res.data.records)setIndex(res.data.records)}})
+      .catch(e=>{console.error(e);toast('⚠️ 索引載入失敗')})
+      .finally(()=>setLoadingApp(false));
+  },[]);
+
+  // ===== Load record (text+fileIds only, fast) =====
+  const loadRecord = async(idx)=>{
+    const meta=index[idx]; if(!meta)return;
+    setCurrentIdx(idx); setTab('edit'); setLoadingRec(true); setDirty(false);
+    setLocalPhotos({before:'',during:'',after:''});
+    try{
+      const res=await xhrGet(GAS_URL+'?action=record&id='+meta.id);
+      if(res.ok&&res.data){setRec(res.data)}
+      else{setRec({...emptyRecord(),id:meta.id,date:meta.date,label:meta.label})}
+    }catch(e){
+      toast('⚠️ 紀錄載入失敗');
+      setRec({...emptyRecord(),id:meta.id,date:meta.date,label:meta.label});
+    }
+    setLoadingRec(false);
+    // 照片由 usePhotoLoader 在 PhotoUploader 裡各自非同步載入
+  };
+
+  const addRecord=()=>{
+    const r=emptyRecord();
+    setRec(r); setLocalPhotos({before:'',during:'',after:''});
+    const meta={id:r.id,date:r.date,label:'',beforeDesc:'',hasBeforePhoto:false,hasDuringPhoto:false,hasAfterPhoto:false};
+    setIndex(prev=>[...prev,meta]); setCurrentIdx(index.length);
+    setTab('edit'); setDirty(true); toast('➕ 新增紀錄');
+  };
+
+  const updateField=(f,v)=>{setRec(prev=>({...prev,[f]:v}));setDirty(true)};
+
+  // 照片更新：存本機 base64，清除對應 fileId
+  const setPhoto=(key,dataUrl)=>{
+    setLocalPhotos(prev=>({...prev,[key]:dataUrl}));
+    if(!dataUrl){
+      // 移除照片：清 fileId + local
+      setRec(prev=>({...prev,[key+'PhotoId']:''}));
+    } else {
+      // 新照片：先清舊 fileId，存時會上傳
+      setRec(prev=>({...prev,[key+'PhotoId']:''}));
+    }
+    setDirty(true);
+  };
+
+  // ===== Save =====
+  const saveRecord = async()=>{
+    if(!GAS_URL||!rec){toast('⚠️ 無法儲存');return}
+    setSyncing(true); toast('☁️ 儲存中...');
+    try{
+      const updated={...rec};
+      // 上傳新照片（一張一張）
+      for(const key of ['before','during','after']){
+        const b64=localPhotos[key];
+        if(b64){
+          toast(`☁️ 上傳${key==='before'?'改善前':key==='during'?'改善中':'改善後'}照片...`);
+          const res=await xhrPost(GAS_URL,{action:'uploadPhoto',fileName:`${rec.label||rec.id}_${key}_${Date.now()}.jpg`,dataUrl:b64});
+          if(res.ok&&res.fileId) updated[key+'PhotoId']=res.fileId;
+        }
+      }
+      // 存紀錄（只有文字+fileIds）
+      toast('☁️ 儲存紀錄...');
+      const res=await xhrPost(GAS_URL,{action:'saveRecord',record:updated,header});
+      if(!res.ok)throw new Error(res.error||'Save failed');
+      setRec(updated);
+      setLocalPhotos({before:'',during:'',after:''});
+      // 更新 index
+      const meta={id:updated.id,date:updated.date||'',label:updated.label||'',
+        beforeDesc:(updated.beforeDesc||'').substring(0,50),
+        hasBeforePhoto:!!updated.beforePhotoId, hasDuringPhoto:!!updated.duringPhotoId, hasAfterPhoto:!!updated.afterPhotoId};
+      setIndex(prev=>{const arr=[...prev];const ei=arr.findIndex(r=>String(r.id)===String(updated.id));if(ei>=0)arr[ei]=meta;else arr.push(meta);return arr});
+      setDirty(false); toast('✅ 已儲存！');
+    }catch(e){toast('❌ 儲存失敗：'+e.message)}
+    setSyncing(false);
+  };
+
+  const deleteRecord=async(idx)=>{
+    const meta=index[idx];if(!meta)return;
+    if(!confirm(`確定刪除「${meta.label||'#'+(idx+1)}」？`))return;
+    if(GAS_URL){setSyncing(true);try{await xhrPost(GAS_URL,{action:'deleteRecord',id:meta.id})}catch(e){toast('⚠️ 雲端刪除失敗')}setSyncing(false)}
+    setIndex(prev=>prev.filter((_,i)=>i!==idx));
+    if(currentIdx===idx){setRec(null);setCurrentIdx(-1);setTab('list')}
+    else if(currentIdx>idx)setCurrentIdx(currentIdx-1);
+    toast('🗑️ 已刪除');
+  };
+
+  const reloadIndex=async()=>{
+    if(!GAS_URL)return;setSyncing(true);toast('🔄 重新載入...');
+    try{const res=await xhrGet(GAS_URL+'?action=index');if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);setIndex(res.data.records||[]);setRec(null);setCurrentIdx(-1);toast('✅ 索引已更新')}}
+    catch(e){toast('❌ 失敗')}setSyncing(false);
+  };
+
+  // ===== PDF (逐筆載入) =====
+  const generatePDF=async()=>{
+    if(index.length===0){toast('⚠️ 沒有紀錄');return}
+    toast('📄 準備列印...');
+    const allRecs=[];
+    for(let i=0;i<index.length;i++){
+      const meta=index[i];
+      // 用 cached 如果剛好是當前紀錄
+      if(rec&&String(rec.id)===String(meta.id)&&(localPhotos.before||localPhotos.during||localPhotos.after||rec.beforePhotoId||rec.duringPhotoId||rec.afterPhotoId)){
+        // 需要組合 local + remote photos
+      }
+      toast(`📄 載入 ${i+1}/${index.length}...`);
+      try{
+        const res=await xhrGet(GAS_URL+'?action=record&id='+meta.id);
+        if(res.ok&&res.data){
+          const r=res.data;
+          // 載入照片
+          for(const key of ['before','during','after']){
+            const fid=r[key+'PhotoId'];
+            if(fid){
+              try{const pr=await xhrGet(GAS_URL+'?action=photo&fileId='+fid);if(pr.ok)r['_'+key+'Src']=pr.dataUrl}catch(e){}
+            }
+          }
+          allRecs.push(r);continue;
+        }
+      }catch(e){}
+      allRecs.push({...emptyRecord(),id:meta.id,date:meta.date,label:meta.label});
+    }
+    const pages=allRecs.map((r,ri)=>{
+      const ph=(key)=>{const src=r['_'+key+'Src'];return src?`<img src="${src}" style="max-width:100%;max-height:220px;object-fit:contain;display:block;margin:0 auto">`:`<div style="color:#999;padding:40px 0;font-size:11px">（未附照片）</div>`};
+      return`<div class="page" ${ri>0?'style="page-break-before:always"':''}>
+        <div class="doc-org">${header.org}</div><div class="doc-title">${header.title}</div>
+        <div class="doc-project">工程名稱：${header.project}</div>
+        <table><tr><td class="lc" rowspan="3"><div class="vt">（改善前中後、同一角度拍攝之照片，並加以說明。）</div></td>
+          <td class="pc">${ph('before')}</td><td class="dc"><div class="dt">改善前(缺失說明)：</div><div>${r.beforeDesc||''}</div></td></tr>
+        <tr><td class="pc">${ph('during')}</td><td class="dc"><div class="dt">改善中(改善措施)：</div><div>${r.duringDesc||''}</div></td></tr>
+        <tr><td class="pc">${ph('after')}</td><td class="dc"><div class="dt">改善後(改善結果)：</div><div>${r.afterDesc||''}</div></td></tr></table>
+        ${(r.label||r.date)?`<div class="fn">${r.label||''}　${r.date||''}</div>`:''}</div>`}).join('');
+    const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>改善照片表</title><style>
+      @page{size:A4 portrait;margin:7mm 7mm 10mm 7mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DFKai-SB','標楷體','Noto Serif TC',serif;color:#000}
+      .doc-org{text-align:center;font-size:16pt;letter-spacing:2px;margin-bottom:2px}.doc-title{text-align:center;font-size:16pt;letter-spacing:6px;margin-bottom:8px}
+      .doc-project{font-size:12pt;margin-bottom:10px}table{width:100%;border-collapse:collapse;table-layout:fixed}td{border:1.5px solid #000;padding:6px;vertical-align:top}
+      .lc{width:28px;padding:4px 2px;vertical-align:middle;text-align:center}.vt{writing-mode:vertical-rl;text-orientation:mixed;font-size:9pt;letter-spacing:1px;line-height:1.6;margin:0 auto;white-space:nowrap}
+      .pc{width:55%;text-align:center;vertical-align:middle;padding:4px}.dc{font-size:11pt;line-height:1.7;padding:8px 10px;vertical-align:top}
+      .dt{font-weight:bold;margin-bottom:4px}.fn{margin-top:6px;font-size:9pt;color:#666}@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    </style></head><body>${pages}</body></html>`;
+    const w=window.open('','_blank');if(!w){toast('⚠️ 請允許彈出視窗');return}
+    w.document.write(html);w.document.close();
+    const imgs=w.document.querySelectorAll('img');let ld=0;const tot=imgs.length;
+    const go=()=>setTimeout(()=>{w.focus();w.print()},300);
+    if(!tot)go();else imgs.forEach(img=>{if(img.complete){ld++;if(ld>=tot)go()}else{img.onload=img.onerror=()=>{ld++;if(ld>=tot)go()}}});
+    toast('✅ 列印視窗已開啟');
+  };
+
+  // JSON
+  const exportJSON=()=>{const blob=new Blob([JSON.stringify({header,index},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`改善照片表_索引_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),3000);toast('💾 已匯出')};
+  const importJSON=()=>{const input=document.createElement('input');input.type='file';input.accept='.json';input.onchange=(e)=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=(ev)=>{try{const data=JSON.parse(ev.target.result);if(data.header)setHeader(data.header);if(data.index?.length)setIndex(data.index);toast('✅ 已匯入')}catch{toast('❌ 格式錯誤')}};reader.readAsText(file)};input.click()};
+
+  // Global paste
+  useEffect(()=>{
+    const handler=(e)=>{
+      if(!rec)return;const tag=document.activeElement?.tagName;
+      if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+      if(document.activeElement?.classList?.contains('photo-zone'))return;
+      const items=e.clipboardData?.items;if(!items)return;
+      for(const item of items){if(item.type.startsWith('image/')){
+        e.preventDefault();const file=item.getAsFile();if(!file)return;
+        let tf=null;
+        if(!localPhotos.before&&!rec.beforePhotoId)tf='before';
+        else if(!localPhotos.during&&!rec.duringPhotoId)tf='during';
+        else if(!localPhotos.after&&!rec.afterPhotoId)tf='after';
+        else{toast('⚠️ 三張照片都已填入');return}
+        const reader=new FileReader();
+        reader.onload=async(ev)=>{const compressed=await compressImage(ev.target.result);setPhoto(tf,compressed);
+          toast(`✅ 已貼入${{before:'改善前',during:'改善中',after:'改善後'}[tf]}照片`)};
+        reader.readAsDataURL(file);return;
+      }}
+    };
+    document.addEventListener('paste',handler);return()=>document.removeEventListener('paste',handler);
+  },[rec,localPhotos]);
+
+  // ===== RENDER =====
+  if(loadingApp)return(<div className="loading-overlay"><div className="spinner"></div><p>☁️ 載入索引...</p></div>);
+  const dotCls=syncing||loadingRec?'spin':(GAS_URL?'on':'off');
+
+  return(<div>
+    <div className="app-header">
+      <h1>📋 改善照片表產生器</h1>
+      <p>NMDC EHS — 貼照片、寫說明、自動產生 PDF</p>
+      <div className="sync-bar"><span className={`dot ${dotCls}`}></span>
+        {!GAS_URL?'離線模式':syncing?'同步中...':loadingRec?'載入紀錄...':dirty?'● 有未儲存變更':`${index.length} 筆紀錄`}
+      </div>
+    </div>
+    <div className="container">
+      <div className="tabs">
+        <button className={`tab ${tab==='list'?'active':''}`} onClick={()=>setTab('list')}>📑 紀錄 ({index.length})</button>
+        <button className={`tab ${tab==='edit'?'active':''}`} onClick={()=>{if(!rec&&index.length)loadRecord(0);else setTab('edit')}}>✏️ 編輯</button>
+        <button className={`tab ${tab==='preview'?'active':''}`} onClick={()=>setTab('preview')}>👁 預覽</button>
+        <button className={`tab ${tab==='settings'?'active':''}`} onClick={()=>setTab('settings')}>⚙️</button>
+      </div>
+
+      {/* LIST */}
+      {tab==='list'&&<div>
+        <div className="card"><div className="card-header"><div className="icon info">📑</div><div><h3>所有紀錄</h3><small>點擊載入（僅讀取該筆，照片個別載入）</small></div></div>
+        {index.length===0&&<div style={{padding:24,textAlign:'center',color:'var(--text3)'}}>尚無紀錄</div>}
+        {index.map((r,i)=>(
+          <div key={r.id} className="record-item" onClick={()=>loadRecord(i)}>
+            <div className="rec-idx">{i+1}</div>
+            <div className="rec-info"><div className="rec-title">{r.label||`紀錄 #${i+1}`}</div><div className="rec-sub">{r.date||'—'} — {r.beforeDesc||'未填寫'}</div></div>
+            <div className="rec-photos" title="前/中/後">{[r.hasBeforePhoto,r.hasDuringPhoto,r.hasAfterPhoto].map((p,pi)=><div key={pi} className={`dot ${p?'filled':'empty'}`}/>)}</div>
+            <button className="btn btn-danger" style={{padding:'6px 12px',fontSize:12}} onClick={e=>{e.stopPropagation();deleteRecord(i)}}>🗑</button>
+          </div>
+        ))}</div>
+        <div className="btn-group">
+          <button className="btn btn-primary" onClick={addRecord}>➕ 新增</button>
+          <button className="btn btn-load" onClick={reloadIndex} disabled={syncing}>🔄 重新載入</button>
+          <button className="btn btn-primary" onClick={generatePDF} disabled={index.length===0}>📄 全部 PDF</button>
+          <button className="btn btn-secondary" onClick={exportJSON}>💾 匯出</button>
+          <button className="btn btn-secondary" onClick={importJSON}>📂 匯入</button>
+        </div>
+      </div>}
+
+      {/* EDIT */}
+      {tab==='edit'&&<div>
+        {loadingRec?<div className="record-loading"><div className="spinner-sm"></div><p>☁️ 載入紀錄...</p></div>
+        :!rec?<div style={{textAlign:'center',padding:40,color:'var(--text3)'}}><p>請從列表選擇或新增</p><div className="btn-group" style={{justifyContent:'center'}}><button className="btn btn-primary" onClick={addRecord}>➕ 新增</button></div></div>
+        :<div>
+          <div className="card"><div className="card-header"><div className="icon info">🏢</div><div><h3>文件資訊</h3></div></div>
+          <div className="card-body">
+            <div className="field"><label>機關名稱</label><input value={header.org} onChange={e=>{setHeader(h=>({...h,org:e.target.value}));setDirty(true)}}/></div>
+            <div className="field"><label>表單標題</label><input value={header.title} onChange={e=>{setHeader(h=>({...h,title:e.target.value}));setDirty(true)}}/></div>
+            <div className="field"><label>工程名稱</label><input value={header.project} onChange={e=>{setHeader(h=>({...h,project:e.target.value}));setDirty(true)}}/></div>
+            <div style={{display:'flex',gap:10}}>
+              <div className="field" style={{flex:1}}><label>紀錄標籤</label><input value={rec.label} onChange={e=>updateField('label',e.target.value)} placeholder="WM-001"/></div>
+              <div className="field" style={{flex:1}}><label>日期</label><input type="date" value={rec.date} onChange={e=>updateField('date',e.target.value)}/></div>
+            </div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>改善前（缺失說明）</h3></div></div>
+          <div className="card-body">
+            <PhotoUploader localSrc={localPhotos.before} fileId={rec.beforePhotoId} onChange={v=>setPhoto('before',v)} label="改善前"/>
+            <div className="field" style={{marginTop:12}}><label>缺失說明</label><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon during">🔧</div><div><h3>改善中（改善措施）</h3></div></div>
+          <div className="card-body">
+            <PhotoUploader localSrc={localPhotos.during} fileId={rec.duringPhotoId} onChange={v=>setPhoto('during',v)} label="改善中"/>
+            <div className="field" style={{marginTop:12}}><label>改善措施</label><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon after">✅</div><div><h3>改善後（改善結果）</h3></div></div>
+          <div className="card-body">
+            <PhotoUploader localSrc={localPhotos.after} fileId={rec.afterPhotoId} onChange={v=>setPhoto('after',v)} label="改善後"/>
+            <div className="field" style={{marginTop:12}}><label>改善結果</label><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
+          </div></div>
+
+          <div className="btn-group">
+            <button className="btn btn-sync" onClick={saveRecord} disabled={syncing}>{syncing?'⏳ 儲存中...':dirty?'☁️ 儲存 ●':'☁️ 儲存'}</button>
+            <button className="btn btn-secondary" onClick={()=>setTab('preview')}>👁 預覽</button>
+            <button className="btn btn-secondary" onClick={()=>setTab('list')}>📑 列表</button>
+            <button className="btn btn-secondary" onClick={addRecord}>➕ 新增</button>
+          </div>
+        </div>}
+      </div>}
+
+      {/* PREVIEW */}
+      {tab==='preview'&&<div>
+        {!rec?<div style={{textAlign:'center',padding:40,color:'var(--text3)'}}><p>請先選擇紀錄</p></div>
+        :<div>
+          <div className="preview-doc">
+            <div className="doc-org">{header.org}</div><div className="doc-title">{header.title}</div>
+            <div className="doc-project">工程名稱：{header.project}</div>
+            <PreviewTable rec={rec} localPhotos={localPhotos}/>
+            {(rec.label||rec.date)&&<div style={{marginTop:8,fontSize:'9pt',color:'#666'}}>{rec.label&&<span>{rec.label}　</span>}{rec.date}</div>}
+          </div>
+          <div className="btn-group" style={{marginTop:16}}>
+            <button className="btn btn-primary" onClick={generatePDF}>📄 全部 PDF</button>
+            <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 編輯</button>
+          </div>
+        </div>}
+      </div>}
+
+      {/* SETTINGS */}
+      {tab==='settings'&&<div>
+        <div className="card"><div className="card-header"><div className="icon cloud">☁️</div><div><h3>雲端設定</h3><small>Drive JSON + 照片獨立檔案</small></div></div>
+        <div className="card-body">
+          <div className="field"><label>GAS URL</label><input defaultValue={GAS_URL} style={{fontFamily:'monospace',fontSize:12}} readOnly/><div className="hint-text">修改 HTML 頂部 <code>GAS_URL</code></div></div>
+          <div style={{padding:14,background:'var(--bg2)',borderRadius:6,fontSize:13,lineHeight:1.9,color:'var(--text2)'}}>
+            <b>📋 設定：</b><br/>
+            1️⃣ 建立 Drive 資料夾 → 複製 Folder ID<br/>
+            2️⃣ 任一 Sheet → Apps Script → 貼 Code.gs → 填 Folder ID<br/>
+            3️⃣ 部署 Web App（Me / Anyone）<br/>
+            4️⃣ URL 貼到 <code>GAS_URL</code><br/><br/>
+            <b>📁 檔案架構：</b><br/>
+            <code>_index.json</code> 輕量索引（秒開）<br/>
+            <code>rec_xxx.json</code> 紀錄文字 + photoFileId<br/>
+            <code>photo_xxx.jpg</code> 照片獨立檔案（個別載入）
+          </div>
+        </div></div>
+        <div className="card"><div className="card-header"><div className="icon info">💾</div><div><h3>資料管理</h3></div></div>
+        <div className="card-body"><div className="btn-group" style={{marginTop:0}}>
+          <button className="btn btn-secondary" onClick={exportJSON}>💾 匯出</button>
+          <button className="btn btn-secondary" onClick={importJSON}>📂 匯入</button>
+        </div></div></div>
+        <div className="card"><div className="card-header"><div className="icon info">ℹ️</div><div><h3>系統</h3></div></div>
+        <div className="card-body" style={{fontSize:13,color:'var(--text2)',lineHeight:1.8}}>
+          紀錄：{index.length} 筆　|　版本：v5.0（照片獨立載入）
+        </div></div>
+      </div>}
+
+      <div style={{textAlign:'center',padding:'20px 0',fontSize:11,color:'#9a8c7a'}}>
+        NMDC EHS 改善照片表 v5.0 ☁️ 照片獨立載入・不爆記憶體
+      </div>
+    </div>
+  </div>);
+}
+
+// 預覽用：個別載入照片的 table cell
+function PreviewPhotoCell({localSrc, fileId}) {
+  const remote = usePhotoLoader(!localSrc ? fileId : '');
+  const src = localSrc || remote.src;
+  if (remote.loading) return <td className="photo-cell"><div className="no-photo-placeholder">☁️ 載入中...</div></td>;
+  if (src) return <td className="photo-cell"><img src={src}/></td>;
+  return <td className="photo-cell"><div className="no-photo-placeholder">（未附照片）</div></td>;
+}
+
+function PreviewTable({rec, localPhotos}) {
+  return (
+    <table className="preview-table"><tbody>
+      <tr><td className="label-cell" rowSpan={3}>(改善前中後、同一角度拍攝之照片，並加以說明。)</td>
+        <PreviewPhotoCell localSrc={localPhotos.before} fileId={rec.beforePhotoId}/>
+        <td className="desc-cell"><div className="desc-title">改善前(缺失說明)：</div><div>{rec.beforeDesc||'—'}</div></td></tr>
+      <tr><PreviewPhotoCell localSrc={localPhotos.during} fileId={rec.duringPhotoId}/>
+        <td className="desc-cell"><div className="desc-title">改善中(改善措施)：</div><div>{rec.duringDesc||'—'}</div></td></tr>
+      <tr><PreviewPhotoCell localSrc={localPhotos.after} fileId={rec.afterPhotoId}/>
+        <td className="desc-cell"><div className="desc-title">改善後(改善結果)：</div><div>{rec.afterDesc||'—'}</div></td></tr>
+    </tbody></table>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
