@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>改善照片表產生器</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f5f0eb;--bg2:#fffdf9;--card:#fff;--border:#d4c9b8;
+  --text:#2c2418;--text2:#6b5d4d;--text3:#9a8c7a;
+  --accent:#1a6b4a;--accent2:#2d9d6e;--accent-bg:rgba(26,107,74,.06);
+  --red:#c0392b;--orange:#d4770b;--blue:#2471a3;
+  --shadow:0 2px 12px rgba(44,36,24,.08);
+  --radius:8px;
+}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app-header{background:linear-gradient(135deg,#1a3c34 0%,#2d6b4e 100%);color:#fff;padding:20px 24px;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,.15)}
+.app-header h1{font-size:20px;font-weight:700;letter-spacing:1px}
+.app-header p{font-size:12px;opacity:.7;margin-top:2px}
+.app-header .sync-status{font-size:11px;margin-top:4px;opacity:.85}
+.app-header .sync-status .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.app-header .sync-status .dot.on{background:#4ade80}
+.app-header .sync-status .dot.off{background:#f87171}
+.app-header .sync-status .dot.loading{background:#fbbf24;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.container{max-width:900px;margin:0 auto;padding:16px}
+.tabs{display:flex;gap:4px;background:var(--card);border-radius:var(--radius);padding:4px;margin-bottom:16px;box-shadow:var(--shadow)}
+.tab{flex:1;padding:10px 8px;border:none;background:transparent;font-size:14px;font-weight:500;color:var(--text2);cursor:pointer;border-radius:6px;transition:all .2s;font-family:inherit}
+.tab.active{background:var(--accent);color:#fff;font-weight:700}
+.tab:not(.active):hover{background:var(--accent-bg)}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;border:1px solid rgba(0,0,0,.04)}
+.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.card-header .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.card-header .icon.before{background:rgba(192,57,43,.1);color:var(--red)}
+.card-header .icon.during{background:rgba(212,119,11,.1);color:var(--orange)}
+.card-header .icon.after{background:rgba(26,107,74,.1);color:var(--accent)}
+.card-header .icon.info{background:rgba(36,113,163,.1);color:var(--blue)}
+.card-header .icon.cloud{background:rgba(74,222,128,.1);color:#16a34a}
+.card-header h3{font-size:15px;font-weight:700}
+.card-header small{font-size:11px;color:var(--text3);display:block;margin-top:1px}
+.card-body{padding:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;letter-spacing:.3px}
+.field input,.field textarea,.field select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;background:var(--bg2);color:var(--text);transition:border .2s}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--accent);background:#fff}
+.field textarea{resize:vertical;min-height:80px;line-height:1.6}
+.field .hint-text{font-size:11px;color:var(--text3);margin-top:3px}
+.photo-zone{border:2px dashed var(--border);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .25s;position:relative;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg2)}
+.photo-zone:hover,.photo-zone.dragover{border-color:var(--accent);background:var(--accent-bg)}
+.photo-zone:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(26,107,74,.15)}
+.photo-zone .hint{font-size:13px;color:var(--text3);margin-top:8px}
+.photo-zone .hint b{color:var(--accent)}
+.photo-zone input[type=file]{display:none}
+.photo-preview{position:relative;width:100%;border-radius:8px;overflow:hidden;background:#f0ece6}
+.photo-preview img{width:100%;max-height:340px;object-fit:contain;display:block;margin:0 auto}
+.photo-preview .remove-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.photo-preview .remove-btn:hover{background:rgba(192,57,43,.9)}
+.photo-preview .cloud-badge{position:absolute;top:8px;left:8px;background:rgba(22,163,74,.85);color:#fff;font-size:10px;padding:2px 7px;border-radius:10px}
+.preview-doc{background:#fff;border:1px solid #ccc;padding:40px 50px;max-width:780px;margin:0 auto;font-family:'Noto Serif TC','DFKai-SB','標楷體',serif;box-shadow:0 2px 20px rgba(0,0,0,.1)}
+.preview-doc .doc-org{text-align:center;font-size:16pt;margin-bottom:4px;letter-spacing:2px}
+.preview-doc .doc-title{text-align:center;font-size:16pt;margin-bottom:10px;letter-spacing:6px}
+.preview-doc .doc-project{font-size:12pt;margin-bottom:14px}
+.preview-table{width:100%;border-collapse:collapse;font-size:11pt}
+.preview-table td{border:1.5px solid #000;padding:8px;vertical-align:top}
+.preview-table .label-cell{width:30px;writing-mode:vertical-rl;text-align:center;font-size:10pt;letter-spacing:2px;line-height:1.8;padding:6px 4px}
+.preview-table .photo-cell{width:55%;text-align:center;padding:6px}
+.preview-table .photo-cell img{max-width:100%;max-height:240px;object-fit:contain}
+.preview-table .desc-cell{width:auto;font-size:10.5pt;line-height:1.7;padding:10px}
+.preview-table .desc-title{font-weight:700;margin-bottom:4px}
+.no-photo-placeholder{color:#999;padding:40px;font-size:12px}
+.btn{padding:12px 24px;border:none;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover:not(:disabled){background:#155a3e;transform:translateY(-1px)}
+.btn-sync{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff}
+.btn-sync:hover:not(:disabled){background:linear-gradient(135deg,#1d4ed8,#1e40af);transform:translateY(-1px)}
+.btn-load{background:linear-gradient(135deg,#0891b2,#0e7490);color:#fff}
+.btn-load:hover:not(:disabled){background:linear-gradient(135deg,#0e7490,#155e75);transform:translateY(-1px)}
+.btn-secondary{background:var(--bg);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:#ebe5dc}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#a93226}
+.btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.record-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.record-item:hover{background:var(--accent-bg)}
+.record-item:last-child{border-bottom:none}
+.record-item .rec-idx{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.record-item .rec-info{flex:1;min-width:0}
+.record-item .rec-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-item .rec-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.record-item .rec-photos{display:flex;gap:2px}
+.record-item .rec-photos .dot{width:8px;height:8px;border-radius:50%}
+.record-item .rec-photos .dot.filled{background:var(--accent)}
+.record-item .rec-photos .dot.empty{background:var(--border)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:all .35s ease}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+@media(max-width:600px){
+  .container{padding:10px}
+  .preview-doc{padding:20px 16px}
+  .card-body{padding:14px}
+  .btn-group{flex-direction:column}
+  .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast-el" class="toast"></div>
+
+<script type="text/babel">
+const {useState, useEffect, useRef, useCallback} = React;
+
+// ============================================================
+//  CONFIG — 填入你的 GAS Web App URL
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwmH2g8r8kQDMjfbYLwuCcyyjiuhozP-WUdlU5-yJ1mMjDz2lJQdKLgj3IhVw5TNtIMuw/exec';  // ← 部署後貼上你的 GAS URL
+
+// ---- Toast ----
+function toast(msg, ms=2500) {
+  const el = document.getElementById('toast-el');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// ---- XHR (mobile Safari 相容) ----
+function xhrGet(url) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('GET', url, true);
+    x.onload = () => { try { resolve(JSON.parse(x.responseText)); } catch { reject(new Error('JSON parse')); } };
+    x.onerror = () => reject(new Error('Network error'));
+    x.timeout = 30000; x.ontimeout = () => reject(new Error('Timeout'));
+    x.send();
+  });
+}
+function xhrPost(url, data) {
+  return new Promise((resolve, reject) => {
+    const x = new XMLHttpRequest();
+    x.open('POST', url, true);
+    x.setRequestHeader('Content-Type', 'text/plain');
+    x.onload = () => { try { resolve(JSON.parse(x.responseText)); } catch { reject(new Error('JSON parse')); } };
+    x.onerror = () => reject(new Error('Network error'));
+    x.timeout = 60000; x.ontimeout = () => reject(new Error('Timeout'));
+    x.send(JSON.stringify(data));
+  });
+}
+
+// ---- Compress ----
+function compressImage(dataUrl, maxW=1600, quality=0.75) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxW) { h = h * maxW / w; w = maxW; }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.src = dataUrl;
+  });
+}
+
+// ---- Defaults ----
+const defaultHeader = {
+  org: '台灣電力公司北部施工處',
+  title: '改 善 照 片 表',
+  project: '通霄電廠二期更新改建計畫海底輸氣管線統包工程',
+};
+function newRecord() {
+  return { id: Date.now(), date: new Date().toISOString().slice(0,10), label: '',
+    beforePhoto:'', beforeDesc:'', beforePhotoId:'',
+    duringPhoto:'', duringDesc:'', duringPhotoId:'',
+    afterPhoto:'',  afterDesc:'',  afterPhotoId:'' };
+}
+
+// ---- PhotoUploader ----
+function PhotoUploader({value, photoId, onChange, label}) {
+  const inputRef = useRef(), zoneRef = useRef();
+  const [dragover, setDragover] = useState(false);
+  const handleFile = useCallback(async (file) => {
+    if (!file || !file.type.startsWith('image/')) { toast('⚠️ 請選擇圖片檔案'); return; }
+    const reader = new FileReader();
+    reader.onload = async (e) => { onChange(await compressImage(e.target.result)); toast('✅ 照片已載入'); };
+    reader.readAsDataURL(file);
+  }, [onChange]);
+  const handlePaste = useCallback((e) => {
+    const items = e.clipboardData?.items; if (!items) return;
+    for (const item of items) { if (item.type.startsWith('image/')) { e.preventDefault(); e.stopPropagation(); handleFile(item.getAsFile()); return; } }
+  }, [handleFile]);
+  const onDrop = (e) => { e.preventDefault(); setDragover(false); handleFile(e.dataTransfer.files?.[0]); };
+
+  if (value) return (
+    <div className="photo-preview">
+      <img src={value} alt={label} />
+      <button className="remove-btn" onClick={() => onChange('')} title="移除照片">×</button>
+      {photoId && <span className="cloud-badge">☁️ 已同步</span>}
+    </div>
+  );
+  return (
+    <div className={`photo-zone ${dragover?'dragover':''}`} ref={zoneRef} tabIndex={0}
+      onClick={() => inputRef.current?.click()} onPaste={handlePaste}
+      onDragOver={e=>{e.preventDefault();setDragover(true)}} onDragLeave={()=>setDragover(false)} onDrop={onDrop}>
+      <div style={{fontSize:36,opacity:.3}}>📷</div>
+      <div className="hint">點擊選擇 / 拖放照片</div>
+      <div className="hint" style={{fontSize:11}}>或直接 <b>Ctrl+V 貼上</b>（自動填入第一個空位）</div>
+      <input type="file" accept="image/*" ref={inputRef} onChange={e=>handleFile(e.target.files?.[0])} />
+    </div>
+  );
+}
+
+// ============================ APP ============================
+function App() {
+  const [tab, setTab] = useState('edit');
+  const [header, setHeader] = useState(() => { try { return JSON.parse(localStorage.getItem('ips_header')) || defaultHeader; } catch { return defaultHeader; } });
+  const [records, setRecords] = useState(() => { try { return JSON.parse(localStorage.getItem('ips_records')) || [newRecord()]; } catch { return [newRecord()]; } });
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [syncing, setSyncing] = useState(false);
+  const [cloudStatus, setCloudStatus] = useState(GAS_URL ? 'idle' : 'off');
+  const [lastSync, setLastSync] = useState(localStorage.getItem('ips_lastSync') || '');
+  const isCloud = !!GAS_URL;
+
+  // Global paste
+  useEffect(() => {
+    const handler = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT') return;
+      if (document.activeElement?.classList?.contains('photo-zone')) return;
+      const items = e.clipboardData?.items; if (!items) return;
+      for (const item of items) { if (item.type.startsWith('image/')) {
+        e.preventDefault(); const file = item.getAsFile(); if (!file) return;
+        const rec = records[currentIdx]; let tf = null;
+        if (!rec.beforePhoto) tf='beforePhoto'; else if (!rec.duringPhoto) tf='duringPhoto'; else if (!rec.afterPhoto) tf='afterPhoto';
+        else { toast('⚠️ 三張照片都已填入'); return; }
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          const compressed = await compressImage(ev.target.result);
+          setRecords(prev => prev.map((r,i)=>i===currentIdx?{...r,[tf]:compressed}:r));
+          toast(`✅ 已貼入${{beforePhoto:'改善前',duringPhoto:'改善中',afterPhoto:'改善後'}[tf]}照片`);
+        };
+        reader.readAsDataURL(file); return;
+      }}
+    };
+    document.addEventListener('paste', handler);
+    return () => document.removeEventListener('paste', handler);
+  }, [currentIdx, records]);
+
+  // localStorage
+  useEffect(() => { localStorage.setItem('ips_header', JSON.stringify(header)); }, [header]);
+  useEffect(() => { localStorage.setItem('ips_records', JSON.stringify(records)); }, [records]);
+
+  const current = records[currentIdx] || records[0];
+  const updateRecord = (f, v) => setRecords(prev => prev.map((r,i)=>i===currentIdx?{...r,[f]:v}:r));
+  const addRecord = () => { setRecords(prev=>[...prev, newRecord()]); setCurrentIdx(records.length); setTab('edit'); toast('➕ 新增一筆改善紀錄'); };
+  const deleteRecord = (idx) => {
+    if (records.length<=1) { toast('⚠️ 至少保留一筆'); return; }
+    if (!confirm('確定刪除？')) return;
+    setRecords(prev=>prev.filter((_,i)=>i!==idx));
+    if (currentIdx>=idx&&currentIdx>0) setCurrentIdx(currentIdx-1);
+    toast('🗑️ 已刪除');
+  };
+
+  // =================== CLOUD SYNC ===================
+  const cloudSave = async () => {
+    if (!isCloud) { toast('⚠️ 未設定 GAS URL'); return; }
+    setSyncing(true); setCloudStatus('syncing');
+    toast('☁️ 上傳至雲端...');
+    try {
+      const updated = [...records];
+      for (let ri=0; ri<updated.length; ri++) {
+        for (const key of ['before','during','after']) {
+          const pk=key+'Photo', ik=key+'PhotoId';
+          if (updated[ri][pk] && !updated[ri][ik]) {
+            toast(`☁️ 上傳照片 ${ri+1}/${updated.length} ${key}...`);
+            try {
+              const res = await xhrPost(GAS_URL, { action:'uploadPhoto', fileName:`${updated[ri].label||updated[ri].id}_${key}_${Date.now()}.jpg`, dataUrl:updated[ri][pk] });
+              if (res.ok && res.fileId) updated[ri] = {...updated[ri],[ik]:res.fileId};
+            } catch(e) { console.warn('Photo upload skip:',e); }
+          }
+          if (!updated[ri][pk] && updated[ri][ik]) updated[ri] = {...updated[ri],[ik]:''};
+        }
+      }
+      const res = await xhrPost(GAS_URL, { action:'save', header, records: updated.map(r=>({
+        id:r.id, date:r.date, label:r.label,
+        beforeDesc:r.beforeDesc, duringDesc:r.duringDesc, afterDesc:r.afterDesc,
+        beforePhotoId:r.beforePhotoId||'', duringPhotoId:r.duringPhotoId||'', afterPhotoId:r.afterPhotoId||'',
+      }))});
+      if (!res.ok) throw new Error(res.error||'Save failed');
+      setRecords(updated);
+      const now = new Date().toLocaleString('zh-TW');
+      setLastSync(now); localStorage.setItem('ips_lastSync', now);
+      setCloudStatus('ok'); toast('✅ 雲端同步完成！');
+    } catch(err) { setCloudStatus('error'); toast('❌ 同步失敗：'+err.message); }
+    setSyncing(false);
+  };
+
+  const cloudLoad = async () => {
+    if (!isCloud) { toast('⚠️ 未設定 GAS URL'); return; }
+    setSyncing(true); setCloudStatus('syncing');
+    toast('☁️ 從雲端讀取...');
+    try {
+      const res = await xhrGet(GAS_URL+'?action=read');
+      if (!res.ok) throw new Error(res.error||'Read failed');
+      if (res.data.header?.org) setHeader(res.data.header);
+      if (res.data.records?.length) {
+        const loaded = [];
+        for (let ri=0; ri<res.data.records.length; ri++) {
+          const rec = res.data.records[ri];
+          const full = { id:rec.id, date:rec.date, label:rec.label,
+            beforeDesc:rec.beforeDesc, duringDesc:rec.duringDesc, afterDesc:rec.afterDesc,
+            beforePhoto:'', duringPhoto:'', afterPhoto:'',
+            beforePhotoId:rec.beforePhotoId||'', duringPhotoId:rec.duringPhotoId||'', afterPhotoId:rec.afterPhotoId||'' };
+          for (const key of ['before','during','after']) {
+            if (rec[key+'PhotoId']) {
+              toast(`☁️ 載入照片 ${ri+1}/${res.data.records.length} ${key}...`);
+              try {
+                const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+rec[key+'PhotoId']);
+                if (pr.ok && pr.dataUrl) full[key+'Photo'] = pr.dataUrl;
+              } catch(e) { console.warn('Photo load skip:',e); }
+            }
+          }
+          loaded.push(full);
+        }
+        setRecords(loaded); setCurrentIdx(0);
+      }
+      const now = new Date().toLocaleString('zh-TW');
+      setLastSync(now); localStorage.setItem('ips_lastSync', now);
+      setCloudStatus('ok'); toast('✅ 雲端資料已載入！');
+    } catch(err) { setCloudStatus('error'); toast('❌ 讀取失敗：'+err.message); }
+    setSyncing(false);
+  };
+
+  // =================== PDF ===================
+  const generatePDF = () => {
+    toast('📄 準備列印...');
+    const pages = records.map((rec,ri) => {
+      const ph = (src) => src ? `<img src="${src}" style="max-width:100%;max-height:220px;object-fit:contain;display:block;margin:0 auto">` : `<div style="color:#999;padding:40px 0;font-size:11px">（未附照片）</div>`;
+      return `<div class="page" ${ri>0?'style="page-break-before:always"':''}>
+        <div class="doc-org">${header.org}</div><div class="doc-title">${header.title}</div>
+        <div class="doc-project">工程名稱：${header.project}</div>
+        <table><tr>
+          <td class="label-cell" rowspan="3"><div class="vt">（改善前中後、同一角度拍攝之照片，並加以說明。）</div></td>
+          <td class="photo-cell">${ph(rec.beforePhoto)}</td>
+          <td class="desc-cell"><div class="dt">改善前(缺失說明)：</div><div>${rec.beforeDesc||''}</div></td>
+        </tr><tr>
+          <td class="photo-cell">${ph(rec.duringPhoto)}</td>
+          <td class="desc-cell"><div class="dt">改善中(改善措施)：</div><div>${rec.duringDesc||''}</div></td>
+        </tr><tr>
+          <td class="photo-cell">${ph(rec.afterPhoto)}</td>
+          <td class="desc-cell"><div class="dt">改善後(改善結果)：</div><div>${rec.afterDesc||''}</div></td>
+        </tr></table>
+        ${(rec.label||rec.date)?`<div class="fn">${rec.label||''}　${rec.date||''}</div>`:''}</div>`;
+    }).join('');
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>改善照片表</title><style>
+      @page{size:A4 portrait;margin:7mm 7mm 10mm 7mm}*{margin:0;padding:0;box-sizing:border-box}
+      body{font-family:'DFKai-SB','標楷體','Noto Serif TC',serif;color:#000}
+      .doc-org{text-align:center;font-size:16pt;letter-spacing:2px;margin-bottom:2px}
+      .doc-title{text-align:center;font-size:16pt;letter-spacing:6px;margin-bottom:8px}
+      .doc-project{font-size:12pt;margin-bottom:10px}
+      table{width:100%;border-collapse:collapse;table-layout:fixed}
+      td{border:1.5px solid #000;padding:6px;vertical-align:top}
+      .label-cell{width:28px;padding:4px 2px;vertical-align:middle;text-align:center}
+      .vt{writing-mode:vertical-rl;text-orientation:mixed;font-size:9pt;letter-spacing:1px;line-height:1.6;margin:0 auto;white-space:nowrap}
+      .photo-cell{width:55%;text-align:center;vertical-align:middle;padding:4px}
+      .desc-cell{font-size:11pt;line-height:1.7;padding:8px 10px;vertical-align:top}
+      .dt{font-weight:bold;margin-bottom:4px}.fn{margin-top:6px;font-size:9pt;color:#666}
+      @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+    </style></head><body>${pages}</body></html>`;
+    const w = window.open('','_blank');
+    if (!w) { toast('⚠️ 請允許彈出視窗'); return; }
+    w.document.write(html); w.document.close();
+    const imgs = w.document.querySelectorAll('img');
+    let ld=0; const tot=imgs.length;
+    const go = () => setTimeout(()=>{w.focus();w.print()},300);
+    if (!tot) go(); else imgs.forEach(img=>{
+      if (img.complete){ld++;if(ld>=tot)go()}else{img.onload=img.onerror=()=>{ld++;if(ld>=tot)go()}}
+    });
+    toast('✅ 列印視窗已開啟，選擇「儲存為 PDF」');
+  };
+
+  // =================== JSON ===================
+  const exportJSON = () => {
+    const blob = new Blob([JSON.stringify({header, records}, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `改善照片表_備份_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 3000);
+    toast('💾 已匯出 JSON 備份');
+  };
+  const importJSON = () => {
+    const input = document.createElement('input'); input.type='file'; input.accept='.json';
+    input.onchange = (e) => {
+      const file = e.target.files?.[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          if (data.header) setHeader(data.header);
+          if (data.records?.length) { setRecords(data.records); setCurrentIdx(0); }
+          toast('✅ 已匯入 JSON 資料');
+        } catch { toast('❌ JSON 格式錯誤'); }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  };
+
+  // =================== RENDER ===================
+  const dot = cloudStatus==='ok'?'on':cloudStatus==='syncing'?'loading':cloudStatus==='error'?'off':(isCloud?'on':'off');
+  const stxt = !isCloud?'離線模式（未設定 GAS URL）':cloudStatus==='syncing'?'同步中...':cloudStatus==='ok'?`已同步 ${lastSync}`:cloudStatus==='error'?'同步失敗':'已連線';
+
+  return (
+    <div>
+      <div className="app-header">
+        <h1>📋 改善照片表產生器</h1>
+        <p>NMDC EHS — 貼照片、寫說明、自動產生 PDF</p>
+        <div className="sync-status"><span className={`dot ${dot}`}></span>{stxt}</div>
+      </div>
+      <div className="container">
+        <div className="tabs">
+          <button className={`tab ${tab==='edit'?'active':''}`} onClick={()=>setTab('edit')}>✏️ 編輯</button>
+          <button className={`tab ${tab==='list'?'active':''}`} onClick={()=>setTab('list')}>📑 紀錄 ({records.length})</button>
+          <button className={`tab ${tab==='preview'?'active':''}`} onClick={()=>setTab('preview')}>👁 預覽</button>
+          <button className={`tab ${tab==='settings'?'active':''}`} onClick={()=>setTab('settings')}>⚙️</button>
+        </div>
+
+        {/* EDIT */}
+        {tab==='edit' && <div>
+          <div className="card"><div className="card-header"><div className="icon info">🏢</div><div><h3>文件資訊</h3><small>可編輯表頭內容</small></div></div>
+          <div className="card-body">
+            <div className="field"><label>機關名稱</label><input value={header.org} onChange={e=>setHeader({...header,org:e.target.value})} /></div>
+            <div className="field"><label>表單標題</label><input value={header.title} onChange={e=>setHeader({...header,title:e.target.value})} /></div>
+            <div className="field"><label>工程名稱</label><input value={header.project} onChange={e=>setHeader({...header,project:e.target.value})} /></div>
+            <div style={{display:'flex',gap:10}}>
+              <div className="field" style={{flex:1}}><label>紀錄標籤（選填）</label><input value={current.label} onChange={e=>updateRecord('label',e.target.value)} placeholder="例：WM-001 / NCR-005" /></div>
+              <div className="field" style={{flex:1}}><label>日期</label><input type="date" value={current.date} onChange={e=>updateRecord('date',e.target.value)} /></div>
+            </div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>改善前（缺失說明）</h3><small>上傳缺失現場照片並說明問題</small></div></div>
+          <div className="card-body">
+            <PhotoUploader value={current.beforePhoto} photoId={current.beforePhotoId} onChange={v=>updateRecord('beforePhoto',v)} label="改善前" />
+            <div className="field" style={{marginTop:12}}><label>缺失說明</label><textarea value={current.beforeDesc} onChange={e=>updateRecord('beforeDesc',e.target.value)} placeholder="描述現場缺失情形..." /></div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon during">🔧</div><div><h3>改善中（改善措施）</h3><small>上傳改善過程照片並說明措施</small></div></div>
+          <div className="card-body">
+            <PhotoUploader value={current.duringPhoto} photoId={current.duringPhotoId} onChange={v=>updateRecord('duringPhoto',v)} label="改善中" />
+            <div className="field" style={{marginTop:12}}><label>改善措施</label><textarea value={current.duringDesc} onChange={e=>updateRecord('duringDesc',e.target.value)} placeholder="描述採取的改善措施..." /></div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon after">✅</div><div><h3>改善後（改善結果）</h3><small>上傳改善完成照片並說明成果</small></div></div>
+          <div className="card-body">
+            <PhotoUploader value={current.afterPhoto} photoId={current.afterPhotoId} onChange={v=>updateRecord('afterPhoto',v)} label="改善後" />
+            <div className="field" style={{marginTop:12}}><label>改善結果</label><textarea value={current.afterDesc} onChange={e=>updateRecord('afterDesc',e.target.value)} placeholder="描述改善完成情形..." /></div>
+          </div></div>
+
+          <div className="btn-group">
+            {isCloud && <button className="btn btn-sync" onClick={cloudSave} disabled={syncing}>{syncing?'⏳ 同步中...':'☁️ 儲存至雲端'}</button>}
+            <button className="btn btn-primary" onClick={generatePDF}>📄 產生 PDF</button>
+            <button className="btn btn-secondary" onClick={()=>setTab('preview')}>👁 預覽</button>
+            <button className="btn btn-secondary" onClick={addRecord}>➕ 新增紀錄</button>
+          </div>
+        </div>}
+
+        {/* LIST */}
+        {tab==='list' && <div>
+          <div className="card"><div className="card-header"><div className="icon info">📑</div><div><h3>所有紀錄</h3><small>點擊進入編輯</small></div></div>
+          {records.map((r,i)=>(
+            <div key={r.id} className="record-item" onClick={()=>{setCurrentIdx(i);setTab('edit')}}>
+              <div className="rec-idx">{i+1}</div>
+              <div className="rec-info">
+                <div className="rec-title">{r.label||`紀錄 #${i+1}`}</div>
+                <div className="rec-sub">{r.date||'未設定日期'} — {r.beforeDesc?r.beforeDesc.slice(0,30)+'...':'未填寫'}</div>
+              </div>
+              <div className="rec-photos" title="前/中/後">{[r.beforePhoto,r.duringPhoto,r.afterPhoto].map((p,pi)=><div key={pi} className={`dot ${p?'filled':'empty'}`}/>)}</div>
+              <button className="btn btn-danger" style={{padding:'6px 12px',fontSize:12}} onClick={e=>{e.stopPropagation();deleteRecord(i)}}>🗑</button>
+            </div>
+          ))}</div>
+          <div className="btn-group">
+            <button className="btn btn-primary" onClick={addRecord}>➕ 新增紀錄</button>
+            {isCloud && <>
+              <button className="btn btn-sync" onClick={cloudSave} disabled={syncing}>{syncing?'⏳ 同步中...':'☁️ 儲存至雲端'}</button>
+              <button className="btn btn-load" onClick={cloudLoad} disabled={syncing}>{syncing?'⏳ 讀取中...':'☁️ 從雲端載入'}</button>
+            </>}
+            <button className="btn btn-primary" onClick={generatePDF}>📄 產生全部 PDF</button>
+            <button className="btn btn-secondary" onClick={exportJSON}>💾 匯出 JSON</button>
+            <button className="btn btn-secondary" onClick={importJSON}>📂 匯入 JSON</button>
+          </div>
+        </div>}
+
+        {/* PREVIEW */}
+        {tab==='preview' && <div>
+          <div style={{display:'flex',gap:8,marginBottom:12,flexWrap:'wrap'}}>
+            {records.map((r,i)=><button key={r.id} className={`btn ${i===currentIdx?'btn-primary':'btn-secondary'}`} style={{padding:'6px 14px',fontSize:12}} onClick={()=>setCurrentIdx(i)}>{r.label||`#${i+1}`}</button>)}
+          </div>
+          <div className="preview-doc">
+            <div className="doc-org">{header.org}</div><div className="doc-title">{header.title}</div>
+            <div className="doc-project">工程名稱：{header.project}</div>
+            <table className="preview-table"><tbody>
+              <tr><td className="label-cell" rowSpan={3}>(改善前中後、同一角度拍攝之照片，並加以說明。)</td>
+                <td className="photo-cell">{current.beforePhoto?<img src={current.beforePhoto}/>:<div className="no-photo-placeholder">（未附改善前照片）</div>}</td>
+                <td className="desc-cell"><div className="desc-title">改善前(缺失說明)：</div><div>{current.beforeDesc||'—'}</div></td></tr>
+              <tr><td className="photo-cell">{current.duringPhoto?<img src={current.duringPhoto}/>:<div className="no-photo-placeholder">（未附改善中照片）</div>}</td>
+                <td className="desc-cell"><div className="desc-title">改善中(改善措施)：</div><div>{current.duringDesc||'—'}</div></td></tr>
+              <tr><td className="photo-cell">{current.afterPhoto?<img src={current.afterPhoto}/>:<div className="no-photo-placeholder">（未附改善後照片）</div>}</td>
+                <td className="desc-cell"><div className="desc-title">改善後(改善結果)：</div><div>{current.afterDesc||'—'}</div></td></tr>
+            </tbody></table>
+            {(current.label||current.date)&&<div style={{marginTop:8,fontSize:'9pt',color:'#666'}}>{current.label&&<span>{current.label}　</span>}{current.date}</div>}
+          </div>
+          <div className="btn-group" style={{marginTop:16}}>
+            <button className="btn btn-primary" onClick={generatePDF}>📄 產生 PDF</button>
+            <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 回到編輯</button>
+          </div>
+        </div>}
+
+        {/* SETTINGS */}
+        {tab==='settings' && <div>
+          <div className="card"><div className="card-header"><div className="icon cloud">☁️</div><div><h3>雲端同步設定</h3><small>Google Sheets + Drive</small></div></div>
+          <div className="card-body">
+            <div className="field">
+              <label>GAS Web App URL</label>
+              <input defaultValue={GAS_URL} placeholder="https://script.google.com/macros/s/.../exec" style={{fontFamily:'monospace',fontSize:12}} readOnly={!!GAS_URL} />
+              <div className="hint-text">請直接修改 HTML 檔案頂部的 <code>GAS_URL</code> 常數</div>
+            </div>
+            <div style={{padding:14,background:'var(--bg2)',borderRadius:6,fontSize:13,lineHeight:1.9,color:'var(--text2)'}}>
+              <b>📋 設定步驟：</b><br/>
+              1️⃣ 建立 Google Sheet → 複製 Sheet ID<br/>
+              2️⃣ 建立 Drive 資料夾（放照片）→ 複製 Folder ID<br/>
+              3️⃣ Sheet 中開啟 Apps Script（擴充功能 → Apps Script）<br/>
+              4️⃣ 貼上 Code.gs，填入 Sheet ID 和 Folder ID<br/>
+              5️⃣ 部署 → 新增部署 → Web 應用程式<br/>
+              　　執行身分：<b>我 (Me)</b><br/>
+              　　存取權限：<b>任何人 (Anyone)</b><br/>
+              6️⃣ 複製部署 URL → 貼到 HTML 的 <code>GAS_URL</code>
+            </div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon info">💾</div><div><h3>資料管理</h3><small>匯出 / 匯入 / 清除</small></div></div>
+          <div className="card-body">
+            <div className="btn-group" style={{marginTop:0}}>
+              <button className="btn btn-secondary" onClick={exportJSON}>💾 匯出 JSON</button>
+              <button className="btn btn-secondary" onClick={importJSON}>📂 匯入 JSON</button>
+              <button className="btn btn-danger" onClick={()=>{
+                if (!confirm('確定清除所有本機資料？（不影響雲端）')) return;
+                localStorage.removeItem('ips_header'); localStorage.removeItem('ips_records'); localStorage.removeItem('ips_lastSync');
+                setHeader(defaultHeader); setRecords([newRecord()]); setCurrentIdx(0); toast('🗑️ 本機資料已清除');
+              }}>🗑 清除本機</button>
+            </div>
+          </div></div>
+
+          <div className="card"><div className="card-header"><div className="icon info">ℹ️</div><div><h3>系統資訊</h3></div></div>
+          <div className="card-body" style={{fontSize:13,color:'var(--text2)',lineHeight:1.8}}>
+            紀錄：{records.length} 筆<br/>
+            雲端：{isCloud?'已設定':'未設定'}<br/>
+            上次同步：{lastSync||'尚未同步'}<br/>
+            版本：v2.0
+          </div></div>
+        </div>}
+
+        <div style={{textAlign:'center',padding:'20px 0',fontSize:11}}>
+          <span style={{color:'#9a8c7a'}}>NMDC EHS 改善照片表產生器 v2.0 — {isCloud?'☁️ 雲端同步':'💾 本機儲存'}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
