@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TPC 海管工程 改善單管理系統</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #07101f;
+  --bg-secondary: #0f1d30;
+  --bg-card: #162540;
+  --bg-card-hover: #1c2e4a;
+  --bg-input: #0d1a2e;
+  --border: #243a60;
+  --border-focus: #38bdf8;
+  --text-primary: #f0f6ff;
+  --text-secondary: #93b5d8;
+  --text-muted: #4d6e90;
+  --accent-blue: #38bdf8;
+  --accent-blue-dim: rgba(14,165,233,0.15);
+  --accent-orange: #f59e0b;
+  --accent-orange-dim: rgba(245,158,11,0.15);
+  --accent-red: #ef4444;
+  --accent-red-dim: rgba(239,68,68,0.15);
+  --accent-green: #34d399;
+  --accent-green-dim: rgba(16,185,129,0.15);
+  --accent-cyan: #22d3ee;
+  --accent-teal: #2dd4bf;
+  --wm-color: #38bdf8;
+  --ncr-color: #f59e0b;
+  --pn-color: #ef4444;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg-primary); color:var(--text-primary); font-family:'Noto Sans TC',sans-serif; font-size:14px; min-height:100vh; }
+::-webkit-scrollbar { width:6px; height:6px; }
+::-webkit-scrollbar-track { background:var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+/* ── LAYOUT ── */
+.app-shell { display:flex; flex-direction:column; min-height:100vh; }
+.topbar {
+  background:linear-gradient(135deg, #081628 0%, #0d2040 50%, #112848 100%);
+  border-bottom:1px solid var(--border);
+  padding:0 24px; display:flex; align-items:center; gap:16px;
+  position:sticky; top:0; z-index:100; min-height:60px;
+}
+.topbar-icon {
+  width:36px; height:36px; border-radius:8px;
+  background:linear-gradient(135deg, #0ea5e9, #0c4a6e);
+  display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0;
+  box-shadow:0 0 16px rgba(14,165,233,0.3);
+}
+.topbar-title { font-size:15px; font-weight:700; line-height:1.3; }
+.topbar-sub { font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; }
+.topbar-divider { width:1px; height:32px; background:var(--border); flex-shrink:0; }
+.topbar-project { flex:1; min-width:0; }
+.topbar-project-name { font-size:12px; color:var(--accent-blue); font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.topbar-project-client { font-size:11px; color:var(--text-muted); }
+.sync-status { display:flex; align-items:center; gap:8px; margin-left:auto; flex-shrink:0; }
+.sync-dot { width:8px; height:8px; border-radius:50%; background:var(--text-muted); flex-shrink:0; }
+.sync-dot.ok { background:var(--accent-green); box-shadow:0 0 8px rgba(16,185,129,0.5); animation:pulse 2s infinite; }
+.sync-dot.busy { background:var(--accent-orange); animation:blink .5s infinite; }
+.sync-dot.error { background:var(--accent-red); }
+.sync-text { font-size:11px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; white-space:nowrap; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── NAV ── */
+.nav { display:flex; gap:2px; padding:0 24px; background:var(--bg-secondary); border-bottom:1px solid var(--border); overflow-x:auto; }
+.nav-btn {
+  padding:12px 20px; font-size:13px; font-weight:600; cursor:pointer;
+  border:none; background:transparent; color:var(--text-muted);
+  border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap;
+  display:flex; align-items:center; gap:6px;
+}
+.nav-btn:hover { color:var(--text-primary); background:rgba(255,255,255,.03); }
+.nav-btn.active { color:var(--accent-blue); border-bottom-color:var(--accent-blue); }
+.nav-badge { background:var(--accent-red); color:#fff; font-size:10px; font-weight:700; border-radius:10px; padding:1px 6px; min-width:18px; text-align:center; }
+
+.content { flex:1; padding:24px; max-width:1600px; margin:0 auto; width:100%; }
+
+/* ── SETUP OVERLAY ── */
+.setup-overlay {
+  position:fixed; inset:0; background:var(--bg-primary); z-index:500;
+  display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.setup-card {
+  background:var(--bg-card); border:1px solid var(--border); border-radius:14px;
+  padding:40px; width:100%; max-width:560px; box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+.setup-logo { font-size:48px; text-align:center; margin-bottom:16px; }
+.setup-title { font-size:20px; font-weight:900; text-align:center; color:var(--text-primary); margin-bottom:6px; }
+.setup-sub { font-size:13px; color:var(--text-muted); text-align:center; margin-bottom:32px; }
+.setup-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; margin-bottom:8px; }
+.setup-input {
+  width:100%; background:var(--bg-input); border:1px solid var(--border);
+  color:var(--text-primary); border-radius:var(--radius-sm); padding:12px 14px;
+  font-size:13px; font-family:'JetBrains Mono',monospace; margin-bottom:16px;
+}
+.setup-input:focus { outline:none; border-color:var(--border-focus); }
+.setup-steps { background:var(--bg-primary); border:1px solid var(--border); border-radius:var(--radius-sm); padding:16px; font-size:12px; color:var(--text-secondary); line-height:1.9; margin-bottom:24px; }
+.setup-steps ol { padding-left:18px; }
+.setup-steps li { margin-bottom:2px; }
+.setup-steps code { background:var(--bg-card); padding:1px 5px; border-radius:3px; font-size:11px; color:var(--accent-cyan); font-family:'JetBrains Mono',monospace; }
+
+/* ── GLOBAL LOADING ── */
+.g-loading {
+  position:fixed; inset:0; background:rgba(6,12,24,.85); z-index:400;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+  backdrop-filter:blur(4px);
+}
+.g-loading-spinner {
+  width:44px; height:44px; border:3px solid var(--border);
+  border-top-color:var(--accent-blue); border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.g-loading-text { font-size:14px; color:var(--text-secondary); }
+
+/* ── KPI ── */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:24px; }
+.kpi-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; position:relative; overflow:hidden; transition:all .25s; }
+.kpi-card:hover { border-color:rgba(14,165,233,.4); transform:translateY(-2px); box-shadow:var(--shadow); }
+.kpi-stripe { position:absolute; top:0; left:0; right:0; height:3px; border-radius:2px 2px 0 0; }
+.kpi-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
+.kpi-value { font-family:'JetBrains Mono',monospace; font-size:32px; font-weight:900; line-height:1; }
+.kpi-sub { font-size:11px; color:var(--text-secondary); margin-top:6px; }
+
+/* ── CHARTS ── */
+.chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr;} .dash-two-col{grid-template-columns:1fr !important;}}
+.chart-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.chart-title { font-size:13px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.5px; margin-bottom:16px; }
+.chart-wrap { position:relative; height:220px; }
+
+/* ── ITEM DASH ── */
+.item-dash { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin-bottom:24px; }
+.item-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px; position:relative; overflow:hidden; transition:all .25s; }
+.item-card:hover { transform:translateY(-2px); box-shadow:var(--shadow); border-color:rgba(14,165,233,.3); }
+.item-card-bar { position:absolute; top:0; left:0; right:0; height:3px; border-radius:2px 2px 0 0; }
+.item-card-id { font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; background:rgba(14,165,233,.12); color:var(--accent-blue); display:inline-block; margin-bottom:6px; }
+.item-card-name { font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:12px; }
+.item-card-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.item-stat { text-align:center; }
+.item-stat-val { font-family:'JetBrains Mono',monospace; font-size:20px; font-weight:900; line-height:1; }
+.item-stat-label { font-size:10px; color:var(--text-muted); margin-top:3px; }
+.item-close-bar { margin-top:10px; background:rgba(255,255,255,.06); border-radius:4px; height:5px; overflow:hidden; }
+.item-close-fill { height:100%; border-radius:4px; transition:width .6s ease; }
+
+/* ── FILTER BAR ── */
+.filter-bar { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:20px; }
+.filter-group { display:flex; align-items:center; gap:8px; }
+.filter-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+.filter-bar select, .filter-bar input[type=text] { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); padding:6px 10px; font-size:12px; font-family:inherit; min-width:100px; }
+.filter-bar select:focus, .filter-bar input:focus { outline:none; border-color:var(--border-focus); }
+.filter-spacer { flex:1; }
+
+/* ── BUTTONS ── */
+.btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:var(--radius-sm); font-size:12px; font-weight:700; font-family:inherit; cursor:pointer; border:none; transition:all .2s; }
+.btn:disabled { opacity:.5; cursor:not-allowed; }
+.btn-primary { background:var(--accent-blue); color:#fff; }
+.btn-primary:hover:not(:disabled) { background:#38bdf8; transform:translateY(-1px); }
+.btn-secondary { background:var(--bg-input); border:1px solid var(--border); color:var(--text-secondary); }
+.btn-secondary:hover:not(:disabled) { border-color:var(--accent-blue); color:var(--accent-blue); }
+.btn-danger { background:var(--accent-red-dim); border:1px solid rgba(239,68,68,.3); color:var(--accent-red); }
+.btn-danger:hover:not(:disabled) { background:var(--accent-red); color:#fff; }
+.btn-sm { padding:5px 10px; font-size:11px; }
+.btn-icon { width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+
+/* ── TABLE ── */
+.table-wrap { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.table-head { display:grid; padding:12px 16px; background:var(--bg-secondary); border-bottom:1px solid var(--border); }
+.table-head-cell { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; display:flex; align-items:center; gap:4px; cursor:pointer; user-select:none; }
+.table-head-cell:hover { color:var(--text-primary); }
+.sort-icon { font-size:9px; opacity:.6; }
+.sort-icon.active { opacity:1; color:var(--accent-blue); }
+.table-row { display:grid; padding:12px 16px; border-bottom:1px solid rgba(30,48,80,.5); transition:background .15s; align-items:center; }
+.table-row:last-child { border-bottom:none; }
+.table-row:hover { background:var(--bg-card-hover); }
+.table-cell { font-size:12px; color:var(--text-primary); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.t-cols { grid-template-columns: 70px 110px 90px 80px 80px 70px 90px 1fr 90px 70px 90px; }
+
+/* ── BADGES ── */
+.badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
+.badge-wm { background:rgba(14,165,233,.15); color:var(--wm-color); border:1px solid rgba(14,165,233,.3); }
+.badge-ncr { background:rgba(245,158,11,.15); color:var(--ncr-color); border:1px solid rgba(245,158,11,.3); }
+.badge-pn { background:rgba(239,68,68,.15); color:var(--pn-color); border:1px solid rgba(239,68,68,.3); }
+.badge-open { background:rgba(239,68,68,.12); color:#fca5a5; border:1px solid rgba(239,68,68,.25); }
+.badge-closed { background:rgba(16,185,129,.12); color:#6ee7b7; border:1px solid rgba(16,185,129,.25); }
+
+/* ── MODAL ── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:1000; display:flex; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+.modal { background:var(--bg-secondary); border:1px solid var(--border); border-radius:14px; width:100%; max-width:720px; max-height:90vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+.modal-header { padding:20px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+.modal-title { font-size:16px; font-weight:800; }
+.modal-close { width:32px; height:32px; border-radius:var(--radius-sm); background:var(--bg-input); border:1px solid var(--border); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:14px; }
+.modal-close:hover { color:var(--accent-red); border-color:var(--accent-red); }
+.modal-body { padding:24px; overflow-y:auto; flex:1; }
+.modal-footer { padding:16px 24px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; }
+
+/* ── FORM ── */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-group { display:flex; flex-direction:column; gap:6px; }
+.form-group.full { grid-column:1/-1; }
+.form-group label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; }
+.form-group input, .form-group select, .form-group textarea { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); padding:9px 12px; font-size:13px; font-family:inherit; transition:border-color .2s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--border-focus); }
+.form-group textarea { resize:vertical; min-height:70px; }
+.form-section-title { grid-column:1/-1; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; padding-top:4px; display:flex; align-items:center; gap:8px; }
+.form-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── SETTINGS ── */
+.settings-section { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:24px; margin-bottom:20px; }
+.settings-title { font-size:14px; font-weight:800; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.settings-row { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.settings-row label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; }
+.settings-row input, .settings-row textarea { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); padding:10px 14px; font-size:12px; font-family:'JetBrains Mono',monospace; }
+.settings-row input:focus, .settings-row textarea:focus { outline:none; border-color:var(--border-focus); }
+
+/* ── TOAST ── */
+.toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.toast-item { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:12px 16px; font-size:13px; box-shadow:var(--shadow); display:flex; align-items:center; gap:10px; animation:slideUp .3s ease; max-width:340px; }
+.toast-item.success { border-color:rgba(16,185,129,.4); }
+.toast-item.error { border-color:rgba(239,68,68,.4); }
+.toast-item.info { border-color:rgba(14,165,233,.3); }
+@keyframes slideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+/* ── MISC ── */
+.page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+.page-title { font-size:18px; font-weight:900; }
+.page-sub { font-size:12px; color:var(--text-muted); margin-top:3px; }
+.empty-state { text-align:center; padding:60px 20px; color:var(--text-muted); }
+.empty-icon { font-size:48px; margin-bottom:12px; opacity:.4; }
+.empty-text { font-size:14px; }
+.error-banner { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:var(--radius-sm); padding:12px 16px; font-size:13px; color:#fca5a5; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+
+@media(max-width:640px){
+  .content{padding:16px;}
+  .topbar{padding:0 12px; gap:10px;}
+  .topbar-project-name{font-size:11px;}
+  .form-grid{grid-template-columns:1fr;}
+  .t-cols{grid-template-columns:70px 1fr 70px 80px;}
+  .table-cell.hm{display:none;}
+  .chart-grid{grid-template-columns:1fr;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+// ─── 專案常數 ─────────────────────────────────────────────────
+const PROJECT = {
+  name: '通霄電廠二期更新改建計畫海底輸氣管線統包工程',
+  client: '台灣電力公司北部施工處',
+  shortName: 'TPC 海管工程',
+};
+
+// ─── 歷史匯入資料（65筆，從0320表單總表.xlsx）────────────────
+const SEED_RECORDS = [{"id": 1700000000001, "type": "WM", "number": "WM-001", "date": "2025-10-02", "unit": "TPC", "issuer": "曾曉菁", "area": "通霄", "defects": [{"item": 1, "description": "工區東側裸露區域未採行有效抑制防塵措施"}], "refNumber": "T1114100004", "deadline": "2025-10-07", "status": "Closed", "submitDate": "2025-10-08", "recipient": "張允濱", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000002, "type": "NCR", "number": "NCR-001", "date": "2025-10-07", "unit": "TPC", "issuer": "翁雅慧", "area": "通霄", "defects": [{"item": 1, "description": "工區臨海區域裸露地未採行空污防制措施"}], "refNumber": "通114100001", "deadline": "2025-10-15", "status": "Closed", "submitDate": "2025-10-15", "recipient": "陳偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000003, "type": "NCR", "number": "NCR-002", "date": "2025-10-07", "unit": "TPC", "issuer": "翁雅慧", "area": "通霄", "defects": [{"item": 1, "description": "工區臨海區域土堆未採行空污防制措施"}], "refNumber": "通114100002", "deadline": "2025-10-15", "status": "Closed", "submitDate": "2025-10-15", "recipient": "陳偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000004, "type": "NCR", "number": "NCR-003", "date": "2025-10-07", "unit": "TPC", "issuer": "翁雅慧", "area": "通霄", "defects": [{"item": 6, "description": "工區僅具備單一移動式監視器，舍錄影監視數量、畫面未涵蓋全工區。"}], "refNumber": "通114100003", "deadline": "2025-10-15", "status": "Closed", "submitDate": "2025-10-15", "recipient": "陳偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000005, "type": "WM", "number": "WM-002", "date": "2025-10-09", "unit": "TPC", "issuer": "聶官暉", "area": "通霄", "defects": [{"item": 1, "description": "地表裸露揚塵"}], "refNumber": "T1114100007", "deadline": "2025-10-16", "status": "Closed", "submitDate": "2025-10-16", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000006, "type": "WM", "number": "WM-003", "date": "2025-10-09", "unit": "TPC", "issuer": "聶官暉", "area": "通霄", "defects": [{"item": 6, "description": "未依規定設置污染防止膜"}], "refNumber": "T1114100014", "deadline": "2025-10-16", "status": "Closed", "submitDate": "2025-10-16", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000007, "type": "NCR", "number": "NCR-004", "date": "2025-10-20", "unit": "TPC", "issuer": "翁雅慧", "area": "通霄", "defects": [{"item": 1, "description": "工區臨海區域石料堆置未採行覆蓋防塵布、防塵網等空污防制措施"}], "refNumber": "通114100008", "deadline": "2025-10-22", "status": "Closed", "submitDate": "2025-10-23", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000008, "type": "NCR", "number": "NCR-005", "date": "2025-10-27", "unit": "TPC", "issuer": "徐瑋廷", "area": "通霄&台中", "defects": [{"item": 4, "description": "1.通霄端裸露地區有廢棄物未清理，請改善。\n2.台中端料堆未覆蓋防塵布、防塵網或配合定期噴灑化學穩定劑。\n3.台中端工程告示牌公害檢舉電話號碼資訊錯誤。"}], "refNumber": "北施處環保督導小組工地督察", "deadline": "2025-11-17", "status": "Closed", "submitDate": "2025-10-30", "recipient": "徐瑋廷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000009, "type": "PN", "number": "PN-001", "date": "2025-10-02", "unit": "TPC", "issuer": "陳偉庭", "area": "通霄", "defects": [{"item": 6, "description": "廠商未依契約施工規範每日提送前日之環境保護自主檢查表"}], "refNumber": "通霄水工(其)11410-001-EPC(海)", "deadline": "-", "status": "Closed", "submitDate": "-", "recipient": "-", "amount": "1000", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000010, "type": "WM", "number": "WM-004", "date": "2025-11-21", "unit": "TPC", "issuer": "聶官暉", "area": "台中", "defects": [{"item": 1, "description": "沉砂池裸露地表未覆蓋防塵網"}], "refNumber": "T1114110014", "deadline": "2025-11-25", "status": "Closed", "submitDate": "2025-11-25", "recipient": "徐瑋廷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000011, "type": "NCR", "number": "NCR-006", "date": "2025-11-21", "unit": "TPC", "issuer": "翁雅慧", "area": "通霄", "defects": [{"item": 2, "description": "工區出入口高壓沖洗機未有監測儀表(如水錶或電錶集水壓錶)"}], "refNumber": "通114110006", "deadline": "2025-11-28", "status": "Closed", "submitDate": "2025-11-28", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000012, "type": "NCR", "number": "NCR-007", "date": "2025-12-03", "unit": "TPC", "issuer": "劉欣盈", "area": "通霄", "defects": [{"item": 3, "description": "工地內或洗車設施置主要道路支車行路徑鋪面未清洗，致影響防制效果。"}], "refNumber": "通114110008", "deadline": "2025-12-02", "status": "Closed", "submitDate": "2025-11-28", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000013, "type": "NCR", "number": "NCR-008", "date": "2025-11-26", "unit": "TPC", "issuer": "劉欣盈", "area": "通霄", "defects": [{"item": 2, "description": "1.出入口之加壓沖洗設備未確實有效清洗車體及輪胎。\n2.主要車行路徑支鋼板有落土及色差。"}], "refNumber": "通114110009", "deadline": "2025-12-02", "status": "Closed", "submitDate": "2025-11-28", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000014, "type": "WM", "number": "WM-005", "date": "2025-11-26", "unit": "TPC", "issuer": "聶官暉", "area": "台中", "defects": [{"item": 1, "description": "裸露地表未鋪設防塵網"}], "refNumber": "T1114110018", "deadline": "2025-11-28", "status": "Closed", "submitDate": "2025-11-28", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000015, "type": "PN", "number": "PN-002", "date": "2025-11-26", "unit": "TPC", "issuer": "陳偉庭", "area": "台中", "defects": [{"item": 1, "description": "工區內之地表裸露區域，未依規定採行有效抑制防塵之防制設施"}], "refNumber": "通霄水工(其)11411-001-EPC(海)", "deadline": "-", "status": "Closed", "submitDate": "-", "recipient": "-", "amount": "5000", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000016, "type": "PN", "number": "PN-003", "date": "2025-11-28", "unit": "TPC", "issuer": "黃宣頤", "area": "通霄", "defects": [{"item": 2, "description": "車號BHM-1066離開工地未依規定確實清理車體及輪胎。"}], "refNumber": "通霄水工(其)11411-002-EPC(海)", "deadline": "-", "status": "Closed", "submitDate": "-", "recipient": "-", "amount": "2000", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000017, "type": "NCR", "number": "NCR-009", "date": "2025-12-03", "unit": "TPC", "issuer": "吳愷寓", "area": "通霄", "defects": [{"item": 5, "description": "運輸車輛(車牌：HAC-1000)貨廂未具友防止載運物料滴落污水、污泥之功能或設施。"}], "refNumber": "通114120002", "deadline": "2025-12-10", "status": "Closed", "submitDate": "2025-12-09", "recipient": "徐偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000018, "type": "NCR", "number": "NCR-010", "date": "2025-12-09", "unit": "TPC", "issuer": "吳愷寓", "area": "通霄", "defects": [{"item": 5, "description": "運輸車輛(N5-48)貨廂未具有防止載運物料滴落污水、污泥之功能或設施。"}], "refNumber": "通114120004", "deadline": "2025-12-16", "status": "Closed", "submitDate": "2025-12-15", "recipient": "徐偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000019, "type": "WM", "number": "WM-006", "date": "2025-12-10", "unit": "TPC", "issuer": "曾曉菁", "area": "通霄", "defects": [{"item": 3, "description": "鋼板表面未清洗殘留泥沙，致影響防制效果，請改善。"}], "refNumber": "T1114120008", "deadline": "2025-12-17", "status": "Closed", "submitDate": "2025-12-15", "recipient": "徐偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000020, "type": "WM", "number": "WM-007", "date": "2025-12-14", "unit": "TPC", "issuer": "李宛蓁", "area": "通霄", "defects": [{"item": 1, "description": "裸露地表未完整覆蓋防塵網。"}], "refNumber": "T1114120011", "deadline": "2025-12-19", "status": "Closed", "submitDate": "2025-12-18", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000021, "type": "WM", "number": "WM-008", "date": "2025-12-22", "unit": "TPC", "issuer": "聶官暉", "area": "通霄", "defects": [{"item": 1, "description": "裸露地表應加強灑水抑制揚塵"}], "refNumber": "T1114120015", "deadline": "2025-12-26", "status": "Closed", "submitDate": "2025-12-24", "recipient": "陳偉庭", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000022, "type": "NCR", "number": "NCR-011", "date": "2025-12-18", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 2, "description": "灑水車及承包商車輛進入出入口高壓沖洗區，人員為確實協助車輛輪胎及車體沖洗，應確實沖洗避免造成路面色差"}], "refNumber": "POE-E-CEIN-0001", "deadline": "2025-12-28", "status": "Closed", "submitDate": "2025-12-31", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000023, "type": "NCR", "number": "NCR-012", "date": "2025-12-22", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 3, "description": "車行路徑未落實防制措施，本計畫屬第一級營建工程建議鋪設鋼板等防治措施達車行路徑面積達90%以上"}], "refNumber": "POE-E-CEIN-0002", "deadline": "2026-01-05", "status": "Closed", "submitDate": "2026-01-06", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000024, "type": "NCR", "number": "NCR-013", "date": "2025-12-25", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 1, "description": "施工作業區內砂土乾燥揚塵情況嚴重，應加強灑水或維持地面濕潤"}], "refNumber": "POE-E-CEIN-0003", "deadline": "2026-01-07", "status": "Closed", "submitDate": "2026-01-11", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000025, "type": "NCR", "number": "NCR-014", "date": "2025-12-31", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 5, "description": "運輸車輛(KEK-8350) 貨廂為具有防止載運物料滴落污水、污泥之功能或設施"}], "refNumber": "通114120011", "deadline": "2026-01-07", "status": "Closed", "submitDate": "2026-01-06", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000026, "type": "NCR", "number": "NCR-015", "date": "2026-01-02", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 2, "description": "工區出入口高壓沖洗設備未有效作動"}], "refNumber": "通115010001", "deadline": "2026-01-05", "status": "Closed", "submitDate": "2026-01-06", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000027, "type": "WM", "number": "WM-009", "date": "2026-01-02", "unit": "TPC", "issuer": "江志豪", "area": "通霄", "defects": [{"item": 1, "description": "裸露地表未灑水或鋪設防塵網致沙塵飛揚"}], "refNumber": "T1115010003", "deadline": "2026-01-07", "status": "Closed", "submitDate": "2026-01-06", "recipient": "康育誠", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000028, "type": "NCR", "number": "NCR-016", "date": "2026-01-06", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 2, "description": "南側工地大門出入口有砂土，造成道路明顯色差，應加強清洗大門出入口延伸道路。"}], "refNumber": "POE-E-CEIN-0004", "deadline": "2026-01-08", "status": "Closed", "submitDate": "2026-01-07", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000029, "type": "PN", "number": "PN-004", "date": "2026-01-06", "unit": "TPC", "issuer": "-", "area": "台中", "defects": [{"item": 3, "description": "工地內車行路徑未依規定採行有效抑制防塵之防制設施 (台中市環保局稽核紀錄)"}], "refNumber": "通宵水工(其)11501-001-EPC(海)", "deadline": "-", "status": "Closed", "submitDate": "-", "recipient": "-", "amount": "5000", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000030, "type": "NCR", "number": "NCR-017", "date": "2026-01-09", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 5, "description": "石料車進場(HAC-0999) 所設置之汙水收集桶未接管，無法有效收集污水"}], "refNumber": "POE-E-CEIN-0005", "deadline": "2026-01-19", "status": "Closed", "submitDate": "2026-01-26", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000031, "type": "NCR", "number": "NCR-018", "date": "2026-01-07", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 2, "description": "工區出入口高壓沖洗設備未有效作動"}], "refNumber": "通115010005", "deadline": "2026-01-09", "status": "Closed", "submitDate": "2026-01-12", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000032, "type": "PN", "number": "PN-005", "date": "2026-01-08", "unit": "TPC", "issuer": "-", "area": "通霄", "defects": [{"item": 5, "description": "發現運輸車輛未具防止載運物料滴落污水、汙泥之功能或設施情事發生，屢次勸導仍未改善"}], "refNumber": "通霄 115-001001", "deadline": "-", "status": "Closed", "submitDate": "", "recipient": "", "amount": "2000", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000033, "type": "NCR", "number": "NCR-019", "date": "2026-01-12", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 5, "description": "南側外推全阻隔式圍籬下方搭接處未密合及防污設施"}], "refNumber": "POE-E-CEIN-0006", "deadline": "2026-01-20", "status": "Closed", "submitDate": "2026-01-19", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000034, "type": "NCR", "number": "NCR-020", "date": "2026-01-09", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 6, "description": "工區內運輸車輛(車牌：KLJ-3183)燃用柴油之運輸車輛未取得自主管理標章。"}], "refNumber": "通115010007", "deadline": "", "status": "Closed", "submitDate": "2026-01-15", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000035, "type": "NCR", "number": "NCR-021", "date": "2026-01-09", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 6, "description": "KEF-0702 環保管理標章已過期失效，"}], "refNumber": "POE-E-CEIN-0008", "deadline": "2026-01-23", "status": "Closed", "submitDate": "2026-01-23", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000036, "type": "WM", "number": "WM-010", "date": "2026-01-08", "unit": "TPC", "issuer": "江志豪", "area": "通霄", "defects": [{"item": 2, "description": "工區出入口之高壓沖洗設備未確實作動，請改善"}], "refNumber": "T1115010006", "deadline": "2026-01-09", "status": "Closed", "submitDate": "2026-01-12", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000037, "type": "NCR", "number": "NCR-022", "date": "2026-01-17", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 6, "description": "柴油運輸車輛逾期或未有環保標章，請在加強宣導"}], "refNumber": "POE-E-CEIN-0009", "deadline": "2026-01-26", "status": "Closed", "submitDate": "2026-01-27", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000038, "type": "NCR", "number": "NCR-023", "date": "2026-01-16", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 3, "description": "工區南側區域級配"}], "refNumber": "POE-E-CEIN-0007", "deadline": "2026-01-20", "status": "Closed", "submitDate": "2026-01-20", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000039, "type": "NCR", "number": "NCR-024", "date": "2026-01-15", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 6, "description": "116-UW 未取得環保管理標章。"}], "refNumber": "通115010009", "deadline": "2026-01-20", "status": "Closed", "submitDate": "2026-01-20", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000040, "type": "WM", "number": "WM-011", "date": "2026-01-16", "unit": "TPC", "issuer": "江志豪", "area": "通霄", "defects": [{"item": 3, "description": "車行路徑未落實防制措施"}], "refNumber": "T115010013", "deadline": "2026-01-23", "status": "Closed", "submitDate": "2026-02-04", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000041, "type": "NCR", "number": "NCR-025", "date": "2026-01-21", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 6, "description": "柴油運輸車輛逾期或未有環保標章，請在加強宣導"}], "refNumber": "POE-E-CEIN-0010", "deadline": "2026-01-30", "status": "Closed", "submitDate": "2026-01-27", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000042, "type": "NCR", "number": "NCR-026", "date": "2026-02-02", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 1, "description": "南側裸露區域防塵網損壞"}], "refNumber": "POE-E-CEIN-0011", "deadline": "2026-02-10", "status": "Closed", "submitDate": "2026-02-11", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000043, "type": "WM", "number": "WM-012", "date": "2026-02-06", "unit": "TPC", "issuer": "曾曉菁", "area": "通霄", "defects": [{"item": 2, "description": "鋼板表面未清淤沙請清理"}], "refNumber": "T115010014", "deadline": "2026-02-10", "status": "Closed", "submitDate": "2026-02-10", "recipient": "劉欣盈", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000044, "type": "NCR", "number": "NCR-027", "date": "2026-02-09", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 6, "description": "透明圍籬破損應修復"}], "refNumber": "POE-E-CEIN-0012", "deadline": "2026-02-13", "status": "Closed", "submitDate": "2026-02-11", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000045, "type": "WM", "number": "WM-013", "date": "2026-02-09", "unit": "TPC", "issuer": "江志豪", "area": "通霄", "defects": [{"item": 1, "description": "防塵網鋪設不完整"}], "refNumber": "T115010017", "deadline": "2026-02-11", "status": "Closed", "submitDate": "2026-02-11", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000046, "type": "NCR", "number": "NCR-028", "date": "2026-02-09", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 5, "description": "運輸車輛(HBC-1789) 貨廂未具有防止載運物料滴落污水、污泥之功能或設施"}], "refNumber": "通11502008", "deadline": "2026-02-13", "status": "Closed", "submitDate": "2026-02-13", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000047, "type": "NCR", "number": "NCR-029", "date": "2026-02-09", "unit": "TPC", "issuer": "康育誠", "area": "通霄", "defects": [{"item": 5, "description": "運輸車輛(HBB-0605) 貨廂未具有防止載運物料滴落污水、污泥之功能或設施"}], "refNumber": "通11502007", "deadline": "2026-02-13", "status": "Closed", "submitDate": "2026-02-13", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000048, "type": "NCR", "number": "NCR-030", "date": "2026-02-10", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 5, "description": "污水收集桶"}], "refNumber": "POE-E-CEIN-0013", "deadline": "2026-02-23", "status": "Closed", "submitDate": "2026-02-23", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000049, "type": "NCR", "number": "NCR-031", "date": "2026-02-10", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 6, "description": "柴油車自主管理標章"}], "refNumber": "POE-E-CEIN-0014", "deadline": "2026-02-23", "status": "Closed", "submitDate": "2026-02-23", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000050, "type": "WM", "number": "WM-014", "date": "2026-02-10", "unit": "TPC", "issuer": "聶官輝", "area": "通霄", "defects": [{"item": 4, "description": "沉砂池積砂未清理"}], "refNumber": "T1115020018", "deadline": "2026-02-28", "status": "Closed", "submitDate": "2026-02-26", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000051, "type": "WM", "number": "WM-015", "date": "2026-02-11", "unit": "TPC", "issuer": "何鈞傑", "area": "台中", "defects": [{"item": 1, "description": "防塵網覆蓋不完全"}], "refNumber": "T1115020020", "deadline": "2026-02-28", "status": "Closed", "submitDate": "2026-02-26", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000052, "type": "WM", "number": "WM-016", "date": "2026-03-01", "unit": "TPC", "issuer": "曾曉菁", "area": "通霄", "defects": [{"item": 3, "description": "車行路徑之鋼板上土砂堆積。"}], "refNumber": "T1115030001", "deadline": "2026-03-06", "status": "Closed", "submitDate": "2026-03-04", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000053, "type": "NCR", "number": "NCR-032", "date": "2026-03-04", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 1, "description": "土石方堆置未覆蓋防塵網，建議堆置具粉塵逸散性之材料，應採取有效防制設施。"}], "refNumber": "POE-E-CEIN-0015", "deadline": "2026-03-11", "status": "Closed", "submitDate": "2026-03-05", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000054, "type": "NCR", "number": "NCR-033", "date": "2026-03-05", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 5, "description": "施工機械-長臂挖掘機有漏油情況，現場雖有鋪設帆布、使用吸油棉，但有污染之疑慮，要求限期改善離場。"}], "refNumber": "POE-E-CEIN-0016", "deadline": "2026-03-11", "status": "Closed", "submitDate": "2026-03-09", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000055, "type": "WM", "number": "WM-017", "date": "2026-03-05", "unit": "TPC", "issuer": "聶官暉", "area": "通霄", "defects": [{"item": 1, "description": "防塵網鋪設不確實，確實有揚塵情形"}], "refNumber": "T1115030011", "deadline": "2026-03-15", "status": "Closed", "submitDate": "2026-03-10", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000056, "type": "NCR", "number": "NCR-034", "date": "2026-03-09", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 3, "description": "車行路徑鋼板表面殘砂，建議定期清理"}], "refNumber": "POE-E-CEIN-0017", "deadline": "2026-03-13", "status": "Closed", "submitDate": "2026-03-11", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000057, "type": "NCR", "number": "NCR-035", "date": "2026-03-13", "unit": "TPC", "issuer": "徐瑋廷", "area": "通霄", "defects": [{"item": 2, "description": "洗車台設備已設置完成，惟洗車功能尚未能正常運作"}], "refNumber": "通115030012", "deadline": "2026-03-18", "status": "Closed", "submitDate": "2026-03-18", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000058, "type": "WM", "number": "WM-018", "date": "2026-03-11", "unit": "TPC", "issuer": "蕭明華", "area": "通霄", "defects": [{"item": 1, "description": "裸露地表未完整覆蓋防塵網。"}], "refNumber": "T1115030017", "deadline": "2026-03-17", "status": "Closed", "submitDate": "2026-03-19", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000059, "type": "WM", "number": "WM-019", "date": "2026-03-17", "unit": "TPC", "issuer": "許文達", "area": "通霄", "defects": [{"item": 4, "description": "一般廢棄物桶蓋未確實密閉，請改善"}], "refNumber": "T1115030021", "deadline": "2026-03-25", "status": "Closed", "submitDate": "2026-03-19", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000060, "type": "WM", "number": "WM-020", "date": "2026-03-18", "unit": "TPC", "issuer": "賴紀良", "area": "通霄", "defects": [{"item": 1, "description": "NMDC通霄工區防塵網鋪設不確實，現場有揚塵情況。"}], "refNumber": "T1115030022", "deadline": "2026-03-25", "status": "Closed", "submitDate": "2026-03-23", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000061, "type": "NCR", "number": "NCR-036", "date": "2026-03-18", "unit": "POE", "issuer": "廖思婷", "area": "通霄", "defects": [{"item": 5, "description": "地質改善作業期間產生之費水位妥善導流及收集處理，逕行排放於地表，具造成土壤污染之潛在風險，請立即改善。"}], "refNumber": "POE-E-CEIN-0018", "deadline": "2026-03-31", "status": "Closed", "submitDate": "2026-03-26", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000062, "type": "NCR", "number": "NCR-037", "date": "2026-03-18", "unit": "TPC", "issuer": "環保課", "area": "通霄&台中", "defects": [{"item": 3, "description": "1. 通霄端車行路徑之鋼板，路面色差及落土。"}, {"item": 1, "description": "2. 通霄端工區裸露地面地面流失積水。"}, {"item": 6, "description": "3. 通霄端工區內施工機具請盡速完成檢測並取得自主管理標章。"}, {"item": 6, "description": "4. 台中端柴油機具未取得自主管理標章。"}], "refNumber": "環保督導", "deadline": "2026-03-31", "status": "Closed", "submitDate": "2026-03-26", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000066, "type": "WM", "number": "WM-021", "date": "2026-03-20", "unit": "TPC", "issuer": "廖慶梧", "area": "通霄", "defects": [{"item": 1, "description": "覆蓋之防塵布(網)破損或毀壞，致影響防制效果，請鋪滿。"}], "refNumber": "T1115030026", "deadline": "2026-03-31", "status": "Closed", "submitDate": "2026-03-25", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000067, "type": "NCR", "number": "NCR-038", "date": "2026-03-20", "unit": "TPC", "issuer": "劉新盈", "area": "台中", "defects": [{"item": 6, "description": "錄影監視系統內容需足以辨識工地空氣污染防制設施、出入口路面乾淨程度、運輸車輛清洗集貨廂覆蓋情形，照攝洗車台之攝影機應為專用，不得與工安或施工監看共用而任意切換方向。"}], "refNumber": "通115030017", "deadline": "2026-03-25", "status": "Closed", "submitDate": "2026-03-25", "recipient": "廖思婷", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}, {"id": 1700000000068, "type": "NCR", "number": "NCR-039", "date": "2026-03-23", "unit": "POE", "issuer": "李仁富", "area": "台中", "defects": [{"item": 1, "description": "裸露地表粗級配鋪面有流失，建議定期檢查粗級配鋪面狀況，若發現粗級配鋪面有流失或磨損情形，應重新鋪設粗級配或補充粗級配粒料，以維持防制設施之效果。"}], "refNumber": "POE-E-CEIN-0019", "deadline": "2026-03-23", "status": "Closed", "submitDate": "2026-03-25", "recipient": "李仁富", "amount": "", "appeal": "", "driveFolderUrl": "", "driveFolderId": "", "remark": ""}];
+
+const DEFAULT_ITEMS = {
+  1:'裸露區域防制措施', 2:'工區出入口', 3:'車行路徑',
+  4:'整理整頓', 5:'廢水廢油處理', 6:'契約規範',
+};
+const DEFAULT_AREAS = ['台中工區','通霄工區','天力工區','其他'];
+const DEFAULT_UNITS = ['TPC','POE','NMDC'];
+
+// ─── SESSION STORAGE（僅 GAS URL，非業務資料）──────────────────
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
+const SS_KEY = 'tpc_pipeline_gas_url';
+const getStoredUrl = () => GAS_URL;
+const setStoredUrl = (url) => {};
+
+// ─── XHR 工具（避免 mobile Safari fetch redirect 問題）──────────
+function xhrGet(url) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    x.open('GET', url, true);
+    x.timeout = 20000;
+    x.onload = () => {
+      if (x.status >= 200 && x.status < 300) {
+        try { res(JSON.parse(x.responseText)); }
+        catch(e) { rej(new Error('JSON 解析失敗')); }
+      } else { rej(new Error('HTTP ' + x.status)); }
+    };
+    x.onerror = () => rej(new Error('網路錯誤'));
+    x.ontimeout = () => rej(new Error('請求逾時'));
+    x.send();
+  });
+}
+function xhrPost(url, data) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    x.open('POST', url, true);
+    x.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+    x.timeout = 30000;
+    x.onload = () => {
+      if (x.status >= 200 && x.status < 300) {
+        try { res(JSON.parse(x.responseText)); }
+        catch(e) { rej(new Error('JSON 解析失敗')); }
+      } else { rej(new Error('HTTP ' + x.status)); }
+    };
+    x.onerror = () => rej(new Error('網路錯誤'));
+    x.ontimeout = () => rej(new Error('請求逾時（30s）'));
+    x.send(JSON.stringify(data));
+  });
+}
+
+// ─── 工具函數 ────────────────────────────────────────────────
+const today = () => new Date().toISOString().slice(0,10);
+const fmtDate = d => d ? d.replace(/-/g, '/') : '—';
+const genId = () => Date.now() + Math.floor(Math.random()*9999);
+
+function getNextNum(records, type) {
+  const prefix = { WM:'WM', NCR:'NCR', PN:'PN' }[type] || type;
+  const nums = records.filter(r => r.type === type).map(r => {
+    const m = String(r.number||'').match(/(\d+)$/);
+    return m ? parseInt(m[1]) : 0;
+  });
+  const next = nums.length ? Math.max(...nums) + 1 : 1;
+  return `${prefix}-${String(next).padStart(3,'0')}`;
+}
+
+const EMPTY_FORM = {
+  id:null, type:'WM', number:'', date:today(),
+  unit:'TPC', issuer:'', area:'',
+  defects:[{item:1, description:''}],
+  refNumber:'', deadline:'', status:'Open',
+  submitDate:'', recipient:'', amount:'', appeal:'',
+  driveFolderUrl:'', driveFolderId:'', remark:''
+};
+const EMPTY_DEFECT = {item:1, description:''};
+
+// ─── TOAST ───────────────────────────────────────────────────
+function ToastContainer({ toasts }) {
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast-item ${t.type}`}>
+          <span>{t.type==='success'?'✅':t.type==='error'?'❌':'ℹ️'}</span>
+          <span style={{flex:1}}>{t.msg}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── SETUP SCREEN ─────────────────────────────────────────────
+function SetupScreen({ onConnect }) {
+  const [url, setUrl] = useState('');
+  const [testing, setTesting] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleConnect = async () => {
+    if (!url.trim()) { setErr('請填入 GAS 網址'); return; }
+    setTesting(true); setErr('');
+    try {
+      const r = await xhrGet(url.trim() + '?action=ping');
+      if (r && r.ok) {
+        setStoredUrl(url.trim());
+        onConnect(url.trim());
+      } else {
+        setErr('連線成功但回應格式異常，請確認 Code.gs 已正確部署');
+      }
+    } catch(e) {
+      setErr('連線失敗：' + e.message + '。請確認部署設定「執行身分：我 / 存取：任何人」');
+    } finally { setTesting(false); }
+  };
+
+  return (
+    <div className="setup-overlay">
+      <div className="setup-card">
+        <div className="setup-logo">🌊</div>
+        <div className="setup-title">TPC 海管工程 改善單管理系統</div>
+        <div className="setup-sub">{PROJECT.client}</div>
+
+        <div className="setup-label">Google Apps Script 網址</div>
+        <input
+          className="setup-input"
+          type="url"
+          value={url}
+          onChange={e => { setUrl(e.target.value); setErr(''); }}
+          placeholder="https://script.google.com/macros/s/..."
+          onKeyDown={e => e.key==='Enter' && handleConnect()}
+        />
+
+        {err && <div className="error-banner" style={{marginBottom:16}}>⚠️ {err}</div>}
+
+        <div className="setup-steps">
+          <strong style={{color:'var(--text-primary)'}}>📋 首次設定步驟</strong>
+          <ol style={{marginTop:8}}>
+            <li>在 Google Drive 新建一份 <strong>Google 試算表</strong>（此專案專用，勿與其他系統共用）</li>
+            <li>試算表 → 擴充功能 → <code>Apps Script</code></li>
+            <li>貼上 <code>Code_TPC_Pipeline.gs</code> 內容，存檔</li>
+            <li>部署 → 新增部署 → 類型：<code>網路應用程式</code></li>
+            <li>執行身分：<code>我</code>，存取權：<code>任何人</code>（Anyone）</li>
+            <li>複製部署網址貼到上方欄位，按「連線並載入」</li>
+          </ol>
+        </div>
+
+        <button className="btn btn-primary" style={{width:'100%',justifyContent:'center',padding:'12px'}} onClick={handleConnect} disabled={testing}>
+          {testing ? '⏳ 連線測試中...' : '🔗 連線並載入資料'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── DRIVE SECTION ────────────────────────────────────────────
+function DriveSection({ form, setForm, gasUrl }) {
+  const [busy, setBusy] = useState(false);
+  const fileRef = useRef(null);
+  const folderName = `${form.date || '日期'} ${form.number || '編號'}`;
+
+  const getOrCreate = async () => {
+    if (!gasUrl) { alert('未設定 GAS 網址'); return null; }
+    setBusy(true);
+    try {
+      const res = await xhrPost(gasUrl, {
+        action: 'getFolderUrl',
+        type: form.type,
+        date: form.date,
+        number: form.number,
+      });
+      if (!res.ok) throw new Error(res.error || '無法取得資料夾');
+      setForm(f => ({ ...f, driveFolderUrl: res.url, driveFolderId: res.folderId }));
+      return res;
+    } catch(e) { alert('Drive 錯誤：' + e.message); return null; }
+    finally { setBusy(false); }
+  };
+
+  const openFolder = async () => {
+    if (form.driveFolderUrl) { window.open(form.driveFolderUrl, '_blank'); return; }
+    // 先開空視窗（必須在 async await 之前，否則 iOS 會擋 popup）
+    const win = window.open('', '_blank');
+    const res = await getOrCreate();
+    if (res && win) { win.location.href = res.url; }
+    else if (win) { win.close(); }
+  };
+
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+    setBusy(true);
+    try {
+      let folderId = form.driveFolderId;
+      if (!folderId) {
+        const res = await getOrCreate();
+        if (!res) return;
+        folderId = res.folderId;
+      }
+      for (const file of files) {
+        const dataUrl = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+        const up = await xhrPost(gasUrl, { action:'uploadFile', folderId, fileName: file.name, dataUrl });
+        if (!up.ok) throw new Error(up.error || '上傳失敗：' + file.name);
+      }
+      alert(`✅ 已上傳 ${files.length} 個檔案至 Drive`);
+    } catch(e) { alert('上傳失敗：' + e.message); }
+    finally { setBusy(false); if(e.target) e.target.value = ''; }
+  };
+
+  return (
+    <div className="form-group full">
+      <label>Drive 附件資料夾</label>
+      <div style={{background:'var(--bg-primary)',border:'1px solid var(--border)',borderRadius:'var(--radius-sm)',padding:'12px 14px'}}>
+        <div style={{fontSize:12,color:'var(--text-muted)',marginBottom:10,display:'flex',alignItems:'center',gap:8}}>
+          <span style={{fontFamily:'JetBrains Mono,monospace'}}>📁 {folderName}</span>
+          {form.driveFolderUrl
+            ? <span style={{color:'var(--accent-green)',fontSize:11,fontWeight:700}}>● 已建立</span>
+            : <span style={{color:'var(--text-muted)',fontSize:11}}>● 尚未建立</span>
+          }
+        </div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button type="button" className="btn btn-secondary btn-sm" disabled={busy}
+            onClick={() => fileRef.current && fileRef.current.click()}>
+            {busy ? '⏳ 處理中...' : '⬆️ 上傳檔案至資料夾'}
+          </button>
+          <button type="button" className="btn btn-secondary btn-sm" disabled={busy} onClick={openFolder}>
+            📂 開啟資料夾
+          </button>
+        </div>
+        <input ref={fileRef} type="file" multiple style={{display:'none'}} onChange={handleFileSelect} />
+      </div>
+    </div>
+  );
+}
+
+// ─── RECORD FORM MODAL ────────────────────────────────────────
+function RecordModal({ record, mode, records, config, onSave, onClose, saving, gasUrl }) {
+  const { itemOptions, areaOptions, unitOptions } = config;
+  const [form, setForm] = useState(() =>
+    mode==='edit' && record ? { ...EMPTY_FORM, ...record }
+      : { ...EMPTY_FORM, id:genId(), number:getNextNum(records,'WM') }
+  );
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+  const handleTypeChange = t => setForm(f=>({...f, type:t, number:getNextNum(records.filter(r=>mode==='edit'?r.id!==f.id:true), t)}));
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <div className="modal-header">
+          <div className="modal-title">{mode==='add'?'➕ 新增紀錄':'✏️ 編輯紀錄'}</div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <div className="form-grid">
+            <div className="form-group">
+              <label>類型</label>
+              <select value={form.type} onChange={e=>handleTypeChange(e.target.value)}>
+                <option value="WM">WM 走動管理</option>
+                <option value="NCR">NCR 改善通知單</option>
+                <option value="PN">PN 罰單</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>NMDC 編號</label>
+              <input type="text" value={form.number} onChange={e=>set('number',e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>缺失日期</label>
+              <input type="date" value={form.date} onChange={e=>set('date',e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>單位</label>
+              <select value={form.unit} onChange={e=>set('unit',e.target.value)}>
+                {unitOptions.map(u=><option key={u}>{u}</option>)}
+              </select>
+            </div>
+            <div className="form-group">
+              <label>開單人</label>
+              <input type="text" value={form.issuer} onChange={e=>set('issuer',e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>工區</label>
+              <select value={areaOptions.includes(form.area) || form.area==='' ? form.area : '其他'} onChange={e=>{
+                if(e.target.value==='其他') set('area','其他');
+                else set('area',e.target.value);
+              }}>
+                <option value="">— 請選擇 —</option>
+                {areaOptions.map(a=><option key={a}>{a}</option>)}
+              </select>
+              {(form.area && !areaOptions.slice(0,-1).includes(form.area)) && (
+                <input type="text" value={form.area==='其他'?'':form.area} placeholder="請輸入工區名稱"
+                  style={{marginTop:6}}
+                  onChange={e=>set('area', e.target.value||'其他')} />
+              )}
+            </div>
+            <div className="form-group">
+              <label>狀態</label>
+              <select value={form.status} onChange={e=>set('status',e.target.value)}>
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+            <div className="form-section-title">缺失條目</div>
+            <div className="form-group full">
+              <div style={{display:'flex',flexDirection:'column',gap:10}}>
+                {(form.defects||[{item:1,description:''}]).map((d,i)=>(
+                  <div key={i} style={{background:'var(--bg-input)',border:'1px solid var(--border)',borderRadius:'var(--radius-sm)',padding:'12px 14px',display:'flex',flexDirection:'column',gap:8}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8}}>
+                      <span style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',minWidth:40}}>#{i+1}</span>
+                      <select style={{flex:1,background:'var(--bg-secondary)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'6px 10px',fontSize:12,fontFamily:'inherit'}}
+                        value={d.item} onChange={e=>{
+                          const nd=[...(form.defects||[])];
+                          nd[i]={...nd[i],item:parseInt(e.target.value)};
+                          set('defects',nd);
+                        }}>
+                        {Object.entries(itemOptions).map(([k,v])=><option key={k} value={k}>{k}. {v}</option>)}
+                      </select>
+                      {(form.defects||[]).length>1 && (
+                        <button type="button" onClick={()=>{
+                          const nd=(form.defects||[]).filter((_,j)=>j!==i);
+                          set('defects',nd);
+                        }} style={{background:'var(--accent-red-dim)',border:'1px solid rgba(239,68,68,.3)',color:'var(--accent-red)',borderRadius:'var(--radius-sm)',padding:'4px 10px',fontSize:12,cursor:'pointer',flexShrink:0}}>✕</button>
+                      )}
+                    </div>
+                    <textarea rows={2} placeholder="缺失說明..." style={{background:'var(--bg-secondary)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'7px 10px',fontSize:12,fontFamily:'inherit',resize:'vertical'}}
+                      value={d.description} onChange={e=>{
+                        const nd=[...(form.defects||[])];
+                        nd[i]={...nd[i],description:e.target.value};
+                        set('defects',nd);
+                      }} />
+                  </div>
+                ))}
+                <button type="button" onClick={()=>set('defects',[...(form.defects||[]),{...EMPTY_DEFECT}])}
+                  style={{background:'var(--accent-blue-dim)',border:'1px dashed var(--accent-blue)',color:'var(--accent-blue)',borderRadius:'var(--radius-sm)',padding:'8px',fontSize:12,cursor:'pointer',fontWeight:700}}>
+                  ＋ 新增缺失條目
+                </button>
+              </div>
+            </div>
+            <div className="form-section-title">業主改善通知單</div>
+            <div className="form-group">
+              <label>業主通知單編號</label>
+              <input type="text" value={form.refNumber} onChange={e=>set('refNumber',e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>關單期限</label>
+              <input type="date" value={form.deadline==='-'?'':(form.deadline||'')} onChange={e=>set('deadline',e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>提交日期</label>
+              <input type="date" value={form.submitDate==='-'?'':(form.submitDate||'')} onChange={e=>set('submitDate',e.target.value)} />
+            </div>
+            <div className="form-group">
+              <label>收件者</label>
+              <input type="text" value={form.recipient} onChange={e=>set('recipient',e.target.value)} />
+            </div>
+            {form.type==='PN' && <>
+              <div className="form-section-title">罰單資訊</div>
+              <div className="form-group">
+                <label>罰款金額 (NT$)</label>
+                <input type="number" value={form.amount} onChange={e=>set('amount',e.target.value)} />
+              </div>
+              <div className="form-group">
+                <label>申覆狀態</label>
+                <select value={form.appeal} onChange={e=>set('appeal',e.target.value)}>
+                  <option value="">—</option>
+                  <option>無申覆</option><option>申覆中</option>
+                  <option>申覆成功</option><option>申覆失敗</option>
+                </select>
+              </div>
+            </>}
+            <div className="form-section-title">附件 &amp; 備註</div>
+            <DriveSection form={form} setForm={setForm} gasUrl={gasUrl} />
+            <div className="form-group full">
+              <label>備註</label>
+              <textarea value={form.remark} onChange={e=>set('remark',e.target.value)} rows={2} />
+            </div>
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-secondary" onClick={onClose} disabled={saving}>取消</button>
+          <button className="btn btn-primary" disabled={saving} onClick={()=>{
+            const defs = form.defects||[];
+            if (defs.length===0||!defs.some(d=>d.description&&d.description.trim())) { alert('請至少填寫一條缺失說明'); return; }
+            onSave(form);
+          }}>
+            {saving ? '⏳ 儲存至雲端...' : '☁️ 儲存'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── DONUT CHART ──────────────────────────────────────────────
+function DonutChart({ data, title }) {
+  const ref = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(ref.current, {
+      type:'doughnut',
+      data:{ labels:data.map(d=>d.label), datasets:[{ data:data.map(d=>d.value), backgroundColor:data.map(d=>d.color), borderWidth:0, hoverOffset:4 }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'right', labels:{ color:'#7a9bbf', font:{size:11}, padding:8, boxWidth:10 } } } }
+    });
+    return () => chartRef.current && chartRef.current.destroy();
+  }, [data]);
+  return <div className="chart-card"><div className="chart-title">{title}</div><div className="chart-wrap"><canvas ref={ref}></canvas></div></div>;
+}
+
+function BarChart({ data, title, height }) {
+  const ref = useRef(null);
+  const chartRef = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (chartRef.current) chartRef.current.destroy();
+    chartRef.current = new Chart(ref.current, {
+      type:'bar',
+      data:{ labels:data.map(d=>d.label), datasets:[
+        { label:'Open', data:data.map(d=>d.open), backgroundColor:'rgba(239,68,68,.7)', borderRadius:4 },
+        { label:'Closed', data:data.map(d=>d.closed), backgroundColor:'rgba(16,185,129,.7)', borderRadius:4 },
+      ]},
+      options:{ responsive:true, maintainAspectRatio:false, scales:{
+        x:{ stacked:true, grid:{color:'rgba(30,48,80,.5)'}, ticks:{color:'#7a9bbf',font:{size:10}} },
+        y:{ stacked:true, grid:{color:'rgba(30,48,80,.5)'}, ticks:{color:'#7a9bbf',stepSize:1,font:{size:10}} }
+      }, plugins:{ legend:{ labels:{color:'#7a9bbf',font:{size:11},boxWidth:12} } } }
+    });
+    return () => chartRef.current && chartRef.current.destroy();
+  }, [data]);
+  return <div className="chart-card" style={{flex:height?'none':'1',display:'flex',flexDirection:'column'}}><div className="chart-title">{title}</div><div className="chart-wrap" style={{height:height||220}}><canvas ref={ref}></canvas></div></div>;
+}
+
+// ─── PRESENTATION PIE CHART（簡報用缺失分類圓餅圖）────────────
+function ItemPieChart({ records, itemOptions, onFilterClick }) {
+  const ref = useRef(null);
+  const chartRef = useRef(null);
+
+  const COLORS = [
+    '#3b82f6','#f59e0b','#10b981','#8b5cf6',
+    '#ef4444','#22d3ee','#f97316','#ec4899',
+  ];
+
+  const itemMap = {};
+  records.forEach(r => {
+    const defs = (r.defects && r.defects.length>0) ? r.defects : [{item: r.item||1}];
+    defs.forEach(d => {
+      const k = String(d.item || 1);
+      itemMap[k] = (itemMap[k] || 0) + 1;
+    });
+  });
+  const total = records.reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0);
+  const data = Object.entries(itemMap)
+    .sort((a,b) => b[1] - a[1])
+    .map(([k, v], i) => ({
+      key: k,
+      label: itemOptions[k] || `項目${k}`,
+      value: v,
+      pct: total ? Math.round(v / total * 100) : 0,
+      color: COLORS[i % COLORS.length],
+    }));
+
+  useEffect(() => {
+    if (!ref.current || data.length === 0) return;
+    if (chartRef.current) chartRef.current.destroy();
+    // 自訂 plugin：在每個 slice 上畫名稱 + 百分比
+    const labelPlugin = {
+      id: 'sliceLabels',
+      afterDraw(chart) {
+        const { ctx, data: cd } = chart;
+        const ds = chart.getDatasetMeta(0);
+        ds.data.forEach((arc, i) => {
+          const pct = Math.round(cd.datasets[0].data[i] / total * 100);
+          if (pct < 5) return; // 太小不顯示
+          const { x, y, startAngle, endAngle, outerRadius, innerRadius } = arc.getProps(['x','y','startAngle','endAngle','outerRadius','innerRadius']);
+          const mid = (startAngle + endAngle) / 2;
+          const r = (outerRadius + (innerRadius || 0)) / 2 + outerRadius * 0.18;
+          const lx = x + Math.cos(mid) * r;
+          const ly = y + Math.sin(mid) * r;
+          const label = cd.labels[i];
+          const shortLabel = label.length > 6 ? label.slice(0,6) : label;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = 'rgba(0,0,0,0.4)';
+          ctx.shadowBlur = 3;
+          ctx.font = 'bold 11px Noto Sans TC, sans-serif';
+          ctx.fillText(shortLabel, lx, ly - 7);
+          ctx.font = 'bold 12px JetBrains Mono, monospace';
+          ctx.fillText(pct + '%', lx, ly + 7);
+          ctx.restore();
+        });
+      }
+    };
+
+    chartRef.current = new Chart(ref.current, {
+      type: 'pie',
+      plugins: [labelPlugin],
+      data: {
+        labels: data.map(d => d.label),
+        datasets: [{
+          data: data.map(d => d.value),
+          backgroundColor: data.map(d => d.color),
+          borderColor: '#ffffff',
+          borderWidth: 3,
+          hoverOffset: 10,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.label}：${ctx.parsed} 件 (${Math.round(ctx.parsed/total*100)}%)`
+            },
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            titleColor: '#1e293b',
+            bodyColor: '#334155',
+            borderColor: '#e2e8f0',
+            borderWidth: 1,
+            padding: 10,
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 11 },
+          }
+        },
+        animation: { animateRotate: true, duration: 800 }
+      }
+    });
+    return () => chartRef.current && chartRef.current.destroy();
+  }, [records.length, JSON.stringify(itemOptions)]);
+
+  if (data.length === 0) return null;
+
+  return (
+    <div style={{
+      background:'#ffffff', borderRadius:16, padding:'28px 32px',
+      boxShadow:'0 4px 32px rgba(0,0,0,0.12)', marginBottom:24,
+      border:'1px solid #e2e8f0',
+    }}>
+      {/* 標題 */}
+      <div style={{marginBottom:16}}>
+        <div style={{fontSize:18,fontWeight:900,color:'#0f172a',letterSpacing:'-0.3px'}}>
+          環境缺失分類統計
+        </div>
+      </div>
+
+      {/* 圓餅圖置中 */}
+      <div style={{display:'flex',justifyContent:'center',marginBottom:16}}>
+        <div style={{width:300,height:300,position:'relative'}}>
+          <canvas ref={ref}></canvas>
+        </div>
+      </div>
+
+      {/* 圖例：兩欄 */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'6px 12px'}}>
+        {data.map((d,i) => (
+          <div key={d.key}
+            onClick={() => onFilterClick && onFilterClick({item:d.key})}
+            style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',padding:'4px 6px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',transition:'all .15s'}}
+            onMouseEnter={e=>{e.currentTarget.style.background='#f1f5f9';e.currentTarget.style.borderColor=d.color;}}
+            onMouseLeave={e=>{e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#e2e8f0';}}
+          >
+            <div style={{width:10,height:10,borderRadius:3,background:d.color,flexShrink:0}}></div>
+            <div style={{flex:1,fontSize:13,fontWeight:700,color:'#1e293b',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{d.label}</div>
+            <div style={{fontSize:10,color:d.color,fontWeight:600,whiteSpace:'nowrap'}}>{d.value}件</div>
+            <div style={{fontSize:10,color:'#94a3b8',fontWeight:600,marginLeft:2,whiteSpace:'nowrap'}}>{d.pct}%</div>
+          </div>
+        ))}
+      </div>
+
+
+    </div>
+  );
+}
+
+function DashboardTab({ records, itemOptions, onFilterClick }) {
+  const total = records.length;
+  const open = records.filter(r=>r.status==='Open').length;
+  const closed = records.filter(r=>r.status==='Closed').length;
+  const totalDefects = records.reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0);
+  const closeRate = totalDefects ? Math.round(records.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)/totalDefects*100) : 0;
+  const pnTotal = records.filter(r=>r.type==='PN').reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+
+  const typeData = [
+    { label:'WM 走動管理', value:records.filter(r=>r.type==='WM').length, color:'rgba(14,165,233,.8)' },
+    { label:'NCR 改善通知', value:records.filter(r=>r.type==='NCR').length, color:'rgba(245,158,11,.8)' },
+    { label:'PN 罰單', value:records.filter(r=>r.type==='PN').length, color:'rgba(239,68,68,.8)' },
+  ].filter(d=>d.value>0);
+
+  const areaMap = {};
+  records.forEach(r=>{ if(r.area){ if(!areaMap[r.area])areaMap[r.area]={open:0,closed:0}; areaMap[r.area][r.status==='Open'?'open':'closed']++; }});
+  const areaData = Object.entries(areaMap).map(([label,v])=>({label,...v}));
+
+  // 統計以缺失條數為單位（每條 defect 算一筆）
+  const itemMap = {};
+  records.forEach(r=>{
+    const defs = (r.defects && r.defects.length>0) ? r.defects : [{item: r.item||1, description: r.description||''}];
+    defs.forEach(d=>{
+      const k=String(d.item||1);
+      if(!itemMap[k])itemMap[k]={total:0,open:0,closed:0};
+      itemMap[k].total++;
+      if(r.status==='Open') itemMap[k].open++; else itemMap[k].closed++;
+    });
+  });
+  const iColors = ['#0ea5e9','#f59e0b','#10b981','#8b5cf6','#ef4444','#22d3ee','#f97316','#ec4899','#84cc16','#6366f1','#14b8a6','#94a3b8'];
+
+  const clickStyle = { cursor:'pointer' };
+  const KpiCard = ({label,value,sub,color,filter}) => (
+    <div className="kpi-card" style={filter?{...clickStyle}:{}} onClick={filter?()=>onFilterClick(filter):undefined}
+      title={filter?'點擊查看相關紀錄':''}>
+      <div className="kpi-stripe" style={{background:color}}></div>
+      <div className="kpi-label">{label}{filter&&<span style={{fontSize:10,marginLeft:6,opacity:.5}}>↗</span>}</div>
+      <div className="kpi-value" style={{color}}>{value}</div>
+      {sub && <div className="kpi-sub">{sub}</div>}
+    </div>
+  );
+
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <div className="page-title">📊 總覽儀表板</div>
+          <div className="page-sub">{PROJECT.name}</div>
+        </div>
+      </div>
+      <div className="kpi-grid">
+        <KpiCard label="總開單數" value={total} sub="累計改善單張數" color="var(--accent-blue)" />
+        <KpiCard label="總缺失件數" value={totalDefects} sub="累計缺失條數" color="var(--accent-purple)" />
+        <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" filter={{status:'Open'}} />
+        <KpiCard label="Closed 已結" value={closed} sub="已完成" color="var(--accent-green)" filter={{status:'Closed'}} />
+        <KpiCard label="關單率" value={`${closeRate}%`} sub={`以缺失件數計算`} color="var(--accent-teal)" />
+        {pnTotal>0 && <KpiCard label="累計罰款" value={`NT$${pnTotal.toLocaleString()}`} sub="" color="var(--accent-red)" filter={{type:'PN'}} />}
+      </div>
+      {total>0 && (<>
+        {/* 上排：缺失項目分布圖(左1/2) + 各項目統計(右1/2) */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16,alignItems:'stretch'}}>
+          {/* 左：圓餅圖 */}
+          <ItemPieChart records={records} itemOptions={itemOptions} onFilterClick={onFilterClick} />
+
+          {/* 右：各項目統計 2欄3列 */}
+          {Object.keys(itemMap).length>0 && (
+            <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,padding:'20px 16px',display:'flex',flexDirection:'column'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.8px',marginBottom:14}}>📋 各環保項目統計</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,flex:1}}>
+                {Object.entries(itemMap).sort((a,b)=>b[1].total-a[1].total).map(([k,v])=>{
+                  const rate = v.total ? Math.round(v.closed/v.total*100) : 0;
+                  const color = iColors[parseInt(k) % iColors.length];
+                  return (
+                    <div key={k} className="item-card" style={{...clickStyle,marginBottom:0,cursor:'pointer'}} onClick={()=>onFilterClick({item:k})}>
+                      <div className="item-card-bar" style={{background:color}}></div>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                        <div className="item-card-id">{k}.</div>
+                        <span style={{fontSize:9,color:'var(--text-muted)',opacity:.6}}>↗</span>
+                      </div>
+                      <div style={{fontSize:11,fontWeight:700,color:'var(--text-primary)',marginBottom:8,lineHeight:1.3}}>{itemOptions[k]||`項目 ${k}`}</div>
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end'}}>
+                        <div style={{textAlign:'center'}}>
+                          <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:20,fontWeight:900,color,lineHeight:1}}>{v.total}</div>
+                          <div style={{fontSize:9,color:'var(--text-muted)',marginTop:2}}>總計</div>
+                        </div>
+                        <div style={{textAlign:'center'}}>
+                          <div style={{fontFamily:'JetBrains Mono,monospace',fontSize:20,fontWeight:900,color:'var(--accent-green)',lineHeight:1}}>{rate}%</div>
+                          <div style={{fontSize:9,color:'var(--text-muted)',marginTop:2}}>關單率</div>
+                        </div>
+                      </div>
+                      <div className="item-close-bar" style={{marginTop:8}}><div className="item-close-fill" style={{width:rate+'%',background:color}}></div></div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 下排：改善單類型(左1/2) + 各工區統計(右1/2) */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+          {typeData.length>0 && <DonutChart data={typeData} title="改善單類型分布" />}
+          {areaData.length>0 && <BarChart data={areaData} title="各工區開/關單統計" height={200} />}
+        </div>
+      </>)}
+      {total===0 && <div className="empty-state"><div className="empty-icon">📋</div><div className="empty-text">尚無紀錄，請至「紀錄管理」新增</div></div>}
+    </div>
+  );
+}
+
+// ─── RECORDS TAB ──────────────────────────────────────────────
+function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, saving, gasUrl, connected, activeFilter }) {
+  const { itemOptions, areaOptions, unitOptions } = config;
+  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', search:'' });
+  const [sort, setSort] = useState({ key:'date', dir:'desc' });
+  const [showModal, setShowModal] = useState(false);
+  const [editRec, setEditRec] = useState(null);
+  const [mode, setMode] = useState('add');
+  const setF = (k,v) => setFilters(f=>({...f,[k]:v}));
+
+  // 從儀表板點擊卡片帶入篩選
+  useEffect(() => {
+    if (activeFilter) {
+      setFilters(f => ({ ...f, ...activeFilter }));
+    }
+  }, [activeFilter]);
+
+  const filtered = records.filter(r=>
+    (!filters.type || r.type===filters.type) &&
+    (!filters.area || r.area===filters.area) &&
+    (!filters.unit || r.unit===filters.unit) &&
+    (!filters.status || r.status===filters.status) &&
+    (!filters.item || (r.defects&&r.defects.length>0 ? r.defects.some(d=>String(d.item)===filters.item) : String(r.item)===filters.item)) &&
+    (!filters.search || [r.number,r.description,r.issuer,r.refNumber].join(' ').toLowerCase().includes(filters.search.toLowerCase()))
+  ).sort((a,b)=>{
+    let va=a[sort.key]||'', vb=b[sort.key]||'';
+    if(sort.key==='amount'){va=parseFloat(va)||0; vb=parseFloat(vb)||0;}
+    return sort.dir==='asc' ? (va>vb?1:-1) : (va<vb?1:-1);
+  });
+
+  const toggleSort = k => setSort(s=>({key:k, dir:s.key===k&&s.dir==='asc'?'desc':'asc'}));
+  const SortIcon = ({k}) => <span className={`sort-icon${sort.key===k?' active':''}`}>{sort.key===k?(sort.dir==='asc'?'▲':'▼'):'↕'}</span>;
+
+  const openCnt = filtered.filter(r=>r.status==='Open').length;
+  const td = today();
+
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <div className="page-title">📋 紀錄管理</div>
+          <div className="page-sub">共 {filtered.length} 筆 | Open: {openCnt} | Closed: {filtered.length - openCnt}</div>
+        </div>
+        <div style={{display:'flex',gap:8}}>
+          <button className="btn btn-secondary" onClick={onRefresh} disabled={saving}>🔄 重新整理</button>
+          <button className="btn btn-primary" onClick={()=>{setMode('add');setEditRec(null);setShowModal(true);}}>➕ 新增紀錄</button>
+        </div>
+      </div>
+
+      <div className="filter-bar">
+        <div className="filter-group"><span className="filter-label">類型</span>
+          <select value={filters.type} onChange={e=>setF('type',e.target.value)}>
+            <option value="">全部</option><option value="WM">WM</option><option value="NCR">NCR</option><option value="PN">PN</option>
+          </select>
+        </div>
+        <div className="filter-group"><span className="filter-label">工區</span>
+          <select value={filters.area} onChange={e=>setF('area',e.target.value)}>
+            <option value="">全部</option>{areaOptions.map(a=><option key={a}>{a}</option>)}
+          </select>
+        </div>
+        <div className="filter-group"><span className="filter-label">單位</span>
+          <select value={filters.unit} onChange={e=>setF('unit',e.target.value)}>
+            <option value="">全部</option>{unitOptions.map(u=><option key={u}>{u}</option>)}
+          </select>
+        </div>
+        <div className="filter-group"><span className="filter-label">狀態</span>
+          <select value={filters.status} onChange={e=>setF('status',e.target.value)}>
+            <option value="">全部</option><option value="Open">Open</option><option value="Closed">Closed</option>
+          </select>
+        </div>
+        <div className="filter-group"><span className="filter-label">項目</span>
+          <select value={filters.item} onChange={e=>setF('item',e.target.value)}>
+            <option value="">全部</option>{Object.entries(itemOptions).map(([k,v])=><option key={k} value={k}>{k}. {v}</option>)}
+          </select>
+        </div>
+        <div className="filter-spacer"></div>
+        <input type="text" value={filters.search} onChange={e=>setF('search',e.target.value)} placeholder="🔍 搜尋..." style={{minWidth:160}} />
+      </div>
+
+      <div className="table-wrap">
+        <div className="table-head t-cols">
+          {[['type','類型'],['number','編號'],['date','缺失日期'],['unit','單位'],['issuer','開單人'],['area','工區'],['item','缺失項目'],['description','缺失說明'],['deadline','關單期限'],['status','狀態']].map(([k,l])=>(
+            <div key={k} className="table-head-cell" onClick={()=>toggleSort(k)}>{l} <SortIcon k={k} /></div>
+          ))}
+          <div className="table-head-cell">操作</div>
+        </div>
+        {filtered.length===0
+          ? <div className="empty-state"><div className="empty-icon">🔍</div><div className="empty-text">無符合條件的紀錄</div></div>
+          : filtered.map(r=>(
+            <div key={r.id} className="table-row t-cols">
+              <div className="table-cell"><span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span></div>
+              <div className="table-cell" style={{fontFamily:'JetBrains Mono,monospace',fontSize:11}}>{r.number}</div>
+              <div className="table-cell hm" style={{fontSize:11}}>{fmtDate(r.date)}</div>
+              <div className="table-cell hm">{r.unit}</div>
+              <div className="table-cell hm">{r.issuer}</div>
+              <div className="table-cell hm" style={{fontSize:11}}>{r.area}</div>
+              <div className="table-cell hm" style={{fontSize:11}}>
+                {(r.defects&&r.defects.length>0)?r.defects.map(d=>itemOptions[d.item]||d.item).join('、'):(itemOptions[r.item]||'')}
+              </div>
+              <div className="table-cell" style={{fontSize:11}}>
+                {(r.defects&&r.defects.length>0)?<><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',borderRadius:4,padding:'1px 5px',marginRight:4}}>{r.defects.length}條</span>{r.defects[0].description}{r.defects.length>1?'...':''}</>:r.description}
+              </div>
+              <div className="table-cell hm" style={{fontSize:11, color: r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''}}>{fmtDate(r.deadline)}</div>
+              <div className="table-cell"><span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span></div>
+              <div className="table-cell" style={{display:'flex',gap:4}}>
+                <button className="btn btn-secondary btn-sm btn-icon" onClick={()=>{setMode('edit');setEditRec(r);setShowModal(true);}}>✏️</button>
+                <button className="btn btn-secondary btn-sm btn-icon" title="Drive 資料夾" onClick={async()=>{
+                if (r.driveFolderUrl) { window.open(r.driveFolderUrl,'_blank'); return; }
+                const win = window.open('', '_blank');
+                try {
+                  const res = await xhrPost(gasUrl, {action:'getFolderUrl', type:r.type, date:r.date, number:r.number});
+                  if (res.ok) { if(win) win.location.href = res.url; onEdit({...r, driveFolderUrl:res.url, driveFolderId:res.folderId}); }
+                  else { if(win) win.close(); alert('Drive 錯誤：' + res.error); }
+                } catch(e) { if(win) win.close(); alert('Drive 錯誤：' + e.message); }
+              }}>📁</button>
+                <button className="btn btn-danger btn-sm btn-icon" onClick={()=>{if(confirm(`確定刪除 ${r.number}？`))onDelete(r.id);}}>🗑</button>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+
+      {showModal && (
+        <RecordModal
+          record={editRec} mode={mode} records={records} config={config} saving={saving} gasUrl={gasUrl}
+          onSave={form => { if(mode==='add') onAdd(form); else onEdit(form); setShowModal(false); }}
+          onClose={()=>!saving && setShowModal(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+// ─── SETTINGS TAB ─────────────────────────────────────────────
+function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, lastSync, onRefresh, saving }) {
+  const [editItems, setEditItems] = useState(JSON.stringify(config.itemOptions, null, 2));
+  const [editAreas, setEditAreas] = useState(config.areaOptions.join('\n'));
+  const [editUnits, setEditUnits] = useState(config.unitOptions.join('\n'));
+
+  const saveConfig = () => {
+    try {
+      const itemOptions = JSON.parse(editItems);
+      const areaOptions = editAreas.split('\n').map(s=>s.trim()).filter(Boolean);
+      const unitOptions = editUnits.split('\n').map(s=>s.trim()).filter(Boolean);
+      onSaveConfig({ itemOptions, areaOptions, unitOptions });
+    } catch(e) { alert('項目格式錯誤：' + e.message); }
+  };
+
+  return (
+    <div>
+      <div className="page-header">
+        <div><div className="page-title">⚙️ 系統設定</div><div className="page-sub">選項與雲端設定</div></div>
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-title">☁️ 雲端連線狀態</div>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16,flexWrap:'wrap'}}>
+          <div className={`sync-dot ${syncState}`} style={{width:10,height:10}}></div>
+          <span style={{fontSize:12,color:'var(--text-secondary)',fontFamily:'JetBrains Mono,monospace',wordBreak:'break-all'}}>{gasUrl}</span>
+        </div>
+        {lastSync && <div style={{fontSize:11,color:'var(--text-muted)',marginBottom:16}}>上次同步：{lastSync}</div>}
+        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+          <button className="btn btn-secondary" onClick={onRefresh} disabled={saving}>🔄 重新從雲端載入</button>
+          <button className="btn btn-danger btn-sm" onClick={()=>{ if(confirm('確定要斷線？將會清除連線設定，需重新輸入 GAS 網址。')) { sessionStorage.removeItem(SS_KEY); onDisconnect(); } }}>🔌 斷線重設</button>
+        </div>
+      </div>
+
+      <div className="settings-section">
+        <div className="settings-title">📋 環保項目（JSON 格式）</div>
+        <div className="settings-row">
+          <label>項目清單（數字索引：名稱）</label>
+          <textarea value={editItems} onChange={e=>setEditItems(e.target.value)} rows={14} style={{resize:'vertical'}} />
+        </div>
+      </div>
+      <div className="settings-section">
+        <div className="settings-title">📍 工區設定（每行一個）</div>
+        <div className="settings-row">
+          <textarea value={editAreas} onChange={e=>setEditAreas(e.target.value)} rows={5} style={{resize:'vertical'}} />
+        </div>
+      </div>
+      <div className="settings-section">
+        <div className="settings-title">🏢 單位設定（每行一個）</div>
+        <div className="settings-row">
+          <textarea value={editUnits} onChange={e=>setEditUnits(e.target.value)} rows={4} style={{resize:'vertical'}} />
+        </div>
+      </div>
+      <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+        <button className="btn btn-primary" onClick={saveConfig} disabled={saving}>
+          {saving ? '⏳ 儲存中...' : '☁️ 儲存設定至雲端'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────
+function App() {
+  // ── 連線狀態 ──────────────────────────────────────────────
+  const [gasUrl, setGasUrl] = useState(GAS_URL);
+  const [connected, setConnected] = useState(false);
+
+  // ── 純雲端資料（不存 localStorage）────────────────────────
+  const [records, setRecords] = useState([]);
+  const [config, setConfig] = useState({
+    itemOptions: DEFAULT_ITEMS,
+    areaOptions: DEFAULT_AREAS,
+    unitOptions: DEFAULT_UNITS,
+  });
+
+  // ── UI 狀態 ───────────────────────────────────────────────
+  const [tab, setTab] = useState('dashboard');
+  const [activeFilter, setActiveFilter] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [syncState, setSyncState] = useState('idle'); // idle | ok | busy | error
+  const [lastSync, setLastSync] = useState('');
+  const [toasts, setToasts] = useState([]);
+
+  const toast = useCallback((msg, type='success') => {
+    const id = genId();
+    setToasts(t => [...t, {id, msg, type}]);
+    setTimeout(() => setToasts(t => t.filter(x => x.id !== id)), 3500);
+  }, []);
+
+  // ── 雲端載入 ──────────────────────────────────────────────
+  const loadFromCloud = useCallback(async (url) => {
+    setLoading(true); setLoadingMsg('從雲端載入資料...');
+    try {
+      const data = await xhrGet((url||gasUrl) + '?action=read');
+      // 若雲端是空的（第一次連線），自動匯入歷史資料
+      let cloudRecords = data.records || [];
+      if (cloudRecords.length === 0 && SEED_RECORDS.length > 0) {
+        setLoadingMsg('首次連線，正在匯入歷史資料（65筆）...');
+        const seedConfig = {
+          itemOptions: data.itemOptions || DEFAULT_ITEMS,
+          areaOptions: data.areaOptions || DEFAULT_AREAS,
+          unitOptions: data.unitOptions || DEFAULT_UNITS,
+        };
+        await xhrPost((url||gasUrl), {
+          records: SEED_RECORDS,
+          ...seedConfig,
+        });
+        cloudRecords = SEED_RECORDS;
+      }
+      setRecords(cloudRecords);
+      setConfig({
+        itemOptions: data.itemOptions || DEFAULT_ITEMS,
+        areaOptions: data.areaOptions || DEFAULT_AREAS,
+        unitOptions: data.unitOptions || DEFAULT_UNITS,
+      });
+      setLastSync(new Date().toLocaleString('zh-TW'));
+      setSyncState('ok');
+      setConnected(true);
+    } catch(e) {
+      setSyncState('error');
+      toast('載入失敗：' + e.message, 'error');
+      throw e;
+    } finally {
+      setLoading(false);
+    }
+  }, [gasUrl, toast]);
+
+  // ── 雲端儲存（整包 JSON 寫入 Sheet A1）────────────────────
+  const pushToCloud = useCallback(async (newRecords, newConfig) => {
+    const url = gasUrl;
+    if (!url) return;
+    setSaving(true); setSyncState('busy');
+    try {
+      const payload = {
+        records: newRecords,
+        itemOptions: newConfig.itemOptions,
+        areaOptions: newConfig.areaOptions,
+        unitOptions: newConfig.unitOptions,
+      };
+      const res = await xhrPost(url, payload);
+      if (!res.success) throw new Error(res.error || '儲存失敗');
+      setLastSync(new Date().toLocaleString('zh-TW'));
+      setSyncState('ok');
+    } catch(e) {
+      setSyncState('error');
+      toast('雲端儲存失敗：' + e.message, 'error');
+      throw e;
+    } finally { setSaving(false); }
+  }, [gasUrl, toast]);
+
+  // ── 初始載入（有 gasUrl 就自動連）────────────────────────
+  useEffect(() => {
+    if (gasUrl) {
+      loadFromCloud(gasUrl).catch(() => {});
+    }
+  }, []); // 只執行一次
+
+  // ── 連線回調 ──────────────────────────────────────────────
+  const handleConnect = async (url) => {
+    setGasUrl(url);
+    await loadFromCloud(url);
+  };
+
+  // ── CRUD ──────────────────────────────────────────────────
+  const addRecord = async (form) => {
+    const newRecords = [...records, form];
+    try {
+      await pushToCloud(newRecords, config);
+      setRecords(newRecords);
+      toast('紀錄已新增並儲存至雲端');
+    } catch {}
+  };
+
+  const editRecord = async (form) => {
+    const newRecords = records.map(r => r.id===form.id ? form : r);
+    try {
+      await pushToCloud(newRecords, config);
+      setRecords(newRecords);
+      toast('紀錄已更新');
+    } catch {}
+  };
+
+  const deleteRecord = async (id) => {
+    const newRecords = records.filter(r => r.id !== id);
+    try {
+      await pushToCloud(newRecords, config);
+      setRecords(newRecords);
+      toast('紀錄已刪除');
+    } catch {}
+  };
+
+  const saveConfig = async (newConfig) => {
+    try {
+      await pushToCloud(records, newConfig);
+      setConfig(newConfig);
+      toast('設定已儲存至雲端');
+    } catch {}
+  };
+
+  const handleDisconnect = () => {
+    setGasUrl('');
+    setConnected(false);
+    setRecords([]);
+    setSyncState('idle');
+  };
+
+  // ── 未連線 → 顯示設定畫面 ─────────────────────────────────
+  if (!gasUrl || (!connected && !loading)) {
+    return (
+      <>
+        <SetupScreen onConnect={handleConnect} />
+        {loading && (
+          <div className="g-loading">
+            <div className="g-loading-spinner"></div>
+            <div className="g-loading-text">{loadingMsg}</div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  const openCnt = records.filter(r=>r.status==='Open').length;
+
+  return (
+    <div className="app-shell">
+      {/* Global Loading */}
+      {loading && (
+        <div className="g-loading">
+          <div className="g-loading-spinner"></div>
+          <div className="g-loading-text">{loadingMsg}</div>
+        </div>
+      )}
+
+      {/* Topbar */}
+      <div className="topbar">
+        <div className="topbar-icon">🌊</div>
+        <div>
+          <div className="topbar-title">{PROJECT.shortName}</div>
+          <div className="topbar-sub">EHS Improvement Order System</div>
+        </div>
+        <div className="topbar-divider"></div>
+        <div className="topbar-project">
+          <div className="topbar-project-name">{PROJECT.name}</div>
+          <div className="topbar-project-client">業主：{PROJECT.client}</div>
+        </div>
+        <div className="sync-status">
+          <div className={`sync-dot ${syncState}`}></div>
+          <span className="sync-text">
+            {syncState==='ok'?'已同步':syncState==='busy'?'同步中':syncState==='error'?'失敗':'—'}
+          </span>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav className="nav">
+        {[
+          {id:'dashboard', label:'📊 儀表板'},
+          {id:'records', label:'📋 紀錄管理', badge: openCnt>0 ? openCnt : null},
+          {id:'settings', label:'⚙️ 設定'},
+        ].map(n=>(
+          <button key={n.id} className={`nav-btn${tab===n.id?' active':''}`} onClick={()=>setTab(n.id)}>
+            {n.label}
+            {n.badge && <span className="nav-badge">{n.badge}</span>}
+          </button>
+        ))}
+      </nav>
+
+      {/* Content */}
+      <div className="content">
+        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); }} />}
+        {tab==='records' && (
+          <RecordsTab
+            records={records} config={config} saving={saving} gasUrl={gasUrl} connected={connected}
+            activeFilter={activeFilter}
+            onAdd={addRecord} onEdit={editRecord} onDelete={deleteRecord}
+            onRefresh={() => loadFromCloud()}
+          />
+        )}
+        {tab==='settings' && (
+          <SettingsTab
+            config={config} gasUrl={gasUrl}
+            onSaveConfig={saveConfig} onDisconnect={handleDisconnect}
+            onRefresh={() => loadFromCloud()} syncState={syncState}
+            lastSync={lastSync} saving={saving}
+          />
+        )}
+      </div>
+
+      <ToastContainer toasts={toasts} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
