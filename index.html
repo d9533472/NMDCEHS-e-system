@@ -424,7 +424,7 @@ function renderBulHTML(){
 
     // ── Column headers ──
     h+=`<div style="display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border-bottom:1px solid var(--border)">`;
-    h+=`<div style="padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);border-right:2px solid var(--border2);text-align:center;letter-spacing:.04em">📋 改善單</div>`;
+    h+=`<div style="padding:8px 14px;font-size:12px;font-weight:700;border-right:2px solid var(--border2);text-align:center;letter-spacing:.04em"><a href="https://d9533472.github.io/NMDCEHS-e-system/tpc-pipeline-improvement-system_30.html" target="_blank" style="color:var(--accent);text-decoration:none">📋 改善單 ↗</a></div>`;
     h+=`<div style="padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);text-align:center;letter-spacing:.04em">✅ 追蹤事項</div>`;
     h+=`</div>`;
 
@@ -433,14 +433,14 @@ function renderBulHTML(){
 
     // NCR 已逾期
     h+=`<div onclick="showBulDetail('ncrOver')" style="padding:18px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--border);transition:.15s;position:relative" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''">`;
-    h+=`<div style="font-size:28px;font-weight:800;color:${ncrOver.length?'var(--danger)':'var(--border2)'};line-height:1">${NCR_URL?(ncrRecords?ncrOver.length:'…'):'—'}</div>`;
+    h+=`<div style="font-size:28px;font-weight:800;color:${ncrOver.length?'var(--danger)':'var(--muted)'};line-height:1">${ncrRecords?ncrOver.length:(NCR_URL?'…':'—')}</div>`;
     h+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:600">已逾期</div>`;
     if(ncrOver.length)h+=`<div style="position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite"></div>`;
     h+=`</div>`;
 
     // NCR 即將到期
     h+=`<div onclick="showBulDetail('ncrUp')" style="padding:18px 8px;text-align:center;cursor:pointer;border-right:2px solid var(--border2);transition:.15s;position:relative" onmouseover="this.style.background='#fff8f0'" onmouseout="this.style.background=''">`;
-    h+=`<div style="font-size:28px;font-weight:800;color:${ncrUp.length?'var(--orange)':'var(--border2)'};line-height:1">${NCR_URL?(ncrRecords?ncrUp.length:'…'):'—'}</div>`;
+    h+=`<div style="font-size:28px;font-weight:800;color:${ncrUp.length?'var(--orange)':'var(--muted)'};line-height:1">${ncrRecords?ncrUp.length:(NCR_URL?'…':'—')}</div>`;
     h+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:600">即將到期</div>`;
     if(ncrUp.length)h+=`<div style="position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--orange)"></div>`;
     h+=`</div>`;
