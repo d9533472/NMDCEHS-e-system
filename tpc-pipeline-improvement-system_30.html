@@ -850,6 +850,11 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
   const totalDefects = records.reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0);
   const closeRate = totalDefects ? Math.round(records.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)/totalDefects*100) : 0;
   const pnTotal = records.filter(r=>r.type==='PN').reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const todayStr = today();
+  const in7days = new Date(); in7days.setDate(in7days.getDate()+3);
+  const in7Str = in7days.toISOString().slice(0,10);
+  const overdueRecs  = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < todayStr);
+  const nearDueRecs  = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= todayStr && r.deadline <= in7Str);
 
   const typeData = [
     { label:'WM 走動管理', value:records.filter(r=>r.type==='WM').length, color:'rgba(14,165,233,.8)' },
@@ -899,7 +904,32 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
         <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" filter={{status:'Open'}} />
         <KpiCard label="Closed 已結" value={closed} sub="已完成" color="var(--accent-green)" filter={{status:'Closed'}} />
         <KpiCard label="關單率" value={`${closeRate}%`} sub={`以缺失件數計算`} color="var(--accent-teal)" />
-        {pnTotal>0 && <KpiCard label="累計罰款" value={`NT$${pnTotal.toLocaleString()}`} sub="" color="var(--accent-red)" filter={{type:'PN'}} />}
+        {pnTotal>0 && (
+          <div className="kpi-card" style={{cursor:'pointer'}} onClick={()=>onFilterClick({type:'PN'})} title="點擊查看罰單">
+            <div className="kpi-stripe" style={{background:'var(--accent-red)'}}></div>
+            <div className="kpi-label">累計罰款 <span style={{fontSize:10,opacity:.5}}>↗</span></div>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)',lineHeight:1}}>NT${pnTotal.toLocaleString()}</div>
+            <div className="kpi-sub">PN 罰單合計</div>
+          </div>
+        )}
+        {overdueRecs.length>0 && (
+          <div className="kpi-card" style={{cursor:'pointer',borderColor:'rgba(239,68,68,.5)',background:'rgba(239,68,68,.06)'}}
+            onClick={()=>onFilterClick({_overdue:true})} title="點擊查看逾期紀錄">
+            <div className="kpi-stripe" style={{background:'#ef4444'}}></div>
+            <div className="kpi-label" style={{color:'#ef4444'}}>⚠️ 逾期未結 <span style={{fontSize:10,opacity:.6}}>↗</span></div>
+            <div className="kpi-value" style={{color:'#ef4444'}}>{overdueRecs.length}</div>
+            <div className="kpi-sub" style={{color:'#f87171'}}>已超過關單期限</div>
+          </div>
+        )}
+        {nearDueRecs.length>0 && (
+          <div className="kpi-card" style={{cursor:'pointer',borderColor:'rgba(245,158,11,.5)',background:'rgba(245,158,11,.06)'}}
+            onClick={()=>onFilterClick({_neardue:true})} title="點擊查看即將到期紀錄">
+            <div className="kpi-stripe" style={{background:'#f59e0b'}}></div>
+            <div className="kpi-label" style={{color:'#d97706'}}>⏰ 3天內到期 <span style={{fontSize:10,opacity:.6}}>↗</span></div>
+            <div className="kpi-value" style={{color:'#d97706'}}>{nearDueRecs.length}</div>
+            <div className="kpi-sub" style={{color:'#d97706'}}>請盡速處理</div>
+          </div>
+        )}
       </div>
       {total>0 && (<>
         {/* 上排：缺失項目分布圖(左1/2) + 各項目統計(右1/2) */}
@@ -956,7 +986,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
 // ─── RECORDS TAB ──────────────────────────────────────────────
 function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, saving, gasUrl, connected, activeFilter }) {
   const { itemOptions, areaOptions, unitOptions } = config;
-  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', search:'' });
+  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', search:'', _overdue:false, _neardue:false });
   const [sort, setSort] = useState({ key:'date', dir:'desc' });
   const [showModal, setShowModal] = useState(false);
   const [editRec, setEditRec] = useState(null);
@@ -966,7 +996,14 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
   // 從儀表板點擊卡片帶入篩選
   useEffect(() => {
     if (activeFilter) {
-      setFilters(f => ({ ...f, ...activeFilter }));
+      setFilters(f => ({
+        ...f,
+        type: activeFilter.type || f.type,
+        status: activeFilter.status || f.status,
+        item: activeFilter.item || f.item,
+        _overdue: activeFilter._overdue || false,
+        _neardue: activeFilter._neardue || false,
+      }));
     }
   }, [activeFilter]);
 
@@ -976,7 +1013,9 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
     (!filters.unit || r.unit===filters.unit) &&
     (!filters.status || r.status===filters.status) &&
     (!filters.item || (r.defects&&r.defects.length>0 ? r.defects.some(d=>String(d.item)===filters.item) : String(r.item)===filters.item)) &&
-    (!filters.search || [r.number,r.description,r.issuer,r.refNumber].join(' ').toLowerCase().includes(filters.search.toLowerCase()))
+    (!filters._overdue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < today())) &&
+    (!filters._neardue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= today() && r.deadline <= (()=>{const d=new Date();d.setDate(d.getDate()+3);return d.toISOString().slice(0,10);})())) &&
+    (!filters.search || [r.number,r.description,r.issuer,r.refNumber,...(r.defects||[]).map(d=>d.description)].join(' ').toLowerCase().includes(filters.search.toLowerCase()))
   ).sort((a,b)=>{
     let va=a[sort.key]||'', vb=b[sort.key]||'';
     if(sort.key==='amount'){va=parseFloat(va)||0; vb=parseFloat(vb)||0;}
@@ -993,7 +1032,10 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
     <div>
       <div className="page-header">
         <div>
-          <div className="page-title">📋 紀錄管理</div>
+          <div className="page-title">📋 紀錄管理
+            {filters._overdue && <span style={{marginLeft:10,fontSize:13,background:'rgba(239,68,68,.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⚠️ 逾期未結</span>}
+            {filters._neardue && <span style={{marginLeft:10,fontSize:13,background:'rgba(245,158,11,.1)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⏰ 3天內到期</span>}
+          </div>
           <div className="page-sub">共 {filtered.length} 筆 | Open: {openCnt} | Closed: {filtered.length - openCnt}</div>
         </div>
         <div style={{display:'flex',gap:8}}>
