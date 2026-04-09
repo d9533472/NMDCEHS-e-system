@@ -1173,13 +1173,19 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   // 3) Defaults
   if(!loaded){setLoad(60,'使用預設資料…');D=makeDefault();}
 
-  // 4) Sync to Sheet if empty
+  // 4) Sync to Sheet if empty (with timeout)
   setLoad(70,'檢查同步狀態…');
   try{
     localStorage.setItem('env-cache',JSON.stringify(D));
     let sheetEmpty=true;
     try{
-      if(GAS_URL){const r=await fetch(GAS_URL);if(r.ok){const sd=await r.json();sheetEmpty=!sd||typeof sd!=='object'||Object.keys(sd).length<=1;}}
+      if(GAS_URL){
+        const ctrl=new AbortController();
+        const t=setTimeout(()=>ctrl.abort(),5000);
+        const r=await fetch(GAS_URL,{signal:ctrl.signal});
+        clearTimeout(t);
+        if(r.ok){const sd=await r.json();sheetEmpty=!sd||typeof sd!=='object'||Object.keys(sd).length<=1;}
+      }
     }catch(e){sheetEmpty=true;}
     if(sheetEmpty){setLoad(85,'同步資料至 Google Sheets…');await pushData();console.log('✅ synced');}
   }catch(e){}
