@@ -148,7 +148,24 @@ footer{margin-top:48px;padding:20px 0;border-top:1px solid var(--border);text-al
 .sch-summary th,.sch-summary td{border:1px solid var(--border);padding:6px 14px;text-align:center}
 .sch-summary th{background:var(--bg2);font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase}
 .sch-summary .ot-pos{color:var(--danger);font-weight:700}
+.pri-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700}
+.pri-high{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.pri-mid{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.pri-low{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.pri-seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pri-seg button{padding:5px 12px;border:none;background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}
+.pri-seg button.sel-high{background:#fef2f2;color:#b91c1c}
+.pri-seg button.sel-mid{background:#fff7ed;color:#c2410c}
+.pri-seg button.sel-low{background:#f0fdf4;color:#15803d}
+.pri-seg button:not(:last-child){border-right:1px solid var(--border)}
+.bul-archive-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;margin-top:8px;border-radius:8px;border:1px dashed var(--border2);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;transition:.2s}.bul-archive-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light)}
+.bul-archived-item{padding:12px 16px;border-radius:10px;background:var(--card2);border-left:3px solid var(--border2);position:relative;margin-bottom:8px;opacity:.75}
+.bul-archived-item:hover{opacity:1}
 .leave-type{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.ncr-badge{display:inline-block;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700}
+.ncr-NCR{background:#fffbeb;color:#b45309;border:1px solid #fcd34d}
+.ncr-WM{background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd}
+.ncr-PN{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
 .ot-record-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px;margin-top:4px}
 .ot-record-table th{text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-bottom:2px solid var(--border);background:var(--bg2)}
 .ot-record-table td{padding:8px 10px;border-bottom:1px solid var(--bg2);vertical-align:middle}
@@ -188,7 +205,7 @@ footer{margin-top:48px;padding:20px 0;border-top:1px solid var(--border);text-al
 
 <!-- Modals -->
 <div class="modal-overlay hidden" id="mBul" onclick="closeBulM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mBT">新增公告</div><div class="modal-form"><div><label class="form-label">公告內容</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd('underline')"><u>U</u></button><button class="rte-btn" onclick="rteCmd('strikeThrough')"><s>S</s></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd('foreColor',this.value)"><input type="color" class="rte-color" value="#fef08a" onchange="rteCmd('hiliteColor',this.value)"><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="rteBody" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeBulM()">取消</button><button class="btn-primary" onclick="saveBul()" id="bBul">發布</button></div></div></div></div>
-<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
+<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mSec" onclick="closeSecM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title">新增區塊</div><div class="modal-form"><div><label class="form-label">區塊名稱</label><input class="form-input" id="inSN" onkeydown="if(event.key==='Enter')saveSec()"></div><div class="modal-actions"><button class="btn-secondary" onclick="closeSecM()">取消</button><button class="btn-primary" onclick="saveSec()">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mLnk" onclick="closeLnkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mLT">新增連結</div><div class="modal-form"><div><label class="form-label">連結標題</label><input class="form-input" id="inLN"></div><div><label class="form-label">連結網址</label><input class="form-input" id="inLU" placeholder="https://"></div><div><label class="form-label">選擇圖示</label><div class="icon-picker-wrap"><button type="button" class="icon-picker-btn" onclick="toggleIc(event)"><span class="preview" id="icP">📄</span><span id="icL" style="flex:1">選擇圖示…</span><span class="arrow" id="icA">▼</span></button><div class="icon-dropdown hidden" id="icDD"></div></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeLnkM()">取消</button><button class="btn-primary" onclick="saveLnk()" id="bLnk">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mDoc" onclick="closeDocM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mDT">新增文件</div><div class="modal-form">
@@ -251,6 +268,7 @@ let D=makeDefault();
 let isEditor=false,openSec={},syncTimer=null,pushing=false;
 let eBulId=null,eTrkId=null,eDocId=null,eSecId=null,eLSId=null,eLId=null,selIc='📄';
 let activeTab='bulletin',trkFilter='All',docFilter='All',editingTabKey=null,showDone=false;
+let showArchive=false;
 let schViewMonth=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
 let schDraft=false; // true = 班表有未發布草稿
 
@@ -271,6 +289,8 @@ const WKDAYS=['日','一','二','三','四','五','六'];
 
 // ═══ Google Sheets Sync (via Apps Script API) ═══
 const GAS_URL='https://script.google.com/macros/s/AKfycbzpixbSRvbXgVqGhPCZ71cou91mN5J7k306TsZHTUh2MsEbTEj-zh26PKwOCDCj7Qsz/exec';
+let NCR_URL=localStorage.getItem('ncr-gas-url')||'https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
+let _ncrCache=null; // cache fetched NCR data
 
 async function fetchData(){
   if(!GAS_URL)return false;
@@ -291,7 +311,7 @@ async function pushData(){
     setSS('synced');pushing=false;return true;
   }catch(e){setSS('error');showToast('⚠️ 同步失敗：'+e.message,'err');pushing=false;return false;}
 }
-function fixData(){if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+function fixData(){if(!D.archivedBulletins)D.archivedBulletins=[];if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -332,7 +352,7 @@ function doLogin(){const u=$('loginUser').value.trim(),p=$('loginPass').value.tr
 function doLogout(){isEditor=false;sessionStorage.removeItem(AK);renderAll();}
 function showLogin(){$('loginUser').value='';$('loginPass').value='';$('loginError').textContent='';$('loginScreen').classList.remove('hidden');setTimeout(()=>$('loginUser').focus(),100);}
 function closeLogin(){$('loginScreen').classList.add('hidden');}
-function renderAuth(){$('authBar').innerHTML=isEditor?`<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:'';}
+function renderAuth(){$('authBar').innerHTML=isEditor?`<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="showNcrUrlM()">🔗 改善單URL</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:'';}
 
 function exportData(){
   const json=JSON.stringify(D,null,2);
@@ -393,48 +413,95 @@ function renderBulHTML(){
   const upcoming=(D.tasks||[]).filter(t=>!t.done&&t.deadline&&(t.deadline===today||t.deadline===tomorrow));
   let h='';
 
-  // ── 已過期 ──
-  if(overdue.length){
-    h+=`<div class="card" style="border-left:4px solid var(--danger);background:#fff8f8;margin-bottom:10px">`;
-    h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">`;
-    h+=`<span style="font-size:15px">🚨</span>`;
-    h+=`<span style="font-size:14px;font-weight:700;color:var(--danger)">已過期追蹤事項</span>`;
-    h+=`<span style="font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--danger);color:#fff">${overdue.length}</span>`;
-    h+=`</div>`;
-    overdue.forEach(t=>{
-      h+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(239,68,68,.06);margin-bottom:6px;cursor:pointer" onclick="switchTab('tracker')">`;
-      h+=`<span style="color:var(--danger);font-size:14px;margin-top:1px">●</span>`;
-      h+=`<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">${esc(t.name)}</div>`;
-      h+=`<div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">${personBadges(t.person)}`;
-      h+=`<span style="font-size:11px;color:var(--danger);font-weight:600">期限：${esc(t.deadline)}</span>`;
-      h+=`</div></div></div>`;
-    });
-    h+=`</div>`;
-  }
+  // ── Dashboard 2×4 Grid ──
+  const ncrRecords=_ncrCache;
+  const ncrOver=ncrRecords?ncrRecords.filter(r=>r.daysLeft<0):[];
+  const ncrUp=ncrRecords?ncrRecords.filter(r=>r.daysLeft>=0):[];
+  const hasAny=overdue.length||upcoming.length||ncrOver.length||ncrUp.length||(NCR_URL&&!ncrRecords);
 
-  // ── 即將逾期 ──
-  if(upcoming.length){
-    h+=`<div class="card" style="border-left:4px solid var(--warn);background:#fffbf0;margin-bottom:10px">`;
-    h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">`;
-    h+=`<span style="font-size:15px">🔶</span>`;
-    h+=`<span style="font-size:14px;font-weight:700;color:var(--warn)">即將逾期追蹤事項</span>`;
-    h+=`<span style="font-size:12px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--warn);color:#fff">${upcoming.length}</span>`;
+  if(hasAny){
+    h+=`<div class="card" style="margin-bottom:14px;padding:0;overflow:hidden">`;
+
+    // ── Column headers ──
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr;background:var(--bg2);border-bottom:1px solid var(--border)">`;
+    h+=`<div style="padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);border-right:2px solid var(--border2);text-align:center;letter-spacing:.04em">📋 改善單</div>`;
+    h+=`<div style="padding:8px 14px;font-size:12px;font-weight:700;color:var(--text2);text-align:center;letter-spacing:.04em">✅ 追蹤事項</div>`;
     h+=`</div>`;
-    upcoming.forEach(t=>{
-      const isToday=t.deadline===today;
-      h+=`<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:8px;background:rgba(245,158,11,.06);margin-bottom:6px;cursor:pointer" onclick="switchTab('tracker')">`;
-      h+=`<span style="color:var(--warn);font-size:14px;margin-top:1px">●</span>`;
-      h+=`<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">${esc(t.name)}</div>`;
-      h+=`<div style="display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap">${personBadges(t.person)}`;
-      h+=`<span style="font-size:11px;color:var(--warn);font-weight:600">期限：${esc(t.deadline)}（${isToday?'今天':'明天'}）</span>`;
-      h+=`</div></div></div>`;
-    });
+
+    // ── 4 stat cards ──
+    h+=`<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr">`;
+
+    // NCR 已逾期
+    h+=`<div onclick="showBulDetail('ncrOver')" style="padding:18px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--border);transition:.15s;position:relative" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''">`;
+    h+=`<div style="font-size:28px;font-weight:800;color:${ncrOver.length?'var(--danger)':'var(--border2)'};line-height:1">${NCR_URL?(ncrRecords?ncrOver.length:'…'):'—'}</div>`;
+    h+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:600">已逾期</div>`;
+    if(ncrOver.length)h+=`<div style="position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite"></div>`;
     h+=`</div>`;
+
+    // NCR 即將到期
+    h+=`<div onclick="showBulDetail('ncrUp')" style="padding:18px 8px;text-align:center;cursor:pointer;border-right:2px solid var(--border2);transition:.15s;position:relative" onmouseover="this.style.background='#fff8f0'" onmouseout="this.style.background=''">`;
+    h+=`<div style="font-size:28px;font-weight:800;color:${ncrUp.length?'var(--orange)':'var(--border2)'};line-height:1">${NCR_URL?(ncrRecords?ncrUp.length:'…'):'—'}</div>`;
+    h+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:600">即將到期</div>`;
+    if(ncrUp.length)h+=`<div style="position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--orange)"></div>`;
+    h+=`</div>`;
+
+    // 追蹤 已過期
+    h+=`<div onclick="showBulDetail('trkOver')" style="padding:18px 8px;text-align:center;cursor:pointer;border-right:1px solid var(--border);transition:.15s;position:relative" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background=''">`;
+    h+=`<div style="font-size:28px;font-weight:800;color:${overdue.length?'var(--danger)':'var(--border2)'};line-height:1">${overdue.length}</div>`;
+    h+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:600">已過期</div>`;
+    if(overdue.length)h+=`<div style="position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--danger);animation:pulse 1.5s infinite"></div>`;
+    h+=`</div>`;
+
+    // 追蹤 即將逾期
+    h+=`<div onclick="showBulDetail('trkUp')" style="padding:18px 8px;text-align:center;cursor:pointer;transition:.15s;position:relative" onmouseover="this.style.background='#fffbf0'" onmouseout="this.style.background=''">`;
+    h+=`<div style="font-size:28px;font-weight:800;color:${upcoming.length?'var(--warn)':'var(--border2)'};line-height:1">${upcoming.length}</div>`;
+    h+=`<div style="font-size:11px;color:var(--muted);margin-top:4px;font-weight:600">即將逾期</div>`;
+    if(upcoming.length)h+=`<div style="position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--warn)"></div>`;
+    h+=`</div>`;
+
+    h+=`</div>`; // end 4-col grid
+
+    // ── Detail pane ──
+    h+=`<div id="bulDetailPane" style="display:none;border-top:1px solid var(--border);padding:12px 16px;max-height:280px;overflow-y:auto;background:var(--card2)"></div>`;
+    h+=`</div>`; // end card
+
+    // Store detail data in window for onclick access
+    window._bulData={ncrOver,ncrUp,overdue,upcoming,today};
+    window._bulDetailOpen=null;
   }
-  h+='<div class="card">';if(!D.bulletins||!D.bulletins.length)h+='<div class="bulletin-empty">尚無公告</div>';
-  else D.bulletins.forEach((b,i)=>{const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('bulletins',${i},-1)" ${i===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('bulletins',${i},1)" ${i===D.bulletins.length-1?'disabled':''}>▼</button>`:'';
-    h+=`<div class="bulletin-item"><div class="b-date">📌 ${b.date}</div><div class="b-text">${renderHtml(b.text)}</div>${isEditor?`<div class="b-actions">${ar}<button class="icon-btn" onclick="openBulM('${b.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delBul('${b.id}')">${SV.trash}</button></div>`:''}</div>`;});
-  if(isEditor)h+=`<button class="btn-add-row" onclick="openBulM()">＋ 新增公告</button>`;return h+'</div>';}
+  // ── Active bulletins ──
+  h+='<div class="card">';
+  const activeBuls=D.bulletins||[];
+  if(!activeBuls.length)h+='<div class="bulletin-empty">尚無公告</div>';
+  else activeBuls.forEach((b,i)=>{
+    const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('bulletins',${i},-1)" ${i===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('bulletins',${i},1)" ${i===activeBuls.length-1?'disabled':''}>▼</button>`:'';
+    const archBtn=isEditor?`<button class="icon-btn" onclick="archiveBul('${b.id}')" title="封存">📦</button>`:'';
+    h+=`<div class="bulletin-item"><div class="b-date">📌 ${b.date}</div><div class="b-text">${renderHtml(b.text)}</div>${isEditor?`<div class="b-actions">${ar}<button class="icon-btn" onclick="openBulM('${b.id}')">${SV.edit}</button>${archBtn}<button class="icon-btn danger" onclick="delBul('${b.id}')">${SV.trash}</button></div>`:''}</div>`;
+  });
+  if(isEditor)h+=`<button class="btn-add-row" onclick="openBulM()">＋ 新增公告</button>`;
+
+  // ── Archive toggle button ──
+  const archived=D.archivedBulletins||[];
+  if(archived.length){
+    h+=`<button class="bul-archive-btn" onclick="showArchive=!showArchive;renderTab()">
+      📦 封存公告 <span style="background:var(--bg2);padding:1px 8px;border-radius:10px;font-size:12px">${archived.length}</span>
+      <span style="font-size:11px">${showArchive?'▲ 收起':'▼ 展開'}</span>
+    </button>`;
+    if(showArchive){
+      h+=`<div style="margin-top:8px">`;
+      archived.forEach((b,i)=>{
+        const unarchBtn=isEditor?`<button class="icon-btn" onclick="unarchiveBul('${b.id}')" title="取消封存" style="opacity:.7">📤</button>`:'';
+        const delBtn=isEditor?`<button class="icon-btn danger" onclick="delArchivedBul('${b.id}')">${SV.trash}</button>`:'';
+        h+=`<div class="bul-archived-item">
+          <div class="b-date" style="color:var(--muted)">📦 封存 ${b.archivedAt||b.date}</div>
+          <div class="b-text" style="color:var(--muted)">${renderHtml(b.text)}</div>
+          ${isEditor?`<div class="b-actions" style="opacity:1">${unarchBtn}${delBtn}</div>`:''}
+        </div>`;
+      });
+      h+=`</div>`;
+    }
+  }
+  return h+'</div>';}
 function openBulM(id){eBulId=id||null;$('mBT').textContent=id?'編輯公告':'新增公告';$('bBul').textContent=id?'儲存':'發布';const b=id?D.bulletins.find(x=>x.id===id):null;$('rteBody').innerHTML=b?b.text:'';$('mBul').classList.remove('hidden');setTimeout(()=>$('rteBody').focus(),50);}
 function closeBulM(){$('mBul').classList.add('hidden');}
 function saveBul(){const t=$('rteBody').innerHTML.trim();if(!t||t==='<br>')return;if(eBulId){const b=D.bulletins.find(x=>x.id===eBulId);if(b)b.text=t;}else{if(!D.bulletins)D.bulletins=[];D.bulletins.unshift({id:gid(),text:t,date:todayS()});}save();renderTab();closeBulM();}
@@ -443,8 +510,14 @@ function delBul(id){if(!confirm('刪除？'))return;D.bulletins=D.bulletins.filt
 // ═══ 2 TRACKER ═══
 function dlC(dl,done){if(done)return'deadline-ok';const t=todayS(),tm=tmrS();if(dl<t)return'deadline-red';if(dl===t||dl===tm)return'deadline-orange';return'deadline-ok';}
 function renderTrkHTML(){
+  const PRIORD={high:0,mid:1,low:2};
   const byFilter=trkFilter==='All'?D.tasks:D.tasks.filter(t=>(t.person||'').includes(trkFilter));
-  const filtered=showDone?byFilter:byFilter.filter(t=>!t.done);
+  const filtered=(showDone?byFilter:byFilter.filter(t=>!t.done))
+    .slice().sort((a,b)=>{
+      if(a.done!==b.done)return a.done?1:-1;
+      const pa=PRIORD[a.priority||'mid']??1,pb=PRIORD[b.priority||'mid']??1;
+      return pa-pb;
+    });
   const doneCount=byFilter.filter(t=>t.done).length;
   let h='<div class="card" style="overflow-x:auto">';
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">';
@@ -458,12 +531,15 @@ function renderTrkHTML(){
   if(!filtered.length)h+=`<tr><td colspan="5" class="tracker-empty">${showDone?'無追蹤事項':'無待辦事項'}</td></tr>`;
   else filtered.forEach(t=>{const dc=dlC(t.deadline,t.done);const tag=!t.done&&dc==='deadline-red'?'<br><span style="font-size:11px">⚠️ 已逾期</span>':!t.done&&dc==='deadline-orange'?'<br><span style="font-size:11px">🔶 即將到期</span>':'';
     const ri=D.tasks.indexOf(t);const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('tasks',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('tasks',${ri},1)" ${ri===D.tasks.length-1?'disabled':''}>▼</button>`:'';
-    h+=`<tr class="${t.done?'done-row':''}"><td><button class="ck ${t.done?'checked':''}" onclick="togDone('${t.id}')">${t.done?'✓':''}</button></td><td>${esc(t.name)}${t.note?`<div class="doc-note" style="margin-top:4px;max-width:none;white-space:normal">${renderHtml(t.note)}</div>`:''}</td><td>${personBadges(t.person)}</td><td class="${dc}">${t.done?'✅ 已完成':esc(t.deadline)}${tag}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openTrkM('${t.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delTsk('${t.id}')">${SV.trash}</button></td>`:''}</tr>`;});
+    const priMap={high:'🔴 高',mid:'🟡 中',low:'🟢 低'};const priCls={high:'pri-high',mid:'pri-mid',low:'pri-low'};
+    const pri=t.priority||'mid';
+    h+=`<tr class="${t.done?'done-row':''}"><td><button class="ck ${t.done?'checked':''}" onclick="togDone('${t.id}')">${t.done?'✓':''}</button></td><td><span class="pri-badge ${priCls[pri]}">${priMap[pri]}</span> ${esc(t.name)}${t.note?`<div class="doc-note" style="margin-top:4px;max-width:none;white-space:normal">${renderHtml(t.note)}</div>`:''}</td><td>${personBadges(t.person)}</td><td class="${dc}">${t.done?'✅ 已完成':esc(t.deadline)}${tag}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openTrkM('${t.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delTsk('${t.id}')">${SV.trash}</button></td>`:''}</tr>`;});
   h+='</tbody></table>';if(isEditor)h+=`<button class="btn-add-row" onclick="openTrkM()">＋ 新增追蹤事項</button>`;return h+'</div>';}
 function togDone(id){if(!isEditor)return;const t=D.tasks.find(x=>x.id===id);if(t)t.done=!t.done;save();renderTab();}
-function openTrkM(id){eTrkId=id||null;$('mTT').textContent=id?'編輯事項':'新增追蹤事項';$('bTrk').textContent=id?'儲存':'新增';const t=id?D.tasks.find(x=>x.id===id):null;$('inTN').value=t?t.name:'';$('inTD').value=t?t.deadline:'';$('inTNote').innerHTML=t?t.note||'':'';renderPersonCks('trkPCks',t?t.person:'Paul');$('mTrk').classList.remove('hidden');setTimeout(()=>$('inTN').focus(),50);}
+function openTrkM(id){eTrkId=id||null;$('mTT').textContent=id?'編輯事項':'新增追蹤事項';$('bTrk').textContent=id?'儲存':'新增';const t=id?D.tasks.find(x=>x.id===id):null;$('inTN').value=t?t.name:'';$('inTD').value=t?t.deadline:'';$('inTNote').innerHTML=t?t.note||'':'';renderPersonCks('trkPCks',t?t.person:'Paul');setPri(t?t.priority||'mid':'mid');$('mTrk').classList.remove('hidden');setTimeout(()=>$('inTN').focus(),50);}
 function closeTrkM(){$('mTrk').classList.add('hidden');}
-function saveTrk(){const n=$('inTN').value.trim();if(!n)return;const p=getCheckedPersons('trkPCks'),d=$('inTD').value;if(!d||!p)return;let note=$('inTNote').innerHTML.trim();if(note==='<br>')note='';if(eTrkId){const t=D.tasks.find(x=>x.id===eTrkId);if(t){t.name=n;t.person=p;t.deadline=d;t.note=note;}}else D.tasks.push({id:gid(),name:n,person:p,deadline:d,done:false,note});save();renderTab();closeTrkM();}
+function setPri(v){['H','M','L'].forEach(x=>{const el=$('pri'+x);if(el)el.className='';});const map={high:'H',mid:'M',low:'L'};const el=$('pri'+(map[v]||'M'));if(el)el.className='sel-'+v;}
+function saveTrk(){const n=$('inTN').value.trim();if(!n)return;const p=getCheckedPersons('trkPCks'),d=$('inTD').value;if(!d||!p)return;let note=$('inTNote').innerHTML.trim();if(note==='<br>')note='';const priority=document.querySelector('.pri-seg button[class*=sel-]')?.id==='priH'?'high':document.querySelector('.pri-seg button[class*=sel-]')?.id==='priL'?'low':'mid';if(eTrkId){const t=D.tasks.find(x=>x.id===eTrkId);if(t){t.name=n;t.person=p;t.deadline=d;t.note=note;t.priority=priority;}}else D.tasks.push({id:gid(),name:n,person:p,deadline:d,done:false,note,priority});save();renderTab();closeTrkM();}
 function delTsk(id){if(!confirm('刪除？'))return;D.tasks=D.tasks.filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 3 DOCUMENTS ═══
@@ -895,6 +971,19 @@ function atKey(e){
 }
 document.addEventListener('click',function(e){if(_atEl&&!_atEl.contains(e.target))atClose();});
 
+
+// ══ NCR Expiring Fetch ══
+async function fetchNcrExpiring(){
+  if(!NCR_URL)return null;
+  try{
+    const r=await fetch(NCR_URL+'?action=expiring&days=7');
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(d&&d.ok)return d.records||[];
+  }catch(e){console.warn('NCR fetch:',e);}
+  return null;
+}
+
 // ══ Leave Records ══
 let _lvMo=null,_lvIdx=null;
 function openLeaveM(mo,idx){
@@ -975,6 +1064,87 @@ function delLeave(mo,idx){
   D.leaveRecords[mo].splice(idx,1);
   saveDraft();renderTab();
 }
+
+function showNcrUrlM(){$('inNcrUrl').value=NCR_URL;$('mNcrUrl').classList.remove('hidden');}
+function saveNcrUrl(){
+  NCR_URL=$('inNcrUrl').value.trim();
+  localStorage.setItem('ncr-gas-url',NCR_URL);
+  $('mNcrUrl').classList.add('hidden');
+  _ncrCache=null;
+  if(NCR_URL){fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});}
+  showToast('✅ 改善單 URL 已儲存');
+}
+
+// ══ Bulletin Detail Panel ══
+function ncrRow(r){
+  var isOver=r.daysLeft<0;
+  var color=isOver?'var(--danger)':'var(--orange)';
+  var label=isOver?'已逾期 '+Math.abs(r.daysLeft)+' 天':r.daysLeft===0?'今天到期':r.daysLeft===1?'明天到期':r.daysLeft+' 天後到期';
+  var drive=r.driveFolderUrl?'<a href="'+r.driveFolderUrl+'" target="_blank" style="font-size:11px;color:var(--accent);margin-left:6px">📁 Drive</a>':'';
+  return '<div style="padding:9px 0;border-bottom:1px solid var(--bg2);display:flex;align-items:flex-start;gap:8px">'
+    +'<span class="ncr-badge ncr-'+r.type+'">'+r.type+'</span>'
+    +'<div style="flex:1"><div style="font-size:13px;font-weight:600">'+r.number+'</div>'
+    +'<div style="font-size:11px;color:'+color+';font-weight:600;margin-top:2px">期限：'+r.deadline+'（'+label+'）</div>'
+    +'<div style="font-size:11px;color:var(--muted)">'+r.unit+' · '+r.issuer+drive+'</div>'
+    +'</div></div>';
+}
+function trkRow(t){
+  var bd=window._bulData||{};
+  var today=bd.today||todayS();
+  var isOver=t.deadline<today;
+  var color=isOver?'var(--danger)':'var(--warn)';
+  var label=isOver?'已過期':t.deadline===today?'今天到期':'明天到期';
+  var badges=(t.person||'').split(',').map(function(p){return p.trim();}).filter(Boolean)
+    .map(function(p){return '<span class="person-badge">'+p+'</span>';}).join('');
+  return '<div style="padding:9px 0;border-bottom:1px solid var(--bg2);cursor:pointer" onclick="switchTab(\'tracker\')">'
+    +'<div style="font-size:13px;font-weight:600;margin-bottom:3px">'+esc(t.name)+'</div>'
+    +'<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">'+badges
+    +'<span style="font-size:11px;color:'+color+';font-weight:600">期限：'+t.deadline+'（'+label+'）</span>'
+    +'</div></div>';
+}
+function showBulDetail(key){
+  var pane=$('bulDetailPane');if(!pane)return;
+  if(window._bulDetailOpen===key){pane.style.display='none';window._bulDetailOpen=null;return;}
+  var bd=window._bulData||{};
+  var ncrOver=bd.ncrOver||[],ncrUp=bd.ncrUp||[],overdue=bd.overdue||[],upcoming=bd.upcoming||[];
+  var html='';
+  if(key==='ncrOver')html=ncrOver.map(ncrRow).join('')||empty();
+  else if(key==='ncrUp')html=ncrUp.map(ncrRow).join('')||empty();
+  else if(key==='trkOver')html=overdue.map(trkRow).join('')||empty();
+  else if(key==='trkUp')html=upcoming.map(trkRow).join('')||empty();
+  if(!html)return;
+  pane.innerHTML=html;
+  pane.style.display='block';
+  window._bulDetailOpen=key;
+}
+function empty(){return '<div style="padding:8px;color:var(--muted);font-size:13px">無資料</div>';}
+
+// ══ Bulletin Archive ══
+function archiveBul(id){
+  if(!D.bulletins)return;
+  const idx=D.bulletins.findIndex(x=>x.id===id);
+  if(idx===-1)return;
+  const b=D.bulletins.splice(idx,1)[0];
+  b.archivedAt=todayS();
+  if(!D.archivedBulletins)D.archivedBulletins=[];
+  D.archivedBulletins.unshift(b);
+  save();renderTab();
+}
+function unarchiveBul(id){
+  if(!D.archivedBulletins)return;
+  const idx=D.archivedBulletins.findIndex(x=>x.id===id);
+  if(idx===-1)return;
+  const b=D.archivedBulletins.splice(idx,1)[0];
+  delete b.archivedAt;
+  if(!D.bulletins)D.bulletins=[];
+  D.bulletins.unshift(b);
+  save();renderTab();
+}
+function delArchivedBul(id){
+  if(!confirm('永久刪除此封存公告？'))return;
+  D.archivedBulletins=D.archivedBulletins.filter(x=>x.id!==id);
+  save();renderTab();
+}
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
 function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fade-out');setTimeout(()=>s.classList.add('hidden'),500);}
@@ -1021,6 +1191,9 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   setLoad(100,'完成！');
   setTimeout(hideLoad,400);
 
+  // Background fetch NCR after page is loaded
+  if(NCR_URL){setTimeout(()=>{fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});},1000);}
+
   // Auto-refresh for viewers every 2 min
   setInterval(async()=>{if(isEditor)return;try{const f=await fetchData();if(f){D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});renderAll();}}catch(e){}},2*60*1000);
 })();
@@ -1063,6 +1236,19 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     <div><label class="form-label">請假天數（自動計算工作日，可手動調整）</label><input class="form-input" type="number" id="inLvD" step="0.5" min="0.5" placeholder="天數"></div>
     <div><label class="form-label">備註（選填）</label><input class="form-input" id="inLvN" placeholder="例：就醫、家庭事務…"></div>
     <div class="modal-actions"><button class="btn-secondary" onclick="closeLeaveM()">取消</button><button class="btn-primary" onclick="saveLeave()">確定</button></div>
+  </div>
+</div></div>
+
+<div class="modal-overlay hidden" id="mNcrUrl" onclick="this.classList.add('hidden')"><div class="modal-box" onclick="event.stopPropagation()">
+  <div class="modal-title">🔗 改善單系統 GAS URL</div>
+  <div class="modal-form">
+    <div><label class="form-label">改善單 Apps Script 網址</label>
+    <input class="form-input" id="inNcrUrl" placeholder="https://script.google.com/macros/s/...exec" style="font-size:12px"></div>
+    <p style="font-size:12px;color:var(--muted)">填入後公告欄會自動顯示 7 天內即將到期或已逾期的改善單。</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="$('mNcrUrl').classList.add('hidden')">取消</button>
+      <button class="btn-primary" onclick="saveNcrUrl()">儲存</button>
+    </div>
   </div>
 </div></div>
 </body>
