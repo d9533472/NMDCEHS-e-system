@@ -526,6 +526,7 @@ function renderTrkHTML(){
     h+=`<button class="trk-tab ${trkFilter===p?'active':''}" onclick="trkFilter='${p}';renderTab()">${p}<span class="tab-count">${cnt}</span></button>`;});
   h+='</div>';
   h+=`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card2);user-select:none"><input type="checkbox" onchange="showDone=this.checked;renderTab()" ${showDone?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"> 顯示已完成 <span style="font-size:11px;background:var(--bg2);padding:1px 6px;border-radius:10px">${doneCount}</span></label>`;
+  if(isEditor)h+=`<button onclick="sendTrkEmail()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent2)'">📧 寄出追蹤摘要</button>`;
   h+='</div>';
   h+=`<table class="tracker-table"><thead><tr><th style="width:32px"></th><th>事項</th><th>負責人</th><th>完成期限</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
   if(!filtered.length)h+=`<tr><td colspan="5" class="tracker-empty">${showDone?'無追蹤事項':'無待辦事項'}</td></tr>`;
@@ -1146,6 +1147,122 @@ function delArchivedBul(id){
   D.archivedBulletins=D.archivedBulletins.filter(x=>x.id!==id);
   save();renderTab();
 }
+
+// ══ Send Tracker Email Preview ══
+function sendTrkEmail(){
+  const today=todayS(),tomorrow=tmrS();
+  const pending=D.tasks.filter(t=>!t.done);
+  if(!pending.length){showToast('⚠️ 沒有待辦事項');return;}
+
+  const priOrd={high:0,mid:1,low:2};
+  const sorted=pending.slice().sort((a,b)=>(priOrd[a.priority||'mid'])-(priOrd[b.priority||'mid'])||a.deadline.localeCompare(b.deadline));
+  const overdue=sorted.filter(t=>t.deadline<today);
+  const dueSoon=sorted.filter(t=>t.deadline>=today&&t.deadline<=tomorrow);
+  const normal=sorted.filter(t=>t.deadline>tomorrow);
+
+  const priLabel={high:'🔴 高',mid:'🟡 中',low:'🟢 低'};
+  const priColor={high:'#b91c1c',mid:'#b45309',low:'#15803d'};
+  const priBg={high:'#fef2f2',mid:'#fffbeb',low:'#f0fdf4'};
+
+  // Outlook-compatible HTML (no gradients, no border-radius, table layout)
+  function tableSection(title,titleColor,rows){
+    if(!rows.length)return'';
+    let h=`<tr><td style="padding:16px 0 4px"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:${titleColor}">${title}</p></td></tr>`;
+    h+=`<tr><td>`;
+    h+=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;border:1px solid #d1d5db">`;
+    // Header row: bgcolor attr for Outlook + style for browser
+    h+=`<tr bgcolor="#166534" style="background:#166534">`;
+    ['優先度','事項','負責人','期限','備註'].forEach(th=>{
+      h+=`<td bgcolor="#166534" style="padding:8px 12px;background:#166534;color:#ffffff;font-weight:bold;font-size:11px;letter-spacing:1px;border-right:1px solid #14532d"><font color="#ffffff">${th}</font></td>`;
+    });
+    h+=`</tr>`;
+    rows.forEach((t,i)=>{
+      const bg=i%2===0?'#ffffff':'#f3f4f6';
+      const pri=t.priority||'mid';
+      const persons=(t.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
+      const note=(t.note||'').replace(/<[^>]+>/g,'').trim();
+      const dlColor=t.deadline<today?'#b91c1c':t.deadline<=tomorrow?'#b45309':'#374151';
+      const dlBg=t.deadline<today?'#fef2f2':t.deadline<=tomorrow?'#fffbeb':bg;
+      h+=`<tr bgcolor="${bg}" style="background:${bg}">`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;white-space:nowrap"><span style="background:${priBg[pri]};color:${priColor[pri]};padding:2px 8px;font-weight:bold;font-size:11px;border:1px solid ${priColor[pri]}">${priLabel[pri]}</span></td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;font-weight:bold;color:#111827">${esc(t.name)}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:#374151;white-space:nowrap">${esc(persons)}</td>`;
+      h+=`<td bgcolor="${dlBg}" style="padding:8px 12px;background:${dlBg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:${dlColor};font-weight:bold;white-space:nowrap">${esc(t.deadline)}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#6b7280">${esc(note)||'—'}</td>`;
+      h+=`</tr>`;
+    });
+    h+=`</table></td></tr>`;
+    return h;
+  }
+
+  // Outlook-safe wrapper
+  let html=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:820px">`;
+
+  // Header (solid color, no gradient)
+  html+=`<tr><td bgcolor="#166634" style="background:#166534;padding:20px 24px">`;
+  html+=`<p style="margin:0;color:#ffffff;font-size:16px;font-weight:bold">[NMDC TPC 專案] ENV 環保部門追蹤事項摘要表</p>`;
+  html+=`<p style="margin:6px 0 0;color:#bbf7d0;font-size:12px">製表日期：${today}　·　待辦共 ${pending.length} 項</p>`;
+  html+=`</td></tr>`;
+
+  // Body
+  html+=`<tr><td style="background:#ffffff;padding:8px 24px 24px;border:1px solid #d1d5db;border-top:none">`;
+  html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
+  html+=tableSection('⚠️ 已過期（'+overdue.length+' 項）','#b91c1c',overdue);
+  html+=tableSection('🔶 今明到期（'+dueSoon.length+' 項）','#b45309',dueSoon);
+  html+=tableSection('📋 待辦中（'+normal.length+' 項）','#374151',normal);
+  html+=`<tr><td style="padding-top:16px;border-top:1px solid #e5e7eb;margin-top:16px">`;
+  html+=`<p style="margin:0;font-size:11px;color:#9ca3af">此信件由 NMDC EHS e-System 自動產生　·　<a href="https://d9533472.github.io/NMDCEHS-e-system/" style="color:#166534">開啟系統</a></p>`;
+  html+=`</td></tr>`;
+  html+=`</table></td></tr></table>`;
+
+  window._trkEmailHtml=html;
+  window._trkEmailSubject='[NMDC TPC 專案] ENV 環保部門追蹤事項摘要表';
+  window._trkEmailTo='raymond.huang@nmdc-group.com;Sean.chu@nmdc-group.com;Jacqueline.peng@nmdc-group.com';
+  window._trkEmailCc='NMDCTaiwanEHSgroup@NMDCGroup.onmicrosoft.com';
+
+  const modal=$('mTrkEmail');
+  const preview=$('trkEmailPreview');
+  if(modal&&preview){
+    preview.innerHTML=html;
+    modal.classList.remove('hidden');
+  }
+}
+
+function copyTrkEmailHtml(){
+  const html=window._trkEmailHtml||'';
+  try{
+    const blob=new Blob([html],{type:'text/html'});
+    const item=new ClipboardItem({'text/html':blob});
+    navigator.clipboard.write([item]).then(()=>{
+      $('mTrkEmail').classList.add('hidden');
+      showToast('✅ 已複製！Outlook 開啟中，請按 Ctrl+V 貼上');
+      setTimeout(openOutlookForEmail,300);
+    }).catch(()=>fallbackCopy(html));
+  }catch(e){fallbackCopy(html);}
+}
+
+function fallbackCopy(html){
+  const div=document.createElement('div');
+  div.innerHTML=html;div.style.cssText='position:fixed;left:-9999px;top:0';
+  document.body.appendChild(div);
+  const range=document.createRange();range.selectNodeContents(div);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  try{
+    document.execCommand('copy');
+    $('mTrkEmail').classList.add('hidden');
+    showToast('✅ 已複製！Outlook 開啟中，請按 Ctrl+V 貼上');
+    setTimeout(openOutlookForEmail,300);
+  }catch(e){showToast('⚠️ 複製失敗，請手動複製','err');}
+  sel.removeAllRanges();document.body.removeChild(div);
+}
+
+function openOutlookForEmail(){
+  const sub=encodeURIComponent(window._trkEmailSubject||'');
+  const to=window._trkEmailTo||'';
+  const cc=encodeURIComponent(window._trkEmailCc||'');
+  window.open('mailto:'+to+'?subject='+sub+'&cc='+cc,'_blank');
+  showToast('📨 Outlook 已開啟，請貼上內容後寄出');
+}
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
 function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fade-out');setTimeout(()=>s.classList.add('hidden'),500);}
@@ -1258,5 +1375,21 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
   </div>
 </div></div>
+
+<div class="modal-overlay hidden" id="mTrkEmail" onclick="if(event.target===this)this.classList.add('hidden')">
+  <div class="modal-box" style="width:min(860px,95vw);max-height:90vh" onclick="event.stopPropagation()">
+    <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between">
+      <span>📧 追蹤事項摘要預覽</span>
+      <button onclick="$('mTrkEmail').classList.add('hidden')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:0 4px">✕</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:4px">主旨：<b>[NMDC TPC 專案] ENV 環保部門追蹤事項摘要表</b></p><p style="font-size:12px;color:var(--muted);margin-bottom:12px">① 按「複製內容」→ ② 按「開啟 Outlook」→ ③ 在 Outlook 信件內文按 Ctrl+V 貼上</p>
+    <div id="trkEmailPreview" style="border:1px solid var(--border);border-radius:10px;padding:16px;overflow-y:auto;max-height:55vh;background:#fff"></div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn-secondary" onclick="$('mTrkEmail').classList.add('hidden')">關閉</button>
+      <button onclick="copyTrkEmailHtml()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s">📋 複製內容</button>
+      <button class="btn-primary" onclick="openOutlookForEmail()">📨 開啟 Outlook</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
