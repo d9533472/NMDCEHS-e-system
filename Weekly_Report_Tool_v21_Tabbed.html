@@ -1948,21 +1948,51 @@
                                     className="w-32 p-2 border rounded text-xs"
                                     placeholder="Date"
                                 />
-                                <input
-                                    type="text"
-                                    value={item.category}
-                                    onChange={(e) => {
+                                {(() => {
+                                    const MON_CATS = [
+                                        "Marine Ecology",
+                                        "Cetacean Ecology (along pipeline)",
+                                        "Cetacean Ecology (CHW habitat area)",
+                                        "Terrestrial Ecology (Animals)",
+                                        "Terrestrial Ecology (Plants)",
+                                        "Marine water quality",
+                                        "Underwater noise",
+                                        "Other"
+                                    ];
+                                    const isOther = item.category !== "" && !MON_CATS.slice(0,-1).includes(item.category);
+                                    const selectVal = isOther ? "Other" : (item.category || "");
+                                    const updateCat = (val) => {
                                         const newItems = reportData.monitoringItems.items.map((itm, idx) =>
-                                            idx === i ? { ...itm, category: e.target.value } : itm
+                                            idx === i ? { ...itm, category: val } : itm
                                         );
-                                        setReportData(prev => ({
-                                            ...prev,
-                                            monitoringItems: { ...prev.monitoringItems, items: newItems }
-                                        }));
-                                    }}
-                                    className="flex-1 p-2 border rounded text-sm"
-                                    placeholder="Category"
-                                />
+                                        setReportData(prev => ({ ...prev, monitoringItems: { ...prev.monitoringItems, items: newItems } }));
+                                    };
+                                    return (
+                                        <div className="flex-1">
+                                            {isOther
+                                                ? <div className="flex gap-1 items-center">
+                                                    <input
+                                                        type="text"
+                                                        value={item.category}
+                                                        onChange={(e) => updateCat(e.target.value)}
+                                                        className="flex-1 p-2 border rounded text-sm"
+                                                        placeholder="Specify category..."
+                                                        autoFocus
+                                                    />
+                                                    <button onClick={() => updateCat("")} className="text-gray-400 hover:text-gray-600 text-xs px-1" title="Back to list">↩</button>
+                                                  </div>
+                                                : <select
+                                                    value={item.category}
+                                                    onChange={(e) => updateCat(e.target.value === "Other" ? " " : e.target.value)}
+                                                    className="p-2 border rounded text-sm w-full"
+                                                  >
+                                                    <option value="">— Select category —</option>
+                                                    {MON_CATS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                                  </select>
+                                            }
+                                        </div>
+                                    );
+                                })()}
                                 <select
                                     value={item.status}
                                     onChange={(e) => {
