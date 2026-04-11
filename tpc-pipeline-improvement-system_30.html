@@ -855,6 +855,15 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
   const in3Str = in3days.toISOString().slice(0,10);
   const in7days = new Date(); in7days.setDate(in7days.getDate()+7);
   const in7Str = in7days.toISOString().slice(0,10);
+  // 本週：週一～週日
+  const nowD = new Date();
+  const dow = nowD.getDay(); // 0=日,1=一...6=六
+  const diffMon = dow === 0 ? -6 : 1 - dow; // 距本週一天數
+  const weekMon = new Date(nowD); weekMon.setDate(nowD.getDate() + diffMon);
+  const weekSun = new Date(weekMon); weekSun.setDate(weekMon.getDate() + 6);
+  const weekMonStr = weekMon.toISOString().slice(0,10);
+  const weekSunStr = weekSun.toISOString().slice(0,10);
+  const thisWeekRecs = records.filter(r => r.date && r.date >= weekMonStr && r.date <= weekSunStr);
   const overdueRecs  = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < todayStr);
   const near3Recs    = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= todayStr && r.deadline <= in3Str);
   const near7Recs    = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= todayStr && r.deadline <= in7Str);
@@ -943,6 +952,15 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
             <div className="kpi-sub">PN 罰單合計</div>
           </div>
         )}
+        {thisWeekRecs.length>0 && (
+          <div className="kpi-card" style={{cursor:'pointer'}}
+            onClick={()=>onFilterClick({_thisweek:true})} title="點擊查看本週新增">
+            <div className="kpi-stripe" style={{background:'var(--accent-purple)'}}></div>
+            <div className="kpi-label" style={{color:'var(--accent-purple)'}}>📅 本週新增 <span style={{fontSize:10,opacity:.6}}>↗</span></div>
+            <div className="kpi-value" style={{color:'var(--accent-purple)'}}>{thisWeekRecs.length}</div>
+            <div className="kpi-sub">{weekMonStr.slice(5).replace('-','/')} ～ {weekSunStr.slice(5).replace('-','/')}</div>
+          </div>
+        )}
       </div>
       {total>0 && (<>
         {/* 上排：缺失項目分布圖(左1/2) + 各項目統計(右1/2) */}
@@ -999,7 +1017,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
 // ─── RECORDS TAB ──────────────────────────────────────────────
 function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, saving, gasUrl, connected, activeFilter }) {
   const { itemOptions, areaOptions, unitOptions } = config;
-  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', search:'', _overdue:false, _neardue:false });
+  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', search:'', _overdue:false, _neardue:false, _thisweek:false });
   const [sort, setSort] = useState({ key:'date', dir:'desc' });
   const [showModal, setShowModal] = useState(false);
   const [editRec, setEditRec] = useState(null);
@@ -1016,6 +1034,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
         item: activeFilter.item || f.item,
         _overdue: activeFilter._overdue || false,
         _neardue: activeFilter._neardue || false,
+        _thisweek: activeFilter._thisweek || false,
       }));
     }
   }, [activeFilter]);
@@ -1028,6 +1047,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
     (!filters.item || (r.defects&&r.defects.length>0 ? r.defects.some(d=>String(d.item)===filters.item) : String(r.item)===filters.item)) &&
     (!filters._overdue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < today())) &&
     (!filters._neardue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= today() && r.deadline <= (()=>{const d=new Date();d.setDate(d.getDate()+7);return d.toISOString().slice(0,10);})())) &&
+    (!filters._thisweek || (()=>{ const n=new Date(); const dw=n.getDay(); const diff=dw===0?-6:1-dw; const mon=new Date(n); mon.setDate(n.getDate()+diff); const sun=new Date(mon); sun.setDate(mon.getDate()+6); return r.date>=mon.toISOString().slice(0,10)&&r.date<=sun.toISOString().slice(0,10); })()) &&
     (!filters.search || [r.number,r.description,r.issuer,r.refNumber,...(r.defects||[]).map(d=>d.description)].join(' ').toLowerCase().includes(filters.search.toLowerCase()))
   ).sort((a,b)=>{
     let va=a[sort.key]||'', vb=b[sort.key]||'';
@@ -1048,6 +1068,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
           <div className="page-title">📋 紀錄管理
             {filters._overdue && <span style={{marginLeft:10,fontSize:13,background:'rgba(239,68,68,.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⚠️ 逾期未結</span>}
             {filters._neardue && <span style={{marginLeft:10,fontSize:13,background:'rgba(245,158,11,.1)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⏰ 即將到期</span>}
+            {filters._thisweek && <span style={{marginLeft:10,fontSize:13,background:'rgba(139,92,246,.1)',color:'var(--accent-purple)',border:'1px solid rgba(139,92,246,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>📅 本週新增</span>}
           </div>
           <div className="page-sub">共 {filtered.length} 筆 | Open: {openCnt} | Closed: {filtered.length - openCnt}</div>
         </div>
