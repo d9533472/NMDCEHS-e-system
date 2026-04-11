@@ -1165,14 +1165,43 @@ function sendTrkEmail(){
   const priBg={high:'#fef2f2',mid:'#fffbeb',low:'#f0fdf4'};
 
   // Outlook-compatible HTML (no gradients, no border-radius, table layout)
+  function stripNote(raw){
+    if(!raw)return[];
+    let s=raw;
+    // Convert ordered list items to "1. text"
+    let olIdx=0;
+    s=s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi,function(_,inner){
+      olIdx=0;
+      return inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,function(__,txt){
+        olIdx++;
+        return olIdx+'. '+txt.replace(/<[^>]+>/g,'')+'\n';
+      });
+    });
+    // Convert unordered list items to "• text"
+    s=s.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi,function(_,inner){
+      return inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,function(__,txt){
+        return '• '+txt.replace(/<[^>]+>/g,'')+'\n';
+      });
+    });
+    // Remaining block tags → newline
+    s=s.replace(/<br[^>]*>/gi,'\n')
+       .replace(/<\/p>/gi,'\n')
+       .replace(/<\/div>/gi,'\n')
+       .replace(/&nbsp;/gi,' ')
+       .replace(/&amp;/gi,'&')
+       .replace(/&lt;/gi,'<')
+       .replace(/&gt;/gi,'>')
+       .replace(/<[^>]+>/g,'');
+    return s.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  }
+
   function tableSection(title,titleColor,rows){
     if(!rows.length)return'';
     let h=`<tr><td style="padding:16px 0 4px"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:${titleColor}">${title}</p></td></tr>`;
     h+=`<tr><td>`;
     h+=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;border:1px solid #d1d5db">`;
-    // Header row: bgcolor attr for Outlook + style for browser
     h+=`<tr bgcolor="#166534" style="background:#166534">`;
-    ['優先度','事項','負責人','期限','備註'].forEach(th=>{
+    ['#','優先度','事項','負責人','期限','備註'].forEach(th=>{
       h+=`<td bgcolor="#166534" style="padding:8px 12px;background:#166534;color:#ffffff;font-weight:bold;font-size:11px;letter-spacing:1px;border-right:1px solid #14532d"><font color="#ffffff">${th}</font></td>`;
     });
     h+=`</tr>`;
@@ -1180,15 +1209,17 @@ function sendTrkEmail(){
       const bg=i%2===0?'#ffffff':'#f3f4f6';
       const pri=t.priority||'mid';
       const persons=(t.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
-      const note=(t.note||'').replace(/<br[^>]*>/gi,'\n').replace(/<\/p>/gi,'\n').replace(/<\/div>/gi,'\n').replace(/&nbsp;/gi,' ').replace(/<[^>]+>/g,'').replace(/\s*\n\s*/g,'\n').trim();
+      const noteLines=stripNote(t.note);
+      const noteHtml=noteLines.length?noteLines.map(l=>esc(l)).join('<br>'):'—';
       const dlColor=t.deadline<today?'#b91c1c':t.deadline<=tomorrow?'#b45309':'#374151';
       const dlBg=t.deadline<today?'#fef2f2':t.deadline<=tomorrow?'#fffbeb':bg;
       h+=`<tr bgcolor="${bg}" style="background:${bg}">`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;text-align:center;color:#6b7280;font-size:12px;white-space:nowrap">${i+1}</td>`;
       h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;white-space:nowrap"><span style="background:${priBg[pri]};color:${priColor[pri]};padding:2px 8px;font-weight:bold;font-size:11px;border:1px solid ${priColor[pri]}">${priLabel[pri]}</span></td>`;
       h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;font-weight:bold;color:#111827">${esc(t.name)}</td>`;
       h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:#374151;white-space:nowrap">${esc(persons)}</td>`;
       h+=`<td bgcolor="${dlBg}" style="padding:8px 12px;background:${dlBg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:${dlColor};font-weight:bold;white-space:nowrap">${esc(t.deadline)}</td>`;
-      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#6b7280">${note?note.split('\n').filter(l=>l.trim()).map(l=>esc(l)).join('<br>'):'—'}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#6b7280">${noteHtml}</td>`;
       h+=`</tr>`;
     });
     h+=`</table></td></tr>`;
