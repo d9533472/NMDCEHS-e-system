@@ -205,7 +205,7 @@ footer{margin-top:48px;padding:20px 0;border-top:1px solid var(--border);text-al
 
 <!-- Modals -->
 <div class="modal-overlay hidden" id="mBul" onclick="closeBulM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mBT">新增公告</div><div class="modal-form"><div><label class="form-label">公告內容</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd('underline')"><u>U</u></button><button class="rte-btn" onclick="rteCmd('strikeThrough')"><s>S</s></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd('foreColor',this.value)"><input type="color" class="rte-color" value="#fef08a" onchange="rteCmd('hiliteColor',this.value)"><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="rteBody" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeBulM()">取消</button><button class="btn-primary" onclick="saveBul()" id="bBul">發布</button></div></div></div></div>
-<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
+<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mSec" onclick="closeSecM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title">新增區塊</div><div class="modal-form"><div><label class="form-label">區塊名稱</label><input class="form-input" id="inSN" onkeydown="if(event.key==='Enter')saveSec()"></div><div class="modal-actions"><button class="btn-secondary" onclick="closeSecM()">取消</button><button class="btn-primary" onclick="saveSec()">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mLnk" onclick="closeLnkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mLT">新增連結</div><div class="modal-form"><div><label class="form-label">連結標題</label><input class="form-input" id="inLN"></div><div><label class="form-label">連結網址</label><input class="form-input" id="inLU" placeholder="https://"></div><div><label class="form-label">選擇圖示</label><div class="icon-picker-wrap"><button type="button" class="icon-picker-btn" onclick="toggleIc(event)"><span class="preview" id="icP">📄</span><span id="icL" style="flex:1">選擇圖示…</span><span class="arrow" id="icA">▼</span></button><div class="icon-dropdown hidden" id="icDD"></div></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeLnkM()">取消</button><button class="btn-primary" onclick="saveLnk()" id="bLnk">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mDoc" onclick="closeDocM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mDT">新增文件</div><div class="modal-form">
@@ -977,7 +977,7 @@ document.addEventListener('click',function(e){if(_atEl&&!_atEl.contains(e.target
 async function fetchNcrExpiring(){
   if(!NCR_URL)return null;
   try{
-    const r=await fetch(NCR_URL+'?action=expiring&days=3');
+    const r=await fetch(NCR_URL+'?action=expiring&days=7');
     if(!r.ok)return null;
     const d=await r.json();
     if(d&&d.ok)return d.records||[];
@@ -1180,7 +1180,7 @@ function sendTrkEmail(){
       const bg=i%2===0?'#ffffff':'#f3f4f6';
       const pri=t.priority||'mid';
       const persons=(t.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
-      const note=(t.note||'').replace(/<[^>]+>/g,'').trim();
+      const note=(t.note||'').replace(/<br[^>]*>/gi,'\n').replace(/<\/p>/gi,'\n').replace(/<\/div>/gi,'\n').replace(/&nbsp;/gi,' ').replace(/<[^>]+>/g,'').replace(/\s*\n\s*/g,'\n').trim();
       const dlColor=t.deadline<today?'#b91c1c':t.deadline<=tomorrow?'#b45309':'#374151';
       const dlBg=t.deadline<today?'#fef2f2':t.deadline<=tomorrow?'#fffbeb':bg;
       h+=`<tr bgcolor="${bg}" style="background:${bg}">`;
@@ -1188,12 +1188,52 @@ function sendTrkEmail(){
       h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;font-weight:bold;color:#111827">${esc(t.name)}</td>`;
       h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:#374151;white-space:nowrap">${esc(persons)}</td>`;
       h+=`<td bgcolor="${dlBg}" style="padding:8px 12px;background:${dlBg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:${dlColor};font-weight:bold;white-space:nowrap">${esc(t.deadline)}</td>`;
-      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#6b7280">${esc(note)||'—'}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#6b7280">${note?note.split('\n').filter(l=>l.trim()).map(l=>esc(l)).join('<br>'):'—'}</td>`;
       h+=`</tr>`;
     });
     h+=`</table></td></tr>`;
     return h;
   }
+
+  // ── NCR section builder ──
+  function ncrSection(title,titleColor,rows){
+    if(!rows.length)return'';
+    let h=`<tr><td style="padding:10px 0 4px"><p style="margin:0;font-family:Arial,sans-serif;font-size:13px;font-weight:bold;color:${titleColor}">${title}</p></td></tr>`;
+    h+=`<tr><td>`;
+    h+=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;border:1px solid #d1d5db">`;
+    h+=`<tr bgcolor="#1e3a5f" style="background:#1e3a5f">`;
+    ['類型','編號','缺失改善內容','關單期限','剩餘天數','單位／開單人','Drive'].forEach(th=>{
+      h+=`<td bgcolor="#1e3a5f" style="padding:8px 12px;background:#1e3a5f;color:#ffffff;font-weight:bold;font-size:11px;border-right:1px solid #162d4a"><font color="#ffffff">${th}</font></td>`;
+    });
+    h+=`</tr>`;
+    rows.forEach((r,i)=>{
+      const bg=i%2===0?'#ffffff':'#f3f4f6';
+      const isOver=r.daysLeft<0;
+      const dlColor=isOver?'#b91c1c':r.daysLeft<=1?'#b45309':'#374151';
+      const dlBg=isOver?'#fef2f2':r.daysLeft<=1?'#fffbeb':bg;
+      const label=isOver?`已逾期 ${Math.abs(r.daysLeft)} 天`:r.daysLeft===0?'今天':r.daysLeft===1?'明天':`${r.daysLeft} 天`;
+      const typeBg=r.type==='NCR'?'#fffbeb':r.type==='WM'?'#eff6ff':'#fef2f2';
+      const typeColor=r.type==='NCR'?'#b45309':r.type==='WM'?'#1d4ed8':'#b91c1c';
+      const driveCell=r.driveFolderUrl?`<a href="${r.driveFolderUrl}" style="color:#166534;font-weight:bold;font-size:12px;text-decoration:none">📁 開啟</a>`:'—';
+      h+=`<tr bgcolor="${bg}" style="background:${bg}">`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;white-space:nowrap"><span style="background:${typeBg};color:${typeColor};padding:2px 7px;font-weight:bold;font-size:11px;border:1px solid ${typeColor}">${r.type}</span></td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;font-weight:bold;color:#111827;white-space:nowrap">${r.number}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:#374151">${esc(r.description||'—')}</td>`;
+      h+=`<td bgcolor="${dlBg}" style="padding:8px 12px;background:${dlBg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:${dlColor};font-weight:bold;white-space:nowrap">${r.deadline}</td>`;
+      h+=`<td bgcolor="${dlBg}" style="padding:8px 12px;background:${dlBg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:${dlColor};font-weight:bold;white-space:nowrap">${label}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;color:#374151;white-space:nowrap">${r.unit} / ${r.issuer}</td>`;
+      h+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;text-align:center">${driveCell}</td>`;
+      h+=`</tr>`;
+    });
+    h+=`</table></td></tr>`;
+    return h;
+  }
+
+  // ── NCR data from cache ──
+  const ncrAll=_ncrCache||[];
+  const ncrExpired=ncrAll.filter(r=>r.daysLeft<0);
+  const ncrToday=ncrAll.filter(r=>r.daysLeft>=0&&r.daysLeft<=1);
+  const ncrNextWeek=ncrAll.filter(r=>r.daysLeft>=2&&r.daysLeft<=7);
 
   // Outlook-safe wrapper
   let html=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="font-family:Arial,sans-serif;max-width:820px">`;
@@ -1204,13 +1244,75 @@ function sendTrkEmail(){
   html+=`<p style="margin:6px 0 0;color:#bbf7d0;font-size:12px">製表日期：${today}　·　待辦共 ${pending.length} 項</p>`;
   html+=`</td></tr>`;
 
+  // ── 本周公告 ──
+  // 計算本周一到本周日
+  const todayDate=new Date();
+  const dayOfWeek=todayDate.getDay(); // 0=日,1=一...6=六
+  const diffToMon=dayOfWeek===0?-6:1-dayOfWeek;
+  const weekStart=new Date(todayDate);weekStart.setDate(todayDate.getDate()+diffToMon);weekStart.setHours(0,0,0,0);
+  const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+6);weekEnd.setHours(23,59,59,999);
+  const weekStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
+  const weekEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
+  const thisWeekBuls=(D.bulletins||[]).filter(b=>b.date>=weekStartStr&&b.date<=weekEndStr);
+
+  // helper: section header bar
+  function sectionHeader(title,bg,textColor){
+    return `<tr><td bgcolor="${bg}" style="background:${bg};padding:10px 16px;margin-top:8px"><p style="margin:0;font-family:Arial,sans-serif;font-size:14px;font-weight:bold;color:${textColor}">${title}</p></td></tr>`;
+  }
+
   // Body
-  html+=`<tr><td style="background:#ffffff;padding:8px 24px 24px;border:1px solid #d1d5db;border-top:none">`;
+  html+=`<tr><td bgcolor="#ffffff" style="background:#ffffff;padding:8px 24px 24px;border:1px solid #d1d5db;border-top:none">`;
+  html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
+
+  // ══ SECTION 1: 公告內容 ══
+  html+=sectionHeader('📢 一、公告內容（本周 '+weekStartStr+' ～ '+weekEndStr+'）','#1e40af','#ffffff');
+  if(thisWeekBuls.length){
+    html+=`<tr><td style="padding:4px 0 12px">`;
+    html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;border:1px solid #d1d5db">`;
+    html+=`<tr bgcolor="#1e40af" style="background:#1e40af">`;
+    html+=`<td bgcolor="#1e40af" width="90" style="padding:8px 12px;background:#1e40af;color:#ffffff;font-weight:bold;font-size:11px;letter-spacing:1px;border-right:1px solid #1e3a8a;white-space:nowrap"><font color="#ffffff">日期</font></td>`;
+    html+=`<td bgcolor="#1e40af" style="padding:8px 12px;background:#1e40af;color:#ffffff;font-weight:bold;font-size:11px;letter-spacing:1px"><font color="#ffffff">公告內容</font></td>`;
+    html+=`</tr>`;
+    thisWeekBuls.forEach((b,i)=>{
+      const bg=i%2===0?'#ffffff':'#eff6ff';
+      const rawText=(b.text||'').replace(/&nbsp;/gi,' ').replace(/<br[^>]*>/gi,'\n').replace(/<\/p>/gi,'\n').replace(/<\/div>/gi,'\n').replace(/<[^>]+>/g,'').replace(/\s*\n\s*/g,'\n').trim();
+      const noteHtml=rawText.split('\n').filter(l=>l.trim()).map(l=>esc(l)).join('<br>');
+      html+=`<tr bgcolor="${bg}" style="background:${bg}">`;
+      html+=`<td bgcolor="${bg}" width="90" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;white-space:nowrap;color:#374151;font-weight:bold;font-size:12px">${b.date}</td>`;
+      html+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#111827">${noteHtml||'—'}</td>`;
+      html+=`</tr>`;
+    });
+    html+=`</table></td></tr>`;
+  } else {
+    html+=`<tr><td style="padding:8px 0 12px"><p style="margin:0;font-size:13px;color:#9ca3af;font-style:italic">本周暫無公告</p></td></tr>`;
+  }
+
+  // ══ SECTION 2: 改善單 ══
+  html+=`<tr><td style="padding:8px 0 0"></td></tr>`;
+  html+=sectionHeader('📋 二、改善單狀況','#b45309','#ffffff');
+  if(ncrAll.length){
+    html+=`<tr><td style="padding:4px 0 12px">`;
+    html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
+    html+=ncrSection('⚠️ 已逾期（'+ncrExpired.length+' 筆）','#b91c1c',ncrExpired);
+    html+=ncrSection('🔶 今明到期（'+ncrToday.length+' 筆）','#b45309',ncrToday);
+    html+=ncrSection('📅 下周即將到期（'+ncrNextWeek.length+' 筆）','#0369a1',ncrNextWeek);
+    html+=`</table></td></tr>`;
+  } else {
+    html+=`<tr><td style="padding:8px 0 12px"><p style="margin:0;font-size:13px;color:#9ca3af;font-style:italic">${NCR_URL?'改善單資料載入中或無逾期項目':'未設定改善單系統'}</p></td></tr>`;
+  }
+
+  // ══ SECTION 3: 追蹤事項 ══
+  html+=`<tr><td style="padding:8px 0 0"></td></tr>`;
+  html+=sectionHeader('✅ 三、追蹤事項','#166534','#ffffff');
+  html+=`<tr><td style="padding:4px 0 12px">`;
   html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
   html+=tableSection('⚠️ 已過期（'+overdue.length+' 項）','#b91c1c',overdue);
   html+=tableSection('🔶 今明到期（'+dueSoon.length+' 項）','#b45309',dueSoon);
   html+=tableSection('📋 待辦中（'+normal.length+' 項）','#374151',normal);
-  html+=`<tr><td style="padding-top:16px;border-top:1px solid #e5e7eb;margin-top:16px">`;
+  html+=`</table></td></tr>`;
+
+  // Footer
+  html+=`<tr><td style="padding-top:16px;border-top:2px solid #e5e7eb">`;
   html+=`<p style="margin:0;font-size:11px;color:#9ca3af">此信件由 NMDC EHS e-System 自動產生　·　<a href="https://d9533472.github.io/NMDCEHS-e-system/" style="color:#166534">開啟系統</a></p>`;
   html+=`</td></tr>`;
   html+=`</table></td></tr></table>`;
