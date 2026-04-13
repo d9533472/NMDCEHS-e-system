@@ -130,9 +130,9 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .kpi-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; position:relative; overflow:hidden; transition:all .25s; }
 .kpi-card:hover { border-color:rgba(14,165,233,.4); transform:translateY(-2px); box-shadow:var(--shadow); }
 .kpi-stripe { position:absolute; top:0; left:0; right:0; height:3px; border-radius:2px 2px 0 0; }
-.kpi-label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
-.kpi-value { font-family:'JetBrains Mono',monospace; font-size:32px; font-weight:900; line-height:1; }
-.kpi-sub { font-size:11px; color:var(--text-secondary); margin-top:6px; }
+.kpi-label { font-size:13px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; font-weight:600; }
+.kpi-value { font-family:'JetBrains Mono',monospace; font-size:36px; font-weight:900; line-height:1; }
+.kpi-sub { font-size:12px; color:var(--text-secondary); margin-top:6px; }
 
 /* ── CHARTS ── */
 .chart-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
@@ -562,11 +562,10 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               )}
             </div>
             <div className="form-group">
-              <label>狀態</label>
-              <select value={form.status} onChange={e=>set('status',e.target.value)}>
-                <option value="Open">Open</option>
-                <option value="Closed">Closed</option>
-              </select>
+              <label>狀態（依提交日期自動判定）</label>
+              <div style={{padding:'9px 12px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)',background:'var(--bg-secondary)',fontSize:13,fontWeight:700,color:form.status==='Closed'?'var(--accent-green)':'var(--accent-orange)'}}>
+                {form.status==='Closed' ? '✅ Closed（已提交）' : '⏳ Open（未提交）'}
+              </div>
             </div>
             <div className="form-section-title">缺失條目</div>
             <div className="form-group full">
@@ -615,7 +614,11 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
             </div>
             <div className="form-group">
               <label>提交日期</label>
-              <input type="date" value={form.submitDate==='-'?'':(form.submitDate||'')} onChange={e=>set('submitDate',e.target.value)} />
+              <input type="date" value={form.submitDate==='-'?'':(form.submitDate||'')} onChange={e=>{
+                const v = e.target.value;
+                set('submitDate', v);
+                set('status', v ? 'Closed' : 'Open');
+              }} />
             </div>
             <div className="form-group">
               <label>收件者</label>
@@ -844,12 +847,60 @@ function ItemPieChart({ records, itemOptions, onFilterClick }) {
 }
 
 function DashboardTab({ records, itemOptions, onFilterClick }) {
-  const total = records.length;
-  const open = records.filter(r=>r.status==='Open').length;
-  const closed = records.filter(r=>r.status==='Closed').length;
-  const totalDefects = records.reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0);
-  const closeRate = totalDefects ? Math.round(records.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)/totalDefects*100) : 0;
-  const pnTotal = records.filter(r=>r.type==='PN').reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [quickPeriod, setQuickPeriod] = useState('all');
+
+  // 快速週期計算
+  const applyQuick = (period) => {
+    const now = new Date();
+    const fmt = d => d.toISOString().slice(0,10);
+    setQuickPeriod(period);
+    if (period === 'all') { setDateFrom(''); setDateTo(''); return; }
+    if (period === 'thisweek') {
+      const dw = now.getDay(); const diff = dw===0?-6:1-dw;
+      const mon = new Date(now); mon.setDate(now.getDate()+diff);
+      const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+      setDateFrom(fmt(mon)); setDateTo(fmt(sun)); return;
+    }
+    if (period === 'lastweek') {
+      const dw = now.getDay(); const diff = dw===0?-6:1-dw;
+      const mon = new Date(now); mon.setDate(now.getDate()+diff-7);
+      const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+      setDateFrom(fmt(mon)); setDateTo(fmt(sun)); return;
+    }
+    if (period === 'thismonth') {
+      setDateFrom(fmt(new Date(now.getFullYear(), now.getMonth(), 1)));
+      setDateTo(fmt(new Date(now.getFullYear(), now.getMonth()+1, 0))); return;
+    }
+    if (period === 'lastmonth') {
+      setDateFrom(fmt(new Date(now.getFullYear(), now.getMonth()-1, 1)));
+      setDateTo(fmt(new Date(now.getFullYear(), now.getMonth(), 0))); return;
+    }
+    if (period === 'last30') {
+      const d = new Date(now); d.setDate(now.getDate()-30);
+      setDateFrom(fmt(d)); setDateTo(fmt(now)); return;
+    }
+    if (period === 'last90') {
+      const d = new Date(now); d.setDate(now.getDate()-90);
+      setDateFrom(fmt(d)); setDateTo(fmt(now)); return;
+    }
+  };
+
+  // 篩選後的紀錄
+  const filteredRecs = records.filter(r =>
+    (!dateFrom || r.date >= dateFrom) &&
+    (!dateTo   || r.date <= dateTo)
+  );
+  const useFiltered = dateFrom || dateTo;
+  const activeRecs = useFiltered ? filteredRecs : records;
+
+  const total = activeRecs.length;
+  const open = activeRecs.filter(r=>r.status==='Open').length;
+  const closed = activeRecs.filter(r=>r.status==='Closed').length;
+  const totalDefects = activeRecs.reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0);
+  const closeRate = totalDefects ? Math.round(activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)/totalDefects*100) : 0;
+  const pnTotal = activeRecs.filter(r=>r.type==='PN').reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
   const todayStr = today();
   const in3days = new Date(); in3days.setDate(in3days.getDate()+3);
   const in3Str = in3days.toISOString().slice(0,10);
@@ -870,18 +921,18 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
   const nearDueRecs  = near7Recs;
 
   const typeData = [
-    { label:'WM 走動管理', value:records.filter(r=>r.type==='WM').length, color:'rgba(14,165,233,.8)' },
-    { label:'NCR 改善通知', value:records.filter(r=>r.type==='NCR').length, color:'rgba(245,158,11,.8)' },
-    { label:'PN 罰單', value:records.filter(r=>r.type==='PN').length, color:'rgba(239,68,68,.8)' },
+    { label:'WM 走動管理', value:activeRecs.filter(r=>r.type==='WM').length, color:'rgba(14,165,233,.8)' },
+    { label:'NCR 改善通知', value:activeRecs.filter(r=>r.type==='NCR').length, color:'rgba(245,158,11,.8)' },
+    { label:'PN 罰單', value:activeRecs.filter(r=>r.type==='PN').length, color:'rgba(239,68,68,.8)' },
   ].filter(d=>d.value>0);
 
   const areaMap = {};
-  records.forEach(r=>{ if(r.area){ if(!areaMap[r.area])areaMap[r.area]={open:0,closed:0}; areaMap[r.area][r.status==='Open'?'open':'closed']++; }});
+  activeRecs.forEach(r=>{ if(r.area){ if(!areaMap[r.area])areaMap[r.area]={open:0,closed:0}; areaMap[r.area][r.status==='Open'?'open':'closed']++; }});
   const areaData = Object.entries(areaMap).map(([label,v])=>({label,...v}));
 
   // 統計以缺失條數為單位（每條 defect 算一筆）
   const itemMap = {};
-  records.forEach(r=>{
+  activeRecs.forEach(r=>{
     const defs = (r.defects && r.defects.length>0) ? r.defects : [{item: r.item||1, description: r.description||''}];
     defs.forEach(d=>{
       const k=String(d.item||1);
@@ -910,6 +961,35 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
           <div className="page-title">📊 總覽儀表板</div>
           <div className="page-sub">{PROJECT.name}</div>
         </div>
+      </div>
+      {/* 日期篩選列 */}
+      <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 20px',marginBottom:20,display:'flex',flexWrap:'wrap',gap:10,alignItems:'center'}}>
+        <span style={{fontSize:12,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.5px'}}>篩選期間</span>
+        {[
+          {id:'all',    label:'全部'},
+          {id:'thisweek', label:'本週'},
+          {id:'lastweek', label:'上週'},
+          {id:'thismonth',label:'本月'},
+          {id:'lastmonth',label:'上月'},
+          {id:'last30',  label:'近30天'},
+          {id:'last90',  label:'近90天'},
+        ].map(p=>(
+          <button key={p.id} onClick={()=>applyQuick(p.id)}
+            style={{padding:'5px 14px',borderRadius:20,fontSize:12,fontWeight:700,cursor:'pointer',border:'1.5px solid',
+              borderColor: quickPeriod===p.id ? 'var(--accent-blue)' : 'var(--border)',
+              background:  quickPeriod===p.id ? 'var(--accent-blue)' : 'var(--bg-input)',
+              color:       quickPeriod===p.id ? '#fff' : 'var(--text-secondary)',
+              transition:'all .15s'}}>
+            {p.label}
+          </button>
+        ))}
+        <span style={{fontSize:12,color:'var(--text-muted)',marginLeft:4}}>自訂</span>
+        <input type="date" value={dateFrom} onChange={e=>{setDateFrom(e.target.value);setQuickPeriod('custom');}}
+          style={{background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'5px 10px',fontSize:12,fontFamily:'inherit'}} />
+        <span style={{fontSize:12,color:'var(--text-muted)'}}>～</span>
+        <input type="date" value={dateTo} onChange={e=>{setDateTo(e.target.value);setQuickPeriod('custom');}}
+          style={{background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'5px 10px',fontSize:12,fontFamily:'inherit'}} />
+        {useFiltered && <span style={{fontSize:12,color:'var(--accent-blue)',fontWeight:700}}>共 {filteredRecs.length} 筆</span>}
       </div>
       <div className="kpi-grid">
         {overdueRecs.length>0 && (
@@ -966,7 +1046,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
         {/* 上排：缺失項目分布圖(左1/2) + 各項目統計(右1/2) */}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16,alignItems:'stretch'}}>
           {/* 左：圓餅圖 */}
-          <ItemPieChart records={records} itemOptions={itemOptions} onFilterClick={onFilterClick} />
+          <ItemPieChart records={activeRecs} itemOptions={itemOptions} onFilterClick={onFilterClick} />
 
           {/* 右：各項目統計 2欄3列 */}
           {Object.keys(itemMap).length>0 && (
@@ -1281,6 +1361,11 @@ function App() {
           }
           return r;
         });
+        // 依提交日期自動修正狀態
+        cloudRecords = cloudRecords.map(r => ({
+          ...r,
+          status: (r.submitDate && r.submitDate !== '' && r.submitDate !== '-') ? 'Closed' : 'Open'
+        }));
       }
       setRecords(cloudRecords);
       setConfig({
