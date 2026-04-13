@@ -186,7 +186,7 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .table-row:last-child { border-bottom:none; }
 .table-row:hover { background:var(--bg-card-hover); }
 .table-cell { font-size:12px; color:var(--text-primary); overflow:hidden; word-break:break-word; white-space:pre-wrap; }
-.t-cols { grid-template-columns: 70px 110px 90px 80px 80px 70px 90px 1fr 90px 70px 90px; }
+.t-cols { grid-template-columns: 70px 110px 90px 80px 80px 70px 90px 1fr 110px 90px 70px 90px; }
 
 /* ── BADGES ── */
 .badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
@@ -1198,7 +1198,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
 
       <div className="table-wrap">
         <div className="table-head t-cols">
-          {[['type','類型'],['number','編號'],['date','缺失日期'],['unit','單位'],['issuer','開單人'],['area','工區'],['item','缺失項目'],['description','缺失說明'],['deadline','關單期限'],['status','狀態']].map(([k,l])=>(
+          {[['type','類型'],['number','編號'],['date','缺失日期'],['unit','單位'],['issuer','開單人'],['area','工區'],['item','缺失項目'],['description','缺失說明'],['refNumber','業主改善單編號'],['deadline','關單期限'],['status','狀態']].map(([k,l])=>(
             <div key={k} className="table-head-cell" onClick={()=>toggleSort(k)}>{l} <SortIcon k={k} /></div>
           ))}
           <div className="table-head-cell">操作</div>
@@ -1219,6 +1219,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
               <div className="table-cell" style={{fontSize:11}}>
                 {(r.defects&&r.defects.length>0)?<><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',borderRadius:4,padding:'1px 5px',marginRight:4}}>{r.defects.length}條</span>{r.defects[0].description}{r.defects.length>1?'...':''}</>:r.description}
               </div>
+              <div className="table-cell hm" style={{fontSize:11}}>{r.refNumber||'—'}</div>
               <div className="table-cell hm" style={{fontSize:11, color: r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''}}>{fmtDate(r.deadline)}</div>
               <div className="table-cell"><span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span></div>
               <div className="table-cell" style={{display:'flex',gap:4}}>
