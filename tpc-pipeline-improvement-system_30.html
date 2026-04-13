@@ -186,6 +186,7 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .table-row:last-child { border-bottom:none; }
 .table-row:hover { background:var(--bg-card-hover); }
 .table-cell { font-size:12px; color:var(--text-primary); overflow:hidden; word-break:break-word; white-space:pre-wrap; }
+.mobile-only { display:none; }
 .t-cols { grid-template-columns: 70px 110px 90px 80px 80px 70px 90px 1fr 110px 90px 70px 90px; }
 
 /* ── BADGES ── */
@@ -243,14 +244,65 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .error-banner { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:var(--radius-sm); padding:12px 16px; font-size:13px; color:#fca5a5; margin-bottom:20px; display:flex; align-items:center; gap:10px; }
 
 @media(max-width:640px){
-  .content{padding:16px;}
-  .topbar{padding:0 12px; gap:10px;}
+  /* Layout */
+  .content{padding:12px;}
+  .app-shell{font-size:13px;}
+
+  /* Topbar */
+  .topbar{padding:0 12px; gap:8px; min-height:52px;}
+  .topbar-title{font-size:13px;}
+  .topbar-sub{display:none;}
   .topbar-project-name{font-size:11px;}
-  .form-grid{grid-template-columns:1fr;}
-  .t-cols{grid-template-columns:70px 1fr 70px 80px;}
-  .table-cell.hm{display:none;}
+  .topbar-project-client{display:none;}
+  .topbar-divider{display:none;}
+  .sync-text{display:none;}
+
+  /* Nav */
+  .nav{padding:0 8px; gap:0;}
+  .nav-btn{padding:10px 12px; font-size:12px;}
+
+  /* KPI grid - 2 columns on mobile */
+  .kpi-grid{grid-template-columns:repeat(2,1fr); gap:10px;}
+  .kpi-value{font-size:26px;}
+  .kpi-label{font-size:11px;}
+  .kpi-card{padding:14px;}
+
+  /* Charts */
   .chart-grid{grid-template-columns:1fr;}
-  .kpi-grid{grid-template-columns:repeat(2,1fr);}
+  .dash-two-col{grid-template-columns:1fr !important;}
+  .chart-wrap{height:180px;}
+
+  /* Item cards */
+  .item-dash{grid-template-columns:repeat(2,1fr);}
+
+  /* Filter bar */
+  .filter-bar{padding:12px; gap:8px;}
+  .filter-bar select,.filter-bar input[type=text]{min-width:80px; font-size:11px; padding:5px 8px;}
+  .filter-label{display:none;}
+
+  /* Table - show only essential columns on mobile */
+  .form-grid{grid-template-columns:1fr;}
+  .t-cols{grid-template-columns:60px 1fr 60px 80px;}
+  .table-cell.hm{display:none;}
+  .table-head{display:none;}
+  .table-row{padding:12px; border-bottom:1px solid var(--border);}
+  .mobile-only{display:block !important;}
+
+  /* Page header */
+  .page-header{flex-direction:column; align-items:flex-start; gap:10px;}
+  .page-title{font-size:15px;}
+
+  /* Modal */
+  .modal{max-height:95vh; border-radius:10px 10px 0 0; position:fixed; bottom:0; left:0; right:0; max-width:100%;}
+  .modal-body{padding:16px;}
+  .modal-header{padding:14px 16px;}
+
+  /* Buttons */
+  .btn{padding:7px 12px; font-size:12px;}
+  .btn-icon{width:28px; height:28px;}
+
+  /* Settings */
+  .settings-section{padding:16px;}
 }
 </style>
 </head>
@@ -1208,7 +1260,13 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
           : filtered.map(r=>(
             <div key={r.id} className="table-row t-cols">
               <div className="table-cell"><span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span></div>
-              <div className="table-cell" style={{fontFamily:'JetBrains Mono,monospace',fontSize:11}}>{r.number}</div>
+              <div className="table-cell" style={{fontFamily:'JetBrains Mono,monospace',fontSize:11}}>
+                <div>{r.number}</div>
+                <div className="mobile-only" style={{fontSize:10,color:'var(--text-muted)',marginTop:2}}>{r.area} · {fmtDate(r.date)}</div>
+                <div className="mobile-only" style={{fontSize:11,marginTop:3,color:'var(--text-primary)',wordBreak:'break-word',whiteSpace:'pre-wrap'}}>
+                  {(r.defects&&r.defects.length>0)?r.defects[0].description:r.description}
+                </div>
+              </div>
               <div className="table-cell hm" style={{fontSize:11}}>{fmtDate(r.date)}</div>
               <div className="table-cell hm">{r.unit}</div>
               <div className="table-cell hm">{r.issuer}</div>
@@ -1216,7 +1274,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
               <div className="table-cell hm" style={{fontSize:11}}>
                 {(r.defects&&r.defects.length>0)?r.defects.map(d=>itemOptions[d.item]||d.item).join('、'):(itemOptions[r.item]||'')}
               </div>
-              <div className="table-cell" style={{fontSize:11}}>
+              <div className="table-cell hm" style={{fontSize:11}}>
                 {(r.defects&&r.defects.length>0)?<><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',borderRadius:4,padding:'1px 5px',marginRight:4}}>{r.defects.length}條</span>{r.defects[0].description}{r.defects.length>1?'...':''}</>:r.description}
               </div>
               <div className="table-cell hm" style={{fontSize:11}}>{r.refNumber||'—'}</div>
