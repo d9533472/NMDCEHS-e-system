@@ -275,6 +275,7 @@ const DEFAULT_ITEMS = {
 };
 const DEFAULT_AREAS = ['台中工區','通霄工區','天力工區','其他'];
 const DEFAULT_UNITS = ['TPC','POE','NMDC'];
+const DEFAULT_PEOPLE = ['曾曉菁','翁雅慧','聶官暉','徐瑋廷','吳愷寓','江志豪','康育誠','李宛蓁','廖思婷','李仁富','劉欣盈','陳偉庭','黃宣頤','廖慶梧','蕭明華','許文達','賴紀良','劉新盈','徐偉庭','何鈞傑'];
 
 // ─── SESSION STORAGE（僅 GAS URL，非業務資料）──────────────────
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
@@ -503,7 +504,7 @@ function DriveSection({ form, setForm, gasUrl }) {
 
 // ─── RECORD FORM MODAL ────────────────────────────────────────
 function RecordModal({ record, mode, records, config, onSave, onClose, saving, gasUrl }) {
-  const { itemOptions, areaOptions, unitOptions } = config;
+  const { itemOptions, areaOptions, unitOptions, peopleOptions } = config;
   const [form, setForm] = useState(() =>
     mode==='edit' && record ? { ...EMPTY_FORM, ...record }
       : { ...EMPTY_FORM, id:genId(), number:getNextNum(records,'WM') }
@@ -544,7 +545,8 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
             </div>
             <div className="form-group">
               <label>開單人</label>
-              <input type="text" value={form.issuer} onChange={e=>set('issuer',e.target.value)} />
+              <input type="text" list="people-list" value={form.issuer} onChange={e=>set('issuer',e.target.value)} placeholder="選擇或輸入..." />
+              <datalist id="people-list">{(peopleOptions||[]).map(p=><option key={p} value={p}/>)}</datalist>
             </div>
             <div className="form-group">
               <label>工區</label>
@@ -622,7 +624,8 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
             </div>
             <div className="form-group">
               <label>收件者</label>
-              <input type="text" value={form.recipient} onChange={e=>set('recipient',e.target.value)} />
+              <input type="text" list="people-list2" value={form.recipient} onChange={e=>set('recipient',e.target.value)} placeholder="選擇或輸入..." />
+              <datalist id="people-list2">{(peopleOptions||[]).map(p=><option key={p} value={p}/>)}</datalist>
             </div>
             {form.type==='PN' && <>
               <div className="form-section-title">罰單資訊</div>
@@ -961,6 +964,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
           <div className="page-title">📊 總覽儀表板</div>
           <div className="page-sub">{PROJECT.name}</div>
         </div>
+        <button className="btn btn-primary" onClick={()=>onFilterClick({_newrecord:true})}>➕ 新增紀錄</button>
       </div>
       {/* 日期篩選列 */}
       <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 20px',marginBottom:20,display:'flex',flexWrap:'wrap',gap:10,alignItems:'center'}}>
@@ -1107,6 +1111,10 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
   // 從儀表板點擊卡片帶入篩選
   useEffect(() => {
     if (activeFilter) {
+      if (activeFilter._newrecord) {
+        setMode('add'); setEditRec(null); setShowModal(true);
+        return;
+      }
       setFilters(f => ({
         ...f,
         type: activeFilter.type || f.type,
@@ -1247,13 +1255,15 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
   const [editItems, setEditItems] = useState(JSON.stringify(config.itemOptions, null, 2));
   const [editAreas, setEditAreas] = useState(config.areaOptions.join('\n'));
   const [editUnits, setEditUnits] = useState(config.unitOptions.join('\n'));
+  const [editPeople, setEditPeople] = useState((config.peopleOptions||DEFAULT_PEOPLE).join('\n'));
 
   const saveConfig = () => {
     try {
       const itemOptions = JSON.parse(editItems);
       const areaOptions = editAreas.split('\n').map(s=>s.trim()).filter(Boolean);
       const unitOptions = editUnits.split('\n').map(s=>s.trim()).filter(Boolean);
-      onSaveConfig({ itemOptions, areaOptions, unitOptions });
+      const peopleOptions = editPeople.split('\n').map(s=>s.trim()).filter(Boolean);
+      onSaveConfig({ itemOptions, areaOptions, unitOptions, peopleOptions });
     } catch(e) { alert('項目格式錯誤：' + e.message); }
   };
 
@@ -1295,6 +1305,15 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
           <textarea value={editUnits} onChange={e=>setEditUnits(e.target.value)} rows={4} style={{resize:'vertical'}} />
         </div>
       </div>
+      <div className="settings-section">
+        <div className="settings-title">👤 人員清單（每行一人，開單人 &amp; 關單人共用）</div>
+        <div className="settings-row">
+          <textarea value={editPeople} onChange={e=>setEditPeople(e.target.value)} rows={10} style={{resize:'vertical'}} placeholder="每行一個人名..." />
+        </div>
+        <div style={{fontSize:11,color:'var(--text-muted)',marginTop:6}}>
+          新增或修改後按下方「儲存設定至雲端」即生效，表單中的下拉選單會同步更新。
+        </div>
+      </div>
       <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
         <button className="btn btn-primary" onClick={saveConfig} disabled={saving}>
           {saving ? '⏳ 儲存中...' : '☁️ 儲存設定至雲端'}
@@ -1316,6 +1335,7 @@ function App() {
     itemOptions: DEFAULT_ITEMS,
     areaOptions: DEFAULT_AREAS,
     unitOptions: DEFAULT_UNITS,
+    peopleOptions: DEFAULT_PEOPLE,
   });
 
   // ── UI 狀態 ───────────────────────────────────────────────
@@ -1372,6 +1392,7 @@ function App() {
         itemOptions: data.itemOptions || DEFAULT_ITEMS,
         areaOptions: data.areaOptions || DEFAULT_AREAS,
         unitOptions: data.unitOptions || DEFAULT_UNITS,
+        peopleOptions: data.peopleOptions || DEFAULT_PEOPLE,
       });
       setLastSync(new Date().toLocaleString('zh-TW'));
       setSyncState('ok');
@@ -1396,6 +1417,7 @@ function App() {
         itemOptions: newConfig.itemOptions,
         areaOptions: newConfig.areaOptions,
         unitOptions: newConfig.unitOptions,
+        peopleOptions: newConfig.peopleOptions,
       };
       const res = await xhrPost(url, payload);
       if (!res.success) throw new Error(res.error || '儲存失敗');
@@ -1527,7 +1549,7 @@ function App() {
 
       {/* Content */}
       <div className="content">
-        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); }} />}
+        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ if(filter._newrecord){ setTab('records'); setActiveFilter({_newrecord:true, _ts:Date.now()}); } else { setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); } }} />}
         {tab==='records' && (
           <RecordsTab
             records={records} config={config} saving={saving} gasUrl={gasUrl} connected={connected}
