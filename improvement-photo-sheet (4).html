@@ -53,6 +53,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .photo-preview img{width:100%;max-height:340px;object-fit:contain;display:block;margin:0 auto}
 .photo-preview .remove-btn{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
 .photo-preview .remove-btn:hover{background:rgba(192,57,43,.9)}
+.photo-date-stamp{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,0.55);color:#fff;font-size:13px;font-weight:600;padding:3px 10px;border-radius:4px;pointer-events:none;font-family:'Noto Sans TC',sans-serif}
+.photo-date-row{display:flex;align-items:center;gap:8px;margin-top:8px}
+.photo-date-label{font-size:12px;color:var(--text2);font-weight:600;white-space:nowrap}
+.photo-date-input{padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:var(--bg2);color:var(--text);flex:1;max-width:180px}
+.photo-date-input:focus{outline:none;border-color:var(--accent)}
 .photo-loading{border:2px solid var(--border);border-radius:8px;padding:30px;text-align:center;background:var(--bg2);color:var(--text3);font-size:13px}
 .photo-loading .mini-spin{width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px}
 .preview-doc{background:#fff;border:1px solid #ccc;padding:40px 50px;max-width:780px;margin:0 auto;font-family:'Noto Serif TC','DFKai-SB','標楷體',serif;box-shadow:0 2px 20px rgba(0,0,0,.1)}
@@ -166,9 +171,43 @@ function compressImage(dataUrl,maxW=1400,q=0.7){return new Promise(r=>{const img
 
 function emptyRecord(defaults){
   const d = defaults || DEFAULT_HEADER;
-  return{id:Date.now(),date:new Date().toISOString().slice(0,10),label:'',
+  const today = new Date().toISOString().slice(0,10);
+  return{id:Date.now(),date:today,label:'',
     org:d.org||DEFAULT_HEADER.org, title:d.title||DEFAULT_HEADER.title, project:d.project||DEFAULT_HEADER.project,
-    beforeDesc:'',duringDesc:'',afterDesc:'',beforePhotoId:'',duringPhotoId:'',afterPhotoId:''};
+    beforeDesc:'',duringDesc:'',afterDesc:'',beforePhotoId:'',duringPhotoId:'',afterPhotoId:'',
+    beforePhotoDate:today, duringPhotoDate:today, afterPhotoDate:today};
+}
+
+// ---- 在照片右下角烙印日期 ----
+function stampDateOnImage(dataUrl, dateStr) {
+  if (!dataUrl || !dateStr) return Promise.resolve(dataUrl);
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      c.width = img.width; c.height = img.height;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      // 日期文字大小依照片寬度自適應
+      const fontSize = Math.max(16, Math.round(img.width / 30));
+      const pad = Math.round(fontSize * 0.6);
+      ctx.font = `bold ${fontSize}px 'Noto Sans TC', Arial, sans-serif`;
+      const text = dateStr;
+      const metrics = ctx.measureText(text);
+      const tx = img.width - metrics.width - pad;
+      const ty = img.height - pad;
+      // 半透明黑底
+      ctx.fillStyle = 'rgba(0,0,0,0.55)';
+      const boxH = fontSize * 1.4;
+      ctx.fillRect(tx - pad/2, ty - fontSize, metrics.width + pad, boxH);
+      // 白字
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, tx, ty);
+      resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
 }
 
 // ---- 單張照片非同步讀取 ----
@@ -189,11 +228,11 @@ function usePhotoLoader(fileId) {
   return { src, loading, error };
 }
 
-// ---- PhotoUploader (支援已有 fileId 的非同步載入) ----
-function PhotoUploader({localSrc, fileId, onChange, label}) {
+// ---- PhotoUploader (支援 fileId 非同步載入 + 照片日期) ----
+function PhotoUploader({localSrc, fileId, onChange, label, photoDate}) {
   const inputRef = useRef();
   const [dragover, setDragover] = useState(false);
-  const remote = usePhotoLoader(!localSrc ? fileId : ''); // 有本機圖就不讀雲端
+  const remote = usePhotoLoader(!localSrc ? fileId : '');
   const displaySrc = localSrc || remote.src;
 
   const handleFile = useCallback(async(file)=>{
@@ -208,20 +247,18 @@ function PhotoUploader({localSrc, fileId, onChange, label}) {
   },[handleFile]);
   const onDrop=(e)=>{e.preventDefault();setDragover(false);handleFile(e.dataTransfer.files?.[0])};
 
-  // 載入中
   if (!displaySrc && remote.loading) return (
     <div className="photo-loading"><div className="mini-spin"></div>☁️ 載入{label}照片中...</div>
   );
-  // 載入失敗
   if (!displaySrc && remote.error) return (
     <div className="photo-loading" style={{color:'var(--red)'}}>⚠️ {label}照片載入失敗<br/><button className="btn btn-secondary" style={{marginTop:8,padding:'6px 16px',fontSize:12}} onClick={()=>inputRef.current?.click()}>重新上傳</button>
       <input type="file" accept="image/*" ref={inputRef} style={{display:'none'}} onChange={e=>handleFile(e.target.files?.[0])} /></div>
   );
-  // 有照片
   if (displaySrc) return (
     <div className="photo-preview">
       <img src={displaySrc} alt={label} />
       <button className="remove-btn" onClick={()=>onChange('')} title="移除">×</button>
+      {photoDate && <div className="photo-date-stamp">{photoDate}</div>}
     </div>
   );
   // 空白上傳區
@@ -277,6 +314,10 @@ function App(){
         if(!d.org) d.org = DEFAULT_HEADER.org;
         if(!d.title) d.title = DEFAULT_HEADER.title;
         if(!d.project) d.project = DEFAULT_HEADER.project;
+        // 舊紀錄可能沒有照片日期，用紀錄日期當預設
+        if(!d.beforePhotoDate) d.beforePhotoDate = d.date || new Date().toISOString().slice(0,10);
+        if(!d.duringPhotoDate) d.duringPhotoDate = d.date || new Date().toISOString().slice(0,10);
+        if(!d.afterPhotoDate) d.afterPhotoDate = d.date || new Date().toISOString().slice(0,10);
         setRec(d);
         // 同步全域 header（給新增紀錄用）
         setHeader({org:d.org, title:d.title, project:d.project});
@@ -367,60 +408,78 @@ function App(){
 
   // ===== 載入勾選的完整紀錄（含進度）=====
   const fetchSelectedRecords = async () => {
-    // 如果有未儲存變更，先提醒
     if (dirty && rec) {
       if (confirm('有未儲存的變更，要先儲存再匯出嗎？')) {
         await saveRecord();
       }
     }
-
     const ids = selected.size > 0 ? [...selected] : index.map(r => String(r.id));
     const results = [];
-    const totalSteps = ids.length * 4;
-    let step = 0;
-    for (let i = 0; i < ids.length; i++) {
+    const total = ids.length;
+    for (let i = 0; i < total; i++) {
       const id = ids[i];
       const meta = index.find(m => String(m.id) === id);
-      setProgress({pct: Math.round(step/totalSteps*100), text: `載入紀錄 ${i+1}/${ids.length}：${meta?.label||'#'+(i+1)}...`});
-      step++;
+      const label = meta?.label || '#'+(i+1);
 
-      // 如果是當前正在編輯的紀錄，直接用記憶體中的版本（含本機照片）
+      // 當前編輯中的紀錄 → 用記憶體版本
       if (rec && String(rec.id) === id) {
+        setProgress({pct: Math.round((i+1)/total*50), text: `載入 ${i+1}/${total}：${label}（編輯中）`});
         const r = {...rec};
         for (const key of ['before','during','after']) {
-          step++;
-          // 優先用本機照片（剛上傳還沒存的）
           if (localPhotos[key]) {
             r['_'+key+'Src'] = localPhotos[key];
           } else if (r[key+'PhotoId']) {
-            setProgress({pct: Math.round(step/totalSteps*100), text: `載入照片 ${i+1}/${ids.length} ${{before:'改善前',during:'改善中',after:'改善後'}[key]}...`});
-            try { const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']); if(pr.ok) r['_'+key+'Src']=pr.dataUrl; } catch(e){}
+            try {
+              const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']);
+              if (pr.ok) r['_'+key+'Src'] = pr.dataUrl;
+            } catch(e) { console.warn('photo load fail:', key, e); }
           }
         }
-        results.push(r); continue;
+        results.push(r);
+        continue;
       }
 
-      // 其他紀錄從雲端讀取
+      // 其他紀錄 → 從雲端讀
+      setProgress({pct: Math.round((i+1)/total*50), text: `載入 ${i+1}/${total}：${label}...`});
       try {
-        const res = await xhrGet(GAS_URL + '?action=record&id=' + id);
+        const res = await xhrGet(GAS_URL+'?action=record&id='+id);
         if (res.ok && res.data) {
           const r = res.data;
-          if(!r.org) r.org = DEFAULT_HEADER.org;
-          if(!r.title) r.title = DEFAULT_HEADER.title;
-          if(!r.project) r.project = DEFAULT_HEADER.project;
+          if (!r.org) r.org = DEFAULT_HEADER.org;
+          if (!r.title) r.title = DEFAULT_HEADER.title;
+          if (!r.project) r.project = DEFAULT_HEADER.project;
+          if (!r.beforePhotoDate) r.beforePhotoDate = r.date || '';
+          if (!r.duringPhotoDate) r.duringPhotoDate = r.date || '';
+          if (!r.afterPhotoDate) r.afterPhotoDate = r.date || '';
           for (const key of ['before','during','after']) {
-            step++;
             const fid = r[key+'PhotoId'];
             if (fid) {
-              setProgress({pct: Math.round(step/totalSteps*100), text: `載入照片 ${i+1}/${ids.length} ${{before:'改善前',during:'改善中',after:'改善後'}[key]}...`});
-              try { const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+fid); if(pr.ok) r['_'+key+'Src']=pr.dataUrl; } catch(e){}
+              setProgress({pct: Math.round((i+0.5)/total*50), text: `載入照片 ${label} ${{before:'改善前',during:'改善中',after:'改善後'}[key]}...`});
+              try {
+                const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+fid);
+                if (pr.ok) r['_'+key+'Src'] = pr.dataUrl;
+              } catch(e) { console.warn('photo load fail:', key, e); }
             }
           }
-          results.push(r); continue;
+          results.push(r);
+          continue;
         }
-      } catch(e) {}
-      step += 3;
+      } catch(e) { console.error('record load fail:', id, e); }
       results.push({...emptyRecord(header), id, date:meta?.date||'', label:meta?.label||''});
+    }
+
+    // 最後一步：烙印日期到照片上
+    setProgress({pct: 80, text: '烙印照片日期...'});
+    for (const r of results) {
+      for (const key of ['before','during','after']) {
+        const src = r['_'+key+'Src'];
+        const dateStr = r[key+'PhotoDate'];
+        if (src && dateStr) {
+          try {
+            r['_'+key+'Src'] = await stampDateOnImage(src, dateStr);
+          } catch(e) { console.warn('stamp fail:', key, e); }
+        }
+      }
     }
     return results;
   };
@@ -449,7 +508,7 @@ function App(){
       .lc{width:28px;padding:4px 2px;vertical-align:middle;text-align:center}
       .vt{writing-mode:vertical-rl;text-orientation:mixed;font-size:10pt;letter-spacing:1px;line-height:1.6;margin:0 auto;white-space:nowrap}
       .pc{width:55%;text-align:center;vertical-align:middle;padding:6px;height:230px}
-      .dc{font-size:12pt;line-height:1.7;padding:10px 12px;vertical-align:top}
+      .dc{font-size:12pt;line-height:1.7;padding:10px 12px;vertical-align:middle}
       .dt{font-weight:bold;margin-bottom:4px;font-size:12pt}
       .fn{margin-top:6px;font-size:9pt;color:#666}
       @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
@@ -554,7 +613,7 @@ function App(){
 
     const makeDesc = (title, desc) => new D.TableCell({
       borders, margins: cm,
-      verticalAlign: D.VerticalAlign.TOP,
+      verticalAlign: D.VerticalAlign.CENTER,
       width: {size: 3200, type: D.WidthType.DXA},
       children: [
         new D.Paragraph({children: [new D.TextRun({text: title, font, size: fsBody, bold: true})]}),
@@ -900,20 +959,32 @@ function App(){
 
           <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>改善前（缺失說明）</h3></div></div>
           <div className="card-body">
-            <PhotoUploader localSrc={localPhotos.before} fileId={rec.beforePhotoId} onChange={v=>setPhoto('before',v)} label="改善前"/>
-            <div className="field" style={{marginTop:12}}><label>缺失說明</label><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
+            <PhotoUploader localSrc={localPhotos.before} fileId={rec.beforePhotoId} onChange={v=>setPhoto('before',v)} label="改善前" photoDate={rec.beforePhotoDate||''}/>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginTop:12}}>
+              <div className="field" style={{flex:1,marginBottom:0}}><label>缺失說明</label></div>
+              <div className="field" style={{marginBottom:0,flexShrink:0}}><label>📅 照片日期</label><input type="date" className="photo-date-input" value={rec.beforePhotoDate||''} onChange={e=>updateField('beforePhotoDate',e.target.value)}/></div>
+            </div>
+            <div className="field" style={{marginTop:4}}><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
           </div></div>
 
           <div className="card"><div className="card-header"><div className="icon during">🔧</div><div><h3>改善中（改善措施）</h3></div></div>
           <div className="card-body">
-            <PhotoUploader localSrc={localPhotos.during} fileId={rec.duringPhotoId} onChange={v=>setPhoto('during',v)} label="改善中"/>
-            <div className="field" style={{marginTop:12}}><label>改善措施</label><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
+            <PhotoUploader localSrc={localPhotos.during} fileId={rec.duringPhotoId} onChange={v=>setPhoto('during',v)} label="改善中" photoDate={rec.duringPhotoDate||''}/>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginTop:12}}>
+              <div className="field" style={{flex:1,marginBottom:0}}><label>改善措施</label></div>
+              <div className="field" style={{marginBottom:0,flexShrink:0}}><label>📅 照片日期</label><input type="date" className="photo-date-input" value={rec.duringPhotoDate||''} onChange={e=>updateField('duringPhotoDate',e.target.value)}/></div>
+            </div>
+            <div className="field" style={{marginTop:4}}><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
           </div></div>
 
           <div className="card"><div className="card-header"><div className="icon after">✅</div><div><h3>改善後（改善結果）</h3></div></div>
           <div className="card-body">
-            <PhotoUploader localSrc={localPhotos.after} fileId={rec.afterPhotoId} onChange={v=>setPhoto('after',v)} label="改善後"/>
-            <div className="field" style={{marginTop:12}}><label>改善結果</label><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
+            <PhotoUploader localSrc={localPhotos.after} fileId={rec.afterPhotoId} onChange={v=>setPhoto('after',v)} label="改善後" photoDate={rec.afterPhotoDate||''}/>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginTop:12}}>
+              <div className="field" style={{flex:1,marginBottom:0}}><label>改善結果</label></div>
+              <div className="field" style={{marginBottom:0,flexShrink:0}}><label>📅 照片日期</label><input type="date" className="photo-date-input" value={rec.afterPhotoDate||''} onChange={e=>updateField('afterPhotoDate',e.target.value)}/></div>
+            </div>
+            <div className="field" style={{marginTop:4}}><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
           </div></div>
 
           <div className="btn-group">
