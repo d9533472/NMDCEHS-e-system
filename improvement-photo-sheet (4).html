@@ -7,7 +7,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -124,6 +123,16 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .progress-overlay{position:fixed;inset:0;background:rgba(245,240,235,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:350;padding:20px}
 .progress-box{background:var(--card);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.2);padding:30px 40px;text-align:center;max-width:380px;width:100%}
 .progress-box h3{font-size:16px;margin-bottom:16px;color:var(--text)}
+.success-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:400;padding:20px}
+.success-box{background:var(--card);border-radius:14px;box-shadow:0 10px 50px rgba(0,0,0,.3);padding:32px;text-align:center;max-width:360px;width:100%;animation:popIn .25s ease}
+@keyframes popIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.success-box .icon-big{font-size:48px;margin-bottom:12px}
+.success-box h3{font-size:17px;color:var(--text);margin-bottom:6px}
+.success-box p{font-size:13px;color:var(--text2);margin-bottom:20px}
+.success-box .folder-btn{display:block;width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;transition:background .2s}
+.success-box .folder-btn:hover{background:#155a3e}
+.success-box .close-link{color:var(--text3);font-size:13px;cursor:pointer;border:none;background:none;font-family:inherit}
+.success-box .close-link:hover{color:var(--text)}
 .progress-bar-wrap{width:100%;height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:12px}
 .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#2d9d6e);border-radius:5px;transition:width .3s ease}
 .progress-box .progress-text{font-size:13px;color:var(--text2)}
@@ -140,8 +149,8 @@ const GAS_URL = 'https://script.google.com/macros/s/AKfycbxHiB96YpiaqihKYI3_k279
 // ============================================================
 
 const DEFAULT_HEADER = {
-  org:'台灣電力公司綜合施工處', title:'改 善 照 片 表',
-  project:'台中減碳技術園區(A標)小規模碳捕集廠設備採購帶安裝及運轉維護與測試服務案',
+  org:'台灣電力公司北部施工處', title:'改 善 照 片 表',
+  project:'通霄電廠二期更新改建計畫海底輸氣管線統包工程',
 };
 
 function toast(msg,ms=2500){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms)}
@@ -286,10 +295,7 @@ function App(){
   const [loadingRec,setLoadingRec]=useState(false);
   const [syncing,setSyncing]=useState(false);
   const [dirty,setDirty]=useState(false);
-  const [selected,setSelected]=useState(new Set()); // selected record ids
-  const [showExport,setShowExport]=useState(false);
-  const [exportFmt,setExportFmt]=useState('pdf'); // pdf | word
-  const [exportMode,setExportMode]=useState('combined'); // combined | individual
+  const [selected,setSelected]=useState(new Set());
   const [progress,setProgress]=useState(null); // {pct, text} or null
 
   // ===== Load index =====
@@ -314,6 +320,8 @@ function App(){
         if(!d.org) d.org = DEFAULT_HEADER.org;
         if(!d.title) d.title = DEFAULT_HEADER.title;
         if(!d.project) d.project = DEFAULT_HEADER.project;
+        // 修正舊紀錄的短版名稱
+        if(d.project === '通霄電廠二期海底輸氣管線統包工程') d.project = DEFAULT_HEADER.project;
         // 舊紀錄可能沒有照片日期，用紀錄日期當預設
         if(!d.beforePhotoDate) d.beforePhotoDate = d.date || new Date().toISOString().slice(0,10);
         if(!d.duringPhotoDate) d.duringPhotoDate = d.date || new Date().toISOString().slice(0,10);
@@ -356,40 +364,6 @@ function App(){
     setDirty(true);
   };
 
-  // ===== Save =====
-  const saveRecord = async()=>{
-    if(!GAS_URL||!rec){toast('⚠️ 無法儲存');return}
-    setSyncing(true); toast('☁️ 儲存中...');
-    try{
-      const updated={...rec};
-      // 上傳新照片（一張一張）
-      for(const key of ['before','during','after']){
-        const b64=localPhotos[key];
-        if(b64){
-          toast(`☁️ 上傳${key==='before'?'改善前':key==='during'?'改善中':'改善後'}照片...`);
-          const res=await xhrPostRetry(GAS_URL,{action:'uploadPhoto',fileName:`${rec.label||rec.id}_${key}_${Date.now()}.jpg`,dataUrl:b64});
-          if(res.ok&&res.fileId) updated[key+'PhotoId']=res.fileId;
-        }
-      }
-      // 存紀錄（含 org/title/project）
-      const recHeader = {org:updated.org, title:updated.title, project:updated.project};
-      toast('☁️ 儲存紀錄...');
-      const res=await xhrPostRetry(GAS_URL,{action:'saveRecord',record:updated,header:recHeader});
-      if(!res.ok)throw new Error(res.error||'Save failed');
-      setRec(updated);
-      setLocalPhotos({before:'',during:'',after:''});
-      // 更新全域預設（給新增紀錄用）
-      setHeader({org:updated.org, title:updated.title, project:updated.project});
-      // 更新 index
-      const meta={id:updated.id,date:updated.date||'',label:updated.label||'',
-        beforeDesc:(updated.beforeDesc||'').substring(0,50),
-        hasBeforePhoto:!!updated.beforePhotoId, hasDuringPhoto:!!updated.duringPhotoId, hasAfterPhoto:!!updated.afterPhotoId};
-      setIndex(prev=>{const arr=[...prev];const ei=arr.findIndex(r=>String(r.id)===String(updated.id));if(ei>=0)arr[ei]=meta;else arr.push(meta);return arr});
-      setDirty(false); toast('✅ 已儲存！');
-    }catch(e){console.error('Save error:',e);toast('❌ '+e.message, 8000)}
-    setSyncing(false);
-  };
-
   const deleteRecord=async(idx)=>{
     const meta=index[idx];if(!meta)return;
     if(!confirm(`確定刪除「${meta.label||'#'+(idx+1)}」？`))return;
@@ -404,124 +378,6 @@ function App(){
     if(!GAS_URL)return;setSyncing(true);toast('🔄 重新載入...');
     try{const res=await xhrGet(GAS_URL+'?action=index');if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);setIndex(res.data.records||[]);setRec(null);setCurrentIdx(-1);toast('✅ 索引已更新')}}
     catch(e){toast('❌ 失敗')}setSyncing(false);
-  };
-
-  // ===== 載入勾選的完整紀錄（含進度）=====
-  const fetchSelectedRecords = async () => {
-    if (dirty && rec) {
-      if (confirm('有未儲存的變更，要先儲存再匯出嗎？')) {
-        await saveRecord();
-      }
-    }
-    const ids = selected.size > 0 ? [...selected] : index.map(r => String(r.id));
-    const results = [];
-    const total = ids.length;
-    for (let i = 0; i < total; i++) {
-      const id = ids[i];
-      const meta = index.find(m => String(m.id) === id);
-      const label = meta?.label || '#'+(i+1);
-
-      // 當前編輯中的紀錄 → 用記憶體版本
-      if (rec && String(rec.id) === id) {
-        setProgress({pct: Math.round((i+1)/total*50), text: `載入 ${i+1}/${total}：${label}（編輯中）`});
-        const r = {...rec};
-        for (const key of ['before','during','after']) {
-          if (localPhotos[key]) {
-            r['_'+key+'Src'] = localPhotos[key];
-          } else if (r[key+'PhotoId']) {
-            try {
-              const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']);
-              if (pr.ok) r['_'+key+'Src'] = pr.dataUrl;
-            } catch(e) { console.warn('photo load fail:', key, e); }
-          }
-        }
-        results.push(r);
-        continue;
-      }
-
-      // 其他紀錄 → 從雲端讀
-      setProgress({pct: Math.round((i+1)/total*50), text: `載入 ${i+1}/${total}：${label}...`});
-      try {
-        const res = await xhrGet(GAS_URL+'?action=record&id='+id);
-        if (res.ok && res.data) {
-          const r = res.data;
-          if (!r.org) r.org = DEFAULT_HEADER.org;
-          if (!r.title) r.title = DEFAULT_HEADER.title;
-          if (!r.project) r.project = DEFAULT_HEADER.project;
-          if (!r.beforePhotoDate) r.beforePhotoDate = r.date || '';
-          if (!r.duringPhotoDate) r.duringPhotoDate = r.date || '';
-          if (!r.afterPhotoDate) r.afterPhotoDate = r.date || '';
-          for (const key of ['before','during','after']) {
-            const fid = r[key+'PhotoId'];
-            if (fid) {
-              setProgress({pct: Math.round((i+0.5)/total*50), text: `載入照片 ${label} ${{before:'改善前',during:'改善中',after:'改善後'}[key]}...`});
-              try {
-                const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+fid);
-                if (pr.ok) r['_'+key+'Src'] = pr.dataUrl;
-              } catch(e) { console.warn('photo load fail:', key, e); }
-            }
-          }
-          results.push(r);
-          continue;
-        }
-      } catch(e) { console.error('record load fail:', id, e); }
-      results.push({...emptyRecord(header), id, date:meta?.date||'', label:meta?.label||''});
-    }
-
-    // 最後一步：烙印日期到照片上
-    setProgress({pct: 80, text: '烙印照片日期...'});
-    for (const r of results) {
-      for (const key of ['before','during','after']) {
-        const src = r['_'+key+'Src'];
-        const dateStr = r[key+'PhotoDate'];
-        if (src && dateStr) {
-          try {
-            r['_'+key+'Src'] = await stampDateOnImage(src, dateStr);
-          } catch(e) { console.warn('stamp fail:', key, e); }
-        }
-      }
-    }
-    return results;
-  };
-
-  // ===== Print HTML (PDF) =====
-  const buildPrintHTML = (recs) => {
-    const titleLabels = recs.map(r=>r.label||r.id).join('_');
-    const pages = recs.map((r, ri) => {
-      const ph = (key) => { const src=r['_'+key+'Src']; return src?`<img src="${src}" style="max-width:100%;max-height:260px;object-fit:contain;display:block;margin:0 auto">`:`<div style="color:#999;padding:50px 0;font-size:12px">（未附照片）</div>`; };
-      return `<div class="page" ${ri>0?'style="page-break-before:always"':''}>
-        <div class="doc-org">${r.org||header.org}</div><div class="doc-title">${r.title||header.title}</div>
-        <div class="doc-project">工程名稱：${r.project||header.project}</div>
-        <table><tr><td class="lc" rowspan="3"><div class="vt">（改善前中後、同一角度拍攝之照片，並加以說明。）</div></td>
-          <td class="pc">${ph('before')}</td><td class="dc"><div class="dt">改善前(缺失說明)：</div><div>${r.beforeDesc||''}</div></td></tr>
-        <tr><td class="pc">${ph('during')}</td><td class="dc"><div class="dt">改善中(改善措施)：</div><div>${r.duringDesc||''}</div></td></tr>
-        <tr><td class="pc">${ph('after')}</td><td class="dc"><div class="dt">改善後(改善結果)：</div><div>${r.afterDesc||''}</div></td></tr></table>
-        ${(r.label||r.date)?`<div class="fn">${r.label||''}　${r.date||''}</div>`:''}</div>`;
-    }).join('');
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>照片改善表_${titleLabels}</title><style>
-      @page{size:A4 portrait;margin:20mm 22mm 20mm 22mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DFKai-SB','標楷體','Noto Serif TC',serif;color:#000}
-      .doc-org{text-align:center;font-size:18pt;letter-spacing:2px;margin-bottom:2px}
-      .doc-title{text-align:center;font-size:18pt;letter-spacing:6px;margin-bottom:8px}
-      .doc-project{font-size:13pt;margin-bottom:10px}
-      table{width:88%;border-collapse:collapse;table-layout:fixed;margin:0 auto}
-      td{border:1.5px solid #000;padding:6px;vertical-align:top}
-      .lc{width:28px;padding:4px 2px;vertical-align:middle;text-align:center}
-      .vt{writing-mode:vertical-rl;text-orientation:mixed;font-size:10pt;letter-spacing:1px;line-height:1.6;margin:0 auto;white-space:nowrap}
-      .pc{width:55%;text-align:center;vertical-align:middle;padding:6px;height:230px}
-      .dc{font-size:12pt;line-height:1.7;padding:10px 12px;vertical-align:middle}
-      .dt{font-weight:bold;margin-bottom:4px;font-size:12pt}
-      .fn{margin-top:6px;font-size:9pt;color:#666}
-      @media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-    </style></head><body>${pages}</body></html>`;
-  };
-
-  const printHTML = (html) => {
-    const w = window.open('','_blank');
-    if (!w) { toast('⚠️ 請允許彈出視窗'); return; }
-    w.document.write(html); w.document.close();
-    const imgs = w.document.querySelectorAll('img'); let ld=0; const tot=imgs.length;
-    const go = () => setTimeout(()=>{w.focus();w.print()},300);
-    if (!tot) go(); else imgs.forEach(img=>{ if(img.complete){ld++;if(ld>=tot)go()}else{img.onload=img.onerror=()=>{ld++;if(ld>=tot)go()}} });
   };
 
   // ===== Word =====
@@ -684,145 +540,146 @@ function App(){
     return await D.Packer.toBlob(doc);
   };
 
-  const downloadBlob = (blob, name) => {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download=name;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-  };
 
-  // ===== Export dispatcher =====
-  const doExport = async () => {
-    setShowExport(false);
-    const selCount = selected.size || index.length;
-    if (selCount === 0) { toast('⚠️ 沒有紀錄'); return; }
+
+  // ===== 匯出：當前紀錄 → Word+PDF 存到 Drive 資料夾 =====
+  // ===== 列表：匯出選取紀錄為 Word 下載 =====
+  const exportSelectedWord = async () => {
+    const ids = selected.size > 0 ? [...selected] : [];
+    if (!ids.length) { toast('⚠️ 請先勾選紀錄'); return; }
     setSyncing(true);
-    setProgress({pct: 0, text: '準備中...'});
-
+    setProgress({pct: 0, text: '載入紀錄...'});
     try {
-      const recs = await fetchSelectedRecords();
-      const dateStr = new Date().toISOString().slice(0,10).replace(/-/g,'');
-
-      if (exportFmt === 'pdf') {
-        if (exportMode === 'combined') {
-          setProgress({pct: 95, text: '開啟列印視窗...'});
-          printHTML(buildPrintHTML(recs));
-          toast('✅ 列印視窗已開啟');
-        } else {
-          for (let i = 0; i < recs.length; i++) {
-            setProgress({pct: Math.round((i+1)/recs.length*100), text: `開啟 ${i+1}/${recs.length}...`});
-            printHTML(buildPrintHTML([recs[i]]));
-            await new Promise(r => setTimeout(r, 600));
+      const recs = [];
+      for (let i = 0; i < ids.length; i++) {
+        const id = ids[i];
+        const meta = index.find(m => String(m.id) === id);
+        setProgress({pct: Math.round((i+1)/ids.length*40), text: `載入 ${i+1}/${ids.length}：${meta?.label||''}...`});
+        try {
+          const res = await xhrGet(GAS_URL+'?action=record&id='+id);
+          if (res.ok && res.data) {
+            const r = res.data;
+            if (!r.org) r.org = DEFAULT_HEADER.org;
+            if (!r.title) r.title = DEFAULT_HEADER.title;
+            if (!r.project) r.project = DEFAULT_HEADER.project;
+            if (r.project === '通霄電廠二期海底輸氣管線統包工程') r.project = DEFAULT_HEADER.project;
+            for (const key of ['before','during','after']) {
+              if (r[key+'PhotoId']) {
+                setProgress({pct: Math.round((i+0.5)/ids.length*40), text: `載入照片 ${meta?.label||''} ${{before:'前',during:'中',after:'後'}[key]}...`});
+                try { const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']); if(pr.ok) r['_'+key+'Src']=pr.dataUrl; } catch(e){}
+              }
+              if (r['_'+key+'Src'] && r[key+'PhotoDate']) {
+                try { r['_'+key+'Src'] = await stampDateOnImage(r['_'+key+'Src'], r[key+'PhotoDate']); } catch(e){}
+              }
+            }
+            recs.push(r);
           }
-          toast(`✅ 已開啟 ${recs.length} 個列印視窗`);
-        }
-      } else {
-        // Word
-        try { await loadDocxLib(); } catch(e) { throw new Error('docx.js 函式庫載入失敗，請確認網路連線'); }
-        if (exportMode === 'combined') {
-          setProgress({pct: 50, text: '產生 Word 文件...'});
-          const blob = await buildDocxBlob(recs);
-          const labels = recs.map(r=>r.label||r.id).join('_');
-          downloadBlob(blob, `照片改善表_${labels}.docx`);
-          toast('✅ Word 已下載！');
-        } else {
-          const zip = new JSZip();
-          for (let i = 0; i < recs.length; i++) {
-            setProgress({pct: Math.round((i+1)/recs.length*100), text: `產生 ${i+1}/${recs.length}...`});
-            const blob = await buildDocxBlob([recs[i]]);
-            zip.file(`照片改善表_${recs[i].label || recs[i].id}.docx`, blob);
-          }
-          setProgress({pct: 98, text: '打包 ZIP...'});
-          const zipBlob = await zip.generateAsync({type:'blob'});
-          const zipLabels = recs.map(r=>r.label||r.id).join('_');
-          downloadBlob(zipBlob, `照片改善表_${zipLabels}.zip`);
-          toast('✅ ZIP 已下載！');
-        }
+        } catch(e) { console.warn('load fail:', id, e); }
       }
+      if (!recs.length) { toast('⚠️ 無法載入紀錄'); return; }
+
+      setProgress({pct: 70, text: '產生 Word...'});
+      await loadDocxLib();
+      const blob = await buildDocxBlob(recs);
+      const labels = recs.map(r=>r.label||r.id).join('_');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='照片改善表_'+labels+'.docx';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      toast('✅ Word 已下載（' + recs.length + ' 筆）');
     } catch(e) {
-      console.error('Export error:', e);
-      toast('❌ 匯出失敗：' + e.message);
+      console.error(e);
+      toast('❌ 匯出失敗：'+e.message, 5000);
     }
     setProgress(null);
     setSyncing(false);
   };
 
-  // JSON
-  const exportJSON=()=>{const blob=new Blob([JSON.stringify({header,index},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`照片改善表_索引_${new Date().toISOString().slice(0,10)}.json`;document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(()=>URL.revokeObjectURL(url),3000);toast('💾 已匯出')};
+  // ===== 儲存＋匯出 Word =====
+  const [folderLink, setFolderLink] = useState(null); // {url, name}
 
-  // 匯入：支援舊格式（含 base64 照片）自動上傳 Drive
-  const importJSON=()=>{
-    const input=document.createElement('input');input.type='file';input.accept='.json';
-    input.onchange=async(e)=>{
-      const file=e.target.files?.[0];if(!file)return;
-      const text=await file.text();
-      let data;
-      try{data=JSON.parse(text)}catch{toast('❌ JSON 格式錯誤');return}
+  const saveAndExport = async () => {
+    if (!GAS_URL || !rec) { toast('⚠️ 無法儲存'); return; }
+    setSyncing(true);
+    setFolderLink(null);
+    setProgress({pct: 5, text: '☁️ 上傳照片...'});
+    try {
+      const updated = {...rec};
 
-      if(data.header)setHeader(data.header);
-
-      // Case 1: 新格式（只有 index）
-      if(data.index?.length&&!data.records){
-        setIndex(data.index);toast('✅ 已匯入索引');return;
-      }
-
-      // Case 2: 舊格式（records 含 base64 照片）→ 逐筆上傳 Drive
-      const recs=data.records;
-      if(!recs?.length){toast('⚠️ 無紀錄可匯入');return}
-
-      if(!GAS_URL){toast('⚠️ 需設定 GAS URL 才能匯入含照片的紀錄');return}
-      if(!confirm(`將匯入 ${recs.length} 筆紀錄（含照片上傳），繼續？`))return;
-
-      setSyncing(true);
-      const newIndex=[...index];
-      let ok=0,fail=0;
-
-      for(let ri=0;ri<recs.length;ri++){
-        const r=recs[ri];
-        toast(`☁️ 匯入 ${ri+1}/${recs.length}：${r.label||'#'+(ri+1)}...`);
-        const record={
-          id:r.id||Date.now()+ri, date:r.date||'', label:r.label||'',
-          org:r.org||data.header?.org||header.org||DEFAULT_HEADER.org,
-          title:r.title||data.header?.title||header.title||DEFAULT_HEADER.title,
-          project:r.project||data.header?.project||header.project||DEFAULT_HEADER.project,
-          beforeDesc:r.beforeDesc||'', duringDesc:r.duringDesc||'', afterDesc:r.afterDesc||'',
-          beforePhotoId:'', duringPhotoId:'', afterPhotoId:'',
-        };
-
-        // 上傳每張照片
-        for(const key of ['before','during','after']){
-          const photoField=key+'Photo';
-          const b64=r[photoField];
-          if(b64&&b64.length>100&&b64.startsWith('data:')){
-            toast(`☁️ 上傳照片 ${ri+1}/${recs.length} ${key}...`);
-            try{
-              const res=await xhrPostRetry(GAS_URL,{action:'uploadPhoto',fileName:`${record.label||record.id}_${key}_${Date.now()}.jpg`,dataUrl:b64});
-              if(res.ok&&res.fileId)record[key+'PhotoId']=res.fileId;
-            }catch(e){console.warn('Photo upload fail:',e)}
-          }
-          // 如果已有 fileId（從 v4 格式）
-          const existingId=r[key+'PhotoId'];
-          if(existingId&&!record[key+'PhotoId'])record[key+'PhotoId']=existingId;
+      // 1. 上傳新照片
+      for (const key of ['before','during','after']) {
+        const b64 = localPhotos[key];
+        if (b64) {
+          setProgress(p => ({...p, text: `上傳${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片...`}));
+          const res = await xhrPostRetry(GAS_URL, {action:'uploadPhoto', fileName:`${rec.label||rec.id}_${key}_${Date.now()}.jpg`, dataUrl:b64});
+          if (res.ok && res.fileId) updated[key+'PhotoId'] = res.fileId;
         }
-
-        // 存紀錄
-        try{
-          const res=await xhrPostRetry(GAS_URL,{action:'saveRecord',record,header:ri===0?data.header:undefined});
-          if(res.ok){
-            const meta={id:record.id,date:record.date,label:record.label,
-              beforeDesc:(record.beforeDesc||'').substring(0,50),
-              hasBeforePhoto:!!record.beforePhotoId,hasDuringPhoto:!!record.duringPhotoId,hasAfterPhoto:!!record.afterPhotoId};
-            newIndex.push(meta);ok++;
-          }else{fail++}
-        }catch(e){fail++;console.error('Save fail:',e)}
       }
 
-      setIndex(newIndex);
-      setSyncing(false);
-      toast(`✅ 匯入完成！成功 ${ok} 筆${fail?`，失敗 ${fail} 筆`:''}`);
-    };
-    input.click();
+      // 2. 儲存紀錄
+      setProgress({pct: 30, text: '☁️ 儲存紀錄...'});
+      const recHeader = {org:updated.org, title:updated.title, project:updated.project};
+      const saveRes = await xhrPostRetry(GAS_URL, {action:'saveRecord', record:updated, header:recHeader});
+      if (!saveRes.ok) throw new Error(saveRes.error || 'Save failed');
+      setRec(updated);
+      setLocalPhotos({before:'',during:'',after:''});
+      setHeader({org:updated.org, title:updated.title, project:updated.project});
+      const meta = {id:updated.id, date:updated.date||'', label:updated.label||'',
+        beforeDesc:(updated.beforeDesc||'').substring(0,50),
+        hasBeforePhoto:!!updated.beforePhotoId, hasDuringPhoto:!!updated.duringPhotoId, hasAfterPhoto:!!updated.afterPhotoId};
+      setIndex(prev => {const arr=[...prev]; const ei=arr.findIndex(r=>String(r.id)===String(updated.id)); if(ei>=0)arr[ei]=meta; else arr.push(meta); return arr});
+      setDirty(false);
+
+      // 3. 載入照片（含烙印日期）產生 Word
+      setProgress({pct: 50, text: '📄 載入照片產生 Word...'});
+      const r = {...updated};
+      for (const key of ['before','during','after']) {
+        if (r[key+'PhotoId']) {
+          setProgress(p => ({...p, text: `載入${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片...`}));
+          try {
+            const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']);
+            if (pr.ok) r['_'+key+'Src'] = pr.dataUrl;
+          } catch(e) {}
+        }
+        if (r['_'+key+'Src'] && r[key+'PhotoDate']) {
+          try { r['_'+key+'Src'] = await stampDateOnImage(r['_'+key+'Src'], r[key+'PhotoDate']); } catch(e) {}
+        }
+      }
+
+      setProgress({pct: 70, text: '📄 產生 Word...'});
+      await loadDocxLib();
+      const wordBlob = await buildDocxBlob([r]);
+
+      // 4. 上傳 Word 到改善單資料夾
+      setProgress({pct: 85, text: '📤 上傳 Word...'});
+      const b64w = await new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(wordBlob);
+      });
+      const label = r.label || r.id;
+      const uploadRes = await xhrPostRetry(GAS_URL, {
+        action:'uploadToFolder', label,
+        fileName:'照片改善表_'+label+'.docx', base64:b64w,
+        mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      });
+
+      // 5. 顯示資料夾連結
+      if (uploadRes.ok && uploadRes.folderUrl) {
+        const fname = uploadRes.matchedFolder || '雲端資料夾';
+        setFolderLink({url: uploadRes.folderUrl, name: fname});
+        toast('✅ 儲存完成，Word 已上傳！', 3000);
+      } else {
+        toast('✅ 已儲存，但找不到對應資料夾：' + (uploadRes.error||''), 4000);
+      }
+    } catch(e) {
+      console.error('Save+Export error:', e);
+      toast('❌ 失敗：' + e.message, 5000);
+    }
+    setProgress(null);
+    setSyncing(false);
   };
+
 
   // Global paste
   useEffect(()=>{
@@ -877,7 +734,7 @@ function App(){
 
       {/* LIST */}
       {tab==='list'&&<div>
-        <div className="card"><div className="card-header"><div className="icon info">📑</div><div><h3>所有紀錄</h3><small>勾選後匯出，或點擊進入編輯</small></div></div>
+        <div className="card"><div className="card-header"><div className="icon info">📑</div><div><h3>所有紀錄</h3><small>勾選後匯出 Word，或點擊進入編輯</small></div></div>
         {index.length>0 && <div className="select-bar">
           <input type="checkbox" className="rec-check" checked={selected.size===index.length&&index.length>0} onChange={e=>{if(e.target.checked)setSelected(new Set(index.map(r=>String(r.id))));else setSelected(new Set())}} />
           <span>{selected.size>0?`已選 ${selected.size} / ${index.length}`:'全選'}</span>
@@ -886,9 +743,8 @@ function App(){
         {index.length===0&&<div style={{padding:24,textAlign:'center',color:'var(--text3)'}}>尚無紀錄</div>}
         {index.map((r,i)=>(
           <div key={r.id} className="record-item">
-            <input type="checkbox" className="rec-check" checked={selected.has(String(r.id))} onClick={e=>e.stopPropagation()} onChange={e=>{
-              setSelected(prev=>{const s=new Set(prev);if(e.target.checked)s.add(String(r.id));else s.delete(String(r.id));return s})}} />
-            <div className="rec-info" onClick={()=>loadRecord(i)} style={{cursor:'pointer'}}>
+            <input type="checkbox" className="rec-check" checked={selected.has(String(r.id))} onClick={e=>e.stopPropagation()} onChange={e=>{setSelected(prev=>{const s=new Set(prev);if(e.target.checked)s.add(String(r.id));else s.delete(String(r.id));return s})}} />
+            <div className="rec-info" onClick={()=>loadRecord(i)} style={{cursor:'pointer',flex:1}}>
               <div className="rec-title">{r.label||`紀錄 #${i+1}`}</div>
               <div className="rec-sub">{r.date||'—'} — {r.beforeDesc||'未填寫'}</div>
             </div>
@@ -898,43 +754,11 @@ function App(){
         ))}</div>
         <div className="btn-group">
           <button className="btn btn-primary" onClick={addRecord}>➕ 新增</button>
+          {selected.size>0 && <button className="btn btn-sync" onClick={exportSelectedWord} disabled={syncing}>📤 匯出選取 Word ({selected.size}筆)</button>}
           <button className="btn btn-load" onClick={reloadIndex} disabled={syncing}>🔄 重新載入</button>
-          <button className="btn btn-primary" onClick={()=>setShowExport(true)} disabled={index.length===0}>
-            📤 匯出{selected.size>0?` (${selected.size}筆)`:''}
-          </button>
-          <button className="btn btn-secondary" onClick={exportJSON}>💾 JSON</button>
-          <button className="btn btn-secondary" onClick={importJSON}>📂 匯入</button>
         </div>
       </div>}
 
-      {/* EXPORT MODAL */}
-      {showExport && <div className="modal-overlay" onClick={()=>setShowExport(false)}>
-        <div className="modal" onClick={e=>e.stopPropagation()}>
-          <div className="modal-header">
-            <span>📤 匯出改善照片表</span>
-            <button onClick={()=>setShowExport(false)}>×</button>
-          </div>
-          <div className="modal-body">
-            <div style={{fontSize:13,color:'var(--text2)',marginBottom:14}}>
-              {selected.size>0?`已勾選 ${selected.size} 筆`:`全部 ${index.length} 筆`}（未勾選＝全部匯出）
-            </div>
-            <div style={{fontSize:12,fontWeight:600,color:'var(--text2)',marginBottom:6}}>格式</div>
-            <div className="modal-opt">
-              <button className={exportFmt==='pdf'?'sel':''} onClick={()=>setExportFmt('pdf')}>📄 PDF<br/><span style={{fontSize:11,fontWeight:400}}>列印 / 儲存為PDF</span></button>
-              <button className={exportFmt==='word'?'sel':''} onClick={()=>setExportFmt('word')}>📝 Word<br/><span style={{fontSize:11,fontWeight:400}}>.docx 文件</span></button>
-            </div>
-            <div style={{fontSize:12,fontWeight:600,color:'var(--text2)',marginBottom:6}}>方式</div>
-            <div className="modal-opt">
-              <button className={exportMode==='combined'?'sel':''} onClick={()=>setExportMode('combined')}>📋 合併一個檔案<br/><span style={{fontSize:11,fontWeight:400}}>所有紀錄在同一檔</span></button>
-              <button className={exportMode==='individual'?'sel':''} onClick={()=>setExportMode('individual')}>📁 分開各別檔案<br/><span style={{fontSize:11,fontWeight:400}}>{exportFmt==='word'?'打包為 ZIP':'逐一開啟列印'}</span></button>
-            </div>
-          </div>
-          <div className="modal-foot">
-            <button className="btn btn-secondary" onClick={()=>setShowExport(false)}>取消</button>
-            <button className="btn btn-primary" onClick={doExport}>確認匯出</button>
-          </div>
-        </div>
-      </div>}
 
       {/* EDIT */}
       {tab==='edit'&&<div>
@@ -943,15 +767,9 @@ function App(){
         :<div>
           <div className="card"><div className="card-header"><div className="icon info">🏢</div><div><h3>文件資訊</h3></div></div>
           <div className="card-body">
-            <div className="field"><label>機關名稱</label><select value={rec.org||DEFAULT_HEADER.org} onChange={e=>updateField('org',e.target.value)}>
-              <option value="台灣電力公司綜合施工處">台灣電力公司綜合施工處</option>
-              <option value="台灣電力公司北部施工處">台灣電力公司北部施工處</option>
-            </select></div>
+            <div className="field"><label>機關名稱</label><input value={rec.org||DEFAULT_HEADER.org} readOnly style={{background:'var(--bg)',cursor:'default'}}/></div>
             <div className="field"><label>表單標題</label><input value={rec.title||DEFAULT_HEADER.title} onChange={e=>updateField('title',e.target.value)}/></div>
-            <div className="field"><label>工程名稱</label><select value={rec.project||DEFAULT_HEADER.project} onChange={e=>updateField('project',e.target.value)}>
-              <option value="台中減碳技術園區(A標)小規模碳捕集廠設備採購帶安裝及運轉維護與測試服務案">台中減碳技術園區(A標)小規模碳捕集廠設備採購帶安裝及運轉維護與測試服務案</option>
-              <option value="通霄電廠二期海底輸氣管線統包工程">通霄電廠二期海底輸氣管線統包工程</option>
-            </select></div>
+            <div className="field"><label>工程名稱</label><input value={rec.project||DEFAULT_HEADER.project} readOnly style={{background:'var(--bg)',cursor:'default'}}/></div>
             <div style={{display:'flex',gap:10}}>
               <div className="field" style={{flex:1}}><label>紀錄標籤</label><input value={rec.label} onChange={e=>updateField('label',e.target.value)} placeholder="WM-001"/></div>
               <div className="field" style={{flex:1}}><label>日期</label><input type="date" value={rec.date} onChange={e=>updateField('date',e.target.value)}/></div>
@@ -989,11 +807,11 @@ function App(){
           </div></div>
 
           <div className="btn-group">
-            <button className="btn btn-sync" onClick={saveRecord} disabled={syncing}>{syncing?'⏳ 儲存中...':dirty?'☁️ 儲存 ●':'☁️ 儲存'}</button>
-            <button className="btn btn-primary" onClick={()=>setShowExport(true)}>📤 匯出</button>
+            <button className="btn btn-sync" onClick={saveAndExport} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ 儲存並匯出 Word'}</button>
             <button className="btn btn-secondary" onClick={()=>setTab('preview')}>👁 預覽</button>
             <button className="btn btn-secondary" onClick={()=>setTab('list')}>📑 列表</button>
           </div>
+
         </div>}
       </div>}
 
@@ -1008,7 +826,7 @@ function App(){
             {(rec.label||rec.date)&&<div style={{marginTop:8,fontSize:'9pt',color:'#666'}}>{rec.label&&<span>{rec.label}　</span>}{rec.date}</div>}
           </div>
           <div className="btn-group" style={{marginTop:16}}>
-            <button className="btn btn-primary" onClick={()=>{setSelected(new Set([String(rec.id)]));setShowExport(true)}}>📤 匯出此筆</button>
+            <button className="btn btn-sync" onClick={saveAndExport} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ 儲存並匯出 Word'}</button>
             <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 編輯</button>
           </div>
         </div>}
@@ -1033,13 +851,25 @@ function App(){
         </div></div>
         <div className="card"><div className="card-header"><div className="icon info">💾</div><div><h3>資料管理</h3></div></div>
         <div className="card-body"><div className="btn-group" style={{marginTop:0}}>
-          <button className="btn btn-secondary" onClick={exportJSON}>💾 匯出</button>
-          <button className="btn btn-secondary" onClick={importJSON}>📂 匯入</button>
+
         </div></div></div>
         <div className="card"><div className="card-header"><div className="icon info">ℹ️</div><div><h3>系統</h3></div></div>
         <div className="card-body" style={{fontSize:13,color:'var(--text2)',lineHeight:1.8}}>
           紀錄：{index.length} 筆　|　版本：v6.0（勾選匯出·Word·PDF）
         </div></div>
+      </div>}
+
+      {/* 成功彈窗 */}
+      {folderLink && <div className="success-modal" onClick={()=>setFolderLink(null)}>
+        <div className="success-box" onClick={e=>e.stopPropagation()}>
+          <div className="icon-big">✅</div>
+          <h3>儲存並匯出完成！</h3>
+          <p>Word 檔已上傳至改善單資料夾</p>
+          <button className="folder-btn" onClick={()=>{window.open(folderLink.url,'_blank');setFolderLink(null)}}>
+            📁 打開「{folderLink.name}」資料夾
+          </button>
+          <button className="close-link" onClick={()=>setFolderLink(null)}>關閉</button>
+        </div>
       </div>}
 
       <div style={{textAlign:'center',padding:'20px 0',fontSize:11,color:'#9a8c7a'}}>
