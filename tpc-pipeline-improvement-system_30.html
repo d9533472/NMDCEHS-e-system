@@ -1575,12 +1575,26 @@ function App() {
   };
 
   const deleteRecord = async (id) => {
+    const target = records.find(r => r.id === id);
     const newRecords = records.filter(r => r.id !== id);
     try {
+      // 若有 Drive 資料夾，先叫 GAS 備份後刪除
+      if (target && target.driveFolderId) {
+        const deleteDate = new Date().toISOString().slice(0,10);
+        const archiveName = `${target.number}&${deleteDate}`;
+        await xhrPost(gasUrl, {
+          action: 'archiveAndDeleteFolder',
+          folderId: target.driveFolderId,
+          archiveName,
+          type: target.type,
+        });
+      }
       await pushToCloud(newRecords, config);
       setRecords(newRecords);
-      toast('紀錄已刪除');
-    } catch {}
+      toast('紀錄已刪除，Drive 資料夾已封存');
+    } catch(e) {
+      toast('刪除失敗：' + e.message, 'error');
+    }
   };
 
   const saveConfig = async (newConfig) => {

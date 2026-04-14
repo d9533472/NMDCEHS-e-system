@@ -296,31 +296,7 @@ function App(){
   useEffect(()=>{
     if(!GAS_URL){setLoadingApp(false);return}
     xhrGet(GAS_URL+'?action=index')
-      .then(res=>{
-        if(res.ok&&res.data){
-          if(res.data.header?.org)setHeader(res.data.header);
-          if(res.data.records){
-            setIndex(res.data.records);
-            // 🔗 Deep-link: 讀取 URL hash 自動跳到指定記錄
-            const hash=window.location.hash;
-            const m=hash.match(/#label=(.+)/);
-            if(m){
-              const targetLabel=decodeURIComponent(m[1]);
-              const records=res.data.records;
-              const idx=records.findIndex(r=>r.label===targetLabel);
-              if(idx>=0){
-                const meta=records[idx];
-                setCurrentIdx(idx);setTab('edit');setLoadingRec(true);setDirty(false);
-                xhrGet(GAS_URL+'?action=record&id='+meta.id)
-                  .then(r=>{if(r.ok&&r.data)setRec({...r.data});else setRec({...emptyRecord(null),id:meta.id,date:meta.date,label:meta.label});})
-                  .catch(()=>setRec({...emptyRecord(null),id:meta.id,date:meta.date,label:meta.label}))
-                  .finally(()=>{setLoadingRec(false);setDirty(false);});
-              }
-              window.history.replaceState(null,'',window.location.pathname);
-            }
-          }
-        }
-      })
+      .then(res=>{if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);if(res.data.records)setIndex(res.data.records)}})
       .catch(e=>{console.error(e);toast('⚠️ 索引載入失敗')})
       .finally(()=>setLoadingApp(false));
   },[]);
@@ -523,11 +499,11 @@ function App(){
         ${(r.label||r.date)?`<div class="fn">${r.label||''}　${r.date||''}</div>`:''}</div>`;
     }).join('');
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>照片改善表_${titleLabels}</title><style>
-      @page{size:A4 portrait;margin:7mm 7mm 10mm 7mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DFKai-SB','標楷體','Noto Serif TC',serif;color:#000}
+      @page{size:A4 portrait;margin:20mm 22mm 20mm 22mm}*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DFKai-SB','標楷體','Noto Serif TC',serif;color:#000}
       .doc-org{text-align:center;font-size:18pt;letter-spacing:2px;margin-bottom:2px}
       .doc-title{text-align:center;font-size:18pt;letter-spacing:6px;margin-bottom:8px}
       .doc-project{font-size:13pt;margin-bottom:10px}
-      table{width:100%;border-collapse:collapse;table-layout:fixed}
+      table{width:88%;border-collapse:collapse;table-layout:fixed;margin:0 auto}
       td{border:1.5px solid #000;padding:6px;vertical-align:top}
       .lc{width:28px;padding:4px 2px;vertical-align:middle;text-align:center}
       .vt{writing-mode:vertical-rl;text-orientation:mixed;font-size:10pt;letter-spacing:1px;line-height:1.6;margin:0 auto;white-space:nowrap}
@@ -638,7 +614,7 @@ function App(){
     const makeDesc = (title, desc) => new D.TableCell({
       borders, margins: cm,
       verticalAlign: D.VerticalAlign.CENTER,
-      width: {size: 3200, type: D.WidthType.DXA},
+      width: {size: 2830, type: D.WidthType.DXA},
       children: [
         new D.Paragraph({children: [new D.TextRun({text: title, font, size: fsBody, bold: true})]}),
         new D.Paragraph({spacing: {before: 100}, children: [new D.TextRun({text: desc || '', font, size: fsBody})]}),
@@ -666,7 +642,7 @@ function App(){
       const photoCell = (para) => new D.TableCell({
         borders, margins: cm,
         verticalAlign: D.VerticalAlign.CENTER,
-        width: {size: 5700, type: D.WidthType.DXA},
+        width: {size: 5140, type: D.WidthType.DXA},
         children: [para]
       });
 
@@ -674,7 +650,7 @@ function App(){
         borders,
         margins: {top: 40, bottom: 40, left: 40, right: 40},
         verticalAlign: D.VerticalAlign.CENTER,
-        width: {size: 600, type: D.WidthType.DXA},
+        width: {size: 530, type: D.WidthType.DXA},
         rowSpan: 3,
         textDirection: textDir,
         children: [new D.Paragraph({
@@ -684,14 +660,15 @@ function App(){
       });
 
       sections.push({
-        properties: {page: {size: {width: 11906, height: 16838}, margin: {top: 426, bottom: 567, left: 426, right: 424}}},
+        properties: {page: {size: {width: 11906, height: 16838}, margin: {top: 1134, bottom: 1134, left: 1247, right: 1247}}},
         children: [
           new D.Paragraph({alignment: D.AlignmentType.CENTER, spacing: {after: 40}, children: [new D.TextRun({text: r.org||header.org, font, size: fsTitle})]}),
           new D.Paragraph({alignment: D.AlignmentType.CENTER, spacing: {after: 100}, children: [new D.TextRun({text: r.title||header.title, font, size: fsTitle})]}),
           new D.Paragraph({spacing: {after: 200}, children: [new D.TextRun({text: '工程名稱：', font, size: fsProject}), new D.TextRun({text: r.project||header.project, font, size: fsProject})]}),
           new D.Table({
-            width: {size: 9500, type: D.WidthType.DXA},
-            columnWidths: [600, 5700, 3200],
+            width: {size: 8500, type: D.WidthType.DXA},
+            columnWidths: [530, 5140, 2830],
+            alignment: D.AlignmentType.CENTER,
             rows: [
               new D.TableRow({height: rowHeight, children: [labelCell, photoCell(bp), makeDesc('改善前(缺失說明)：', r.beforeDesc)]}),
               new D.TableRow({height: rowHeight, children: [photoCell(dp), makeDesc('改善中(改善措施)：', r.duringDesc)]}),
@@ -1031,7 +1008,7 @@ function App(){
             {(rec.label||rec.date)&&<div style={{marginTop:8,fontSize:'9pt',color:'#666'}}>{rec.label&&<span>{rec.label}　</span>}{rec.date}</div>}
           </div>
           <div className="btn-group" style={{marginTop:16}}>
-            <button className="btn btn-primary" onClick={()=>setShowExport(true)}>📤 匯出</button>
+            <button className="btn btn-primary" onClick={()=>{setSelected(new Set([String(rec.id)]));setShowExport(true)}}>📤 匯出此筆</button>
             <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 編輯</button>
           </div>
         </div>}
@@ -1073,11 +1050,14 @@ function App(){
 }
 
 // 預覽用：個別載入照片的 table cell
-function PreviewPhotoCell({localSrc, fileId}) {
+function PreviewPhotoCell({localSrc, fileId, photoDate}) {
   const remote = usePhotoLoader(!localSrc ? fileId : '');
   const src = localSrc || remote.src;
   if (remote.loading) return <td className="photo-cell"><div className="no-photo-placeholder">☁️ 載入中...</div></td>;
-  if (src) return <td className="photo-cell"><img src={src}/></td>;
+  if (src) return <td className="photo-cell" style={{position:'relative'}}>
+    <img src={src}/>
+    {photoDate && <div style={{position:'absolute',bottom:8,right:8,background:'rgba(0,0,0,0.55)',color:'#fff',fontSize:'11px',fontWeight:600,padding:'2px 8px',borderRadius:3,fontFamily:'Noto Sans TC,sans-serif'}}>{photoDate}</div>}
+  </td>;
   return <td className="photo-cell"><div className="no-photo-placeholder">（未附照片）</div></td>;
 }
 
@@ -1085,11 +1065,11 @@ function PreviewTable({rec, localPhotos}) {
   return (
     <table className="preview-table"><tbody>
       <tr><td className="label-cell" rowSpan={3}>(改善前中後、同一角度拍攝之照片，並加以說明。)</td>
-        <PreviewPhotoCell localSrc={localPhotos.before} fileId={rec.beforePhotoId}/>
+        <PreviewPhotoCell localSrc={localPhotos.before} fileId={rec.beforePhotoId} photoDate={rec.beforePhotoDate}/>
         <td className="desc-cell"><div className="desc-title">改善前(缺失說明)：</div><div>{rec.beforeDesc||'—'}</div></td></tr>
-      <tr><PreviewPhotoCell localSrc={localPhotos.during} fileId={rec.duringPhotoId}/>
+      <tr><PreviewPhotoCell localSrc={localPhotos.during} fileId={rec.duringPhotoId} photoDate={rec.duringPhotoDate}/>
         <td className="desc-cell"><div className="desc-title">改善中(改善措施)：</div><div>{rec.duringDesc||'—'}</div></td></tr>
-      <tr><PreviewPhotoCell localSrc={localPhotos.after} fileId={rec.afterPhotoId}/>
+      <tr><PreviewPhotoCell localSrc={localPhotos.after} fileId={rec.afterPhotoId} photoDate={rec.afterPhotoDate}/>
         <td className="desc-cell"><div className="desc-title">改善後(改善結果)：</div><div>{rec.afterDesc||'—'}</div></td></tr>
     </tbody></table>
   );
