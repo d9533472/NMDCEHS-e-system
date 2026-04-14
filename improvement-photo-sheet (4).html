@@ -543,6 +543,10 @@ function DriveSection({ form, setForm, gasUrl }) {
         </div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
           <button type="button" className="btn btn-secondary btn-sm" disabled={busy}
+            onClick={async()=>{ const res = await getOrCreate(); if(res) alert(`✅ 資料夾已建立：${res.name}`); }}>
+            {busy ? '⏳ 處理中...' : '📁 建立資料夾'}
+          </button>
+          <button type="button" className="btn btn-secondary btn-sm" disabled={busy}
             onClick={() => fileRef.current && fileRef.current.click()}>
             {busy ? '⏳ 處理中...' : '⬆️ 上傳檔案至資料夾'}
           </button>
