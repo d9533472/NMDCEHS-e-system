@@ -296,7 +296,31 @@ function App(){
   useEffect(()=>{
     if(!GAS_URL){setLoadingApp(false);return}
     xhrGet(GAS_URL+'?action=index')
-      .then(res=>{if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);if(res.data.records)setIndex(res.data.records)}})
+      .then(res=>{
+        if(res.ok&&res.data){
+          if(res.data.header?.org)setHeader(res.data.header);
+          if(res.data.records){
+            setIndex(res.data.records);
+            // 🔗 Deep-link: 讀取 URL hash 自動跳到指定記錄
+            const hash=window.location.hash;
+            const m=hash.match(/#label=(.+)/);
+            if(m){
+              const targetLabel=decodeURIComponent(m[1]);
+              const records=res.data.records;
+              const idx=records.findIndex(r=>r.label===targetLabel);
+              if(idx>=0){
+                const meta=records[idx];
+                setCurrentIdx(idx);setTab('edit');setLoadingRec(true);setDirty(false);
+                xhrGet(GAS_URL+'?action=record&id='+meta.id)
+                  .then(r=>{if(r.ok&&r.data)setRec({...r.data});else setRec({...emptyRecord(null),id:meta.id,date:meta.date,label:meta.label});})
+                  .catch(()=>setRec({...emptyRecord(null),id:meta.id,date:meta.date,label:meta.label}))
+                  .finally(()=>{setLoadingRec(false);setDirty(false);});
+              }
+              window.history.replaceState(null,'',window.location.pathname);
+            }
+          }
+        }
+      })
       .catch(e=>{console.error(e);toast('⚠️ 索引載入失敗')})
       .finally(()=>setLoadingApp(false));
   },[]);
