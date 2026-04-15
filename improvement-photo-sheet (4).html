@@ -136,6 +136,17 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .progress-bar-wrap{width:100%;height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:12px}
 .progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#2d9d6e);border-radius:5px;transition:width .3s ease}
 .progress-box .progress-text{font-size:13px;color:var(--text2)}
+.photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.photo-grid-item{position:relative;width:calc(50% - 4px);border-radius:8px;overflow:hidden;background:#f0ece6}
+.photo-grid-item img{width:100%;height:160px;object-fit:contain;display:block}
+.photo-grid-item .remove-btn{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center}
+.photo-grid-item .photo-date-stamp{position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:3px}
+.photo-grid-item .date-row{display:flex;align-items:center;gap:4px;padding:4px 6px;background:var(--bg2);font-size:11px}
+.photo-grid-item .date-row input{padding:3px 6px;border:1px solid var(--border);border-radius:4px;font-size:11px;font-family:inherit}
+.photo-add-zone{width:calc(50% - 4px);min-height:120px;border:2px dashed var(--border);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;background:var(--bg2)}
+.photo-add-zone:hover{border-color:var(--accent);background:var(--accent-bg)}
+.photo-add-zone input[type=file]{display:none}
+@media(max-width:400px){.photo-grid-item,.photo-add-zone{width:100%}}
 </style>
 </head>
 <body>
@@ -144,9 +155,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 <script type="text/babel">
 const {useState,useEffect,useRef,useCallback} = React;
 
-// ============================================================
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbxHiB96YpiaqihKYI3_k27921f3lRL_ZgX0EdTXOMZd5_8hhA0XI4z6l8MQKHw7fgth0A/exec';
-// ============================================================
 
 const DEFAULT_HEADER = {
   org:'台灣電力公司北部施工處', title:'改 善 照 片 表',
@@ -154,130 +163,119 @@ const DEFAULT_HEADER = {
 };
 
 function toast(msg,ms=2500){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms)}
-
-function xhrGet(url){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('GET',url,true);x.onload=()=>{
-  try{const j=JSON.parse(x.responseText);ok(j)}catch{no(new Error('GET回應非JSON('+x.status+'): '+x.responseText.substring(0,80)))}
-};x.onerror=()=>no(new Error('Network error'));x.timeout=30000;x.ontimeout=()=>no(new Error('Timeout 30s'));x.send()})}
-function xhrPost(url,data){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST',url,true);x.setRequestHeader('Content-Type','text/plain;charset=utf-8');x.onload=()=>{
-  if(x.status>=400){no(new Error('HTTP '+x.status));return}
-  try{const j=JSON.parse(x.responseText);if(j.ok===false)no(new Error(j.error||'Server error'));else ok(j)}
-  catch{no(new Error('POST回應非JSON('+x.status+'): '+x.responseText.substring(0,80)))}
-};x.onerror=()=>no(new Error('Network error'));x.timeout=60000;x.ontimeout=()=>no(new Error('Timeout 60s'));x.send(JSON.stringify(data))})}
-
-// 3次重試 + exponential backoff
-async function xhrPostRetry(url, data, retries=3) {
-  for (let i = 0; i < retries; i++) {
-    try { return await xhrPost(url, data); }
-    catch(e) {
-      console.warn(`POST attempt ${i+1}/${retries} failed:`, e.message);
-      if (i === retries - 1) throw e;
-      await new Promise(r => setTimeout(r, 1000 * Math.pow(2, i)));
-    }
-  }
-}
-
+function xhrGet(url){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('GET',url,true);x.onload=()=>{try{const j=JSON.parse(x.responseText);ok(j)}catch{no(new Error('GET回應非JSON'))}};x.onerror=()=>no(new Error('Network'));x.timeout=30000;x.ontimeout=()=>no(new Error('Timeout'));x.send()})}
+function xhrPost(url,data){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST',url,true);x.setRequestHeader('Content-Type','text/plain;charset=utf-8');x.onload=()=>{try{const j=JSON.parse(x.responseText);if(j.ok===false)no(new Error(j.error||'Server error'));else ok(j)}catch{no(new Error('POST回應非JSON'))}};x.onerror=()=>no(new Error('Network'));x.timeout=60000;x.ontimeout=()=>no(new Error('Timeout'));x.send(JSON.stringify(data))})}
+async function xhrPostRetry(url,data,retries=3){for(let i=0;i<retries;i++){try{return await xhrPost(url,data)}catch(e){if(i===retries-1)throw e;await new Promise(r=>setTimeout(r,1000*Math.pow(2,i)))}}}
 function compressImage(dataUrl,maxW=1400,q=0.7){return new Promise(r=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxW){h=h*maxW/w;w=maxW}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);r(c.toDataURL('image/jpeg',q))};img.src=dataUrl})}
 
-function emptyRecord(defaults){
-  const d = defaults || DEFAULT_HEADER;
-  const today = new Date().toISOString().slice(0,10);
-  return{id:Date.now(),date:today,label:'',
-    org:d.org||DEFAULT_HEADER.org, title:d.title||DEFAULT_HEADER.title, project:d.project||DEFAULT_HEADER.project,
-    beforeDesc:'',duringDesc:'',afterDesc:'',beforePhotoId:'',duringPhotoId:'',afterPhotoId:'',
-    beforePhotoDate:today, duringPhotoDate:today, afterPhotoDate:today};
-}
-
-// ---- 在照片右下角烙印日期 ----
 function stampDateOnImage(dataUrl, dateStr) {
   if (!dataUrl || !dateStr) return Promise.resolve(dataUrl);
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => {
-      const c = document.createElement('canvas');
-      c.width = img.width; c.height = img.height;
-      const ctx = c.getContext('2d');
-      ctx.drawImage(img, 0, 0);
-      // 日期文字大小依照片寬度自適應
-      const fontSize = Math.max(16, Math.round(img.width / 30));
-      const pad = Math.round(fontSize * 0.6);
-      ctx.font = `bold ${fontSize}px 'Noto Sans TC', Arial, sans-serif`;
-      const text = dateStr;
-      const metrics = ctx.measureText(text);
-      const tx = img.width - metrics.width - pad;
-      const ty = img.height - pad;
-      // 半透明黑底
-      ctx.fillStyle = 'rgba(0,0,0,0.55)';
-      const boxH = fontSize * 1.4;
-      ctx.fillRect(tx - pad/2, ty - fontSize, metrics.width + pad, boxH);
-      // 白字
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, tx, ty);
-      resolve(c.toDataURL('image/jpeg', 0.85));
+      const c = document.createElement('canvas'); c.width=img.width; c.height=img.height;
+      const ctx = c.getContext('2d'); ctx.drawImage(img,0,0);
+      const fs = Math.max(16, Math.round(img.width/30));
+      const pad = Math.round(fs*0.6);
+      ctx.font = `bold ${fs}px 'Noto Sans TC',Arial,sans-serif`;
+      const m = ctx.measureText(dateStr);
+      const tx = img.width-m.width-pad, ty = img.height-pad;
+      ctx.fillStyle='rgba(0,0,0,0.55)'; ctx.fillRect(tx-pad/2,ty-fs,m.width+pad,fs*1.4);
+      ctx.fillStyle='#ffffff'; ctx.fillText(dateStr,tx,ty);
+      resolve(c.toDataURL('image/jpeg',0.85));
     };
-    img.onerror = () => resolve(dataUrl);
-    img.src = dataUrl;
+    img.onerror=()=>resolve(dataUrl); img.src=dataUrl;
   });
+}
+
+// ===== 資料結構：每階段照片為陣列 =====
+// photos: [{photoId:'', date:'2026-03-05', localSrc:'data:...'}]
+function emptyRecord(defaults) {
+  const d = defaults || DEFAULT_HEADER;
+  const today = new Date().toISOString().slice(0,10);
+  return { id:Date.now(), date:today, label:'',
+    org:d.org||DEFAULT_HEADER.org, title:d.title||DEFAULT_HEADER.title, project:d.project||DEFAULT_HEADER.project,
+    beforePhotos:[], beforeDesc:'',
+    duringPhotos:[], duringDesc:'',
+    afterPhotos:[],  afterDesc:'' };
+}
+
+// 舊格式轉新格式
+function migrateRecord(d) {
+  if (!d.org) d.org = DEFAULT_HEADER.org;
+  if (!d.title) d.title = DEFAULT_HEADER.title;
+  if (!d.project) d.project = DEFAULT_HEADER.project;
+  if (d.project === '通霄電廠二期海底輸氣管線統包工程') d.project = DEFAULT_HEADER.project;
+  const today = d.date || new Date().toISOString().slice(0,10);
+  for (const key of ['before','during','after']) {
+    if (!d[key+'Photos']) {
+      d[key+'Photos'] = [];
+      const pid = d[key+'PhotoId'];
+      const pdate = d[key+'PhotoDate'] || today;
+      if (pid) d[key+'Photos'].push({photoId:pid, date:pdate, localSrc:''});
+      delete d[key+'PhotoId']; delete d[key+'PhotoDate'];
+    }
+  }
+  return d;
 }
 
 // ---- 單張照片非同步讀取 ----
 function usePhotoLoader(fileId) {
-  const [src, setSrc] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  useEffect(() => {
-    if (!fileId || !GAS_URL) { setSrc(''); setLoading(false); return; }
-    let cancelled = false;
-    setLoading(true); setError(false); setSrc('');
-    xhrGet(GAS_URL + '?action=photo&fileId=' + fileId)
-      .then(res => { if (!cancelled && res.ok) setSrc(res.dataUrl); })
-      .catch(() => { if (!cancelled) setError(true); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, [fileId]);
-  return { src, loading, error };
+  const [src,setSrc]=useState('');
+  const [loading,setLoading]=useState(false);
+  useEffect(()=>{
+    if(!fileId||!GAS_URL){setSrc('');setLoading(false);return}
+    let c=false; setLoading(true); setSrc('');
+    xhrGet(GAS_URL+'?action=photo&fileId='+fileId).then(r=>{if(!c&&r.ok)setSrc(r.dataUrl)}).catch(()=>{}).finally(()=>{if(!c)setLoading(false)});
+    return()=>{c=true};
+  },[fileId]);
+  return {src,loading};
 }
 
-// ---- PhotoUploader (支援 fileId 非同步載入 + 照片日期) ----
-function PhotoUploader({localSrc, fileId, onChange, label, photoDate}) {
-  const inputRef = useRef();
-  const [dragover, setDragover] = useState(false);
-  const remote = usePhotoLoader(!localSrc ? fileId : '');
-  const displaySrc = localSrc || remote.src;
-
-  const handleFile = useCallback(async(file)=>{
-    if(!file||!file.type.startsWith('image/')){toast('⚠️ 請選擇圖片');return}
-    const reader=new FileReader();
-    reader.onload=async(e)=>{onChange(await compressImage(e.target.result));toast('✅ 照片已載入')};
-    reader.readAsDataURL(file);
-  },[onChange]);
-  const handlePaste = useCallback((e)=>{
-    const items=e.clipboardData?.items;if(!items)return;
-    for(const item of items){if(item.type.startsWith('image/')){e.preventDefault();e.stopPropagation();handleFile(item.getAsFile());return}}
-  },[handleFile]);
-  const onDrop=(e)=>{e.preventDefault();setDragover(false);handleFile(e.dataTransfer.files?.[0])};
-
-  if (!displaySrc && remote.loading) return (
-    <div className="photo-loading"><div className="mini-spin"></div>☁️ 載入{label}照片中...</div>
-  );
-  if (!displaySrc && remote.error) return (
-    <div className="photo-loading" style={{color:'var(--red)'}}>⚠️ {label}照片載入失敗<br/><button className="btn btn-secondary" style={{marginTop:8,padding:'6px 16px',fontSize:12}} onClick={()=>inputRef.current?.click()}>重新上傳</button>
-      <input type="file" accept="image/*" ref={inputRef} style={{display:'none'}} onChange={e=>handleFile(e.target.files?.[0])} /></div>
-  );
-  if (displaySrc) return (
-    <div className="photo-preview">
-      <img src={displaySrc} alt={label} />
-      <button className="remove-btn" onClick={()=>onChange('')} title="移除">×</button>
-      {photoDate && <div className="photo-date-stamp">{photoDate}</div>}
+// ---- 單張照片顯示 ----
+function PhotoItem({photo, onRemove, onDateChange}) {
+  const remote = usePhotoLoader(!photo.localSrc ? photo.photoId : '');
+  const displaySrc = photo.localSrc || remote.src;
+  if (!displaySrc && remote.loading) return <div className="photo-grid-item"><div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:12}}>☁️ 載入中...</div></div>;
+  if (!displaySrc) return null;
+  return (
+    <div className="photo-grid-item">
+      <img src={displaySrc} />
+      <button className="remove-btn" onClick={onRemove} title="移除">×</button>
+      {photo.date && <div className="photo-date-stamp">{photo.date}</div>}
+      <div className="date-row">
+        <span>📅</span>
+        <input type="date" value={photo.date||''} onChange={e=>onDateChange(e.target.value)} />
+      </div>
     </div>
   );
-  // 空白上傳區
+}
+
+// ---- 多照片區塊 ----
+function MultiPhotoSection({photos, onUpdate, label}) {
+  const inputRef = useRef();
+  const handleFile = async(file) => {
+    if(!file||!file.type.startsWith('image/'))return;
+    const reader=new FileReader();
+    reader.onload=async(e)=>{
+      const compressed = await compressImage(e.target.result);
+      const newPhoto = {photoId:'', date:new Date().toISOString().slice(0,10), localSrc:compressed};
+      onUpdate([...photos, newPhoto]);
+      toast('✅ 照片已加入');
+    };
+    reader.readAsDataURL(file);
+  };
+  const removeAt = (idx) => onUpdate(photos.filter((_,i)=>i!==idx));
+  const updateDateAt = (idx,date) => onUpdate(photos.map((p,i)=>i===idx?{...p,date}:p));
+
   return (
-    <div className={`photo-zone ${dragover?'dragover':''}`} tabIndex={0}
-      onClick={()=>inputRef.current?.click()} onPaste={handlePaste}
-      onDragOver={e=>{e.preventDefault();setDragover(true)}} onDragLeave={()=>setDragover(false)} onDrop={onDrop}>
-      <div style={{fontSize:36,opacity:.3}}>📷</div>
-      <div className="hint">點擊 / 拖放 / <b>Ctrl+V</b></div>
-      <input type="file" accept="image/*" ref={inputRef} onChange={e=>handleFile(e.target.files?.[0])} />
+    <div className="photo-grid">
+      {photos.map((p,i) => <PhotoItem key={i} photo={p} onRemove={()=>removeAt(i)} onDateChange={v=>updateDateAt(i,v)} />)}
+      <div className="photo-add-zone" onClick={()=>inputRef.current?.click()}>
+        <div style={{fontSize:28,opacity:.3}}>+</div>
+        <div style={{fontSize:11,color:'var(--text3)'}}>新增{label}照片</div>
+        <input type="file" accept="image/*" ref={inputRef} onChange={e=>{handleFile(e.target.files?.[0]);e.target.value=''}} />
+      </div>
     </div>
   );
 }
@@ -287,87 +285,49 @@ function App(){
   const [tab,setTab]=useState('list');
   const [header,setHeader]=useState(DEFAULT_HEADER);
   const [index,setIndex]=useState([]);
-  // current record: 文字+fileIds (from cloud) + local base64 (new uploads)
   const [rec,setRec]=useState(null);
-  const [localPhotos,setLocalPhotos]=useState({before:'',during:'',after:''}); // 新上傳的本機 base64
   const [currentIdx,setCurrentIdx]=useState(-1);
   const [loadingApp,setLoadingApp]=useState(true);
   const [loadingRec,setLoadingRec]=useState(false);
   const [syncing,setSyncing]=useState(false);
   const [dirty,setDirty]=useState(false);
   const [selected,setSelected]=useState(new Set());
-  const [progress,setProgress]=useState(null); // {pct, text} or null
+  const [progress,setProgress]=useState(null);
+  const [folderLink,setFolderLink]=useState(null);
 
-  // ===== Load index =====
+  // Load index
   useEffect(()=>{
     if(!GAS_URL){setLoadingApp(false);return}
-    xhrGet(GAS_URL+'?action=index')
-      .then(res=>{if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);if(res.data.records)setIndex(res.data.records)}})
-      .catch(e=>{console.error(e);toast('⚠️ 索引載入失敗')})
-      .finally(()=>setLoadingApp(false));
+    xhrGet(GAS_URL+'?action=index').then(res=>{if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);if(res.data.records)setIndex(res.data.records)}}).catch(()=>toast('⚠️ 索引載入失敗')).finally(()=>setLoadingApp(false));
   },[]);
 
-  // ===== Load record (text+fileIds only, fast) =====
+  // Load single record
   const loadRecord = async(idx)=>{
-    const meta=index[idx]; if(!meta)return;
-    setCurrentIdx(idx); setTab('edit'); setLoadingRec(true); setDirty(false);
-    setLocalPhotos({before:'',during:'',after:''});
+    const meta=index[idx];if(!meta)return;
+    setCurrentIdx(idx);setTab('edit');setLoadingRec(true);setDirty(false);setFolderLink(null);
     try{
       const res=await xhrGet(GAS_URL+'?action=record&id='+meta.id);
-      if(res.ok&&res.data){
-        // 舊紀錄可能沒有 org/title/project，補預設值
-        const d = res.data;
-        if(!d.org) d.org = DEFAULT_HEADER.org;
-        if(!d.title) d.title = DEFAULT_HEADER.title;
-        if(!d.project) d.project = DEFAULT_HEADER.project;
-        // 修正舊紀錄的短版名稱
-        if(d.project === '通霄電廠二期海底輸氣管線統包工程') d.project = DEFAULT_HEADER.project;
-        // 舊紀錄可能沒有照片日期，用紀錄日期當預設
-        if(!d.beforePhotoDate) d.beforePhotoDate = d.date || new Date().toISOString().slice(0,10);
-        if(!d.duringPhotoDate) d.duringPhotoDate = d.date || new Date().toISOString().slice(0,10);
-        if(!d.afterPhotoDate) d.afterPhotoDate = d.date || new Date().toISOString().slice(0,10);
-        setRec(d);
-        // 同步全域 header（給新增紀錄用）
-        setHeader({org:d.org, title:d.title, project:d.project});
-      }
-      else{setRec({...emptyRecord(header),id:meta.id,date:meta.date,label:meta.label})}
-    }catch(e){
-      toast('⚠️ 紀錄載入失敗');
-      setRec({...emptyRecord(header),id:meta.id,date:meta.date,label:meta.label});
-    }
+      if(res.ok&&res.data){setRec(migrateRecord(res.data));setHeader(h=>({...h,org:res.data.org||h.org,title:res.data.title||h.title,project:res.data.project||h.project}))}
+      else setRec(emptyRecord(header));
+    }catch(e){toast('⚠️ 載入失敗');setRec(emptyRecord(header))}
     setLoadingRec(false);
-    // 照片由 usePhotoLoader 在 PhotoUploader 裡各自非同步載入
   };
 
   const addRecord=()=>{
-    // 新紀錄繼承目前紀錄的表頭資訊
-    const defaults = rec ? {org:rec.org, title:rec.title, project:rec.project} : header;
+    const defaults=rec?{org:rec.org,title:rec.title,project:rec.project}:header;
     const r=emptyRecord(defaults);
-    setRec(r); setLocalPhotos({before:'',during:'',after:''});
-    const meta={id:r.id,date:r.date,label:'',beforeDesc:'',hasBeforePhoto:false,hasDuringPhoto:false,hasAfterPhoto:false};
-    setIndex(prev=>[...prev,meta]); setCurrentIdx(index.length);
-    setTab('edit'); setDirty(true); toast('➕ 新增紀錄');
+    setRec(r);setFolderLink(null);
+    setIndex(prev=>[...prev,{id:r.id,date:r.date,label:'',beforeDesc:'',hasBeforePhoto:false,hasDuringPhoto:false,hasAfterPhoto:false}]);
+    setCurrentIdx(index.length);setTab('edit');setDirty(true);toast('➕ 新增紀錄');
   };
 
   const updateField=(f,v)=>{setRec(prev=>({...prev,[f]:v}));setDirty(true)};
-
-  // 照片更新：存本機 base64，清除對應 fileId
-  const setPhoto=(key,dataUrl)=>{
-    setLocalPhotos(prev=>({...prev,[key]:dataUrl}));
-    if(!dataUrl){
-      // 移除照片：清 fileId + local
-      setRec(prev=>({...prev,[key+'PhotoId']:''}));
-    } else {
-      // 新照片：先清舊 fileId，存時會上傳
-      setRec(prev=>({...prev,[key+'PhotoId']:''}));
-    }
-    setDirty(true);
-  };
+  const updatePhotos=(key,photos)=>{setRec(prev=>({...prev,[key+'Photos']:photos}));setDirty(true)};
 
   const deleteRecord=async(idx)=>{
     const meta=index[idx];if(!meta)return;
     if(!confirm(`確定刪除「${meta.label||'#'+(idx+1)}」？`))return;
-    if(GAS_URL){setSyncing(true);try{await xhrPostRetry(GAS_URL,{action:'deleteRecord',id:meta.id})}catch(e){toast('⚠️ 雲端刪除失敗')}setSyncing(false)}
+    if(GAS_URL){setSyncing(true);try{await xhrPostRetry(GAS_URL,{action:'deleteRecord',id:meta.id})}catch(e){}setSyncing(false)}
     setIndex(prev=>prev.filter((_,i)=>i!==idx));
     if(currentIdx===idx){setRec(null);setCurrentIdx(-1);setTab('list')}
     else if(currentIdx>idx)setCurrentIdx(currentIdx-1);
@@ -375,353 +335,252 @@ function App(){
   };
 
   const reloadIndex=async()=>{
-    if(!GAS_URL)return;setSyncing(true);toast('🔄 重新載入...');
-    try{const res=await xhrGet(GAS_URL+'?action=index');if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);setIndex(res.data.records||[]);setRec(null);setCurrentIdx(-1);toast('✅ 索引已更新')}}
-    catch(e){toast('❌ 失敗')}setSyncing(false);
+    if(!GAS_URL)return;setSyncing(true);toast('🔄 載入中...');
+    try{const res=await xhrGet(GAS_URL+'?action=index');if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);setIndex(res.data.records||[]);setRec(null);setCurrentIdx(-1);toast('✅ 已更新')}}catch(e){toast('❌ 失敗')}setSyncing(false);
   };
 
-  // ===== Word =====
-  const loadDocxLib = async () => {
-    if (window.docx) return;
-    // 嘗試多個 CDN
-    const urls = [
-      'https://unpkg.com/docx@8.5.0/build/index.umd.js',
-      'https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js',
-    ];
-    for (const url of urls) {
-      try {
-        await new Promise((ok, no) => {
-          const s = document.createElement('script');
-          s.src = url;
-          s.onload = () => { if (window.docx) ok(); else no(new Error('loaded but no window.docx')); };
-          s.onerror = () => no(new Error('load failed'));
-          document.head.appendChild(s);
-        });
-        if (window.docx) return; // 成功
-      } catch(e) { console.warn('docx CDN fail:', url, e); }
-    }
-    throw new Error('docx.js 載入失敗，請確認網路連線');
-  };
-
-  const buildDocxBlob = async (recs) => {
-    await loadDocxLib();
-    const D = window.docx;
-    console.log('docx loaded, keys:', Object.keys(D).slice(0,10).join(','));
-    const border = {style:D.BorderStyle.SINGLE,size:4,color:'000000'};
-    const borders = {top:border,bottom:border,left:border,right:border};
-    const cm = {top:80,bottom:80,left:120,right:120};
-    const font = 'DFKai-SB';
-    const fsTitle = 36;
-    const fsProject = 28;
-    const fsBody = 26;
-    const fsLabel = 18;
-
-    const b64toU8 = (b64) => {
-      const bin = atob(b64);
-      const a = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
-      return a;
-    };
-
-    const imgDims = (dataUrl, mW, mH) => new Promise(r => {
-      const img = new Image();
-      img.onload = () => {
-        let w = img.width, h = img.height;
-        const s = Math.min(mW / w, mH / h, 1);
-        r({w: Math.round(w * s), h: Math.round(h * s)});
-      };
-      img.onerror = () => r({w: mW, h: mH});
-      img.src = dataUrl;
-    });
-
-    const makePhotoPara = async (src) => {
-      if (!src) return new D.Paragraph({
-        alignment: D.AlignmentType.CENTER,
-        spacing: {before: 800, after: 800},
-        children: [new D.TextRun({text: '（未附照片）', font, size: 22, color: '999999'})]
-      });
-      try {
-        const commaIdx = src.indexOf(',');
-        if (commaIdx < 0) throw new Error('invalid dataUrl');
-        const b64 = src.substring(commaIdx + 1);
-        const dims = await imgDims(src, 350, 240);
-        const imgData = b64toU8(b64);
-        // Detect type from header
-        const mimeStr = src.substring(0, commaIdx);
-        const imgType = mimeStr.includes('png') ? 'png' : 'jpg';
-        return new D.Paragraph({
-          alignment: D.AlignmentType.CENTER,
-          children: [new D.ImageRun({
-            data: imgData,
-            transformation: {width: dims.w, height: dims.h},
-            type: imgType,
-          })]
-        });
-      } catch(e) {
-        console.warn('Photo embed fail:', e);
-        return new D.Paragraph({
-          alignment: D.AlignmentType.CENTER,
-          spacing: {before: 800, after: 800},
-          children: [new D.TextRun({text: '（照片載入失敗）', font, size: 22, color: 'CC0000'})]
-        });
-      }
-    };
-
-    const makeDesc = (title, desc) => new D.TableCell({
-      borders, margins: cm,
-      verticalAlign: D.VerticalAlign.CENTER,
-      width: {size: 2830, type: D.WidthType.DXA},
-      children: [
-        new D.Paragraph({children: [new D.TextRun({text: title, font, size: fsBody, bold: true})]}),
-        new D.Paragraph({spacing: {before: 100}, children: [new D.TextRun({text: desc || '', font, size: fsBody})]}),
-      ]
-    });
-
-    // Safely get HeightRule
-    const rowHeight = D.HeightRule
-      ? {value: 3200, rule: D.HeightRule.ATLEAST}
-      : {value: 3200, rule: 'atLeast'};
-
-    // Safely get TextDirection
-    const textDir = (D.TextDirection && D.TextDirection.BOTTOM_TO_TOP_LEFT_TO_RIGHT)
-      ? D.TextDirection.BOTTOM_TO_TOP_LEFT_TO_RIGHT : 'btLr';
-
-    const sections = [];
-    for (let ri = 0; ri < recs.length; ri++) {
-      const r = recs[ri];
-      setProgress({pct: Math.round((ri+1)/recs.length*100), text: `產生 Word ${ri+1}/${recs.length}...`});
-
-      const bp = await makePhotoPara(r['_beforeSrc']);
-      const dp = await makePhotoPara(r['_duringSrc']);
-      const ap = await makePhotoPara(r['_afterSrc']);
-
-      const photoCell = (para) => new D.TableCell({
-        borders, margins: cm,
-        verticalAlign: D.VerticalAlign.CENTER,
-        width: {size: 5140, type: D.WidthType.DXA},
-        children: [para]
-      });
-
-      const labelCell = new D.TableCell({
-        borders,
-        margins: {top: 40, bottom: 40, left: 40, right: 40},
-        verticalAlign: D.VerticalAlign.CENTER,
-        width: {size: 530, type: D.WidthType.DXA},
-        rowSpan: 3,
-        textDirection: textDir,
-        children: [new D.Paragraph({
-          alignment: D.AlignmentType.CENTER,
-          children: [new D.TextRun({text: '(改善前中後、同一角度拍攝之照片，並加以說明。)', font, size: fsLabel})]
-        })]
-      });
-
-      sections.push({
-        properties: {page: {size: {width: 11906, height: 16838}, margin: {top: 1134, bottom: 1134, left: 1247, right: 1247}}},
-        children: [
-          new D.Paragraph({alignment: D.AlignmentType.CENTER, spacing: {after: 40}, children: [new D.TextRun({text: r.org||header.org, font, size: fsTitle})]}),
-          new D.Paragraph({alignment: D.AlignmentType.CENTER, spacing: {after: 100}, children: [new D.TextRun({text: r.title||header.title, font, size: fsTitle})]}),
-          new D.Paragraph({spacing: {after: 200}, children: [new D.TextRun({text: '工程名稱：', font, size: fsProject}), new D.TextRun({text: r.project||header.project, font, size: fsProject})]}),
-          new D.Table({
-            width: {size: 8500, type: D.WidthType.DXA},
-            columnWidths: [530, 5140, 2830],
-            alignment: D.AlignmentType.CENTER,
-            rows: [
-              new D.TableRow({height: rowHeight, children: [labelCell, photoCell(bp), makeDesc('改善前(缺失說明)：', r.beforeDesc)]}),
-              new D.TableRow({height: rowHeight, children: [photoCell(dp), makeDesc('改善中(改善措施)：', r.duringDesc)]}),
-              new D.TableRow({height: rowHeight, children: [photoCell(ap), makeDesc('改善後(改善結果)：', r.afterDesc)]}),
-            ]
-          }),
-          ...((r.label||r.date) ? [new D.Paragraph({spacing: {before: 120}, children: [new D.TextRun({text: `${r.label||''}　${r.date||''}`, font, size: fsLabel, color: '666666'})]})] : []),
-        ]
-      });
-    }
-    console.log('Building doc with', sections.length, 'sections');
-    const doc = new D.Document({sections});
-    return await D.Packer.toBlob(doc);
-  };
-
-
-
-  // ===== 匯出：當前紀錄 → Word+PDF 存到 Drive 資料夾 =====
-  // ===== 列表：匯出選取紀錄為 Word 下載 =====
-  const exportSelectedWord = async () => {
-    const ids = selected.size > 0 ? [...selected] : [];
-    if (!ids.length) { toast('⚠️ 請先勾選紀錄'); return; }
-    setSyncing(true);
-    setProgress({pct: 0, text: '載入紀錄...'});
-    try {
-      const recs = [];
-      for (let i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        const meta = index.find(m => String(m.id) === id);
-        setProgress({pct: Math.round((i+1)/ids.length*40), text: `載入 ${i+1}/${ids.length}：${meta?.label||''}...`});
-        try {
-          const res = await xhrGet(GAS_URL+'?action=record&id='+id);
-          if (res.ok && res.data) {
-            const r = res.data;
-            if (!r.org) r.org = DEFAULT_HEADER.org;
-            if (!r.title) r.title = DEFAULT_HEADER.title;
-            if (!r.project) r.project = DEFAULT_HEADER.project;
-            if (r.project === '通霄電廠二期海底輸氣管線統包工程') r.project = DEFAULT_HEADER.project;
-            for (const key of ['before','during','after']) {
-              if (r[key+'PhotoId']) {
-                setProgress({pct: Math.round((i+0.5)/ids.length*40), text: `載入照片 ${meta?.label||''} ${{before:'前',during:'中',after:'後'}[key]}...`});
-                try { const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']); if(pr.ok) r['_'+key+'Src']=pr.dataUrl; } catch(e){}
-              }
-              if (r['_'+key+'Src'] && r[key+'PhotoDate']) {
-                try { r['_'+key+'Src'] = await stampDateOnImage(r['_'+key+'Src'], r[key+'PhotoDate']); } catch(e){}
-              }
-            }
-            recs.push(r);
-          }
-        } catch(e) { console.warn('load fail:', id, e); }
-      }
-      if (!recs.length) { toast('⚠️ 無法載入紀錄'); return; }
-
-      setProgress({pct: 70, text: '產生 Word...'});
-      await loadDocxLib();
-      const blob = await buildDocxBlob(recs);
-      const labels = recs.map(r=>r.label||r.id).join('_');
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href=url; a.download='照片改善表_'+labels+'.docx';
-      document.body.appendChild(a); a.click(); document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url),5000);
-      toast('✅ Word 已下載（' + recs.length + ' 筆）');
-    } catch(e) {
-      console.error(e);
-      toast('❌ 匯出失敗：'+e.message, 5000);
-    }
-    setProgress(null);
-    setSyncing(false);
-  };
-
-  // ===== 儲存＋匯出 Word =====
-  const [folderLink, setFolderLink] = useState(null); // {url, name}
-
-  const saveAndExport = async () => {
-    if (!GAS_URL || !rec) { toast('⚠️ 無法儲存'); return; }
-    setSyncing(true);
-    setFolderLink(null);
-    setProgress({pct: 5, text: '☁️ 上傳照片...'});
-    try {
-      const updated = {...rec};
-
-      // 1. 上傳新照片
-      for (const key of ['before','during','after']) {
-        const b64 = localPhotos[key];
-        if (b64) {
-          setProgress(p => ({...p, text: `上傳${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片...`}));
-          const res = await xhrPostRetry(GAS_URL, {action:'uploadPhoto', fileName:`${rec.label||rec.id}_${key}_${Date.now()}.jpg`, dataUrl:b64});
-          if (res.ok && res.fileId) updated[key+'PhotoId'] = res.fileId;
-        }
-      }
-
-      // 2. 儲存紀錄
-      setProgress({pct: 30, text: '☁️ 儲存紀錄...'});
-      const recHeader = {org:updated.org, title:updated.title, project:updated.project};
-      const saveRes = await xhrPostRetry(GAS_URL, {action:'saveRecord', record:updated, header:recHeader});
-      if (!saveRes.ok) throw new Error(saveRes.error || 'Save failed');
-      setRec(updated);
-      setLocalPhotos({before:'',during:'',after:''});
-      setHeader({org:updated.org, title:updated.title, project:updated.project});
-      const meta = {id:updated.id, date:updated.date||'', label:updated.label||'',
-        beforeDesc:(updated.beforeDesc||'').substring(0,50),
-        hasBeforePhoto:!!updated.beforePhotoId, hasDuringPhoto:!!updated.duringPhotoId, hasAfterPhoto:!!updated.afterPhotoId};
-      setIndex(prev => {const arr=[...prev]; const ei=arr.findIndex(r=>String(r.id)===String(updated.id)); if(ei>=0)arr[ei]=meta; else arr.push(meta); return arr});
-      setDirty(false);
-
-      // 3. 載入照片（含烙印日期）產生 Word
-      setProgress({pct: 50, text: '📄 載入照片產生 Word...'});
-      const r = {...updated};
-      for (const key of ['before','during','after']) {
-        if (r[key+'PhotoId']) {
-          setProgress(p => ({...p, text: `載入${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片...`}));
-          try {
-            const pr = await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'PhotoId']);
-            if (pr.ok) r['_'+key+'Src'] = pr.dataUrl;
-          } catch(e) {}
-        }
-        if (r['_'+key+'Src'] && r[key+'PhotoDate']) {
-          try { r['_'+key+'Src'] = await stampDateOnImage(r['_'+key+'Src'], r[key+'PhotoDate']); } catch(e) {}
-        }
-      }
-
-      setProgress({pct: 70, text: '📄 產生 Word...'});
-      await loadDocxLib();
-      const wordBlob = await buildDocxBlob([r]);
-
-      // 4. 上傳 Word 到改善單資料夾
-      setProgress({pct: 85, text: '📤 上傳 Word...'});
-      const b64w = await new Promise(resolve => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.readAsDataURL(wordBlob);
-      });
-      const label = r.label || r.id;
-      const uploadRes = await xhrPostRetry(GAS_URL, {
-        action:'uploadToFolder', label,
-        fileName:'照片改善表_'+label+'.docx', base64:b64w,
-        mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-      });
-
-      // 5. 顯示資料夾連結
-      if (uploadRes.ok && uploadRes.folderUrl) {
-        const fname = uploadRes.matchedFolder || '雲端資料夾';
-        setFolderLink({url: uploadRes.folderUrl, name: fname});
-        toast('✅ 儲存完成，Word 已上傳！', 3000);
-      } else {
-        toast('✅ 已儲存，但找不到對應資料夾：' + (uploadRes.error||''), 4000);
-      }
-    } catch(e) {
-      console.error('Save+Export error:', e);
-      toast('❌ 失敗：' + e.message, 5000);
-    }
-    setProgress(null);
-    setSyncing(false);
-  };
-
-
-  // Global paste
+  // Global paste → add to current editing stage
   useEffect(()=>{
     const handler=(e)=>{
-      if(!rec)return;const tag=document.activeElement?.tagName;
+      if(!rec)return;
+      const tag=document.activeElement?.tagName;
       if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
-      if(document.activeElement?.classList?.contains('photo-zone'))return;
       const items=e.clipboardData?.items;if(!items)return;
       for(const item of items){if(item.type.startsWith('image/')){
         e.preventDefault();const file=item.getAsFile();if(!file)return;
-        let tf=null;
-        if(!localPhotos.before&&!rec.beforePhotoId)tf='before';
-        else if(!localPhotos.during&&!rec.duringPhotoId)tf='during';
-        else if(!localPhotos.after&&!rec.afterPhotoId)tf='after';
-        else{toast('⚠️ 三張照片都已填入');return}
         const reader=new FileReader();
-        reader.onload=async(ev)=>{const compressed=await compressImage(ev.target.result);setPhoto(tf,compressed);
-          toast(`✅ 已貼入${{before:'改善前',during:'改善中',after:'改善後'}[tf]}照片`)};
+        reader.onload=async(ev)=>{
+          const compressed=await compressImage(ev.target.result);
+          const newP={photoId:'',date:new Date().toISOString().slice(0,10),localSrc:compressed};
+          // Add to first stage that's empty, or last stage
+          let key='after';
+          if(!rec.beforePhotos.length)key='before';
+          else if(!rec.duringPhotos.length)key='during';
+          setRec(prev=>({...prev,[key+'Photos']:[...prev[key+'Photos'],newP]}));
+          setDirty(true);
+          toast(`✅ 已貼入${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片`);
+        };
         reader.readAsDataURL(file);return;
       }}
     };
     document.addEventListener('paste',handler);return()=>document.removeEventListener('paste',handler);
-  },[rec,localPhotos]);
+  },[rec]);
+
+  // ===== 儲存＋匯出 Word (合併按鈕) =====
+  const saveAndExport = async (format='TPC') => {
+    if(!GAS_URL||!rec){toast('⚠️ 無法儲存');return}
+    setSyncing(true);setFolderLink(null);
+    setProgress({pct:5,text:'上傳照片...'});
+    try{
+      const updated={...rec};
+
+      // 1. Upload new photos (ones with localSrc but no photoId)
+      for(const key of ['before','during','after']){
+        const photos=[...updated[key+'Photos']];
+        for(let pi=0;pi<photos.length;pi++){
+          if(photos[pi].localSrc && !photos[pi].photoId){
+            setProgress({pct:10+pi*5,text:`上傳${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片 ${pi+1}...`});
+            try{
+              const res=await xhrPostRetry(GAS_URL,{action:'uploadPhoto',fileName:`${rec.label||rec.id}_${key}_${pi}_${Date.now()}.jpg`,dataUrl:photos[pi].localSrc});
+              if(res.ok&&res.fileId) photos[pi]={...photos[pi],photoId:res.fileId,localSrc:''};
+            }catch(e){console.warn('upload fail:',e)}
+          }
+        }
+        updated[key+'Photos']=photos;
+      }
+
+      // 2. Save record
+      setProgress({pct:40,text:'儲存紀錄...'});
+      // Strip localSrc before saving to cloud
+      const toSave={...updated};
+      for(const key of ['before','during','after']){
+        toSave[key+'Photos']=toSave[key+'Photos'].map(p=>({photoId:p.photoId,date:p.date}));
+      }
+      const recHeader={org:updated.org,title:updated.title,project:updated.project};
+      const saveRes=await xhrPostRetry(GAS_URL,{action:'saveRecord',record:toSave,header:recHeader});
+      if(!saveRes.ok)throw new Error(saveRes.error||'Save failed');
+
+      setRec(updated);
+      setHeader({org:updated.org,title:updated.title,project:updated.project});
+      const meta={id:updated.id,date:updated.date||'',label:updated.label||'',
+        beforeDesc:(updated.beforeDesc||'').substring(0,50),
+        hasBeforePhoto:updated.beforePhotos.length>0,hasDuringPhoto:updated.duringPhotos.length>0,hasAfterPhoto:updated.afterPhotos.length>0};
+      setIndex(prev=>{const arr=[...prev];const ei=arr.findIndex(r=>String(r.id)===String(updated.id));if(ei>=0)arr[ei]=meta;else arr.push(meta);return arr});
+      setDirty(false);
+
+      // 3. Load photos for Word generation
+      setProgress({pct:55,text:'載入照片產生 Word...'});
+      const r={...updated};
+      for(const key of ['before','during','after']){
+        const photos=r[key+'Photos'];
+        for(let pi=0;pi<photos.length;pi++){
+          if(photos[pi].localSrc){photos[pi]._src=photos[pi].localSrc}
+          else if(photos[pi].photoId){
+            setProgress({pct:55+pi*3,text:`載入照片 ${key} ${pi+1}/${photos.length}...`});
+            try{const pr=await xhrGet(GAS_URL+'?action=photo&fileId='+photos[pi].photoId);if(pr.ok)photos[pi]._src=pr.dataUrl}catch(e){}
+          }
+          if(photos[pi]._src&&photos[pi].date){
+            try{photos[pi]._src=await stampDateOnImage(photos[pi]._src,photos[pi].date)}catch(e){}
+          }
+        }
+      }
+
+      // 4. Build Word
+      setProgress({pct:75,text:'產生 Word...'});
+      await loadDocxLib();
+      const wordBlob=await buildDocxBlob([r], format);
+
+      // 5. Upload Word
+      setProgress({pct:88,text:'上傳 Word...'});
+      const b64=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.readAsDataURL(wordBlob)});
+      const label=r.label||r.id;
+      const fmtSuffix = format==='POE' ? '_POE' : '';
+      const uploadRes=await xhrPostRetry(GAS_URL,{action:'uploadToFolder',label,fileName:'照片改善表_'+label+fmtSuffix+'.docx',base64:b64,mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+
+      if(uploadRes.ok&&uploadRes.folderUrl){
+        setFolderLink({url:uploadRes.folderUrl,name:uploadRes.matchedFolder||'雲端資料夾'});
+        toast('✅ 儲存完成，Word 已上傳！',3000);
+      }else{toast('⚠️ 已儲存，找不到對應資料夾',4000)}
+    }catch(e){console.error(e);toast('❌ '+e.message,5000)}
+    setProgress(null);setSyncing(false);
+  };
+
+  // ===== 列表匯出選取 =====
+  const exportSelectedWord = async (format='TPC') => {
+    const ids=[...selected];if(!ids.length){toast('⚠️ 請先勾選');return}
+    setSyncing(true);setProgress({pct:0,text:'載入紀錄...'});
+    try{
+      const recs=[];
+      for(let i=0;i<ids.length;i++){
+        setProgress({pct:Math.round((i+1)/ids.length*50),text:`載入 ${i+1}/${ids.length}...`});
+        try{
+          const res=await xhrGet(GAS_URL+'?action=record&id='+ids[i]);
+          if(res.ok&&res.data){
+            const r=migrateRecord(res.data);
+            for(const key of ['before','during','after']){
+              for(let pi=0;pi<r[key+'Photos'].length;pi++){
+                if(r[key+'Photos'][pi].photoId){
+                  try{const pr=await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'Photos'][pi].photoId);if(pr.ok)r[key+'Photos'][pi]._src=pr.dataUrl}catch(e){}
+                }
+                if(r[key+'Photos'][pi]._src&&r[key+'Photos'][pi].date){
+                  try{r[key+'Photos'][pi]._src=await stampDateOnImage(r[key+'Photos'][pi]._src,r[key+'Photos'][pi].date)}catch(e){}
+                }
+              }
+            }
+            recs.push(r);
+          }
+        }catch(e){}
+      }
+      if(!recs.length){toast('⚠️ 無法載入');return}
+      setProgress({pct:70,text:'產生 Word...'});
+      await loadDocxLib();
+      const blob=await buildDocxBlob(recs, format);
+      const labels=recs.map(r=>r.label||r.id).join('_');
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url;a.download='照片改善表_'+labels+'.docx';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      toast('✅ Word 已下載（'+recs.length+'筆）');
+    }catch(e){console.error(e);toast('❌ '+e.message,5000)}
+    setProgress(null);setSyncing(false);
+  };
+
+  // ===== Word =====
+  const loadDocxLib = async () => {
+    if(window.docx)return;
+    const urls=['https://unpkg.com/docx@8.5.0/build/index.umd.js','https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js'];
+    for(const url of urls){try{await new Promise((ok,no)=>{const s=document.createElement('script');s.src=url;s.onload=()=>{if(window.docx)ok();else no()};s.onerror=()=>no();document.head.appendChild(s)});if(window.docx)return}catch(e){}}
+    throw new Error('docx.js 載入失敗');
+  };
+
+  const buildDocxBlob = async (recs, format='TPC') => {
+    const D=window.docx;
+    const border={style:D.BorderStyle.SINGLE,size:4,color:'000000'};
+    const borders={top:border,bottom:border,left:border,right:border};
+    const cm={top:80,bottom:80,left:120,right:120};
+    const font='DFKai-SB'; const fsT=36;const fsP=28;const fsB=26;const fsL=18;
+    const b64toU8=(b64)=>{const bin=atob(b64);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a};
+    const imgDims=(src,mW,mH)=>new Promise(r=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;const s=Math.min(mW/w,mH/h,1);r({w:Math.round(w*s),h:Math.round(h*s)})};img.onerror=()=>r({w:mW,h:mH});img.src=src});
+
+    // Build photo paragraphs for a stage (array of photos)
+    const makePhotoParas = async (photos) => {
+      if(!photos||!photos.length) return [new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:600,after:600},children:[new D.TextRun({text:'（未附照片）',font,size:22,color:'999999'})]})];
+      const paras=[];
+      for(const p of photos){
+        const src=p._src;
+        if(!src){paras.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'（照片載入失敗）',font,size:20,color:'CC0000'})]}));continue}
+        try{
+          const b64=src.substring(src.indexOf(',')+1);
+          const dims=await imgDims(src,320,200);
+          paras.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.ImageRun({data:b64toU8(b64),transformation:{width:dims.w,height:dims.h},type:'jpg'})]}));
+        }catch(e){paras.push(new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'（照片嵌入失敗）',font,size:20,color:'CC0000'})]}))}
+      }
+      return paras;
+    };
+
+    const makeDesc=(title,desc)=>new D.TableCell({borders,margins:cm,verticalAlign:D.VerticalAlign.CENTER,width:{size:2830,type:D.WidthType.DXA},
+      children:[new D.Paragraph({children:[new D.TextRun({text:title,font,size:fsB,bold:true})]}),new D.Paragraph({spacing:{before:100},children:[new D.TextRun({text:desc||'',font,size:fsB})]})]});
+    const rowH=D.HeightRule?{value:3200,rule:D.HeightRule.ATLEAST}:{value:3200,rule:'atLeast'};
+    const textDir=(D.TextDirection&&D.TextDirection.BOTTOM_TO_TOP_LEFT_TO_RIGHT)?D.TextDirection.BOTTOM_TO_TOP_LEFT_TO_RIGHT:'btLr';
+
+    const sections=[];
+    for(const r of recs){
+      const bp=await makePhotoParas(r.beforePhotos);
+      const dp=await makePhotoParas(r.duringPhotos);
+      const ap=await makePhotoParas(r.afterPhotos);
+
+      if (format === 'POE') {
+        // ===== POE 格式：2欄（標籤 + 照片說明合併）=====
+        const poeLabel = (text) => new D.TableCell({borders,margins:cm,verticalAlign:D.VerticalAlign.CENTER,width:{size:562,type:D.WidthType.DXA},
+          children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text,font,size:fsB})]})]});
+        const poeContent = (photoParas, descTitle, desc) => new D.TableCell({borders,margins:cm,verticalAlign:D.VerticalAlign.CENTER,width:{size:9214,type:D.WidthType.DXA},
+          children:[...photoParas, new D.Paragraph({spacing:{before:120},children:[new D.TextRun({text:descTitle,font,size:fsB,bold:true}),new D.TextRun({text:desc||'',font,size:fsB})]})]});
+        const poeRowH = D.HeightRule?{value:4050,rule:D.HeightRule.ATLEAST}:{value:4050,rule:'atLeast'};
+
+        sections.push({
+          properties:{page:{size:{width:11906,height:16838},margin:{top:1134,bottom:1134,left:1247,right:1247}}},
+          children:[
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:40},children:[new D.TextRun({text:'台灣電力公司[北部施工處]',font,size:28})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:120},children:[new D.TextRun({text:'承攬商環境保護改善通知單缺失改善照片回覆表',font,size:28})]}),
+            new D.Table({width:{size:9776,type:D.WidthType.DXA},columnWidths:[562,9214],alignment:D.AlignmentType.CENTER,rows:[
+              new D.TableRow({height:poeRowH,children:[poeLabel('改善前'),poeContent(bp,'說明：',r.beforeDesc)]}),
+              new D.TableRow({height:poeRowH,children:[poeLabel('改善中'),poeContent(dp,'說明：',r.duringDesc)]}),
+              new D.TableRow({height:poeRowH,children:[poeLabel('改善後'),poeContent(ap,'說明：',r.afterDesc)]}),
+            ]}),
+            ...((r.label||r.date)?[new D.Paragraph({spacing:{before:120},children:[new D.TextRun({text:`${r.label||''}　${r.date||''}`,font,size:fsL,color:'666666'})]})]:[])]});
+      } else {
+        // ===== TPC 格式：3欄 =====
+        const pc=(paras)=>new D.TableCell({borders,margins:cm,verticalAlign:D.VerticalAlign.CENTER,width:{size:5140,type:D.WidthType.DXA},children:paras});
+        const lc=new D.TableCell({borders,margins:{top:40,bottom:40,left:40,right:40},verticalAlign:D.VerticalAlign.CENTER,width:{size:530,type:D.WidthType.DXA},rowSpan:3,textDirection:textDir,
+          children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'(改善前中後、同一角度拍攝之照片，並加以說明。)',font,size:fsL})]})]});
+        sections.push({
+          properties:{page:{size:{width:11906,height:16838},margin:{top:1134,bottom:1134,left:1247,right:1247}}},
+          children:[
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:40},children:[new D.TextRun({text:r.org||header.org,font,size:fsT})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{after:100},children:[new D.TextRun({text:r.title||header.title,font,size:fsT})]}),
+            new D.Paragraph({spacing:{after:200},children:[new D.TextRun({text:'工程名稱：',font,size:fsP}),new D.TextRun({text:r.project||header.project,font,size:fsP})]}),
+            new D.Table({width:{size:8500,type:D.WidthType.DXA},columnWidths:[530,5140,2830],alignment:D.AlignmentType.CENTER,rows:[
+              new D.TableRow({height:rowH,children:[lc,pc(bp),makeDesc('改善前(缺失說明)：',r.beforeDesc)]}),
+              new D.TableRow({height:rowH,children:[pc(dp),makeDesc('改善中(改善措施)：',r.duringDesc)]}),
+              new D.TableRow({height:rowH,children:[pc(ap),makeDesc('改善後(改善結果)：',r.afterDesc)]}),
+            ]}),
+            ...((r.label||r.date)?[new D.Paragraph({spacing:{before:120},children:[new D.TextRun({text:`${r.label||''}　${r.date||''}`,font,size:fsL,color:'666666'})]})]:[])]});
+      }
+    }
+    return await D.Packer.toBlob(new D.Document({sections}));
+  };
 
   // ===== RENDER =====
   if(loadingApp)return(<div className="loading-overlay"><div className="spinner"></div><p>☁️ 載入索引...</p></div>);
   const dotCls=syncing||loadingRec?'spin':(GAS_URL?'on':'off');
 
   return(<div>
-    {/* Progress overlay */}
-    {progress && <div className="progress-overlay">
-      <div className="progress-box">
-        <h3>📤 處理中</h3>
-        <div className="progress-bar-wrap"><div className="progress-bar-fill" style={{width:progress.pct+'%'}}></div></div>
-        <div className="progress-text">{progress.pct}% — {progress.text}</div>
-      </div>
-    </div>}
+    {progress&&<div className="progress-overlay"><div className="progress-box"><h3>📤 處理中</h3><div className="progress-bar-wrap"><div className="progress-bar-fill" style={{width:progress.pct+'%'}}></div></div><div className="progress-text">{progress.pct}% — {progress.text}</div></div></div>}
     <div className="app-header">
       <h1>📋 改善照片表產生器</h1>
-      <p>NMDC EHS — 貼照片、寫說明、自動產生 PDF</p>
+      <p>NMDC EHS — 貼照片、寫說明、儲存並匯出 Word</p>
       <div className="sync-bar"><span className={`dot ${dotCls}`}></span>
-        {!GAS_URL?'離線模式':syncing?'同步中...':loadingRec?'載入紀錄...':dirty?'● 有未儲存變更':`${index.length} 筆紀錄`}
+        {!GAS_URL?'離線':syncing?'同步中...':loadingRec?'載入中...':dirty?'● 未儲存':`${index.length} 筆紀錄`}
       </div>
     </div>
     <div className="container">
@@ -729,21 +588,20 @@ function App(){
         <button className={`tab ${tab==='list'?'active':''}`} onClick={()=>setTab('list')}>📑 紀錄 ({index.length})</button>
         <button className={`tab ${tab==='edit'?'active':''}`} onClick={()=>{if(!rec&&index.length)loadRecord(0);else setTab('edit')}}>✏️ 編輯</button>
         <button className={`tab ${tab==='preview'?'active':''}`} onClick={()=>setTab('preview')}>👁 預覽</button>
-        <button className={`tab ${tab==='settings'?'active':''}`} onClick={()=>setTab('settings')}>⚙️</button>
       </div>
 
       {/* LIST */}
       {tab==='list'&&<div>
         <div className="card"><div className="card-header"><div className="icon info">📑</div><div><h3>所有紀錄</h3><small>勾選後匯出 Word，或點擊進入編輯</small></div></div>
-        {index.length>0 && <div className="select-bar">
-          <input type="checkbox" className="rec-check" checked={selected.size===index.length&&index.length>0} onChange={e=>{if(e.target.checked)setSelected(new Set(index.map(r=>String(r.id))));else setSelected(new Set())}} />
+        {index.length>0&&<div className="select-bar">
+          <input type="checkbox" className="rec-check" checked={selected.size===index.length&&index.length>0} onChange={e=>{if(e.target.checked)setSelected(new Set(index.map(r=>String(r.id))));else setSelected(new Set())}}/>
           <span>{selected.size>0?`已選 ${selected.size} / ${index.length}`:'全選'}</span>
-          {selected.size>0 && <button onClick={()=>setSelected(new Set())}>取消</button>}
+          {selected.size>0&&<button onClick={()=>setSelected(new Set())}>取消</button>}
         </div>}
         {index.length===0&&<div style={{padding:24,textAlign:'center',color:'var(--text3)'}}>尚無紀錄</div>}
         {index.map((r,i)=>(
           <div key={r.id} className="record-item">
-            <input type="checkbox" className="rec-check" checked={selected.has(String(r.id))} onClick={e=>e.stopPropagation()} onChange={e=>{setSelected(prev=>{const s=new Set(prev);if(e.target.checked)s.add(String(r.id));else s.delete(String(r.id));return s})}} />
+            <input type="checkbox" className="rec-check" checked={selected.has(String(r.id))} onClick={e=>e.stopPropagation()} onChange={e=>{setSelected(prev=>{const s=new Set(prev);if(e.target.checked)s.add(String(r.id));else s.delete(String(r.id));return s})}}/>
             <div className="rec-info" onClick={()=>loadRecord(i)} style={{cursor:'pointer',flex:1}}>
               <div className="rec-title">{r.label||`紀錄 #${i+1}`}</div>
               <div className="rec-sub">{r.date||'—'} — {r.beforeDesc||'未填寫'}</div>
@@ -754,11 +612,11 @@ function App(){
         ))}</div>
         <div className="btn-group">
           <button className="btn btn-primary" onClick={addRecord}>➕ 新增</button>
-          {selected.size>0 && <button className="btn btn-sync" onClick={exportSelectedWord} disabled={syncing}>📤 匯出選取 Word ({selected.size}筆)</button>}
+          {selected.size>0&&<button className="btn btn-sync" onClick={()=>exportSelectedWord('TPC')} disabled={syncing}>📤 TPC ({selected.size}筆)</button>}
+          {selected.size>0&&<button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>exportSelectedWord('POE')} disabled={syncing}>📤 POE ({selected.size}筆)</button>}
           <button className="btn btn-load" onClick={reloadIndex} disabled={syncing}>🔄 重新載入</button>
         </div>
       </div>}
-
 
       {/* EDIT */}
       {tab==='edit'&&<div>
@@ -771,47 +629,35 @@ function App(){
             <div className="field"><label>表單標題</label><input value={rec.title||DEFAULT_HEADER.title} onChange={e=>updateField('title',e.target.value)}/></div>
             <div className="field"><label>工程名稱</label><input value={rec.project||DEFAULT_HEADER.project} readOnly style={{background:'var(--bg)',cursor:'default'}}/></div>
             <div style={{display:'flex',gap:10}}>
-              <div className="field" style={{flex:1}}><label>紀錄標籤</label><input value={rec.label} onChange={e=>updateField('label',e.target.value)} placeholder="WM-001"/></div>
+              <div className="field" style={{flex:1}}><label>紀錄標籤</label><input value={rec.label} onChange={e=>updateField('label',e.target.value)} placeholder="NMDC-NCR-001"/></div>
               <div className="field" style={{flex:1}}><label>日期</label><input type="date" value={rec.date} onChange={e=>updateField('date',e.target.value)}/></div>
             </div>
           </div></div>
 
           <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>改善前（缺失說明）</h3></div></div>
           <div className="card-body">
-            <PhotoUploader localSrc={localPhotos.before} fileId={rec.beforePhotoId} onChange={v=>setPhoto('before',v)} label="改善前" photoDate={rec.beforePhotoDate||''}/>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginTop:12}}>
-              <div className="field" style={{flex:1,marginBottom:0}}><label>缺失說明</label></div>
-              <div className="field" style={{marginBottom:0,flexShrink:0}}><label>📅 照片日期</label><input type="date" className="photo-date-input" value={rec.beforePhotoDate||''} onChange={e=>updateField('beforePhotoDate',e.target.value)}/></div>
-            </div>
-            <div className="field" style={{marginTop:4}}><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
+            <MultiPhotoSection photos={rec.beforePhotos} onUpdate={p=>updatePhotos('before',p)} label="改善前"/>
+            <div className="field" style={{marginTop:8}}><label>缺失說明</label><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
           </div></div>
 
           <div className="card"><div className="card-header"><div className="icon during">🔧</div><div><h3>改善中（改善措施）</h3></div></div>
           <div className="card-body">
-            <PhotoUploader localSrc={localPhotos.during} fileId={rec.duringPhotoId} onChange={v=>setPhoto('during',v)} label="改善中" photoDate={rec.duringPhotoDate||''}/>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginTop:12}}>
-              <div className="field" style={{flex:1,marginBottom:0}}><label>改善措施</label></div>
-              <div className="field" style={{marginBottom:0,flexShrink:0}}><label>📅 照片日期</label><input type="date" className="photo-date-input" value={rec.duringPhotoDate||''} onChange={e=>updateField('duringPhotoDate',e.target.value)}/></div>
-            </div>
-            <div className="field" style={{marginTop:4}}><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
+            <MultiPhotoSection photos={rec.duringPhotos} onUpdate={p=>updatePhotos('during',p)} label="改善中"/>
+            <div className="field" style={{marginTop:8}}><label>改善措施</label><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
           </div></div>
 
           <div className="card"><div className="card-header"><div className="icon after">✅</div><div><h3>改善後（改善結果）</h3></div></div>
           <div className="card-body">
-            <PhotoUploader localSrc={localPhotos.after} fileId={rec.afterPhotoId} onChange={v=>setPhoto('after',v)} label="改善後" photoDate={rec.afterPhotoDate||''}/>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginTop:12}}>
-              <div className="field" style={{flex:1,marginBottom:0}}><label>改善結果</label></div>
-              <div className="field" style={{marginBottom:0,flexShrink:0}}><label>📅 照片日期</label><input type="date" className="photo-date-input" value={rec.afterPhotoDate||''} onChange={e=>updateField('afterPhotoDate',e.target.value)}/></div>
-            </div>
-            <div className="field" style={{marginTop:4}}><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
+            <MultiPhotoSection photos={rec.afterPhotos} onUpdate={p=>updatePhotos('after',p)} label="改善後"/>
+            <div className="field" style={{marginTop:8}}><label>改善結果</label><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
           </div></div>
 
           <div className="btn-group">
-            <button className="btn btn-sync" onClick={saveAndExport} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ 儲存並匯出 Word'}</button>
+            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ TPC 格式匯出'}</button>
+            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ POE 格式匯出'}</button>
             <button className="btn btn-secondary" onClick={()=>setTab('preview')}>👁 預覽</button>
             <button className="btn btn-secondary" onClick={()=>setTab('list')}>📑 列表</button>
           </div>
-
         </div>}
       </div>}
 
@@ -822,84 +668,56 @@ function App(){
           <div className="preview-doc">
             <div className="doc-org">{rec.org||header.org}</div><div className="doc-title">{rec.title||header.title}</div>
             <div className="doc-project">工程名稱：{rec.project||header.project}</div>
-            <PreviewTable rec={rec} localPhotos={localPhotos}/>
+            <PreviewTable rec={rec}/>
             {(rec.label||rec.date)&&<div style={{marginTop:8,fontSize:'9pt',color:'#666'}}>{rec.label&&<span>{rec.label}　</span>}{rec.date}</div>}
           </div>
           <div className="btn-group" style={{marginTop:16}}>
-            <button className="btn btn-sync" onClick={saveAndExport} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ 儲存並匯出 Word'}</button>
+            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ TPC 格式匯出'}</button>
+            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ POE 格式匯出'}</button>
             <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 編輯</button>
           </div>
         </div>}
       </div>}
 
-      {/* SETTINGS */}
-      {tab==='settings'&&<div>
-        <div className="card"><div className="card-header"><div className="icon cloud">☁️</div><div><h3>雲端設定</h3><small>Drive JSON + 照片獨立檔案</small></div></div>
-        <div className="card-body">
-          <div className="field"><label>GAS URL</label><input defaultValue={GAS_URL} style={{fontFamily:'monospace',fontSize:12}} readOnly/><div className="hint-text">修改 HTML 頂部 <code>GAS_URL</code></div></div>
-          <div style={{padding:14,background:'var(--bg2)',borderRadius:6,fontSize:13,lineHeight:1.9,color:'var(--text2)'}}>
-            <b>📋 設定：</b><br/>
-            1️⃣ 建立 Drive 資料夾 → 複製 Folder ID<br/>
-            2️⃣ 任一 Sheet → Apps Script → 貼 Code.gs → 填 Folder ID<br/>
-            3️⃣ 部署 Web App（Me / Anyone）<br/>
-            4️⃣ URL 貼到 <code>GAS_URL</code><br/><br/>
-            <b>📁 檔案架構：</b><br/>
-            <code>_index.json</code> 輕量索引（秒開）<br/>
-            <code>rec_xxx.json</code> 紀錄文字 + photoFileId<br/>
-            <code>photo_xxx.jpg</code> 照片獨立檔案（個別載入）
-          </div>
-        </div></div>
-        <div className="card"><div className="card-header"><div className="icon info">💾</div><div><h3>資料管理</h3></div></div>
-        <div className="card-body"><div className="btn-group" style={{marginTop:0}}>
-
-        </div></div></div>
-        <div className="card"><div className="card-header"><div className="icon info">ℹ️</div><div><h3>系統</h3></div></div>
-        <div className="card-body" style={{fontSize:13,color:'var(--text2)',lineHeight:1.8}}>
-          紀錄：{index.length} 筆　|　版本：v6.0（勾選匯出·Word·PDF）
-        </div></div>
-      </div>}
-
       {/* 成功彈窗 */}
-      {folderLink && <div className="success-modal" onClick={()=>setFolderLink(null)}>
+      {folderLink&&<div className="success-modal" onClick={()=>setFolderLink(null)}>
         <div className="success-box" onClick={e=>e.stopPropagation()}>
           <div className="icon-big">✅</div>
           <h3>儲存並匯出完成！</h3>
           <p>Word 檔已上傳至改善單資料夾</p>
-          <button className="folder-btn" onClick={()=>{window.open(folderLink.url,'_blank');setFolderLink(null)}}>
-            📁 打開「{folderLink.name}」資料夾
-          </button>
+          <button className="folder-btn" onClick={()=>{window.open(folderLink.url,'_blank');setFolderLink(null)}}>📁 打開「{folderLink.name}」資料夾</button>
           <button className="close-link" onClick={()=>setFolderLink(null)}>關閉</button>
         </div>
       </div>}
 
-      <div style={{textAlign:'center',padding:'20px 0',fontSize:11,color:'#9a8c7a'}}>
-        NMDC EHS 改善照片表 v6.0 ☁️ 勾選匯出・Word・PDF
-      </div>
+      <div style={{textAlign:'center',padding:'20px 0',fontSize:11,color:'#9a8c7a'}}>NMDC EHS 改善照片表 v8.0 ☁️ 多照片支援</div>
     </div>
   </div>);
 }
 
-// 預覽用：個別載入照片的 table cell
-function PreviewPhotoCell({localSrc, fileId, photoDate}) {
-  const remote = usePhotoLoader(!localSrc ? fileId : '');
-  const src = localSrc || remote.src;
-  if (remote.loading) return <td className="photo-cell"><div className="no-photo-placeholder">☁️ 載入中...</div></td>;
-  if (src) return <td className="photo-cell" style={{position:'relative'}}>
-    <img src={src}/>
-    {photoDate && <div style={{position:'absolute',bottom:8,right:8,background:'rgba(0,0,0,0.55)',color:'#fff',fontSize:'11px',fontWeight:600,padding:'2px 8px',borderRadius:3,fontFamily:'Noto Sans TC,sans-serif'}}>{photoDate}</div>}
-  </td>;
-  return <td className="photo-cell"><div className="no-photo-placeholder">（未附照片）</div></td>;
+// 預覽用
+function PreviewPhotoCells({photos}) {
+  return photos.map((p,i)=>{
+    const remote=usePhotoLoader(!p.localSrc?p.photoId:'');
+    const src=p.localSrc||remote.src;
+    if(remote.loading)return <div key={i} style={{display:'inline-block',width:'48%',height:100,background:'var(--bg2)',borderRadius:6,margin:'1%',lineHeight:'100px',textAlign:'center',color:'var(--text3)',fontSize:11}}>☁️ 載入中</div>;
+    if(!src)return null;
+    return <div key={i} style={{display:'inline-block',width:photos.length>1?'48%':'96%',margin:'1%',position:'relative'}}>
+      <img src={src} style={{width:'100%',maxHeight:200,objectFit:'contain',borderRadius:4}}/>
+      {p.date&&<div style={{position:'absolute',bottom:4,right:4,background:'rgba(0,0,0,.5)',color:'#fff',fontSize:9,padding:'1px 5px',borderRadius:3}}>{p.date}</div>}
+    </div>;
+  });
 }
 
-function PreviewTable({rec, localPhotos}) {
+function PreviewTable({rec}) {
   return (
     <table className="preview-table"><tbody>
       <tr><td className="label-cell" rowSpan={3}>(改善前中後、同一角度拍攝之照片，並加以說明。)</td>
-        <PreviewPhotoCell localSrc={localPhotos.before} fileId={rec.beforePhotoId} photoDate={rec.beforePhotoDate}/>
+        <td className="photo-cell">{rec.beforePhotos?.length?<PreviewPhotoCells photos={rec.beforePhotos}/>:<div className="no-photo-placeholder">（未附照片）</div>}</td>
         <td className="desc-cell"><div className="desc-title">改善前(缺失說明)：</div><div>{rec.beforeDesc||'—'}</div></td></tr>
-      <tr><PreviewPhotoCell localSrc={localPhotos.during} fileId={rec.duringPhotoId} photoDate={rec.duringPhotoDate}/>
+      <tr><td className="photo-cell">{rec.duringPhotos?.length?<PreviewPhotoCells photos={rec.duringPhotos}/>:<div className="no-photo-placeholder">（未附照片）</div>}</td>
         <td className="desc-cell"><div className="desc-title">改善中(改善措施)：</div><div>{rec.duringDesc||'—'}</div></td></tr>
-      <tr><PreviewPhotoCell localSrc={localPhotos.after} fileId={rec.afterPhotoId} photoDate={rec.afterPhotoDate}/>
+      <tr><td className="photo-cell">{rec.afterPhotos?.length?<PreviewPhotoCells photos={rec.afterPhotos}/>:<div className="no-photo-placeholder">（未附照片）</div>}</td>
         <td className="desc-cell"><div className="desc-title">改善後(改善結果)：</div><div>{rec.afterDesc||'—'}</div></td></tr>
     </tbody></table>
   );
@@ -907,5 +725,6 @@ function PreviewTable({rec, localPhotos}) {
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
+
 </body>
 </html>
