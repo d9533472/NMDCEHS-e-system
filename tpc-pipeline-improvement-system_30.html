@@ -388,7 +388,7 @@ function getNextNum(records, type) {
 }
 
 const EMPTY_FORM = {
-  id:null, type:'WM', number:'', date:today(),
+  id:null, type:'WM', number:'', date:today(), createdAt:today(),
   unit:'TPC', issuer:'', area:'',
   defects:[{item:1, description:''}],
   refNumber:'', deadline:'', status:'Open',
@@ -542,6 +542,10 @@ function DriveSection({ form, setForm, gasUrl }) {
           }
         </div>
         <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+          <button type="button" className="btn btn-secondary btn-sm" disabled={busy}
+            onClick={async()=>{ const res = await getOrCreate(); if(res) alert(`✅ 資料夾已建立：${res.name}`); }}>
+            {busy ? '⏳ 處理中...' : '📁 建立資料夾'}
+          </button>
           <button type="button" className="btn btn-secondary btn-sm" disabled={busy}
             onClick={() => fileRef.current && fileRef.current.click()}>
             {busy ? '⏳ 處理中...' : '⬆️ 上傳檔案至資料夾'}
@@ -963,14 +967,15 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
   const in3Str = in3days.toISOString().slice(0,10);
   const in7days = new Date(); in7days.setDate(in7days.getDate()+7);
   const in7Str = in7days.toISOString().slice(0,10);
-  // 本週：週一～週日
+  // 本週：週一～週日（用本地時間避免 UTC+8 時差問題）
   const nowD = new Date();
+  const localFmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const dow = nowD.getDay(); // 0=日,1=一...6=六
-  const diffMon = dow === 0 ? -6 : 1 - dow; // 距本週一天數
+  const diffMon = dow === 0 ? -6 : 1 - dow;
   const weekMon = new Date(nowD); weekMon.setDate(nowD.getDate() + diffMon);
   const weekSun = new Date(weekMon); weekSun.setDate(weekMon.getDate() + 6);
-  const weekMonStr = weekMon.toISOString().slice(0,10);
-  const weekSunStr = weekSun.toISOString().slice(0,10);
+  const weekMonStr = localFmt(weekMon);
+  const weekSunStr = localFmt(weekSun);
   const thisWeekRecs = records.filter(r => r.date && r.date >= weekMonStr && r.date <= weekSunStr);
   const overdueRecs  = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < todayStr);
   const near3Recs    = records.filter(r=>r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= todayStr && r.deadline <= in3Str);
@@ -1158,18 +1163,19 @@ function PhotoBtn({ record }) {
   const [busy, setBusy] = useState(false);
 
   const handleClick = async () => {
+    // 先開空視窗（必須在 await 前，否則 iOS Safari 會擋 popup）
+    const win = window.open('', '_blank');
     if (!PHOTO_GAS_URL) {
-      // 若未設定 Photo GAS URL，直接開照片系統首頁
-      window.open(PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number), '_blank');
+      if (win) win.location.href = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
       return;
     }
     setBusy(true);
     try {
       // 1. 查詢照片系統有沒有這個 label
       const indexRes = await xhrGet(PHOTO_GAS_URL + '?action=index');
-      const records = (indexRes.ok && indexRes.data && indexRes.data.records) ? indexRes.data.records : [];
-      const label = record.number; // 改善單編號 = 記錄標籤
-      const exists = records.some(r => r.label === label);
+      const recs = (indexRes.ok && indexRes.data && indexRes.data.records) ? indexRes.data.records : [];
+      const label = record.number;
+      const exists = recs.some(r => r.label === label);
 
       if (!exists) {
         // 2. 沒有的話自動建立一筆
@@ -1177,25 +1183,22 @@ function PhotoBtn({ record }) {
           ? record.defects.map(d => d.description).join('\n')
           : (record.description || '');
         const newRec = {
-          id: Date.now(),
-          label: label,
-          date: record.date || '',
-          beforeDesc: desc,
-          duringDesc: '',
-          afterDesc: '',
-          remark: '',
+          id: Date.now(), label, date: record.date || '',
+          beforeDesc: desc, duringDesc: '', afterDesc: '', remark: '',
         };
         await xhrPost(PHOTO_GAS_URL, { action: 'saveRecord', record: newRec, header: null });
       }
-      // 3. 開照片系統
-      window.open(PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number), '_blank');
+      // 3. 導向照片系統
+      if (win) win.location.href = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
+      else window.open(PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number), '_blank');
     } catch(e) {
+      if (win) win.close();
       alert('照片系統連線失敗：' + e.message);
     } finally { setBusy(false); }
   };
 
   return (
-    <button className="btn btn-secondary btn-sm btn-icon" title="開啟照片系統" disabled={busy} onClick={handleClick}>
+    <button className="btn btn-secondary btn-sm btn-icon" title="開啟改善照片系統" disabled={busy} onClick={handleClick}>
       {busy ? '⏳' : '📷'}
     </button>
   );
@@ -1238,7 +1241,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
     (!filters.item || (r.defects&&r.defects.length>0 ? r.defects.some(d=>String(d.item)===filters.item) : String(r.item)===filters.item)) &&
     (!filters._overdue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < today())) &&
     (!filters._neardue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline >= today() && r.deadline <= (()=>{const d=new Date();d.setDate(d.getDate()+7);return d.toISOString().slice(0,10);})())) &&
-    (!filters._thisweek || (()=>{ const n=new Date(); const dw=n.getDay(); const diff=dw===0?-6:1-dw; const mon=new Date(n); mon.setDate(n.getDate()+diff); const sun=new Date(mon); sun.setDate(mon.getDate()+6); return r.date>=mon.toISOString().slice(0,10)&&r.date<=sun.toISOString().slice(0,10); })()) &&
+    (!filters._thisweek || (()=>{ const n=new Date(); const dw=n.getDay(); const diff=dw===0?-6:1-dw; const mon=new Date(n); mon.setDate(n.getDate()+diff); const sun=new Date(mon); sun.setDate(mon.getDate()+6); const fmt=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; return r.date>=fmt(mon)&&r.date<=fmt(sun); })()) &&
     (!filters.search || [r.number,r.description,r.issuer,r.refNumber,...(r.defects||[]).map(d=>d.description)].join(' ').toLowerCase().includes(filters.search.toLowerCase()))
   ).sort((a,b)=>{
     let va=a[sort.key]||'', vb=b[sort.key]||'';
@@ -1581,7 +1584,7 @@ function App() {
       // 若有 Drive 資料夾，先叫 GAS 備份後刪除
       if (target && target.driveFolderId) {
         const deleteDate = new Date().toISOString().slice(0,10);
-        const archiveName = `${target.number}&${deleteDate}`;
+        const archiveName = `Deleted @ ${deleteDate} _ ${target.number}`;
         await xhrPost(gasUrl, {
           action: 'archiveAndDeleteFolder',
           folderId: target.driveFolderId,
