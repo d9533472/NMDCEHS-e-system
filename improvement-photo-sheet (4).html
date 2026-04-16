@@ -84,13 +84,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .btn-danger{background:var(--red);color:#fff}
 .btn-danger:hover{background:#a93226}
 .btn-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
-.record-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.record-item{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
 .record-item:hover{background:var(--accent-bg)}
 .record-item:last-child{border-bottom:none}
 .record-item .rec-idx{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
-.record-item .rec-info{flex:1;min-width:0}
-.record-item .rec-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.record-item .rec-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.record-item .rec-info{flex:1;min-width:0;overflow:hidden}
+.record-item .rec-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.record-item .rec-sub{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.record-item .rec-del-btn{flex-shrink:0;width:36px;height:36px;padding:0;border:none;border-radius:50%;background:transparent;color:var(--red);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.record-item .rec-del-btn:hover{background:rgba(192,57,43,.1)}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:all .35s ease}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
@@ -132,8 +134,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
   /* 按鈕 */
   .btn-group{gap:6px;margin-top:14px}
-  .btn{width:100%;justify-content:center;padding:13px 16px;font-size:14px;border-radius:10px}
-  .btn-danger{padding:8px 10px;font-size:12px}
+  .btn-group .btn{width:100%;justify-content:center;padding:13px 16px;font-size:14px;border-radius:10px}
 
   /* 照片格子：手機改單欄 */
   .photo-grid{gap:8px}
@@ -148,10 +149,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   .photo-add-zone>div:nth-child(2){font-size:13px!important}
 
   /* 紀錄列表 */
-  .record-item{padding:14px 12px;gap:10px}
+  .record-item{padding:12px 10px;gap:8px}
   .record-item .rec-title{font-size:14px}
-  .record-item .rec-sub{font-size:11px;margin-top:3px}
-  .rec-check{width:22px;height:22px}
+  .record-item .rec-sub{font-size:12px;margin-top:4px;-webkit-line-clamp:2}
+  .record-item .rec-del-btn{width:34px;height:34px;font-size:15px}
+  .rec-check{width:22px;height:22px;margin-top:2px}
   .select-bar{padding:10px 14px;font-size:12px}
 
   /* 預覽 */
@@ -173,9 +175,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   .success-box .folder-btn{padding:14px;font-size:14px}
 
   /* 進度條 */
-  .progress-box{padding:22px 24px;max-width:92%}
-  .progress-box h3{font-size:14px}
-  .progress-box .progress-text{font-size:11px}
 
   /* Toast */
   .toast{bottom:16px;font-size:12px;padding:10px 20px;max-width:90%}
@@ -199,10 +198,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .modal-opt button.sel{border-color:var(--accent);background:var(--accent-bg);color:var(--accent)}
 .modal-opt button:hover{border-color:var(--accent)}
 .modal-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
-/* Progress overlay */
-.progress-overlay{position:fixed;inset:0;background:rgba(245,240,235,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:350;padding:20px}
-.progress-box{background:var(--card);border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.2);padding:30px 40px;text-align:center;max-width:380px;width:100%}
-.progress-box h3{font-size:16px;margin-bottom:16px;color:var(--text)}
+/* 頂部細線進度條（不擋畫面）*/
+.top-progress{position:fixed;top:0;left:0;right:0;height:3px;background:rgba(255,255,255,.15);z-index:1000;overflow:hidden}
+.top-progress .bar{height:100%;background:linear-gradient(90deg,#4ade80,#fbbf24,#4ade80);background-size:200% 100%;transition:width .3s ease;animation:shimmer 2s linear infinite;box-shadow:0 0 8px rgba(74,222,128,.6)}
+@keyframes shimmer{0%{background-position:0 0}100%{background-position:200% 0}}
 .success-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:400;padding:20px}
 .success-box{background:var(--card);border-radius:14px;box-shadow:0 10px 50px rgba(0,0,0,.3);padding:32px;text-align:center;max-width:360px;width:100%;animation:popIn .25s ease}
 @keyframes popIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
@@ -213,9 +212,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .success-box .folder-btn:hover{background:#155a3e}
 .success-box .close-link{color:var(--text3);font-size:13px;cursor:pointer;border:none;background:none;font-family:inherit}
 .success-box .close-link:hover{color:var(--text)}
-.progress-bar-wrap{width:100%;height:10px;background:var(--border);border-radius:5px;overflow:hidden;margin-bottom:12px}
-.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#2d9d6e);border-radius:5px;transition:width .3s ease}
-.progress-box .progress-text{font-size:13px;color:var(--text2)}
 .photo-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .photo-grid-item{position:relative;width:calc(50% - 4px);border-radius:8px;overflow:hidden;background:#f0ece6}
 .photo-grid-item img{width:100%;height:160px;object-fit:contain;display:block}
@@ -718,7 +714,6 @@ function App(){
   };
 
   // ===== RENDER =====
-  if(loadingApp)return(<div className="loading-overlay"><div className="spinner"></div><p>☁️ 載入索引...</p><p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>如首次使用，GAS 冷啟動約需 10-30 秒</p></div>);
   if(indexError)return(<div className="loading-overlay">
     <div style={{fontSize:48,marginBottom:12}}>⚠️</div>
     <h3 style={{color:'var(--red)',marginBottom:8}}>索引載入失敗</h3>
@@ -732,15 +727,15 @@ function App(){
     <button className="btn btn-primary" onClick={loadIndex}>🔄 重試</button>
     <a href={GAS_URL} target="_blank" rel="noopener" style={{marginTop:12,fontSize:12,color:'var(--text3)'}}>🔗 直接開啟 GAS URL 檢查</a>
   </div>);
-  const dotCls=syncing||loadingRec?'spin':(GAS_URL?'on':'off');
+  const dotCls=loadingApp||syncing||loadingRec?'spin':(GAS_URL?'on':'off');
 
   return(<div>
-    {progress&&<div className="progress-overlay"><div className="progress-box"><h3>📤 處理中</h3><div className="progress-bar-wrap"><div className="progress-bar-fill" style={{width:progress.pct+'%'}}></div></div><div className="progress-text">{progress.pct}% — {progress.text}</div></div></div>}
+    {(progress||loadingApp)&&<div className="top-progress"><div className="bar" style={{width:progress?progress.pct+'%':'100%'}}></div></div>}
     <div className="app-header">
       <h1>📋 改善照片表產生器</h1>
       <p>NMDC EHS — 貼照片、寫說明、儲存並匯出 Word</p>
       <div className="sync-bar"><span className={`dot ${dotCls}`}></span>
-        {!GAS_URL?'離線':syncing?'同步中...':loadingRec?'載入中...':dirty?'● 未儲存':`${index.length} 筆紀錄`}
+        {loadingApp?'載入索引中...':progress?(progress.pct+'% · '+progress.text):!GAS_URL?'離線':syncing?'同步中...':loadingRec?'載入中...':dirty?'● 未儲存':`${index.length} 筆紀錄`}
       </div>
     </div>
     <div className="container">
@@ -758,7 +753,7 @@ function App(){
           <span>{selected.size>0?`已選 ${selected.size} / ${index.length}`:'全選'}</span>
           {selected.size>0&&<button onClick={()=>setSelected(new Set())}>取消</button>}
         </div>}
-        {index.length===0&&<div style={{padding:24,textAlign:'center',color:'var(--text3)'}}>尚無紀錄</div>}
+        {index.length===0&&<div style={{padding:32,textAlign:'center',color:'var(--text3)'}}>{loadingApp?'☁️ 載入中...':'📭 尚無紀錄'}</div>}
         {index.map((r,i)=>(
           <div key={r.id} className="record-item">
             <input type="checkbox" className="rec-check" checked={selected.has(String(r.id))} onClick={e=>e.stopPropagation()} onChange={e=>{setSelected(prev=>{const s=new Set(prev);if(e.target.checked)s.add(String(r.id));else s.delete(String(r.id));return s})}}/>
@@ -766,7 +761,7 @@ function App(){
               <div className="rec-title">{r.label||`紀錄 #${i+1}`}</div>
               <div className="rec-sub">{r.date||'—'} — {r.beforeDesc||'未填寫'}</div>
             </div>
-            <button className="btn btn-danger" style={{padding:'6px 12px',fontSize:12}} onClick={e=>{e.stopPropagation();deleteRecord(i)}}>🗑</button>
+            <button className="rec-del-btn" onClick={e=>{e.stopPropagation();deleteRecord(i)}} title="刪除">🗑</button>
           </div>
         ))}</div>
         <div className="btn-group">
