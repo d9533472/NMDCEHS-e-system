@@ -1188,22 +1188,30 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
 // ─── PHOTO SYSTEM BUTTON ──────────────────────────────────────
 function PhotoBtn({ record }) {
   const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [msg, setMsg] = useState('');
 
   const handleClick = async () => {
-    // 先開空視窗（同步，iOS Safari 不擋）
+    // 先開空視窗，並立刻寫入等待畫面（iOS 要求同步）
     const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>載入中...</title><style>*{margin:0;padding:0;box-sizing:border-box}body{background:#0f1d30;display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif}.box{background:#1e3a5f;border-radius:16px;padding:36px 40px;text-align:center;color:#fff;width:min(320px,88vw)}.icon{font-size:40px;margin-bottom:16px}.title{font-size:17px;font-weight:700;margin-bottom:20px}.bar-wrap{background:rgba(255,255,255,.15);border-radius:99px;height:8px;overflow:hidden;margin-bottom:14px}.bar{height:100%;background:linear-gradient(90deg,#38bdf8,#34d399);border-radius:99px;animation:grow 20s ease-out forwards}@keyframes grow{0%{width:5%}40%{width:40%}70%{width:70%}90%{width:88%}100%{width:93%}}.sub{font-size:12px;opacity:.65;margin-top:8px}</style></head><body><div class="box"><div class="icon">📷</div><div class="title">正在連結改善照片系統...</div><div class="bar-wrap"><div class="bar"></div></div><div>請稍候，GAS 首次連線約需 10~20 秒</div><div class="sub">連結完成後將自動跳轉</div></div></body></html>`);
+      win.document.close();
+    }
     if (!PHOTO_GAS_URL) {
       if (win) win.location.href = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
       return;
     }
-    setBusy(true);
+    setBusy(true); setProgress(10); setMsg('連線照片系統中...');
     try {
-      // 查索引
+      await new Promise(r=>setTimeout(r,300));
+      setProgress(30); setMsg('查詢改善單紀錄...');
       const indexRes = await xhrGet(PHOTO_GAS_URL + '?action=index');
       const recs = (indexRes.ok && indexRes.data && indexRes.data.records) ? indexRes.data.records : [];
       const exists = recs.some(r => r.label === record.number);
+      setProgress(65);
       if (!exists) {
-        // 建立新紀錄（改善前敘述 = 缺失說明）
+        setMsg('建立新紀錄中...');
         const desc = (record.defects && record.defects.length > 0)
           ? record.defects.map(d => d.description).join('\n')
           : (record.description || '');
@@ -1212,21 +1220,40 @@ function PhotoBtn({ record }) {
           record: { id: Date.now(), label: record.number, date: record.date||'', beforeDesc: desc, duringDesc: '', afterDesc: '', remark: '' },
           header: null
         });
+        setProgress(90); setMsg('紀錄建立完成，即將開啟...');
+      } else {
+        setProgress(90); setMsg('即將開啟照片系統...');
       }
-      // 導向照片系統（帶 hash 直接跳到對應記錄）
+      await new Promise(r=>setTimeout(r,400));
+      setProgress(100);
       if (win) win.location.href = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
       else window.open(PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number), '_blank');
     } catch(e) {
       if (win) win.close();
       alert('照片系統連線失敗：' + e.message);
-    } finally { setBusy(false); }
+    } finally {
+      setTimeout(()=>{ setBusy(false); setProgress(0); setMsg(''); }, 600);
+    }
   };
 
-  return (
+  return (<>
+    {busy && (
+      <div style={{position:'fixed',inset:0,background:'rgba(15,37,64,.82)',zIndex:9999,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:16}}>
+        <div style={{background:'var(--bg-card)',borderRadius:16,padding:'28px 36px',width:'min(340px,88vw)',boxShadow:'0 8px 40px rgba(0,0,0,.4)',display:'flex',flexDirection:'column',gap:14,alignItems:'center'}}>
+          <div style={{fontSize:28}}>📷</div>
+          <div style={{fontSize:15,fontWeight:700,color:'var(--text-primary)',textAlign:'center'}}>開啟改善照片系統</div>
+          <div style={{width:'100%',background:'var(--bg-input)',borderRadius:99,height:8,overflow:'hidden'}}>
+            <div style={{height:'100%',borderRadius:99,background:'linear-gradient(90deg,var(--accent-blue),var(--accent-green))',width:`${progress}%`,transition:'width .4s ease'}}></div>
+          </div>
+          <div style={{fontSize:13,color:'var(--text-secondary)',textAlign:'center'}}>{msg}</div>
+          <div style={{fontSize:11,color:'var(--text-muted)',textAlign:'center'}}>GAS 首次連線約需 10~20 秒，請稍候...</div>
+        </div>
+      </div>
+    )}
     <button className="btn btn-secondary btn-sm btn-icon" title="開啟改善照片系統" disabled={busy} onClick={handleClick}>
       {busy ? '⏳' : '📷'}
     </button>
-  );
+  </>);
 }
 
 // ─── RECORDS TAB ──────────────────────────────────────────────

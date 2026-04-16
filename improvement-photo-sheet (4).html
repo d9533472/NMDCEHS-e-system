@@ -100,7 +100,89 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .loading-overlay p{margin-top:16px;font-size:14px;color:var(--text2)}
 .record-loading{text-align:center;padding:60px 20px;color:var(--text3)}
 .record-loading .spinner-sm{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
-@media(max-width:600px){.container{padding:10px}.preview-doc{padding:20px 16px}.card-body{padding:14px}.btn-group{flex-direction:column}.btn{width:100%;justify-content:center}}
+/* ============ 手機版優化 ============ */
+@media(max-width:640px){
+  /* 整體容器 */
+  body{font-size:14px}
+  .container{padding:8px}
+
+  /* 頂部標題列 */
+  .app-header{padding:14px 16px}
+  .app-header h1{font-size:16px;letter-spacing:0.5px}
+  .app-header p{font-size:11px}
+  .sync-bar{font-size:10px;margin-top:4px}
+
+  /* Tab 頁籤 */
+  .tabs{padding:3px;margin-bottom:10px;gap:2px}
+  .tab{padding:8px 4px;font-size:12px}
+
+  /* 卡片 */
+  .card{border-radius:10px;margin-bottom:10px}
+  .card-header{padding:12px 14px;gap:8px}
+  .card-header .icon{width:28px;height:28px;font-size:14px;border-radius:7px}
+  .card-header h3{font-size:14px}
+  .card-header small{font-size:10px}
+  .card-body{padding:14px}
+
+  /* 表單 */
+  .field{margin-bottom:10px}
+  .field label{font-size:11px;margin-bottom:4px}
+  .field input,.field textarea,.field select{padding:10px;font-size:15px;border-radius:8px}
+  .field textarea{min-height:72px}
+
+  /* 按鈕 */
+  .btn-group{gap:6px;margin-top:14px}
+  .btn{width:100%;justify-content:center;padding:13px 16px;font-size:14px;border-radius:10px}
+  .btn-danger{padding:8px 10px;font-size:12px}
+
+  /* 照片格子：手機改單欄 */
+  .photo-grid{gap:8px}
+  .photo-grid-item{width:100%}
+  .photo-grid-item img{height:220px}
+  .photo-grid-item .remove-btn{width:28px;height:28px;font-size:16px;top:6px;right:6px}
+  .photo-grid-item .photo-date-stamp{font-size:11px;padding:2px 8px;bottom:6px;right:6px}
+  .photo-grid-item .date-row{padding:6px 10px;font-size:12px}
+  .photo-grid-item .date-row input{font-size:13px;padding:5px 8px}
+  .photo-add-zone{width:100%;min-height:80px;padding:16px;border-radius:10px}
+  .photo-add-zone>div:first-child{font-size:32px!important}
+  .photo-add-zone>div:nth-child(2){font-size:13px!important}
+
+  /* 紀錄列表 */
+  .record-item{padding:14px 12px;gap:10px}
+  .record-item .rec-title{font-size:14px}
+  .record-item .rec-sub{font-size:11px;margin-top:3px}
+  .rec-check{width:22px;height:22px}
+  .select-bar{padding:10px 14px;font-size:12px}
+
+  /* 預覽 */
+  .preview-doc{padding:16px 10px}
+  .preview-doc .doc-org{font-size:13pt;letter-spacing:1px}
+  .preview-doc .doc-title{font-size:13pt;letter-spacing:3px}
+  .preview-doc .doc-project{font-size:10pt}
+  .preview-table{font-size:10pt}
+  .preview-table .label-cell{width:22px;font-size:9pt;padding:4px 2px}
+  .preview-table .photo-cell{padding:4px}
+  .preview-table .photo-cell img{max-height:180px}
+  .preview-table .desc-cell{font-size:9.5pt;padding:6px}
+
+  /* 彈窗 */
+  .success-box{padding:24px 20px;max-width:95%}
+  .success-box .icon-big{font-size:40px}
+  .success-box h3{font-size:15px}
+  .success-box p{font-size:12px}
+  .success-box .folder-btn{padding:14px;font-size:14px}
+
+  /* 進度條 */
+  .progress-box{padding:22px 24px;max-width:92%}
+  .progress-box h3{font-size:14px}
+  .progress-box .progress-text{font-size:11px}
+
+  /* Toast */
+  .toast{bottom:16px;font-size:12px;padding:10px 20px;max-width:90%}
+
+  /* 照片日期選擇器 */
+  .photo-date-input{max-width:none;font-size:13px}
+}
 /* Checkbox */
 .rec-check{width:20px;height:20px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
 .select-bar{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:13px;color:var(--text2)}
