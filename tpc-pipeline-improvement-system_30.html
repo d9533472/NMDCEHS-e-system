@@ -1372,57 +1372,75 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
                 <button className="btn btn-danger btn-sm btn-icon" onClick={()=>{if(confirm(`確定刪除 ${r.number}？`))onDelete(r.id);}}>🗑</button>
               </div>
 
-              {/* ── 手機版：卡片佈局 ── */}
-              <div className="mobile-card" style={{flexDirection:'column',padding:'12px',gap:8}}>
-                {/* 頂部：badge + 編號 + 狀態 + 操作 */}
-                <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
-                  <span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span>
-                  <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:13,fontWeight:700,color:'var(--text-primary)',flex:1}}>{r.number}</span>
-                  <span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span>
+              {/* ── 手機版：美化卡片 ── */}
+              <div className="mobile-card" style={{flexDirection:'column',gap:0}}>
+                {/* 卡片頂部色條 + 標題列 */}
+                <div style={{
+                  background: r.type==='NCR'?'linear-gradient(135deg,#92400e,#d97706)':r.type==='PN'?'linear-gradient(135deg,#991b1b,#ef4444)':'linear-gradient(135deg,#075985,#0ea5e9)',
+                  padding:'10px 14px',display:'flex',alignItems:'center',gap:8,borderRadius:'var(--radius) var(--radius) 0 0'
+                }}>
+                  <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:14,fontWeight:900,color:'#fff',flex:1,letterSpacing:1}}>{r.number}</span>
+                  <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.85)',background:'rgba(255,255,255,.18)',borderRadius:20,padding:'2px 10px'}}>
+                    {r.type==='WM'?'走動管理':r.type==='NCR'?'改善通知':'罰單'}
+                  </span>
+                  <span style={{fontSize:11,fontWeight:700,color:r.status==='Closed'?'#6ee7b7':'#fca5a5',background:'rgba(0,0,0,.25)',borderRadius:20,padding:'2px 10px'}}>
+                    {r.status}
+                  </span>
                 </div>
-                {/* 操作按鈕列 */}
-                <div style={{display:'flex',gap:6}}>
-                  <button className="btn btn-secondary btn-sm btn-icon" onClick={()=>{setMode('edit');setEditRec(r);setShowModal(true);}}>✏️</button>
-                  <PhotoBtn record={r} />
-                  <button className="btn btn-secondary btn-sm btn-icon" title="Drive" onClick={async()=>{
-                    if (r.driveFolderUrl) { window.open(r.driveFolderUrl,'_blank'); return; }
-                    const win = window.open('', '_blank');
-                    try {
-                      const res = await xhrPost(gasUrl, {action:'getFolderUrl', type:r.type, date:r.date, number:r.number});
-                      if (res.ok) { if(win) win.location.href = res.url; onEdit({...r, driveFolderUrl:res.url, driveFolderId:res.folderId}); }
-                      else { if(win) win.close(); alert('Drive 錯誤：' + res.error); }
-                    } catch(e) { if(win) win.close(); alert('Drive 錯誤：' + e.message); }
-                  }}>📁</button>
-                  <button className="btn btn-danger btn-sm btn-icon" onClick={()=>{if(confirm(`確定刪除 ${r.number}？`))onDelete(r.id);}}>🗑</button>
-                </div>
-                {/* 兩欄資訊 */}
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px 12px',fontSize:12}}>
-                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>缺失日期</span><div>{fmtDate(r.date)}</div></div>
-                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>工區</span><div>{r.area||'—'}</div></div>
-                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>單位</span><div>{r.unit||'—'}</div></div>
-                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>開單人</span><div>{r.issuer||'—'}</div></div>
-                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>關單期限</span>
-                    <div style={{color:r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''}}>{fmtDate(r.deadline)||'—'}</div>
+
+                {/* 卡片主體 */}
+                <div style={{padding:'12px 14px',display:'flex',flexDirection:'column',gap:10,background:'var(--bg-card)',borderRadius:'0 0 var(--radius) var(--radius)',border:'1px solid var(--border)',borderTop:'none'}}>
+
+                  {/* 操作按鈕 */}
+                  <div style={{display:'flex',gap:6,justifyContent:'flex-end'}}>
+                    <button className="btn btn-secondary btn-sm" style={{fontSize:12,padding:'5px 12px'}} onClick={()=>{setMode('edit');setEditRec(r);setShowModal(true);}}>✏️ 編輯</button>
+                    <PhotoBtn record={r} />
+                    <button className="btn btn-secondary btn-sm btn-icon" title="Drive" onClick={async()=>{
+                      if (r.driveFolderUrl) { window.open(r.driveFolderUrl,'_blank'); return; }
+                      const win = window.open('', '_blank');
+                      try {
+                        const res = await xhrPost(gasUrl, {action:'getFolderUrl', type:r.type, date:r.date, number:r.number});
+                        if (res.ok) { if(win) win.location.href = res.url; onEdit({...r, driveFolderUrl:res.url, driveFolderId:res.folderId}); }
+                        else { if(win) win.close(); alert('Drive 錯誤：' + res.error); }
+                      } catch(e) { if(win) win.close(); alert('Drive 錯誤：' + e.message); }
+                    }}>📁</button>
+                    <button className="btn btn-danger btn-sm btn-icon" onClick={()=>{if(confirm(`確定刪除 ${r.number}？`))onDelete(r.id);}}>🗑</button>
                   </div>
-                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>關單日期</span>
-                    <div style={{color:r.submitDate&&r.submitDate!=='-'?'var(--accent-green)':''}}>{r.submitDate&&r.submitDate!=='-'?fmtDate(r.submitDate):'—'}</div>
-                  </div>
-                  <div style={{gridColumn:'1/-1'}}><span style={{color:'var(--text-muted)',fontSize:11}}>業主改善單編號</span><div>{r.refNumber||'—'}</div></div>
-                  <div style={{gridColumn:'1/-1'}}><span style={{color:'var(--text-muted)',fontSize:11}}>缺失項目</span>
-                    <div>{(r.defects&&r.defects.length>0)?r.defects.map(d=>itemOptions[d.item]||d.item).join('、'):(itemOptions[r.item]||'—')}</div>
-                  </div>
-                </div>
-                {/* 缺失說明（全寬） */}
-                {(r.defects&&r.defects.length>0) && (
-                  <div style={{background:'var(--bg-input)',borderRadius:6,padding:'8px 10px',fontSize:12}}>
-                    {r.defects.map((d,i)=>(
-                      <div key={i} style={{marginBottom:i<r.defects.length-1?6:0}}>
-                        <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',borderRadius:3,padding:'1px 5px',marginRight:5}}>#{i+1} {itemOptions[d.item]||d.item}</span>
-                        <div style={{marginTop:3,color:'var(--text-primary)',wordBreak:'break-word',whiteSpace:'pre-wrap'}}>{d.description}</div>
+
+                  {/* 資訊 2欄 */}
+                  <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'8px 16px'}}>
+                    {[
+                      ['缺失日期', fmtDate(r.date), ''],
+                      ['工區', r.area||'—', ''],
+                      ['單位', r.unit||'—', ''],
+                      ['開單人', r.issuer||'—', ''],
+                      ['關單期限', fmtDate(r.deadline)||'—', r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''],
+                      ['關單日期', r.submitDate&&r.submitDate!=='-'?fmtDate(r.submitDate):'—', r.submitDate&&r.submitDate!=='-'?'var(--accent-green)':''],
+                    ].map(([label,val,color])=>(
+                      <div key={label}>
+                        <div style={{fontSize:10,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:2}}>{label}</div>
+                        <div style={{fontSize:13,color:color||'var(--text-primary)',fontWeight:500}}>{val}</div>
                       </div>
                     ))}
+                    <div style={{gridColumn:'1/-1'}}>
+                      <div style={{fontSize:10,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:2}}>業主改善單編號</div>
+                      <div style={{fontSize:13,color:'var(--text-primary)',fontWeight:500}}>{r.refNumber||'—'}</div>
+                    </div>
                   </div>
-                )}
+
+                  {/* 缺失條目 */}
+                  {(r.defects&&r.defects.length>0) && (
+                    <div style={{borderTop:'1px solid var(--border)',paddingTop:10}}>
+                      <div style={{fontSize:10,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>缺失條目</div>
+                      {r.defects.map((d,i)=>(
+                        <div key={i} style={{marginBottom:i<r.defects.length-1?8:0,paddingLeft:8,borderLeft:'3px solid var(--accent-blue)'}}>
+                          <div style={{fontSize:10,fontWeight:700,color:'var(--accent-blue)',marginBottom:2}}>{i+1}. {itemOptions[d.item]||d.item}</div>
+                          <div style={{fontSize:12,color:'var(--text-primary)',wordBreak:'break-word',whiteSpace:'pre-wrap',lineHeight:1.5}}>{d.description}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))
