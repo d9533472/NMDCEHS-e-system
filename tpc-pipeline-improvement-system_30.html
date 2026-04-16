@@ -1187,46 +1187,33 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
 
 // ─── PHOTO SYSTEM BUTTON ──────────────────────────────────────
 function PhotoBtn({ record }) {
-  const [busy, setBusy] = useState(false);
+  const handleClick = () => {
+    // 直接開照片系統（帶 hash），不等 GAS 查詢
+    const url = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
+    const win = window.open(url, '_blank');
 
-  const handleClick = async () => {
-    // 先開空視窗（必須在 await 前，否則 iOS Safari 會擋 popup）
-    const win = window.open('', '_blank');
-    if (!PHOTO_GAS_URL) {
-      if (win) win.location.href = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
-      return;
+    // 背景靜默確認/新增紀錄（不阻塞開頁面）
+    if (PHOTO_GAS_URL) {
+      xhrGet(PHOTO_GAS_URL + '?action=index').then(indexRes => {
+        const recs = (indexRes.ok && indexRes.data && indexRes.data.records) ? indexRes.data.records : [];
+        const exists = recs.some(r => r.label === record.number);
+        if (!exists) {
+          const desc = (record.defects && record.defects.length > 0)
+            ? record.defects.map(d => d.description).join('\n')
+            : (record.description || '');
+          xhrPost(PHOTO_GAS_URL, {
+            action: 'saveRecord',
+            record: { id: Date.now(), label: record.number, date: record.date||'', beforeDesc: desc, duringDesc: '', afterDesc: '', remark: '' },
+            header: null
+          }).catch(()=>{});
+        }
+      }).catch(()=>{});
     }
-    setBusy(true);
-    try {
-      // 1. 查詢照片系統有沒有這個 label
-      const indexRes = await xhrGet(PHOTO_GAS_URL + '?action=index');
-      const recs = (indexRes.ok && indexRes.data && indexRes.data.records) ? indexRes.data.records : [];
-      const label = record.number;
-      const exists = recs.some(r => r.label === label);
-
-      if (!exists) {
-        // 2. 沒有的話自動建立一筆
-        const desc = (record.defects && record.defects.length > 0)
-          ? record.defects.map(d => d.description).join('\n')
-          : (record.description || '');
-        const newRec = {
-          id: Date.now(), label, date: record.date || '',
-          beforeDesc: desc, duringDesc: '', afterDesc: '', remark: '',
-        };
-        await xhrPost(PHOTO_GAS_URL, { action: 'saveRecord', record: newRec, header: null });
-      }
-      // 3. 導向照片系統
-      if (win) win.location.href = PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number);
-      else window.open(PHOTO_SYSTEM_URL + '#label=' + encodeURIComponent(record.number), '_blank');
-    } catch(e) {
-      if (win) win.close();
-      alert('照片系統連線失敗：' + e.message);
-    } finally { setBusy(false); }
   };
 
   return (
-    <button className="btn btn-secondary btn-sm btn-icon" title="開啟改善照片系統" disabled={busy} onClick={handleClick}>
-      {busy ? '⏳' : '📷'}
+    <button className="btn btn-secondary btn-sm btn-icon" title="開啟改善照片系統" onClick={handleClick}>
+      📷
     </button>
   );
 }
