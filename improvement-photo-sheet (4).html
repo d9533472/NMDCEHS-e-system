@@ -214,8 +214,8 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .form-group { display:flex; flex-direction:column; gap:6px; }
 .form-group.full { grid-column:1/-1; }
 .form-group label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; }
-.form-group input, .form-group select, .form-group textarea { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); padding:9px 12px; font-size:13px; font-family:inherit; transition:border-color .2s; width:100%; }
-.form-group div input { width:auto; }
+.form-group input, .form-group select, .form-group textarea { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); padding:9px 12px; font-size:13px; font-family:inherit; transition:border-color .2s; }
+
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--border-focus); }
 .form-group textarea { resize:vertical; min-height:70px; }
 .form-section-title { grid-column:1/-1; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; padding-top:4px; display:flex; align-items:center; gap:8px; }
@@ -297,7 +297,6 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
   .kpi-grid{grid-template-columns:repeat(2,1fr); gap:8px;}
   .dash-two-col{grid-template-columns:1fr !important;}
   .chart-grid{grid-template-columns:1fr !important;}
-  [style*="gridTemplateColumns"]{grid-template-columns:1fr !important;}
 
   /* Page header */
   .page-header{flex-direction:column; align-items:flex-start; gap:10px;}
@@ -684,27 +683,16 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               <input type="date" value={form.deadline==='-'?'':(form.deadline||'')} onChange={e=>set('deadline',e.target.value)} />
             </div>
             <div className="form-group">
-            <div className="form-group">
               <label>提交日期</label>
-              <div style={{display:'flex',gap:8,alignItems:'center',width:'100%'}}>
-                <input type="date"
-                  value={form.submitDate==='-'?'':(form.submitDate||'')}
-                  onChange={e=>{ const v=e.target.value; set('submitDate',v); set('status',v?'Closed':'Open'); }}
-                  style={{flex:1,minWidth:0}} />
-                <button type="button"
-                  onClick={()=>{set('submitDate','');set('status','Open');}}
-                  style={{flexShrink:0,padding:'8px 14px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700,whiteSpace:'nowrap'}}>
-                  ✕
-                </button>
-              </div>
-              {(form.submitDate && form.submitDate!=='-' && form.submitDate!=='') && (
-                <button type="button"
-                  onClick={()=>{set('submitDate','');set('status','Open');}}
-                  style={{marginTop:4,padding:'10px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700,width:'100%',textAlign:'center'}}>
-                  🗑 清除提交日期（改回 Open）
-                </button>
-              )}
-            </div>
+              <input type="date"
+                value={form.submitDate==='-'?'':(form.submitDate||'')}
+                onChange={e=>{ const v=e.target.value; set('submitDate',v); set('status',v?'Closed':'Open'); }}
+                style={{width:'100%'}} />
+              <button type="button"
+                onClick={()=>{set('submitDate','');set('status','Open');}}
+                style={{padding:'10px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700,width:'100%',textAlign:'center'}}>
+                🗑 清除提交日期（改回 Open）
+              </button>
             </div>
             <div className="form-group">
               <label>收件者</label>
