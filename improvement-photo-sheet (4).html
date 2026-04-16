@@ -632,9 +632,9 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               )}
             </div>
             <div className="form-group">
-              <label>狀態（依提交日期自動判定）</label>
+              <label>狀態</label>
               <div style={{padding:'9px 12px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)',background:'var(--bg-secondary)',fontSize:13,fontWeight:700,color:form.status==='Closed'?'var(--accent-green)':'var(--accent-orange)'}}>
-                {form.status==='Closed' ? '✅ Closed（已提交）' : '⏳ Open（未提交）'}
+                {form.status==='Closed' ? '✅ Closed' : '⏳ Open'}
               </div>
             </div>
             <div className="form-section-title">缺失條目</div>
@@ -683,19 +683,29 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               <input type="date" value={form.deadline==='-'?'':(form.deadline||'')} onChange={e=>set('deadline',e.target.value)} />
             </div>
             <div className="form-group full" style={{borderTop:'1px solid var(--border)',paddingTop:12,marginTop:4}}>
-              <label>提交日期（關單日期）</label>
-              <div style={{display:'flex',gap:8}}>
+              <label>關單狀態</label>
+              {/* 大按鈕切換 — 手機友善 */}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                <button type="button" onClick={()=>{
+                    const d=new Date(); const s=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    set('submitDate',s); set('status','Closed');
+                  }}
+                  style={{flex:1,padding:'12px 8px',borderRadius:'var(--radius-sm)',border:`2px solid ${form.status==='Closed'?'var(--accent-green)':'var(--border)'}`,background:form.status==='Closed'?'var(--accent-green-dim)':'var(--bg-input)',color:form.status==='Closed'?'var(--accent-green)':'var(--text-secondary)',cursor:'pointer',fontSize:13,fontWeight:700,textAlign:'center',transition:'all .15s'}}>
+                  ✅ 已關單（Closed）
+                </button>
+                <button type="button" onClick={()=>{set('submitDate','');set('status','Open');}}
+                  style={{flex:1,padding:'12px 8px',borderRadius:'var(--radius-sm)',border:`2px solid ${form.status==='Open'?'var(--accent-red)':'var(--border)'}`,background:form.status==='Open'?'var(--accent-red-dim)':'var(--bg-input)',color:form.status==='Open'?'var(--accent-red)':'var(--text-secondary)',cursor:'pointer',fontSize:13,fontWeight:700,textAlign:'center',transition:'all .15s'}}>
+                  ⏳ 未關單（Open）
+                </button>
+              </div>
+              {/* 日期微調：有需要才改 */}
+              <div style={{display:'flex',alignItems:'center',gap:8,marginTop:6}}>
+                <span style={{fontSize:11,color:'var(--text-muted)',flexShrink:0}}>提交日期</span>
                 <input type="date"
                   value={form.submitDate==='-'?'':(form.submitDate||'')}
                   onChange={e=>{ const v=e.target.value; set('submitDate',v); set('status',v?'Closed':'Open'); }}
-                  style={{flex:1}} />
-                <button type="button"
-                  onClick={()=>{set('submitDate','');set('status','Open');}}
-                  style={{flexShrink:0,padding:'8px 16px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700}}>
-                  🗑 清除
-                </button>
+                  style={{flex:1,fontSize:12,padding:'5px 8px'}} />
               </div>
-              <div style={{fontSize:11,color:'var(--text-muted)'}}>有填此日期 → 自動變 Closed；清除 → 自動回 Open</div>
             </div>
             <div className="form-group">
               <label>收件者</label>
