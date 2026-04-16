@@ -697,6 +697,13 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
                   ✕
                 </button>
               </div>
+              {(form.submitDate && form.submitDate!=='-' && form.submitDate!=='') && (
+                <button type="button"
+                  onClick={()=>{set('submitDate','');set('status','Open');}}
+                  style={{marginTop:4,padding:'10px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700,width:'100%',textAlign:'center'}}>
+                  🗑 清除提交日期（改回 Open）
+                </button>
+              )}
             </div>
             </div>
             <div className="form-group">
