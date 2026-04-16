@@ -91,9 +91,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .record-item .rec-info{flex:1;min-width:0}
 .record-item .rec-title{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .record-item .rec-sub{font-size:11px;color:var(--text3);margin-top:2px}
-.record-item .rec-photos{display:flex;gap:2px}
-.record-item .rec-photos .dot{width:8px;height:8px;border-radius:50%}
-.record-item .rec-photos .dot.filled{background:var(--accent)}.record-item .rec-photos .dot.empty{background:var(--border)}
+
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#333;color:#fff;padding:12px 24px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:all .35s ease}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .loading-overlay{position:fixed;inset:0;background:rgba(245,240,235,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200}
@@ -219,28 +217,66 @@ function migrateRecord(d) {
   return d;
 }
 
-// ---- 單張照片非同步讀取 ----
+// ---- 照片快取（避免重複載入同一張照片）----
+const PHOTO_CACHE = new Map();
+
+// ---- Google Drive 直接連結（由 Google CDN 傳送，不經過 GAS）----
+// 備註：需要當前 Google 帳號對 Drive 檔案有讀取權限
+function driveImageUrl(fileId) {
+  if (!fileId) return '';
+  return `https://lh3.googleusercontent.com/d/${fileId}=w1200`;
+}
+
+// ---- 單張照片非同步讀取（直接連結 + 快取 + GAS fallback）----
 function usePhotoLoader(fileId) {
-  const [src,setSrc]=useState('');
+  const [src,setSrc]=useState(fileId && PHOTO_CACHE.has(fileId) ? PHOTO_CACHE.get(fileId) : (fileId ? driveImageUrl(fileId) : ''));
   const [loading,setLoading]=useState(false);
+  const [error,setError]=useState(false);
   useEffect(()=>{
-    if(!fileId||!GAS_URL){setSrc('');setLoading(false);return}
-    let c=false; setLoading(true); setSrc('');
-    xhrGet(GAS_URL+'?action=photo&fileId='+fileId).then(r=>{if(!c&&r.ok)setSrc(r.dataUrl)}).catch(()=>{}).finally(()=>{if(!c)setLoading(false)});
-    return()=>{c=true};
+    if(!fileId){setSrc('');setLoading(false);setError(false);return}
+    // 命中快取
+    if(PHOTO_CACHE.has(fileId)){setSrc(PHOTO_CACHE.get(fileId));setLoading(false);setError(false);return}
+    // 直接用 Drive CDN URL，browser 負責載入和快取
+    setSrc(driveImageUrl(fileId));
+    setLoading(false);
+    setError(false);
   },[fileId]);
-  return {src,loading};
+  return {src,loading,error};
+}
+
+// ---- 透過 GAS 取得 base64（匯出 Word 用，需要真實圖片資料）----
+async function fetchPhotoBase64(fileId) {
+  if (!fileId) return '';
+  if (PHOTO_CACHE.has(fileId)) return PHOTO_CACHE.get(fileId);
+  try {
+    const res = await xhrGet(GAS_URL+'?action=photo&fileId='+fileId);
+    if (res.ok && res.dataUrl) {
+      PHOTO_CACHE.set(fileId, res.dataUrl);
+      return res.dataUrl;
+    }
+  } catch(e) { console.warn('fetchPhotoBase64 fail:', e); }
+  return '';
 }
 
 // ---- 單張照片顯示 ----
 function PhotoItem({photo, onRemove, onDateChange}) {
+  const [imgError, setImgError] = useState(false);
   const remote = usePhotoLoader(!photo.localSrc ? photo.photoId : '');
   const displaySrc = photo.localSrc || remote.src;
-  if (!displaySrc && remote.loading) return <div className="photo-grid-item"><div style={{height:160,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--text3)',fontSize:12}}>☁️ 載入中...</div></div>;
   if (!displaySrc) return null;
+  if (imgError) return (
+    <div className="photo-grid-item">
+      <div style={{height:160,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',color:'var(--red)',fontSize:11,gap:4,padding:8,textAlign:'center'}}>
+        <div style={{fontSize:20}}>⚠️</div>
+        <div>照片無法載入</div>
+        <div style={{fontSize:9,color:'var(--text3)',wordBreak:'break-all'}}>ID: {photo.photoId?.substring(0,12)}...</div>
+        <button className="remove-btn" style={{position:'static',marginTop:4}} onClick={onRemove} title="移除">移除</button>
+      </div>
+    </div>
+  );
   return (
     <div className="photo-grid-item">
-      <img src={displaySrc} />
+      <img src={displaySrc} onError={()=>setImgError(true)} />
       <button className="remove-btn" onClick={onRemove} title="移除">×</button>
       {photo.date && <div className="photo-date-stamp">{photo.date}</div>}
       <div className="date-row">
@@ -294,12 +330,37 @@ function App(){
   const [selected,setSelected]=useState(new Set());
   const [progress,setProgress]=useState(null);
   const [folderLink,setFolderLink]=useState(null);
+  const [indexError,setIndexError]=useState(null);
 
-  // Load index
-  useEffect(()=>{
-    if(!GAS_URL){setLoadingApp(false);return}
-    xhrGet(GAS_URL+'?action=index').then(res=>{if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);if(res.data.records)setIndex(res.data.records)}}).catch(()=>toast('⚠️ 索引載入失敗')).finally(()=>setLoadingApp(false));
-  },[]);
+  // Load index (3次重試 + 冷啟動寬限)
+  const loadIndex = useCallback(async () => {
+    if (!GAS_URL) { setLoadingApp(false); return; }
+    setIndexError(null);
+    setLoadingApp(true);
+    let lastErr = null;
+    for (let i = 0; i < 3; i++) {
+      try {
+        const res = await xhrGet(GAS_URL+'?action=index');
+        if (res.ok && res.data) {
+          if (res.data.header?.org) setHeader(res.data.header);
+          if (res.data.records) setIndex(res.data.records);
+          setLoadingApp(false);
+          setIndexError(null);
+          return;
+        }
+        lastErr = new Error(res.error || '索引資料格式錯誤');
+      } catch (e) {
+        lastErr = e;
+        console.warn(`索引載入 ${i+1}/3 失敗:`, e.message);
+        if (i < 2) await new Promise(r => setTimeout(r, 2000 * (i+1))); // 2s, 4s
+      }
+    }
+    setIndexError(lastErr?.message || '未知錯誤');
+    setLoadingApp(false);
+    toast('⚠️ 索引載入失敗：' + (lastErr?.message||''), 5000);
+  }, []);
+
+  useEffect(() => { loadIndex(); }, [loadIndex]);
 
   // Load single record
   const loadRecord = async(idx)=>{
@@ -307,7 +368,11 @@ function App(){
     setCurrentIdx(idx);setTab('edit');setLoadingRec(true);setDirty(false);setFolderLink(null);
     try{
       const res=await xhrGet(GAS_URL+'?action=record&id='+meta.id);
-      if(res.ok&&res.data){setRec(migrateRecord(res.data));setHeader(h=>({...h,org:res.data.org||h.org,title:res.data.title||h.title,project:res.data.project||h.project}))}
+      if(res.ok&&res.data){
+        const migrated = migrateRecord(res.data);
+        setRec(migrated);
+        setHeader(h=>({...h,org:res.data.org||h.org,title:res.data.title||h.title,project:res.data.project||h.project}));
+      }
       else setRec(emptyRecord(header));
     }catch(e){toast('⚠️ 載入失敗');setRec(emptyRecord(header))}
     setLoadingRec(false);
@@ -317,7 +382,7 @@ function App(){
     const defaults=rec?{org:rec.org,title:rec.title,project:rec.project}:header;
     const r=emptyRecord(defaults);
     setRec(r);setFolderLink(null);
-    setIndex(prev=>[...prev,{id:r.id,date:r.date,label:'',beforeDesc:'',hasBeforePhoto:false,hasDuringPhoto:false,hasAfterPhoto:false}]);
+    setIndex(prev=>[...prev,{id:r.id,date:r.date,label:'',beforeDesc:'',beforeCount:0,duringCount:0,afterCount:0,hasBeforePhoto:false,hasDuringPhoto:false,hasAfterPhoto:false}]);
     setCurrentIdx(index.length);setTab('edit');setDirty(true);toast('➕ 新增紀錄');
   };
 
@@ -404,7 +469,7 @@ function App(){
       setHeader({org:updated.org,title:updated.title,project:updated.project});
       const meta={id:updated.id,date:updated.date||'',label:updated.label||'',
         beforeDesc:(updated.beforeDesc||'').substring(0,50),
-        hasBeforePhoto:updated.beforePhotos.length>0,hasDuringPhoto:updated.duringPhotos.length>0,hasAfterPhoto:updated.afterPhotos.length>0};
+        beforeCount:updated.beforePhotos.length,duringCount:updated.duringPhotos.length,afterCount:updated.afterPhotos.length,hasBeforePhoto:updated.beforePhotos.length>0,hasDuringPhoto:updated.duringPhotos.length>0,hasAfterPhoto:updated.afterPhotos.length>0};
       setIndex(prev=>{const arr=[...prev];const ei=arr.findIndex(r=>String(r.id)===String(updated.id));if(ei>=0)arr[ei]=meta;else arr.push(meta);return arr});
       setDirty(false);
 
@@ -417,7 +482,7 @@ function App(){
           if(photos[pi].localSrc){photos[pi]._src=photos[pi].localSrc}
           else if(photos[pi].photoId){
             setProgress({pct:55+pi*3,text:`載入照片 ${key} ${pi+1}/${photos.length}...`});
-            try{const pr=await xhrGet(GAS_URL+'?action=photo&fileId='+photos[pi].photoId);if(pr.ok)photos[pi]._src=pr.dataUrl}catch(e){}
+            photos[pi]._src = await fetchPhotoBase64(photos[pi].photoId);
           }
           if(photos[pi]._src&&photos[pi].date){
             try{photos[pi]._src=await stampDateOnImage(photos[pi]._src,photos[pi].date)}catch(e){}
@@ -460,7 +525,7 @@ function App(){
             for(const key of ['before','during','after']){
               for(let pi=0;pi<r[key+'Photos'].length;pi++){
                 if(r[key+'Photos'][pi].photoId){
-                  try{const pr=await xhrGet(GAS_URL+'?action=photo&fileId='+r[key+'Photos'][pi].photoId);if(pr.ok)r[key+'Photos'][pi]._src=pr.dataUrl}catch(e){}
+                  r[key+'Photos'][pi]._src = await fetchPhotoBase64(r[key+'Photos'][pi].photoId);
                 }
                 if(r[key+'Photos'][pi]._src&&r[key+'Photos'][pi].date){
                   try{r[key+'Photos'][pi]._src=await stampDateOnImage(r[key+'Photos'][pi]._src,r[key+'Photos'][pi].date)}catch(e){}
@@ -571,7 +636,20 @@ function App(){
   };
 
   // ===== RENDER =====
-  if(loadingApp)return(<div className="loading-overlay"><div className="spinner"></div><p>☁️ 載入索引...</p></div>);
+  if(loadingApp)return(<div className="loading-overlay"><div className="spinner"></div><p>☁️ 載入索引...</p><p style={{fontSize:11,color:'var(--text3)',marginTop:8}}>如首次使用，GAS 冷啟動約需 10-30 秒</p></div>);
+  if(indexError)return(<div className="loading-overlay">
+    <div style={{fontSize:48,marginBottom:12}}>⚠️</div>
+    <h3 style={{color:'var(--red)',marginBottom:8}}>索引載入失敗</h3>
+    <p style={{fontSize:13,color:'var(--text2)',marginBottom:16,maxWidth:400,textAlign:'center'}}>{indexError}</p>
+    <div style={{fontSize:11,color:'var(--text3)',marginBottom:16,maxWidth:400,textAlign:'center',lineHeight:1.6}}>
+      可能原因：<br/>
+      ① GAS 尚未部署或需重新部署<br/>
+      ② 授權過期（開啟 GAS URL 重新授權）<br/>
+      ③ 網路問題
+    </div>
+    <button className="btn btn-primary" onClick={loadIndex}>🔄 重試</button>
+    <a href={GAS_URL} target="_blank" rel="noopener" style={{marginTop:12,fontSize:12,color:'var(--text3)'}}>🔗 直接開啟 GAS URL 檢查</a>
+  </div>);
   const dotCls=syncing||loadingRec?'spin':(GAS_URL?'on':'off');
 
   return(<div>
@@ -606,7 +684,6 @@ function App(){
               <div className="rec-title">{r.label||`紀錄 #${i+1}`}</div>
               <div className="rec-sub">{r.date||'—'} — {r.beforeDesc||'未填寫'}</div>
             </div>
-            <div className="rec-photos" title="前/中/後">{[r.hasBeforePhoto,r.hasDuringPhoto,r.hasAfterPhoto].map((p,pi)=><div key={pi} className={`dot ${p?'filled':'empty'}`}/>)}</div>
             <button className="btn btn-danger" style={{padding:'6px 12px',fontSize:12}} onClick={e=>{e.stopPropagation();deleteRecord(i)}}>🗑</button>
           </div>
         ))}</div>
@@ -698,9 +775,7 @@ function App(){
 // 預覽用
 function PreviewPhotoCells({photos}) {
   return photos.map((p,i)=>{
-    const remote=usePhotoLoader(!p.localSrc?p.photoId:'');
-    const src=p.localSrc||remote.src;
-    if(remote.loading)return <div key={i} style={{display:'inline-block',width:'48%',height:100,background:'var(--bg2)',borderRadius:6,margin:'1%',lineHeight:'100px',textAlign:'center',color:'var(--text3)',fontSize:11}}>☁️ 載入中</div>;
+    const src = p.localSrc || (p.photoId ? driveImageUrl(p.photoId) : '');
     if(!src)return null;
     return <div key={i} style={{display:'inline-block',width:photos.length>1?'48%':'96%',margin:'1%',position:'relative'}}>
       <img src={src} style={{width:'100%',maxHeight:200,objectFit:'contain',borderRadius:4}}/>
