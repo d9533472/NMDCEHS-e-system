@@ -187,6 +187,8 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .table-row:hover { background:var(--bg-card-hover); }
 .table-cell { font-size:12px; color:var(--text-primary); overflow:hidden; word-break:break-word; white-space:pre-wrap; }
 .mobile-only { display:none; }
+.mobile-card { display:none; }
+.desktop-only { display:block; }
 .t-cols { grid-template-columns: 70px 110px 90px 80px 80px 70px 90px 1fr 110px 90px 90px 70px 90px; }
 
 /* ── BADGES ── */
@@ -213,6 +215,7 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .form-group.full { grid-column:1/-1; }
 .form-group label { font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; font-weight:700; }
 .form-group input, .form-group select, .form-group textarea { background:var(--bg-input); border:1px solid var(--border); color:var(--text-primary); border-radius:var(--radius-sm); padding:9px 12px; font-size:13px; font-family:inherit; transition:border-color .2s; }
+
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline:none; border-color:var(--border-focus); }
 .form-group textarea { resize:vertical; min-height:70px; }
 .form-section-title { grid-column:1/-1; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; padding-top:4px; display:flex; align-items:center; gap:8px; }
@@ -280,13 +283,20 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
   .filter-bar select,.filter-bar input[type=text]{min-width:80px; font-size:11px; padding:5px 8px;}
   .filter-label{display:none;}
 
-  /* Table - show only essential columns on mobile */
+  /* Table → Card layout on mobile */
   .form-grid{grid-template-columns:1fr;}
-  .t-cols{grid-template-columns:60px 1fr 60px 80px;}
-  .table-cell.hm{display:none;}
-  .table-head{display:none;}
-  .table-row{padding:12px; border-bottom:1px solid var(--border);}
+  .t-cols{display:block !important; grid-template-columns:none !important;}
+  .table-cell.hm{display:block !important;}
+  .table-head{display:none !important;}
+  .table-row{display:block !important; padding:0 !important; border-bottom:2px solid var(--border) !important; margin-bottom:8px !important; border-radius:var(--radius) !important; overflow:hidden;}
   .mobile-only{display:block !important;}
+  .mobile-card{display:flex !important;}
+  .desktop-only{display:none !important;}
+
+  /* Dashboard charts - each one full width */
+  .kpi-grid{grid-template-columns:repeat(2,1fr); gap:8px;}
+  .dash-two-col{grid-template-columns:1fr !important;}
+  .chart-grid{grid-template-columns:1fr !important;}
 
   /* Page header */
   .page-header{flex-direction:column; align-items:flex-start; gap:10px;}
@@ -622,9 +632,9 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               )}
             </div>
             <div className="form-group">
-              <label>狀態（依提交日期自動判定）</label>
+              <label>狀態</label>
               <div style={{padding:'9px 12px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)',background:'var(--bg-secondary)',fontSize:13,fontWeight:700,color:form.status==='Closed'?'var(--accent-green)':'var(--accent-orange)'}}>
-                {form.status==='Closed' ? '✅ Closed（已提交）' : '⏳ Open（未提交）'}
+                {form.status==='Closed' ? '✅ Closed' : '⏳ Open'}
               </div>
             </div>
             <div className="form-section-title">缺失條目</div>
@@ -672,13 +682,30 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               <label>關單期限</label>
               <input type="date" value={form.deadline==='-'?'':(form.deadline||'')} onChange={e=>set('deadline',e.target.value)} />
             </div>
-            <div className="form-group">
-              <label>提交日期</label>
-              <input type="date" value={form.submitDate==='-'?'':(form.submitDate||'')} onChange={e=>{
-                const v = e.target.value;
-                set('submitDate', v);
-                set('status', v ? 'Closed' : 'Open');
-              }} />
+            <div className="form-group full" style={{borderTop:'1px solid var(--border)',paddingTop:12,marginTop:4}}>
+              <label>關單狀態</label>
+              {/* 大按鈕切換 — 手機友善 */}
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                <button type="button" onClick={()=>{
+                    const d=new Date(); const s=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                    set('submitDate',s); set('status','Closed');
+                  }}
+                  style={{flex:1,padding:'12px 8px',borderRadius:'var(--radius-sm)',border:`2px solid ${form.status==='Closed'?'var(--accent-green)':'var(--border)'}`,background:form.status==='Closed'?'var(--accent-green-dim)':'var(--bg-input)',color:form.status==='Closed'?'var(--accent-green)':'var(--text-secondary)',cursor:'pointer',fontSize:13,fontWeight:700,textAlign:'center',transition:'all .15s'}}>
+                  ✅ 已關單（Closed）
+                </button>
+                <button type="button" onClick={()=>{set('submitDate','');set('status','Open');}}
+                  style={{flex:1,padding:'12px 8px',borderRadius:'var(--radius-sm)',border:`2px solid ${form.status==='Open'?'var(--accent-red)':'var(--border)'}`,background:form.status==='Open'?'var(--accent-red-dim)':'var(--bg-input)',color:form.status==='Open'?'var(--accent-red)':'var(--text-secondary)',cursor:'pointer',fontSize:13,fontWeight:700,textAlign:'center',transition:'all .15s'}}>
+                  ⏳ 未關單（Open）
+                </button>
+              </div>
+              {/* 日期微調：有需要才改 */}
+              <div style={{display:'flex',alignItems:'center',gap:8,marginTop:6}}>
+                <span style={{fontSize:11,color:'var(--text-muted)',flexShrink:0}}>提交日期</span>
+                <input type="date"
+                  value={form.submitDate==='-'?'':(form.submitDate||'')}
+                  onChange={e=>{ const v=e.target.value; set('submitDate',v); set('status',v?'Closed':'Open'); }}
+                  style={{flex:1,fontSize:12,padding:'5px 8px'}} />
+              </div>
             </div>
             <div className="form-group">
               <label>收件者</label>
@@ -733,7 +760,7 @@ function DonutChart({ data, title }) {
     chartRef.current = new Chart(ref.current, {
       type:'doughnut',
       data:{ labels:data.map(d=>d.label), datasets:[{ data:data.map(d=>d.value), backgroundColor:data.map(d=>d.color), borderWidth:0, hoverOffset:4 }] },
-      options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:'right', labels:{ color:'#7a9bbf', font:{size:11}, padding:8, boxWidth:10 } } } }
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'68%', plugins:{ legend:{ position:window.innerWidth<=640?'bottom':'right', labels:{ color:'#7a9bbf', font:{size:11}, padding:8, boxWidth:10 } } } }
     });
     return () => chartRef.current && chartRef.current.destroy();
   }, [data]);
@@ -1107,7 +1134,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
       </div>
       {total>0 && (<>
         {/* 上排：缺失項目分布圖(左1/2) + 各項目統計(右1/2) */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16,alignItems:'stretch'}}>
+        <div style={{display:'grid',gridTemplateColumns:window.innerWidth<=640?'1fr':'1fr 1fr',gap:16,marginBottom:16,alignItems:'stretch'}}>
           {/* 左：圓餅圖 */}
           <ItemPieChart records={activeRecs} itemOptions={itemOptions} onFilterClick={onFilterClick} />
 
@@ -1115,7 +1142,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
           {Object.keys(itemMap).length>0 && (
             <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:10,padding:'20px 16px',display:'flex',flexDirection:'column'}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.8px',marginBottom:14}}>📋 各環保項目統計</div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,flex:1}}>
+              <div style={{display:'grid',gridTemplateColumns:window.innerWidth<=640?'1fr':'1fr 1fr',gap:10,flex:1}}>
                 {Object.entries(itemMap).sort((a,b)=>b[1].total-a[1].total).map(([k,v])=>{
                   const rate = v.total ? Math.round(v.closed/v.total*100) : 0;
                   const color = iColors[parseInt(k) % iColors.length];
@@ -1147,7 +1174,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
         </div>
 
         {/* 下排：改善單類型(左1/2) + 各工區統計(右1/2) */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:window.innerWidth<=640?'1fr':'1fr 1fr',gap:16,marginBottom:16}}>
           {typeData.length>0 && <DonutChart data={typeData} title="改善單類型分布" />}
           {areaData.length>0 && <BarChart data={areaData} title="各工區開/關單統計" height={200} />}
         </div>
@@ -1313,29 +1340,24 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
           ? <div className="empty-state"><div className="empty-icon">🔍</div><div className="empty-text">無符合條件的紀錄</div></div>
           : filtered.map(r=>(
             <div key={r.id} className="table-row t-cols">
-              <div className="table-cell"><span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span></div>
-              <div className="table-cell" style={{fontFamily:'JetBrains Mono,monospace',fontSize:11}}>
-                <div>{r.number}</div>
-                <div className="mobile-only" style={{fontSize:10,color:'var(--text-muted)',marginTop:2}}>{r.area} · {fmtDate(r.date)}</div>
-                <div className="mobile-only" style={{fontSize:11,marginTop:3,color:'var(--text-primary)',wordBreak:'break-word',whiteSpace:'pre-wrap'}}>
-                  {(r.defects&&r.defects.length>0)?r.defects[0].description:r.description}
-                </div>
-              </div>
-              <div className="table-cell hm" style={{fontSize:11}}>{fmtDate(r.date)}</div>
-              <div className="table-cell hm">{r.unit}</div>
-              <div className="table-cell hm">{r.issuer}</div>
-              <div className="table-cell hm" style={{fontSize:11}}>{r.area}</div>
-              <div className="table-cell hm" style={{fontSize:11}}>
+              {/* ── 電腦版：表格欄位 ── */}
+              <div className="table-cell desktop-only"><span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span></div>
+              <div className="table-cell desktop-only" style={{fontFamily:'JetBrains Mono,monospace',fontSize:11}}>{r.number}</div>
+              <div className="table-cell hm desktop-only" style={{fontSize:11}}>{fmtDate(r.date)}</div>
+              <div className="table-cell hm desktop-only">{r.unit}</div>
+              <div className="table-cell hm desktop-only">{r.issuer}</div>
+              <div className="table-cell hm desktop-only" style={{fontSize:11}}>{r.area}</div>
+              <div className="table-cell hm desktop-only" style={{fontSize:11}}>
                 {(r.defects&&r.defects.length>0)?r.defects.map(d=>itemOptions[d.item]||d.item).join('、'):(itemOptions[r.item]||'')}
               </div>
-              <div className="table-cell hm" style={{fontSize:11}}>
+              <div className="table-cell hm desktop-only" style={{fontSize:11}}>
                 {(r.defects&&r.defects.length>0)?<><span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',borderRadius:4,padding:'1px 5px',marginRight:4}}>{r.defects.length}條</span>{r.defects[0].description}{r.defects.length>1?'...':''}</>:r.description}
               </div>
-              <div className="table-cell hm" style={{fontSize:11}}>{r.refNumber||'—'}</div>
-              <div className="table-cell hm" style={{fontSize:11, color: r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''}}>{fmtDate(r.deadline)}</div>
-              <div className="table-cell hm" style={{fontSize:11,color:r.submitDate?'var(--accent-green)':''}}>{r.submitDate&&r.submitDate!=='-'?fmtDate(r.submitDate):'—'}</div>
-              <div className="table-cell"><span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span></div>
-              <div className="table-cell" style={{display:'flex',gap:4}}>
+              <div className="table-cell hm desktop-only" style={{fontSize:11}}>{r.refNumber||'—'}</div>
+              <div className="table-cell hm desktop-only" style={{fontSize:11, color: r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''}}>{fmtDate(r.deadline)}</div>
+              <div className="table-cell hm desktop-only" style={{fontSize:11,color:r.submitDate?'var(--accent-green)':''}}>{r.submitDate&&r.submitDate!=='-'?fmtDate(r.submitDate):'—'}</div>
+              <div className="table-cell desktop-only"><span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span></div>
+              <div className="table-cell desktop-only" style={{display:'flex',gap:4}}>
                 <button className="btn btn-secondary btn-sm btn-icon" onClick={()=>{setMode('edit');setEditRec(r);setShowModal(true);}}>✏️</button>
                 <PhotoBtn record={r} />
                 <button className="btn btn-secondary btn-sm btn-icon" title="Drive 資料夾" onClick={async()=>{
@@ -1348,6 +1370,59 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
                 } catch(e) { if(win) win.close(); alert('Drive 錯誤：' + e.message); }
               }}>📁</button>
                 <button className="btn btn-danger btn-sm btn-icon" onClick={()=>{if(confirm(`確定刪除 ${r.number}？`))onDelete(r.id);}}>🗑</button>
+              </div>
+
+              {/* ── 手機版：卡片佈局 ── */}
+              <div className="mobile-card" style={{flexDirection:'column',padding:'12px',gap:8}}>
+                {/* 頂部：badge + 編號 + 狀態 + 操作 */}
+                <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                  <span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span>
+                  <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:13,fontWeight:700,color:'var(--text-primary)',flex:1}}>{r.number}</span>
+                  <span className={`badge badge-${r.status.toLowerCase()}`}>{r.status}</span>
+                </div>
+                {/* 操作按鈕列 */}
+                <div style={{display:'flex',gap:6}}>
+                  <button className="btn btn-secondary btn-sm btn-icon" onClick={()=>{setMode('edit');setEditRec(r);setShowModal(true);}}>✏️</button>
+                  <PhotoBtn record={r} />
+                  <button className="btn btn-secondary btn-sm btn-icon" title="Drive" onClick={async()=>{
+                    if (r.driveFolderUrl) { window.open(r.driveFolderUrl,'_blank'); return; }
+                    const win = window.open('', '_blank');
+                    try {
+                      const res = await xhrPost(gasUrl, {action:'getFolderUrl', type:r.type, date:r.date, number:r.number});
+                      if (res.ok) { if(win) win.location.href = res.url; onEdit({...r, driveFolderUrl:res.url, driveFolderId:res.folderId}); }
+                      else { if(win) win.close(); alert('Drive 錯誤：' + res.error); }
+                    } catch(e) { if(win) win.close(); alert('Drive 錯誤：' + e.message); }
+                  }}>📁</button>
+                  <button className="btn btn-danger btn-sm btn-icon" onClick={()=>{if(confirm(`確定刪除 ${r.number}？`))onDelete(r.id);}}>🗑</button>
+                </div>
+                {/* 兩欄資訊 */}
+                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px 12px',fontSize:12}}>
+                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>缺失日期</span><div>{fmtDate(r.date)}</div></div>
+                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>工區</span><div>{r.area||'—'}</div></div>
+                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>單位</span><div>{r.unit||'—'}</div></div>
+                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>開單人</span><div>{r.issuer||'—'}</div></div>
+                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>關單期限</span>
+                    <div style={{color:r.deadline&&r.status==='Open'&&r.deadline<td?'var(--accent-red)':''}}>{fmtDate(r.deadline)||'—'}</div>
+                  </div>
+                  <div><span style={{color:'var(--text-muted)',fontSize:11}}>關單日期</span>
+                    <div style={{color:r.submitDate&&r.submitDate!=='-'?'var(--accent-green)':''}}>{r.submitDate&&r.submitDate!=='-'?fmtDate(r.submitDate):'—'}</div>
+                  </div>
+                  <div style={{gridColumn:'1/-1'}}><span style={{color:'var(--text-muted)',fontSize:11}}>業主改善單編號</span><div>{r.refNumber||'—'}</div></div>
+                  <div style={{gridColumn:'1/-1'}}><span style={{color:'var(--text-muted)',fontSize:11}}>缺失項目</span>
+                    <div>{(r.defects&&r.defects.length>0)?r.defects.map(d=>itemOptions[d.item]||d.item).join('、'):(itemOptions[r.item]||'—')}</div>
+                  </div>
+                </div>
+                {/* 缺失說明（全寬） */}
+                {(r.defects&&r.defects.length>0) && (
+                  <div style={{background:'var(--bg-input)',borderRadius:6,padding:'8px 10px',fontSize:12}}>
+                    {r.defects.map((d,i)=>(
+                      <div key={i} style={{marginBottom:i<r.defects.length-1?6:0}}>
+                        <span style={{fontFamily:'JetBrains Mono,monospace',fontSize:10,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',borderRadius:3,padding:'1px 5px',marginRight:5}}>#{i+1} {itemOptions[d.item]||d.item}</span>
+                        <div style={{marginTop:3,color:'var(--text-primary)',wordBreak:'break-word',whiteSpace:'pre-wrap'}}>{d.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           ))
