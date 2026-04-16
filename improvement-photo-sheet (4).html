@@ -690,12 +690,10 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
                   set('submitDate', v);
                   set('status', v ? 'Closed' : 'Open');
                 }} style={{flex:1}} />
-                {form.submitDate && form.submitDate!=='-' && form.submitDate!=='' && (
-                  <button type="button" onClick={()=>{set('submitDate','');set('status','Open');}}
-                    style={{padding:'6px 12px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)',background:'var(--bg-input)',color:'var(--accent-red)',cursor:'pointer',fontSize:12,whiteSpace:'nowrap',flexShrink:0}}>
-                    ✕ 清除
-                  </button>
-                )}
+                <button type="button" onClick={()=>{set('submitDate','');set('status','Open');}}
+                  style={{padding:'6px 12px',borderRadius:'var(--radius-sm)',border:'1px solid var(--border)',background:'var(--bg-input)',color:'var(--accent-red)',cursor:'pointer',fontSize:12,whiteSpace:'nowrap',flexShrink:0,opacity:form.submitDate&&form.submitDate!=='-'&&form.submitDate!==''?1:0.35}}>
+                  ✕ 清除
+                </button>
               </div>
             </div>
             <div className="form-group">
