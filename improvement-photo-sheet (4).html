@@ -682,17 +682,20 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
               <label>關單期限</label>
               <input type="date" value={form.deadline==='-'?'':(form.deadline||'')} onChange={e=>set('deadline',e.target.value)} />
             </div>
-            <div className="form-group">
-              <label>提交日期</label>
-              <input type="date"
-                value={form.submitDate==='-'?'':(form.submitDate||'')}
-                onChange={e=>{ const v=e.target.value; set('submitDate',v); set('status',v?'Closed':'Open'); }}
-                style={{width:'100%'}} />
-              <button type="button"
-                onClick={()=>{set('submitDate','');set('status','Open');}}
-                style={{padding:'10px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700,width:'100%',textAlign:'center'}}>
-                🗑 清除提交日期（改回 Open）
-              </button>
+            <div className="form-group full" style={{borderTop:'1px solid var(--border)',paddingTop:12,marginTop:4}}>
+              <label>提交日期（關單日期）</label>
+              <div style={{display:'flex',gap:8}}>
+                <input type="date"
+                  value={form.submitDate==='-'?'':(form.submitDate||'')}
+                  onChange={e=>{ const v=e.target.value; set('submitDate',v); set('status',v?'Closed':'Open'); }}
+                  style={{flex:1}} />
+                <button type="button"
+                  onClick={()=>{set('submitDate','');set('status','Open');}}
+                  style={{flexShrink:0,padding:'8px 16px',borderRadius:'var(--radius-sm)',border:'1px solid rgba(239,68,68,.4)',background:'rgba(239,68,68,.08)',color:'var(--accent-red)',cursor:'pointer',fontSize:13,fontWeight:700}}>
+                  🗑 清除
+                </button>
+              </div>
+              <div style={{fontSize:11,color:'var(--text-muted)'}}>有填此日期 → 自動變 Closed；清除 → 自動回 Open</div>
             </div>
             <div className="form-group">
               <label>收件者</label>
