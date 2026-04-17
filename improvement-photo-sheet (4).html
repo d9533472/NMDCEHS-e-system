@@ -102,6 +102,12 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .loading-overlay p{margin-top:16px;font-size:14px;color:var(--text2)}
 .record-loading{text-align:center;padding:60px 20px;color:var(--text3)}
 .record-loading .spinner-sm{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+/* 子頁籤 */
+.sub-tabs{display:flex;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);margin-bottom:14px}
+.sub-tab{flex:1;padding:10px 12px;border:none;background:var(--bg2);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .2s;text-align:center}
+.sub-tab.active{background:var(--accent);color:#fff}
+.sub-tab:not(.active):hover{background:var(--accent-bg)}
+.linked-hint{display:inline-block;font-size:10px;color:var(--accent);background:var(--accent-bg);padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:middle}
 /* ============ 手機版優化 ============ */
 @media(max-width:640px){
   /* 整體容器 */
@@ -179,6 +185,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   /* Toast */
   .toast{bottom:16px;font-size:12px;padding:10px 20px;max-width:90%}
 
+  /* 子頁籤 */
+  .sub-tabs{border-radius:8px}
+  .sub-tab{padding:10px 8px;font-size:12px}
   /* 照片日期選擇器 */
   .photo-date-input{max-width:none;font-size:13px}
 }
@@ -273,7 +282,8 @@ function emptyRecord(defaults) {
     org:d.org||DEFAULT_HEADER.org, title:d.title||DEFAULT_HEADER.title, project:d.project||DEFAULT_HEADER.project,
     beforePhotos:[], beforeDesc:'',
     duringPhotos:[], duringDesc:'',
-    afterPhotos:[],  afterDesc:'' };
+    afterPhotos:[],  afterDesc:'',
+    causeAnalysis:'', prevention:'', completionDate:today, remarks:'', mgmtType:'env' };
 }
 
 // 舊格式轉新格式
@@ -405,6 +415,7 @@ function App(){
   const [loadingRec,setLoadingRec]=useState(false);
   const [syncing,setSyncing]=useState(false);
   const [dirty,setDirty]=useState(false);
+  const [editSubTab,setEditSubTab]=useState('photo');
   const [selected,setSelected]=useState(new Set());
   const [progress,setProgress]=useState(null);
   const [folderLink,setFolderLink]=useState(null);
@@ -733,7 +744,89 @@ function App(){
             ]}),
             ...((r.label||r.date)?[new D.Paragraph({spacing:{before:120},children:[new D.TextRun({text:`${r.label||''}　${r.date||''}`,font,size:fsL,color:'666666'})]})]:[])]});
       } else {
-        // ===== TPC 格式：3欄 =====
+        // ===== TPC 格式：第1頁 對策表 + 第2頁 照片表 =====
+        const pageProps={page:{size:{width:11906,height:16838},margin:{top:851,bottom:851,left:1021,right:1021}}};
+
+        // --- 第1頁：對策表封面 ---
+        const isEnv = r.mgmtType !== 'quality';
+        const checkQ = isEnv ? '□' : '☑';
+        const checkE = isEnv ? '☑' : '□';
+        const coverBorder={style:D.BorderStyle.SINGLE,size:6,color:'000000'};
+        const cBorders={top:coverBorder,bottom:coverBorder,left:coverBorder,right:coverBorder};
+        const cMg={top:60,bottom:60,left:100,right:100};
+        const cFs=24; // 12pt
+
+        // Build 改善對策及結果 content paragraphs
+        const strategyParas = [
+          new D.Paragraph({spacing:{before:40},children:[new D.TextRun({text:'原因分析：',font,size:cFs,bold:true})]}),
+          new D.Paragraph({children:[new D.TextRun({text:r.causeAnalysis||'',font,size:cFs})]}),
+          new D.Paragraph({spacing:{before:160},children:[new D.TextRun({text:'改善措施：',font,size:cFs,bold:true})]}),
+          new D.Paragraph({children:[new D.TextRun({text:r.duringDesc||'',font,size:cFs})]}),
+          new D.Paragraph({spacing:{before:160},children:[new D.TextRun({text:'預防對策：',font,size:cFs,bold:true})]}),
+          new D.Paragraph({children:[new D.TextRun({text:r.prevention||'',font,size:cFs})]}),
+          new D.Paragraph({spacing:{before:160},children:[new D.TextRun({text:'改善後：',font,size:cFs,bold:true})]}),
+          new D.Paragraph({children:[new D.TextRun({text:r.afterDesc||'',font,size:cFs})]}),
+        ];
+
+        const coverTable = new D.Table({
+          width:{size:9800,type:D.WidthType.DXA},
+          columnWidths:[1800,5600,1000,1400],
+          alignment:D.AlignmentType.CENTER,
+          rows:[
+            // 表頭列
+            new D.TableRow({children:[
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1800,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.CENTER,
+                children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'缺失項目',font,size:cFs,bold:true})]}),
+                          new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'（含建議）',font,size:cFs,bold:true})]})]}),
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:5600,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.CENTER,
+                children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'改善對策及結果',font,size:cFs,bold:true})]}),
+                          new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'（附改善前中後照片請註明）',font,size:cFs,bold:true})]})]}),
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1000,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.CENTER,
+                children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'完成',font,size:cFs,bold:true})]}),
+                          new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'日期',font,size:cFs,bold:true})]})]}),
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1400,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.CENTER,
+                children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'備註',font,size:cFs,bold:true})]}),
+                          new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'（未完成者',font,size:20})]}),
+                          new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'請說明）',font,size:20})]})]}),
+            ]}),
+            // 內容列
+            new D.TableRow({height:{value:8000,rule:D.HeightRule?D.HeightRule.ATLEAST:'atLeast'},children:[
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1800,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.TOP,
+                children:[new D.Paragraph({children:[new D.TextRun({text:r.beforeDesc||'',font,size:cFs})]})]}),
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:5600,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.TOP,
+                children:strategyParas}),
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1000,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.TOP,
+                children:[new D.Paragraph({children:[new D.TextRun({text:r.completionDate||'',font,size:cFs})]})]}),
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1400,type:D.WidthType.DXA},verticalAlign:D.VerticalAlign.TOP,
+                children:[new D.Paragraph({children:[new D.TextRun({text:r.remarks||'',font,size:cFs})]})]}),
+            ]}),
+            // 承包商列
+            new D.TableRow({height:{value:900,rule:D.HeightRule?D.HeightRule.ATLEAST:'atLeast'},children:[
+              new D.TableCell({borders:cBorders,margins:cMg,width:{size:1800,type:D.WidthType.DXA},columnSpan:4,
+                children:[new D.Paragraph({children:[new D.TextRun({text:'承包商（工地負責人核章）',font,size:cFs})]})]}),
+            ]}),
+          ]
+        });
+
+        // 封面 section
+        sections.push({
+          properties:pageProps,
+          children:[
+            new D.Paragraph({children:[new D.TextRun({text:`${checkQ}施工品質${checkE}環保管理`,font,size:24,bold:true})]}),
+            new D.Paragraph({alignment:D.AlignmentType.CENTER,spacing:{before:80,after:80},children:[new D.TextRun({text:'施工品質/環保走動管理改善對策及結果表',font,size:32,bold:true})]}),
+            new D.Paragraph({spacing:{after:40},children:[new D.TextRun({text:'標案名稱：'+(r.project||header.project),font,size:cFs})]}),
+            new D.Paragraph({spacing:{after:120},children:[
+              new D.TextRun({text:'走動管理日期：'+(r.date||''),font,size:cFs}),
+              new D.TextRun({text:'　　　　　　　　　　　　　　　　　　　第　頁共　頁',font,size:cFs}),
+            ]}),
+            coverTable,
+            new D.Paragraph({spacing:{before:60},children:[new D.TextRun({text:'註：1.若本工程符合營造業法第30條規定需置工地主任之工程，則承包商之欄位需由該法規定之工地主任核章。',font,size:18})]}),
+            new D.Paragraph({children:[new D.TextRun({text:'　　2.各相關人員核章前，請先確認缺失已改善完成。',font,size:18})]}),
+            new D.Paragraph({alignment:D.AlignmentType.RIGHT,spacing:{before:200},children:[new D.TextRun({text:'表格：PPCO-QQL-50-G02(R2)',font,size:16,color:'666666',bold:true,border:{style:D.BorderStyle.SINGLE,size:2,color:'666666'}})]}),
+          ]
+        });
+
+        // --- 第2頁：照片表 ---
         const pc=(paras)=>new D.TableCell({borders,margins:cm,verticalAlign:D.VerticalAlign.CENTER,width:{size:5140,type:D.WidthType.DXA},children:paras});
         const lc=new D.TableCell({borders,margins:{top:40,bottom:40,left:40,right:40},verticalAlign:D.VerticalAlign.CENTER,width:{size:530,type:D.WidthType.DXA},rowSpan:3,textDirection:textDir,
           children:[new D.Paragraph({alignment:D.AlignmentType.CENTER,children:[new D.TextRun({text:'(改善前中後、同一角度拍攝之照片，並加以說明。)',font,size:fsL})]})]});
@@ -829,23 +922,67 @@ function App(){
             </div>
           </div></div>
 
-          <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>改善前（缺失說明）</h3></div></div>
-          <div className="card-body">
-            <MultiPhotoSection photos={rec.beforePhotos} onUpdate={p=>updatePhotos('before',p)} label="改善前"/>
-            <div className="field" style={{marginTop:8}}><label>缺失說明</label><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
-          </div></div>
+          {/* 子頁籤 */}
+          <div className="sub-tabs">
+            <button className={`sub-tab ${editSubTab==='photo'?'active':''}`} onClick={()=>setEditSubTab('photo')}>📷 照片表</button>
+            <button className={`sub-tab ${editSubTab==='cover'?'active':''}`} onClick={()=>setEditSubTab('cover')}>📝 對策表</button>
+          </div>
 
-          <div className="card"><div className="card-header"><div className="icon during">🔧</div><div><h3>改善中（改善措施）</h3></div></div>
-          <div className="card-body">
-            <MultiPhotoSection photos={rec.duringPhotos} onUpdate={p=>updatePhotos('during',p)} label="改善中"/>
-            <div className="field" style={{marginTop:8}}><label>改善措施</label><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
-          </div></div>
+          {/* ---- 子頁籤 1：照片表 ---- */}
+          {editSubTab==='photo'&&<div>
+            <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>改善前（缺失說明）</h3></div></div>
+            <div className="card-body">
+              <MultiPhotoSection photos={rec.beforePhotos} onUpdate={p=>updatePhotos('before',p)} label="改善前"/>
+              <div className="field" style={{marginTop:8}}><label>缺失說明<span className="linked-hint">↔ 對策表連動</span></label><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
+            </div></div>
 
-          <div className="card"><div className="card-header"><div className="icon after">✅</div><div><h3>改善後（改善結果）</h3></div></div>
-          <div className="card-body">
-            <MultiPhotoSection photos={rec.afterPhotos} onUpdate={p=>updatePhotos('after',p)} label="改善後"/>
-            <div className="field" style={{marginTop:8}}><label>改善結果</label><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
-          </div></div>
+            <div className="card"><div className="card-header"><div className="icon during">🔧</div><div><h3>改善中（改善措施）</h3></div></div>
+            <div className="card-body">
+              <MultiPhotoSection photos={rec.duringPhotos} onUpdate={p=>updatePhotos('during',p)} label="改善中"/>
+              <div className="field" style={{marginTop:8}}><label>改善措施<span className="linked-hint">↔ 對策表連動</span></label><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述措施..."/></div>
+            </div></div>
+
+            <div className="card"><div className="card-header"><div className="icon after">✅</div><div><h3>改善後（改善結果）</h3></div></div>
+            <div className="card-body">
+              <MultiPhotoSection photos={rec.afterPhotos} onUpdate={p=>updatePhotos('after',p)} label="改善後"/>
+              <div className="field" style={{marginTop:8}}><label>改善結果<span className="linked-hint">↔ 對策表連動</span></label><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述結果..."/></div>
+            </div></div>
+          </div>}
+
+          {/* ---- 子頁籤 2：對策表 ---- */}
+          {editSubTab==='cover'&&<div>
+            <div className="card"><div className="card-header"><div className="icon info">📋</div><div><h3>施工品質/環保走動管理改善對策及結果表</h3><small>TPC 匯出第一頁</small></div></div>
+            <div className="card-body">
+              <div className="field"><label>管理類別</label>
+                <div style={{display:'flex',gap:16,marginTop:4}}>
+                  <label style={{display:'flex',alignItems:'center',gap:6,fontSize:14,cursor:'pointer'}}><input type="radio" name="mgmtType" value="quality" checked={rec.mgmtType==='quality'} onChange={()=>updateField('mgmtType','quality')}/> 施工品質管理</label>
+                  <label style={{display:'flex',alignItems:'center',gap:6,fontSize:14,cursor:'pointer'}}><input type="radio" name="mgmtType" value="env" checked={rec.mgmtType!=='quality'} onChange={()=>updateField('mgmtType','env')}/> 環保管理</label>
+                </div>
+              </div>
+              <div style={{display:'flex',gap:10}}>
+                <div className="field" style={{flex:1}}><label>走動管理日期<span className="linked-hint">↔ 日期連動</span></label><input type="date" value={rec.date} onChange={e=>updateField('date',e.target.value)}/></div>
+                <div className="field" style={{flex:1}}><label>完成日期</label><input type="date" value={rec.completionDate||''} onChange={e=>updateField('completionDate',e.target.value)}/></div>
+              </div>
+            </div></div>
+
+            <div className="card"><div className="card-header"><div className="icon before">❌</div><div><h3>缺失項目（含建議）</h3></div></div>
+            <div className="card-body">
+              <div className="field"><label>缺失說明<span className="linked-hint">↔ 照片表連動</span></label><textarea value={rec.beforeDesc} onChange={e=>updateField('beforeDesc',e.target.value)} placeholder="描述缺失..."/></div>
+            </div></div>
+
+            <div className="card"><div className="card-header"><div className="icon info">🔍</div><div><h3>改善對策及結果</h3></div></div>
+            <div className="card-body">
+              <div className="field"><label>原因分析</label><textarea value={rec.causeAnalysis||''} onChange={e=>updateField('causeAnalysis',e.target.value)} placeholder="分析缺失產生的原因..."/></div>
+              <div className="field"><label>改善措施<span className="linked-hint">↔ 照片表連動</span></label><textarea value={rec.duringDesc} onChange={e=>updateField('duringDesc',e.target.value)} placeholder="描述改善措施..."/></div>
+              <div className="field"><label>預防對策</label><textarea value={rec.prevention||''} onChange={e=>updateField('prevention',e.target.value)} placeholder="後續預防措施..."/></div>
+              <div className="field"><label>改善後<span className="linked-hint">↔ 照片表連動</span></label><textarea value={rec.afterDesc} onChange={e=>updateField('afterDesc',e.target.value)} placeholder="描述改善結果..."/></div>
+            </div></div>
+
+            <div className="card"><div className="card-header"><div className="icon cloud">📝</div><div><h3>備註</h3></div></div>
+            <div className="card-body">
+              <div className="field"><label>備註（未完成者請說明）</label><textarea value={rec.remarks||''} onChange={e=>updateField('remarks',e.target.value)} placeholder="備註..."/></div>
+            </div></div>
+          </div>}
 
           <div className="btn-group">
             <button className="btn btn-primary" onClick={saveOnly} disabled={syncing}>{syncing?'⏳ 處理中...':dirty?'💾 儲存 ●':'💾 儲存'}</button>
