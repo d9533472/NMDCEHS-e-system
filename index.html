@@ -1448,11 +1448,13 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   setLoad(100,'完成！');
   setTimeout(hideLoad,400);
 
-  // Background fetch NCR after page is loaded
-  if(NCR_URL){setTimeout(()=>{fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});},1000);}
+  // Fetch NCR immediately after page loads
+  if(NCR_URL){fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});}
 
   // Auto-refresh for viewers every 2 min
   setInterval(async()=>{if(isEditor)return;try{const f=await fetchData();if(f){D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});renderAll();}}catch(e){}},2*60*1000);
+  // Refresh NCR every 5 min
+  if(NCR_URL){setInterval(()=>{fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});},5*60*1000);}
 })();
 </script>
 
