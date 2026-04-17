@@ -39,6 +39,26 @@
   .method-select{width:100px;}
   .photo-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:10px;}
   .photo-card{width:calc(25% - 12px);min-width:160px;}
+  /* New format: photo table */
+  .photo-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card);border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+  .photo-table th,.photo-table td{border:1px solid var(--border);padding:6px 8px;text-align:center;vertical-align:middle;}
+  .photo-table th{background:#f0f0ea;font-weight:600;font-size:11px;color:var(--text-light);}
+  .photo-table .pt-day{background:var(--accent);color:#fff;font-weight:600;font-size:12px;width:70px;}
+  .photo-table .pt-photo{width:20%;min-height:80px;cursor:pointer;position:relative;}
+  .photo-table .pt-photo img{max-width:100%;max-height:120px;object-fit:contain;border-radius:3px;}
+  .photo-table .pt-photo .pt-placeholder{color:#bbb;font-size:11px;}
+  .photo-table .pt-photo .pt-remove{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:12px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+  .photo-table .pt-photo:hover .pt-remove{display:flex;}
+  .photo-table .pt-meter{width:13%;vertical-align:top;padding:4px;}
+  .photo-table .pt-meter-num{width:90%;border:1px solid #ddd;border-radius:3px;padding:3px 5px;font-size:12px;text-align:center;font-family:inherit;margin-bottom:4px;}
+  .photo-table .pt-meter-photos{display:flex;gap:3px;}
+  .photo-table .pt-mini{flex:1;min-height:120px;border:1px dashed var(--border);border-radius:4px;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .photo-table .pt-mini img{max-width:100%;max-height:250px;object-fit:contain;}
+  .photo-table .pt-mini .pt-placeholder{color:#bbb;font-size:9px;text-align:center;}
+  .photo-table .pt-mini .pt-remove{position:absolute;top:1px;right:1px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center;}
+  .photo-table .pt-mini:hover .pt-remove{display:flex;}
+  .photo-table input[type="number"]{width:80px;border:1px solid #ddd;border-radius:3px;padding:3px 5px;font-size:12px;text-align:center;font-family:inherit;}
+  .photo-table .pt-total{font-weight:700;color:var(--am);font-size:14px;text-align:center;}
   .photo-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05);}
   .photo-card .ph-header{background:#f0f0ea;padding:6px 10px;font-size:12px;font-weight:600;color:var(--text-light);display:flex;justify-content:space-between;align-items:center;}
   .photo-card .ph-body{padding:10px;min-height:140px;display:flex;align-items:center;justify-content:center;position:relative;}
@@ -124,6 +144,19 @@
   .pdf-photo-cell .ppc-body{padding:3px;display:flex;align-items:center;justify-content:center;flex:1;width:100%;}
   .pdf-photo-cell .ppc-body img{max-width:100%;max-height:250px;object-fit:contain;}
   .pdf-photo-cell .ppc-desc{padding:2px 6px 4px;font-size:11px;color:#555;text-align:center;width:100%;}
+  /* PDF new format photo table */
+  .pdf-pt{width:100%;border-collapse:collapse;font-size:13px;}
+  .pdf-pt th,.pdf-pt td{border:1px solid #333;padding:4px 5px;text-align:center;vertical-align:middle;}
+  .pdf-pt th{background:#e8e8e8;font-weight:600;}
+  .pdf-pt .pt-day-cell{background:#f5f5f0;font-weight:600;width:42px;font-size:12px;}
+  .pdf-pt .pt-img-cell{width:26%;position:relative;}
+  .pdf-pt .pt-img-cell img{max-width:100%;max-height:130px;object-fit:contain;}
+  .pdf-pt .pt-img-wrap{position:relative;display:inline-block;}
+  .pdf-pt .pt-img-wrap img{max-width:100%;max-height:130px;object-fit:contain;display:block;}
+  .pdf-pt .pt-watermark{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;white-space:nowrap;}
+  .pdf-pt .pt-meter-cell{width:12%;}
+  .pdf-pt .pt-meter-cell img{max-width:100%;max-height:100px;object-fit:contain;}
+  .pdf-pt .pt-total-cell{font-weight:700;width:7%;font-size:12px;}
   .loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
   .loading-overlay.open{display:flex;}
   .loading-overlay .spinner{width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
@@ -175,8 +208,11 @@
 
 <div class="tab-panel" id="tab1">
   <h3 style="font-size:14px;margin-bottom:4px;">📷 照片紀錄 — <span id="photoLocLabel">—</span></h3>
-  <p style="font-size:12px;color:var(--text-light);margin-bottom:10px;">點擊卡片上傳照片，週一至週日各一張</p>
+  <p style="font-size:12px;color:var(--text-light);margin-bottom:10px;" id="photoDesc">點擊卡片上傳照片，週一至週日各一張</p>
+  <!-- 舊格式：7張照片格 -->
   <div class="photo-grid" id="photoGrid"></div>
+  <!-- 新格式：表格+水表 -->
+  <div id="photoTableWrap" style="display:none;"></div>
   <div class="sig-section" style="margin-top:14px;">
     <h3>簽核欄（與紀錄表同步）</h3>
     <div class="sig-row">
@@ -271,6 +307,7 @@
 <script>
 /* ===== Config ===== */
 const DAYS=7, PHOTOS=7;
+const NEW_FORMAT_DATE='2026-04-19'; // 此日期之後使用新照片表格式
 const DEFAULT_PROJECT='通霄電廠第二期更新改建計畫－海底輸氣管線統包工程';
 const METHODS=['人工灑水','灑水車','灑水器自動噴灑','其他'];
 const DM=1;
@@ -294,6 +331,7 @@ function addDays(dateStr,n){const d=new Date(dateStr);d.setDate(d.getDate()+n);r
 function fmtDate(s){if(!s)return'—';const d=new Date(s);return `${d.getMonth()+1}/${d.getDate()}`;}
 function weekday(s){return['日','一','二','三','四','五','六'][new Date(s).getDay()];}
 function recKey(loc,sd){return `${loc}_${sd}`;}
+function isNewFormat(sd){return sd&&sd>=NEW_FORMAT_DATE;}
 
 /* ===== API Layer（XHR + 自動重試）===== */
 function apiGet(params,retries){
@@ -350,19 +388,23 @@ function switchTab(idx){
 
 /* ===== Build UI ===== */
 function buildRecordTable(){
-  let h='<table class="record-table"><thead><tr><th colspan="2">日期/時段</th><th>灑水開始時間</th><th>灑水結束時間</th><th>灑水方式</th><th>累計用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>';
+  let h='<table class="record-table"><thead><tr><th colspan="2">日期/時段</th><th>灑水開始時間</th><th>灑水結束時間</th><th>灑水方式</th><th>累計用水量(m³)<br><span id="waterNote" style="font-weight:400;font-size:9px;color:#999;display:none;">依照片紀錄水表數據帶入</span></th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>';
   for(let d=0;d<DAYS;d++){
     const ra=`d${d}_am`,rp=`d${d}_pm`;
     h+=`<tr class="day-header"><td colspan="8" id="dayLabel_${d}">第 ${d+1} 天</td></tr>`;
-    for(const [p,rid] of [['am',ra],['pm',rp]]){
-      const cls=p==='am'?'am-row':'pm-row';const label=p==='am'?'上午':'下午';
-      h+=`<tr class="${cls}"><td>${label}</td><td style="width:70px;" id="dayDate_${d}_${p}"></td>`;
-      h+=`<td><input type="time" id="${rid}_start"></td><td><input type="time" id="${rid}_end"></td>`;
-      h+=`<td><select class="method-select" id="${rid}_method">${METHODS.map((m,i)=>`<option value="${i}"${i===DM?' selected':''}>${m}</option>`).join('')}</select></td>`;
-      h+=`<td><input type="number" id="${rid}_water" step="0.1" min="0" oninput="onFieldChange('${rid}_water','water')"></td>`;
-      h+=`<td><input type="number" id="${rid}_len" step="0.1" min="0" oninput="onFieldChange('${rid}_len','len')"></td>`;
-      h+=`<td><input type="text" id="${rid}_person" oninput="onFieldChange('${rid}_person','person')"></td></tr>`;
-    }
+    // 上午（累計用水量 rowspan=2）
+    h+=`<tr class="am-row"><td>上午</td><td style="width:70px;" id="dayDate_${d}_am"></td>`;
+    h+=`<td><input type="time" id="${ra}_start"></td><td><input type="time" id="${ra}_end"></td>`;
+    h+=`<td><select class="method-select" id="${ra}_method">${METHODS.map((m,i)=>`<option value="${i}"${i===DM?' selected':''}>${m}</option>`).join('')}</select></td>`;
+    h+=`<td rowspan="2" style="vertical-align:middle;"><input type="number" id="d${d}_water" step="0.1" min="0" oninput="onFieldChange('d${d}_water','water')"></td>`;
+    h+=`<td><input type="number" id="${ra}_len" step="0.1" min="0" oninput="onFieldChange('${ra}_len','len')"></td>`;
+    h+=`<td><input type="text" id="${ra}_person" oninput="onFieldChange('${ra}_person','person')"></td></tr>`;
+    // 下午（跳過累計用水量）
+    h+=`<tr class="pm-row"><td>下午</td><td style="width:70px;" id="dayDate_${d}_pm"></td>`;
+    h+=`<td><input type="time" id="${rp}_start"></td><td><input type="time" id="${rp}_end"></td>`;
+    h+=`<td><select class="method-select" id="${rp}_method">${METHODS.map((m,i)=>`<option value="${i}"${i===DM?' selected':''}>${m}</option>`).join('')}</select></td>`;
+    h+=`<td><input type="number" id="${rp}_len" step="0.1" min="0" oninput="onFieldChange('${rp}_len','len')"></td>`;
+    h+=`<td><input type="text" id="${rp}_person" oninput="onFieldChange('${rp}_person','person')"></td></tr>`;
   }
   h+='</tbody></table>';$('recordTableWrap').innerHTML=h;
 }
@@ -371,10 +413,64 @@ function buildPhotoGrid(){
     h+=`<div class="photo-card" id="pc_${i}"><div class="ph-header"><span id="pcLabel_${i}">${i<5?'第 '+(i+1)+' 天':i===5?'週六':'週日'}</span><span style="font-size:11px;" id="pcDate_${i}"></span></div><div class="ph-body" onclick="document.getElementById('photoInput_${i}').click()"><button class="remove-photo" onclick="event.stopPropagation();removePhoto(${i})">×</button><div class="placeholder" id="phPlaceholder_${i}">點擊上傳照片</div><img id="phImg_${i}" style="display:none;"></div><div class="ph-desc"><input type="text" id="phDesc_${i}" placeholder="照片說明（選填）"></div><input type="file" id="photoInput_${i}" accept="image/*" onchange="onPhotoSelect(${i},event)"></div>`;
   }$('photoGrid').innerHTML=h;
 }
+function buildPhotoTable(){
+  const dayLabels=['第一天','第二天','第三天','第四天','第五天','第六天','第七天'];
+  let h='<table class="photo-table"><thead><tr><th>日期</th><th>上午灑水</th><th>下午灑水</th><th>起始水表</th><th>結束水表</th><th>總灑水量<br>(m³)<br><span style="font-weight:400;font-size:9px;color:var(--text-light);">與灑水紀錄<br>「累計用水量」連動</span></th></tr></thead><tbody>';
+  for(let d=0;d<DAYS;d++){
+    h+=`<tr>`;
+    h+=`<td class="pt-day"><span id="ptDayLabel_${d}">${dayLabels[d]}</span><br><span style="font-size:10px;" id="ptDayDate_${d}"></span></td>`;
+    for(const p of['am','pm']){
+      h+=`<td class="pt-photo" onclick="document.getElementById('ptInput_${d}_${p}').click()">`;
+      h+=`<button class="pt-remove" onclick="event.stopPropagation();removePtPhoto(${d},'${p}')">×</button>`;
+      h+=`<div class="pt-placeholder" id="ptPh_${d}_${p}">點擊上傳</div>`;
+      h+=`<img id="ptImg_${d}_${p}" style="display:none;">`;
+      h+=`<input type="file" id="ptInput_${d}_${p}" accept="image/*" style="display:none" onchange="onPtPhotoSelect(${d},'${p}',event)">`;
+      h+=`</td>`;
+    }
+    for(const m of['ms','me']){
+      h+=`<td class="pt-meter">`;
+      h+=`<div class="pt-mini" onclick="document.getElementById('ptInput_${d}_${m}').click()">`;
+      h+=`<button class="pt-remove" onclick="event.stopPropagation();removePtPhoto(${d},'${m}')">×</button>`;
+      h+=`<div class="pt-placeholder" id="ptPh_${d}_${m}" style="font-size:10px;">${m==='ms'?'起始水表':'結束水表'}</div>`;
+      h+=`<img id="ptImg_${d}_${m}" style="display:none;">`;
+      h+=`<input type="file" id="ptInput_${d}_${m}" accept="image/*" style="display:none" onchange="onPtPhotoSelect(${d},'${m}',event)">`;
+      h+=`</div>`;
+      h+=`<input type="number" id="ptNum_${d}_${m}" step="0.01" min="0" placeholder="水表數字" oninput="calcAndSync(${d})" class="pt-meter-num">`;
+      h+=`</td>`;
+    }
+    h+=`<td class="pt-total" id="ptTotal_${d}">—</td>`;
+    h+=`</tr>`;
+  }
+  h+='</tbody></table>';
+  $('photoTableWrap').innerHTML=h;
+}
+function calcAndSync(d){
+  const s=parseFloat($(`ptNum_${d}_ms`).value)||0;
+  const e=parseFloat($(`ptNum_${d}_me`).value)||0;
+  const total=e>s?(e-s):0;
+  $(`ptTotal_${d}`).textContent=total>0?total.toFixed(1):'—';
+  const el=$(`d${d}_water`);if(el)el.value=total>0?total.toFixed(1):'';
+}
+function switchPhotoFormat(useNew){
+  $('photoGrid').style.display=useNew?'none':'flex';
+  $('photoTableWrap').style.display=useNew?'block':'none';
+  $('photoDesc').textContent=useNew?'灑水照片 + 水表照片與數字（自動計算總灑水量並連動紀錄表）':'點擊卡片上傳照片，週一至週日各一張';
+  // 新格式：累計用水量由水表數據帶入，鎖定不可手動輸入
+  const note=$('waterNote');if(note)note.style.display=useNew?'inline':'none';
+  for(let d=0;d<DAYS;d++){
+    const el=$(`d${d}_water`);
+    if(el){el.readOnly=useNew;el.style.background=useNew?'#f0f0ea':'';el.style.color=useNew?'var(--am)':'';}
+  }
+}
 
-/* ===== Photo ===== */
+/* ===== Photo handlers (old format) ===== */
 function onPhotoSelect(idx,e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{compressImage(ev.target.result,800,0.7,c=>{$(`phImg_${idx}`).src=c;$(`phImg_${idx}`).style.display='block';$(`phPlaceholder_${idx}`).style.display='none';});};r.readAsDataURL(file);}
 function removePhoto(idx){$(`phImg_${idx}`).src='';$(`phImg_${idx}`).style.display='none';$(`phPlaceholder_${idx}`).style.display='block';$(`photoInput_${idx}`).value='';}
+
+/* ===== Photo handlers (new format) ===== */
+function onPtPhotoSelect(d,p,e){const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=ev=>{compressImage(ev.target.result,800,0.7,c=>{$(`ptImg_${d}_${p}`).src=c;$(`ptImg_${d}_${p}`).style.display='block';$(`ptPh_${d}_${p}`).style.display='none';});};r.readAsDataURL(file);}
+function removePtPhoto(d,p){$(`ptImg_${d}_${p}`).src='';$(`ptImg_${d}_${p}`).style.display='none';$(`ptPh_${d}_${p}`).style.display='block';$(`ptInput_${d}_${p}`).value='';}
+
 function compressImage(u,maxW,q,cb){const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxW){h=h*(maxW/w);w=maxW;}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);cb(c.toDataURL('image/jpeg',q));};img.src=u;}
 
 /* ===== Sig ===== */
@@ -386,27 +482,87 @@ function onSigImgSelect2(role,e){const f=e.target.files[0];if(!f)return;const r=
 function removeSigImg2(role){$(`sigImg2_${role}`).src='';$(`sigImg2_${role}`).style.display='none';$(`sigRm2_${role}`).style.display='none';$(`sigFile2_${role}`).value='';syncSig2();}
 
 /* ===== Field auto-sync ===== */
-function onFieldChange(srcId,field){const val=$(srcId).value;if(!fieldSource[field])fieldSource[field]=srcId;if(fieldSource[field]!==srcId)return;for(let d=0;d<DAYS;d++){for(const p of['am','pm']){const tid=`d${d}_${p}_${field}`;if(tid===srcId)continue;const el=$(tid);if(!el)continue;if(!el.dataset.manual||el.dataset.manual==='false'){el.value=val;el.dataset.autoFilled='true';}}}}
+function onFieldChange(srcId,field){
+  const val=$(srcId).value;if(!fieldSource[field])fieldSource[field]=srcId;if(fieldSource[field]!==srcId)return;
+  if(field==='water'){
+    // 水量是每天一格，ID 格式 d{d}_water
+    for(let d=0;d<DAYS;d++){const tid=`d${d}_water`;if(tid===srcId)continue;const el=$(tid);if(!el)continue;if(!el.dataset.manual||el.dataset.manual==='false'){el.value=val;el.dataset.autoFilled='true';}}
+  }else{
+    for(let d=0;d<DAYS;d++){for(const p of['am','pm']){const tid=`d${d}_${p}_${field}`;if(tid===srcId)continue;const el=$(tid);if(!el)continue;if(!el.dataset.manual||el.dataset.manual==='false'){el.value=val;el.dataset.autoFilled='true';}}}
+  }
+}
 document.addEventListener('focus',e=>{if(e.target.matches&&(e.target.matches('input[type="number"]')||e.target.matches('input[type="text"]'))){e.target.addEventListener('input',ev=>{if(ev.target.dataset.autoFilled==='true'){ev.target.dataset.manual='true';ev.target.dataset.autoFilled='false';}},{once:true});}},true);
 
 /* ===== Date ===== */
-function onStartDateChange(){const sd=$('startDate').value;if(!sd)return;const m=getMonday(sd);$('startDate').value=m;$('endDateLabel').textContent=addDays(m,6);for(let d=0;d<DAYS;d++){const dt=addDays(m,d);const lbl=`${fmtDate(dt)}（${weekday(dt)}）`;$(`dayLabel_${d}`).textContent=lbl;$(`dayDate_${d}_am`).textContent=fmtDate(dt);$(`dayDate_${d}_pm`).textContent='';$(`pcDate_${d}`).textContent=lbl;$(`pcLabel_${d}`).textContent=d<5?`第 ${d+1} 天`:d===5?'週六':'週日';}$('photoLocLabel').textContent=$('locBadge').textContent;}
+function onStartDateChange(){
+  const sd=$('startDate').value;if(!sd)return;
+  const m=getMonday(sd);$('startDate').value=m;$('endDateLabel').textContent=addDays(m,6);
+  const useNew=isNewFormat(m);
+  switchPhotoFormat(useNew);
+  for(let d=0;d<DAYS;d++){
+    const dt=addDays(m,d);const lbl=`${fmtDate(dt)}（${weekday(dt)}）`;
+    $(`dayLabel_${d}`).textContent=lbl;
+    $(`dayDate_${d}_am`).textContent=fmtDate(dt);$(`dayDate_${d}_pm`).textContent='';
+    // old format photo labels
+    const pcD=$(`pcDate_${d}`);if(pcD)pcD.textContent=lbl;
+    const pcL=$(`pcLabel_${d}`);if(pcL)pcL.textContent=d<5?`第 ${d+1} 天`:d===5?'週六':'週日';
+    // new format photo table labels
+    const ptD=$(`ptDayDate_${d}`);if(ptD)ptD.textContent=lbl;
+  }
+  $('photoLocLabel').textContent=$('locBadge').textContent;
+}
 function randomizeTimes(){for(let d=0;d<DAYS;d++){const ah=8+Math.floor(Math.random()*3),am=Math.floor(Math.random()*6)*10;let aem=am+10,aeh=ah;if(aem>=60){aem-=60;aeh++;}$(`d${d}_am_start`).value=`${String(ah).padStart(2,'0')}:${String(am).padStart(2,'0')}`;$(`d${d}_am_end`).value=`${String(aeh).padStart(2,'0')}:${String(aem).padStart(2,'0')}`;const ph=13+Math.floor(Math.random()*3),pm=Math.floor(Math.random()*5)*10;let pem=pm+10,peh=ph;if(pem>=60){pem-=60;peh++;}$(`d${d}_pm_start`).value=`${String(ph).padStart(2,'0')}:${String(pm).padStart(2,'0')}`;$(`d${d}_pm_end`).value=`${String(peh).padStart(2,'0')}:${String(pem).padStart(2,'0')}`;}}
 
 /* ===== Collect / Load ===== */
 function collectData(){
   const data={project:$('projectName').value,location:$('locBadge').textContent,startDate:$('startDate').value,endDate:$('endDateLabel').textContent,
     sig:{engineer:$('sig_engineer').value,engineerImg:$('sigImg_engineer').style.display!=='none'?$('sigImg_engineer').src:'',manager:$('sig_manager').value,managerImg:$('sigImg_manager').style.display!=='none'?$('sigImg_manager').src:''},
-    days:[],photos:[]};
-  for(let d=0;d<DAYS;d++){const day={date:addDays(data.startDate,d),am:{},pm:{}};for(const p of['am','pm']){day[p]={start:$(`d${d}_${p}_start`).value,end:$(`d${d}_${p}_end`).value,method:$(`d${d}_${p}_method`).value,water:$(`d${d}_${p}_water`).value,len:$(`d${d}_${p}_len`).value,person:$(`d${d}_${p}_person`).value};}data.days.push(day);}
-  for(let i=0;i<PHOTOS;i++){const img=$(`phImg_${i}`);data.photos.push({src:img.style.display!=='none'?img.src:'',desc:$(`phDesc_${i}`).value});}
+    days:[]};
+  for(let d=0;d<DAYS;d++){const day={date:addDays(data.startDate,d),water:$(`d${d}_water`)?$(`d${d}_water`).value:'',am:{},pm:{}};for(const p of['am','pm']){day[p]={start:$(`d${d}_${p}_start`).value,end:$(`d${d}_${p}_end`).value,method:$(`d${d}_${p}_method`).value,len:$(`d${d}_${p}_len`).value,person:$(`d${d}_${p}_person`).value};}data.days.push(day);}
+  if(isNewFormat(data.startDate)){
+    data.photoFormat='table';
+    data.photoTable=[];
+    for(let d=0;d<DAYS;d++){
+      const row={};
+      for(const p of['am','pm','ms','me']){
+        const img=$(`ptImg_${d}_${p}`);
+        row[p+'Src']=img&&img.style.display!=='none'?img.src:'';
+      }
+      row.msVal=$(`ptNum_${d}_ms`)?$(`ptNum_${d}_ms`).value:'';
+      row.meVal=$(`ptNum_${d}_me`)?$(`ptNum_${d}_me`).value:'';
+      const s=parseFloat(row.msVal)||0,e=parseFloat(row.meVal)||0;
+      row.water=e>s?(e-s).toFixed(1):'';
+      data.photoTable.push(row);
+    }
+  }else{
+    // 舊格式：photos
+    data.photoFormat='grid';
+    data.photos=[];
+    for(let i=0;i<PHOTOS;i++){const img=$(`phImg_${i}`);data.photos.push({src:img&&img.style.display!=='none'?img.src:'',desc:$(`phDesc_${i}`)?$(`phDesc_${i}`).value:''});}
+  }
   data.savedAt=new Date().toISOString();return data;
 }
 function loadData(data){
   $('projectName').value=data.project||DEFAULT_PROJECT;$('locBadge').textContent=data.location||'—';$('startDate').value=data.startDate||'';onStartDateChange();
   if(data.sig){$('sig_engineer').value=data.sig.engineer||'';$('sig_manager').value=data.sig.manager||'';if(data.sig.engineerImg){$('sigImg_engineer').src=data.sig.engineerImg;$('sigImg_engineer').style.display='block';$('sigRm_engineer').style.display='inline-block';}if(data.sig.managerImg){$('sigImg_manager').src=data.sig.managerImg;$('sigImg_manager').style.display='block';$('sigRm_manager').style.display='inline-block';}syncSig();}
-  if(data.days){data.days.forEach((day,d)=>{if(d>=DAYS)return;for(const p of['am','pm']){if(!day[p])return;$(`d${d}_${p}_start`).value=day[p].start||'';$(`d${d}_${p}_end`).value=day[p].end||'';$(`d${d}_${p}_method`).value=day[p].method??DM;$(`d${d}_${p}_water`).value=day[p].water||'';$(`d${d}_${p}_len`).value=day[p].len||'';$(`d${d}_${p}_person`).value=day[p].person||'';}});}
-  if(data.photos){data.photos.forEach((ph,i)=>{if(i>=PHOTOS)return;if(ph.src){$(`phImg_${i}`).src=ph.src;$(`phImg_${i}`).style.display='block';$(`phPlaceholder_${i}`).style.display='none';}$(`phDesc_${i}`).value=ph.desc||'';});}
+  if(data.days){data.days.forEach((day,d)=>{if(d>=DAYS)return;const wEl=$(`d${d}_water`);if(wEl)wEl.value=day.water||'';for(const p of['am','pm']){if(!day[p])return;$(`d${d}_${p}_start`).value=day[p].start||'';$(`d${d}_${p}_end`).value=day[p].end||'';$(`d${d}_${p}_method`).value=day[p].method??DM;$(`d${d}_${p}_len`).value=day[p].len||'';$(`d${d}_${p}_person`).value=day[p].person||'';}});}
+  if(data.photoFormat==='table'&&data.photoTable){
+    switchPhotoFormat(true);
+    data.photoTable.forEach((pt,d)=>{
+      if(d>=DAYS)return;
+      for(const p of['am','pm','ms','me']){
+        const src=pt[p+'Src'];
+        if(src){const el=$(`ptImg_${d}_${p}`);if(el){el.src=src;el.style.display='block';const ph=$(`ptPh_${d}_${p}`);if(ph)ph.style.display='none';}}
+      }
+      if(pt.msVal){const el=$(`ptNum_${d}_ms`);if(el)el.value=pt.msVal;}
+      if(pt.meVal){const el=$(`ptNum_${d}_me`);if(el)el.value=pt.meVal;}
+      calcAndSync(d);
+    });
+  }else if(data.photos){
+    // 舊格式
+    switchPhotoFormat(false);
+    data.photos.forEach((ph,i)=>{if(i>=PHOTOS)return;if(ph.src){$(`phImg_${i}`).src=ph.src;$(`phImg_${i}`).style.display='block';$(`phPlaceholder_${i}`).style.display='none';}$(`phDesc_${i}`).value=ph.desc||'';});
+  }
   $('photoLocLabel').textContent=data.location||'—';
 }
 
@@ -441,8 +597,11 @@ function closePostSave(){$('postSaveDialog').classList.remove('open');}
 /* ===== Clear ===== */
 function clearForm(){if(isEditing&&!confirm('目前正在編輯，確定清除？'))return;clearFormSilent();toast('表單已清除');}
 function clearFormSilent(){
-  for(let d=0;d<DAYS;d++){for(const p of['am','pm']){$(`d${d}_${p}_start`).value='';$(`d${d}_${p}_end`).value='';$(`d${d}_${p}_method`).value=DM;$(`d${d}_${p}_water`).value='';$(`d${d}_${p}_len`).value='';$(`d${d}_${p}_person`).value='';const w=$(`d${d}_${p}_water`),l=$(`d${d}_${p}_len`),pe=$(`d${d}_${p}_person`);[w,l,pe].forEach(el=>{if(el){el.dataset.manual='false';el.dataset.autoFilled='false';}});}}
+  for(let d=0;d<DAYS;d++){const wEl=$(`d${d}_water`);if(wEl){wEl.value='';wEl.dataset.manual='false';wEl.dataset.autoFilled='false';}for(const p of['am','pm']){$(`d${d}_${p}_start`).value='';$(`d${d}_${p}_end`).value='';$(`d${d}_${p}_method`).value=DM;$(`d${d}_${p}_len`).value='';$(`d${d}_${p}_person`).value='';const l=$(`d${d}_${p}_len`),pe=$(`d${d}_${p}_person`);[l,pe].forEach(el=>{if(el){el.dataset.manual='false';el.dataset.autoFilled='false';}});}}
+  // 清除舊格式照片
   for(let i=0;i<PHOTOS;i++)removePhoto(i);
+  // 清除新格式照片+水表
+  for(let d=0;d<DAYS;d++){for(const p of['am','pm','ms','me']){removePtPhoto(d,p);const n=$(`ptNum_${d}_${p}`);if(n)n.value='';}const t=$(`ptTotal_${d}`);if(t)t.textContent='—';}
   $('sig_engineer').value='';$('sig_manager').value='';for(const r of['engineer','manager'])removeSigImg(r);syncSig();
   fieldSource={water:null,len:null,person:null};currentEditKey=null;isEditing=false;
 }
@@ -569,15 +728,42 @@ async function refreshIndex(){
 function buildPdfHtml(data,isFirst){
   const loc=data.location||'—',sd=data.startDate||'',ed=data.endDate||'';
   const pbClass=isFirst===false?'pdf-newpage':'';
-  // Page 1: Record table
+  const sigHtml=`<div class="sig-line"><div class="sig-block">${data.sig?.engineerImg?`<img src="${data.sig.engineerImg}">`:'<div class="sig-space"></div>'}<div class="sig-label">現場環保工程師：${data.sig?.engineer||''}</div></div><div class="sig-block">${data.sig?.managerImg?`<img src="${data.sig.managerImg}">`:'<div class="sig-space"></div>'}<div class="sig-label">環境保護負責人：${data.sig?.manager||''}</div></div></div>`;
+
+  // Page 1: Record table (same for both formats)
   let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>累計用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
-  if(data.days){data.days.forEach((day,d)=>{const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;for(const p of['am','pm']){const r=day[p]||{};h+=`<tr><td>${p==='am'?dt:''}</td><td>${p==='am'?'上午':'下午'}</td><td>${r.start||''}</td><td>${r.end||''}</td><td>${METHODS[r.method]||METHODS[DM]}</td><td>${r.water||''}</td><td>${r.len||''}</td><td>${r.person||''}</td></tr>`;}});}
-  h+='</tbody></table>';
-  h+=`<div class="sig-line"><div class="sig-block">${data.sig?.engineerImg?`<img src="${data.sig.engineerImg}">`:'<div class="sig-space"></div>'}<div class="sig-label">現場環保工程師：${data.sig?.engineer||''}</div></div><div class="sig-block">${data.sig?.managerImg?`<img src="${data.sig.managerImg}">`:'<div class="sig-space"></div>'}<div class="sig-label">環境保護負責人：${data.sig?.manager||''}</div></div></div></div>`;
-  // Page 2: Photos
-  h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 10mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><div class="pdf-photo-grid">`;
-  if(data.photos){data.photos.forEach((ph,i)=>{const dt=data.days&&data.days[i]?`${fmtDate(data.days[i].date)}(${weekday(data.days[i].date)})`:'';h+=`<div class="pdf-photo-cell"><div class="ppc-header">${dt}</div><div class="ppc-body">${ph.src?`<img src="${ph.src}">`:'<span style="color:#ccc;">無照片</span>'}</div><div class="ppc-desc">${ph.desc||''}</div></div>`;});}
-  h+=`</div><div class="sig-line" style="margin-top:6px;"><div class="sig-block">${data.sig?.engineerImg?`<img src="${data.sig.engineerImg}">`:'<div class="sig-space"></div>'}<div class="sig-label">現場環保工程師：${data.sig?.engineer||''}</div></div><div class="sig-block">${data.sig?.managerImg?`<img src="${data.sig.managerImg}">`:'<div class="sig-space"></div>'}<div class="sig-label">環境保護負責人：${data.sig?.manager||''}</div></div></div></div>`;
+  if(data.days){data.days.forEach((day,d)=>{const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;for(const p of['am','pm']){const r=day[p]||{};h+=`<tr><td>${p==='am'?dt:''}</td><td>${p==='am'?'上午':'下午'}</td><td>${r.start||''}</td><td>${r.end||''}</td><td>${METHODS[r.method]||METHODS[DM]}</td>${p==='am'?`<td rowspan="2" style="vertical-align:middle;">${day.water||''}</td>`:''}<td>${r.len||''}</td><td>${r.person||''}</td></tr>`;}});}
+  h+='</tbody></table>'+sigHtml+'</div>';
+
+  if(data.photoFormat==='table'&&data.photoTable){
+    // ★ 新格式：照片表 Page 2 (Day 1-4) + Page 3 (Day 5-7) ★
+    const ptHead='<table class="pdf-pt"><thead><tr><th>日期</th><th>上午灑水</th><th>下午灑水</th><th>起始水表</th><th>結束水表</th><th>總灑水量<br>(m³)</th></tr></thead><tbody>';
+    function ptRows(startD,endD){
+      let r='';
+      for(let d=startD;d<endD&&d<data.photoTable.length;d++){
+        const pt=data.photoTable[d];
+        const dayDate=data.days&&data.days[d]?data.days[d].date:'';
+        const dt=dayDate?`${fmtDate(dayDate)}(${weekday(dayDate)})`:`第${d+1}天`;
+        const wm=dayDate||'';
+        r+=`<tr><td class="pt-day-cell">${dt}</td>`;
+        r+=`<td class="pt-img-cell">${pt.amSrc?`<div class="pt-img-wrap"><img src="${pt.amSrc}"><span class="pt-watermark">${wm}</span></div>`:'—'}</td>`;
+        r+=`<td class="pt-img-cell">${pt.pmSrc?`<div class="pt-img-wrap"><img src="${pt.pmSrc}"><span class="pt-watermark">${wm}</span></div>`:'—'}</td>`;
+        r+=`<td class="pt-meter-cell">${pt.msSrc?`<img src="${pt.msSrc}">`:'—'}</td>`;
+        r+=`<td class="pt-meter-cell">${pt.meSrc?`<img src="${pt.meSrc}">`:'—'}</td>`;
+        r+=`<td class="pt-total-cell">${pt.water||'—'}</td></tr>`;
+      }
+      return r;
+    }
+    // Page 2: Day 1-4
+    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（一）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(0,4)}</tbody></table>${sigHtml}</div>`;
+    // Page 3: Day 5-7
+    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（二）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(4,7)}</tbody></table>${sigHtml}</div>`;
+  }else{
+    // ★ 舊格式：4+3 照片格 ★
+    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><div class="pdf-photo-grid">`;
+    if(data.photos){data.photos.forEach((ph,i)=>{const dt=data.days&&data.days[i]?`${fmtDate(data.days[i].date)}(${weekday(data.days[i].date)})`:'';h+=`<div class="pdf-photo-cell"><div class="ppc-header">${dt}</div><div class="ppc-body">${ph.src?`<img src="${ph.src}">`:'<span style="color:#ccc;">無照片</span>'}</div><div class="ppc-desc">${ph.desc||''}</div></div>`;});}
+    h+=`</div><div style="margin-top:6px;">${sigHtml}</div></div>`;
+  }
   return h;
 }
 const PDF_OPT={margin:0,image:{type:'jpeg',quality:0.92},html2canvas:{scale:2,useCORS:true,logging:false,scrollX:0,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['css','legacy'],before:'.pdf-newpage'}};
@@ -635,11 +821,25 @@ async function doExportFromPreview(){
   if(imgs.length){
     await Promise.all([...imgs].map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=r;img.onerror=r;})));
   }
-  // 強制照片不超過 250px
+  // 強制照片不超過限制高度
   zone.querySelectorAll('.ppc-body img').forEach(img=>{
     if(img.naturalHeight>250){
       const ratio=250/img.naturalHeight;
       img.style.height='250px';
+      img.style.width=(img.naturalWidth*ratio)+'px';
+    }
+  });
+  zone.querySelectorAll('.pt-img-wrap img, .pt-img-cell > img').forEach(img=>{
+    if(img.naturalHeight>130){
+      const ratio=130/img.naturalHeight;
+      img.style.height='130px';
+      img.style.width=(img.naturalWidth*ratio)+'px';
+    }
+  });
+  zone.querySelectorAll('.pt-meter-cell img').forEach(img=>{
+    if(img.naturalHeight>100){
+      const ratio=100/img.naturalHeight;
+      img.style.height='100px';
       img.style.width=(img.naturalWidth*ratio)+'px';
     }
   });
@@ -695,6 +895,7 @@ async function doExportFromPreview(){
 /* ===== Init ===== */
 buildRecordTable();
 buildPhotoGrid();
+buildPhotoTable();
 $('projectName').value=DEFAULT_PROJECT;
 switchTab(2);
 
