@@ -509,6 +509,47 @@ function App(){
     document.addEventListener('paste',handler);return()=>document.removeEventListener('paste',handler);
   },[rec]);
 
+  // ===== 純儲存（不匯出 Word）=====
+  const saveOnly = async () => {
+    if(!GAS_URL||!rec){toast('⚠️ 無法儲存');return}
+    setSyncing(true);
+    setProgress({pct:10,text:'上傳照片...'});
+    try{
+      const updated={...rec};
+      for(const key of ['before','during','after']){
+        const photos=[...updated[key+'Photos']];
+        for(let pi=0;pi<photos.length;pi++){
+          if(photos[pi].localSrc && !photos[pi].photoId){
+            setProgress({pct:20+pi*5,text:`上傳${{before:'改善前',during:'改善中',after:'改善後'}[key]}照片 ${pi+1}...`});
+            try{
+              const res=await xhrPostRetry(GAS_URL,{action:'uploadPhoto',fileName:`${rec.label||rec.id}_${key}_${pi}_${Date.now()}.jpg`,dataUrl:photos[pi].localSrc});
+              if(res.ok&&res.fileId) photos[pi]={...photos[pi],photoId:res.fileId,localSrc:''};
+            }catch(e){console.warn('upload fail:',e)}
+          }
+        }
+        updated[key+'Photos']=photos;
+      }
+      setProgress({pct:70,text:'儲存紀錄...'});
+      const toSave={...updated};
+      for(const key of ['before','during','after']){
+        toSave[key+'Photos']=toSave[key+'Photos'].map(p=>({photoId:p.photoId,date:p.date}));
+      }
+      const recHeader={org:updated.org,title:updated.title,project:updated.project};
+      const saveRes=await xhrPostRetry(GAS_URL,{action:'saveRecord',record:toSave,header:recHeader});
+      if(!saveRes.ok)throw new Error(saveRes.error||'Save failed');
+      setRec(updated);
+      setHeader({org:updated.org,title:updated.title,project:updated.project});
+      const meta={id:updated.id,date:updated.date||'',label:updated.label||'',
+        beforeDesc:(updated.beforeDesc||'').substring(0,50),
+        beforeCount:updated.beforePhotos.length,duringCount:updated.duringPhotos.length,afterCount:updated.afterPhotos.length,
+        hasBeforePhoto:updated.beforePhotos.length>0,hasDuringPhoto:updated.duringPhotos.length>0,hasAfterPhoto:updated.afterPhotos.length>0};
+      setIndex(prev=>{const arr=[...prev];const ei=arr.findIndex(r=>String(r.id)===String(updated.id));if(ei>=0)arr[ei]=meta;else arr.push(meta);return arr});
+      setDirty(false);
+      toast('✅ 已儲存！');
+    }catch(e){console.error(e);toast('❌ 儲存失敗：'+e.message,5000)}
+    setProgress(null);setSyncing(false);
+  };
+
   // ===== 儲存＋匯出 Word (合併按鈕) =====
   const saveAndExport = async (format='TPC') => {
     if(!GAS_URL||!rec){toast('⚠️ 無法儲存');return}
@@ -807,8 +848,9 @@ function App(){
           </div></div>
 
           <div className="btn-group">
-            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ TPC 格式匯出'}</button>
-            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ POE 格式匯出'}</button>
+            <button className="btn btn-primary" onClick={saveOnly} disabled={syncing}>{syncing?'⏳ 處理中...':dirty?'💾 儲存 ●':'💾 儲存'}</button>
+            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>☁️ TPC 匯出</button>
+            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>☁️ POE 匯出</button>
             <button className="btn btn-secondary" onClick={()=>setTab('preview')}>👁 預覽</button>
             <button className="btn btn-secondary" onClick={()=>setTab('list')}>📑 列表</button>
           </div>
@@ -826,8 +868,9 @@ function App(){
             {(rec.label||rec.date)&&<div style={{marginTop:8,fontSize:'9pt',color:'#666'}}>{rec.label&&<span>{rec.label}　</span>}{rec.date}</div>}
           </div>
           <div className="btn-group" style={{marginTop:16}}>
-            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ TPC 格式匯出'}</button>
-            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>{syncing?'⏳ 處理中...':'☁️ POE 格式匯出'}</button>
+            <button className="btn btn-primary" onClick={saveOnly} disabled={syncing}>{syncing?'⏳ 處理中...':dirty?'💾 儲存 ●':'💾 儲存'}</button>
+            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>☁️ TPC 匯出</button>
+            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>☁️ POE 匯出</button>
             <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 編輯</button>
           </div>
         </div>}
