@@ -5,6 +5,7 @@
 <title>Environmental E-System</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#f0f7f2;--bg2:#e4f0e8;--card:#ffffff;--card2:#f5faf6;--section-header:#f0f7f2;--border:#c8dece;--border2:#b0ccb8;--text:#1a3a2a;--text2:#2d5a3e;--muted:#5e8a6e;--accent:#16a34a;--accent2:#15803d;--accent-light:#dcfce7;--accent-glow:rgba(22,163,74,.1);--warn:#f59e0b;--danger:#dc2626;--orange:#ea580c;--link-hover:rgba(22,163,74,.05);--input-bg:#f8fcf9;--input-border:#c8dece;--shadow:0 2px 12px rgba(22,90,50,.06);--shadow2:0 8px 32px rgba(22,90,50,.08)}
@@ -634,6 +635,7 @@ function renderSchHTML(){
     h+=`</select>`;
     h+=`<button class="btn-add-row" onclick="openMergeM()" style="margin:0">🔗 合併儲存格</button>`;
     h+=`<button class="btn-add-row" onclick="exportSchXlsx()" style="margin:0">📊 匯出 Excel</button>`;
+    h+=`<button class="btn-add-row" onclick="exportSchImg()" style="margin:0">🖼️ 匯出圖片</button>`;
     h+=`<span id="schDraftBadge" style="display:${schDraft?'inline-flex':'none'};align-items:center;gap:5px;padding:5px 12px;border-radius:8px;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;font-size:12px;font-weight:600">⚠️ 草稿未發布</span>`;
     h+=`<button onclick="publishSch()" style="padding:7px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 10px rgba(22,163,74,.2);transition:.2s;margin-left:auto">📤 發布班表</button>`;
     h+=`</div>`;
@@ -659,6 +661,7 @@ function renderSchHTML(){
     D.schMonths.forEach(mo=>{const [y,m]=mo.split('-').map(Number);h+=`<option value="${mo}" ${mo===schViewMonth?'selected':''}>${y}年${m}月</option>`;});
     h+=`</select>`;
     h+=`<button class="btn-add-row" onclick="exportSchXlsx()" style="margin:0">📊 匯出 Excel</button>`;
+    h+=`<button class="btn-add-row" onclick="exportSchImg()" style="margin:0">🖼️ 匯出圖片</button>`;
     h+=`</div>`;
     h+=renderOneMonth(schViewMonth);
   }
@@ -1395,6 +1398,127 @@ function openOutlookForEmail(){
   const cc=encodeURIComponent(window._trkEmailCc||'');
   window.open('mailto:'+to+'?subject='+sub+'&cc='+cc,'_blank');
   showToast('📨 Outlook 已開啟，請貼上內容後寄出');
+}
+
+// ══ Export Schedule as Image ══
+function exportSchImg(){
+  const mo=schViewMonth;
+  const [y,m]=mo.split('-').map(Number);
+  const days=new Date(y,m,0).getDate();
+  const sd=getSchData(mo);
+
+  showToast('⏳ 產生圖片中…');
+
+  // Build fully inline-styled HTML for accurate rendering
+  const CELL='border:1px solid #c8dece;padding:4px 6px;text-align:center;font-family:DM Sans,Noto Sans TC,Arial,sans-serif;font-size:12px;vertical-align:middle;';
+  const COLORS={
+    'R':  {bg:'#eff6ff',color:'#1d4ed8'},
+    'H':  {bg:'#fafafa',color:'#d1d5db'},
+    '中': {bg:'#e0f2fe',color:'#0369a1'},
+    '霄': {bg:'#ede9fe',color:'#6d28d9'},
+  };
+  const HOL_BG='#fef9c3';
+  const MERGE_BG='#fee2e2'; const MERGE_COLOR='#92400e';
+
+  let html='<table style="border-collapse:collapse;font-size:12px;white-space:nowrap;background:#fff">';
+  // Header row
+  html+='<thead><tr>';
+  html+=`<th style="${CELL}background:#f0f7f2;font-weight:700;min-width:90px;text-align:left;padding-left:8px;color:#2d5a3e">姓名</th>`;
+  for(let d=1;d<=days;d++){
+    const dt=new Date(y,m-1,d);
+    const dow=dt.getDay();
+    const off=isDayOff(y,m,d);
+    const hn=holName(y,m,d);
+    const hdr_bg=off?HOL_BG:'#f0f7f2';
+    html+=`<th style="${CELL}background:${hdr_bg};min-width:32px;font-weight:600;color:#1a3a2a">`;
+    html+=`<div style="font-size:12px;font-weight:600">${d}</div>`;
+    html+=`<div style="font-size:9px;color:#5e8a6e">${['日','一','二','三','四','五','六'][dow]}</div>`;
+    if(hn)html+=`<div style="font-size:8px;color:#dc2626">${hn}</div>`;
+    html+='</th>';
+  }
+  html+='</tr></thead><tbody>';
+
+  PLIST.forEach(p=>{
+    html+=`<tr><td style="${CELL}background:#f0f7f2;font-weight:600;text-align:left;padding-left:8px;color:#2d5a3e">${p}</td>`;
+    let d=1;
+    while(d<=days){
+      const mg=sd.merges?.find(x=>x.person===p&&x.start===d);
+      if(mg){
+        const span=mg.end-mg.start+1;
+        html+=`<td colspan="${span}" style="${CELL}background:${MERGE_BG};color:${MERGE_COLOR};font-weight:700;font-size:11px;border:2px solid #fca5a5">${esc(mg.label||mg.value)}</td>`;
+        d=mg.end+1;continue;
+      }
+      const inMg=sd.merges?.find(x=>x.person===p&&d>x.start&&d<=x.end);
+      if(inMg){d++;continue;}
+      const v=sd.cells[p]?.[d]||'R';
+      const off=isDayOff(y,m,d);
+      const col=COLORS[v]||COLORS['R'];
+      const bg=off?HOL_BG:col.bg;
+      const color=col.color;
+      html+=`<td style="${CELL}background:${bg};color:${color};font-weight:700">${v}</td>`;
+      d++;
+    }
+    html+='</tr>';
+  });
+  html+='</tbody></table>';
+
+  // Summary table
+  html+='<table style="border-collapse:collapse;font-size:13px;margin-top:14px">';
+  html+='<thead><tr>';
+  ['姓名','正常工作日','實際上班日','加班天數','加班工時(班表)','額外加班','合計工時'].forEach(th=>{
+    html+=`<th style="${CELL}background:#e4f0e8;font-weight:600;color:#5e8a6e;font-size:11px;padding:6px 12px">${th}</th>`;
+  });
+  html+='</tr></thead><tbody>';
+  const today=todayS();
+  if(!D.otRecords)D.otRecords={};
+  if(!D.otRecords[mo])D.otRecords[mo]=[];
+  const extraOT=D.otRecords[mo];
+  PLIST.forEach(p=>{
+    let normalWork=0,otWork=0;
+    for(let d=1;d<=days;d++){
+      const mg=sd.merges?.find(x=>x.person===p&&d>=x.start&&d<=x.end);
+      const v=mg?mg.value:(sd.cells[p]?.[d]||'R');
+      if(v==='H')continue;
+      if(isDayOff(y,m,d))otWork++;else normalWork++;
+    }
+    const otDays=Math.max(0,normalWork-sd.normalDays)+otWork;
+    const actual=normalWork+otWork;
+    const extraH=extraOT.filter(r=>r.person===p).reduce((s,r)=>s+Number(r.hours||0),0);
+    const totalH=otDays*8+extraH;
+    const ot_style=`${CELL}color:${otDays>0?'#dc2626':'#374151'};font-weight:${otDays>0?'700':'400'}`;
+    html+=`<tr><td style="${CELL}font-weight:600;color:#1a3a2a">${p}</td><td style="${CELL}">${sd.normalDays}</td><td style="${CELL}">${actual}</td><td style="${ot_style}">${otDays}</td><td style="${ot_style}">${otDays*8}h</td><td style="${CELL}color:${extraH>0?'#dc2626':'#374151'}">${extraH}h</td><td style="${CELL}font-weight:700;color:${totalH>0?'#dc2626':'#374151'}">${totalH}h</td></tr>`;
+  });
+  html+='</tbody></table>';
+
+  const container=document.createElement('div');
+  container.style.cssText='background:#fff;padding:24px;display:inline-block;position:fixed;left:-9999px;top:0;z-index:-1';
+  const titleEl=document.createElement('p');
+  titleEl.textContent=`NMDC ENV 班表　${y}年${m}月`;
+  titleEl.style.cssText='font-size:16px;font-weight:700;margin:0 0 14px;color:#1a3a2a;font-family:DM Sans,Noto Sans TC,Arial,sans-serif';
+  container.appendChild(titleEl);
+  const content=document.createElement('div');
+  content.innerHTML=html;
+  container.appendChild(content);
+  const footer=document.createElement('p');
+  footer.textContent='匯出日期：'+todayS();
+  footer.style.cssText='font-size:11px;color:#9ca3af;margin:10px 0 0;font-family:Arial,sans-serif';
+  container.appendChild(footer);
+  document.body.appendChild(container);
+
+  html2canvas(container,{
+    scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false,
+    width:container.scrollWidth,height:container.scrollHeight,
+  }).then(canvas=>{
+    document.body.removeChild(container);
+    const a=document.createElement('a');
+    a.href=canvas.toDataURL('image/png');
+    a.download=`班表_${y}年${m}月.png`;
+    a.click();
+    showToast('✅ 圖片已下載！');
+  }).catch(e=>{
+    if(document.body.contains(container))document.body.removeChild(container);
+    showToast('⚠️ 匯出失敗：'+e.message,'err');
+  });
 }
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
