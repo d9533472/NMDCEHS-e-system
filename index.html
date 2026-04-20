@@ -1549,7 +1549,7 @@ function renderEventsHTML(){
   if(evFilterPerson!=='All')filtered=filtered.filter(ev=>(ev.person||'').includes(evFilterPerson));
   if(evFilterDateFrom)filtered=filtered.filter(ev=>ev.date>=evFilterDateFrom);
   if(evFilterDateTo)filtered=filtered.filter(ev=>ev.date<=evFilterDateTo);
-  filtered.sort((a,b)=>(b.starred?1:0)-(a.starred?1:0)||b.date.localeCompare(a.date));
+  filtered.sort((a,b)=>b.date.localeCompare(a.date));
 
   if(!filtered.length){h+='<div class="bulletin-empty">無符合條件的活動</div>';}
   else{
