@@ -573,7 +573,10 @@ function renderLinksHTML(){let h='';
   D.sections.forEach((sec,si)=>{const isO=openSec[sec.id]!==false,isR=eSecId===sec.id;
     const lH=sec.links.length===0?`<div class="empty-hint">尚無連結${isEditor?'，點 <span>+</span> 新增':''}</div>`:sec.links.map((lk,li)=>{
       const ar=isEditor?`<button class="icon-btn sm" onclick="moveLnk('${sec.id}',${li},-1)" ${li===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveLnk('${sec.id}',${li},1)" ${li===sec.links.length-1?'disabled':''}>▼</button>`:'';
-      return`<div class="link-item"><div class="link-icon-wrap">${lk.icon||'📄'}</div><a href="${esc(lk.url)}" target="_blank" rel="noopener noreferrer">${esc(lk.title)}</a>${isEditor?`<div class="link-actions">${ar}<button class="icon-btn" onclick="openELnk('${sec.id}','${lk.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delLnk('${sec.id}','${lk.id}')">${SV.trash}</button></div>`:''}</div>`;}).join('');
+      if(!isEditor&&lk.hidden)return'';
+      const hidBtn=isEditor?`<button class="icon-btn" onclick="toggleLnkHide('${sec.id}','${lk.id}')" title="${lk.hidden?'顯示':'隱藏'}" style="opacity:.6">${lk.hidden?'👁':'🚫'}</button>`:'';
+      const hidStyle=lk.hidden?'opacity:.45;':'';
+      return`<div class="link-item" style="${hidStyle}"><div class="link-icon-wrap">${lk.icon||'📄'}</div><a href="${esc(lk.url)}" target="_blank" rel="noopener noreferrer">${esc(lk.title)}${lk.hidden?'<span style="font-size:10px;color:var(--muted);margin-left:4px">(隱藏)</span>':''}</a>${isEditor?`<div class="link-actions">${ar}${hidBtn}<button class="icon-btn" onclick="openELnk('${sec.id}','${lk.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delLnk('${sec.id}','${lk.id}')">${SV.trash}</button></div>`:''}</div>`;}).join('');
     const nH=isR?`<div class="inline-edit" onclick="event.stopPropagation()"><input class="inline-input" id="rn_${sec.id}" value="${esc(sec.name)}" onkeydown="if(event.key==='Enter')cfmRen('${sec.id}');if(event.key==='Escape')canRen()"><button class="icon-btn success" onclick="cfmRen('${sec.id}')">${SV.check}</button><button class="icon-btn" onclick="canRen()">${SV.x}</button></div>`:`<span class="section-name">${esc(sec.name)}<span class="link-count">${sec.links.length}</span></span>`;
     const secAr=isEditor?`<button class="icon-btn sm" onclick="event.stopPropagation();moveItem('sections',${si},-1)" ${si===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="event.stopPropagation();moveItem('sections',${si},1)" ${si===D.sections.length-1?'disabled':''}>▼</button>`:'';
     const aH=isEditor?`<div class="section-actions" onclick="event.stopPropagation()">${secAr}<button class="icon-btn" onclick="stRen('${sec.id}')">${SV.edit}</button><button class="icon-btn accent" onclick="openALnk('${sec.id}')">${SV.plus}</button><button class="icon-btn danger" onclick="delSec('${sec.id}')">${SV.trash}</button></div>`:'';
@@ -590,6 +593,11 @@ function openALnk(sid){eLSId=sid;eLId=null;selIc='📄';$('mLT').textContent='�
 function openELnk(sid,lid){const sec=D.sections.find(s=>s.id===sid);const lk=sec?.links.find(l=>l.id===lid);if(!lk)return;eLSId=sid;eLId=lid;selIc=lk.icon||'📄';$('mLT').textContent='編輯連結';$('bLnk').textContent='儲存';$('inLN').value=lk.title;$('inLU').value=lk.url;$('icP').textContent=selIc;$('icL').textContent=selIc;$('icDD').classList.add('hidden');$('mLnk').classList.remove('hidden');setTimeout(()=>$('inLN').focus(),50);}
 function closeLnkM(){$('mLnk').classList.add('hidden');}
 function saveLnk(){const title=$('inLN').value.trim(),url=$('inLU').value.trim()||'#';if(!title)return;const sec=D.sections.find(s=>s.id===eLSId);if(!sec)return;if(eLId){const lk=sec.links.find(l=>l.id===eLId);if(lk){lk.title=title;lk.url=url;lk.icon=selIc;}}else sec.links.push({id:gid(),title,url,icon:selIc});save();renderTab();closeLnkM();}
+function toggleLnkHide(sid,lid){
+  const sec=D.sections.find(s=>s.id===sid);if(!sec)return;
+  const lk=sec.links.find(l=>l.id===lid);if(!lk)return;
+  lk.hidden=!lk.hidden;save();renderTab();
+}
 function delLnk(sid,lid){const sec=D.sections.find(s=>s.id===sid);if(!sec)return;sec.links=sec.links.filter(l=>l.id!==lid);save();renderTab();}
 function buildIc(){const dd=$('icDD');let h='';for(const[c,icons]of Object.entries(ICONS)){h+=`<div class="icon-cat-label">${c}</div><div class="icon-grid">`;icons.forEach(i=>{h+=`<button type="button" class="icon-opt ${i===selIc?'selected':''}" onclick="pickIc('${i}',event)">${i}</button>`;});h+='</div>';}dd.innerHTML=h;}
 function toggleIc(e){e.stopPropagation();const dd=$('icDD'),a=$('icA');const op=dd.classList.contains('hidden');dd.classList.toggle('hidden');a.classList.toggle('flip',op);if(op)buildIc();}
@@ -1521,14 +1529,14 @@ function exportSchImg(){
 
 // ══ Events Tab ══
 const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
-let eEventId=null,evFilterPerson='All',evFilterDateFrom='',evFilterDateTo='';
+let eEventId=null,evFilterPerson='All',evFilterArea='All',evFilterDateFrom='',evFilterDateTo='';
 
 function renderEventsHTML(){
   const events=D.events||[];
 
   // ── Filter bar ──
   let h='<div class="card">';
-  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">';
   // Person filter
   h+='<div class="trk-tabs" style="margin:0">';
   ['All',...PLIST].forEach(p=>{
@@ -1536,17 +1544,28 @@ function renderEventsHTML(){
     h+=`<button class="trk-tab ${evFilterPerson===p?'active':''}" onclick="evFilterPerson='${p}';renderTab()">${p==='All'?'全部':p}<span class="tab-count">${cnt}</span></button>`;
   });
   h+='</div>';
-  // Date range
+  if(isEditor)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px;margin-left:auto" onclick="openEventM()">＋ 新增</button>`;
+  h+='</div>';
+  // Row 2: area + date
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+  // Area filter
+  h+='<div class="trk-tabs" style="margin:0">';
+  ['All','台中','通霄','專案','離岸','其他'].forEach(a=>{
+    const cnt=a==='All'?events.length:events.filter(ev=>ev.area===a).length;
+    h+=`<button class="trk-tab ${evFilterArea===a?'active':''}" onclick="evFilterArea='${a}';renderTab()">${a==='All'?'全部工區':a}<span class="tab-count">${cnt}</span></button>`;
+  });
+  h+='</div>';
   h+=`<input type="date" value="${evFilterDateFrom}" onchange="evFilterDateFrom=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="起始日期">`;
   h+=`<span style="color:var(--muted);font-size:12px">～</span>`;
   h+=`<input type="date" value="${evFilterDateTo}" onchange="evFilterDateTo=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="結束日期">`;
-  if(evFilterDateFrom||evFilterDateTo||evFilterPerson!=='All')h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="evFilterPerson='All';evFilterDateFrom='';evFilterDateTo='';renderTab()">✕ 清除篩選</button>`;
-  if(isEditor)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px;margin-left:auto" onclick="openEventM()">＋ 新增</button>`;
+  const hasFilter=evFilterDateFrom||evFilterDateTo||evFilterPerson!=='All'||evFilterArea!=='All';
+  if(hasFilter)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="evFilterPerson='All';evFilterArea='All';evFilterDateFrom='';evFilterDateTo='';renderTab()">✕ 清除篩選</button>`;
   h+='</div>';
 
   // ── Filter & sort ──
   let filtered=[...events];
   if(evFilterPerson!=='All')filtered=filtered.filter(ev=>(ev.person||'').includes(evFilterPerson));
+  if(evFilterArea!=='All')filtered=filtered.filter(ev=>ev.area===evFilterArea);
   if(evFilterDateFrom)filtered=filtered.filter(ev=>ev.date>=evFilterDateFrom);
   if(evFilterDateTo)filtered=filtered.filter(ev=>ev.date<=evFilterDateTo);
   filtered.sort((a,b)=>b.date.localeCompare(a.date));
