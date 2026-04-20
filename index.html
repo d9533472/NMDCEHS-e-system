@@ -1521,28 +1521,61 @@ function exportSchImg(){
 
 // ══ Events Tab ══
 const EVENT_AREAS=['台中','通霄','其他'];
-let eEventId=null;
+let eEventId=null,evFilterPerson='All',evFilterDateFrom='',evFilterDateTo='';
 
 function renderEventsHTML(){
   const events=D.events||[];
+
+  // ── Filter bar ──
   let h='<div class="card">';
-  if(!events.length)h+='<div class="bulletin-empty">尚無重點活動</div>';
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+  // Person filter
+  h+='<div class="trk-tabs" style="margin:0">';
+  ['All',...PLIST].forEach(p=>{
+    const cnt=p==='All'?events.length:events.filter(ev=>(ev.person||'').includes(p)).length;
+    h+=`<button class="trk-tab ${evFilterPerson===p?'active':''}" onclick="evFilterPerson='${p}';renderTab()">${p==='All'?'全部':p}<span class="tab-count">${cnt}</span></button>`;
+  });
+  h+='</div>';
+  // Date range
+  h+=`<input type="date" value="${evFilterDateFrom}" onchange="evFilterDateFrom=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="起始日期">`;
+  h+=`<span style="color:var(--muted);font-size:12px">～</span>`;
+  h+=`<input type="date" value="${evFilterDateTo}" onchange="evFilterDateTo=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="結束日期">`;
+  if(evFilterDateFrom||evFilterDateTo||evFilterPerson!=='All')h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="evFilterPerson='All';evFilterDateFrom='';evFilterDateTo='';renderTab()">✕ 清除篩選</button>`;
+  if(isEditor)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px;margin-left:auto" onclick="openEventM()">＋ 新增</button>`;
+  h+='</div>';
+
+  // ── Filter & sort ──
+  let filtered=[...events];
+  if(evFilterPerson!=='All')filtered=filtered.filter(ev=>(ev.person||'').includes(evFilterPerson));
+  if(evFilterDateFrom)filtered=filtered.filter(ev=>ev.date>=evFilterDateFrom);
+  if(evFilterDateTo)filtered=filtered.filter(ev=>ev.date<=evFilterDateTo);
+  filtered.sort((a,b)=>(b.starred?1:0)-(a.starred?1:0)||b.date.localeCompare(a.date));
+
+  if(!filtered.length){h+='<div class="bulletin-empty">無符合條件的活動</div>';}
   else{
-    // Sort: starred first, then by date desc
-    const sorted=[...events].sort((a,b)=>(b.starred?1:0)-(a.starred?1:0)||b.date.localeCompare(a.date));
-    sorted.forEach((ev,i)=>{
-      const starBadge=ev.starred?'<span style="background:#fef9c3;color:#b45309;border:1px solid #fcd34d;border-radius:5px;padding:1px 8px;font-size:11px;font-weight:700;margin-right:6px">⭐ 重點</span>':'';
-      const areaBadge=`<span style="background:var(--accent-light);color:var(--accent2);border-radius:5px;padding:1px 8px;font-size:11px;font-weight:600;border:1px solid rgba(22,163,74,.15)">${esc(ev.area)}</span>`;
-      const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join('');
-      h+=`<div class="bulletin-item" style="border-left-color:${ev.starred?'#f59e0b':'var(--accent)'}">`;
-      h+=`<div class="b-date" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">📅 ${ev.date} ${starBadge}${areaBadge} ${persons}</div>`;
-      h+=`<div class="b-text" style="margin-top:6px;font-weight:600">${esc(ev.title)}</div>`;
-      if(ev.note)h+=`<div class="doc-note" style="margin-top:4px;max-width:none">${renderHtml(ev.note)}</div>`;
-      if(isEditor)h+=`<div class="b-actions"><button class="icon-btn" onclick="openEventM('${ev.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delEvent('${ev.id}')">${SV.trash}</button></div>`;
-      h+=`</div>`;
+    // ── Table layout ──
+    h+='<table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px">';
+    h+='<thead><tr>';
+    [['日期','90px'],['⭐','36px'],['工區','70px'],['活動內容',''],['Conduct By','120px'],['','60px']].forEach(([th,w])=>{
+      h+=`<th style="text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-bottom:2px solid var(--border);white-space:nowrap${w?';width:'+w:''}">${th}</th>`;
     });
+    h+='</tr></thead><tbody>';
+    filtered.forEach((ev,i)=>{
+      const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join(' ');
+      const starCell=ev.starred?'<span style="color:#f59e0b;font-size:15px">⭐</span>':'';
+      const areaColor=ev.area==='台中'?'color:#0369a1;background:#e0f2fe':ev.area==='通霄'?'color:#6d28d9;background:#ede9fe':'color:#374151;background:#f3f4f6';
+      h+=`<tr style="border-left:3px solid ${ev.starred?'#f59e0b':'var(--accent)'}">`;
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${ev.date}</td>`;
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);text-align:center">${starCell}</td>`;
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"><span style="padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;${areaColor}">${esc(ev.area)}</span></td>`;
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--text)">${esc(ev.title)}${ev.note?`<div class="doc-note" style="margin-top:2px;max-width:none;white-space:normal">${renderHtml(ev.note)}</div>`:''}</td>`;
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)">${persons}</td>`;
+      if(isEditor)h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap"><button class="icon-btn" onclick="openEventM('${ev.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delEvent('${ev.id}')">${SV.trash}</button></td>`;
+      else h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"></td>`;
+      h+='</tr>';
+    });
+    h+='</tbody></table>';
   }
-  if(isEditor)h+=`<button class="btn-add-row" onclick="openEventM()">＋ 新增重點活動</button>`;
   return h+'</div>';
 }
 
