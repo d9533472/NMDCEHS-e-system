@@ -1520,7 +1520,7 @@ function exportSchImg(){
 }
 
 // ══ Events Tab ══
-const EVENT_AREAS=['台中','通霄','其他'];
+const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
 let eEventId=null,evFilterPerson='All',evFilterDateFrom='',evFilterDateTo='';
 
 function renderEventsHTML(){
@@ -1563,7 +1563,7 @@ function renderEventsHTML(){
     filtered.forEach((ev,i)=>{
       const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join(' ');
       const starCell=ev.starred?'<span style="color:#f59e0b;font-size:15px">⭐</span>':'';
-      const areaColor=ev.area==='台中'?'color:#0369a1;background:#e0f2fe':ev.area==='通霄'?'color:#6d28d9;background:#ede9fe':'color:#374151;background:#f3f4f6';
+      const areaColor=ev.area==='台中'?'color:#0369a1;background:#e0f2fe':ev.area==='通霄'?'color:#6d28d9;background:#ede9fe':ev.area==='專案'?'color:#b45309;background:#fef3c7':ev.area==='離岸'?'color:#0e7490;background:#cffafe':'color:#374151;background:#f3f4f6';
       h+=`<tr style="border-left:3px solid ${ev.starred?'#f59e0b':'var(--accent)'}">`;
       h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${ev.date}</td>`;
       h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);text-align:center">${starCell}</td>`;
@@ -1758,7 +1758,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
       <div><label class="form-label">日期</label><input class="form-input" type="date" id="inEvD"></div>
       <div><label class="form-label">工區</label>
         <select class="form-select" id="inEvArea" onchange="evAreaChg()">
-          <option>台中</option><option>通霄</option><option>其他</option>
+          <option>台中</option><option>通霄</option><option>專案</option><option>離岸</option><option>其他</option>
         </select>
       </div>
     </div>
