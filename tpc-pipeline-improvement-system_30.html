@@ -1588,71 +1588,82 @@ function App() {
   }, []);
 
   // ── 雲端載入 ──────────────────────────────────────────────
+  // ── 資料格式轉換（舊格式相容）────────────────────────────
+  const normalizeRecords = (recs) => recs.map(r => {
+    let rec = {...r};
+    if (!rec.defects || rec.defects.length === 0)
+      rec.defects = [{ item: rec.item || 1, description: rec.description || '' }];
+    rec.status = (rec.submitDate && rec.submitDate !== '' && rec.submitDate !== '-') ? 'Closed' : 'Open';
+    return rec;
+  });
+
+  // ── 載入索引（Drive JSON）────────────────────────────────
   const loadFromCloud = useCallback(async (url) => {
     setLoading(true); setLoadingMsg('從雲端載入資料...');
     try {
-      const data = await xhrGet((url||gasUrl) + '?action=read');
-      // 若雲端是空的（第一次連線），自動匯入歷史資料
-      let cloudRecords = data.records || [];
-      if (cloudRecords.length === 0 && SEED_RECORDS.length > 0) {
-        setLoadingMsg('首次連線，正在匯入歷史資料（65筆）...');
-        const seedConfig = {
+      const data = await xhrGet((url||gasUrl) + '?action=index');
+      let cloudRecords = normalizeRecords(data.records || []);
+
+      // 首次連線：遷移舊 Sheet 資料或匯入 SEED
+      if (cloudRecords.length === 0) {
+        setLoadingMsg('首次連線，正在遷移資料...');
+        // 嘗試讀舊 Sheet
+        let seedRecs = SEED_RECORDS;
+        try {
+          const oldData = await xhrGet((url||gasUrl) + '?action=read');
+          if (oldData.records && oldData.records.length > 0)
+            seedRecs = normalizeRecords(oldData.records);
+        } catch(e) {}
+        setLoadingMsg(`匯入 ${seedRecs.length} 筆資料至 Drive...`);
+        // 批次寫入每筆紀錄
+        for (let i = 0; i < seedRecs.length; i++) {
+          setLoadingMsg(`匯入第 ${i+1}/${seedRecs.length} 筆...`);
+          await xhrPost((url||gasUrl), { action:'saveRecord', record: seedRecs[i] });
+        }
+        // 儲存 config
+        const cfg = {
           itemOptions: data.itemOptions || DEFAULT_ITEMS,
           areaOptions: data.areaOptions || DEFAULT_AREAS,
           unitOptions: data.unitOptions || DEFAULT_UNITS,
+          peopleOptions: data.peopleOptions || DEFAULT_PEOPLE,
         };
-        await xhrPost((url||gasUrl), {
-          records: SEED_RECORDS,
-          ...seedConfig,
-        });
-        cloudRecords = SEED_RECORDS;
+        await xhrPost((url||gasUrl), { action:'saveConfig', config: cfg });
+        cloudRecords = seedRecs;
+        setConfig(cfg);
       } else {
-        // 舊格式轉換：item+description → defects 陣列
-        cloudRecords = cloudRecords.map(r => {
-          if (!r.defects || r.defects.length === 0) {
-            return { ...r, defects: [{ item: r.item || 1, description: r.description || '' }] };
-          }
-          return r;
+        setConfig({
+          itemOptions: data.config?.itemOptions || data.itemOptions || DEFAULT_ITEMS,
+          areaOptions: data.config?.areaOptions || data.areaOptions || DEFAULT_AREAS,
+          unitOptions: data.config?.unitOptions || data.unitOptions || DEFAULT_UNITS,
+          peopleOptions: data.config?.peopleOptions || data.peopleOptions || DEFAULT_PEOPLE,
         });
-        // 依提交日期自動修正狀態
-        cloudRecords = cloudRecords.map(r => ({
-          ...r,
-          status: (r.submitDate && r.submitDate !== '' && r.submitDate !== '-') ? 'Closed' : 'Open'
-        }));
       }
       setRecords(cloudRecords);
-      setConfig({
-        itemOptions: data.itemOptions || DEFAULT_ITEMS,
-        areaOptions: data.areaOptions || DEFAULT_AREAS,
-        unitOptions: data.unitOptions || DEFAULT_UNITS,
-        peopleOptions: data.peopleOptions || DEFAULT_PEOPLE,
-      });
       setLastSync(new Date().toLocaleString('zh-TW'));
-      setSyncState('ok');
-      setConnected(true);
+      setSyncState('ok'); setConnected(true);
     } catch(e) {
       setSyncState('error');
       toast('載入失敗：' + e.message, 'error');
       throw e;
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   }, [gasUrl, toast]);
 
-  // ── 雲端儲存（整包 JSON 寫入 Sheet A1）────────────────────
-  const pushToCloud = useCallback(async (newRecords, newConfig) => {
-    const url = gasUrl;
-    if (!url) return;
+  // ── 初始載入 ─────────────────────────────────────────────
+  useEffect(() => {
+    if (gasUrl) loadFromCloud(gasUrl).catch(() => {});
+  }, []);
+
+  // ── 連線回調 ──────────────────────────────────────────────
+  const handleConnect = async (url) => {
+    setGasUrl(url);
+    await loadFromCloud(url);
+  };
+
+  // ── 寫單筆到 Drive ────────────────────────────────────────
+  const saveRecordToDrive = async (record) => {
     setSaving(true); setSyncState('busy');
     try {
-      const payload = {
-        records: newRecords,
-        itemOptions: newConfig.itemOptions,
-        areaOptions: newConfig.areaOptions,
-        unitOptions: newConfig.unitOptions,
-        peopleOptions: newConfig.peopleOptions,
-      };
-      const res = await xhrPost(url, payload);
+      const res = await xhrPost(gasUrl, { action:'saveRecord', record });
       if (!res.success) throw new Error(res.error || '儲存失敗');
       setLastSync(new Date().toLocaleString('zh-TW'));
       setSyncState('ok');
@@ -1661,69 +1672,63 @@ function App() {
       toast('雲端儲存失敗：' + e.message, 'error');
       throw e;
     } finally { setSaving(false); }
-  }, [gasUrl, toast]);
-
-  // ── 初始載入（有 gasUrl 就自動連）────────────────────────
-  useEffect(() => {
-    if (gasUrl) {
-      loadFromCloud(gasUrl).catch(() => {});
-    }
-  }, []); // 只執行一次
-
-  // ── 連線回調 ──────────────────────────────────────────────
-  const handleConnect = async (url) => {
-    setGasUrl(url);
-    await loadFromCloud(url);
   };
 
   // ── CRUD ──────────────────────────────────────────────────
   const addRecord = async (form) => {
-    const newRecords = [...records, form];
     try {
-      await pushToCloud(newRecords, config);
-      setRecords(newRecords);
+      await saveRecordToDrive(form);
+      setRecords(prev => [...prev, form]);
       toast('紀錄已新增並儲存至雲端');
     } catch {}
   };
 
   const editRecord = async (form) => {
-    const newRecords = records.map(r => r.id===form.id ? form : r);
     try {
-      await pushToCloud(newRecords, config);
-      setRecords(newRecords);
+      await saveRecordToDrive(form);
+      setRecords(prev => prev.map(r => r.id===form.id ? form : r));
       toast('紀錄已更新');
     } catch {}
   };
 
   const deleteRecord = async (id) => {
     const target = records.find(r => r.id === id);
-    const newRecords = records.filter(r => r.id !== id);
     try {
-      // 若有 Drive 資料夾，先叫 GAS 備份後刪除
       if (target && target.driveFolderId) {
         const deleteDate = new Date().toISOString().slice(0,10);
-        const archiveName = `Deleted @ ${deleteDate} _ ${target.number}`;
         await xhrPost(gasUrl, {
           action: 'archiveAndDeleteFolder',
           folderId: target.driveFolderId,
-          archiveName,
+          archiveName: `Deleted @ ${deleteDate} _ ${target.number}`,
           type: target.type,
         });
       }
-      await pushToCloud(newRecords, config);
-      setRecords(newRecords);
-      toast('紀錄已刪除，Drive 資料夾已封存');
+      setSaving(true); setSyncState('busy');
+      const res = await xhrPost(gasUrl, { action:'deleteRecord', id });
+      if (!res.success) throw new Error(res.error || '刪除失敗');
+      setRecords(prev => prev.filter(r => r.id !== id));
+      setLastSync(new Date().toLocaleString('zh-TW'));
+      setSyncState('ok');
+      toast('紀錄已刪除');
     } catch(e) {
+      setSyncState('error');
       toast('刪除失敗：' + e.message, 'error');
-    }
+    } finally { setSaving(false); }
   };
 
   const saveConfig = async (newConfig) => {
     try {
-      await pushToCloud(records, newConfig);
+      setSaving(true); setSyncState('busy');
+      const res = await xhrPost(gasUrl, { action:'saveConfig', config: newConfig });
+      if (!res.success) throw new Error(res.error || '儲存失敗');
       setConfig(newConfig);
+      setLastSync(new Date().toLocaleString('zh-TW'));
+      setSyncState('ok');
       toast('設定已儲存至雲端');
-    } catch {}
+    } catch(e) {
+      setSyncState('error');
+      toast('設定儲存失敗：' + e.message, 'error');
+    } finally { setSaving(false); }
   };
 
   const handleDisconnect = () => {

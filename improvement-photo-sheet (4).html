@@ -249,6 +249,12 @@ const DEFAULT_HEADER = {
 
 function toast(msg,ms=2500){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),ms)}
 function xhrGet(url){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('GET',url,true);x.onload=()=>{try{const j=JSON.parse(x.responseText);ok(j)}catch{no(new Error('GET回應非JSON'))}};x.onerror=()=>no(new Error('Network'));x.timeout=30000;x.ontimeout=()=>no(new Error('Timeout'));x.send()})}
+async function xhrGetRetry(url,retries=2){for(let i=0;i<retries;i++){try{return await xhrGet(url)}catch(e){if(i===retries-1)throw e;await new Promise(r=>setTimeout(r,1500*(i+1)))}}}
+
+// 索引快取（秒開）
+const INDEX_CACHE_KEY='photosheet_index_cache';
+function getCachedIndex(){try{const c=sessionStorage.getItem(INDEX_CACHE_KEY);if(c){const d=JSON.parse(c);if(Date.now()-d.ts<300000)return d.data}}catch(e){}return null} // 5分鐘有效
+function setCachedIndex(data){try{sessionStorage.setItem(INDEX_CACHE_KEY,JSON.stringify({ts:Date.now(),data}))}catch(e){}}
 function xhrPost(url,data){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST',url,true);x.setRequestHeader('Content-Type','text/plain;charset=utf-8');x.onload=()=>{try{const j=JSON.parse(x.responseText);if(j.ok===false)no(new Error(j.error||'Server error'));else ok(j)}catch{no(new Error('POST回應非JSON'))}};x.onerror=()=>no(new Error('Network'));x.timeout=60000;x.ontimeout=()=>no(new Error('Timeout'));x.send(JSON.stringify(data))})}
 async function xhrPostRetry(url,data,retries=3){for(let i=0;i<retries;i++){try{return await xhrPost(url,data)}catch(e){if(i===retries-1)throw e;await new Promise(r=>setTimeout(r,1000*Math.pow(2,i)))}}}
 function compressImage(dataUrl,maxW=1400,q=0.7){return new Promise(r=>{const img=new Image();img.onload=()=>{let w=img.width,h=img.height;if(w>maxW){h=h*maxW/w;w=maxW}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);r(c.toDataURL('image/jpeg',q))};img.src=dataUrl})}
@@ -337,7 +343,7 @@ async function fetchPhotoBase64(fileId) {
   if (!fileId) return '';
   if (PHOTO_CACHE.has(fileId)) return PHOTO_CACHE.get(fileId);
   try {
-    const res = await xhrGet(GAS_URL+'?action=photo&fileId='+fileId);
+    const res = await xhrGetRetry(GAS_URL+'?action=photo&fileId='+fileId);
     if (res.ok && res.dataUrl) {
       PHOTO_CACHE.set(fileId, res.dataUrl);
       return res.dataUrl;
@@ -425,7 +431,18 @@ function App(){
   const loadIndex = useCallback(async () => {
     if (!GAS_URL) { setLoadingApp(false); return; }
     setIndexError(null);
-    setLoadingApp(true);
+
+    // 1. 先顯示快取（秒開）
+    const cached = getCachedIndex();
+    if (cached) {
+      if (cached.header?.org) setHeader(cached.header);
+      if (cached.records) setIndex(cached.records);
+      setLoadingApp(false);
+    } else {
+      setLoadingApp(true);
+    }
+
+    // 2. 背景抓最新（不擋畫面）
     let lastErr = null;
     for (let i = 0; i < 3; i++) {
       try {
@@ -433,6 +450,7 @@ function App(){
         if (res.ok && res.data) {
           if (res.data.header?.org) setHeader(res.data.header);
           if (res.data.records) setIndex(res.data.records);
+          setCachedIndex(res.data);
           setLoadingApp(false);
           setIndexError(null);
           return;
@@ -441,22 +459,27 @@ function App(){
       } catch (e) {
         lastErr = e;
         console.warn(`索引載入 ${i+1}/3 失敗:`, e.message);
-        if (i < 2) await new Promise(r => setTimeout(r, 2000 * (i+1))); // 2s, 4s
+        if (i < 2) await new Promise(r => setTimeout(r, 2000 * (i+1)));
       }
     }
-    setIndexError(lastErr?.message || '未知錯誤');
-    setLoadingApp(false);
-    toast('⚠️ 索引載入失敗：' + (lastErr?.message||''), 5000);
+    // 如果有快取就不報錯（已經顯示了）
+    if (!cached) {
+      setIndexError(lastErr?.message || '未知錯誤');
+      setLoadingApp(false);
+      toast('⚠️ 索引載入失敗：' + (lastErr?.message||''), 5000);
+    } else {
+      toast('⚠️ 索引更新失敗，顯示的是快取資料', 3000);
+    }
   }, []);
 
   useEffect(() => { loadIndex(); }, [loadIndex]);
 
-  // Load single record
+  // Load single record (with retry)
   const loadRecord = async(idx)=>{
     const meta=index[idx];if(!meta)return;
-    setCurrentIdx(idx);setTab('edit');setLoadingRec(true);setDirty(false);setFolderLink(null);
+    setCurrentIdx(idx);setTab('edit');setLoadingRec(true);setDirty(false);setFolderLink(null);setEditSubTab('photo');
     try{
-      const res=await xhrGet(GAS_URL+'?action=record&id='+meta.id);
+      const res=await xhrGetRetry(GAS_URL+'?action=record&id='+meta.id);
       if(res.ok&&res.data){
         const migrated = migrateRecord(res.data);
         setRec(migrated);
@@ -490,7 +513,7 @@ function App(){
 
   const reloadIndex=async()=>{
     if(!GAS_URL)return;setSyncing(true);toast('🔄 載入中...');
-    try{const res=await xhrGet(GAS_URL+'?action=index');if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);setIndex(res.data.records||[]);setRec(null);setCurrentIdx(-1);toast('✅ 已更新')}}catch(e){toast('❌ 失敗')}setSyncing(false);
+    try{const res=await xhrGetRetry(GAS_URL+'?action=index');if(res.ok&&res.data){if(res.data.header?.org)setHeader(res.data.header);setIndex(res.data.records||[]);setCachedIndex(res.data);setRec(null);setCurrentIdx(-1);toast('✅ 已更新')}}catch(e){toast('❌ 失敗')}setSyncing(false);
   };
 
   // Global paste → add to current editing stage
@@ -649,7 +672,7 @@ function App(){
       for(let i=0;i<ids.length;i++){
         setProgress({pct:Math.round((i+1)/ids.length*50),text:`載入 ${i+1}/${ids.length}...`});
         try{
-          const res=await xhrGet(GAS_URL+'?action=record&id='+ids[i]);
+          const res=await xhrGetRetry(GAS_URL+'?action=record&id='+ids[i]);
           if(res.ok&&res.data){
             const r=migrateRecord(res.data);
             for(const key of ['before','during','after']){
