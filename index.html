@@ -195,7 +195,7 @@ footer{margin-top:48px;padding:20px 0;border-top:1px solid var(--border);text-al
   <div class="loading-msg" id="loadMsg">正在同步資料…</div>
 </div>
 <div class="lightbox hidden" id="lightbox" onclick="this.classList.add('hidden')"><img id="lbImg"></div>
-<div class="login-overlay hidden" id="loginScreen" onclick="closeLogin()"><div class="login-card" id="loginCard" onclick="event.stopPropagation()"><button class="close-x" onclick="closeLogin()">✕</button><div class="login-logo">🌿</div><h2>Environmental E-System</h2><p class="login-sub">管理者登入以啟用編輯模式</p><div class="login-field"><label>帳號</label><input type="text" id="loginUser" placeholder="Username" onkeydown="if(event.key==='Enter')$('loginPass').focus()"></div><div class="login-field"><label>密碼</label><input type="password" id="loginPass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()"></div><button class="login-btn" onclick="doLogin()">🔓 登入</button><div class="login-error" id="loginError"></div></div></div>
+
 <div class="container">
   <header><div class="header-icons"><span>🐋</span><span>💧</span><span>🌿</span><span>🛡️</span></div><h1><span class="g">Environmental</span> <span class="w">E-System</span></h1><p class="subtitle">Environment · Health · Safety — Digital Workspace</p></header>
   <div class="auth-bar" id="authBar"></div>
@@ -258,7 +258,7 @@ const DEFAULT_DOCS=[
   {num:'12',name:'化學穩定劑噴灑紀錄',tc:'O',ts:'O',of:'NA',proj:'NA',person:'Raymond',complete:'yes',note:''},
   {num:'13',name:'油品購買紀錄',tc:'O',ts:'O',of:'NA',proj:'NA',person:'Jacqueline',complete:'yes',note:''},
 ];
-function makeDefault(){return{
+function makeDefault(){return{hiddenTabs:[],
   parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'}],
   bulletins:[{id:gid(),text:'<b>歡迎使用 Environmental E-System！</b><br>本系統用於管理環保相關工具連結、追蹤事項及公告。',date:todayS()}],
   tasks:[],documents:DEFAULT_DOCS.map(d=>({...d,id:gid()})),docLastUpdated:'',docNotes:'',
@@ -312,7 +312,7 @@ async function pushData(){
     setSS('synced');pushing=false;return true;
   }catch(e){setSS('error');showToast('⚠️ 同步失敗：'+e.message,'err');pushing=false;return false;}
 }
-function fixData(){if(!D.archivedBulletins)D.archivedBulletins=[];if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+function fixData(){if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.archivedBulletins)D.archivedBulletins=[];if(!D.events)D.events=[];if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -349,10 +349,8 @@ function setSS(s){const e=$('syncBadge');if(!e)return;e.className='sync-badge '+
 function showToast(msg,type){const d=document.createElement('div');d.style.cssText=`position:fixed;top:20px;right:20px;z-index:9999;padding:14px 20px;background:#fff;border:1px solid ${type==='err'?'#fca5a5':'#86efac'};border-left:4px solid ${type==='err'?'#dc2626':'#16a34a'};border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.1);animation:slideDown .3s;font-size:14px;font-weight:600;color:${type==='err'?'#dc2626':'#15803d'};font-family:inherit`;d.textContent=msg;document.body.appendChild(d);setTimeout(()=>{if(d.parentNode)d.remove();},4000);}
 
 // ═══ Auth ═══
-function doLogin(){const u=$('loginUser').value.trim(),p=$('loginPass').value.trim();if(u===CRED.user&&p===CRED.pass){isEditor=true;sessionStorage.setItem(AK,'1');closeLogin();renderAll();}else{$('loginError').textContent='❌ 帳號或密碼錯誤';const c=$('loginCard');c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');}}
 function doLogout(){isEditor=false;sessionStorage.removeItem(AK);renderAll();}
-function showLogin(){$('loginUser').value='';$('loginPass').value='';$('loginError').textContent='';$('loginScreen').classList.remove('hidden');setTimeout(()=>$('loginUser').focus(),100);}
-function closeLogin(){$('loginScreen').classList.add('hidden');}
+function showLogin(){isEditor=true;sessionStorage.setItem(AK,'1');renderAll();showToast('✏️ 已進入編輯模式');}
 function renderAuth(){$('authBar').innerHTML=isEditor?`<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="showNcrUrlM()">🔗 改善單URL</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:'';}
 
 function exportData(){
@@ -393,9 +391,9 @@ function rteCmd4(cmd,val){$('inTNote').focus();document.execCommand(cmd,false,va
 
 // ═══ Render ═══
 function renderAll(){renderAuth();renderTabs();if(D.schMonths&&D.schMonths.length&&!D.schMonths.includes(schViewMonth))schViewMonth=D.schMonths[0];renderTab();}
-function renderTabs(){let h='';D.parts.forEach(p=>{const isActive=activeTab===p.key,isEditing=editingTabKey===p.key;
+function renderTabs(){let h='';const hidden=D.hiddenTabs||[];D.parts.forEach(p=>{if(!isEditor&&hidden.includes(p.key))return;const isActive=activeTab===p.key,isEditing=editingTabKey===p.key;
   if(isEditing)h+=`<div class="tab-edit-wrap"><span>${p.icon}</span><input id="tabEditIn" value="${esc(p.title)}" onkeydown="if(event.key==='Enter')cfmTabEdit();if(event.key==='Escape')canTabEdit()"><button class="icon-btn sm success" onclick="cfmTabEdit()">${SV.check}</button><button class="icon-btn sm" onclick="canTabEdit()">${SV.x}</button></div>`;
-  else h+=`<button class="main-tab ${isActive?'active':''}" onclick="switchTab('${p.key}')">${p.icon} ${esc(p.title)}${isActive&&isEditor?`<span class="tab-edit-btn" onclick="event.stopPropagation();startTabEdit('${p.key}')">✏️</span>`:''}</button>`;});
+  else h+=`<button class="main-tab ${isActive?'active':''}${(!isEditor&&hidden.includes(p.key))?" opacity:.4":''}" onclick="switchTab('${p.key}')">${p.icon} ${esc(p.title)}${isActive&&isEditor?`<span class="tab-edit-btn" onclick="event.stopPropagation();startTabEdit('${p.key}')">✏️</span><span class="tab-edit-btn" onclick="event.stopPropagation();toggleHideTab('${p.key}')" title="${hidden.includes(p.key)?'顯示':'隱藏'}頁籤">${hidden.includes(p.key)?'👁':'🚫'}</span>`:''}</button>`;});
   if(!isEditor)h+=`<button class="btn-login-tiny" onclick="showLogin()" style="margin-left:auto">🔑</button>`;
   $('mainTabs').innerHTML=h;if(editingTabKey){const inp=$('tabEditIn');if(inp){inp.focus();inp.select();}}}
 function startTabEdit(key){editingTabKey=key;renderTabs();}
@@ -403,7 +401,7 @@ function cfmTabEdit(){const inp=$('tabEditIn');if(inp?.value.trim()){const p=D.p
 function canTabEdit(){editingTabKey=null;renderTabs();}
 function switchTab(k){activeTab=k;renderTabs();renderTab();}
 function renderTab(){let h='';
-  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();
+  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
   $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});}
 
 // ═══ 1 BULLETIN ═══
@@ -1131,7 +1129,7 @@ function archiveBul(id){
   if(idx===-1)return;
   const b=D.bulletins.splice(idx,1)[0];
   b.archivedAt=todayS();
-  if(!D.archivedBulletins)D.archivedBulletins=[];
+  if(!D.archivedBulletins)D.archivedBulletins=[];if(!D.events)D.events=[];
   D.archivedBulletins.unshift(b);
   save();renderTab();
 }
@@ -1520,6 +1518,75 @@ function exportSchImg(){
     showToast('⚠️ 匯出失敗：'+e.message,'err');
   });
 }
+
+// ══ Events Tab ══
+const EVENT_AREAS=['台中','通霄','其他'];
+let eEventId=null;
+
+function renderEventsHTML(){
+  const events=D.events||[];
+  let h='<div class="card">';
+  if(!events.length)h+='<div class="bulletin-empty">尚無重點活動</div>';
+  else{
+    // Sort: starred first, then by date desc
+    const sorted=[...events].sort((a,b)=>(b.starred?1:0)-(a.starred?1:0)||b.date.localeCompare(a.date));
+    sorted.forEach((ev,i)=>{
+      const starBadge=ev.starred?'<span style="background:#fef9c3;color:#b45309;border:1px solid #fcd34d;border-radius:5px;padding:1px 8px;font-size:11px;font-weight:700;margin-right:6px">⭐ 重點</span>':'';
+      const areaBadge=`<span style="background:var(--accent-light);color:var(--accent2);border-radius:5px;padding:1px 8px;font-size:11px;font-weight:600;border:1px solid rgba(22,163,74,.15)">${esc(ev.area)}</span>`;
+      const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join('');
+      h+=`<div class="bulletin-item" style="border-left-color:${ev.starred?'#f59e0b':'var(--accent)'}">`;
+      h+=`<div class="b-date" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">📅 ${ev.date} ${starBadge}${areaBadge} ${persons}</div>`;
+      h+=`<div class="b-text" style="margin-top:6px;font-weight:600">${esc(ev.title)}</div>`;
+      if(ev.note)h+=`<div class="doc-note" style="margin-top:4px;max-width:none">${renderHtml(ev.note)}</div>`;
+      if(isEditor)h+=`<div class="b-actions"><button class="icon-btn" onclick="openEventM('${ev.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delEvent('${ev.id}')">${SV.trash}</button></div>`;
+      h+=`</div>`;
+    });
+  }
+  if(isEditor)h+=`<button class="btn-add-row" onclick="openEventM()">＋ 新增重點活動</button>`;
+  return h+'</div>';
+}
+
+function openEventM(id){
+  eEventId=id||null;
+  $('mEvT').textContent=id?'編輯重點活動':'新增重點活動';
+  $('bEv').textContent=id?'儲存':'新增';
+  const ev=id?(D.events||[]).find(x=>x.id===id):null;
+  $('inEvD').value=ev?ev.date:todayS();
+  $('inEvTitle').value=ev?ev.title:'';
+  $('inEvNote').innerHTML=ev?ev.note||'':'';
+  $('inEvStarred').checked=ev?!!ev.starred:false;
+  // area
+  const area=ev?ev.area:'台中';
+  const isOther=!EVENT_AREAS.slice(0,-1).includes(area);
+  $('inEvArea').value=isOther?'其他':area;
+  $('inEvAreaOther').value=isOther?area:'';
+  $('evAreaOtherWrap').style.display=isOther?'block':'none';
+  renderPersonCks('evPCks',ev?ev.person:'');
+  $('mEv').classList.remove('hidden');
+  setTimeout(()=>$('inEvTitle').focus(),50);
+}
+function closeEventM(){$('mEv').classList.add('hidden');}
+function evAreaChg(){$('evAreaOtherWrap').style.display=$('inEvArea').value==='其他'?'block':'none';}
+function saveEvent(){
+  const title=$('inEvTitle').value.trim();if(!title)return;
+  const date=$('inEvD').value;if(!date)return;
+  const person=getCheckedPersons('evPCks');
+  const areaRaw=$('inEvArea').value;
+  const area=areaRaw==='其他'?($('inEvAreaOther').value.trim()||'其他'):areaRaw;
+  const starred=$('inEvStarred').checked;
+  let note=$('inEvNote').innerHTML.trim();if(note==='<br>')note='';
+  if(!D.events)D.events=[];
+  if(eEventId){const ev=D.events.find(x=>x.id===eEventId);if(ev){ev.title=title;ev.date=date;ev.person=person;ev.area=area;ev.starred=starred;ev.note=note;}}
+  else D.events.unshift({id:gid(),title,date,person,area,starred,note});
+  save();renderTab();closeEventM();
+}
+function delEvent(id){if(!confirm('刪除？'))return;D.events=D.events.filter(x=>x.id!==id);save();renderTab();}
+function toggleHideTab(key){
+  if(!D.hiddenTabs)D.hiddenTabs=[];
+  if(D.hiddenTabs.includes(key))D.hiddenTabs=D.hiddenTabs.filter(k=>k!==key);
+  else D.hiddenTabs.push(key);
+  save();renderTabs();
+}
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
 function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fade-out');setTimeout(()=>s.classList.add('hidden'),500);}
@@ -1650,5 +1717,30 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
   </div>
 </div>
+
+<div class="modal-overlay hidden" id="mEv" onclick="closeEventM()"><div class="modal-box" onclick="event.stopPropagation()">
+  <div class="modal-title" id="mEvT">新增重點活動</div>
+  <div class="modal-form">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="form-label">日期</label><input class="form-input" type="date" id="inEvD"></div>
+      <div><label class="form-label">工區</label>
+        <select class="form-select" id="inEvArea" onchange="evAreaChg()">
+          <option>台中</option><option>通霄</option><option>其他</option>
+        </select>
+      </div>
+    </div>
+    <div id="evAreaOtherWrap" style="display:none"><label class="form-label">工區說明</label><input class="form-input" id="inEvAreaOther" placeholder="請輸入工區…"></div>
+    <div><label class="form-label">活動內容</label><input class="form-input" id="inEvTitle" placeholder="活動名稱"></div>
+    <div><label class="form-label">Conduct By</label><div class="person-checks" id="evPCks"></div></div>
+    <div><label class="form-label">備註（選填）</label>
+      <div class="rte-body" contenteditable="true" id="inEvNote" style="min-height:60px"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0">
+      <input type="checkbox" id="inEvStarred" style="width:16px;height:16px;accent-color:var(--warn);cursor:pointer">
+      <label for="inEvStarred" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text2)">⭐ 標記為重點項目</label>
+    </div>
+    <div class="modal-actions"><button class="btn-secondary" onclick="closeEventM()">取消</button><button class="btn-primary" onclick="saveEvent()" id="bEv">新增</button></div>
+  </div>
+</div></div>
 </body>
 </html>
