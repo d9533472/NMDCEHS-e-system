@@ -1320,6 +1320,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
         </div>
         <div style={{display:'flex',gap:8}}>
           <button className="btn btn-secondary" onClick={onRefresh} disabled={saving}>🔄 重新整理</button>
+          <button className="btn btn-secondary" onClick={()=>window.open(PHOTO_SYSTEM_URL,'_blank')} title="開啟改善照片表產生器">📷 照片系統</button>
           <button className="btn btn-primary" onClick={()=>{setMode('add');setEditRec(null);setShowModal(true);}}>➕ 新增紀錄</button>
         </div>
       </div>
@@ -1597,48 +1598,31 @@ function App() {
     return rec;
   });
 
-  // ── 載入索引（Drive JSON）────────────────────────────────
   const loadFromCloud = useCallback(async (url) => {
     setLoading(true); setLoadingMsg('從雲端載入資料...');
     try {
       const data = await xhrGet((url||gasUrl) + '?action=index');
       let cloudRecords = normalizeRecords(data.records || []);
-
-      // 首次連線：遷移舊 Sheet 資料或匯入 SEED
+      const cfg = {
+        itemOptions:  (data.config?.itemOptions  || data.itemOptions)  || DEFAULT_ITEMS,
+        areaOptions:  (data.config?.areaOptions  || data.areaOptions)  || DEFAULT_AREAS,
+        unitOptions:  (data.config?.unitOptions  || data.unitOptions)  || DEFAULT_UNITS,
+        peopleOptions:(data.config?.peopleOptions|| data.peopleOptions)|| DEFAULT_PEOPLE,
+      };
       if (cloudRecords.length === 0) {
-        setLoadingMsg('首次連線，正在遷移資料...');
-        // 嘗試讀舊 Sheet
+        setLoadingMsg('首次連線，正在遷移資料至 Drive...');
         let seedRecs = SEED_RECORDS;
         try {
           const oldData = await xhrGet((url||gasUrl) + '?action=read');
           if (oldData.records && oldData.records.length > 0)
             seedRecs = normalizeRecords(oldData.records);
         } catch(e) {}
-        setLoadingMsg(`匯入 ${seedRecs.length} 筆資料至 Drive...`);
-        // 批次寫入每筆紀錄
-        for (let i = 0; i < seedRecs.length; i++) {
-          setLoadingMsg(`匯入第 ${i+1}/${seedRecs.length} 筆...`);
-          await xhrPost((url||gasUrl), { action:'saveRecord', record: seedRecs[i] });
-        }
-        // 儲存 config
-        const cfg = {
-          itemOptions: data.itemOptions || DEFAULT_ITEMS,
-          areaOptions: data.areaOptions || DEFAULT_AREAS,
-          unitOptions: data.unitOptions || DEFAULT_UNITS,
-          peopleOptions: data.peopleOptions || DEFAULT_PEOPLE,
-        };
-        await xhrPost((url||gasUrl), { action:'saveConfig', config: cfg });
+        setLoadingMsg(`一次性遷移 ${seedRecs.length} 筆，請稍候（約 30 秒）...`);
+        await xhrPost((url||gasUrl), { action:'migrateAll', records: seedRecs, config: cfg });
         cloudRecords = seedRecs;
-        setConfig(cfg);
-      } else {
-        setConfig({
-          itemOptions: data.config?.itemOptions || data.itemOptions || DEFAULT_ITEMS,
-          areaOptions: data.config?.areaOptions || data.areaOptions || DEFAULT_AREAS,
-          unitOptions: data.config?.unitOptions || data.unitOptions || DEFAULT_UNITS,
-          peopleOptions: data.config?.peopleOptions || data.peopleOptions || DEFAULT_PEOPLE,
-        });
       }
       setRecords(cloudRecords);
+      setConfig(cfg);
       setLastSync(new Date().toLocaleString('zh-TW'));
       setSyncState('ok'); setConnected(true);
     } catch(e) {
