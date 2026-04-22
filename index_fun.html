@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <meta name="theme-color" content="#00B050" />
+  <title>2026 NMDC 團隊淨灘・GO! | Beach Cleanup Registration</title>
+  <meta name="description" content="2026 NMDC 團隊淨灘｜SDGs/ESG Beach Cleanup — 報名就對了！" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Shrikhand&display=swap" rel="stylesheet">
+
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root{
+      --nmdc-navy:#0A2340; --nmdc-green:#00B050; --nmdc-green-dark:#009043; --nmdc-green-light:#42D47C;
+      --sun:#FFCB47; --sun-deep:#F5A623;
+      --sky:#6DC8E8; --sky-deep:#2AA0D6;
+      --coral:#FF6B4A; --coral-deep:#E85533;
+      --cream:#FFF5E4; --cream-warm:#FFEED2;
+      --sand:#F5E3BE; --sand-deep:#E8CE94;
+      --ink:#0A2340; --ink-soft:#4A5E7A;
+    }
+    html,body{ background:var(--cream); color:var(--ink); scroll-behavior:smooth; }
+    body{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+    .font-display{ font-family:'Caprasimo','Noto Sans TC',serif; letter-spacing:-0.01em; }
+    .font-chunk{ font-family:'Shrikhand','Caprasimo','Noto Sans TC',serif; }
+    .font-num{ font-family:'Caprasimo',serif; font-feature-settings:'tnum'; }
+
+    .bg-paper{
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255,203,71,0.12) 0%, transparent 40%),
+        radial-gradient(circle at 85% 30%, rgba(0,176,80,0.08) 0%, transparent 45%),
+        radial-gradient(circle at 50% 100%, rgba(109,200,232,0.10) 0%, transparent 50%),
+        var(--cream);
+    }
+    .bg-dots{ background-image: radial-gradient(circle, rgba(10,35,64,0.08) 1px, transparent 1.5px); background-size: 18px 18px; }
+
+    .sticker{ background:#fff; border:3px solid var(--ink); border-radius:22px; box-shadow:8px 8px 0 var(--ink); transition:transform .15s ease, box-shadow .15s ease; }
+    .sticker:hover{ transform:translate(-3px,-3px) rotate(0deg) !important; box-shadow:12px 12px 0 var(--ink); }
+    .sticker-green{ background:var(--nmdc-green); color:#fff; }
+    .sticker-sun{ background:var(--sun); }
+    .sticker-coral{ background:var(--coral); color:#fff; }
+    .sticker-sky{ background:var(--sky); }
+
+    .btn-chunk{ background:var(--nmdc-green); color:#fff; border:3px solid var(--ink); border-radius:999px; box-shadow:5px 5px 0 var(--ink); font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; letter-spacing:0.02em; transition:transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .12s ease, background .15s; }
+    .btn-chunk:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); background:var(--nmdc-green-light); }
+    .btn-chunk:active{ transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink); }
+    .btn-chunk:disabled{ background:#9FBFAB; cursor:not-allowed; transform:none !important; box-shadow:5px 5px 0 var(--ink) !important; }
+
+    .btn-outline{ background:#fff; color:var(--ink); border:2px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; font-weight:700; }
+    .btn-outline:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); background:var(--sun); }
+    .btn-outline:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+
+    .btn-danger{ background:var(--coral); color:#fff; border:2px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); font-weight:800; transition:all .12s ease; }
+    .btn-danger:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); background:var(--coral-deep); }
+    .btn-danger:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+
+    .field{ background:#fff; border:2.5px solid var(--ink); border-radius:12px; transition:all .12s ease; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:500; }
+    .field:focus{ outline:none; box-shadow:4px 4px 0 var(--nmdc-green); transform:translate(-1px,-1px); }
+    .field.err{ border-color:var(--coral-deep); background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
+    .field.err:focus{ box-shadow:5px 5px 0 var(--coral); }
+
+    .chk{ appearance:none; width:24px; height:24px; border:2.5px solid var(--ink); border-radius:6px; background:#fff; cursor:pointer; position:relative; flex-shrink:0; margin-top:2px; transition:all .12s ease; }
+    .chk:hover{ background:var(--sun); }
+    .chk:checked{ background:var(--nmdc-green); border-color:var(--ink); }
+    .chk:checked::after{ content:""; position:absolute; left:6px; top:1px; width:7px; height:13px; border:solid #fff; border-width:0 3px 3px 0; transform:rotate(45deg); }
+
+    .wavy{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'><path d='M0 5 Q10 0 20 5 T40 5' stroke='%2300B050' stroke-width='3' fill='none' stroke-linecap='round'/></svg>"); background-position:0 100%; background-size:40px 10px; background-repeat:repeat-x; padding-bottom:12px; }
+    .wavy-coral{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'><path d='M0 5 Q10 0 20 5 T40 5' stroke='%23FF6B4A' stroke-width='3' fill='none' stroke-linecap='round'/></svg>"); background-position:0 100%; background-size:40px 10px; background-repeat:repeat-x; padding-bottom:12px; }
+
+    .tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:var(--sun); border:2px solid var(--ink); border-radius:999px; font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+
+    @keyframes spin-slow{ from{transform:rotate(0);} to{transform:rotate(360deg);} }
+    @keyframes bounce-in{ 0%{opacity:0; transform:translateY(20px) scale(.9);} 60%{opacity:1; transform:translateY(-4px) scale(1.02);} 100%{opacity:1; transform:none;} }
+    @keyframes wiggle{ 0%,100%{ transform:rotate(-2deg);} 50%{ transform:rotate(2deg);} }
+    @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+    @keyframes count-bounce{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.08);} }
+    .spin-slow{ animation:spin-slow 30s linear infinite; transform-origin:center; }
+    .bounce-in{ animation:bounce-in .7s cubic-bezier(.34,1.56,.64,1) backwards; }
+    .wiggle{ animation:wiggle 3s ease-in-out infinite; }
+    .float{ animation:float 4s ease-in-out infinite; }
+    .count-bounce{ animation:count-bounce 1s ease-in-out infinite; }
+
+    .ticket{ background:#fff; border:2.5px solid var(--ink); border-radius:14px; position:relative; padding:18px 20px; box-shadow:4px 4px 0 var(--ink); }
+
+    /* Edit drawer */
+    .edit-drawer{ position:fixed; top:0; right:0; bottom:0; width:100%; max-width:540px; background:var(--cream); border-left:3px solid var(--ink); box-shadow:-10px 0 0 var(--ink); z-index:60; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); }
+    .edit-drawer.open{ transform:translateX(0); }
+    .edit-drawer-head{ padding:14px 18px; background:var(--nmdc-navy); color:var(--cream); border-bottom:3px solid var(--ink); display:flex; align-items:center; justify-content:space-between; }
+    .edit-drawer-body{ flex:1; overflow-y:auto; padding:14px; }
+    .edit-drawer-foot{ padding:12px 14px; border-top:3px solid var(--ink); background:#fff; display:flex; gap:8px; }
+    .edit-tabs{ display:flex; background:#fff; border-bottom:3px solid var(--ink); overflow-x:auto; }
+    .edit-tab{ flex:1; min-width:90px; padding:12px 8px; font-size:12px; font-weight:800; border-right:2px solid var(--ink); cursor:pointer; text-align:center; background:#fff; transition:background .12s; white-space:nowrap; letter-spacing:0.02em; user-select:none; color:var(--ink); }
+    .edit-tab:last-child{ border-right:0; }
+    .edit-tab:hover{ background:var(--cream-warm); }
+    .edit-tab.active{ background:var(--nmdc-green); color:#fff; }
+
+    .edit-section{ margin-bottom:12px; background:#fff; border:2px solid var(--ink); border-radius:12px; overflow:hidden; }
+    .edit-section-head{ padding:10px 14px; background:var(--sun); border-bottom:2px solid var(--ink); font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:14px; user-select:none; }
+    .edit-section-body{ padding:8px 12px; }
+    .edit-row{ padding:8px 0; border-bottom:1px dashed var(--sand-deep); }
+    .edit-row:last-child{ border-bottom:0; }
+    .edit-key{ font-family:'Plus Jakarta Sans',monospace; font-size:10px; color:var(--ink-soft); font-weight:700; letter-spacing:0.05em; margin-bottom:4px; text-transform:uppercase; }
+    .edit-input{ width:100%; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-size:14px; padding:8px 10px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-weight:500; resize:vertical; box-sizing:border-box; }
+    .edit-input:focus{ outline:none; box-shadow:2px 2px 0 var(--nmdc-green); }
+    .edit-input.dirty{ background:#FFFAD6; }
+    .lang-pill{ display:inline-flex; align-items:center; padding:4px 12px; border:2px solid var(--ink); border-radius:999px; font-weight:700; font-size:12px; cursor:pointer; background:#fff; }
+    .lang-pill.active{ background:var(--nmdc-green); color:#fff; }
+    .edit-backdrop{ position:fixed; inset:0; background:rgba(10,35,64,0.4); z-index:55; opacity:0; pointer-events:none; transition:opacity .2s; }
+    .edit-backdrop.open{ opacity:1; pointer-events:auto; }
+    .edit-badge{ position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:50; background:var(--nmdc-green); color:#fff; padding:6px 14px; border:2.5px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); font-weight:800; font-size:12px; letter-spacing:0.1em; }
+
+    /* Rich editor */
+    .rich-toolbar{ display:flex; gap:4px; padding:6px; background:var(--cream-warm); border:2px solid var(--ink); border-bottom:0; border-radius:8px 8px 0 0; flex-wrap:wrap; }
+    .rich-btn{ padding:6px 10px; border:1.5px solid var(--ink); border-radius:6px; background:#fff; font-weight:800; font-size:12px; cursor:pointer; min-width:32px; font-family:'Plus Jakarta Sans',sans-serif; }
+    .rich-btn:hover{ background:var(--sun); }
+    .rich-btn:active{ transform:translateY(1px); }
+    .rich-editor{ border:2px solid var(--ink); border-top:0; border-radius:0 0 8px 8px; padding:14px; min-height:240px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-size:14px; background:#fff; outline:none; line-height:1.6; overflow-y:auto; max-height:500px; }
+    .rich-editor:focus{ box-shadow:0 0 0 2px var(--nmdc-green); }
+    .rich-editor.dirty{ background:#FFFAD6; }
+    .rich-editor p{ margin:0 0 0.8em; }
+    .rich-editor ul,.rich-editor ol{ margin:0 0 0.8em; padding-left:1.5em; }
+    .rich-editor li{ margin:0 0 0.3em; }
+    .rich-editor strong{ font-weight:700; }
+    .rich-editor em{ font-style:italic; }
+    .rich-editor a{ color:var(--nmdc-green-dark); text-decoration:underline; }
+    .rich-editor h1,.rich-editor h2,.rich-editor h3{ font-weight:700; margin:0.6em 0 0.3em; }
+    .rich-editor h2{ font-size:1.2em; }
+    .rich-editor h3{ font-size:1.1em; }
+
+    /* Token chip */
+    .token-chip{ display:inline-flex; align-items:center; padding:3px 8px; background:var(--sun); border:1.5px solid var(--ink); border-radius:999px; font-size:11px; font-weight:700; font-family:'Plus Jakarta Sans',monospace; cursor:pointer; margin:2px; }
+    .token-chip:hover{ background:var(--sun-deep); }
+
+    /* Registrations table */
+    .reg-table{ width:100%; border-collapse:separate; border-spacing:0; font-size:13px; background:#fff; border:2px solid var(--ink); border-radius:10px; overflow:hidden; }
+    .reg-table th,.reg-table td{ padding:10px 8px; border-bottom:1.5px dashed var(--sand-deep); text-align:left; vertical-align:top; }
+    .reg-table tr:last-child td{ border-bottom:0; }
+    .reg-table th{ background:var(--sun); font-weight:800; position:sticky; top:0; border-bottom:2px solid var(--ink); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; }
+    .reg-table tr:hover td{ background:#FFFBEB; }
+    .reg-serial{ font-family:'Caprasimo',serif; font-size:1.1em; color:var(--nmdc-green-dark); }
+    .reg-small{ color:var(--ink-soft); font-size:11px; }
+
+    .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:80; padding:12px 20px; border:2.5px solid var(--ink); border-radius:999px; box-shadow:4px 4px 0 var(--ink); font-weight:700; background:var(--nmdc-green); color:#fff; animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1); max-width:90vw; text-align:center; }
+    .toast.err{ background:var(--coral); }
+
+    @media (max-width:768px){
+      input,select,textarea{ font-size:16px !important; }
+      .edit-drawer{ max-width:100%; }
+    }
+
+    @media (pointer:fine){
+      ::-webkit-scrollbar{ width:14px; }
+      ::-webkit-scrollbar-track{ background:var(--cream); }
+      ::-webkit-scrollbar-thumb{ background:var(--nmdc-green); border:3px solid var(--cream); border-radius:999px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel" data-presets="env,react">
+    const { useState, useEffect, useRef, useMemo, useCallback } = React;
+
+    // ====================================================================
+    // CONFIGURATION — paste your GAS Web App URL here after deploying
+    // ====================================================================
+    const GAS_URL = "PASTE_YOUR_GAS_WEB_APP_URL_HERE";
+
+    const NMDC_LOGO = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAABaBAMAAADwX3YuAAAAHlBMVEUAAAACIjQGsVH3+fpSX2kVMEMuSFOprrAAAAAAAAA5F6mAAAAACHRSTlMA/v4O7/z7CjZR358AAAqPSURBVHja7Zrfi9zWFcc/mqv1QOItUrLrUmhhyNsmVn1hHExrp9E2Y/oUsiV2+tAGbBJS+hAYcKF/RehCHgylNCahD8WUruu8lGxqBTsUg4fcqeL6IRA2lBIIbneSdSjj0Z3pg0bSlVbSzNJ0+uLLws5cXd1zdH58z/ceDZLqIYTscpAh6MryeaBKkowv+9OFsg3gyzopPziQVsZW6242XujEc+3Sm7qAfT5e+XIyaf3wj7paLfuhL/QBbKVp7SRqqdwle/2htzwlSjeTt3+ylX45+ytJqGk4j1bLsYe4sYXnGppG6bxvd6J3rrgKXeYZ2T+cacVl10FDg5FfL0rPGV5C0mjFPsk9WscP/AjQq4g7Rb3ayFUHbGPqtpTQgD7NivgaAkfExTltpWiVTEfbgU3gA6fcF9dU4WqvvXoLiKaPABBdcSQNYGWoqqWNlodiTj82KuajbQIg4IpTfH7Rv2UujP/1FQ1AO/JCtacs39NyLq1aM5fcDgswoZfLlq0IG8AKa8xF/wuhZgeWVrO1InLv5rdaL91ZL8eGf0RUgh0+rm7OMpfsqcZcAXgu9/VQxfPKBmATuZQtaAJ+gHbW/BnG6tFojYEGm7UL7bdzgHMS3y5ZtXS9AZwCTbNiowCwVL0wPEmrKuI7vg/+tLhE2vdyxgpKHth/XDemkleGVcUBwJlhrDBx4XgfbhEFNgSxFOBDwxcnge0YGXzSusj16xeSR9QOF3rV2XiOGlAVnledhXaQd5MORYqKaeCcIqBDZ6p6pN9tZDjwWltUBT1X6mLGC2uyMCLazk08m6ppGZISyY37RZuR46niGaSADR9XF2lxKYkkDdAdRcnG7yqVhofWvaITo1NYT63l3BC+DR074WiWUzhWafJZOD5SQx6WEjHPAAY8j4TU2uTeRScG0A9zbtAjaW9nFrtNjmm0BY/loPPzmholH0/FNAGR7eqpdo57lxHdRwol+1rEdhoFkSNMwb2CCz+aj1z7mfhpMPVm8u/ILyzaSzk2YD2bWV9ImYf3cS3RUGojO+eZ0BPMdSzo58FLTqRtcKL3zSzMV2j78xlWSo623wBEPVkqwcKVnlmzQ70bGc8TOQbC7HNhZ1ItqVl9FC0p8CXLnFZo3qTs5RzkDvxNEB7kgJSnd3NcZebYMXoE86iFpWQu4aKBkzsI3QG0ytdC7C0ONlrqQE60YaVwQJtIszi6a6IESD/q+PMq9Cmg2apzb6OETqKXc6AputcwyJHe8brCK5xWn3aCYErMqeocJDdETUCkde3l4XwHdB+rZaK53uTLyHRyuFlsONhbRDOtNDARQSe1iN/J+dQK4Ebh3HhfFiA3f+N4DiCVMkieeojZ2bFVnVpLuWzcEPlu5V4Bck0X7rDuHCDWbwCw2c1yXdaodf+eOf/eUzktvQ/2TGDu51zYGs+ThX4/iYG4Y3Y9vbKhTE5SLNX5/pvK5Yd69ai0jbDPu/CTebpym1leB0bXCAiMKuwRFvbvXi1nywC8rq5FRlCbHY7xzjyu89JqM1IKaGalxBK9NGRC2yuodTG6ByQFMMinrT6BGV6X8nA9G7KaKgVuvw0Qicz2y9LuThFMP/toQa0hIwl+ki8FkLspJ8dLBY65UEoCcuPEkDRYt3oxDc0KjOUML0pADIUV9Ke9U2PsZjTjL0WQU6++U+bE8Q6v1WrUBbjJUnpCE1PLPGF0CVlTgBaWgw7vFNUK99JI3A+9F3mprOLO6shtAshDh1N08eLgHxo8JVqJlbaWwV9e6xbU0sdqhAzlLwf7Jj9GzRHvh/7xcOZPlQewWLB7Fg6tLgM3rEc3C2qJ3m5FJsYtkElR63FNdzMR6Lruw1FKVcSfUhwdmUK2XffhKAaOnuwWrCXVXh32cK3oQm8Oa9kGTPmnZApgcpCmSidHrMLXCzVRyeheFQ0DpPiy4MJw3iNF4ritMMOojMvmqcfyvgaCYiSBiK+XOUTp+xs5bGCeN1WxTLsD+Ccxz4SDCh4alsxeXwafQam1Qv1BDkjlPAE/zbZt4P3PhPEkOleDTHOVEJvJAIKgou/XDO8ZLmzPr1UcP981jUVb3Ktwe4la9qQOJbzxIOs39A5C3rfhuRzV0D2eKBU12WmUsdtdqnveyjsW18Sx2Ncxn1UaxVvtYrDultwj9sJGaQTtUR5bACLcwz8HO177QMaC53Z1r9geU1c39gm4q19tlDyi8qIBh6s27+loEFziY8IDavX8JS32pXZ38lZhbukubNq23YEoKKDEpM4f3eATxkKakdWZHprGlADkNmCf2n2D7mZJxRS7bk6rz2SosVwzAbNx/HA1WWkOj3/7NzmccUwOkm/pAnD6X9tCV3WEkR++mKSCOHpdF4K1ma8ztbGLEBVviGTFDfVb2qez3xtIwMp27+WfoXa0c6v3dc0KPTKtoD4/2loBF4LeQQD6vx/N2qu/KJDGSmvNGm2tyq3Vo8JaM/br0RzOMumD8WA8GA/Gg/FgfEWjnVHVRYpNpUlEgd3EdEdmpEdO/8T/31oZFZMLNFfSzgJoypjhdKedg6la3fT3sm0Q0F2AtZpYruu6PwXLdQDXoWu7ruuuIIn/SSFYd90jSHHeRWK5fuN/rdYwPloNAaySd8Z6JVRoS8HIUfq3OIpzBI1FxM6Zjv9pfGS4OD3j2mc6CB9sfP0i3s8dhMSX8vGOLdmaLCLk11cBIbBc15G4G3Tt5Ljl+uA68oLl+ggbIbBWsVxEYwF6jQCtwfYPme91JdACH17zCZr6GFpD9JJvoxeh1qEEvbZGz2SsvhkCO1IGKNSkOWwj2kJO+L0aVf+y9iu11guvnCcEluhNrXXklVe+owFHrfIjJP6Qfn9daSWkhRRV3civdiQN/fs/vhp+DcAeXWYC8J57i18DTvNnfdUDdODYwWKsxdknz8RJeWnadItOP/+kFIDtc+y4BNgM8AFxjFF7IWi/vjI9kq5y3HViOPXjGu2eW3KRUrrOCcGSKwDpbrAYa0UiOVZH2L4P8SucHvD3CRuhYsMeerFXUSAXo9aSJ8T0XY3UQYqyUsK3Iv+G1w53tKMyVdSCYkuOx3H1VclvYc7Y3/eVD5+KgaV63g0+hJPGHQtx4hXHcWyAE/entefd5Vu32QS8IHqmGT6Bdt0E0pwFqZWqBwyCAKMZ31LH6A0JvwTi4JLG7zYWxY9FG2gmdK8LoglIpKDTSdlpE/4Dr6pvE4CEo04AAAAASUVORK5CYII=";
+
+    // ====================================================================
+    // DEFAULT TEXT REGISTRY — all user-facing strings
+    // ====================================================================
+    const DEFAULT_EMAIL_BODY_ZH = `<p>嗨 {{name}}，</p>
+<p>你的 <strong>2026 NMDC 團隊淨灘</strong> 報名已成功！🎉</p>
+<p><strong>報名資訊</strong><br>
+報名序號：<strong>{{confirmationNumber}}</strong><br>
+姓名：{{name}}<br>
+公司：{{company}}<br>
+職稱：{{title}}<br>
+電話：{{phone}}</p>
+<p><strong>活動資訊</strong><br>
+📅 日期：2026/6/18 · 6/25 · 6/28（日期待確認）<br>
+⏰ 時間：09:00 – 12:00<br>
+📍 地點：苗栗苑裡沙灘 · 苑港漁業公園<br>
+（苗栗縣苑裡鎮西部濱海快速公路 360 號）</p>
+<p>活動前一週我們會再寄一次行前通知給你，包含當天集合時間、交通資訊與準備事項。</p>
+<p>有任何問題請聯絡：Vicky 0970-002-367 · MJ 0970-002-503</p>
+<p>謝謝你一起為海灘做點事 💚</p>
+<p>— NMDC Energy</p>`;
+
+    const DEFAULT_EMAIL_BODY_EN = `<p>Hi {{name}},</p>
+<p>Your registration for <strong>2026 NMDC Team Beach Cleanup</strong> is confirmed! 🎉</p>
+<p><strong>Registration Details</strong><br>
+Confirmation #: <strong>{{confirmationNumber}}</strong><br>
+Name: {{name}}<br>
+Company: {{company}}<br>
+Title: {{title}}<br>
+Phone: {{phone}}</p>
+<p><strong>Event Details</strong><br>
+📅 Date: Jun 18 · 25 · 28 / 2026 (dates TBC)<br>
+⏰ Time: 09:00 – 12:00<br>
+📍 Location: Yuanli Beach · Yuangang Fishing Park<br>
+(No.360, W. Coast Expwy, Yuanli, Miaoli)</p>
+<p>A briefing will be sent one week before the event, including assembly time, transport info, and things to bring.</p>
+<p>Questions? Contact Vicky 0970-002-367 · MJ 0970-002-503</p>
+<p>Thanks for helping clean the shore 💚</p>
+<p>— NMDC Energy</p>`;
+
+    const DEFAULTS = {
+      zh: {
+        "header.tag": "BEACH CLEANUP 2026",
+        "hero.chip": "🏖️ 一起去淨灘",
+        "hero.subtitle": "2026 NMDC 團隊淨灘",
+        "hero.title1": "來 淨 灘",
+        "hero.title2": "吧！",
+        "hero.tagline": "帶著公司的心，走一趟海的現場。",
+        "hero.ctaPrimary": "立刻報名",
+        "hero.ctaSecondary": "看注意事項",
+
+        "info.when.label": "時 間",
+        "info.when.big": "2026 / 6 / 18 · 6 / 25 · 6 / 28",
+        "info.when.sub": "09:00 – 12:00 · （日期待確認）",
+        "info.where.label": "地 點",
+        "info.where.big": "苗栗苑裡沙灘",
+        "info.where.sub": "苑港漁業公園 · 苗栗縣苑裡鎮西部濱海快速公路 360 號",
+        "info.who.label": "人 數",
+        "info.who.big": "200",
+        "info.who.unit": "人",
+        "info.team.label": "分 組",
+        "info.team.big": "20 組",
+        "info.team.sub": "每組 10 人",
+        "info.contact.label": "聯絡窗口",
+        "info.contact.line1": "Vicky 0970-002-367",
+        "info.contact.line2": "MJ 0970-002-503",
+
+        "status.tag": "⏰ 截止",
+        "status.head": "報名倒數",
+        "status.sub": "趁還有位子，快填！",
+        "status.slots": "名額進度",
+        "status.filled": "已報名",
+        "status.days": "DAYS",
+        "status.hrs": "HRS",
+        "status.min": "MIN",
+        "status.sec": "SEC",
+        "status.left": "席還在",
+        "status.expired": "報名已截止",
+        "status.full": "名額已滿",
+
+        "notes.tag": "⚠️ 重要",
+        "notes.head": "注意事項",
+        "notes.sub": "出門前看一下，安全第一！",
+        "note.0": "穿舒適便利的衣服，自己帶毛巾跟水，多補水。",
+        "note.1": "戴手套防止割傷，穿包覆性好的鞋子。",
+        "note.2": "建議長褲或薄長袖 + 帽子，防曬又保護。",
+        "note.3": "隨時帶水壺補水，不要亂丟垃圾。",
+        "note.4": "活動中不要奔跑，隨時注意手腳安全。",
+        "note.5": "東西卡在沙裡不要硬挖，找隨隊人員幫忙。",
+        "note.6": "注意螺類、針具、玻璃和銳利物，拾取小心。",
+        "note.7": "搬海漂垃圾注意重量跟平衡，留意漲退潮。",
+        "note.8": "不要踩踏海灘植物和沙丘植栽。",
+        "note.9": "注意避免傷害海灘生物，像寄居蟹、海星。",
+        "note.10": "戶外很曬，做好防曬（防曬乳、太陽眼鏡、帽子、防曬衣）。",
+        "note.11": "自行評估身體狀況再參加，不舒服立刻告知隨隊人員。",
+        "note.12": "頭暈、中暑、體力不支立刻停止並休息。",
+
+        "risk.head": "風險告知",
+        "risk.body": "本活動為戶外活動，請依自身身體狀況斟酌參加。若有心臟病、高血壓、氣喘、癲癇、腸胃疾病、懷孕、曬傷過敏或皮膚易過敏者請勿報名。若活動當日遇天候突變（暴雨、雷擊、強風），主辦單位有權暫停、取消或更動活動。",
+
+        "form.tag": "🏖️ SIGN UP",
+        "form.head": "來報名吧！",
+        "form.sub": "填一下，我們活動前一週寄行前通知給你。",
+        "field.name.label": "姓名", "field.name.sub": "Your name", "field.name.ph": "你的全名",
+        "field.company.label": "公司", "field.company.sub": "Company", "field.company.ph": "你所屬的公司",
+        "field.title.label": "職稱", "field.title.sub": "Job title", "field.title.ph": "例：環安工程師",
+        "field.phone.label": "電話", "field.phone.sub": "Phone", "field.phone.ph": "0912-345-678",
+        "field.email.label": "電子信箱", "field.email.sub": "Email", "field.email.ph": "you@company.com",
+        "form.agree": "我已經確認本活動的注意事項和風險告知，沒問題！",
+        "form.submit": "送出報名 🌊",
+        "form.submitting": "送出中…",
+
+        "err.required": "這欄不能空著喔",
+        "err.email": "這個信箱怪怪的",
+        "err.phone": "電話號碼不太對",
+        "err.agree": "先勾選同意才可以送出哦",
+        "err.network": "連線失敗，檢查網路再試一次",
+        "err.config": "活動資訊載入失敗，等一下再試",
+        "err.server": "伺服器忙線中，請稍後再試",
+        "err.full": "名額已滿，謝謝你的關注！",
+        "err.deadline": "報名已經截止囉",
+        "err.duplicate": "這個信箱已經報過名了",
+        "err.generic": "送出失敗，請稍後再試",
+
+        "ok.head": "報名成功！🎉",
+        "ok.sub": "我們收到你的報名了，確認信已經寄出，記得收信箱。",
+        "ok.conf": "報名序號",
+        "ok.name": "姓名",
+        "ok.again": "再報一位",
+
+        "closed.deadline.title": "報名已截止",
+        "closed.deadline.sub": "想候補？聯絡主辦窗口。",
+        "closed.full.title": "名額已滿！",
+        "closed.full.sub": "200 席全滿，謝謝大家熱情支持。",
+
+        "footer.brandDesc": "SDGs / ESG Beach Cleanup Team Building 2026",
+        "footer.contactHead": "聯絡窗口",
+        "footer.contactLine1.label": "Vicky",
+        "footer.contactLine1.val": "0970-002-367",
+        "footer.contactLine2.label": "MJ",
+        "footer.contactLine2.val": "0970-002-503",
+        "footer.orgHead": "主辦單位",
+        "footer.orgName": "樂趣遊股份有限公司 Ubuntu Co., Ltd.",
+        "footer.orgAddr": "台北市中山區南京東路二段 8 號 6 樓",
+        "footer.orgPhone": "(02) 7713-6733",
+        "footer.orgTax": "統編 82985531",
+        "footer.copy": "© 2026 NMDC Energy · Built with 💚 on the shore",
+        "footer.poweredBy": "Powered by Google Sheets",
+
+        "email.subject": "🌊 2026 NMDC 團隊淨灘｜報名確認 {{confirmationNumber}}",
+        "email.body": DEFAULT_EMAIL_BODY_ZH
+      },
+      en: {
+        "header.tag": "BEACH CLEANUP 2026",
+        "hero.chip": "🏖️ LET'S CLEAN THE BEACH",
+        "hero.subtitle": "2026 NMDC Team Beach Cleanup",
+        "hero.title1": "CLEAN",
+        "hero.title2": "THE BEACH!",
+        "hero.tagline": "Bring the team to the shore.",
+        "hero.ctaPrimary": "Sign me up",
+        "hero.ctaSecondary": "See the notes",
+
+        "info.when.label": "WHEN",
+        "info.when.big": "Jun 18 · 25 · 28 / 2026",
+        "info.when.sub": "09:00 – 12:00 · (dates TBC)",
+        "info.where.label": "WHERE",
+        "info.where.big": "Yuanli Beach",
+        "info.where.sub": "Yuangang Fishing Park · No.360, W. Coast Expwy, Yuanli, Miaoli",
+        "info.who.label": "WHO",
+        "info.who.big": "200",
+        "info.who.unit": "people",
+        "info.team.label": "TEAMS",
+        "info.team.big": "20 teams",
+        "info.team.sub": "10 per team",
+        "info.contact.label": "CONTACT",
+        "info.contact.line1": "Vicky 0970-002-367",
+        "info.contact.line2": "MJ 0970-002-503",
+
+        "status.tag": "⏰ Closes",
+        "status.head": "Countdown to close",
+        "status.sub": "Spots going fast — grab yours!",
+        "status.slots": "Registrations",
+        "status.filled": "signed up",
+        "status.days": "DAYS",
+        "status.hrs": "HRS",
+        "status.min": "MIN",
+        "status.sec": "SEC",
+        "status.left": "spots left",
+        "status.expired": "Registration closed",
+        "status.full": "Fully booked",
+
+        "notes.tag": "⚠️ IMPORTANT",
+        "notes.head": "What to know",
+        "notes.sub": "Read before you head out — safety first!",
+        "note.0": "Wear comfy clothes. Bring your own towel & water — stay hydrated.",
+        "note.1": "Gloves prevent cuts. Wear closed, beach-friendly shoes.",
+        "note.2": "Long pants / thin long sleeves + hat. Sun + coverage.",
+        "note.3": "Keep a water bottle close. Don't litter.",
+        "note.4": "Don't run during the activity — watch your step.",
+        "note.5": "Don't dig out buried items alone — call the team lead.",
+        "note.6": "Watch for shells, needles, glass & sharp items. Handle with care.",
+        "note.7": "Mind the weight, balance & incoming tide when moving debris.",
+        "note.8": "Avoid trampling beach plants and dune vegetation.",
+        "note.9": "Don't disturb wildlife — hermit crabs, starfish, etc.",
+        "note.10": "Sun's strong — sunscreen, shades, hat, sun-protective clothing.",
+        "note.11": "Assess your condition. Feel off? Tell the support team right away.",
+        "note.12": "Dizziness, heat exhaustion, fatigue — stop and rest immediately.",
+
+        "risk.head": "Risk Notice",
+        "risk.body": "This is an outdoor activity — check your own condition first. Do NOT register if you have heart disease, hypertension, asthma, epilepsy, gastrointestinal conditions, pregnancy, sunburn allergy, or sensitive skin. In severe weather (heavy rain, lightning, strong winds), organizers may suspend, cancel, or modify the activity.",
+
+        "form.tag": "🏖️ SIGN UP",
+        "form.head": "Let's go — sign up!",
+        "form.sub": "Fill it in and we'll send a briefing one week before.",
+        "field.name.label": "Name", "field.name.sub": "姓名", "field.name.ph": "Your full name",
+        "field.company.label": "Company", "field.company.sub": "公司", "field.company.ph": "Your company",
+        "field.title.label": "Job Title", "field.title.sub": "職稱", "field.title.ph": "e.g. EHS Engineer",
+        "field.phone.label": "Phone", "field.phone.sub": "電話", "field.phone.ph": "0912-345-678",
+        "field.email.label": "Email", "field.email.sub": "信箱", "field.email.ph": "you@company.com",
+        "form.agree": "I've read the event notes and risk notice — all good!",
+        "form.submit": "Count me in 🌊",
+        "form.submitting": "Submitting…",
+
+        "err.required": "Don't leave this blank",
+        "err.email": "That email looks off",
+        "err.phone": "Phone number doesn't look right",
+        "err.agree": "Tick the box first!",
+        "err.network": "Connection failed — check your network",
+        "err.config": "Can't load event info, try again later",
+        "err.server": "Server busy, try again later",
+        "err.full": "Fully booked — thanks for your interest!",
+        "err.deadline": "Registration has closed",
+        "err.duplicate": "This email is already registered",
+        "err.generic": "Failed to submit, try again later",
+
+        "ok.head": "You're in! 🎉",
+        "ok.sub": "Got your registration — a confirmation is on its way to your inbox.",
+        "ok.conf": "Conf #",
+        "ok.name": "Name",
+        "ok.again": "Register another",
+
+        "closed.deadline.title": "Registration closed",
+        "closed.deadline.sub": "For waitlist, contact the organizer.",
+        "closed.full.title": "Fully booked!",
+        "closed.full.sub": "All 200 spots taken — thanks for the love.",
+
+        "footer.brandDesc": "SDGs / ESG Beach Cleanup Team Building 2026",
+        "footer.contactHead": "CONTACT",
+        "footer.contactLine1.label": "Vicky",
+        "footer.contactLine1.val": "0970-002-367",
+        "footer.contactLine2.label": "MJ",
+        "footer.contactLine2.val": "0970-002-503",
+        "footer.orgHead": "Organized by",
+        "footer.orgName": "Ubuntu Co., Ltd. (LeBay)",
+        "footer.orgAddr": "6F, No.8 Sec.2 Nanjing E. Rd., Zhongshan, Taipei",
+        "footer.orgPhone": "(02) 7713-6733",
+        "footer.orgTax": "Tax ID 82985531",
+        "footer.copy": "© 2026 NMDC Energy · Built with 💚 on the shore",
+        "footer.poweredBy": "Powered by Google Sheets",
+
+        "email.subject": "🌊 2026 NMDC Beach Cleanup · Registration {{confirmationNumber}}",
+        "email.body": DEFAULT_EMAIL_BODY_EN
+      }
+    };
+
+    const SECTIONS = [
+      { id:"header", label:"標頭 Header", keys:["header.tag"] },
+      { id:"hero", label:"首頁 Hero", keys:["hero.chip","hero.subtitle","hero.title1","hero.title2","hero.tagline","hero.ctaPrimary","hero.ctaSecondary"] },
+      { id:"info", label:"活動資訊 Event Info", keys:[
+        "info.when.label","info.when.big","info.when.sub",
+        "info.where.label","info.where.big","info.where.sub",
+        "info.who.label","info.who.big","info.who.unit",
+        "info.team.label","info.team.big","info.team.sub",
+        "info.contact.label","info.contact.line1","info.contact.line2"
+      ]},
+      { id:"status", label:"倒數 & 名額 Status", keys:[
+        "status.tag","status.head","status.sub","status.slots","status.filled",
+        "status.days","status.hrs","status.min","status.sec",
+        "status.left","status.expired","status.full"
+      ]},
+      { id:"notes", label:"注意事項 Notes", keys:[
+        "notes.tag","notes.head","notes.sub",
+        "note.0","note.1","note.2","note.3","note.4","note.5","note.6",
+        "note.7","note.8","note.9","note.10","note.11","note.12"
+      ]},
+      { id:"risk", label:"風險告知 Risk", keys:["risk.head","risk.body"], multi:["risk.body"] },
+      { id:"form", label:"報名表 Form", keys:[
+        "form.tag","form.head","form.sub",
+        "field.name.label","field.name.sub","field.name.ph",
+        "field.company.label","field.company.sub","field.company.ph",
+        "field.title.label","field.title.sub","field.title.ph",
+        "field.phone.label","field.phone.sub","field.phone.ph",
+        "field.email.label","field.email.sub","field.email.ph",
+        "form.agree","form.submit","form.submitting"
+      ]},
+      { id:"err", label:"錯誤訊息 Error Messages", keys:[
+        "err.required","err.email","err.phone","err.agree",
+        "err.network","err.config","err.server",
+        "err.full","err.deadline","err.duplicate","err.generic"
+      ]},
+      { id:"ok", label:"成功畫面 Success", keys:["ok.head","ok.sub","ok.conf","ok.name","ok.again"], multi:["ok.sub"] },
+      { id:"closed", label:"關閉畫面 Closed States", keys:[
+        "closed.deadline.title","closed.deadline.sub",
+        "closed.full.title","closed.full.sub"
+      ]},
+      { id:"footer", label:"頁尾 Footer", keys:[
+        "footer.brandDesc","footer.contactHead",
+        "footer.contactLine1.label","footer.contactLine1.val",
+        "footer.contactLine2.label","footer.contactLine2.val",
+        "footer.orgHead","footer.orgName","footer.orgAddr",
+        "footer.orgPhone","footer.orgTax",
+        "footer.copy","footer.poweredBy"
+      ]}
+    ];
+
+    const NOTE_EMOJIS = ["👕","🧤","👒","💧","🚶","⚠️","🔪","🌊","🌱","🦀","☀️","🩺","🛑"];
+
+    const EMAIL_TOKENS = [
+      { key:"{{name}}", label:"姓名 / Name" },
+      { key:"{{company}}", label:"公司 / Company" },
+      { key:"{{title}}", label:"職稱 / Title" },
+      { key:"{{email}}", label:"信箱 / Email" },
+      { key:"{{phone}}", label:"電話 / Phone" },
+      { key:"{{confirmationNumber}}", label:"報名序號 / Conf #" },
+      { key:"{{serial}}", label:"流水號 / Serial" },
+      { key:"{{eventName}}", label:"活動名稱 / Event" }
+    ];
+
+    // ====================================================================
+    // XHR helpers
+    // ====================================================================
+    function xhrGet(url){
+      return new Promise((res, rej) => {
+        const x = new XMLHttpRequest();
+        x.open("GET", url, true);
+        x.onload = () => {
+          if(x.status >= 200 && x.status < 300){
+            try{ res(JSON.parse(x.responseText)); } catch(e){ rej(e); }
+          } else rej(new Error("HTTP " + x.status));
+        };
+        x.onerror = () => rej(new Error("Network"));
+        x.ontimeout = () => rej(new Error("Timeout"));
+        x.timeout = 20000;
+        x.send();
+      });
+    }
+    function xhrPost(url, data, timeout=25000){
+      return new Promise((res, rej) => {
+        const x = new XMLHttpRequest();
+        x.open("POST", url, true);
+        x.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+        x.onload = () => {
+          if(x.status >= 200 && x.status < 300){
+            try{ res(JSON.parse(x.responseText)); } catch(e){ rej(e); }
+          } else rej(new Error("HTTP " + x.status));
+        };
+        x.onerror = () => rej(new Error("Network"));
+        x.ontimeout = () => rej(new Error("Timeout"));
+        x.timeout = timeout;
+        x.send(JSON.stringify(data));
+      });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    const phoneRegex = /^[\d\-\+\s\(\)]{8,20}$/;
+    const pad = n => String(n).padStart(2, "0");
+    function formatDeadline(iso, lang){
+      try{
+        const d = new Date(iso);
+        return new Intl.DateTimeFormat(lang === "zh" ? "zh-TW" : "en-US",
+          { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" }).format(d);
+      } catch{ return iso; }
+    }
+    function formatTs(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString("zh-TW", { month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+      } catch{ return String(iso); }
+    }
+
+    // ====================================================================
+    // Decorative bits
+    // ====================================================================
+    function Sun({ size=160 }){
+      return (
+        <svg width={size} height={size} viewBox="0 0 200 200">
+          <g className="spin-slow">
+            {Array.from({length:12}).map((_,i) => (
+              <rect key={i} x="98" y="5" width="4" height="25" rx="2"
+                fill="var(--sun-deep)"
+                transform={`rotate(${i*30} 100 100)`}/>
+            ))}
+          </g>
+          <circle cx="100" cy="100" r="52" fill="var(--sun)" stroke="var(--ink)" strokeWidth="3"/>
+          <circle cx="85" cy="92" r="4" fill="var(--ink)"/>
+          <circle cx="115" cy="92" r="4" fill="var(--ink)"/>
+          <path d="M82 112 Q100 128 118 112" stroke="var(--ink)" strokeWidth="3" fill="none" strokeLinecap="round"/>
+          <circle cx="78" cy="110" r="4" fill="var(--coral)" opacity="0.8"/>
+          <circle cx="122" cy="110" r="4" fill="var(--coral)" opacity="0.8"/>
+        </svg>
+      );
+    }
+    function Wave({ color="var(--nmdc-navy)", flip=false, className="" }){
+      return (
+        <svg className={`block w-full ${flip?"rotate-180":""} ${className}`} viewBox="0 0 1200 80" preserveAspectRatio="none">
+          <path d="M0,40 C150,80 300,10 450,40 C600,70 750,10 900,40 C1050,70 1200,20 1200,40 L1200,80 L0,80 Z" fill={color}/>
+        </svg>
+      );
+    }
+    function Confetti(){
+      const shapes = [
+        { left:"5%",  top:"15%", color:"var(--sun)",   rot:"-15deg", shape:"square" },
+        { left:"92%", top:"12%", color:"var(--coral)", rot:"25deg",  shape:"triangle" },
+        { left:"88%", top:"45%", color:"var(--sky)",   rot:"10deg",  shape:"circle" },
+        { left:"4%",  top:"60%", color:"var(--nmdc-green)", rot:"-10deg", shape:"square" },
+        { left:"10%", top:"90%", color:"var(--coral)", rot:"30deg",  shape:"circle" },
+        { left:"94%", top:"85%", color:"var(--sun)",   rot:"-20deg", shape:"triangle" }
+      ];
+      return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+          {shapes.map((s,i) => (
+            <div key={i} className="absolute float" style={{left:s.left, top:s.top, transform:`rotate(${s.rot})`, animationDelay:`${i*0.6}s`}}>
+              {s.shape === "square" && <div style={{width:16,height:16,background:s.color,border:"2.5px solid var(--ink)",borderRadius:4}}/>}
+              {s.shape === "triangle" && <div style={{width:0,height:0,borderLeft:"10px solid transparent",borderRight:"10px solid transparent",borderBottom:`18px solid ${s.color}`}}/>}
+              {s.shape === "circle" && <div style={{width:18,height:18,background:s.color,border:"2.5px solid var(--ink)",borderRadius:"50%"}}/>}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ====================================================================
+    // Rich Text Editor (contentEditable + execCommand)
+    // ====================================================================
+    function RichEditor({ value, onChange, dirty }){
+      const ref = useRef(null);
+      useEffect(() => {
+        if(!ref.current) return;
+        if(document.activeElement === ref.current) return;
+        if(ref.current.innerHTML !== value) ref.current.innerHTML = value || "";
+      }, [value]);
+
+      const exec = (cmd, arg) => {
+        ref.current && ref.current.focus();
+        document.execCommand(cmd, false, arg);
+        if(ref.current) onChange(ref.current.innerHTML);
+      };
+      const insertToken = (tok) => {
+        ref.current && ref.current.focus();
+        document.execCommand("insertText", false, tok);
+        if(ref.current) onChange(ref.current.innerHTML);
+      };
+
+      return (
+        <div>
+          <div className="rich-toolbar">
+            <button type="button" className="rich-btn" onClick={() => exec("bold")} title="Bold"><b>B</b></button>
+            <button type="button" className="rich-btn" onClick={() => exec("italic")} title="Italic"><i>I</i></button>
+            <button type="button" className="rich-btn" onClick={() => exec("underline")} title="Underline"><u>U</u></button>
+            <button type="button" className="rich-btn" onClick={() => exec("insertUnorderedList")} title="Bullet list">•</button>
+            <button type="button" className="rich-btn" onClick={() => exec("insertOrderedList")} title="Numbered list">1.</button>
+            <button type="button" className="rich-btn" onClick={() => {
+              const url = window.prompt("Link URL:");
+              if(url) exec("createLink", url);
+            }} title="Link">🔗</button>
+            <button type="button" className="rich-btn" onClick={() => exec("unlink")} title="Remove link">⌀</button>
+            <button type="button" className="rich-btn" onClick={() => exec("formatBlock", "<h2>")} title="Heading">H2</button>
+            <button type="button" className="rich-btn" onClick={() => exec("formatBlock", "<p>")} title="Paragraph">¶</button>
+            <button type="button" className="rich-btn" onClick={() => exec("removeFormat")} title="Clear formatting">✕Fmt</button>
+          </div>
+          <div
+            ref={ref}
+            contentEditable
+            suppressContentEditableWarning
+            className={"rich-editor " + (dirty ? "dirty" : "")}
+            onInput={() => ref.current && onChange(ref.current.innerHTML)}
+            onBlur={() => ref.current && onChange(ref.current.innerHTML)}
+          />
+          <div className="mt-2 text-xs text-[color:var(--ink-soft)]">
+            <div className="font-bold mb-1">🏷️ 可插入的標籤 / Placeholders — 點擊插入：</div>
+            <div>
+              {EMAIL_TOKENS.map(t => (
+                <span key={t.key} className="token-chip" onClick={() => insertToken(t.key)} title={t.label}>
+                  {t.key}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ====================================================================
+    // Edit Panel — 4 tabs
+    // ====================================================================
+    function EditPanel({ open, onClose, lang, setLang, edits, setEdits, serverContent, onSave, saving, dirtyCount, editPassword, registered, onDataChanged }){
+      const [tab, setTab] = useState("text");
+      return (
+        <>
+          <div className={"edit-backdrop " + (open ? "open" : "")} onClick={onClose}/>
+          <aside className={"edit-drawer " + (open ? "open" : "")} role="dialog" aria-label="Edit content">
+            <div className="edit-drawer-head">
+              <div>
+                <div className="font-display text-xl">⚙️ 管理面板 / Admin</div>
+                <div className="text-xs opacity-70 mt-0.5">
+                  {dirtyCount > 0 ? `${dirtyCount} 個未儲存 / unsaved` : "即時同步 / live"}
+                </div>
+              </div>
+              <button onClick={onClose} className="btn-outline px-3 py-1 text-sm" style={{background:"var(--sun)"}}>✕</button>
+            </div>
+            <div className="edit-tabs">
+              <div className={"edit-tab " + (tab === "text" ? "active" : "")} onClick={() => setTab("text")}>📝 文字</div>
+              <div className={"edit-tab " + (tab === "email" ? "active" : "")} onClick={() => setTab("email")}>✉️ 確認信</div>
+              <div className={"edit-tab " + (tab === "reg" ? "active" : "")} onClick={() => setTab("reg")}>👥 名單</div>
+              <div className={"edit-tab " + (tab === "blast" ? "active" : "")} onClick={() => setTab("blast")}>📢 群發</div>
+            </div>
+
+            {tab === "text" && (
+              <TextTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>
+            )}
+            {tab === "email" && (
+              <EmailTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>
+            )}
+            {tab === "reg" && (
+              <RegTab editPassword={editPassword} registered={registered} onDataChanged={onDataChanged}/>
+            )}
+            {tab === "blast" && (
+              <BlastTab editPassword={editPassword} lang={lang} setLang={setLang} edits={edits} serverContent={serverContent} registered={registered}/>
+            )}
+
+            {(tab === "text" || tab === "email") && (
+              <div className="edit-drawer-foot">
+                <button onClick={onSave} disabled={dirtyCount === 0 || saving} className="btn-chunk flex-1 px-4 py-3 text-sm">
+                  {saving ? "儲存中…" : `💾 儲存${dirtyCount > 0 ? ` (${dirtyCount})` : ""}`}
+                </button>
+                <button onClick={() => setEdits({})} disabled={dirtyCount === 0 || saving} className="btn-outline px-4 py-3 text-sm">↺ 還原</button>
+              </div>
+            )}
+          </aside>
+        </>
+      );
+    }
+
+    // ---- Tab 1: Text ----
+    function TextTab({ lang, setLang, edits, setEdits, serverContent }){
+      const [openSections, setOpenSections] = useState({ hero:true });
+      const [search, setSearch] = useState("");
+
+      function valueOf(key){
+        const editKey = `${lang}.${key}`;
+        if(edits[editKey] !== undefined) return edits[editKey];
+        if(serverContent[editKey] !== undefined) return serverContent[editKey];
+        return DEFAULTS[lang][key] ?? "";
+      }
+      function isDirty(key){ return edits[`${lang}.${key}`] !== undefined; }
+      function updateEdit(key, val){
+        const editKey = `${lang}.${key}`;
+        const committed = serverContent[editKey] !== undefined ? serverContent[editKey] : (DEFAULTS[lang][key] ?? "");
+        setEdits(prev => {
+          const next = { ...prev };
+          if(val === committed) delete next[editKey];
+          else next[editKey] = val;
+          return next;
+        });
+      }
+      function resetKey(key){
+        setEdits(prev => {
+          const next = { ...prev };
+          delete next[`${lang}.${key}`];
+          return next;
+        });
+      }
+      const filteredSections = useMemo(() => {
+        if(!search.trim()) return SECTIONS;
+        const q = search.trim().toLowerCase();
+        return SECTIONS.map(s => ({
+          ...s,
+          keys: s.keys.filter(k => k.toLowerCase().includes(q) || valueOf(k).toLowerCase().includes(q))
+        })).filter(s => s.keys.length > 0);
+      // eslint-disable-next-line
+      }, [search, edits, lang, serverContent]);
+
+      useEffect(() => {
+        if(search.trim()){
+          const all = {};
+          filteredSections.forEach(s => { all[s.id] = true; });
+          setOpenSections(all);
+        }
+      // eslint-disable-next-line
+      }, [search]);
+
+      return (
+        <div className="edit-drawer-body">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-xs font-bold text-[color:var(--ink-soft)] tracking-wider uppercase shrink-0">Lang</span>
+            <button className={"lang-pill " + (lang === "zh" ? "active" : "")} onClick={() => setLang("zh")}>中文</button>
+            <button className={"lang-pill " + (lang === "en" ? "active" : "")} onClick={() => setLang("en")}>English</button>
+          </div>
+          <input type="text" placeholder="🔍 搜尋欄位或文字 / Search..." value={search} onChange={e => setSearch(e.target.value)} className="edit-input mb-4"/>
+
+          {filteredSections.map(sec => (
+            <div key={sec.id} className="edit-section">
+              <div className="edit-section-head" onClick={() => setOpenSections(s => ({ ...s, [sec.id]: !s[sec.id] }))}>
+                <span>{sec.label} <span className="opacity-50 font-normal">({sec.keys.length})</span></span>
+                <span>{openSections[sec.id] ? "▾" : "▸"}</span>
+              </div>
+              {openSections[sec.id] && (
+                <div className="edit-section-body">
+                  {sec.keys.map(k => {
+                    const multi = (sec.multi || []).includes(k);
+                    const dirty = isDirty(k);
+                    return (
+                      <div key={k} className="edit-row">
+                        <div className="flex items-center justify-between">
+                          <div className="edit-key">{k}</div>
+                          {dirty && <button onClick={() => resetKey(k)} className="text-[10px] font-bold text-[color:var(--coral-deep)] hover:underline">↺ reset</button>}
+                        </div>
+                        {multi ? (
+                          <textarea rows="4" value={valueOf(k)} onChange={e => updateEdit(k, e.target.value)} className={"edit-input " + (dirty ? "dirty" : "")}/>
+                        ) : (
+                          <input type="text" value={valueOf(k)} onChange={e => updateEdit(k, e.target.value)} className={"edit-input " + (dirty ? "dirty" : "")}/>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    // ---- Tab 2: Email template ----
+    function EmailTab({ lang, setLang, edits, setEdits, serverContent }){
+      function valueOf(key){
+        const editKey = `${lang}.${key}`;
+        if(edits[editKey] !== undefined) return edits[editKey];
+        if(serverContent[editKey] !== undefined) return serverContent[editKey];
+        return DEFAULTS[lang][key] ?? "";
+      }
+      function isDirty(key){ return edits[`${lang}.${key}`] !== undefined; }
+      function updateEdit(key, val){
+        const editKey = `${lang}.${key}`;
+        const committed = serverContent[editKey] !== undefined ? serverContent[editKey] : (DEFAULTS[lang][key] ?? "");
+        setEdits(prev => {
+          const next = { ...prev };
+          if(val === committed) delete next[editKey];
+          else next[editKey] = val;
+          return next;
+        });
+      }
+
+      const subjectKey = "email.subject";
+      const bodyKey = "email.body";
+
+      return (
+        <div className="edit-drawer-body">
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-xs font-bold text-[color:var(--ink-soft)] tracking-wider uppercase shrink-0">Lang</span>
+            <button className={"lang-pill " + (lang === "zh" ? "active" : "")} onClick={() => setLang("zh")}>中文</button>
+            <button className={"lang-pill " + (lang === "en" ? "active" : "")} onClick={() => setLang("en")}>English</button>
+          </div>
+
+          <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-medium mb-4">
+            💌 <strong>確認信樣板</strong>：報名成功後系統會自動寄這封信給對方。用 <code className="bg-white px-1 rounded">{'{{name}}'}</code> 這類標籤會被對方的資料取代。
+          </div>
+
+          <div className="edit-row mb-4">
+            <div className="flex items-center justify-between">
+              <div className="edit-key">📧 主旨 / Subject ({lang})</div>
+              {isDirty(subjectKey) && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
+            </div>
+            <input type="text" value={valueOf(subjectKey)} onChange={e => updateEdit(subjectKey, e.target.value)} className={"edit-input " + (isDirty(subjectKey) ? "dirty" : "")}/>
+          </div>
+
+          <div className="edit-row">
+            <div className="flex items-center justify-between mb-2">
+              <div className="edit-key">📝 內文 / Body ({lang})</div>
+              {isDirty(bodyKey) && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
+            </div>
+            <RichEditor value={valueOf(bodyKey)} onChange={v => updateEdit(bodyKey, v)} dirty={isDirty(bodyKey)}/>
+          </div>
+        </div>
+      );
+    }
+
+    // ---- Tab 3: Registrations ----
+    function RegTab({ editPassword, registered, onDataChanged }){
+      const [list, setList] = useState(null);
+      const [loading, setLoading] = useState(false);
+      const [err, setErr] = useState("");
+      const [filter, setFilter] = useState("");
+
+      async function load(){
+        setLoading(true); setErr("");
+        try{
+          const res = await xhrPost(GAS_URL, { action:"listRegistrations", password:editPassword });
+          if(res.success){ setList(res.list || []); }
+          else { setErr("讀取失敗：" + (res.error || "未知")); setList([]); }
+        } catch(e){ setErr("連線失敗"); setList([]); }
+        finally{ setLoading(false); }
+      }
+      useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+
+      async function del(serial, name){
+        if(!window.confirm(`確定要刪除 #${serial} ${name}？這不可復原。`)) return;
+        try{
+          const res = await xhrPost(GAS_URL, { action:"deleteRegistration", password:editPassword, serial });
+          if(res.success){
+            setList(prev => prev.filter(r => r.serial !== serial));
+            onDataChanged && onDataChanged();
+          } else {
+            window.alert("刪除失敗：" + (res.error || "未知"));
+          }
+        } catch(e){ window.alert("連線失敗"); }
+      }
+
+      function exportCsv(){
+        if(!list || list.length === 0) return;
+        const headers = ["Serial","Name","Company","Title","Phone","Email","Lang","Timestamp"];
+        const rows = list.map(r => [r.serial, r.name, r.company, r.title, r.phone, r.email, r.lang, r.timestamp]);
+        const csv = [headers, ...rows].map(r => r.map(v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `nmdc-registrations-${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      const filtered = useMemo(() => {
+        if(!list) return [];
+        if(!filter.trim()) return list;
+        const q = filter.trim().toLowerCase();
+        return list.filter(r => [r.name, r.company, r.title, r.email, r.phone, r.serial].some(v => String(v || "").toLowerCase().includes(q)));
+      }, [list, filter]);
+
+      return (
+        <div className="edit-drawer-body">
+          <div className="flex items-center justify-between mb-3 gap-2">
+            <div>
+              <div className="font-display text-xl">👥 {list ? list.length : "—"} / {registered || "?"} 人</div>
+              <div className="text-xs text-[color:var(--ink-soft)]">Registered people</div>
+            </div>
+            <div className="flex gap-2">
+              <button onClick={load} disabled={loading} className="btn-outline px-3 py-1 text-xs">
+                {loading ? "…" : "🔄 更新"}
+              </button>
+              <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs">
+                📥 CSV
+              </button>
+            </div>
+          </div>
+
+          <input type="text" placeholder="🔍 搜尋姓名 / 公司 / 信箱…" value={filter} onChange={e => setFilter(e.target.value)} className="edit-input mb-3"/>
+
+          {err && (
+            <div className="p-3 rounded-xl bg-[color:var(--coral)] text-white font-bold text-sm border-2 border-[color:var(--ink)] mb-3">
+              ❗ {err}
+            </div>
+          )}
+
+          {loading && <div className="text-center py-10 text-[color:var(--ink-soft)] font-bold">載入中…</div>}
+
+          {!loading && list && list.length === 0 && (
+            <div className="text-center py-10">
+              <div className="text-5xl mb-2">🏖️</div>
+              <div className="font-bold text-[color:var(--ink-soft)]">還沒有人報名</div>
+            </div>
+          )}
+
+          {!loading && filtered.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="reg-table">
+                <thead>
+                  <tr>
+                    <th>#</th><th>姓名 Name</th><th>公司 / 職稱</th><th>聯絡</th><th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map(r => (
+                    <tr key={r.serial}>
+                      <td className="reg-serial">{pad(r.serial)}</td>
+                      <td>
+                        <div className="font-bold">{r.name}</div>
+                        <div className="reg-small">{formatTs(r.timestamp)}</div>
+                      </td>
+                      <td>
+                        <div>{r.company}</div>
+                        <div className="reg-small">{r.title}</div>
+                      </td>
+                      <td>
+                        <div className="reg-small">{r.phone}</div>
+                        <div><a href={`mailto:${r.email}`} className="text-[color:var(--nmdc-green-dark)] underline text-xs">{r.email}</a></div>
+                      </td>
+                      <td>
+                        <button onClick={() => del(r.serial, r.name)} className="btn-danger text-[11px] px-2 py-1">🗑</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ---- Tab 4: Blast ----
+    function BlastTab({ editPassword, lang, setLang, edits, serverContent, registered }){
+      const [subject, setSubject] = useState("");
+      const [body, setBody] = useState("<p>嗨 {{name}}，</p><p></p><p>— NMDC Energy</p>");
+      const [sending, setSending] = useState(false);
+      const [result, setResult] = useState(null);
+
+      async function send(){
+        if(!subject.trim()){ window.alert("請填主旨"); return; }
+        if(!body.trim() || body === "<p></p>" || body === "<br>"){ window.alert("請填內文"); return; }
+        const cnt = registered || 0;
+        if(!window.confirm(`確定要寄信給全部 ${cnt} 位報名者？\n這動作無法復原，且會消耗 Gmail 每日配額（一般 100 封／Workspace 1500 封）。`)) return;
+        if(!window.confirm("再確認一次 — 真的要寄出嗎？")) return;
+
+        setSending(true); setResult(null);
+        try{
+          const res = await xhrPost(GAS_URL, { action:"sendBlast", password:editPassword, subject, body }, 120000);
+          if(res.success){
+            setResult({ ok:true, sent:res.sent, failed:res.failed || 0, msg:`寄出 ${res.sent} 封${res.failed ? `、失敗 ${res.failed} 封` : ""}` });
+          } else {
+            setResult({ ok:false, msg:"寄信失敗：" + (res.error || "未知") });
+          }
+        } catch(e){
+          setResult({ ok:false, msg:"連線失敗或逾時" });
+        } finally { setSending(false); }
+      }
+
+      return (
+        <div className="edit-drawer-body">
+          <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-medium mb-4">
+            📢 <strong>群發給所有報名者</strong>（目前 {registered || 0} 人）。可用 <code className="bg-white px-1 rounded">{'{{name}}'}</code> 等標籤自動填入每個人的資料。
+          </div>
+
+          <div className="mb-3">
+            <div className="edit-key mb-1">主旨 Subject</div>
+            <input type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="例：2026 NMDC 淨灘｜行前通知" className="edit-input"/>
+          </div>
+
+          <div className="mb-4">
+            <div className="edit-key mb-1">內文 Body</div>
+            <RichEditor value={body} onChange={setBody} dirty={false}/>
+          </div>
+
+          {result && (
+            <div className={"p-3 rounded-xl font-bold text-sm border-2 border-[color:var(--ink)] mb-3 " + (result.ok ? "bg-[color:var(--nmdc-green)] text-white" : "bg-[color:var(--coral)] text-white")}>
+              {result.ok ? "✅" : "❗"} {result.msg}
+            </div>
+          )}
+
+          <button onClick={send} disabled={sending || !registered} className="btn-chunk w-full px-5 py-4 text-base">
+            {sending ? "寄送中，請稍候…" : `📤 寄給全部 ${registered || 0} 人`}
+          </button>
+        </div>
+      );
+    }
+
+    // ====================================================================
+    // Public Sections
+    // ====================================================================
+    function Header({ lang, setLang, onEdit, editMode }){
+      return (
+        <header className="sticky top-0 z-40 bg-[color:var(--cream)] border-b-2 border-[color:var(--ink)]">
+          <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src={NMDC_LOGO} alt="NMDC Energy" className="h-11 md:h-14 w-auto"/>
+            </div>
+            <div className="flex items-center gap-2">
+              <button onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="btn-outline px-4 py-1.5 text-sm">
+                🌐 {lang === "zh" ? "English" : "中文"}
+              </button>
+              {editMode && (
+                <button onClick={onEdit} className="btn-chunk px-4 py-1.5 text-sm">⚙️ Admin</button>
+              )}
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    function Hero({ t, editMode }){
+      const clickGuard = editMode ? (e) => e.preventDefault() : undefined;
+      return (
+        <section className="relative py-16 md:py-24 bg-paper overflow-hidden">
+          <Confetti/>
+          <div className="max-w-6xl mx-auto px-4 md:px-8 grid md:grid-cols-[1fr_auto] gap-10 items-center relative z-10">
+            <div>
+              <div className="tag mb-6 bounce-in">{t("hero.chip")}</div>
+              <div className="text-xl md:text-2xl font-bold text-[color:var(--nmdc-green)] mb-3 bounce-in" style={{animationDelay:"80ms"}}>
+                {t("hero.subtitle")}
+              </div>
+              <h1 className="font-display text-[4rem] md:text-[7.5rem] leading-[0.9] tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
+                <span className="block">{t("hero.title1")}</span>
+                <span className="inline-block text-[color:var(--nmdc-green)] wiggle">{t("hero.title2")}</span>
+              </h1>
+              <p className="text-lg md:text-xl text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
+                {t("hero.tagline")}
+              </p>
+              <div className="mt-8 flex flex-wrap gap-3 bounce-in" style={{animationDelay:"320ms"}}>
+                <a href="#register" onClick={clickGuard} className="btn-chunk px-7 py-3 text-base inline-flex items-center gap-2">
+                  {t("hero.ctaPrimary")} <span className="text-xl">→</span>
+                </a>
+                <a href="#notes" onClick={clickGuard} className="btn-outline px-5 py-3 text-sm">
+                  {t("hero.ctaSecondary")}
+                </a>
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <Sun size={240}/>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    // INFO CARDS — bigger 2-col layout
+    function InfoStickers({ t }){
+      const cards = [
+        { label:t("info.when.label"),    big:t("info.when.big"),    sub:t("info.when.sub"),    bg:"sticker-sun",   tilt:"-1deg",   icon:"📅" },
+        { label:t("info.where.label"),   big:t("info.where.big"),   sub:t("info.where.sub"),   bg:"sticker-sky",   tilt:"0.8deg",  icon:"📍" },
+        { label:t("info.who.label"),     big:t("info.who.big"),     unit:t("info.who.unit"),   sub:"",            bg:"sticker-green", tilt:"-0.8deg", icon:"👥", isNum:true },
+        { label:t("info.team.label"),    big:t("info.team.big"),    sub:t("info.team.sub"),    bg:"sticker-coral", tilt:"1deg",    icon:"🤝" },
+        { label:t("info.contact.label"), big:t("info.contact.line1"), sub:t("info.contact.line2"), bg:"",          tilt:"-0.5deg", icon:"📞", full:true }
+      ];
+      return (
+        <section className="py-16 md:py-24 relative">
+          <div className="max-w-5xl mx-auto px-4 md:px-8">
+            <div className="grid md:grid-cols-2 gap-7 md:gap-10">
+              {cards.map((c, i) => (
+                <div key={i}
+                  className={`sticker ${c.bg} p-7 md:p-10 ${c.full ? "md:col-span-2" : ""} bounce-in`}
+                  style={{ transform:`rotate(${c.tilt})`, animationDelay:`${i*90}ms` }}>
+                  <div className="flex items-start gap-5">
+                    <div className="text-5xl md:text-6xl shrink-0">{c.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs md:text-sm font-extrabold tracking-[0.22em] opacity-80 mb-2">{c.label}</div>
+                      <div className={`${c.isNum ? "font-num text-7xl md:text-[7rem] leading-none" : "font-display text-3xl md:text-4xl leading-tight"} mb-2`}>
+                        {c.big}
+                        {c.unit && <span className="text-lg font-sans font-bold ml-2 opacity-90">{c.unit}</span>}
+                      </div>
+                      {c.sub && <div className="text-base md:text-lg font-medium opacity-85 leading-snug">{c.sub}</div>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Countdown({ deadline, t }){
+      const [now, setNow] = useState(Date.now());
+      useEffect(() => {
+        const id = setInterval(() => setNow(Date.now()), 1000);
+        return () => clearInterval(id);
+      }, []);
+      if(!deadline) return null;
+      const diff = new Date(deadline).getTime() - now;
+      if(diff <= 0) return <div className="font-display text-4xl text-[color:var(--coral)]">{t("status.expired")}</div>;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const sec = Math.floor((diff % 60000) / 1000);
+      const Cell = ({ v, label, pulse=false }) => (
+        <div className="flex-1 text-center">
+          <div className={`font-num text-5xl md:text-7xl leading-none text-[color:var(--ink)] ${pulse ? "count-bounce" : ""}`}>{pad(v)}</div>
+          <div className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] mt-2 text-[color:var(--ink-soft)]">{label}</div>
+        </div>
+      );
+      return (
+        <div className="bg-white border-[3px] border-[color:var(--ink)] rounded-3xl p-5 md:p-7 flex items-start gap-2" style={{boxShadow:"6px 6px 0 var(--ink)"}}>
+          <Cell v={d} label={t("status.days")}/>
+          <div className="font-num text-4xl md:text-6xl text-[color:var(--sand-deep)]">:</div>
+          <Cell v={h} label={t("status.hrs")}/>
+          <div className="font-num text-4xl md:text-6xl text-[color:var(--sand-deep)]">:</div>
+          <Cell v={m} label={t("status.min")}/>
+          <div className="font-num text-4xl md:text-6xl text-[color:var(--sand-deep)]">:</div>
+          <Cell v={sec} label={t("status.sec")} pulse/>
+        </div>
+      );
+    }
+
+    function SlotsBar({ registered, total, t }){
+      const pct = total > 0 ? Math.min(100, (registered / total) * 100) : 0;
+      const remaining = Math.max(0, total - registered);
+      const isFull = remaining === 0;
+      return (
+        <div className="bg-white border-[3px] border-[color:var(--ink)] rounded-3xl p-5 md:p-7" style={{boxShadow:"6px 6px 0 var(--ink)"}}>
+          <div className="flex items-baseline justify-between mb-3">
+            <div className="text-xs font-extrabold tracking-[0.2em] text-[color:var(--ink-soft)]">{t("status.slots")}</div>
+            <div className="font-num text-xl text-[color:var(--ink)] tabular-nums">
+              {registered} <span className="text-[color:var(--ink-soft)] text-sm font-sans font-bold">/ {total}</span>
+            </div>
+          </div>
+          <div className="relative h-10 bg-[color:var(--sand)] border-2 border-[color:var(--ink)] rounded-full overflow-hidden">
+            <div className="h-full transition-all duration-700 ease-out"
+              style={{
+                width: pct + "%",
+                background: isFull ? "linear-gradient(90deg, var(--coral), var(--coral-deep))" : "linear-gradient(90deg, var(--nmdc-green-light), var(--nmdc-green))"
+              }}/>
+            <div className="absolute top-1/2 -translate-y-1/2 text-2xl transition-all duration-700 ease-out" style={{ left: `calc(${pct}% - 14px)` }}>
+              {isFull ? "🎉" : "🏃"}
+            </div>
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            {isFull ? (
+              <div className="font-display text-4xl text-[color:var(--coral-deep)]">{t("status.full")}</div>
+            ) : (
+              <>
+                <div className="font-num text-5xl md:text-6xl text-[color:var(--nmdc-green)] leading-none">{remaining}</div>
+                <div className="text-lg font-bold text-[color:var(--ink-soft)]">{t("status.left")}</div>
+              </>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function StatusSection({ config, t, lang }){
+      return (
+        <section className="relative py-16 md:py-20 bg-[color:var(--sun)] border-y-[3px] border-[color:var(--ink)] overflow-hidden">
+          <div className="absolute inset-0 bg-dots opacity-50"/>
+          <div className="max-w-6xl mx-auto px-4 md:px-8 relative">
+            <div className="text-center mb-10">
+              <div className="inline-block tag bg-white mb-3">{t("status.tag")}</div>
+              <h2 className="font-display text-4xl md:text-6xl mb-2">{t("status.head")}</h2>
+              {config && <div className="text-sm font-bold text-[color:var(--ink-soft)]">{t("status.sub")} · {formatDeadline(config.deadline, lang)}</div>}
+            </div>
+            {config ? (
+              <div className="grid md:grid-cols-2 gap-6">
+                <Countdown deadline={config.deadline} t={t}/>
+                <SlotsBar registered={config.registered} total={config.total} t={t}/>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="h-48 bg-white/50 rounded-3xl border-[3px] border-[color:var(--ink)]"/>
+                <div className="h-48 bg-white/50 rounded-3xl border-[3px] border-[color:var(--ink)]"/>
+              </div>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    function Notes({ t }){
+      return (
+        <section id="notes" className="py-16 md:py-24 bg-[color:var(--cream-warm)]">
+          <div className="max-w-4xl mx-auto px-4 md:px-8">
+            <div className="text-center mb-10">
+              <div className="inline-block tag bg-[color:var(--coral)] text-white mb-3 border-[color:var(--ink)]">{t("notes.tag")}</div>
+              <h2 className="font-display text-4xl md:text-6xl mb-3">
+                <span className="wavy">{t("notes.head")}</span>
+              </h2>
+              <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)]">{t("notes.sub")}</p>
+            </div>
+            <div className="space-y-3 md:space-y-4">
+              {NOTE_EMOJIS.map((emoji, i) => (
+                <div key={i} className="ticket flex items-start gap-4 bounce-in" style={{ animationDelay: `${i*40}ms` }}>
+                  <div className="flex items-center gap-3 shrink-0" style={{width:"44px"}}>
+                    <span className="font-num text-xl text-[color:var(--nmdc-green)] tabular-nums">{pad(i+1)}</span>
+                  </div>
+                  <div className="text-2xl shrink-0" style={{width:"32px"}}>{emoji}</div>
+                  <p className="text-[15px] md:text-base font-medium leading-relaxed pt-1">{t(`note.${i}`)}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 p-6 md:p-7 rounded-2xl bg-[color:var(--coral)] text-white border-[3px] border-[color:var(--ink)]" style={{boxShadow:"6px 6px 0 var(--ink)"}}>
+              <div className="flex items-start gap-4">
+                <div className="text-4xl">🚨</div>
+                <div>
+                  <div className="font-chunk text-2xl md:text-3xl mb-2">{t("risk.head")}</div>
+                  <p className="text-[15px] leading-relaxed whitespace-pre-line">{t("risk.body")}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Field({ id, label, sub, value, onChange, onBlur, error, type="text", placeholder, autoComplete, inputMode }){
+      return (
+        <div>
+          <label htmlFor={id} className="block mb-2">
+            <span className="font-display text-xl text-[color:var(--ink)]">{label}</span>
+            <span className="ml-2 text-xs font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{sub}</span>
+          </label>
+          <input id={id} type={type} value={value} onChange={onChange} onBlur={onBlur} placeholder={placeholder} autoComplete={autoComplete} inputMode={inputMode} className={`field w-full px-4 py-3.5 text-base ${error ? "err" : ""}`}/>
+          {error && <div className="mt-2 text-sm font-bold text-[color:var(--coral-deep)] flex items-center gap-1.5"><span>❗</span>{error}</div>}
+        </div>
+      );
+    }
+
+    function RegistrationForm({ t, lang, onSuccess }){
+      const blank = { name:"", company:"", title:"", phone:"", email:"" };
+      const [form, setForm] = useState(blank);
+      const [errors, setErrors] = useState({});
+      const [agreed, setAgreed] = useState(false);
+      const [submitting, setSubmitting] = useState(false);
+      const [submitError, setSubmitError] = useState("");
+
+      const set = k => e => {
+        setForm(f => ({...f, [k]: e.target.value}));
+        if(errors[k]) setErrors(er => ({...er, [k]:""}));
+        if(submitError) setSubmitError("");
+      };
+      const validate = k => {
+        const v = form[k].trim();
+        if(!v) return t("err.required");
+        if(k === "email" && !emailRegex.test(v)) return t("err.email");
+        if(k === "phone" && !phoneRegex.test(v)) return t("err.phone");
+        return "";
+      };
+      const validateAll = () => {
+        const next = {};
+        Object.keys(blank).forEach(k => { const e = validate(k); if(e) next[k] = e; });
+        setErrors(next);
+        return Object.keys(next).length === 0;
+      };
+      async function handleSubmit(e){
+        e && e.preventDefault();
+        setSubmitError("");
+        if(!validateAll()) return;
+        if(!agreed){ setSubmitError(t("err.agree")); return; }
+        setSubmitting(true);
+        try{
+          const payload = {
+            name:form.name.trim(), company:form.company.trim(),
+            title:form.title.trim(), phone:form.phone.trim(),
+            email:form.email.trim().toLowerCase(),
+            lang
+          };
+          const res = await xhrPost(GAS_URL, payload);
+          if(res.success){ onSuccess(res); }
+          else {
+            const map = {
+              FULL:t("err.full"), DEADLINE_PASSED:t("err.deadline"),
+              DUPLICATE_EMAIL:t("err.duplicate"), INVALID_EMAIL:t("err.email"),
+              MISSING_FIELD:t("err.required"), SERVER_ERROR:t("err.server")
+            };
+            setSubmitError(map[res.error] || t("err.generic"));
+          }
+        } catch(err){
+          setSubmitError(t("err.network"));
+        } finally { setSubmitting(false); }
+      }
+
+      return (
+        <form onSubmit={handleSubmit} noValidate className="space-y-5">
+          <div className="grid md:grid-cols-2 gap-5">
+            <Field id="f-name"    label={t("field.name.label")}    sub={t("field.name.sub")}    value={form.name}    onChange={set("name")}    onBlur={()=>setErrors(e=>({...e,name:validate("name")}))}       error={errors.name}    placeholder={t("field.name.ph")}    autoComplete="name"/>
+            <Field id="f-company" label={t("field.company.label")} sub={t("field.company.sub")} value={form.company} onChange={set("company")} onBlur={()=>setErrors(e=>({...e,company:validate("company")}))} error={errors.company} placeholder={t("field.company.ph")} autoComplete="organization"/>
+            <Field id="f-title"   label={t("field.title.label")}   sub={t("field.title.sub")}   value={form.title}   onChange={set("title")}   onBlur={()=>setErrors(e=>({...e,title:validate("title")}))}     error={errors.title}   placeholder={t("field.title.ph")}   autoComplete="organization-title"/>
+            <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validate("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="tel" type="tel"/>
+            <div className="md:col-span-2">
+              <Field id="f-email" label={t("field.email.label")}   sub={t("field.email.sub")}   value={form.email}   onChange={set("email")}   onBlur={()=>setErrors(e=>({...e,email:validate("email")}))}     error={errors.email}   placeholder={t("field.email.ph")}   autoComplete="email" inputMode="email" type="email"/>
+            </div>
+          </div>
+
+          <label className="flex items-start gap-3 cursor-pointer pt-3 p-4 rounded-xl bg-[color:var(--sun)] bg-opacity-40 border-2 border-[color:var(--ink)]">
+            <input type="checkbox" className="chk" checked={agreed} onChange={e=>{setAgreed(e.target.checked); if(submitError) setSubmitError("");}}/>
+            <span className="text-sm md:text-base font-bold leading-relaxed">{t("form.agree")}</span>
+          </label>
+
+          {submitError && (
+            <div className="p-4 rounded-xl bg-[color:var(--coral)] text-white font-bold border-[3px] border-[color:var(--ink)] bounce-in" style={{boxShadow:"4px 4px 0 var(--ink)"}}>
+              ❗ {submitError}
+            </div>
+          )}
+
+          <button type="submit" disabled={submitting} className="btn-chunk w-full md:w-auto px-10 py-5 text-lg min-w-[260px] inline-flex items-center justify-center gap-2">
+            {submitting ? (
+              <>
+                <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity=".3"/>
+                  <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
+                </svg>
+                {t("form.submitting")}
+              </>
+            ) : ( t("form.submit") )}
+          </button>
+        </form>
+      );
+    }
+
+    function SuccessCard({ data, t, onAgain }){
+      return (
+        <div className="relative p-8 md:p-12 rounded-2xl bg-[color:var(--nmdc-green)] text-white border-[3px] border-[color:var(--ink)] overflow-hidden bounce-in" style={{boxShadow:"8px 8px 0 var(--ink)"}}>
+          <Confetti/>
+          <div className="relative z-10">
+            <div className="text-6xl mb-4">🎉</div>
+            <h3 className="font-display text-4xl md:text-6xl mb-3">{t("ok.head")}</h3>
+            <p className="text-base md:text-lg mb-8 max-w-md font-medium whitespace-pre-line">{t("ok.sub")}</p>
+            <div className="grid grid-cols-2 gap-6 max-w-md mb-8 pt-5 border-t-2 border-white/30">
+              <div>
+                <div className="text-xs font-extrabold tracking-[0.2em] opacity-80 mb-1">{t("ok.conf")}</div>
+                <div className="font-num text-3xl tabular-nums">{data.confirmationNumber}</div>
+              </div>
+              <div>
+                <div className="text-xs font-extrabold tracking-[0.2em] opacity-80 mb-1">{t("ok.name")}</div>
+                <div className="font-display text-2xl">{data.name}</div>
+              </div>
+            </div>
+            <button onClick={onAgain} className="bg-white text-[color:var(--ink)] font-bold border-[2.5px] border-[color:var(--ink)] px-5 py-2.5 rounded-full text-sm transition-all hover:bg-[color:var(--sun)]" style={{boxShadow:"3px 3px 0 var(--ink)"}}>
+              + {t("ok.again")}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function ClosedCard({ kind, t }){
+      const title = kind === "full" ? t("closed.full.title") : t("closed.deadline.title");
+      const sub = kind === "full" ? t("closed.full.sub") : t("closed.deadline.sub");
+      const emoji = kind === "full" ? "🙇" : "⏰";
+      return (
+        <div className="p-8 md:p-12 rounded-2xl bg-[color:var(--ink)] text-[color:var(--cream)] border-[3px] border-[color:var(--ink)] text-center" style={{boxShadow:"8px 8px 0 var(--nmdc-green)"}}>
+          <div className="text-6xl mb-4">{emoji}</div>
+          <h3 className="font-display text-3xl md:text-5xl mb-3">{title}</h3>
+          <p className="text-base md:text-lg opacity-90 max-w-md mx-auto">{sub}</p>
+        </div>
+      );
+    }
+
+    function FormSection({ config, configError, isOpen, isFull, isExpired, t, lang, success, onSuccess, onAgain }){
+      return (
+        <section id="register" className="py-16 md:py-24 bg-paper relative overflow-hidden">
+          <div className="max-w-3xl mx-auto px-4 md:px-8 relative">
+            <div className="text-center mb-10">
+              <div className="inline-block tag bg-[color:var(--nmdc-green)] text-white border-[color:var(--ink)] mb-3">{t("form.tag")}</div>
+              <h2 className="font-display text-4xl md:text-6xl mb-3"><span className="wavy-coral">{t("form.head")}</span></h2>
+              <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)]">{t("form.sub")}</p>
+            </div>
+            <div className="sticker p-6 md:p-10" style={{boxShadow:"10px 10px 0 var(--ink)"}}>
+              {success ? (
+                <SuccessCard data={success} t={t} onAgain={onAgain}/>
+              ) : configError ? (
+                <div className="p-5 rounded-xl bg-[color:var(--coral)] text-white font-bold border-[3px] border-[color:var(--ink)]">⚠ {configError}</div>
+              ) : !config ? (
+                <div className="space-y-4">
+                  <div className="h-16 rounded-xl bg-[color:var(--cream-warm)] animate-pulse"/>
+                  <div className="h-16 rounded-xl bg-[color:var(--cream-warm)] animate-pulse"/>
+                  <div className="h-16 rounded-xl bg-[color:var(--cream-warm)] animate-pulse"/>
+                </div>
+              ) : isExpired ? (
+                <ClosedCard kind="deadline" t={t}/>
+              ) : isFull ? (
+                <ClosedCard kind="full" t={t}/>
+              ) : isOpen ? (
+                <RegistrationForm t={t} lang={lang} onSuccess={onSuccess}/>
+              ) : (
+                <ClosedCard kind="deadline" t={t}/>
+              )}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    function Footer({ t, onEnterEdit }){
+      const phone1 = t("footer.contactLine1.val");
+      const phone2 = t("footer.contactLine2.val");
+      return (
+        <footer className="bg-[color:var(--nmdc-navy)] text-[color:var(--cream)] relative overflow-hidden">
+          <Wave color="var(--nmdc-navy)" flip className="-mb-1"/>
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-16 relative">
+            <div className="grid md:grid-cols-3 gap-10 mb-10">
+              <div>
+                <div className="bg-white rounded-xl p-4 inline-block mb-4">
+                  <img src={NMDC_LOGO} alt="NMDC Energy" className="h-10"/>
+                </div>
+                <p className="text-sm opacity-80 leading-relaxed">{t("footer.brandDesc")}</p>
+              </div>
+              <div>
+                <div className="text-xs font-extrabold tracking-[0.2em] opacity-70 mb-3">{t("footer.contactHead")}</div>
+                <div className="space-y-2 font-medium">
+                  <div>
+                    <span className="opacity-60 mr-2">{t("footer.contactLine1.label")}</span>
+                    <a href={`tel:${phone1.replace(/\D/g,"")}`} className="hover:text-[color:var(--nmdc-green-light)] transition">{phone1}</a>
+                  </div>
+                  <div>
+                    <span className="opacity-60 mr-2">{t("footer.contactLine2.label")}</span>
+                    <a href={`tel:${phone2.replace(/\D/g,"")}`} className="hover:text-[color:var(--nmdc-green-light)] transition">{phone2}</a>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-extrabold tracking-[0.2em] opacity-70 mb-3">{t("footer.orgHead")}</div>
+                <div className="text-sm leading-relaxed">
+                  <div className="font-bold">{t("footer.orgName")}</div>
+                  <div className="opacity-75 mt-1">{t("footer.orgAddr")}</div>
+                  <div className="opacity-75 mt-1">{t("footer.orgPhone")} · {t("footer.orgTax")}</div>
+                </div>
+              </div>
+            </div>
+            <div className="pt-6 border-t border-white/15 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs opacity-60">
+              <div>{t("footer.copy")}</div>
+              <div className="flex items-center gap-3">
+                <span>{t("footer.poweredBy")}</span>
+                <button onClick={onEnterEdit} title="Admin edit" className="opacity-40 hover:opacity-100 transition" style={{padding:"2px 6px"}}>⚙️</button>
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+
+    // ====================================================================
+    // Main App
+    // ====================================================================
+    function App(){
+      const [lang, setLang] = useState(() => {
+        try{
+          const saved = window.localStorage.getItem("nmdc_lang");
+          if(saved === "zh" || saved === "en") return saved;
+        } catch(_){}
+        return "zh";
+      });
+      useEffect(() => { try{ window.localStorage.setItem("nmdc_lang", lang); } catch(_){}; }, [lang]);
+      useEffect(() => { document.documentElement.lang = lang === "zh" ? "zh-TW" : "en"; }, [lang]);
+
+      const [config, setConfig] = useState(null);
+      const [configError, setConfigError] = useState("");
+      const [success, setSuccess] = useState(null);
+
+      const [serverContent, setServerContent] = useState({});
+      const [edits, setEdits] = useState({});
+      const [editMode, setEditMode] = useState(false);
+      const [panelOpen, setPanelOpen] = useState(false);
+      const [editPassword, setEditPassword] = useState("");
+      const [saving, setSaving] = useState(false);
+      const [toast, setToast] = useState(null);
+
+      const txt = useCallback((k) => {
+        const key = `${lang}.${k}`;
+        if(edits[key] !== undefined) return edits[key];
+        if(serverContent[key] !== undefined) return serverContent[key];
+        return DEFAULTS[lang]?.[k] ?? `[${k}]`;
+      }, [lang, edits, serverContent]);
+
+      async function loadConfig(){
+        setConfigError("");
+        try{
+          const data = await xhrGet(GAS_URL);
+          setConfig(data);
+          if(data.content && typeof data.content === "object"){
+            setServerContent(data.content);
+          }
+        } catch(e){
+          setConfigError(DEFAULTS[lang]["err.config"] || "Can't load event info");
+        }
+      }
+      useEffect(() => {
+        if(!GAS_URL || GAS_URL.startsWith("PASTE_")){
+          setConfigError("GAS_URL not set — please paste your Web App URL in index.html");
+          return;
+        }
+        loadConfig();
+        const id = setInterval(loadConfig, 60000);
+        return () => clearInterval(id);
+      // eslint-disable-next-line
+      }, []);
+
+      const isOpen = config && config.open && config.remaining > 0 && new Date() < new Date(config.deadline);
+      const isFull = config && config.remaining === 0;
+      const isExpired = config && new Date() >= new Date(config.deadline);
+
+      function handleSuccess(res){
+        setSuccess(res);
+        setTimeout(() => {
+          const el = document.getElementById("register");
+          if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
+        }, 50);
+        setTimeout(loadConfig, 500);
+      }
+      function handleAgain(){ setSuccess(null); }
+
+      function showToast(msg, kind="ok"){
+        setToast({ msg, kind });
+        setTimeout(() => setToast(null), 3500);
+      }
+
+      function enterEditMode(){
+        if(editMode){ setPanelOpen(true); return; }
+        const pw = window.prompt("管理密碼 / Admin password:");
+        if(!pw) return;
+        setEditPassword(pw);
+        setEditMode(true);
+        setPanelOpen(true);
+      }
+      function exitEditMode(){
+        if(Object.keys(edits).length > 0){
+          if(!window.confirm("還有未儲存的變更，確定離開？ / Unsaved changes — exit anyway?")) return;
+          setEdits({});
+        }
+        setEditMode(false);
+        setPanelOpen(false);
+        setEditPassword("");
+      }
+
+      async function handleSave(){
+        if(saving) return;
+        if(Object.keys(edits).length === 0) return;
+        setSaving(true);
+        try{
+          const res = await xhrPost(GAS_URL, { action:"saveContent", password:editPassword, edits });
+          if(res.success){
+            setServerContent(prev => ({ ...prev, ...edits }));
+            setEdits({});
+            showToast(`💾 已儲存 ${res.saved} 筆 / Saved`);
+          } else if(res.error === "INVALID_PASSWORD"){
+            showToast("密碼錯誤 / Wrong password", "err");
+            setEditPassword("");
+            setEditMode(false);
+            setPanelOpen(false);
+          } else {
+            showToast("儲存失敗 / Save failed: " + (res.error || ""), "err");
+          }
+        } catch(e){
+          showToast("連線失敗 / Connection failed", "err");
+        } finally {
+          setSaving(false);
+        }
+      }
+
+      const dirtyCount = Object.keys(edits).length;
+
+      return (
+        <div className="min-h-screen">
+          {editMode && (
+            <div className="edit-badge">⚙️ ADMIN MODE{dirtyCount > 0 && ` · ${dirtyCount} UNSAVED`}</div>
+          )}
+          <Header lang={lang} setLang={setLang} onEdit={() => setPanelOpen(true)} editMode={editMode}/>
+          <Hero t={txt} editMode={editMode}/>
+          <InfoStickers t={txt}/>
+          <StatusSection config={config} t={txt} lang={lang}/>
+          <FormSection
+            config={config} configError={configError}
+            isOpen={isOpen} isFull={isFull} isExpired={isExpired}
+            t={txt} lang={lang} success={success}
+            onSuccess={handleSuccess} onAgain={handleAgain}/>
+          <Notes t={txt}/>
+          <Footer t={txt} onEnterEdit={enterEditMode}/>
+
+          <EditPanel
+            open={panelOpen}
+            onClose={() => setPanelOpen(false)}
+            lang={lang} setLang={setLang}
+            edits={edits} setEdits={setEdits}
+            serverContent={serverContent}
+            onSave={handleSave} saving={saving}
+            dirtyCount={dirtyCount}
+            editPassword={editPassword}
+            registered={config ? config.registered : 0}
+            onDataChanged={loadConfig}/>
+
+          {editMode && (
+            <div style={{position:"fixed", bottom:16, right:16, zIndex:45, display:"flex", gap:8, flexDirection:"column"}}>
+              <button onClick={() => setPanelOpen(true)} className="btn-chunk px-4 py-2 text-sm">
+                ⚙️ {dirtyCount > 0 ? `Admin (${dirtyCount})` : "Admin"}
+              </button>
+              <button onClick={exitEditMode} className="btn-outline px-4 py-2 text-sm">🚪 Exit</button>
+            </div>
+          )}
+
+          {toast && (
+            <div className={"toast " + (toast.kind === "err" ? "err" : "")}>{toast.msg}</div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>
