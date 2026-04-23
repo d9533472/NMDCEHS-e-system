@@ -192,6 +192,53 @@
     .rich-palette{ position:absolute; top:100%; left:0; margin-top:4px; z-index:5; background:#fff; border:2px solid var(--ink); border-radius:8px; padding:6px; box-shadow:3px 3px 0 var(--ink); display:grid; grid-template-columns:repeat(5, 22px); gap:4px; width:146px; }
     .rich-swatch{ width:22px; height:22px; border:1.5px solid var(--ink); border-radius:4px; cursor:pointer; padding:0; }
     .rich-swatch:hover{ transform:scale(1.15); }
+
+    /* === Schedule editor (admin) === */
+    .sched-edit-card{ background:#fff; border:2px solid var(--ink); border-radius:12px; padding:10px; margin-bottom:8px; position:relative; box-shadow:3px 3px 0 var(--ink); }
+    .sched-edit-card:hover{ background:#FFFBEB; }
+    .sched-edit-head{ display:flex; align-items:center; gap:6px; margin-bottom:6px; }
+    .sched-edit-num{ display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; background:var(--nmdc-green); color:#fff; border:2px solid var(--ink); border-radius:999px; font-weight:800; font-size:11px; flex-shrink:0; }
+    .sched-edit-actions{ margin-left:auto; display:flex; gap:3px; }
+    .sched-edit-act{ width:26px; height:26px; border:1.5px solid var(--ink); border-radius:6px; background:#fff; font-weight:800; font-size:11px; cursor:pointer; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+    .sched-edit-act:hover{ background:var(--sun); }
+    .sched-edit-act:disabled{ opacity:0.3; cursor:not-allowed; }
+    .sched-edit-act.danger{ background:#FFE5DE; }
+    .sched-edit-act.danger:hover{ background:var(--coral); color:#fff; }
+    .sched-edit-body{ display:grid; grid-template-columns:90px 1fr; gap:6px; }
+    .sched-edit-time{ background:#F0F7FF; border:1.5px solid var(--ink); border-radius:6px; padding:6px 8px; font-family:'Caprasimo',serif; font-size:14px; text-align:center; outline:none; font-weight:600; }
+    .sched-edit-time:focus{ background:#fff; box-shadow:2px 2px 0 var(--sky-deep); }
+    .sched-edit-text{ border:1.5px solid var(--ink); border-radius:6px; padding:6px 8px; font-size:13px; outline:none; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:500; }
+    .sched-edit-text:focus{ box-shadow:2px 2px 0 var(--nmdc-green); }
+    .sched-add-btn{ width:100%; padding:12px; background:var(--cream-warm); border:2px dashed var(--ink); border-radius:12px; font-weight:800; font-size:13px; cursor:pointer; color:var(--ink); transition:all .15s; font-family:'Plus Jakarta Sans',sans-serif; }
+    .sched-add-btn:hover{ background:var(--sun); border-style:solid; transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--ink); }
+
+    /* === Language Picker Modal === */
+    .lang-picker-backdrop{ position:fixed; inset:0; background:rgba(10,35,64,0.65); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); z-index:100; display:flex; align-items:center; justify-content:center; padding:20px; animation:fade-in .35s ease; }
+    @keyframes fade-in{ from{opacity:0;} to{opacity:1;} }
+    .lang-picker-card{ background:var(--cream); border:4px solid var(--ink); border-radius:28px; box-shadow:12px 12px 0 var(--ink); padding:32px 28px 28px; max-width:560px; width:100%; position:relative; animation:pop-in .5s cubic-bezier(.34,1.56,.64,1); }
+    @keyframes pop-in{ 0%{opacity:0; transform:scale(.85) translateY(20px);} 100%{opacity:1; transform:none;} }
+    .lang-picker-close{ position:absolute; top:12px; right:12px; width:36px; height:36px; background:#fff; border:2.5px solid var(--ink); border-radius:999px; font-weight:800; cursor:pointer; box-shadow:2px 2px 0 var(--ink); }
+    .lang-picker-close:hover{ background:var(--sun); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--ink); }
+    .lang-picker-title{ font-family:'Caprasimo',serif; font-size:2.4rem; line-height:1.1; text-align:center; margin-bottom:6px; }
+    .lang-picker-sub{ text-align:center; font-size:14px; color:var(--ink-soft); font-weight:600; margin-bottom:24px; letter-spacing:0.02em; }
+    .lang-picker-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .lang-picker-btn{ background:#fff; border:3px solid var(--ink); border-radius:20px; padding:22px 16px; cursor:pointer; font-family:inherit; text-align:center; box-shadow:5px 5px 0 var(--ink); transition:all .15s cubic-bezier(.34,1.56,.64,1); display:flex; flex-direction:column; align-items:center; gap:8px; }
+    .lang-picker-btn:hover{ transform:translate(-3px,-3px); box-shadow:8px 8px 0 var(--ink); }
+    .lang-picker-btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink); }
+    .lang-picker-btn.zh:hover{ background:var(--sun); }
+    .lang-picker-btn.en:hover{ background:var(--sky); }
+    .lang-picker-flag{ font-size:48px; line-height:1; }
+    .lang-picker-name{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1; }
+    .lang-picker-tag{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:0.1em; text-transform:uppercase; }
+    .lang-picker-emojis{ text-align:center; font-size:28px; margin-bottom:8px; letter-spacing:8px; }
+    @media (max-width:480px){
+      .lang-picker-title{ font-size:1.9rem; }
+      .lang-picker-card{ padding:26px 20px 22px; }
+      .lang-picker-grid{ gap:10px; }
+      .lang-picker-btn{ padding:18px 10px; }
+      .lang-picker-flag{ font-size:38px; }
+      .lang-picker-name{ font-size:1.3rem; }
+    }
     .rich-editor{ border:2px solid var(--ink); border-top:0; border-radius:0 0 8px 8px; padding:14px; min-height:240px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-size:14px; background:#fff; outline:none; line-height:1.6; overflow-y:auto; max-height:500px; }
     .rich-editor:focus{ box-shadow:0 0 0 2px var(--nmdc-green); }
     .rich-editor.dirty{ background:#FFFAD6; }
@@ -244,7 +291,7 @@
     // ====================================================================
     // CONFIGURATION
     // ====================================================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
+    const GAS_URL = "PASTE_YOUR_GAS_WEB_APP_URL_HERE";
 
     const NMDC_LOGO = "data:image/png;base64,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";
     const TPC_LOGO  = "data:image/png;base64,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";
@@ -544,10 +591,35 @@ Phone: {{phone}}</p>
       "display.sectionOrder": "info,status,schedule,form,notes"
     };
 
-    const SCHEDULE_COUNT = 6;
-    const SCHEDULE_KEYS = [];
-    for(let i = 0; i < SCHEDULE_COUNT; i++){
-      SCHEDULE_KEYS.push(`schedule.${i}.time`, `schedule.${i}.text`);
+    // SCHEDULE_COUNT kept for legacy fallback only — the live schedule is now fully dynamic.
+    const SCHEDULE_LEGACY_MAX = 20;
+
+    // Parse schedule items for a given lang. Priority:
+    // 1. JSON array in `${lang}.schedule.items`
+    // 2. Legacy schedule.N.time / schedule.N.text keys (up to SCHEDULE_LEGACY_MAX)
+    function parseScheduleItems(lang, edits, serverContent){
+      const key = `${lang}.schedule.items`;
+      const raw = edits[key] !== undefined ? edits[key] : serverContent[key];
+      if(raw){
+        try{
+          const arr = JSON.parse(raw);
+          if(Array.isArray(arr)){
+            return arr.map(x => ({ time: String(x.time || ""), text: String(x.text || "") }));
+          }
+        } catch(_){}
+      }
+      // Legacy fallback
+      const items = [];
+      for(let i = 0; i < SCHEDULE_LEGACY_MAX; i++){
+        const tKey = `${lang}.schedule.${i}.time`;
+        const xKey = `${lang}.schedule.${i}.text`;
+        const time = edits[tKey] !== undefined ? edits[tKey]
+          : (serverContent[tKey] !== undefined ? serverContent[tKey] : (DEFAULTS[lang] && DEFAULTS[lang][`schedule.${i}.time`]) || "");
+        const text = edits[xKey] !== undefined ? edits[xKey]
+          : (serverContent[xKey] !== undefined ? serverContent[xKey] : (DEFAULTS[lang] && DEFAULTS[lang][`schedule.${i}.text`]) || "");
+        if(time || text){ items.push({ time, text }); }
+      }
+      return items;
     }
 
     const SECTIONS = [
@@ -566,7 +638,7 @@ Phone: {{phone}}</p>
         "status.days","status.hrs","status.min","status.sec",
         "status.left","status.expired","status.full"
       ]},
-      { id:"schedule", label:"活動流程 Schedule", keys:["schedule.tag","schedule.head","schedule.sub", ...SCHEDULE_KEYS] },
+      { id:"schedule", label:"活動流程 Schedule", keys:["schedule.tag","schedule.head","schedule.sub"], customEditor:"schedule" },
       { id:"notes", label:"注意事項 Notes", keys:[
         "notes.tag","notes.head","notes.sub",
         "note.0","note.1","note.2","note.3","note.4","note.5","note.6",
@@ -989,6 +1061,9 @@ Phone: {{phone}}</p>
                       </div>
                     );
                   })}
+                  {sec.customEditor === "schedule" && (
+                    <ScheduleEditor lang={lang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>
+                  )}
                 </div>
               )}
             </div>
@@ -997,7 +1072,98 @@ Phone: {{phone}}</p>
       );
     }
 
-    // Layout section — countdown toggle + section reorder
+    // ScheduleEditor — dynamic add/remove/reorder for schedule items
+    function ScheduleEditor({ lang, edits, setEdits, serverContent }){
+      const itemsKey = `${lang}.schedule.items`;
+      const items = parseScheduleItems(lang, edits, serverContent);
+      const isDirty = edits[itemsKey] !== undefined;
+
+      function saveItems(newItems){
+        // Strip fully empty items at the end (keep middle empties in case user is typing)
+        while(newItems.length > 0 && !newItems[newItems.length-1].time && !newItems[newItems.length-1].text){
+          newItems.pop();
+        }
+        setEdits(prev => ({ ...prev, [itemsKey]: JSON.stringify(newItems) }));
+      }
+      function updateItem(idx, field, val){
+        const next = [...items];
+        if(!next[idx]) next[idx] = { time:"", text:"" };
+        next[idx] = { ...next[idx], [field]: val };
+        // Don't trim here — user might still be typing
+        setEdits(prev => ({ ...prev, [itemsKey]: JSON.stringify(next) }));
+      }
+      function addItem(){
+        // Guess next time based on last entry
+        let nextTime = "09:00";
+        if(items.length > 0){
+          const lastTime = items[items.length-1].time;
+          const m = lastTime && lastTime.match(/^(\d{1,2}):(\d{2})$/);
+          if(m){
+            const h = parseInt(m[1], 10);
+            const mm = parseInt(m[2], 10);
+            const totalMin = Math.min(23*60 + 59, h*60 + mm + 30);  // +30 min
+            nextTime = String(Math.floor(totalMin/60)).padStart(2,"0") + ":" + String(totalMin%60).padStart(2,"0");
+          }
+        }
+        saveItems([...items, { time: nextTime, text: "" }]);
+      }
+      function removeItem(idx){
+        if(!window.confirm(`確定刪除 #${idx+1} 「${items[idx].time} ${items[idx].text || ""}」？`)) return;
+        const next = items.filter((_, i) => i !== idx);
+        saveItems(next);
+      }
+      function moveItem(idx, dir){
+        const target = idx + dir;
+        if(target < 0 || target >= items.length) return;
+        const next = [...items];
+        [next[idx], next[target]] = [next[target], next[idx]];
+        saveItems(next);
+      }
+      function resetItems(){
+        setEdits(prev => { const n = { ...prev }; delete n[itemsKey]; return n; });
+      }
+
+      return (
+        <div className="edit-row">
+          <div className="flex items-center justify-between mb-2">
+            <div className="edit-key">📋 流程項目 / schedule items ({items.length}) {isDirty && <span className="text-[color:var(--coral-deep)] ml-1">● 有變更</span>}</div>
+            {isDirty && <button onClick={resetItems} className="text-[10px] font-bold text-[color:var(--coral-deep)] hover:underline">↺ reset</button>}
+          </div>
+          <div className="text-[11px] text-[color:var(--ink-soft)] mb-3 leading-relaxed">
+            💡 可自由新增、刪除、調整順序。中文 / English 各自獨立一份 — 切換語言會看到不同內容。
+          </div>
+
+          {items.length === 0 && (
+            <div className="text-center text-[color:var(--ink-soft)] text-xs font-medium py-4">
+              — 還沒有任何流程項目 —
+            </div>
+          )}
+
+          {items.map((item, i) => (
+            <div key={i} className="sched-edit-card">
+              <div className="sched-edit-head">
+                <span className="sched-edit-num">{i+1}</span>
+                <span className="text-xs font-bold text-[color:var(--ink-soft)] uppercase tracking-wider">Step {i+1}</span>
+                <div className="sched-edit-actions">
+                  <button type="button" className="sched-edit-act" onClick={() => moveItem(i, -1)} disabled={i === 0} title="上移">▲</button>
+                  <button type="button" className="sched-edit-act" onClick={() => moveItem(i, 1)} disabled={i === items.length - 1} title="下移">▼</button>
+                  <button type="button" className="sched-edit-act danger" onClick={() => removeItem(i)} title="刪除">🗑️</button>
+                </div>
+              </div>
+              <div className="sched-edit-body">
+                <input type="text" value={item.time} onChange={e => updateItem(i, "time", e.target.value)} placeholder="08:30" className="sched-edit-time"/>
+                <input type="text" value={item.text} onChange={e => updateItem(i, "text", e.target.value)} placeholder={lang === "zh" ? "活動項目..." : "Activity..."} className="sched-edit-text"/>
+              </div>
+            </div>
+          ))}
+
+          <button type="button" className="sched-add-btn" onClick={addItem}>
+            ➕ 新增項目 / Add step
+          </button>
+        </div>
+      );
+    }
+
     function LayoutSection({ open, onToggle, edits, setEdits, serverContent }){
       const showCountdownKey = "display.showCountdown";
       const sectionOrderKey = "display.sectionOrder";
@@ -1572,7 +1738,8 @@ Phone: {{phone}}</p>
     }
 
     // Schedule section — timeline of the day
-    function Schedule({ t }){
+    function Schedule({ t, lang, edits, serverContent }){
+      const items = parseScheduleItems(lang, edits, serverContent);
       return (
         <section className="py-16 md:py-24 bg-[color:var(--cream-warm)] relative overflow-hidden">
           <BeachDoodles items={[
@@ -1585,19 +1752,20 @@ Phone: {{phone}}</p>
               <h2 className="font-display text-4xl md:text-6xl mb-3"><span className="wavy">{t("schedule.head")}</span></h2>
               <p className="text-lg font-medium text-[color:var(--ink-soft)]">{t("schedule.sub")}</p>
             </div>
-            <div className="space-y-3 md:space-y-4">
-              {Array.from({ length:SCHEDULE_COUNT }).map((_, i) => {
-                const time = t(`schedule.${i}.time`);
-                const text = t(`schedule.${i}.text`);
-                if(!time && !text) return null;
-                return (
-                  <div key={i} className="sched-row bounce-in" style={{animationDelay:`${i*60}ms`}}>
-                    <div className="sched-time">{time}</div>
-                    <div className="sched-text">{text}</div>
-                  </div>
-                );
-              })}
-            </div>
+            {items.length === 0 ? (
+              <div className="text-center text-[color:var(--ink-soft)] text-sm font-medium py-8">— 尚未設定流程 / No schedule yet —</div>
+            ) : (
+              <div className="space-y-3 md:space-y-4">
+                {items.map((item, i) => (
+                  (!item.time && !item.text) ? null : (
+                    <div key={i} className="sched-row bounce-in" style={{animationDelay:`${i*60}ms`}}>
+                      <div className="sched-time">{item.time}</div>
+                      <div className="sched-text">{item.text}</div>
+                    </div>
+                  )
+                ))}
+              </div>
+            )}
           </div>
         </section>
       );
@@ -1845,6 +2013,50 @@ Phone: {{phone}}</p>
     // ====================================================================
     // Main App
     // ====================================================================
+    // ====================================================================
+    // Language Picker — first-visit modal
+    // ====================================================================
+    function LanguagePicker({ onPick, onClose }){
+      // Close on Escape
+      useEffect(() => {
+        const handler = (e) => { if(e.key === "Escape") onClose(); };
+        window.addEventListener("keydown", handler);
+        // Prevent body scroll
+        const prev = document.body.style.overflow;
+        document.body.style.overflow = "hidden";
+        return () => {
+          window.removeEventListener("keydown", handler);
+          document.body.style.overflow = prev;
+        };
+      }, [onClose]);
+
+      return (
+        <div className="lang-picker-backdrop" onClick={(e) => { if(e.target === e.currentTarget) onClose(); }}>
+          <div className="lang-picker-card">
+            <button className="lang-picker-close" onClick={onClose} title="Close">✕</button>
+            <div className="lang-picker-emojis">🏖️ 🌊 🐚</div>
+            <div className="lang-picker-title">
+              Welcome!
+              <div className="block text-[color:var(--nmdc-green)]" style={{fontSize:"0.65em", marginTop:"6px"}}>歡迎參加淨灘 🎉</div>
+            </div>
+            <div className="lang-picker-sub">請選擇語言 / Choose Your Language</div>
+            <div className="lang-picker-grid">
+              <button className="lang-picker-btn zh" onClick={() => onPick("zh")}>
+                <div className="lang-picker-flag">🇹🇼</div>
+                <div className="lang-picker-name">中文</div>
+                <div className="lang-picker-tag">Chinese</div>
+              </button>
+              <button className="lang-picker-btn en" onClick={() => onPick("en")}>
+                <div className="lang-picker-flag">🌐</div>
+                <div className="lang-picker-name">English</div>
+                <div className="lang-picker-tag">英文</div>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     function App(){
       const [lang, setLang] = useState(() => {
         try{ const saved = window.localStorage.getItem("nmdc_lang"); if(saved === "zh" || saved === "en") return saved; } catch(_){}
@@ -1852,6 +2064,20 @@ Phone: {{phone}}</p>
       });
       useEffect(() => { try{ window.localStorage.setItem("nmdc_lang", lang); } catch(_){}; }, [lang]);
       useEffect(() => { document.documentElement.lang = lang === "zh" ? "zh-TW" : "en"; }, [lang]);
+
+      // Language picker — shown on first visit
+      const [showLangPicker, setShowLangPicker] = useState(() => {
+        try{ return !window.localStorage.getItem("nmdc_lang_chosen"); } catch(_){ return true; }
+      });
+      function pickLang(chosen){
+        setLang(chosen);
+        try{ window.localStorage.setItem("nmdc_lang_chosen", "1"); } catch(_){}
+        setShowLangPicker(false);
+      }
+      function dismissLangPicker(){
+        try{ window.localStorage.setItem("nmdc_lang_chosen", "1"); } catch(_){}
+        setShowLangPicker(false);
+      }
 
       const [config, setConfig] = useState(null);
       const [configError, setConfigError] = useState("");
@@ -1950,7 +2176,7 @@ Phone: {{phone}}</p>
           if(!showCountdown) return null;
           return <StatusSection key="status" config={config} t={txt} lang={lang}/>;
         }
-        if(id === "schedule") return <Schedule key="schedule" t={txt}/>;
+        if(id === "schedule") return <Schedule key="schedule" t={txt} lang={lang} edits={edits} serverContent={serverContent}/>;
         if(id === "form") return <FormSection key="form" config={config} configError={configError} isOpen={isOpen} isFull={isFull} isExpired={isExpired} t={txt} lang={lang} success={success} onSuccess={handleSuccess} onAgain={handleAgain}/>;
         if(id === "notes") return <Notes key="notes" t={txt}/>;
         return null;
@@ -1958,6 +2184,7 @@ Phone: {{phone}}</p>
 
       return (
         <div className="min-h-screen">
+          {showLangPicker && <LanguagePicker onPick={pickLang} onClose={dismissLangPicker}/>}
           {editMode && (<div className="edit-badge">⚙️ ADMIN MODE{dirtyCount > 0 && ` · ${dirtyCount} UNSAVED`}</div>)}
           <Header lang={lang} setLang={setLang} onEdit={() => setPanelOpen(true)} editMode={editMode} t={txt}/>
           <Hero t={txt} editMode={editMode}/>
