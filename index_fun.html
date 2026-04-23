@@ -25,9 +25,10 @@
       --cream:#FFF5E4; --cream-warm:#FFEED2;
       --sand:#F5E3BE; --sand-deep:#E8CE94;
       --ink:#0A2340; --ink-soft:#4A5E7A;
+      --tpc-blue:#1A75B8;
     }
     html,body{ background:var(--cream); color:var(--ink); scroll-behavior:smooth; }
-    body{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+    body{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; font-size:17px; }
     .font-display{ font-family:'Caprasimo','Noto Sans TC',serif; letter-spacing:-0.01em; }
     .font-chunk{ font-family:'Shrikhand','Caprasimo','Noto Sans TC',serif; }
     .font-num{ font-family:'Caprasimo',serif; font-feature-settings:'tnum'; }
@@ -43,6 +44,7 @@
 
     .sticker{ background:#fff; border:3px solid var(--ink); border-radius:22px; box-shadow:8px 8px 0 var(--ink); transition:transform .15s ease, box-shadow .15s ease; }
     .sticker:hover{ transform:translate(-3px,-3px) rotate(0deg) !important; box-shadow:12px 12px 0 var(--ink); }
+    .sticker-clickable:hover{ cursor:pointer; }
     .sticker-green{ background:var(--nmdc-green); color:#fff; }
     .sticker-sun{ background:var(--sun); }
     .sticker-coral{ background:var(--coral); color:#fff; }
@@ -59,38 +61,60 @@
 
     .btn-danger{ background:var(--coral); color:#fff; border:2px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); font-weight:800; transition:all .12s ease; }
     .btn-danger:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); background:var(--coral-deep); }
-    .btn-danger:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
 
     .field{ background:#fff; border:2.5px solid var(--ink); border-radius:12px; transition:all .12s ease; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:500; }
     .field:focus{ outline:none; box-shadow:4px 4px 0 var(--nmdc-green); transform:translate(-1px,-1px); }
     .field.err{ border-color:var(--coral-deep); background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
     .field.err:focus{ box-shadow:5px 5px 0 var(--coral); }
 
-    .chk{ appearance:none; width:24px; height:24px; border:2.5px solid var(--ink); border-radius:6px; background:#fff; cursor:pointer; position:relative; flex-shrink:0; margin-top:2px; transition:all .12s ease; }
+    .chk{ appearance:none; width:26px; height:26px; border:2.5px solid var(--ink); border-radius:6px; background:#fff; cursor:pointer; position:relative; flex-shrink:0; margin-top:2px; transition:all .12s ease; }
     .chk:hover{ background:var(--sun); }
     .chk:checked{ background:var(--nmdc-green); border-color:var(--ink); }
-    .chk:checked::after{ content:""; position:absolute; left:6px; top:1px; width:7px; height:13px; border:solid #fff; border-width:0 3px 3px 0; transform:rotate(45deg); }
+    .chk:checked::after{ content:""; position:absolute; left:7px; top:2px; width:7px; height:14px; border:solid #fff; border-width:0 3px 3px 0; transform:rotate(45deg); }
 
     .wavy{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'><path d='M0 5 Q10 0 20 5 T40 5' stroke='%2300B050' stroke-width='3' fill='none' stroke-linecap='round'/></svg>"); background-position:0 100%; background-size:40px 10px; background-repeat:repeat-x; padding-bottom:12px; }
     .wavy-coral{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'><path d='M0 5 Q10 0 20 5 T40 5' stroke='%23FF6B4A' stroke-width='3' fill='none' stroke-linecap='round'/></svg>"); background-position:0 100%; background-size:40px 10px; background-repeat:repeat-x; padding-bottom:12px; }
 
-    .tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:var(--sun); border:2px solid var(--ink); border-radius:999px; font-size:12px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; }
+    .tag{ display:inline-flex; align-items:center; gap:6px; padding:5px 14px; background:var(--sun); border:2px solid var(--ink); border-radius:999px; font-size:13px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
 
     @keyframes spin-slow{ from{transform:rotate(0);} to{transform:rotate(360deg);} }
     @keyframes bounce-in{ 0%{opacity:0; transform:translateY(20px) scale(.9);} 60%{opacity:1; transform:translateY(-4px) scale(1.02);} 100%{opacity:1; transform:none;} }
     @keyframes wiggle{ 0%,100%{ transform:rotate(-2deg);} 50%{ transform:rotate(2deg);} }
-    @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-8px);} }
+    @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
     @keyframes count-bounce{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.08);} }
+    @keyframes sway{ 0%,100%{ transform:rotate(-4deg);} 50%{ transform:rotate(4deg);} }
     .spin-slow{ animation:spin-slow 30s linear infinite; transform-origin:center; }
     .bounce-in{ animation:bounce-in .7s cubic-bezier(.34,1.56,.64,1) backwards; }
     .wiggle{ animation:wiggle 3s ease-in-out infinite; }
     .float{ animation:float 4s ease-in-out infinite; }
     .count-bounce{ animation:count-bounce 1s ease-in-out infinite; }
+    .sway{ animation:sway 5s ease-in-out infinite; display:inline-block; }
 
-    .ticket{ background:#fff; border:2.5px solid var(--ink); border-radius:14px; position:relative; padding:18px 20px; box-shadow:4px 4px 0 var(--ink); }
+    .ticket{ background:#fff; border:2.5px solid var(--ink); border-radius:14px; position:relative; padding:20px 22px; box-shadow:4px 4px 0 var(--ink); }
+
+    /* Timeline item for schedule */
+    .sched-row{
+      display:flex; align-items:stretch; gap:16px;
+      background:#fff; border:2.5px solid var(--ink); border-radius:14px;
+      box-shadow:5px 5px 0 var(--ink);
+      overflow:hidden;
+      transition:transform .15s, box-shadow .15s;
+    }
+    .sched-row:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+    .sched-time{
+      background:var(--nmdc-navy); color:var(--cream);
+      padding:16px 18px; display:flex; align-items:center; justify-content:center;
+      font-family:'Caprasimo',serif; font-size:1.6rem; min-width:120px;
+      border-right:2.5px solid var(--ink);
+    }
+    .sched-text{ flex:1; padding:16px 18px; display:flex; align-items:center; font-size:1.05rem; font-weight:500; }
+    @media (max-width:640px){
+      .sched-time{ min-width:90px; font-size:1.3rem; padding:12px; }
+      .sched-text{ padding:12px 14px; font-size:0.98rem; }
+    }
 
     /* Edit drawer */
-    .edit-drawer{ position:fixed; top:0; right:0; bottom:0; width:100%; max-width:540px; background:var(--cream); border-left:3px solid var(--ink); box-shadow:-10px 0 0 var(--ink); z-index:60; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); }
+    .edit-drawer{ position:fixed; top:0; right:0; bottom:0; width:100%; max-width:560px; background:var(--cream); border-left:3px solid var(--ink); box-shadow:-10px 0 0 var(--ink); z-index:60; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); }
     .edit-drawer.open{ transform:translateX(0); }
     .edit-drawer-head{ padding:14px 18px; background:var(--nmdc-navy); color:var(--cream); border-bottom:3px solid var(--ink); display:flex; align-items:center; justify-content:space-between; }
     .edit-drawer-body{ flex:1; overflow-y:auto; padding:14px; }
@@ -103,6 +127,7 @@
 
     .edit-section{ margin-bottom:12px; background:#fff; border:2px solid var(--ink); border-radius:12px; overflow:hidden; }
     .edit-section-head{ padding:10px 14px; background:var(--sun); border-bottom:2px solid var(--ink); font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:14px; user-select:none; }
+    .edit-section.special .edit-section-head{ background:var(--nmdc-green-light); }
     .edit-section-body{ padding:8px 12px; }
     .edit-row{ padding:8px 0; border-bottom:1px dashed var(--sand-deep); }
     .edit-row:last-child{ border-bottom:0; }
@@ -115,6 +140,47 @@
     .edit-backdrop{ position:fixed; inset:0; background:rgba(10,35,64,0.4); z-index:55; opacity:0; pointer-events:none; transition:opacity .2s; }
     .edit-backdrop.open{ opacity:1; pointer-events:auto; }
     .edit-badge{ position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:50; background:var(--nmdc-green); color:#fff; padding:6px 14px; border:2.5px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); font-weight:800; font-size:12px; letter-spacing:0.1em; }
+
+    /* Reorder UI */
+    .reorder-item{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 10px; background:#fff;
+      border:2px solid var(--ink); border-radius:8px;
+      margin-bottom:6px; font-weight:700;
+    }
+    .reorder-handle{ color:var(--ink-soft); font-size:14px; }
+    .reorder-btns{ display:flex; gap:4px; margin-left:auto; }
+    .reorder-btn{
+      padding:3px 8px; border:1.5px solid var(--ink);
+      border-radius:6px; background:#fff; cursor:pointer;
+      font-size:13px; font-weight:800;
+    }
+    .reorder-btn:hover{ background:var(--sun); }
+    .reorder-btn:disabled{ opacity:0.3; cursor:not-allowed; }
+
+    /* Toggle switch */
+    .toggle{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 14px; background:#fff;
+      border:2px solid var(--ink); border-radius:12px;
+      cursor:pointer; font-weight:700; font-size:14px;
+      width:100%;
+    }
+    .toggle:hover{ background:var(--cream-warm); }
+    .toggle-sw{
+      width:42px; height:24px; background:#ccc;
+      border:2px solid var(--ink); border-radius:999px;
+      position:relative; flex-shrink:0;
+      transition:background .2s;
+    }
+    .toggle-sw::after{
+      content:""; position:absolute;
+      left:2px; top:1px; width:16px; height:16px;
+      background:#fff; border:1.5px solid var(--ink);
+      border-radius:50%; transition:left .2s;
+    }
+    .toggle.on .toggle-sw{ background:var(--nmdc-green); }
+    .toggle.on .toggle-sw::after{ left:20px; }
 
     /* Rich editor */
     .rich-toolbar{ display:flex; gap:4px; padding:6px; background:var(--cream-warm); border:2px solid var(--ink); border-bottom:0; border-radius:8px 8px 0 0; flex-wrap:wrap; }
@@ -134,11 +200,9 @@
     .rich-editor h2{ font-size:1.2em; }
     .rich-editor h3{ font-size:1.1em; }
 
-    /* Token chip */
     .token-chip{ display:inline-flex; align-items:center; padding:3px 8px; background:var(--sun); border:1.5px solid var(--ink); border-radius:999px; font-size:11px; font-weight:700; font-family:'Plus Jakarta Sans',monospace; cursor:pointer; margin:2px; }
     .token-chip:hover{ background:var(--sun-deep); }
 
-    /* Registrations table */
     .reg-table{ width:100%; border-collapse:separate; border-spacing:0; font-size:13px; background:#fff; border:2px solid var(--ink); border-radius:10px; overflow:hidden; }
     .reg-table th,.reg-table td{ padding:10px 8px; border-bottom:1.5px dashed var(--sand-deep); text-align:left; vertical-align:top; }
     .reg-table tr:last-child td{ border-bottom:0; }
@@ -150,9 +214,13 @@
     .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:80; padding:12px 20px; border:2.5px solid var(--ink); border-radius:999px; box-shadow:4px 4px 0 var(--ink); font-weight:700; background:var(--nmdc-green); color:#fff; animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1); max-width:90vw; text-align:center; }
     .toast.err{ background:var(--coral); }
 
+    /* Floating beach doodles */
+    .beach-doodle{ position:absolute; pointer-events:none; z-index:1; }
+
     @media (max-width:768px){
       input,select,textarea{ font-size:16px !important; }
       .edit-drawer{ max-width:100%; }
+      body{ font-size:16px; }
     }
 
     @media (pointer:fine){
@@ -169,14 +237,18 @@
     const { useState, useEffect, useRef, useMemo, useCallback } = React;
 
     // ====================================================================
-    // CONFIGURATION — paste your GAS Web App URL here after deploying
+    // CONFIGURATION
     // ====================================================================
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
+    const GAS_URL = "PASTE_YOUR_GAS_WEB_APP_URL_HERE";
 
     const NMDC_LOGO = "data:image/png;base64,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";
+    const TPC_LOGO  = "data:image/png;base64,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";
+
+    // Default Google Maps search link for location
+    const DEFAULT_MAP_URL = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent("苑港漁業公園 苗栗苑裡");
 
     // ====================================================================
-    // DEFAULT TEXT REGISTRY — all user-facing strings
+    // Email defaults
     // ====================================================================
     const DEFAULT_EMAIL_BODY_ZH = `<p>嗨 {{name}}，</p>
 <p>你的 <strong>2026 NMDC 團隊淨灘</strong> 報名已成功！🎉</p>
@@ -207,13 +279,14 @@ Phone: {{phone}}</p>
 <p><strong>Event Details</strong><br>
 📅 Date: Jun 18 · 25 · 28 / 2026 (dates TBC)<br>
 ⏰ Time: 09:00 – 12:00<br>
-📍 Location: Yuanli Beach · Yuangang Fishing Park<br>
-(No.360, W. Coast Expwy, Yuanli, Miaoli)</p>
-<p>A briefing will be sent one week before the event, including assembly time, transport info, and things to bring.</p>
+📍 Location: Yuanli Beach · Yuangang Fishing Park</p>
+<p>A briefing will be sent one week before the event.</p>
 <p>Questions? Contact Vicky 0970-002-367 · MJ 0970-002-503</p>
-<p>Thanks for helping clean the shore 💚</p>
-<p>— NMDC Energy</p>`;
+<p>Thanks 💚<br>— NMDC Energy</p>`;
 
+    // ====================================================================
+    // DEFAULT TEXT REGISTRY
+    // ====================================================================
     const DEFAULTS = {
       zh: {
         "header.tag": "BEACH CLEANUP 2026",
@@ -226,20 +299,21 @@ Phone: {{phone}}</p>
         "hero.ctaSecondary": "看注意事項",
 
         "info.when.label": "時 間",
-        "info.when.big": "2026 / 6 / 18 · 6 / 25 · 6 / 28",
-        "info.when.sub": "09:00 – 12:00 · （日期待確認）",
+        "info.when.big": "6 / 18 · 6 / 25 · 6 / 28",
+        "info.when.sub": "2026 · 09:00 – 12:00 · （日期待確認）",
         "info.where.label": "地 點",
         "info.where.big": "苗栗苑裡沙灘",
         "info.where.sub": "苑港漁業公園 · 苗栗縣苑裡鎮西部濱海快速公路 360 號",
-        "info.who.label": "人 數",
+        "info.where.mapUrl": DEFAULT_MAP_URL,
+        "info.who.label": "人 數 & 分 組",
         "info.who.big": "200",
         "info.who.unit": "人",
-        "info.team.label": "分 組",
-        "info.team.big": "20 組",
-        "info.team.sub": "每組 10 人",
+        "info.who.sub": "分 20 組 · 每組 10 人",
         "info.contact.label": "聯絡窗口",
-        "info.contact.line1": "Vicky 0970-002-367",
-        "info.contact.line2": "MJ 0970-002-503",
+        "info.contact.line1Label": "Vicky",
+        "info.contact.line1Val": "0970-002-367",
+        "info.contact.line2Label": "MJ",
+        "info.contact.line2Val": "0970-002-503",
 
         "status.tag": "⏰ 截止",
         "status.head": "報名倒數",
@@ -253,6 +327,16 @@ Phone: {{phone}}</p>
         "status.left": "席還在",
         "status.expired": "報名已截止",
         "status.full": "名額已滿",
+
+        "schedule.tag": "🕐 流程",
+        "schedule.head": "活動流程",
+        "schedule.sub": "當天我們會這樣過～",
+        "schedule.0.time": "08:30", "schedule.0.text": "集合報到・領裝備",
+        "schedule.1.time": "09:00", "schedule.1.text": "開場、分組、安全宣導",
+        "schedule.2.time": "09:15", "schedule.2.text": "淨灘行動開始 🧤",
+        "schedule.3.time": "11:00", "schedule.3.text": "廢棄物分類・稱重 ♻️",
+        "schedule.4.time": "11:30", "schedule.4.text": "集合、團體合照 📸",
+        "schedule.5.time": "12:00", "schedule.5.text": "活動結束，平安回家 👋",
 
         "notes.tag": "⚠️ 重要",
         "notes.head": "注意事項",
@@ -309,7 +393,6 @@ Phone: {{phone}}</p>
         "closed.full.title": "名額已滿！",
         "closed.full.sub": "200 席全滿，謝謝大家熱情支持。",
 
-        "footer.brandDesc": "SDGs / ESG Beach Cleanup Team Building 2026",
         "footer.contactHead": "聯絡窗口",
         "footer.contactLine1.label": "Vicky",
         "footer.contactLine1.val": "0970-002-367",
@@ -337,20 +420,21 @@ Phone: {{phone}}</p>
         "hero.ctaSecondary": "See the notes",
 
         "info.when.label": "WHEN",
-        "info.when.big": "Jun 18 · 25 · 28 / 2026",
-        "info.when.sub": "09:00 – 12:00 · (dates TBC)",
+        "info.when.big": "Jun 18 · 25 · 28",
+        "info.when.sub": "2026 · 09:00 – 12:00 · (dates TBC)",
         "info.where.label": "WHERE",
-        "info.where.big": "Yuanli Beach",
-        "info.where.sub": "Yuangang Fishing Park · No.360, W. Coast Expwy, Yuanli, Miaoli",
-        "info.who.label": "WHO",
+        "info.where.big": "Yuanli Beach, Miaoli",
+        "info.where.sub": "Yuangang Fishing Park · No.360, W. Coast Expwy, Yuanli",
+        "info.where.mapUrl": DEFAULT_MAP_URL,
+        "info.who.label": "PEOPLE & TEAMS",
         "info.who.big": "200",
         "info.who.unit": "people",
-        "info.team.label": "TEAMS",
-        "info.team.big": "20 teams",
-        "info.team.sub": "10 per team",
+        "info.who.sub": "20 teams · 10 per team",
         "info.contact.label": "CONTACT",
-        "info.contact.line1": "Vicky 0970-002-367",
-        "info.contact.line2": "MJ 0970-002-503",
+        "info.contact.line1Label": "Vicky",
+        "info.contact.line1Val": "0970-002-367",
+        "info.contact.line2Label": "MJ",
+        "info.contact.line2Val": "0970-002-503",
 
         "status.tag": "⏰ Closes",
         "status.head": "Countdown to close",
@@ -365,6 +449,16 @@ Phone: {{phone}}</p>
         "status.expired": "Registration closed",
         "status.full": "Fully booked",
 
+        "schedule.tag": "🕐 AGENDA",
+        "schedule.head": "Run of show",
+        "schedule.sub": "Here's how the day goes~",
+        "schedule.0.time": "08:30", "schedule.0.text": "Check-in · Gear pickup",
+        "schedule.1.time": "09:00", "schedule.1.text": "Kickoff, team assignments, safety brief",
+        "schedule.2.time": "09:15", "schedule.2.text": "Cleanup begins 🧤",
+        "schedule.3.time": "11:00", "schedule.3.text": "Sort & weigh debris ♻️",
+        "schedule.4.time": "11:30", "schedule.4.text": "Group photo 📸",
+        "schedule.5.time": "12:00", "schedule.5.text": "Wrap up — safe travels 👋",
+
         "notes.tag": "⚠️ IMPORTANT",
         "notes.head": "What to know",
         "notes.sub": "Read before you head out — safety first!",
@@ -374,16 +468,16 @@ Phone: {{phone}}</p>
         "note.3": "Keep a water bottle close. Don't litter.",
         "note.4": "Don't run during the activity — watch your step.",
         "note.5": "Don't dig out buried items alone — call the team lead.",
-        "note.6": "Watch for shells, needles, glass & sharp items. Handle with care.",
+        "note.6": "Watch for shells, needles, glass & sharp items.",
         "note.7": "Mind the weight, balance & incoming tide when moving debris.",
         "note.8": "Avoid trampling beach plants and dune vegetation.",
         "note.9": "Don't disturb wildlife — hermit crabs, starfish, etc.",
         "note.10": "Sun's strong — sunscreen, shades, hat, sun-protective clothing.",
-        "note.11": "Assess your condition. Feel off? Tell the support team right away.",
-        "note.12": "Dizziness, heat exhaustion, fatigue — stop and rest immediately.",
+        "note.11": "Assess your condition. Feel off? Tell the support team.",
+        "note.12": "Dizziness, heat, fatigue — stop and rest immediately.",
 
         "risk.head": "Risk Notice",
-        "risk.body": "This is an outdoor activity — check your own condition first. Do NOT register if you have heart disease, hypertension, asthma, epilepsy, gastrointestinal conditions, pregnancy, sunburn allergy, or sensitive skin. In severe weather (heavy rain, lightning, strong winds), organizers may suspend, cancel, or modify the activity.",
+        "risk.body": "This is an outdoor activity — check your own condition first. Do NOT register if you have heart disease, hypertension, asthma, epilepsy, gastrointestinal conditions, pregnancy, sunburn allergy, or sensitive skin. In severe weather, organizers may suspend, cancel, or modify the activity.",
 
         "form.tag": "🏖️ SIGN UP",
         "form.head": "Let's go — sign up!",
@@ -404,7 +498,7 @@ Phone: {{phone}}</p>
         "err.network": "Connection failed — check your network",
         "err.config": "Can't load event info, try again later",
         "err.server": "Server busy, try again later",
-        "err.full": "Fully booked — thanks for your interest!",
+        "err.full": "Fully booked — thanks!",
         "err.deadline": "Registration has closed",
         "err.duplicate": "This email is already registered",
         "err.generic": "Failed to submit, try again later",
@@ -420,7 +514,6 @@ Phone: {{phone}}</p>
         "closed.full.title": "Fully booked!",
         "closed.full.sub": "All 200 spots taken — thanks for the love.",
 
-        "footer.brandDesc": "SDGs / ESG Beach Cleanup Team Building 2026",
         "footer.contactHead": "CONTACT",
         "footer.contactLine1.label": "Vicky",
         "footer.contactLine1.val": "0970-002-367",
@@ -439,21 +532,36 @@ Phone: {{phone}}</p>
       }
     };
 
+    // Display / layout settings (admin only; stored in Content sheet like text)
+    // Values are always strings. Booleans use "true"/"false".
+    const DISPLAY_DEFAULTS = {
+      "display.showCountdown": "true",
+      "display.sectionOrder": "info,status,schedule,form,notes"
+    };
+
+    const SCHEDULE_COUNT = 6;
+    const SCHEDULE_KEYS = [];
+    for(let i = 0; i < SCHEDULE_COUNT; i++){
+      SCHEDULE_KEYS.push(`schedule.${i}.time`, `schedule.${i}.text`);
+    }
+
     const SECTIONS = [
       { id:"header", label:"標頭 Header", keys:["header.tag"] },
       { id:"hero", label:"首頁 Hero", keys:["hero.chip","hero.subtitle","hero.title1","hero.title2","hero.tagline","hero.ctaPrimary","hero.ctaSecondary"] },
       { id:"info", label:"活動資訊 Event Info", keys:[
         "info.when.label","info.when.big","info.when.sub",
-        "info.where.label","info.where.big","info.where.sub",
-        "info.who.label","info.who.big","info.who.unit",
-        "info.team.label","info.team.big","info.team.sub",
-        "info.contact.label","info.contact.line1","info.contact.line2"
+        "info.where.label","info.where.big","info.where.sub","info.where.mapUrl",
+        "info.who.label","info.who.big","info.who.unit","info.who.sub",
+        "info.contact.label",
+        "info.contact.line1Label","info.contact.line1Val",
+        "info.contact.line2Label","info.contact.line2Val"
       ]},
       { id:"status", label:"倒數 & 名額 Status", keys:[
         "status.tag","status.head","status.sub","status.slots","status.filled",
         "status.days","status.hrs","status.min","status.sec",
         "status.left","status.expired","status.full"
       ]},
+      { id:"schedule", label:"活動流程 Schedule", keys:["schedule.tag","schedule.head","schedule.sub", ...SCHEDULE_KEYS] },
       { id:"notes", label:"注意事項 Notes", keys:[
         "notes.tag","notes.head","notes.sub",
         "note.0","note.1","note.2","note.3","note.4","note.5","note.6",
@@ -480,13 +588,22 @@ Phone: {{phone}}</p>
         "closed.full.title","closed.full.sub"
       ]},
       { id:"footer", label:"頁尾 Footer", keys:[
-        "footer.brandDesc","footer.contactHead",
+        "footer.contactHead",
         "footer.contactLine1.label","footer.contactLine1.val",
         "footer.contactLine2.label","footer.contactLine2.val",
         "footer.orgHead","footer.orgName","footer.orgAddr",
         "footer.orgPhone","footer.orgTax",
         "footer.copy","footer.poweredBy"
       ]}
+    ];
+
+    // Ordered sections available for reordering
+    const ORDERABLE_SECTIONS = [
+      { id:"info",     label:"🎪 活動資訊 Event Info" },
+      { id:"status",   label:"⏰ 報名倒數 Countdown" },
+      { id:"schedule", label:"🕐 活動流程 Schedule" },
+      { id:"form",     label:"📝 報名表 Form" },
+      { id:"notes",    label:"⚠️ 注意事項 Notes" }
     ];
 
     const NOTE_EMOJIS = ["👕","🧤","👒","💧","🚶","⚠️","🔪","🌊","🌱","🦀","☀️","🩺","🛑"];
@@ -520,7 +637,8 @@ Phone: {{phone}}</p>
         x.send();
       });
     }
-    function xhrPost(url, data, timeout=25000){
+    function xhrPost(url, data, timeout){
+      timeout = timeout || 25000;
       return new Promise((res, rej) => {
         const x = new XMLHttpRequest();
         x.open("POST", url, true);
@@ -554,7 +672,7 @@ Phone: {{phone}}</p>
     }
 
     // ====================================================================
-    // Decorative bits
+    // Decorations
     // ====================================================================
     function Sun({ size=160 }){
       return (
@@ -582,6 +700,26 @@ Phone: {{phone}}</p>
         </svg>
       );
     }
+    // Beach doodles — scattered emojis that float around
+    function BeachDoodles({ items }){
+      // items: [{emoji, left, top, size, rot, delay, anim}]
+      return (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+          {items.map((it, i) => (
+            <div key={i} className={"beach-doodle " + (it.anim || "float")}
+              style={{
+                left:it.left, top:it.top,
+                fontSize:it.size || "32px",
+                transform:`rotate(${it.rot || 0}deg)`,
+                animationDelay:`${it.delay || 0}s`,
+                animationDuration:`${it.dur || 4}s`
+              }}>
+              {it.emoji}
+            </div>
+          ))}
+        </div>
+      );
+    }
     function Confetti(){
       const shapes = [
         { left:"5%",  top:"15%", color:"var(--sun)",   rot:"-15deg", shape:"square" },
@@ -605,7 +743,7 @@ Phone: {{phone}}</p>
     }
 
     // ====================================================================
-    // Rich Text Editor (contentEditable + execCommand)
+    // Rich Text Editor
     // ====================================================================
     function RichEditor({ value, onChange, dirty }){
       const ref = useRef(null);
@@ -629,19 +767,16 @@ Phone: {{phone}}</p>
       return (
         <div>
           <div className="rich-toolbar">
-            <button type="button" className="rich-btn" onClick={() => exec("bold")} title="Bold"><b>B</b></button>
-            <button type="button" className="rich-btn" onClick={() => exec("italic")} title="Italic"><i>I</i></button>
-            <button type="button" className="rich-btn" onClick={() => exec("underline")} title="Underline"><u>U</u></button>
-            <button type="button" className="rich-btn" onClick={() => exec("insertUnorderedList")} title="Bullet list">•</button>
-            <button type="button" className="rich-btn" onClick={() => exec("insertOrderedList")} title="Numbered list">1.</button>
-            <button type="button" className="rich-btn" onClick={() => {
-              const url = window.prompt("Link URL:");
-              if(url) exec("createLink", url);
-            }} title="Link">🔗</button>
-            <button type="button" className="rich-btn" onClick={() => exec("unlink")} title="Remove link">⌀</button>
-            <button type="button" className="rich-btn" onClick={() => exec("formatBlock", "<h2>")} title="Heading">H2</button>
-            <button type="button" className="rich-btn" onClick={() => exec("formatBlock", "<p>")} title="Paragraph">¶</button>
-            <button type="button" className="rich-btn" onClick={() => exec("removeFormat")} title="Clear formatting">✕Fmt</button>
+            <button type="button" className="rich-btn" onClick={() => exec("bold")}><b>B</b></button>
+            <button type="button" className="rich-btn" onClick={() => exec("italic")}><i>I</i></button>
+            <button type="button" className="rich-btn" onClick={() => exec("underline")}><u>U</u></button>
+            <button type="button" className="rich-btn" onClick={() => exec("insertUnorderedList")}>•</button>
+            <button type="button" className="rich-btn" onClick={() => exec("insertOrderedList")}>1.</button>
+            <button type="button" className="rich-btn" onClick={() => { const url = window.prompt("Link URL:"); if(url) exec("createLink", url); }}>🔗</button>
+            <button type="button" className="rich-btn" onClick={() => exec("unlink")}>⌀</button>
+            <button type="button" className="rich-btn" onClick={() => exec("formatBlock", "<h2>")}>H2</button>
+            <button type="button" className="rich-btn" onClick={() => exec("formatBlock", "<p>")}>¶</button>
+            <button type="button" className="rich-btn" onClick={() => exec("removeFormat")}>✕Fmt</button>
           </div>
           <div
             ref={ref}
@@ -652,21 +787,15 @@ Phone: {{phone}}</p>
             onBlur={() => ref.current && onChange(ref.current.innerHTML)}
           />
           <div className="mt-2 text-xs text-[color:var(--ink-soft)]">
-            <div className="font-bold mb-1">🏷️ 可插入的標籤 / Placeholders — 點擊插入：</div>
-            <div>
-              {EMAIL_TOKENS.map(t => (
-                <span key={t.key} className="token-chip" onClick={() => insertToken(t.key)} title={t.label}>
-                  {t.key}
-                </span>
-              ))}
-            </div>
+            <div className="font-bold mb-1">🏷️ 可插入的標籤 / Placeholders：</div>
+            <div>{EMAIL_TOKENS.map(t => <span key={t.key} className="token-chip" onClick={() => insertToken(t.key)} title={t.label}>{t.key}</span>)}</div>
           </div>
         </div>
       );
     }
 
     // ====================================================================
-    // Edit Panel — 4 tabs
+    // Edit Panel
     // ====================================================================
     function EditPanel({ open, onClose, lang, setLang, edits, setEdits, serverContent, onSave, saving, dirtyCount, editPassword, registered, onDataChanged }){
       const [tab, setTab] = useState("text");
@@ -690,18 +819,10 @@ Phone: {{phone}}</p>
               <div className={"edit-tab " + (tab === "blast" ? "active" : "")} onClick={() => setTab("blast")}>📢 群發</div>
             </div>
 
-            {tab === "text" && (
-              <TextTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>
-            )}
-            {tab === "email" && (
-              <EmailTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>
-            )}
-            {tab === "reg" && (
-              <RegTab editPassword={editPassword} registered={registered} onDataChanged={onDataChanged}/>
-            )}
-            {tab === "blast" && (
-              <BlastTab editPassword={editPassword} lang={lang} setLang={setLang} edits={edits} serverContent={serverContent} registered={registered}/>
-            )}
+            {tab === "text" && <TextTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>}
+            {tab === "email" && <EmailTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>}
+            {tab === "reg" && <RegTab editPassword={editPassword} registered={registered} onDataChanged={onDataChanged}/>}
+            {tab === "blast" && <BlastTab editPassword={editPassword} registered={registered}/>}
 
             {(tab === "text" || tab === "email") && (
               <div className="edit-drawer-foot">
@@ -716,9 +837,16 @@ Phone: {{phone}}</p>
       );
     }
 
+    // Helpers for display settings (not lang-specific)
+    function getDisplay(key, edits, serverContent){
+      if(edits[key] !== undefined) return edits[key];
+      if(serverContent[key] !== undefined) return serverContent[key];
+      return DISPLAY_DEFAULTS[key] ?? "";
+    }
+
     // ---- Tab 1: Text ----
     function TextTab({ lang, setLang, edits, setEdits, serverContent }){
-      const [openSections, setOpenSections] = useState({ hero:true });
+      const [openSections, setOpenSections] = useState({ layout:true, hero:false });
       const [search, setSearch] = useState("");
 
       function valueOf(key){
@@ -739,12 +867,9 @@ Phone: {{phone}}</p>
         });
       }
       function resetKey(key){
-        setEdits(prev => {
-          const next = { ...prev };
-          delete next[`${lang}.${key}`];
-          return next;
-        });
+        setEdits(prev => { const next = { ...prev }; delete next[`${lang}.${key}`]; return next; });
       }
+
       const filteredSections = useMemo(() => {
         if(!search.trim()) return SECTIONS;
         const q = search.trim().toLowerCase();
@@ -757,9 +882,8 @@ Phone: {{phone}}</p>
 
       useEffect(() => {
         if(search.trim()){
-          const all = {};
-          filteredSections.forEach(s => { all[s.id] = true; });
-          setOpenSections(all);
+          const all = {}; filteredSections.forEach(s => { all[s.id] = true; });
+          setOpenSections(prev => ({ ...prev, ...all }));
         }
       // eslint-disable-next-line
       }, [search]);
@@ -772,6 +896,10 @@ Phone: {{phone}}</p>
             <button className={"lang-pill " + (lang === "en" ? "active" : "")} onClick={() => setLang("en")}>English</button>
           </div>
           <input type="text" placeholder="🔍 搜尋欄位或文字 / Search..." value={search} onChange={e => setSearch(e.target.value)} className="edit-input mb-4"/>
+
+          {/* Special: Layout controls (not language-specific) */}
+          <LayoutSection open={openSections.layout} onToggle={() => setOpenSections(s => ({ ...s, layout: !s.layout }))}
+            edits={edits} setEdits={setEdits} serverContent={serverContent}/>
 
           {filteredSections.map(sec => (
             <div key={sec.id} className="edit-section">
@@ -806,6 +934,92 @@ Phone: {{phone}}</p>
       );
     }
 
+    // Layout section — countdown toggle + section reorder
+    function LayoutSection({ open, onToggle, edits, setEdits, serverContent }){
+      const showCountdownKey = "display.showCountdown";
+      const sectionOrderKey = "display.sectionOrder";
+
+      const showCountdown = getDisplay(showCountdownKey, edits, serverContent) === "true";
+      const currentOrderStr = getDisplay(sectionOrderKey, edits, serverContent);
+      const currentOrder = currentOrderStr.split(",").filter(Boolean);
+      // Ensure all orderable sections included (add any missing to end)
+      const orderedIds = [...currentOrder];
+      ORDERABLE_SECTIONS.forEach(s => { if(!orderedIds.includes(s.id)) orderedIds.push(s.id); });
+      // Filter out unknowns
+      const finalOrder = orderedIds.filter(id => ORDERABLE_SECTIONS.some(s => s.id === id));
+
+      function setDisplay(key, val){
+        const defaultVal = DISPLAY_DEFAULTS[key];
+        const committed = serverContent[key] !== undefined ? serverContent[key] : defaultVal;
+        setEdits(prev => {
+          const next = { ...prev };
+          if(val === committed) delete next[key];
+          else next[key] = val;
+          return next;
+        });
+      }
+      function toggleCountdown(){
+        setDisplay(showCountdownKey, showCountdown ? "false" : "true");
+      }
+      function move(idx, dir){
+        const newOrder = [...finalOrder];
+        const target = idx + dir;
+        if(target < 0 || target >= newOrder.length) return;
+        [newOrder[idx], newOrder[target]] = [newOrder[target], newOrder[idx]];
+        setDisplay(sectionOrderKey, newOrder.join(","));
+      }
+      function resetOrder(){
+        setDisplay(sectionOrderKey, DISPLAY_DEFAULTS[sectionOrderKey]);
+      }
+
+      const countdownDirty = edits[showCountdownKey] !== undefined;
+      const orderDirty = edits[sectionOrderKey] !== undefined;
+
+      return (
+        <div className="edit-section special">
+          <div className="edit-section-head" onClick={onToggle}>
+            <span>🎨 版面設定 Layout {(countdownDirty || orderDirty) && <span className="text-[color:var(--coral-deep)]">●</span>}</span>
+            <span>{open ? "▾" : "▸"}</span>
+          </div>
+          {open && (
+            <div className="edit-section-body">
+              <div className="edit-row">
+                <div className={"toggle " + (showCountdown ? "on" : "")} onClick={toggleCountdown}>
+                  <div className="toggle-sw"/>
+                  <div>
+                    <div>⏰ 顯示報名倒數區 Show countdown</div>
+                    <div className="text-xs text-[color:var(--ink-soft)] font-normal">包含倒數計時 + 名額進度條</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="edit-row">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="edit-key">📐 區塊順序 Section order</div>
+                  {orderDirty && <button onClick={resetOrder} className="text-[10px] font-bold text-[color:var(--coral-deep)] hover:underline">↺ 還原順序</button>}
+                </div>
+                {finalOrder.map((id, idx) => {
+                  const sec = ORDERABLE_SECTIONS.find(s => s.id === id);
+                  if(!sec) return null;
+                  return (
+                    <div key={id} className="reorder-item">
+                      <span className="reorder-handle">☰</span>
+                      <span className="flex-1">{sec.label}</span>
+                      <div className="reorder-btns">
+                        <button className="reorder-btn" onClick={() => move(idx, -1)} disabled={idx === 0}>▲</button>
+                        <button className="reorder-btn" onClick={() => move(idx, 1)} disabled={idx === finalOrder.length - 1}>▼</button>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div className="text-xs text-[color:var(--ink-soft)] mt-2">⚡ 順序改動會同時套用到中／英版網站。</div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     // ---- Tab 2: Email template ----
     function EmailTab({ lang, setLang, edits, setEdits, serverContent }){
       function valueOf(key){
@@ -818,16 +1032,11 @@ Phone: {{phone}}</p>
       function updateEdit(key, val){
         const editKey = `${lang}.${key}`;
         const committed = serverContent[editKey] !== undefined ? serverContent[editKey] : (DEFAULTS[lang][key] ?? "");
-        setEdits(prev => {
-          const next = { ...prev };
-          if(val === committed) delete next[editKey];
-          else next[editKey] = val;
+        setEdits(prev => { const next = { ...prev };
+          if(val === committed) delete next[editKey]; else next[editKey] = val;
           return next;
         });
       }
-
-      const subjectKey = "email.subject";
-      const bodyKey = "email.body";
 
       return (
         <div className="edit-drawer-body">
@@ -838,23 +1047,23 @@ Phone: {{phone}}</p>
           </div>
 
           <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-medium mb-4">
-            💌 <strong>確認信樣板</strong>：報名成功後系統會自動寄這封信給對方。用 <code className="bg-white px-1 rounded">{'{{name}}'}</code> 這類標籤會被對方的資料取代。
+            💌 <strong>確認信樣板</strong>：報名成功後系統會自動寄這封信。<code className="bg-white px-1 rounded">{'{{name}}'}</code> 之類會自動填入個人資料。
           </div>
 
           <div className="edit-row mb-4">
             <div className="flex items-center justify-between">
               <div className="edit-key">📧 主旨 / Subject ({lang})</div>
-              {isDirty(subjectKey) && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
+              {isDirty("email.subject") && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
             </div>
-            <input type="text" value={valueOf(subjectKey)} onChange={e => updateEdit(subjectKey, e.target.value)} className={"edit-input " + (isDirty(subjectKey) ? "dirty" : "")}/>
+            <input type="text" value={valueOf("email.subject")} onChange={e => updateEdit("email.subject", e.target.value)} className={"edit-input " + (isDirty("email.subject") ? "dirty" : "")}/>
           </div>
 
           <div className="edit-row">
             <div className="flex items-center justify-between mb-2">
               <div className="edit-key">📝 內文 / Body ({lang})</div>
-              {isDirty(bodyKey) && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
+              {isDirty("email.body") && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
             </div>
-            <RichEditor value={valueOf(bodyKey)} onChange={v => updateEdit(bodyKey, v)} dirty={isDirty(bodyKey)}/>
+            <RichEditor value={valueOf("email.body")} onChange={v => updateEdit("email.body", v)} dirty={isDirty("email.body")}/>
           </div>
         </div>
       );
@@ -885,12 +1094,9 @@ Phone: {{phone}}</p>
           if(res.success){
             setList(prev => prev.filter(r => r.serial !== serial));
             onDataChanged && onDataChanged();
-          } else {
-            window.alert("刪除失敗：" + (res.error || "未知"));
-          }
+          } else { window.alert("刪除失敗：" + (res.error || "未知")); }
         } catch(e){ window.alert("連線失敗"); }
       }
-
       function exportCsv(){
         if(!list || list.length === 0) return;
         const headers = ["Serial","Name","Company","Title","Phone","Email","Lang","Timestamp"];
@@ -898,13 +1104,10 @@ Phone: {{phone}}</p>
         const csv = [headers, ...rows].map(r => r.map(v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`).join(",")).join("\n");
         const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
+        const a = document.createElement("a"); a.href = url;
         a.download = `nmdc-registrations-${new Date().toISOString().slice(0,10)}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+        a.click(); URL.revokeObjectURL(url);
       }
-
       const filtered = useMemo(() => {
         if(!list) return [];
         if(!filter.trim()) return list;
@@ -920,59 +1123,28 @@ Phone: {{phone}}</p>
               <div className="text-xs text-[color:var(--ink-soft)]">Registered people</div>
             </div>
             <div className="flex gap-2">
-              <button onClick={load} disabled={loading} className="btn-outline px-3 py-1 text-xs">
-                {loading ? "…" : "🔄 更新"}
-              </button>
-              <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs">
-                📥 CSV
-              </button>
+              <button onClick={load} disabled={loading} className="btn-outline px-3 py-1 text-xs">{loading ? "…" : "🔄 更新"}</button>
+              <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs">📥 CSV</button>
             </div>
           </div>
-
           <input type="text" placeholder="🔍 搜尋姓名 / 公司 / 信箱…" value={filter} onChange={e => setFilter(e.target.value)} className="edit-input mb-3"/>
 
-          {err && (
-            <div className="p-3 rounded-xl bg-[color:var(--coral)] text-white font-bold text-sm border-2 border-[color:var(--ink)] mb-3">
-              ❗ {err}
-            </div>
-          )}
-
+          {err && (<div className="p-3 rounded-xl bg-[color:var(--coral)] text-white font-bold text-sm border-2 border-[color:var(--ink)] mb-3">❗ {err}</div>)}
           {loading && <div className="text-center py-10 text-[color:var(--ink-soft)] font-bold">載入中…</div>}
-
-          {!loading && list && list.length === 0 && (
-            <div className="text-center py-10">
-              <div className="text-5xl mb-2">🏖️</div>
-              <div className="font-bold text-[color:var(--ink-soft)]">還沒有人報名</div>
-            </div>
-          )}
+          {!loading && list && list.length === 0 && (<div className="text-center py-10"><div className="text-5xl mb-2">🏖️</div><div className="font-bold text-[color:var(--ink-soft)]">還沒有人報名</div></div>)}
 
           {!loading && filtered.length > 0 && (
             <div className="overflow-x-auto">
               <table className="reg-table">
-                <thead>
-                  <tr>
-                    <th>#</th><th>姓名 Name</th><th>公司 / 職稱</th><th>聯絡</th><th></th>
-                  </tr>
-                </thead>
+                <thead><tr><th>#</th><th>姓名 Name</th><th>公司 / 職稱</th><th>聯絡</th><th></th></tr></thead>
                 <tbody>
                   {filtered.map(r => (
                     <tr key={r.serial}>
                       <td className="reg-serial">{pad(r.serial)}</td>
-                      <td>
-                        <div className="font-bold">{r.name}</div>
-                        <div className="reg-small">{formatTs(r.timestamp)}</div>
-                      </td>
-                      <td>
-                        <div>{r.company}</div>
-                        <div className="reg-small">{r.title}</div>
-                      </td>
-                      <td>
-                        <div className="reg-small">{r.phone}</div>
-                        <div><a href={`mailto:${r.email}`} className="text-[color:var(--nmdc-green-dark)] underline text-xs">{r.email}</a></div>
-                      </td>
-                      <td>
-                        <button onClick={() => del(r.serial, r.name)} className="btn-danger text-[11px] px-2 py-1">🗑</button>
-                      </td>
+                      <td><div className="font-bold">{r.name}</div><div className="reg-small">{formatTs(r.timestamp)}</div></td>
+                      <td><div>{r.company}</div><div className="reg-small">{r.title}</div></td>
+                      <td><div className="reg-small">{r.phone}</div><div><a href={`mailto:${r.email}`} className="text-[color:var(--nmdc-green-dark)] underline text-xs">{r.email}</a></div></td>
+                      <td><button onClick={() => del(r.serial, r.name)} className="btn-danger text-[11px] px-2 py-1">🗑</button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -984,7 +1156,7 @@ Phone: {{phone}}</p>
     }
 
     // ---- Tab 4: Blast ----
-    function BlastTab({ editPassword, lang, setLang, edits, serverContent, registered }){
+    function BlastTab({ editPassword, registered }){
       const [subject, setSubject] = useState("");
       const [body, setBody] = useState("<p>嗨 {{name}}，</p><p></p><p>— NMDC Energy</p>");
       const [sending, setSending] = useState(false);
@@ -994,20 +1166,16 @@ Phone: {{phone}}</p>
         if(!subject.trim()){ window.alert("請填主旨"); return; }
         if(!body.trim() || body === "<p></p>" || body === "<br>"){ window.alert("請填內文"); return; }
         const cnt = registered || 0;
-        if(!window.confirm(`確定要寄信給全部 ${cnt} 位報名者？\n這動作無法復原，且會消耗 Gmail 每日配額（一般 100 封／Workspace 1500 封）。`)) return;
+        if(!window.confirm(`確定要寄信給全部 ${cnt} 位報名者？
+這動作無法復原，且會消耗 Gmail 每日配額（一般 100 封／Workspace 1500 封）。`)) return;
         if(!window.confirm("再確認一次 — 真的要寄出嗎？")) return;
-
         setSending(true); setResult(null);
         try{
           const res = await xhrPost(GAS_URL, { action:"sendBlast", password:editPassword, subject, body }, 120000);
-          if(res.success){
-            setResult({ ok:true, sent:res.sent, failed:res.failed || 0, msg:`寄出 ${res.sent} 封${res.failed ? `、失敗 ${res.failed} 封` : ""}` });
-          } else {
-            setResult({ ok:false, msg:"寄信失敗：" + (res.error || "未知") });
-          }
-        } catch(e){
-          setResult({ ok:false, msg:"連線失敗或逾時" });
-        } finally { setSending(false); }
+          if(res.success){ setResult({ ok:true, msg:`寄出 ${res.sent} 封${res.failed ? `、失敗 ${res.failed} 封` : ""}` }); }
+          else { setResult({ ok:false, msg:"寄信失敗：" + (res.error || "未知") }); }
+        } catch(e){ setResult({ ok:false, msg:"連線失敗或逾時" }); }
+        finally { setSending(false); }
       }
 
       return (
@@ -1015,23 +1183,15 @@ Phone: {{phone}}</p>
           <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-medium mb-4">
             📢 <strong>群發給所有報名者</strong>（目前 {registered || 0} 人）。可用 <code className="bg-white px-1 rounded">{'{{name}}'}</code> 等標籤自動填入每個人的資料。
           </div>
-
           <div className="mb-3">
             <div className="edit-key mb-1">主旨 Subject</div>
             <input type="text" value={subject} onChange={e => setSubject(e.target.value)} placeholder="例：2026 NMDC 淨灘｜行前通知" className="edit-input"/>
           </div>
-
           <div className="mb-4">
             <div className="edit-key mb-1">內文 Body</div>
             <RichEditor value={body} onChange={setBody} dirty={false}/>
           </div>
-
-          {result && (
-            <div className={"p-3 rounded-xl font-bold text-sm border-2 border-[color:var(--ink)] mb-3 " + (result.ok ? "bg-[color:var(--nmdc-green)] text-white" : "bg-[color:var(--coral)] text-white")}>
-              {result.ok ? "✅" : "❗"} {result.msg}
-            </div>
-          )}
-
+          {result && (<div className={"p-3 rounded-xl font-bold text-sm border-2 border-[color:var(--ink)] mb-3 " + (result.ok ? "bg-[color:var(--nmdc-green)] text-white" : "bg-[color:var(--coral)] text-white")}>{result.ok ? "✅" : "❗"} {result.msg}</div>)}
           <button onClick={send} disabled={sending || !registered} className="btn-chunk w-full px-5 py-4 text-base">
             {sending ? "寄送中，請稍候…" : `📤 寄給全部 ${registered || 0} 人`}
           </button>
@@ -1042,20 +1202,20 @@ Phone: {{phone}}</p>
     // ====================================================================
     // Public Sections
     // ====================================================================
-    function Header({ lang, setLang, onEdit, editMode }){
+    function Header({ lang, setLang, onEdit, editMode, t }){
       return (
         <header className="sticky top-0 z-40 bg-[color:var(--cream)] border-b-2 border-[color:var(--ink)]">
-          <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img src={NMDC_LOGO} alt="NMDC Energy" className="h-11 md:h-14 w-auto"/>
+          <div className="max-w-6xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-4 md:gap-6">
+              <img src={NMDC_LOGO} alt="NMDC Energy" className="h-10 md:h-14 w-auto"/>
+              <div className="h-10 md:h-12 w-px bg-[color:var(--ink)] opacity-30"/>
+              <img src={TPC_LOGO} alt="台灣電力公司 Taiwan Power Company" className="h-12 md:h-16 w-auto"/>
             </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="btn-outline px-4 py-1.5 text-sm">
-                🌐 {lang === "zh" ? "English" : "中文"}
+            <div className="flex items-center gap-2 shrink-0">
+              <button onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="btn-outline px-3 md:px-4 py-1.5 text-xs md:text-sm">
+                🌐 {lang === "zh" ? "EN" : "中"}
               </button>
-              {editMode && (
-                <button onClick={onEdit} className="btn-chunk px-4 py-1.5 text-sm">⚙️ Admin</button>
-              )}
+              {editMode && (<button onClick={onEdit} className="btn-chunk px-3 md:px-4 py-1.5 text-xs md:text-sm">⚙️</button>)}
             </div>
           </div>
         </header>
@@ -1064,27 +1224,36 @@ Phone: {{phone}}</p>
 
     function Hero({ t, editMode }){
       const clickGuard = editMode ? (e) => e.preventDefault() : undefined;
+      const doodles = [
+        { emoji:"🌊", left:"3%",  top:"8%",  size:"36px", rot:-10, delay:0.2, anim:"float" },
+        { emoji:"🐚", left:"8%",  top:"78%", size:"42px", rot:15,  delay:0.8, anim:"sway" },
+        { emoji:"🦀", left:"85%", top:"10%", size:"44px", rot:-5,  delay:1.2, anim:"wiggle" },
+        { emoji:"⛱️", left:"90%", top:"58%", size:"52px", rot:8,   delay:0.4, anim:"sway", dur:6 },
+        { emoji:"🌴", left:"1%",  top:"35%", size:"48px", rot:-12, delay:1.5, anim:"sway", dur:7 },
+        { emoji:"🐠", left:"78%", top:"82%", size:"36px", rot:18,  delay:0.6, anim:"float" }
+      ];
       return (
         <section className="relative py-16 md:py-24 bg-paper overflow-hidden">
           <Confetti/>
+          <BeachDoodles items={doodles}/>
           <div className="max-w-6xl mx-auto px-4 md:px-8 grid md:grid-cols-[1fr_auto] gap-10 items-center relative z-10">
             <div>
               <div className="tag mb-6 bounce-in">{t("hero.chip")}</div>
-              <div className="text-xl md:text-2xl font-bold text-[color:var(--nmdc-green)] mb-3 bounce-in" style={{animationDelay:"80ms"}}>
+              <div className="text-2xl md:text-3xl font-bold text-[color:var(--nmdc-green)] mb-3 bounce-in" style={{animationDelay:"80ms"}}>
                 {t("hero.subtitle")}
               </div>
-              <h1 className="font-display text-[4rem] md:text-[7.5rem] leading-[0.9] tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
+              <h1 className="font-display text-[4.5rem] md:text-[8rem] leading-[0.9] tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
                 <span className="block">{t("hero.title1")}</span>
                 <span className="inline-block text-[color:var(--nmdc-green)] wiggle">{t("hero.title2")}</span>
               </h1>
-              <p className="text-lg md:text-xl text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
+              <p className="text-xl md:text-2xl text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
                 {t("hero.tagline")}
               </p>
               <div className="mt-8 flex flex-wrap gap-3 bounce-in" style={{animationDelay:"320ms"}}>
-                <a href="#register" onClick={clickGuard} className="btn-chunk px-7 py-3 text-base inline-flex items-center gap-2">
+                <a href="#register" onClick={clickGuard} className="btn-chunk px-8 py-4 text-lg inline-flex items-center gap-2">
                   {t("hero.ctaPrimary")} <span className="text-xl">→</span>
                 </a>
-                <a href="#notes" onClick={clickGuard} className="btn-outline px-5 py-3 text-sm">
+                <a href="#notes" onClick={clickGuard} className="btn-outline px-6 py-4 text-base">
                   {t("hero.ctaSecondary")}
                 </a>
               </div>
@@ -1097,36 +1266,86 @@ Phone: {{phone}}</p>
       );
     }
 
-    // INFO CARDS — bigger 2-col layout
-    function InfoStickers({ t }){
-      const cards = [
-        { label:t("info.when.label"),    big:t("info.when.big"),    sub:t("info.when.sub"),    bg:"sticker-sun",   tilt:"-1deg",   icon:"📅" },
-        { label:t("info.where.label"),   big:t("info.where.big"),   sub:t("info.where.sub"),   bg:"sticker-sky",   tilt:"0.8deg",  icon:"📍" },
-        { label:t("info.who.label"),     big:t("info.who.big"),     unit:t("info.who.unit"),   sub:"",            bg:"sticker-green", tilt:"-0.8deg", icon:"👥", isNum:true },
-        { label:t("info.team.label"),    big:t("info.team.big"),    sub:t("info.team.sub"),    bg:"sticker-coral", tilt:"1deg",    icon:"🤝" },
-        { label:t("info.contact.label"), big:t("info.contact.line1"), sub:t("info.contact.line2"), bg:"",          tilt:"-0.5deg", icon:"📞", full:true }
-      ];
+    // INFO cards — 2x2 layout: When | Where / People+Teams | Contact
+    function InfoStickers({ t, editMode }){
+      const mapUrl = t("info.where.mapUrl") || DEFAULT_MAP_URL;
+      function openMap(e){
+        if(editMode){ e.preventDefault(); return; }
+        window.open(mapUrl, "_blank", "noopener");
+      }
       return (
         <section className="py-16 md:py-24 relative">
-          <div className="max-w-5xl mx-auto px-4 md:px-8">
+          <BeachDoodles items={[
+            { emoji:"🫧", left:"4%",  top:"12%", size:"32px", delay:0 },
+            { emoji:"🐚", left:"92%", top:"68%", size:"36px", rot:-10, delay:1.2, anim:"sway" }
+          ]}/>
+          <div className="max-w-5xl mx-auto px-4 md:px-8 relative">
             <div className="grid md:grid-cols-2 gap-7 md:gap-10">
-              {cards.map((c, i) => (
-                <div key={i}
-                  className={`sticker ${c.bg} p-7 md:p-10 ${c.full ? "md:col-span-2" : ""} bounce-in`}
-                  style={{ transform:`rotate(${c.tilt})`, animationDelay:`${i*90}ms` }}>
-                  <div className="flex items-start gap-5">
-                    <div className="text-5xl md:text-6xl shrink-0">{c.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs md:text-sm font-extrabold tracking-[0.22em] opacity-80 mb-2">{c.label}</div>
-                      <div className={`${c.isNum ? "font-num text-7xl md:text-[7rem] leading-none" : "font-display text-3xl md:text-4xl leading-tight"} mb-2`}>
-                        {c.big}
-                        {c.unit && <span className="text-lg font-sans font-bold ml-2 opacity-90">{c.unit}</span>}
+
+              {/* When */}
+              <div className="sticker sticker-sun p-7 md:p-10 bounce-in" style={{ transform:"rotate(-1deg)" }}>
+                <div className="flex items-start gap-5">
+                  <div className="text-5xl md:text-6xl shrink-0">📅</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm md:text-base font-extrabold tracking-[0.22em] opacity-80 mb-2">{t("info.when.label")}</div>
+                    <div className="font-display text-3xl md:text-4xl leading-tight mb-2">{t("info.when.big")}</div>
+                    <div className="text-base md:text-lg font-medium opacity-85 leading-snug">{t("info.when.sub")}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Where — clickable Google Maps */}
+              <a href={mapUrl} target="_blank" rel="noopener" onClick={openMap}
+                 className="sticker sticker-sky sticker-clickable p-7 md:p-10 bounce-in block no-underline text-[color:var(--ink)]"
+                 style={{ transform:"rotate(0.8deg)", animationDelay:"90ms" }}>
+                <div className="flex items-start gap-5">
+                  <div className="text-5xl md:text-6xl shrink-0">📍</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm md:text-base font-extrabold tracking-[0.22em] opacity-80 mb-2 flex items-center gap-2">
+                      {t("info.where.label")}
+                      <span className="text-[10px] font-bold bg-white text-[color:var(--ink)] px-2 py-0.5 rounded-full border border-[color:var(--ink)]">🗺️ MAP</span>
+                    </div>
+                    <div className="font-display text-3xl md:text-4xl leading-tight mb-2">{t("info.where.big")}</div>
+                    <div className="text-base md:text-lg font-medium opacity-85 leading-snug">{t("info.where.sub")}</div>
+                  </div>
+                </div>
+              </a>
+
+              {/* People & Teams (combined) */}
+              <div className="sticker sticker-green p-7 md:p-10 bounce-in" style={{ transform:"rotate(-0.8deg)", animationDelay:"180ms" }}>
+                <div className="flex items-start gap-5">
+                  <div className="text-5xl md:text-6xl shrink-0">👥</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm md:text-base font-extrabold tracking-[0.22em] opacity-85 mb-2">{t("info.who.label")}</div>
+                    <div className="font-num text-7xl md:text-[7rem] leading-none mb-2 flex items-baseline gap-2">
+                      {t("info.who.big")}
+                      <span className="text-xl md:text-2xl font-sans font-bold opacity-90">{t("info.who.unit")}</span>
+                    </div>
+                    <div className="text-base md:text-lg font-medium opacity-90 leading-snug">{t("info.who.sub")}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Contact */}
+              <div className="sticker sticker-coral p-7 md:p-10 bounce-in" style={{ transform:"rotate(1deg)", animationDelay:"270ms" }}>
+                <div className="flex items-start gap-5">
+                  <div className="text-5xl md:text-6xl shrink-0">📞</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm md:text-base font-extrabold tracking-[0.22em] opacity-85 mb-3">{t("info.contact.label")}</div>
+                    <div className="space-y-1.5">
+                      <div className="font-display text-2xl md:text-3xl leading-tight">
+                        <span className="opacity-75 mr-2 font-sans text-base">{t("info.contact.line1Label")}</span>
+                        <a href={`tel:${t("info.contact.line1Val").replace(/\D/g,"")}`} onClick={editMode ? (e)=>e.preventDefault() : undefined} className="underline decoration-white/30 decoration-2 underline-offset-4">{t("info.contact.line1Val")}</a>
                       </div>
-                      {c.sub && <div className="text-base md:text-lg font-medium opacity-85 leading-snug">{c.sub}</div>}
+                      <div className="font-display text-2xl md:text-3xl leading-tight">
+                        <span className="opacity-75 mr-2 font-sans text-base">{t("info.contact.line2Label")}</span>
+                        <a href={`tel:${t("info.contact.line2Val").replace(/\D/g,"")}`} onClick={editMode ? (e)=>e.preventDefault() : undefined} className="underline decoration-white/30 decoration-2 underline-offset-4">{t("info.contact.line2Val")}</a>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+
             </div>
           </div>
         </section>
@@ -1149,7 +1368,7 @@ Phone: {{phone}}</p>
       const Cell = ({ v, label, pulse=false }) => (
         <div className="flex-1 text-center">
           <div className={`font-num text-5xl md:text-7xl leading-none text-[color:var(--ink)] ${pulse ? "count-bounce" : ""}`}>{pad(v)}</div>
-          <div className="text-[10px] md:text-xs font-extrabold tracking-[0.2em] mt-2 text-[color:var(--ink-soft)]">{label}</div>
+          <div className="text-[11px] md:text-sm font-extrabold tracking-[0.2em] mt-2 text-[color:var(--ink-soft)]">{label}</div>
         </div>
       );
       return (
@@ -1172,17 +1391,15 @@ Phone: {{phone}}</p>
       return (
         <div className="bg-white border-[3px] border-[color:var(--ink)] rounded-3xl p-5 md:p-7" style={{boxShadow:"6px 6px 0 var(--ink)"}}>
           <div className="flex items-baseline justify-between mb-3">
-            <div className="text-xs font-extrabold tracking-[0.2em] text-[color:var(--ink-soft)]">{t("status.slots")}</div>
+            <div className="text-sm font-extrabold tracking-[0.2em] text-[color:var(--ink-soft)]">{t("status.slots")}</div>
             <div className="font-num text-xl text-[color:var(--ink)] tabular-nums">
               {registered} <span className="text-[color:var(--ink-soft)] text-sm font-sans font-bold">/ {total}</span>
             </div>
           </div>
           <div className="relative h-10 bg-[color:var(--sand)] border-2 border-[color:var(--ink)] rounded-full overflow-hidden">
             <div className="h-full transition-all duration-700 ease-out"
-              style={{
-                width: pct + "%",
-                background: isFull ? "linear-gradient(90deg, var(--coral), var(--coral-deep))" : "linear-gradient(90deg, var(--nmdc-green-light), var(--nmdc-green))"
-              }}/>
+              style={{ width: pct + "%",
+                background: isFull ? "linear-gradient(90deg, var(--coral), var(--coral-deep))" : "linear-gradient(90deg, var(--nmdc-green-light), var(--nmdc-green))" }}/>
             <div className="absolute top-1/2 -translate-y-1/2 text-2xl transition-all duration-700 ease-out" style={{ left: `calc(${pct}% - 14px)` }}>
               {isFull ? "🎉" : "🏃"}
             </div>
@@ -1193,7 +1410,7 @@ Phone: {{phone}}</p>
             ) : (
               <>
                 <div className="font-num text-5xl md:text-6xl text-[color:var(--nmdc-green)] leading-none">{remaining}</div>
-                <div className="text-lg font-bold text-[color:var(--ink-soft)]">{t("status.left")}</div>
+                <div className="text-lg md:text-xl font-bold text-[color:var(--ink-soft)]">{t("status.left")}</div>
               </>
             )}
           </div>
@@ -1209,7 +1426,7 @@ Phone: {{phone}}</p>
             <div className="text-center mb-10">
               <div className="inline-block tag bg-white mb-3">{t("status.tag")}</div>
               <h2 className="font-display text-4xl md:text-6xl mb-2">{t("status.head")}</h2>
-              {config && <div className="text-sm font-bold text-[color:var(--ink-soft)]">{t("status.sub")} · {formatDeadline(config.deadline, lang)}</div>}
+              {config && <div className="text-base font-bold text-[color:var(--ink-soft)]">{t("status.sub")} · {formatDeadline(config.deadline, lang)}</div>}
             </div>
             {config ? (
               <div className="grid md:grid-cols-2 gap-6">
@@ -1227,16 +1444,50 @@ Phone: {{phone}}</p>
       );
     }
 
+    // Schedule section — timeline of the day
+    function Schedule({ t }){
+      return (
+        <section className="py-16 md:py-24 bg-[color:var(--cream-warm)] relative overflow-hidden">
+          <BeachDoodles items={[
+            { emoji:"🧤", left:"3%",  top:"8%",  size:"36px", rot:-10, delay:0.2, anim:"wiggle" },
+            { emoji:"🗑️", left:"92%", top:"80%", size:"40px", rot:10,  delay:1.0, anim:"float" }
+          ]}/>
+          <div className="max-w-4xl mx-auto px-4 md:px-8 relative">
+            <div className="text-center mb-10">
+              <div className="inline-block tag bg-[color:var(--nmdc-green)] text-white border-[color:var(--ink)] mb-3">{t("schedule.tag")}</div>
+              <h2 className="font-display text-4xl md:text-6xl mb-3"><span className="wavy">{t("schedule.head")}</span></h2>
+              <p className="text-lg font-medium text-[color:var(--ink-soft)]">{t("schedule.sub")}</p>
+            </div>
+            <div className="space-y-3 md:space-y-4">
+              {Array.from({ length:SCHEDULE_COUNT }).map((_, i) => {
+                const time = t(`schedule.${i}.time`);
+                const text = t(`schedule.${i}.text`);
+                if(!time && !text) return null;
+                return (
+                  <div key={i} className="sched-row bounce-in" style={{animationDelay:`${i*60}ms`}}>
+                    <div className="sched-time">{time}</div>
+                    <div className="sched-text">{text}</div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     function Notes({ t }){
       return (
-        <section id="notes" className="py-16 md:py-24 bg-[color:var(--cream-warm)]">
-          <div className="max-w-4xl mx-auto px-4 md:px-8">
+        <section id="notes" className="py-16 md:py-24 bg-[color:var(--cream-warm)] relative overflow-hidden">
+          <BeachDoodles items={[
+            { emoji:"🏖️", left:"2%",  top:"6%",  size:"40px", rot:-12, delay:0.3, anim:"sway", dur:5 },
+            { emoji:"♻️", left:"92%", top:"70%", size:"42px", rot:10,  delay:1.1, anim:"float" }
+          ]}/>
+          <div className="max-w-4xl mx-auto px-4 md:px-8 relative">
             <div className="text-center mb-10">
               <div className="inline-block tag bg-[color:var(--coral)] text-white mb-3 border-[color:var(--ink)]">{t("notes.tag")}</div>
-              <h2 className="font-display text-4xl md:text-6xl mb-3">
-                <span className="wavy">{t("notes.head")}</span>
-              </h2>
-              <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)]">{t("notes.sub")}</p>
+              <h2 className="font-display text-4xl md:text-6xl mb-3"><span className="wavy">{t("notes.head")}</span></h2>
+              <p className="text-lg font-medium text-[color:var(--ink-soft)]">{t("notes.sub")}</p>
             </div>
             <div className="space-y-3 md:space-y-4">
               {NOTE_EMOJIS.map((emoji, i) => (
@@ -1244,18 +1495,17 @@ Phone: {{phone}}</p>
                   <div className="flex items-center gap-3 shrink-0" style={{width:"44px"}}>
                     <span className="font-num text-xl text-[color:var(--nmdc-green)] tabular-nums">{pad(i+1)}</span>
                   </div>
-                  <div className="text-2xl shrink-0" style={{width:"32px"}}>{emoji}</div>
-                  <p className="text-[15px] md:text-base font-medium leading-relaxed pt-1">{t(`note.${i}`)}</p>
+                  <div className="text-3xl shrink-0" style={{width:"36px"}}>{emoji}</div>
+                  <p className="text-base md:text-lg font-medium leading-relaxed pt-1">{t(`note.${i}`)}</p>
                 </div>
               ))}
             </div>
-
             <div className="mt-10 p-6 md:p-7 rounded-2xl bg-[color:var(--coral)] text-white border-[3px] border-[color:var(--ink)]" style={{boxShadow:"6px 6px 0 var(--ink)"}}>
               <div className="flex items-start gap-4">
                 <div className="text-4xl">🚨</div>
                 <div>
                   <div className="font-chunk text-2xl md:text-3xl mb-2">{t("risk.head")}</div>
-                  <p className="text-[15px] leading-relaxed whitespace-pre-line">{t("risk.body")}</p>
+                  <p className="text-base md:text-lg leading-relaxed whitespace-pre-line">{t("risk.body")}</p>
                 </div>
               </div>
             </div>
@@ -1268,11 +1518,11 @@ Phone: {{phone}}</p>
       return (
         <div>
           <label htmlFor={id} className="block mb-2">
-            <span className="font-display text-xl text-[color:var(--ink)]">{label}</span>
-            <span className="ml-2 text-xs font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{sub}</span>
+            <span className="font-display text-xl md:text-2xl text-[color:var(--ink)]">{label}</span>
+            <span className="ml-2 text-sm font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{sub}</span>
           </label>
-          <input id={id} type={type} value={value} onChange={onChange} onBlur={onBlur} placeholder={placeholder} autoComplete={autoComplete} inputMode={inputMode} className={`field w-full px-4 py-3.5 text-base ${error ? "err" : ""}`}/>
-          {error && <div className="mt-2 text-sm font-bold text-[color:var(--coral-deep)] flex items-center gap-1.5"><span>❗</span>{error}</div>}
+          <input id={id} type={type} value={value} onChange={onChange} onBlur={onBlur} placeholder={placeholder} autoComplete={autoComplete} inputMode={inputMode} className={`field w-full px-4 py-3.5 text-lg ${error ? "err" : ""}`}/>
+          {error && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)] flex items-center gap-1.5"><span>❗</span>{error}</div>}
         </div>
       );
     }
@@ -1310,25 +1560,15 @@ Phone: {{phone}}</p>
         if(!agreed){ setSubmitError(t("err.agree")); return; }
         setSubmitting(true);
         try{
-          const payload = {
-            name:form.name.trim(), company:form.company.trim(),
-            title:form.title.trim(), phone:form.phone.trim(),
-            email:form.email.trim().toLowerCase(),
-            lang
-          };
+          const payload = { name:form.name.trim(), company:form.company.trim(), title:form.title.trim(), phone:form.phone.trim(), email:form.email.trim().toLowerCase(), lang };
           const res = await xhrPost(GAS_URL, payload);
           if(res.success){ onSuccess(res); }
           else {
-            const map = {
-              FULL:t("err.full"), DEADLINE_PASSED:t("err.deadline"),
-              DUPLICATE_EMAIL:t("err.duplicate"), INVALID_EMAIL:t("err.email"),
-              MISSING_FIELD:t("err.required"), SERVER_ERROR:t("err.server")
-            };
+            const map = { FULL:t("err.full"), DEADLINE_PASSED:t("err.deadline"), DUPLICATE_EMAIL:t("err.duplicate"), INVALID_EMAIL:t("err.email"), MISSING_FIELD:t("err.required"), SERVER_ERROR:t("err.server") };
             setSubmitError(map[res.error] || t("err.generic"));
           }
-        } catch(err){
-          setSubmitError(t("err.network"));
-        } finally { setSubmitting(false); }
+        } catch(err){ setSubmitError(t("err.network")); }
+        finally { setSubmitting(false); }
       }
 
       return (
@@ -1342,28 +1582,13 @@ Phone: {{phone}}</p>
               <Field id="f-email" label={t("field.email.label")}   sub={t("field.email.sub")}   value={form.email}   onChange={set("email")}   onBlur={()=>setErrors(e=>({...e,email:validate("email")}))}     error={errors.email}   placeholder={t("field.email.ph")}   autoComplete="email" inputMode="email" type="email"/>
             </div>
           </div>
-
           <label className="flex items-start gap-3 cursor-pointer pt-3 p-4 rounded-xl bg-[color:var(--sun)] bg-opacity-40 border-2 border-[color:var(--ink)]">
             <input type="checkbox" className="chk" checked={agreed} onChange={e=>{setAgreed(e.target.checked); if(submitError) setSubmitError("");}}/>
-            <span className="text-sm md:text-base font-bold leading-relaxed">{t("form.agree")}</span>
+            <span className="text-base md:text-lg font-bold leading-relaxed">{t("form.agree")}</span>
           </label>
-
-          {submitError && (
-            <div className="p-4 rounded-xl bg-[color:var(--coral)] text-white font-bold border-[3px] border-[color:var(--ink)] bounce-in" style={{boxShadow:"4px 4px 0 var(--ink)"}}>
-              ❗ {submitError}
-            </div>
-          )}
-
-          <button type="submit" disabled={submitting} className="btn-chunk w-full md:w-auto px-10 py-5 text-lg min-w-[260px] inline-flex items-center justify-center gap-2">
-            {submitting ? (
-              <>
-                <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity=".3"/>
-                  <path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/>
-                </svg>
-                {t("form.submitting")}
-              </>
-            ) : ( t("form.submit") )}
+          {submitError && (<div className="p-4 rounded-xl bg-[color:var(--coral)] text-white font-bold border-[3px] border-[color:var(--ink)] bounce-in" style={{boxShadow:"4px 4px 0 var(--ink)"}}>❗ {submitError}</div>)}
+          <button type="submit" disabled={submitting} className="btn-chunk w-full md:w-auto px-10 py-5 text-xl min-w-[260px] inline-flex items-center justify-center gap-2">
+            {submitting ? (<><svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity=".3"/><path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>{t("form.submitting")}</>) : ( t("form.submit") )}
           </button>
         </form>
       );
@@ -1376,7 +1601,7 @@ Phone: {{phone}}</p>
           <div className="relative z-10">
             <div className="text-6xl mb-4">🎉</div>
             <h3 className="font-display text-4xl md:text-6xl mb-3">{t("ok.head")}</h3>
-            <p className="text-base md:text-lg mb-8 max-w-md font-medium whitespace-pre-line">{t("ok.sub")}</p>
+            <p className="text-lg md:text-xl mb-8 max-w-md font-medium whitespace-pre-line">{t("ok.sub")}</p>
             <div className="grid grid-cols-2 gap-6 max-w-md mb-8 pt-5 border-t-2 border-white/30">
               <div>
                 <div className="text-xs font-extrabold tracking-[0.2em] opacity-80 mb-1">{t("ok.conf")}</div>
@@ -1403,7 +1628,7 @@ Phone: {{phone}}</p>
         <div className="p-8 md:p-12 rounded-2xl bg-[color:var(--ink)] text-[color:var(--cream)] border-[3px] border-[color:var(--ink)] text-center" style={{boxShadow:"8px 8px 0 var(--nmdc-green)"}}>
           <div className="text-6xl mb-4">{emoji}</div>
           <h3 className="font-display text-3xl md:text-5xl mb-3">{title}</h3>
-          <p className="text-base md:text-lg opacity-90 max-w-md mx-auto">{sub}</p>
+          <p className="text-lg md:text-xl opacity-90 max-w-md mx-auto">{sub}</p>
         </div>
       );
     }
@@ -1411,11 +1636,15 @@ Phone: {{phone}}</p>
     function FormSection({ config, configError, isOpen, isFull, isExpired, t, lang, success, onSuccess, onAgain }){
       return (
         <section id="register" className="py-16 md:py-24 bg-paper relative overflow-hidden">
+          <BeachDoodles items={[
+            { emoji:"🌊", left:"4%",  top:"20%", size:"34px", delay:0.2, anim:"float" },
+            { emoji:"🏊", left:"88%", top:"75%", size:"40px", rot:10,  delay:1.0, anim:"sway" }
+          ]}/>
           <div className="max-w-3xl mx-auto px-4 md:px-8 relative">
             <div className="text-center mb-10">
               <div className="inline-block tag bg-[color:var(--nmdc-green)] text-white border-[color:var(--ink)] mb-3">{t("form.tag")}</div>
               <h2 className="font-display text-4xl md:text-6xl mb-3"><span className="wavy-coral">{t("form.head")}</span></h2>
-              <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)]">{t("form.sub")}</p>
+              <p className="text-lg font-medium text-[color:var(--ink-soft)]">{t("form.sub")}</p>
             </div>
             <div className="sticker p-6 md:p-10" style={{boxShadow:"10px 10px 0 var(--ink)"}}>
               {success ? (
@@ -1443,6 +1672,7 @@ Phone: {{phone}}</p>
       );
     }
 
+    // Footer — 2 columns: Contact + Organizer
     function Footer({ t, onEnterEdit }){
       const phone1 = t("footer.contactLine1.val");
       const phone2 = t("footer.contactLine2.val");
@@ -1450,16 +1680,10 @@ Phone: {{phone}}</p>
         <footer className="bg-[color:var(--nmdc-navy)] text-[color:var(--cream)] relative overflow-hidden">
           <Wave color="var(--nmdc-navy)" flip className="-mb-1"/>
           <div className="max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-16 relative">
-            <div className="grid md:grid-cols-3 gap-10 mb-10">
+            <div className="grid md:grid-cols-2 gap-10 mb-10">
               <div>
-                <div className="bg-white rounded-xl p-4 inline-block mb-4">
-                  <img src={NMDC_LOGO} alt="NMDC Energy" className="h-10"/>
-                </div>
-                <p className="text-sm opacity-80 leading-relaxed">{t("footer.brandDesc")}</p>
-              </div>
-              <div>
-                <div className="text-xs font-extrabold tracking-[0.2em] opacity-70 mb-3">{t("footer.contactHead")}</div>
-                <div className="space-y-2 font-medium">
+                <div className="text-sm font-extrabold tracking-[0.2em] opacity-70 mb-4">{t("footer.contactHead")}</div>
+                <div className="space-y-3 font-medium text-lg">
                   <div>
                     <span className="opacity-60 mr-2">{t("footer.contactLine1.label")}</span>
                     <a href={`tel:${phone1.replace(/\D/g,"")}`} className="hover:text-[color:var(--nmdc-green-light)] transition">{phone1}</a>
@@ -1471,15 +1695,15 @@ Phone: {{phone}}</p>
                 </div>
               </div>
               <div>
-                <div className="text-xs font-extrabold tracking-[0.2em] opacity-70 mb-3">{t("footer.orgHead")}</div>
-                <div className="text-sm leading-relaxed">
-                  <div className="font-bold">{t("footer.orgName")}</div>
+                <div className="text-sm font-extrabold tracking-[0.2em] opacity-70 mb-4">{t("footer.orgHead")}</div>
+                <div className="text-base leading-relaxed">
+                  <div className="font-bold text-lg">{t("footer.orgName")}</div>
                   <div className="opacity-75 mt-1">{t("footer.orgAddr")}</div>
                   <div className="opacity-75 mt-1">{t("footer.orgPhone")} · {t("footer.orgTax")}</div>
                 </div>
               </div>
             </div>
-            <div className="pt-6 border-t border-white/15 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs opacity-60">
+            <div className="pt-6 border-t border-white/15 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-sm opacity-60">
               <div>{t("footer.copy")}</div>
               <div className="flex items-center gap-3">
                 <span>{t("footer.poweredBy")}</span>
@@ -1496,10 +1720,7 @@ Phone: {{phone}}</p>
     // ====================================================================
     function App(){
       const [lang, setLang] = useState(() => {
-        try{
-          const saved = window.localStorage.getItem("nmdc_lang");
-          if(saved === "zh" || saved === "en") return saved;
-        } catch(_){}
+        try{ const saved = window.localStorage.getItem("nmdc_lang"); if(saved === "zh" || saved === "en") return saved; } catch(_){}
         return "zh";
       });
       useEffect(() => { try{ window.localStorage.setItem("nmdc_lang", lang); } catch(_){}; }, [lang]);
@@ -1529,12 +1750,8 @@ Phone: {{phone}}</p>
         try{
           const data = await xhrGet(GAS_URL);
           setConfig(data);
-          if(data.content && typeof data.content === "object"){
-            setServerContent(data.content);
-          }
-        } catch(e){
-          setConfigError(DEFAULTS[lang]["err.config"] || "Can't load event info");
-        }
+          if(data.content && typeof data.content === "object"){ setServerContent(data.content); }
+        } catch(e){ setConfigError(DEFAULTS[lang]["err.config"] || "Can't load event info"); }
       }
       useEffect(() => {
         if(!GAS_URL || GAS_URL.startsWith("PASTE_")){
@@ -1553,35 +1770,24 @@ Phone: {{phone}}</p>
 
       function handleSuccess(res){
         setSuccess(res);
-        setTimeout(() => {
-          const el = document.getElementById("register");
-          if(el) el.scrollIntoView({ behavior:"smooth", block:"start" });
-        }, 50);
+        setTimeout(() => { const el = document.getElementById("register"); if(el) el.scrollIntoView({ behavior:"smooth", block:"start" }); }, 50);
         setTimeout(loadConfig, 500);
       }
       function handleAgain(){ setSuccess(null); }
-
-      function showToast(msg, kind="ok"){
-        setToast({ msg, kind });
-        setTimeout(() => setToast(null), 3500);
-      }
+      function showToast(msg, kind="ok"){ setToast({ msg, kind }); setTimeout(() => setToast(null), 3500); }
 
       function enterEditMode(){
         if(editMode){ setPanelOpen(true); return; }
         const pw = window.prompt("管理密碼 / Admin password:");
         if(!pw) return;
-        setEditPassword(pw);
-        setEditMode(true);
-        setPanelOpen(true);
+        setEditPassword(pw); setEditMode(true); setPanelOpen(true);
       }
       function exitEditMode(){
         if(Object.keys(edits).length > 0){
           if(!window.confirm("還有未儲存的變更，確定離開？ / Unsaved changes — exit anyway?")) return;
           setEdits({});
         }
-        setEditMode(false);
-        setPanelOpen(false);
-        setEditPassword("");
+        setEditMode(false); setPanelOpen(false); setEditPassword("");
       }
 
       async function handleSave(){
@@ -1596,36 +1802,39 @@ Phone: {{phone}}</p>
             showToast(`💾 已儲存 ${res.saved} 筆 / Saved`);
           } else if(res.error === "INVALID_PASSWORD"){
             showToast("密碼錯誤 / Wrong password", "err");
-            setEditPassword("");
-            setEditMode(false);
-            setPanelOpen(false);
-          } else {
-            showToast("儲存失敗 / Save failed: " + (res.error || ""), "err");
-          }
-        } catch(e){
-          showToast("連線失敗 / Connection failed", "err");
-        } finally {
-          setSaving(false);
-        }
+            setEditPassword(""); setEditMode(false); setPanelOpen(false);
+          } else { showToast("儲存失敗 / Save failed: " + (res.error || ""), "err"); }
+        } catch(e){ showToast("連線失敗 / Connection failed", "err"); }
+        finally { setSaving(false); }
       }
 
       const dirtyCount = Object.keys(edits).length;
 
+      // Display settings
+      const showCountdown = getDisplay("display.showCountdown", edits, serverContent) === "true";
+      const sectionOrderStr = getDisplay("display.sectionOrder", edits, serverContent);
+      const sectionOrder = sectionOrderStr.split(",").map(s => s.trim()).filter(Boolean);
+      // ensure any missing orderable sections are appended
+      ORDERABLE_SECTIONS.forEach(s => { if(!sectionOrder.includes(s.id)) sectionOrder.push(s.id); });
+
+      function renderSection(id){
+        if(id === "info") return <InfoStickers key="info" t={txt} editMode={editMode}/>;
+        if(id === "status"){
+          if(!showCountdown) return null;
+          return <StatusSection key="status" config={config} t={txt} lang={lang}/>;
+        }
+        if(id === "schedule") return <Schedule key="schedule" t={txt}/>;
+        if(id === "form") return <FormSection key="form" config={config} configError={configError} isOpen={isOpen} isFull={isFull} isExpired={isExpired} t={txt} lang={lang} success={success} onSuccess={handleSuccess} onAgain={handleAgain}/>;
+        if(id === "notes") return <Notes key="notes" t={txt}/>;
+        return null;
+      }
+
       return (
         <div className="min-h-screen">
-          {editMode && (
-            <div className="edit-badge">⚙️ ADMIN MODE{dirtyCount > 0 && ` · ${dirtyCount} UNSAVED`}</div>
-          )}
-          <Header lang={lang} setLang={setLang} onEdit={() => setPanelOpen(true)} editMode={editMode}/>
+          {editMode && (<div className="edit-badge">⚙️ ADMIN MODE{dirtyCount > 0 && ` · ${dirtyCount} UNSAVED`}</div>)}
+          <Header lang={lang} setLang={setLang} onEdit={() => setPanelOpen(true)} editMode={editMode} t={txt}/>
           <Hero t={txt} editMode={editMode}/>
-          <InfoStickers t={txt}/>
-          <StatusSection config={config} t={txt} lang={lang}/>
-          <FormSection
-            config={config} configError={configError}
-            isOpen={isOpen} isFull={isFull} isExpired={isExpired}
-            t={txt} lang={lang} success={success}
-            onSuccess={handleSuccess} onAgain={handleAgain}/>
-          <Notes t={txt}/>
+          {sectionOrder.map(id => renderSection(id))}
           <Footer t={txt} onEnterEdit={enterEditMode}/>
 
           <EditPanel
@@ -1642,16 +1851,11 @@ Phone: {{phone}}</p>
 
           {editMode && (
             <div style={{position:"fixed", bottom:16, right:16, zIndex:45, display:"flex", gap:8, flexDirection:"column"}}>
-              <button onClick={() => setPanelOpen(true)} className="btn-chunk px-4 py-2 text-sm">
-                ⚙️ {dirtyCount > 0 ? `Admin (${dirtyCount})` : "Admin"}
-              </button>
+              <button onClick={() => setPanelOpen(true)} className="btn-chunk px-4 py-2 text-sm">⚙️ {dirtyCount > 0 ? `Admin (${dirtyCount})` : "Admin"}</button>
               <button onClick={exitEditMode} className="btn-outline px-4 py-2 text-sm">🚪 Exit</button>
             </div>
           )}
-
-          {toast && (
-            <div className={"toast " + (toast.kind === "err" ? "err" : "")}>{toast.msg}</div>
-          )}
+          {toast && (<div className={"toast " + (toast.kind === "err" ? "err" : "")}>{toast.msg}</div>)}
         </div>
       );
     }
