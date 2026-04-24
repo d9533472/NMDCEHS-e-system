@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>環保缺失改善追蹤 — 通霄電廠二期海管工程</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0c1f3d;
+  --navy2:   #1e3a5f;
+  --sky:     #0ea5e9;
+  --green:   #10b981;
+  --amber:   #d97706;
+  --red:     #ef4444;
+  --bg:      #f0f4f8;
+  --card:    #ffffff;
+  --border:  #d1dae6;
+  --text:    #0f2540;
+  --muted:   #5a7899;
+  --radius:  10px;
+}
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: linear-gradient(135deg, #060e1e 0%, #0c1f3d 50%, #112848 100%);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 64px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 20px rgba(0,0,0,.4);
+}
+.header-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #38bdf8, #0369a1);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 0 14px rgba(14,165,233,.35);
+  flex-shrink: 0;
+}
+.header-titles { flex: 1; }
+.header-main { font-size: 15px; font-weight: 700; color: #e8f4fd; }
+.header-sub  { font-size: 11px; color: #6a9ec0; margin-top: 1px; }
+.header-badge {
+  font-size: 11px; font-weight: 700;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.7);
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 20px;
+  padding: 3px 12px;
+}
+
+/* ─── CONTENT ─── */
+.content { max-width: 1400px; margin: 0 auto; padding: 24px 20px; }
+
+/* ─── KPI ─── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-stripe {
+  position: absolute; top: 0; left: 0; right: 0; height: 4px;
+}
+.kpi-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 900; line-height: 1; }
+.kpi-sub   { font-size: 11px; color: var(--muted); margin-top: 5px; }
+
+/* ─── FILTERS ─── */
+.filter-bar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.filter-bar select, .filter-bar input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+}
+.filter-bar select:focus, .filter-bar input:focus {
+  border-color: var(--sky);
+}
+.filter-label { font-size: 12px; font-weight: 700; color: var(--muted); }
+.search-wrap { flex: 1; min-width: 180px; }
+.search-wrap input { width: 100%; }
+
+/* ─── TABLE ─── */
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.table-head {
+  display: grid;
+  grid-template-columns: 70px 110px 88px 80px 1fr 120px 88px 88px 70px;
+  background: #e4ecf4;
+  border-bottom: 2px solid var(--border);
+  padding: 10px 16px;
+  gap: 8px;
+}
+.th {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .5px;
+  cursor: pointer; user-select: none;
+  display: flex; align-items: center; gap: 4px;
+}
+.th:hover { color: var(--navy); }
+.table-body {}
+.table-row {
+  display: grid;
+  grid-template-columns: 70px 110px 88px 80px 1fr 120px 88px 88px 70px;
+  padding: 12px 16px;
+  gap: 8px;
+  border-bottom: 1px solid rgba(30,48,80,.08);
+  align-items: start;
+  transition: background .12s;
+}
+.table-row:last-child { border-bottom: none; }
+.table-row:hover { background: #f5f8fc; }
+.td { font-size: 12px; color: var(--text); word-break: break-word; line-height: 1.5; }
+.td-mono { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
+
+/* badges */
+.badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  border-radius: 20px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+.badge-wm     { background: rgba(14,165,233,.12); color: #0ea5e9; border: 1px solid rgba(14,165,233,.3); }
+.badge-ncr    { background: rgba(217,119,6,.12);  color: #d97706; border: 1px solid rgba(217,119,6,.3); }
+.badge-pn     { background: rgba(239,68,68,.12);  color: #ef4444; border: 1px solid rgba(239,68,68,.3); }
+.badge-open   { background: rgba(239,68,68,.1);   color: #ef4444; border: 1px solid rgba(239,68,68,.25); }
+.badge-closed { background: rgba(16,185,129,.1);  color: #10b981; border: 1px solid rgba(16,185,129,.25); }
+
+.defect-item {
+  margin-bottom: 6px;
+  padding-left: 8px;
+  border-left: 3px solid var(--sky);
+}
+.defect-item:last-child { margin-bottom: 0; }
+.defect-cat { font-size: 10px; font-weight: 700; color: var(--sky); margin-bottom: 2px; }
+.defect-desc { font-size: 12px; line-height: 1.5; white-space: pre-wrap; }
+
+.overdue { color: var(--red) !important; font-weight: 700; }
+
+/* ─── LOADING / EMPTY ─── */
+.loading-wrap, .empty-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 60px 20px;
+  color: var(--muted);
+  gap: 14px;
+}
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--sky);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─── FOOTER ─── */
+.footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 12px;
+}
+
+/* ─── MOBILE ─── */
+@media (max-width: 700px) {
+  .header { height: 52px; }
+  .header-sub { display: none; }
+  .content { padding: 14px 12px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .kpi-value { font-size: 26px; }
+  .table-head { display: none; }
+  .table-row {
+    display: flex; flex-direction: column;
+    padding: 14px;
+    border-bottom: none;
+    margin-bottom: 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  .td-mono { font-size: 13px; }
+}
+
+/* update pulse */
+.pulse {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(16,185,129,.4);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(16,185,129,.4); }
+  70%  { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
+  100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🌊</div>
+  <div class="header-titles">
+    <div class="header-main">環保缺失改善追蹤系統</div>
+    <div class="header-sub">通霄電廠二期更新改建計畫海底輸氣管線統包工程 ｜ 業主：台灣電力公司北部施工處</div>
+  </div>
+  <span class="header-badge" id="syncLabel">載入中...</span>
+</div>
+
+<div class="content">
+  <!-- KPI -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card"><div class="kpi-stripe" style="background:#0ea5e9"></div><div class="kpi-label">總開單數</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-sub">累計張數</div></div>
+    <div class="kpi-card"><div class="kpi-stripe" style="background:#ef4444"></div><div class="kpi-label">未結案</div><div class="kpi-value" id="kOpen" style="color:#ef4444">—</div><div class="kpi-sub">待改善</div></div>
+    <div class="kpi-card"><div class="kpi-stripe" style="background:#10b981"></div><div class="kpi-label">已結案</div><div class="kpi-value" id="kClosed" style="color:#10b981">—</div><div class="kpi-sub">已完成</div></div>
+    <div class="kpi-card"><div class="kpi-stripe" style="background:#0891b2"></div><div class="kpi-label">關單率</div><div class="kpi-value" id="kRate" style="color:#0891b2">—</div><div class="kpi-sub">以缺失條數計</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-bar">
+    <span class="filter-label">篩選</span>
+    <select id="fType" onchange="render()">
+      <option value="">全部類型</option>
+      <option value="WM">WM 走動管理</option>
+      <option value="NCR">NCR 改善通知</option>
+      <option value="PN">PN 罰單</option>
+    </select>
+    <select id="fStatus" onchange="render()">
+      <option value="">全部狀態</option>
+      <option value="Open">Open 未結</option>
+      <option value="Closed">Closed 已結</option>
+    </select>
+    <select id="fArea" onchange="render()">
+      <option value="">全部工區</option>
+    </select>
+    <div class="search-wrap">
+      <input type="text" id="fSearch" placeholder="🔍 搜尋編號、說明..." oninput="render()">
+    </div>
+    <span id="countLabel" style="font-size:12px;color:var(--muted);white-space:nowrap"></span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <div class="th" onclick="toggleSort('type')">類型 <span id="s_type"></span></div>
+      <div class="th" onclick="toggleSort('number')">改善單編號 <span id="s_number"></span></div>
+      <div class="th" onclick="toggleSort('date')">缺失日期 <span id="s_date">↓</span></div>
+      <div class="th" onclick="toggleSort('area')">工區</div>
+      <div class="th">缺失說明</div>
+      <div class="th" onclick="toggleSort('refNumber')">業主通知單</div>
+      <div class="th" onclick="toggleSort('deadline')">關單期限</div>
+      <div class="th" onclick="toggleSort('submitDate')">關單日期</div>
+      <div class="th" onclick="toggleSort('status')">狀態</div>
+    </div>
+    <div class="table-body" id="tableBody">
+      <div class="loading-wrap">
+        <div class="spinner"></div>
+        <div>資料載入中...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<script>
+// ─── CONFIG ─────────────────────────────────────────────────
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
+
+const ITEM_NAMES = {
+  1:'裸露區域防制措施', 2:'工區出入口', 3:'車行路徑',
+  4:'整理整頓', 5:'廢水廢油處理', 6:'契約規範'
+};
+
+// ─── STATE ──────────────────────────────────────────────────
+let allRecords = [];
+let sortKey = 'date', sortDir = -1;
+
+// ─── XHR ────────────────────────────────────────────────────
+function xhrGet(url) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    x.open('GET', url, true);
+    x.onload = () => {
+      try { res(JSON.parse(x.responseText)); }
+      catch(e) { rej(e); }
+    };
+    x.onerror = rej;
+    x.send();
+  });
+}
+
+// ─── LOAD ────────────────────────────────────────────────────
+async function load() {
+  try {
+    const data = await xhrGet(GAS_URL + '?action=index');
+    let recs = data.records || [];
+    // normalize
+    allRecords = recs.map(r => {
+      if (!r.defects || r.defects.length === 0)
+        r.defects = [{ item: r.item || 1, description: r.description || '' }];
+      r.status = (r.submitDate && r.submitDate !== '' && r.submitDate !== '-') ? 'Closed' : 'Open';
+      return r;
+    });
+
+    // populate area filter
+    const areas = [...new Set(allRecords.map(r => r.area).filter(Boolean))].sort();
+    const fArea = document.getElementById('fArea');
+    areas.forEach(a => {
+      const o = document.createElement('option');
+      o.value = a; o.textContent = a;
+      fArea.appendChild(o);
+    });
+
+    updateKpi();
+    render();
+    document.getElementById('syncLabel').innerHTML = `<span class="pulse"></span> 即時資料`;
+    document.getElementById('footer').textContent = `資料更新時間：${new Date().toLocaleString('zh-TW')} ｜ 本系統僅供閱覽，如有疑問請聯繫 NMDC 工務所`;
+  } catch(e) {
+    document.getElementById('tableBody').innerHTML = `<div class="loading-wrap">⚠️ 資料載入失敗，請稍後重試</div>`;
+    document.getElementById('syncLabel').textContent = '載入失敗';
+  }
+}
+
+// ─── KPI ────────────────────────────────────────────────────
+function updateKpi() {
+  const total = allRecords.length;
+  const open = allRecords.filter(r => r.status === 'Open').length;
+  const closed = total - open;
+  const totalDefs = allRecords.reduce((s,r) => s + (r.defects?.length || 1), 0);
+  const closedDefs = allRecords.filter(r => r.status === 'Closed').reduce((s,r) => s + (r.defects?.length || 1), 0);
+  const rate = totalDefs ? Math.round(closedDefs / totalDefs * 100) : 0;
+  document.getElementById('kTotal').textContent = total;
+  document.getElementById('kOpen').textContent = open;
+  document.getElementById('kClosed').textContent = closed;
+  document.getElementById('kRate').textContent = rate + '%';
+}
+
+// ─── SORT ───────────────────────────────────────────────────
+function toggleSort(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = -1; }
+  document.querySelectorAll('[id^="s_"]').forEach(el => el.textContent = '');
+  const el = document.getElementById('s_' + key);
+  if (el) el.textContent = sortDir === 1 ? '↑' : '↓';
+  render();
+}
+
+// ─── RENDER ─────────────────────────────────────────────────
+function render() {
+  const type   = document.getElementById('fType').value;
+  const status = document.getElementById('fStatus').value;
+  const area   = document.getElementById('fArea').value;
+  const search = document.getElementById('fSearch').value.toLowerCase();
+  const today  = new Date().toISOString().slice(0, 10);
+
+  let rows = allRecords.filter(r =>
+    (!type   || r.type === type) &&
+    (!status || r.status === status) &&
+    (!area   || r.area === area) &&
+    (!search || [r.number, r.area, r.refNumber, ...(r.defects||[]).map(d => d.description)].join(' ').toLowerCase().includes(search))
+  );
+
+  rows.sort((a, b) => {
+    const va = (a[sortKey] || ''), vb = (b[sortKey] || '');
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+
+  document.getElementById('countLabel').textContent = `共 ${rows.length} 筆`;
+
+  if (rows.length === 0) {
+    document.getElementById('tableBody').innerHTML = `<div class="empty-wrap">📋 <span>沒有符合條件的紀錄</span></div>`;
+    return;
+  }
+
+  const html = rows.map(r => {
+    const isOverdue = r.status === 'Open' && r.deadline && r.deadline !== '-' && r.deadline < today;
+    const defs = (r.defects && r.defects.length > 0) ? r.defects : [{ item: r.item||1, description: r.description||'' }];
+
+    const defHtml = defs.map(d => `
+      <div class="defect-item">
+        <div class="defect-cat">${d.item}. ${ITEM_NAMES[d.item] || ''}</div>
+        <div class="defect-desc">${esc(d.description)}</div>
+      </div>`).join('');
+
+    const deadlineDisp = r.deadline && r.deadline !== '-' ? fmtDate(r.deadline) : '—';
+    const submitDisp   = r.submitDate && r.submitDate !== '-' ? fmtDate(r.submitDate) : '—';
+
+    return `<div class="table-row">
+      <div class="td"><span class="badge badge-${r.type.toLowerCase()}">${r.type}</span></div>
+      <div class="td td-mono">${esc(r.number)}</div>
+      <div class="td">${fmtDate(r.date)}</div>
+      <div class="td">${esc(r.area||'—')}</div>
+      <div class="td">${defHtml}</div>
+      <div class="td" style="font-size:11px">${esc(r.refNumber||'—')}</div>
+      <div class="td ${isOverdue ? 'overdue' : ''}">${deadlineDisp}${isOverdue ? ' ⚠️' : ''}</div>
+      <div class="td" style="color:${submitDisp !== '—' ? 'var(--green)' : ''}">${submitDisp}</div>
+      <div class="td"><span class="badge badge-${r.status.toLowerCase()}">${r.status}</span></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('tableBody').innerHTML = html;
+}
+
+function fmtDate(s) {
+  if (!s || s === '-') return '—';
+  return s.replace(/-/g, '/');
+}
+
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+load();
+</script>
+</body>
+</html>
