@@ -127,7 +127,7 @@ body {
 }
 .table-head {
   display: grid;
-  grid-template-columns: 70px 110px 88px 80px 1fr 120px 88px 88px 70px;
+  grid-template-columns: 70px 110px 88px 80px 80px 1fr 120px 88px 88px 70px;
   background: #e4ecf4;
   border-bottom: 2px solid var(--border);
   padding: 10px 16px;
@@ -143,7 +143,7 @@ body {
 .table-body {}
 .table-row {
   display: grid;
-  grid-template-columns: 70px 110px 88px 80px 1fr 120px 88px 88px 70px;
+  grid-template-columns: 70px 110px 88px 80px 80px 1fr 120px 88px 88px 70px;
   padding: 12px 16px;
   gap: 8px;
   border-bottom: 1px solid rgba(30,48,80,.08);
@@ -291,6 +291,7 @@ body {
       <div class="th" onclick="toggleSort('number')">改善單編號 <span id="s_number"></span></div>
       <div class="th" onclick="toggleSort('date')">缺失日期 <span id="s_date">↓</span></div>
       <div class="th" onclick="toggleSort('area')">工區</div>
+      <div class="th" onclick="toggleSort('issuer')">開單人 <span id="s_issuer"></span></div>
       <div class="th">缺失說明</div>
       <div class="th" onclick="toggleSort('refNumber')">業主通知單</div>
       <div class="th" onclick="toggleSort('deadline')">關單期限</div>
@@ -436,6 +437,7 @@ function render() {
       <div class="td td-mono">${esc(r.number)}</div>
       <div class="td">${fmtDate(r.date)}</div>
       <div class="td">${esc(r.area||'—')}</div>
+      <div class="td">${esc(r.issuer||'—')}</div>
       <div class="td">${defHtml}</div>
       <div class="td" style="font-size:11px">${esc(r.refNumber||'—')}</div>
       <div class="td ${isOverdue ? 'overdue' : ''}">${deadlineDisp}${isOverdue ? ' ⚠️' : ''}</div>
