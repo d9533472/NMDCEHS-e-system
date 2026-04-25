@@ -166,6 +166,34 @@
     .final-agree-check.checked .chk{ background:#fff; border-color:var(--ink); }
     .final-agree-check.checked .chk:checked{ background:#fff; }
     .final-agree-check.checked .chk:checked::after{ border-color:var(--nmdc-green); }
+    .final-agree-check.err{ animation:shake .5s; border-color:var(--coral-deep); background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
+    @keyframes shake{
+      0%, 100% { transform:translateX(0); }
+      20%, 60% { transform:translateX(-6px); }
+      40%, 80% { transform:translateX(6px); }
+    }
+
+    /* Flash attention on the first error after submit */
+    @keyframes flash-attn{
+      0%   { box-shadow:0 0 0 0 rgba(232,85,51,0.7), 4px 4px 0 var(--coral); }
+      40%  { box-shadow:0 0 0 14px rgba(232,85,51,0), 6px 6px 0 var(--coral-deep); }
+      100% { box-shadow:0 0 0 0 rgba(232,85,51,0), 4px 4px 0 var(--coral); }
+    }
+    .flash-error{ animation:flash-attn 1.1s cubic-bezier(.4,0,.6,1) 2, shake .5s; }
+
+    /* Bigger error text with bounce */
+    .field-error-msg{
+      margin-top:6px; padding:8px 12px;
+      background:#FFE5DE; border:2px solid var(--coral-deep); border-radius:8px;
+      font-size:15px; font-weight:800; color:var(--coral-deep);
+      display:flex; align-items:center; gap:6px;
+      animation:err-pop .35s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes err-pop{
+      0%   { opacity:0; transform:translateY(-4px) scale(0.92); }
+      60%  { opacity:1; transform:translateY(0) scale(1.04); }
+      100% { opacity:1; transform:scale(1); }
+    }
 
     /* Form sections — basic & diet */
     .form-section{ position:relative; padding:22px 22px 26px; border-radius:18px; border:3px solid var(--ink); box-shadow:6px 6px 0 var(--ink); }
@@ -196,10 +224,16 @@
 
     /* Yes/No toggle */
     .yn-group{ display:flex; gap:10px; flex-wrap:wrap; }
+    .yn-group.err{ padding:8px; border:2.5px solid var(--coral-deep); border-radius:14px; background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
     .yn-btn{ flex:1; min-width:100px; padding:14px 18px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; font-family:inherit; }
     .yn-btn:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
     .yn-btn.active.yes{ background:var(--nmdc-green); color:#fff; }
     .yn-btn.active.no{ background:var(--ink-soft); color:#fff; }
+
+    .diet-grid.err{ padding:8px; border:2.5px solid var(--coral-deep); border-radius:14px; background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
+
+    .agree-row{ display:flex; align-items:flex-start; gap:12px; cursor:pointer; padding-top:12px; padding:16px; border-radius:12px; background:rgba(255,203,71,0.4); border:2px solid var(--ink); }
+    .agree-row.err{ border:2.5px solid var(--coral-deep); background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
 
     /* Companion sub-card */
     .companion-card{ background:#FFFEF5; border:2.5px dashed var(--ink); border-radius:14px; padding:14px 16px; margin-top:12px; }
@@ -210,6 +244,14 @@
 
     .same-diet-row{ margin-top:14px; padding:12px 14px; background:rgba(255,255,255,0.6); border:2px solid var(--ink); border-radius:10px; display:flex; align-items:center; gap:10px; cursor:pointer; }
     .same-diet-row:hover{ background:#fff; }
+
+    /* Per-companion diet rows shown when "same as me" is unchecked */
+    .companion-diet-list{ margin-top:14px; display:flex; flex-direction:column; gap:12px; }
+    .companion-diet-row{ background:rgba(255,255,255,0.7); border:2px dashed var(--ink); border-radius:12px; padding:14px; }
+    .companion-diet-row .diet-opt{ padding:10px 12px; box-shadow:2px 2px 0 var(--ink); }
+    .companion-diet-row .diet-opt:hover{ box-shadow:3px 3px 0 var(--ink); }
+    .companion-diet-name{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Caprasimo',serif; font-size:1.1rem; color:var(--nmdc-green-dark); }
+    .companion-diet-name .companion-card-num{ background:var(--nmdc-green); }
 
     /* Reorder UI */
     .reorder-item{
@@ -298,7 +340,11 @@
     .lang-picker-btn.zh:hover{ background:var(--sun); }
     .lang-picker-btn.en:hover{ background:var(--sky); }
     .lang-picker-flag{ font-size:48px; line-height:1; height:48px; display:flex; align-items:center; justify-content:center; }
-    .lang-picker-flag svg{ height:40px; width:auto; border:1.5px solid var(--ink); border-radius:4px; box-shadow:2px 2px 0 var(--ink); }
+    .lang-picker-flag svg{ height:40px; width:auto; }
+    /* Flag (rectangular) — bordered + boxed */
+    .lang-picker-btn.zh .lang-picker-flag svg{ border:1.5px solid var(--ink); border-radius:4px; box-shadow:2px 2px 0 var(--ink); }
+    /* Globe (round) — slightly larger to match visual weight of flag, no rectangular border */
+    .lang-picker-btn.en .lang-picker-flag svg{ height:48px; filter:drop-shadow(2px 2px 0 var(--ink)); }
     .lang-picker-name{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1; }
     .lang-picker-tag{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:0.1em; text-transform:uppercase; }
     .lang-picker-emojis{ text-align:center; font-size:28px; margin-bottom:8px; letter-spacing:8px; }
@@ -319,6 +365,7 @@
       .lang-picker-btn{ padding:18px 10px; }
       .lang-picker-flag{ font-size:38px; height:38px; }
       .lang-picker-flag svg{ height:32px; }
+      .lang-picker-btn.en .lang-picker-flag svg{ height:38px; }
       .lang-picker-name{ font-size:1.3rem; }
     }
     .rich-editor{ border:2px solid var(--ink); border-top:0; border-radius:0 0 8px 8px; padding:14px; min-height:240px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-size:14px; background:#fff; outline:none; line-height:1.6; overflow-y:auto; max-height:500px; }
@@ -498,42 +545,46 @@ Phone: {{phone}}</p>
         "form.tag": "🏖️ SIGN UP",
         "form.head": "來報名吧！",
         "form.sub": "填一下，我們活動前一週寄行前通知給你。",
-        "field.name.label": "姓名", "field.name.sub": "Your name", "field.name.ph": "你的全名",
-        "field.company.label": "公司", "field.company.sub": "Company", "field.company.ph": "你所屬的公司",
-        "field.title.label": "職稱", "field.title.sub": "Job title", "field.title.ph": "例：環安工程師",
-        "field.phone.label": "電話", "field.phone.sub": "Phone", "field.phone.ph": "0912-345-678",
-        "field.email.label": "電子信箱", "field.email.sub": "Email", "field.email.ph": "you@company.com",
-        "field.blood.label": "血型", "field.blood.sub": "Blood Type", "field.blood.ph": "請選擇 / Select",
-        "section.basic.head": "📋 基本資訊", "section.basic.sub": "Basic Info — 來個自我介紹吧",
-        "section.diet.head": "🍽️ 飲食習慣", "section.diet.sub": "Dietary preference — 餐點會依此安排",
-        "diet.option.meat": "葷食 / Regular",
-        "diet.option.veg": "素食 / Vegetarian",
+        "field.name.label": "姓名", "field.name.sub": "", "field.name.ph": "你的全名",
+        "field.company.label": "公司", "field.company.sub": "", "field.company.ph": "你所屬的公司",
+        "field.title.label": "職稱", "field.title.sub": "", "field.title.ph": "例：環安工程師",
+        "field.phone.label": "電話", "field.phone.sub": "", "field.phone.ph": "0912345678",
+        "field.email.label": "電子信箱", "field.email.sub": "", "field.email.ph": "you@company.com",
+        "field.blood.label": "血型", "field.blood.sub": "", "field.blood.ph": "請選擇血型",
+        "section.basic.head": "📋 基本資訊", "section.basic.sub": "來個自我介紹吧～",
+        "section.diet.head": "🍽️ 飲食習慣", "section.diet.sub": "餐點會依此安排",
+        "diet.option.meat": "葷食",
+        "diet.option.veg": "素食",
         "diet.option.halal": "Halal 清真食物",
-        "diet.option.other": "其他 / Other",
+        "diet.option.other": "其他",
         "diet.other.ph": "請說明你的飲食需求…",
-        "diet.same.label": "攜眷飲食與我相同 / Companions same as me",
+        "diet.same.label": "攜眷飲食與我相同",
+        "form.section.tag.basic": "BASIC",
+        "form.section.tag.diet": "MEAL",
+        "form.section.tag.emergency": "EMERGENCY",
+        "form.totalSeats": "📊 本次報名共佔 {{n}} 席（本人 1 + 攜眷 {{c}}）",
         "companion.toggle.label": "攜眷一起參加？",
-        "companion.toggle.sub": "Bringing companions?",
-        "companion.yes": "是 Yes",
-        "companion.no": "否 No",
+        "companion.toggle.sub": "可帶家人朋友",
+        "companion.yes": "是",
+        "companion.no": "否",
         "companion.count.label": "攜眷人數",
-        "companion.count.sub": "Number of companions",
-        "companion.heading": "攜眷 #{{n}} / Companion #{{n}}",
-        "companion.name.label": "姓名 Name",
+        "companion.count.sub": "",
+        "companion.heading": "攜眷 #{{n}}",
+        "companion.name.label": "姓名",
         "companion.name.ph": "攜眷姓名",
-        "companion.blood.label": "血型 Blood",
-        "companion.diet.label": "飲食 Diet",
+        "companion.blood.label": "血型",
+        "companion.diet.label": "飲食",
         "emergency.head": "🚨 緊急聯絡資訊",
         "emergency.sub": "活動當天若有突發狀況，我們會聯絡這位人選。",
-        "field.emName.label": "緊急聯絡人姓名", "field.emName.sub": "Emergency contact name", "field.emName.ph": "例：王小明（與你的關係）",
-        "field.emPhone.label": "緊急聯絡電話", "field.emPhone.sub": "Emergency phone", "field.emPhone.ph": "0912-345-678",
+        "field.emName.label": "緊急聯絡人姓名", "field.emName.sub": "", "field.emName.ph": "例：王小明（與你的關係）",
+        "field.emPhone.label": "緊急聯絡電話", "field.emPhone.sub": "", "field.emPhone.ph": "0912345678",
         "form.agree": "我已經確認本活動的注意事項和風險告知，沒問題！",
         "form.submit": "送出報名 🌊",
         "form.submitting": "送出中…",
 
         "err.required": "這欄不能空著喔",
-        "err.email": "這個信箱怪怪的",
-        "err.phone": "電話號碼不太對",
+        "err.email": "信箱格式不對，要有 @ 跟網域（例：name@example.com）",
+        "err.phone": "電話只能填純數字，8~15 碼（不要加 - 或 +）",
         "err.agree": "先勾選同意才可以送出哦",
         "err.network": "連線失敗，檢查網路再試一次",
         "err.config": "活動資訊載入失敗，等一下再試",
@@ -541,6 +592,8 @@ Phone: {{phone}}</p>
         "err.full": "名額已滿，謝謝你的關注！",
         "err.deadline": "報名已經截止囉",
         "err.duplicate": "這個信箱已經報過名了",
+        "err.notEnough": "名額不足，目前剩 {{r}} 席，本次需要 {{n}} 席。",
+        "err.fixN": "還有 {{n}} 個欄位要填，請檢查紅框位置喔！",
         "err.generic": "送出失敗，請稍後再試",
 
         "ok.head": "報名成功！🎉",
@@ -643,42 +696,46 @@ Phone: {{phone}}</p>
         "form.tag": "🏖️ SIGN UP",
         "form.head": "Let's go — sign up!",
         "form.sub": "Fill it in and we'll send a briefing one week before.",
-        "field.name.label": "Name", "field.name.sub": "姓名", "field.name.ph": "Your full name",
-        "field.company.label": "Company", "field.company.sub": "公司", "field.company.ph": "Your company",
-        "field.title.label": "Job Title", "field.title.sub": "職稱", "field.title.ph": "e.g. EHS Engineer",
-        "field.phone.label": "Phone", "field.phone.sub": "電話", "field.phone.ph": "0912-345-678",
-        "field.email.label": "Email", "field.email.sub": "信箱", "field.email.ph": "you@company.com",
-        "field.blood.label": "Blood Type", "field.blood.sub": "血型", "field.blood.ph": "Select / 請選擇",
+        "field.name.label": "Name", "field.name.sub": "", "field.name.ph": "Your full name",
+        "field.company.label": "Company", "field.company.sub": "", "field.company.ph": "Your company",
+        "field.title.label": "Job Title", "field.title.sub": "", "field.title.ph": "e.g. EHS Engineer",
+        "field.phone.label": "Phone", "field.phone.sub": "", "field.phone.ph": "0912345678",
+        "field.email.label": "Email", "field.email.sub": "", "field.email.ph": "you@company.com",
+        "field.blood.label": "Blood Type", "field.blood.sub": "", "field.blood.ph": "Select your blood type",
         "section.basic.head": "📋 Basic Info", "section.basic.sub": "Tell us about yourself",
         "section.diet.head": "🍽️ Dietary Preference", "section.diet.sub": "Meals will follow your selection",
-        "diet.option.meat": "Regular / 葷食",
-        "diet.option.veg": "Vegetarian / 素食",
+        "diet.option.meat": "Regular",
+        "diet.option.veg": "Vegetarian",
         "diet.option.halal": "Halal",
-        "diet.option.other": "Other / 其他",
+        "diet.option.other": "Other",
         "diet.other.ph": "Please describe your dietary needs…",
         "diet.same.label": "Companions same dietary preference as me",
+        "form.section.tag.basic": "BASIC",
+        "form.section.tag.diet": "MEAL",
+        "form.section.tag.emergency": "EMERGENCY",
+        "form.totalSeats": "📊 {{n}} seat(s) total ({{c}} companion(s) + you)",
         "companion.toggle.label": "Bringing companions?",
-        "companion.toggle.sub": "攜眷一起參加",
-        "companion.yes": "Yes 是",
-        "companion.no": "No 否",
+        "companion.toggle.sub": "Family or friends",
+        "companion.yes": "Yes",
+        "companion.no": "No",
         "companion.count.label": "Number of Companions",
-        "companion.count.sub": "攜眷人數",
-        "companion.heading": "Companion #{{n}} / 攜眷 #{{n}}",
+        "companion.count.sub": "",
+        "companion.heading": "Companion #{{n}}",
         "companion.name.label": "Name",
         "companion.name.ph": "Companion's full name",
         "companion.blood.label": "Blood Type",
         "companion.diet.label": "Diet",
         "emergency.head": "🚨 Emergency Contact Info",
         "emergency.sub": "Who should we call if anything happens during the event.",
-        "field.emName.label": "Emergency Contact Name", "field.emName.sub": "緊急聯絡人姓名", "field.emName.ph": "e.g. Jane Doe (relationship)",
-        "field.emPhone.label": "Emergency Phone", "field.emPhone.sub": "緊急聯絡電話", "field.emPhone.ph": "0912-345-678",
+        "field.emName.label": "Emergency Contact Name", "field.emName.sub": "", "field.emName.ph": "e.g. Jane Doe (relationship)",
+        "field.emPhone.label": "Emergency Phone", "field.emPhone.sub": "", "field.emPhone.ph": "0912345678",
         "form.agree": "I've read the event notes and risk notice — all good!",
         "form.submit": "Count me in 🌊",
         "form.submitting": "Submitting…",
 
         "err.required": "Don't leave this blank",
-        "err.email": "That email looks off",
-        "err.phone": "Phone number doesn't look right",
+        "err.email": "Invalid email — must have @ and a domain (e.g. name@example.com)",
+        "err.phone": "Phone must be 8–15 digits only (no dashes or symbols)",
         "err.agree": "Tick the box first!",
         "err.network": "Connection failed — check your network",
         "err.config": "Can't load event info, try again later",
@@ -686,6 +743,8 @@ Phone: {{phone}}</p>
         "err.full": "Fully booked — thanks!",
         "err.deadline": "Registration has closed",
         "err.duplicate": "This email is already registered",
+        "err.notEnough": "Not enough slots — only {{r}} left, you need {{n}}.",
+        "err.fixN": "{{n}} field(s) still need filling — please check the red boxes!",
         "err.generic": "Failed to submit, try again later",
 
         "ok.head": "You're in! 🎉",
@@ -794,6 +853,8 @@ Phone: {{phone}}</p>
         "section.diet.head","section.diet.sub",
         "diet.option.meat","diet.option.veg","diet.option.halal","diet.option.other",
         "diet.other.ph","diet.same.label",
+        "form.section.tag.basic","form.section.tag.diet","form.section.tag.emergency",
+        "form.totalSeats",
         "emergency.head","emergency.sub",
         "field.emName.label","field.emName.sub","field.emName.ph",
         "field.emPhone.label","field.emPhone.sub","field.emPhone.ph",
@@ -802,7 +863,7 @@ Phone: {{phone}}</p>
       { id:"err", label:"錯誤訊息 Error Messages", keys:[
         "err.required","err.email","err.phone","err.agree",
         "err.network","err.config","err.server",
-        "err.full","err.deadline","err.duplicate","err.generic"
+        "err.full","err.deadline","err.duplicate","err.notEnough","err.fixN","err.generic"
       ]},
       { id:"ok", label:"成功畫面 Success", keys:["ok.head","ok.sub","ok.conf","ok.name","ok.again"], multi:["ok.sub"] },
       { id:"closed", label:"關閉畫面 Closed States", keys:[
@@ -884,8 +945,11 @@ Phone: {{phone}}</p>
         x.send(JSON.stringify(data));
       });
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-    const phoneRegex = /^[\d\-\+\s\(\)]{8,20}$/;
+    // Email: local@domain.tld — local part 1+ chars, domain has at least one dot,
+    // last segment (TLD) ≥ 2 letters. Disallow consecutive dots and leading/trailing dots.
+    const emailRegex = /^[^\s@.](?:[^\s@]*[^\s@.])?@[^\s@.]+(?:\.[^\s@.]+)*\.[a-zA-Z]{2,}$/;
+    // Phone: digits only, 8-15 chars (covers Taiwan mobile/landline + intl ranges)
+    const phoneRegex = /^\d{8,15}$/;
     const pad = n => String(n).padStart(2, "0");
     function formatDeadline(iso, lang){
       try{
@@ -1751,36 +1815,37 @@ Phone: {{phone}}</p>
 
     function Hero({ t, editMode }){
       const clickGuard = editMode ? (e) => e.preventDefault() : undefined;
+      // On mobile, all doodles move to edges/corners so they don't overlap text
       const doodles = [
-        { emoji:"🌊", left:"3%",  top:"8%",  size:"36px", rot:-10, delay:0.2, anim:"float" },
-        { emoji:"🐚", left:"8%",  top:"78%", size:"42px", rot:15,  delay:0.8, anim:"sway" },
-        { emoji:"🦀", left:"85%", top:"10%", size:"44px", rot:-5,  delay:1.2, anim:"wiggle" },
-        { emoji:"⛱️", left:"90%", top:"58%", size:"52px", rot:8,   delay:0.4, anim:"sway", dur:6 },
-        { emoji:"🌴", left:"1%",  top:"35%", size:"48px", rot:-12, delay:1.5, anim:"sway", dur:7 },
-        { emoji:"🐠", left:"78%", top:"82%", size:"36px", rot:18,  delay:0.6, anim:"float" }
+        { emoji:"🌊", left:"2%",  top:"4%",  size:"32px", rot:-10, delay:0.2, anim:"float" },
+        { emoji:"🐚", left:"92%", top:"4%",  size:"36px", rot:15,  delay:0.8, anim:"sway" },
+        { emoji:"🦀", left:"90%", top:"92%", size:"38px", rot:-5,  delay:1.2, anim:"wiggle" },
+        { emoji:"⛱️", left:"2%",  top:"90%", size:"40px", rot:8,   delay:0.4, anim:"sway", dur:6 },
+        { emoji:"🌴", left:"95%", top:"48%", size:"36px", rot:-12, delay:1.5, anim:"sway", dur:7 },
+        { emoji:"🐠", left:"3%",  top:"52%", size:"32px", rot:18,  delay:0.6, anim:"float" }
       ];
       return (
-        <section className="relative py-16 md:py-24 bg-paper overflow-hidden">
+        <section className="relative py-12 md:py-24 bg-paper overflow-hidden">
           <Confetti/>
           <BeachDoodles items={doodles}/>
-          <div className="max-w-6xl mx-auto px-4 md:px-8 grid md:grid-cols-[1fr_auto] gap-10 items-center relative z-10">
+          <div className="max-w-6xl mx-auto px-5 md:px-8 grid md:grid-cols-[1fr_auto] gap-10 items-center relative z-10">
             <div>
-              <div className="tag mb-6 bounce-in">{t("hero.chip")}</div>
-              <div className="text-2xl md:text-3xl font-bold text-[color:var(--nmdc-green)] mb-3 bounce-in" style={{animationDelay:"80ms"}}>
+              <div className="tag mb-4 md:mb-6 bounce-in">{t("hero.chip")}</div>
+              <div className="text-xl md:text-3xl font-bold text-[color:var(--nmdc-green)] mb-3 bounce-in" style={{animationDelay:"80ms"}}>
                 {t("hero.subtitle")}
               </div>
-              <h1 className="font-display text-[4.5rem] md:text-[8rem] leading-[0.9] tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
+              <h1 className="font-display text-[3rem] sm:text-[4rem] md:text-[8rem] leading-[0.95] md:leading-[0.9] tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
                 <span className="block">{t("hero.title1")}</span>
                 <span className="inline-block text-[color:var(--nmdc-green)] wiggle">{t("hero.title2")}</span>
               </h1>
-              <p className="text-xl md:text-2xl text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
+              <p className="text-base md:text-2xl text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
                 {t("hero.tagline")}
               </p>
-              <div className="mt-8 flex flex-wrap gap-3 bounce-in" style={{animationDelay:"320ms"}}>
-                <a href="#register" onClick={clickGuard} className="btn-chunk px-8 py-4 text-lg inline-flex items-center gap-2">
+              <div className="mt-6 md:mt-8 flex flex-wrap gap-3 bounce-in" style={{animationDelay:"320ms"}}>
+                <a href="#register" onClick={clickGuard} className="btn-chunk px-6 md:px-8 py-3 md:py-4 text-base md:text-lg inline-flex items-center gap-2">
                   {t("hero.ctaPrimary")} <span className="text-xl">→</span>
                 </a>
-                <a href="#notes" onClick={clickGuard} className="btn-outline px-6 py-4 text-base">
+                <a href="#notes" onClick={clickGuard} className="btn-outline px-5 md:px-6 py-3 md:py-4 text-sm md:text-base">
                   {t("hero.ctaSecondary")}
                 </a>
               </div>
@@ -2050,7 +2115,7 @@ Phone: {{phone}}</p>
           ) : (
             <input id={id} type={type} value={value} onChange={onChange} onBlur={onBlur} placeholder={placeholder} autoComplete={autoComplete} inputMode={inputMode} className={`field w-full px-4 py-3.5 text-lg ${error ? "err" : ""}`}/>
           )}
-          {error && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)] flex items-center gap-1.5"><span>❗</span>{error}</div>}
+          {error && <div className="field-error-msg"><span>❗</span>{error}</div>}
         </div>
       );
     }
@@ -2074,7 +2139,16 @@ Phone: {{phone}}</p>
       const [submitError, setSubmitError] = useState("");
 
       const set = k => e => {
-        setForm(f => ({...f, [k]: e.target.value}));
+        let v = e.target.value;
+        // Phone fields: allow only digits (auto-strip dashes / spaces / symbols on type or paste)
+        if(k === "phone" || k === "emPhone"){
+          v = v.replace(/\D/g, "");
+        }
+        // Email: lower-case + strip whitespace as user types
+        if(k === "email"){
+          v = v.replace(/\s/g, "");
+        }
+        setForm(f => ({...f, [k]: v}));
         if(errors[k]) setErrors(er => ({...er, [k]:""}));
         if(submitError) setSubmitError("");
       };
@@ -2111,30 +2185,7 @@ Phone: {{phone}}</p>
         return "";
       };
 
-      const validateAll = () => {
-        const next = {};
-        mainFields.forEach(k => { const e = validateField(k); if(e) next[k] = e; });
-
-        // Diet
-        if(!form.diet) next.diet = t("err.required");
-        if(form.diet === "other" && !form.dietOther.trim()) next.dietOther = t("err.required");
-
-        // Companions
-        if(!form.bringCompanions) next.bringCompanions = t("err.required");
-        if(form.bringCompanions === "yes"){
-          form.companions.forEach((c, i) => {
-            if(!c.name.trim()) next[`c${i}_name`] = t("err.required");
-            if(!c.blood) next[`c${i}_blood`] = t("err.required");
-            if(!form.sameDiet){
-              if(!c.diet) next[`c${i}_diet`] = t("err.required");
-              if(c.diet === "other" && !c.dietOther.trim()) next[`c${i}_dietOther`] = t("err.required");
-            }
-          });
-        }
-
-        setErrors(next);
-        return Object.keys(next).length === 0;
-      };
+      const validate = (k) => validateField(k);
 
       // Total seats this submission will occupy
       const totalSeats = 1 + (form.bringCompanions === "yes" ? form.companions.length : 0);
@@ -2142,19 +2193,70 @@ Phone: {{phone}}</p>
       async function handleSubmit(e){
         e && e.preventDefault();
         setSubmitError("");
-        if(!validateAll()){
-          // Scroll to first error
+
+        // Gather all errors in one pass so user sees all problems at once
+        const allErr = {};
+        mainFields.forEach(k => { const er = validateField(k); if(er) allErr[k] = er; });
+        if(!form.diet) allErr.diet = t("err.required");
+        if(form.diet === "other" && !form.dietOther.trim()) allErr.dietOther = t("err.required");
+        if(!form.bringCompanions) allErr.bringCompanions = t("err.required");
+        if(form.bringCompanions === "yes"){
+          form.companions.forEach((c, i) => {
+            if(!c.name.trim())      allErr[`c${i}_name`] = t("err.required");
+            if(!c.blood)            allErr[`c${i}_blood`] = t("err.required");
+            if(!form.sameDiet){
+              if(!c.diet)                                     allErr[`c${i}_diet`] = t("err.required");
+              if(c.diet === "other" && !c.dietOther.trim())   allErr[`c${i}_dietOther`] = t("err.required");
+            }
+          });
+        }
+        const agreeOk = agreed;
+        setErrors({ ...allErr, _agree: agreeOk ? "" : "1" });
+
+        const missingCount = Object.keys(allErr).length;
+
+        if(missingCount > 0 || !agreeOk){
+          // Compose a single summary at the top
+          if(missingCount > 0 && !agreeOk){
+            setSubmitError(t("err.fixN").replace("{{n}}", String(missingCount)) + " " + t("err.agree"));
+          } else if(missingCount > 0){
+            setSubmitError(t("err.fixN").replace("{{n}}", String(missingCount)));
+          } else {
+            setSubmitError(t("err.agree"));
+          }
           setTimeout(() => {
-            const errEl = document.querySelector(".field.err");
-            if(errEl) errEl.scrollIntoView({ behavior:"smooth", block:"center" });
+            const firstErrEl = document.querySelector(".field.err, .yn-group.err, .diet-grid.err, .final-agree-check.err, .form-err-hint");
+            if(firstErrEl){
+              firstErrEl.scrollIntoView({ behavior:"smooth", block:"center" });
+              // Flash + shake the first error to grab attention
+              firstErrEl.classList.remove("flash-error");
+              // Force reflow so animation can replay if user submits multiple times
+              void firstErrEl.offsetWidth;
+              firstErrEl.classList.add("flash-error");
+              setTimeout(() => firstErrEl.classList.remove("flash-error"), 2500);
+              // Focus the input itself (if it's a field) so they can start typing
+              if(firstErrEl.matches(".field")){
+                try{ firstErrEl.focus({ preventScroll:true }); } catch(_){}
+              } else {
+                const inner = firstErrEl.querySelector(".field");
+                if(inner) try{ inner.focus({ preventScroll:true }); } catch(_){}
+              }
+            }
+            // Tab-title nudge — useful if user switched tabs while filling
+            const totalIssues = missingCount + (agreeOk ? 0 : 1);
+            if(totalIssues > 0 && !document.hidden){
+              const original = document.title;
+              const flashTitle = lang === "en" ? `(${totalIssues}) Form incomplete!` : `(${totalIssues}) 表格未完成！`;
+              document.title = flashTitle;
+              setTimeout(() => { document.title = original; }, 5000);
+            }
           }, 50);
           return;
         }
-        if(!agreed){ setSubmitError(t("err.agree")); return; }
 
         // Pre-flight check that there's enough room for everyone
         if(typeof configRemaining === "number" && totalSeats > configRemaining){
-          setSubmitError(`名額不足，目前剩 ${configRemaining} 席，本次需要 ${totalSeats} 席。 / Not enough slots — ${configRemaining} left, you need ${totalSeats}.`);
+          setSubmitError(t("err.notEnough").replace("{{r}}", String(configRemaining)).replace("{{n}}", String(totalSeats)));
           return;
         }
 
@@ -2208,7 +2310,7 @@ Phone: {{phone}}</p>
 
           {/* === SECTION 1: Basic Info === */}
           <div className="form-section basic">
-            <div className="form-section-head"><span className="form-section-tag">📋 Basic</span></div>
+            <div className="form-section-head"><span className="form-section-tag">📋 {t("form.section.tag.basic")}</span></div>
             <div className="form-section-title">{t("section.basic.head")}</div>
             <div className="form-section-sub">{t("section.basic.sub")}</div>
 
@@ -2216,7 +2318,7 @@ Phone: {{phone}}</p>
               <Field id="f-name"    label={t("field.name.label")}    sub={t("field.name.sub")}    value={form.name}    onChange={set("name")}    onBlur={()=>setErrors(e=>({...e,name:validateField("name")}))}       error={errors.name}    placeholder={t("field.name.ph")}    autoComplete="name"/>
               <Field id="f-company" label={t("field.company.label")} sub={t("field.company.sub")} value={form.company} onChange={set("company")} onBlur={()=>setErrors(e=>({...e,company:validateField("company")}))} error={errors.company} placeholder={t("field.company.ph")} autoComplete="organization"/>
               <Field id="f-title"   label={t("field.title.label")}   sub={t("field.title.sub")}   value={form.title}   onChange={set("title")}   onBlur={()=>setErrors(e=>({...e,title:validateField("title")}))}     error={errors.title}   placeholder={t("field.title.ph")}   autoComplete="organization-title"/>
-              <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validateField("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="tel" type="tel"/>
+              <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validateField("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="numeric" type="tel"/>
               <Field id="f-email"   label={t("field.email.label")}   sub={t("field.email.sub")}   value={form.email}   onChange={set("email")}   onBlur={()=>setErrors(e=>({...e,email:validateField("email")}))}     error={errors.email}   placeholder={t("field.email.ph")}   autoComplete="email" inputMode="email" type="email"/>
               <Field id="f-blood"   label={t("field.blood.label")}   sub={t("field.blood.sub")}   value={form.blood}   onChange={set("blood")}   onBlur={()=>setErrors(e=>({...e,blood:validateField("blood")}))}     error={errors.blood}   placeholder={t("field.blood.ph")}   type="select" options={BLOOD_TYPES}/>
             </div>
@@ -2227,7 +2329,7 @@ Phone: {{phone}}</p>
                 <span className="font-display text-xl md:text-2xl text-[color:var(--ink)]">👨‍👩‍👧 {t("companion.toggle.label")}</span>
                 <span className="ml-2 text-sm font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{t("companion.toggle.sub")}</span>
               </label>
-              <div className="yn-group">
+              <div className={"yn-group " + (errors.bringCompanions ? "err" : "")}>
                 <button type="button" className={"yn-btn yes " + (form.bringCompanions === "yes" ? "active" : "")} onClick={() => { setForm(f => ({...f, bringCompanions:"yes"})); if(errors.bringCompanions) setErrors(er => ({...er, bringCompanions:""})); }}>
                   ✅ {t("companion.yes")}
                 </button>
@@ -2235,7 +2337,7 @@ Phone: {{phone}}</p>
                   ❌ {t("companion.no")}
                 </button>
               </div>
-              {errors.bringCompanions && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)]">❗ {errors.bringCompanions}</div>}
+              {errors.bringCompanions && <div className="field-error-msg"><span>❗</span>{errors.bringCompanions}</div>}
 
               {form.bringCompanions === "yes" && (
                 <div className="mt-5">
@@ -2264,26 +2366,6 @@ Phone: {{phone}}</p>
                           type="select" options={BLOOD_TYPES}
                           placeholder={t("field.blood.ph")}/>
                       </div>
-                      {/* Per-companion diet (only when sameDiet is OFF) */}
-                      {!form.sameDiet && (
-                        <div className="mt-3">
-                          <div className="text-sm font-bold text-[color:var(--ink-soft)] uppercase tracking-wider mb-2">🍽️ {t("companion.diet.label")}</div>
-                          <div className="diet-grid">
-                            {dietOpts.map(opt => (
-                              <label key={opt.val} className={"diet-opt " + (c.diet === opt.val ? "active" : "")}>
-                                <input type="radio" name={`c${i}-diet`} value={opt.val} checked={c.diet === opt.val}
-                                  onChange={() => { setCompanion(i, "diet", opt.val); if(errors[`c${i}_diet`]) setErrors(er => ({...er, [`c${i}_diet`]:""})); }}/>
-                                <span>{opt.label}</span>
-                              </label>
-                            ))}
-                          </div>
-                          {c.diet === "other" && (
-                            <input type="text" placeholder={t("diet.other.ph")} value={c.dietOther} onChange={(e) => setCompanion(i, "dietOther", e.target.value)} className="diet-other-input"/>
-                          )}
-                          {errors[`c${i}_diet`] && <div className="mt-1 text-sm font-bold text-[color:var(--coral-deep)]">❗ {errors[`c${i}_diet`]}</div>}
-                          {errors[`c${i}_dietOther`] && <div className="mt-1 text-sm font-bold text-[color:var(--coral-deep)]">❗ {errors[`c${i}_dietOther`]}</div>}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -2293,10 +2375,10 @@ Phone: {{phone}}</p>
 
           {/* === SECTION 2: Diet === */}
           <div className="form-section diet">
-            <div className="form-section-head"><span className="form-section-tag">🍽️ Meal</span></div>
+            <div className="form-section-head"><span className="form-section-tag">🍽️ {t("form.section.tag.diet")}</span></div>
             <div className="form-section-title">{t("section.diet.head")}</div>
             <div className="form-section-sub">{t("section.diet.sub")}</div>
-            <div className="diet-grid">
+            <div className={"diet-grid " + (errors.diet ? "err" : "")}>
               {dietOpts.map(opt => (
                 <label key={opt.val} className={"diet-opt " + (form.diet === opt.val ? "active" : "")}>
                   <input type="radio" name="diet" value={opt.val} checked={form.diet === opt.val}
@@ -2308,32 +2390,63 @@ Phone: {{phone}}</p>
             {form.diet === "other" && (
               <input type="text" placeholder={t("diet.other.ph")} value={form.dietOther} onChange={(e) => { setForm(f => ({...f, dietOther: e.target.value})); if(errors.dietOther) setErrors(er => ({...er, dietOther:""})); }} className="diet-other-input"/>
             )}
-            {errors.diet && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)]">❗ {errors.diet}</div>}
-            {errors.dietOther && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)]">❗ {errors.dietOther}</div>}
+            {errors.diet && <div className="field-error-msg"><span>❗</span>{errors.diet}</div>}
+            {errors.dietOther && <div className="field-error-msg"><span>❗</span>{errors.dietOther}</div>}
 
             {form.bringCompanions === "yes" && form.companions.length > 0 && (
-              <label className="same-diet-row">
-                <input type="checkbox" className="chk" checked={form.sameDiet} onChange={(e) => setForm(f => ({...f, sameDiet: e.target.checked}))}/>
-                <span className="text-base font-bold leading-relaxed">{t("diet.same.label")}</span>
-              </label>
+              <>
+                <label className="same-diet-row">
+                  <input type="checkbox" className="chk" checked={form.sameDiet} onChange={(e) => setForm(f => ({...f, sameDiet: e.target.checked}))}/>
+                  <span className="text-base font-bold leading-relaxed">{t("diet.same.label")}</span>
+                </label>
+                {!form.sameDiet && (
+                  <div className="companion-diet-list">
+                    {form.companions.map((c, i) => {
+                      const companionName = c.name.trim() || `${t("companion.heading").replace("{{n}}", String(i+1))}`;
+                      return (
+                        <div key={i} className="companion-diet-row">
+                          <div className="companion-diet-name">
+                            <span className="companion-card-num">{i+1}</span>
+                            <span>{companionName}</span>
+                          </div>
+                          <div className="diet-grid compact">
+                            {dietOpts.map(opt => (
+                              <label key={opt.val} className={"diet-opt " + (c.diet === opt.val ? "active" : "")}>
+                                <input type="radio" name={`c${i}-diet`} value={opt.val} checked={c.diet === opt.val}
+                                  onChange={() => { setCompanion(i, "diet", opt.val); if(errors[`c${i}_diet`]) setErrors(er => ({...er, [`c${i}_diet`]:""})); }}/>
+                                <span>{opt.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                          {c.diet === "other" && (
+                            <input type="text" placeholder={t("diet.other.ph")} value={c.dietOther} onChange={(e) => { setCompanion(i, "dietOther", e.target.value); if(errors[`c${i}_dietOther`]) setErrors(er => ({...er, [`c${i}_dietOther`]:""})); }} className="diet-other-input"/>
+                          )}
+                          {errors[`c${i}_diet`] && <div className="field-error-msg"><span>❗</span>{errors[`c${i}_diet`]}</div>}
+                          {errors[`c${i}_dietOther`] && <div className="field-error-msg"><span>❗</span>{errors[`c${i}_dietOther`]}</div>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
             )}
           </div>
 
           {/* === SECTION 3: Emergency === */}
           <div className="em-block">
-            <div className="em-head"><span className="em-tag">⚠️ Emergency</span></div>
+            <div className="em-head"><span className="em-tag">⚠️ {t("form.section.tag.emergency")}</span></div>
             <div className="em-title">{t("emergency.head")}</div>
             <div className="em-sub">{t("emergency.sub")}</div>
             <div className="grid md:grid-cols-2 gap-5">
               <Field id="f-emName"  label={t("field.emName.label")}  sub={t("field.emName.sub")}  value={form.emName}  onChange={set("emName")}  onBlur={()=>setErrors(e=>({...e,emName:validateField("emName")}))}   error={errors.emName}  placeholder={t("field.emName.ph")}  autoComplete="name"/>
-              <Field id="f-emPhone" label={t("field.emPhone.label")} sub={t("field.emPhone.sub")} value={form.emPhone} onChange={set("emPhone")} onBlur={()=>setErrors(e=>({...e,emPhone:validateField("emPhone")}))} error={errors.emPhone} placeholder={t("field.emPhone.ph")} autoComplete="tel" inputMode="tel" type="tel"/>
+              <Field id="f-emPhone" label={t("field.emPhone.label")} sub={t("field.emPhone.sub")} value={form.emPhone} onChange={set("emPhone")} onBlur={()=>setErrors(e=>({...e,emPhone:validateField("emPhone")}))} error={errors.emPhone} placeholder={t("field.emPhone.ph")} autoComplete="tel" inputMode="numeric" type="tel"/>
             </div>
           </div>
 
           {/* Total seats hint */}
           {totalSeats > 1 && (
             <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-bold text-center">
-              📊 本次報名共佔 <span className="text-[color:var(--coral-deep)] text-lg font-num">{totalSeats}</span> 席（本人 1 + 攜眷 {totalSeats - 1}） · {totalSeats} seat(s) total
+              {t("form.totalSeats").replace("{{n}}", String(totalSeats)).replace("{{c}}", String(totalSeats - 1))}
             </div>
           )}
 
@@ -2345,8 +2458,12 @@ Phone: {{phone}}</p>
             <div className="final-agree-title">🚨 {t("risk.head")}</div>
             <p className="final-agree-body whitespace-pre-line">{t("risk.body")}</p>
 
-            <label className={"final-agree-check " + (agreed ? "checked" : "")}>
-              <input type="checkbox" className="chk" checked={agreed} onChange={e=>{setAgreed(e.target.checked); if(submitError) setSubmitError("");}}/>
+            <label className={"final-agree-check " + (agreed ? "checked" : "") + (errors._agree ? " err" : "")}>
+              <input type="checkbox" className="chk" checked={agreed} onChange={e=>{
+                setAgreed(e.target.checked);
+                if(submitError) setSubmitError("");
+                if(errors._agree) setErrors(er => ({...er, _agree:""}));
+              }}/>
               <span className="text-base md:text-lg font-bold leading-relaxed">{t("form.agree")}</span>
             </label>
           </div>
@@ -2540,7 +2657,77 @@ Phone: {{phone}}</p>
                 <div className="lang-picker-name">中文</div>
               </button>
               <button className="lang-picker-btn en" onClick={() => onPick("en")}>
-                <div className="lang-picker-flag">🌐</div>
+                <div className="lang-picker-flag">
+                  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="60" height="60" style={{display:"block"}}>
+                    <defs>
+                      <radialGradient id="oceanGrad" cx="35%" cy="30%" r="80%">
+                        <stop offset="0%"  stopColor="#7FCFEE"/>
+                        <stop offset="20%" stopColor="#3FA3D8"/>
+                        <stop offset="55%" stopColor="#1E70AC"/>
+                        <stop offset="85%" stopColor="#0E3D6B"/>
+                        <stop offset="100%" stopColor="#062648"/>
+                      </radialGradient>
+                      <radialGradient id="atmosphereGrad" cx="50%" cy="50%" r="55%">
+                        <stop offset="80%" stopColor="#7FCFEE" stopOpacity="0"/>
+                        <stop offset="92%" stopColor="#7FCFEE" stopOpacity="0.45"/>
+                        <stop offset="100%" stopColor="#7FCFEE" stopOpacity="0"/>
+                      </radialGradient>
+                      <radialGradient id="shineGrad" cx="30%" cy="22%" r="40%">
+                        <stop offset="0%"  stopColor="#fff" stopOpacity="0.7"/>
+                        <stop offset="35%" stopColor="#fff" stopOpacity="0.18"/>
+                        <stop offset="100%" stopColor="#fff" stopOpacity="0"/>
+                      </radialGradient>
+                      <radialGradient id="landGrad" cx="40%" cy="30%" r="80%">
+                        <stop offset="0%"   stopColor="#A8D670"/>
+                        <stop offset="50%"  stopColor="#5A9A45"/>
+                        <stop offset="100%" stopColor="#2A5C28"/>
+                      </radialGradient>
+                      <radialGradient id="cloudGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%"  stopColor="#fff" stopOpacity="0.85"/>
+                        <stop offset="60%" stopColor="#fff" stopOpacity="0.4"/>
+                        <stop offset="100%" stopColor="#fff" stopOpacity="0"/>
+                      </radialGradient>
+                      <clipPath id="globeClip">
+                        <circle cx="50" cy="50" r="44"/>
+                      </clipPath>
+                    </defs>
+                    {/* Atmospheric halo */}
+                    <circle cx="50" cy="50" r="49" fill="url(#atmosphereGrad)"/>
+                    {/* Ocean sphere */}
+                    <circle cx="50" cy="50" r="44" fill="url(#oceanGrad)"/>
+                    {/* Continents */}
+                    <g clipPath="url(#globeClip)" fill="url(#landGrad)" stroke="#1A4D24" strokeWidth="0.35" strokeLinejoin="round">
+                      <path d="M 49 27 Q 53 26 56 27 Q 60 28 60 31 Q 60 34 58 35 Q 60 38 60 42 Q 62 45 60 48 Q 62 52 60 56 Q 60 61 56 65 Q 54 70 51 73 Q 48 75 46 73 Q 43 70 43 65 Q 41 60 43 56 Q 39 51 42 47 Q 39 42 42 38 Q 41 33 44 30 Q 46 27 49 27 Z"/>
+                      <path d="M 60 30 Q 65 29 68 32 Q 70 35 67 38 Q 64 40 61 38 Q 59 35 60 30 Z"/>
+                      <path d="M 38 23 Q 44 21 50 22 Q 56 22 60 24 Q 62 26 60 27 Q 56 28 52 27 Q 47 28 43 27 Q 39 27 37 25 Q 36 23 38 23 Z"/>
+                      <ellipse cx="64" cy="60" rx="2" ry="4" transform="rotate(20 64 60)"/>
+                      <path d="M 16 48 Q 22 47 25 51 Q 26 56 23 62 Q 21 68 18 67 Q 14 62 14 55 Q 13 50 16 48 Z"/>
+                      <path d="M 12 22 Q 20 18 28 23 Q 30 28 26 30 Q 20 28 14 28 Q 9 26 12 22 Z"/>
+                      <path d="M 70 28 Q 78 26 82 30 Q 82 34 76 34 Q 71 32 69 30 Q 69 28 70 28 Z"/>
+                      <path d="M 75 38 Q 79 39 79 44 Q 78 49 75 47 Q 73 43 75 38 Z"/>
+                      <path d="M 60 25 Q 65 25 68 27 Q 65 28 62 27 Q 60 26 60 25 Z"/>
+                    </g>
+                    {/* Wispy cloud layer */}
+                    <g clipPath="url(#globeClip)" opacity="0.7">
+                      <ellipse cx="35" cy="45" rx="8" ry="2" fill="url(#cloudGrad)" transform="rotate(-15 35 45)"/>
+                      <ellipse cx="65" cy="50" rx="6" ry="1.5" fill="url(#cloudGrad)" transform="rotate(10 65 50)"/>
+                      <ellipse cx="50" cy="68" rx="10" ry="2" fill="url(#cloudGrad)" transform="rotate(-5 50 68)"/>
+                      <ellipse cx="25" cy="35" rx="5" ry="1.2" fill="url(#cloudGrad)"/>
+                      <ellipse cx="72" cy="32" rx="4" ry="1" fill="url(#cloudGrad)" transform="rotate(8 72 32)"/>
+                    </g>
+                    {/* Latitude shading (very faint) */}
+                    <g fill="none" stroke="#fff" strokeOpacity="0.06" strokeWidth="0.4" clipPath="url(#globeClip)">
+                      <ellipse cx="50" cy="50" rx="44" ry="14"/>
+                      <ellipse cx="50" cy="50" rx="44" ry="28"/>
+                    </g>
+                    {/* Limb / terminator darkening */}
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="#062648" strokeWidth="2" strokeOpacity="0.5"/>
+                    {/* Outer dark rim */}
+                    <circle cx="50" cy="50" r="44" fill="none" stroke="#0A2340" strokeWidth="1.2"/>
+                    {/* Specular highlight */}
+                    <circle cx="50" cy="50" r="44" fill="url(#shineGrad)"/>
+                  </svg>
+                </div>
                 <div className="lang-picker-name">English</div>
               </button>
             </div>
