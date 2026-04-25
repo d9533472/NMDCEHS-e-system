@@ -152,6 +152,21 @@
     .em-block .field{ background:#fff; }
     .em-block .field:focus{ box-shadow:4px 4px 0 var(--coral-deep); }
 
+    /* Final agreement — risk notice + mandatory checkbox */
+    .final-agree{ position:relative; padding:22px 22px 20px; border-radius:18px; border:3px solid var(--coral-deep); background:linear-gradient(180deg, #FFE5DE 0%, #FFCEC0 100%); box-shadow:6px 6px 0 var(--ink); }
+    .final-agree::before{ content:""; position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:70%; height:6px; background:repeating-linear-gradient(90deg, var(--coral-deep) 0 14px, var(--sun) 14px 28px); border-radius:6px 6px 0 0; }
+    .final-agree-head{ text-align:center; margin-bottom:10px; }
+    .final-agree-title{ font-family:'Caprasimo',serif; font-size:1.5rem; line-height:1.2; color:var(--coral-deep); margin-bottom:10px; text-align:center; }
+    @media (min-width:768px){ .final-agree-title{ font-size:1.9rem; } }
+    .final-agree-body{ background:#fff; padding:14px 16px; border-radius:12px; border:2px solid var(--ink); font-size:14px; line-height:1.65; color:var(--ink); margin-bottom:14px; font-weight:500; }
+    @media (min-width:768px){ .final-agree-body{ font-size:15px; padding:16px 18px; } }
+    .final-agree-check{ display:flex; align-items:flex-start; gap:12px; cursor:pointer; padding:14px 16px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; }
+    .final-agree-check:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
+    .final-agree-check.checked{ background:var(--nmdc-green); color:#fff; border-color:var(--ink); }
+    .final-agree-check.checked .chk{ background:#fff; border-color:var(--ink); }
+    .final-agree-check.checked .chk:checked{ background:#fff; }
+    .final-agree-check.checked .chk:checked::after{ border-color:var(--nmdc-green); }
+
     /* Form sections — basic & diet */
     .form-section{ position:relative; padding:22px 22px 26px; border-radius:18px; border:3px solid var(--ink); box-shadow:6px 6px 0 var(--ink); }
     .form-section.basic{ background:linear-gradient(180deg, #FFF6DC 0%, #FFEEC0 100%); }
@@ -282,7 +297,8 @@
     .lang-picker-btn:active{ transform:translate(2px,2px); box-shadow:2px 2px 0 var(--ink); }
     .lang-picker-btn.zh:hover{ background:var(--sun); }
     .lang-picker-btn.en:hover{ background:var(--sky); }
-    .lang-picker-flag{ font-size:48px; line-height:1; }
+    .lang-picker-flag{ font-size:48px; line-height:1; height:48px; display:flex; align-items:center; justify-content:center; }
+    .lang-picker-flag svg{ height:40px; width:auto; border:1.5px solid var(--ink); border-radius:4px; box-shadow:2px 2px 0 var(--ink); }
     .lang-picker-name{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1; }
     .lang-picker-tag{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:0.1em; text-transform:uppercase; }
     .lang-picker-emojis{ text-align:center; font-size:28px; margin-bottom:8px; letter-spacing:8px; }
@@ -301,7 +317,8 @@
       .lang-picker-card{ padding:26px 20px 22px; }
       .lang-picker-grid{ gap:10px; }
       .lang-picker-btn{ padding:18px 10px; }
-      .lang-picker-flag{ font-size:38px; }
+      .lang-picker-flag{ font-size:38px; height:38px; }
+      .lang-picker-flag svg{ height:32px; }
       .lang-picker-name{ font-size:1.3rem; }
     }
     .rich-editor{ border:2px solid var(--ink); border-top:0; border-radius:0 0 8px 8px; padding:14px; min-height:240px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-size:14px; background:#fff; outline:none; line-height:1.6; overflow-y:auto; max-height:500px; }
@@ -2012,15 +2029,6 @@ Phone: {{phone}}</p>
                 </div>
               ))}
             </div>
-            <div className="mt-10 p-6 md:p-7 rounded-2xl bg-[color:var(--coral)] text-white border-[3px] border-[color:var(--ink)]" style={{boxShadow:"6px 6px 0 var(--ink)"}}>
-              <div className="flex items-start gap-4">
-                <div className="text-4xl">🚨</div>
-                <div>
-                  <div className="font-chunk text-2xl md:text-3xl mb-2">{t("risk.head")}</div>
-                  <p className="text-base md:text-lg leading-relaxed whitespace-pre-line">{t("risk.body")}</p>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
       );
@@ -2329,14 +2337,27 @@ Phone: {{phone}}</p>
             </div>
           )}
 
-          <label className="flex items-start gap-3 cursor-pointer pt-3 p-4 rounded-xl bg-[color:var(--sun)] bg-opacity-40 border-2 border-[color:var(--ink)]">
-            <input type="checkbox" className="chk" checked={agreed} onChange={e=>{setAgreed(e.target.checked); if(submitError) setSubmitError("");}}/>
-            <span className="text-base md:text-lg font-bold leading-relaxed">{t("form.agree")}</span>
-          </label>
+          {/* === FINAL STEP: Risk Notice + Agreement (red-themed, must acknowledge) === */}
+          <div className="final-agree">
+            <div className="final-agree-head">
+              <span className="em-tag" style={{background:"var(--coral-deep)"}}>⚠️ 送出前請先閱讀 / Before You Submit</span>
+            </div>
+            <div className="final-agree-title">🚨 {t("risk.head")}</div>
+            <p className="final-agree-body whitespace-pre-line">{t("risk.body")}</p>
+
+            <label className={"final-agree-check " + (agreed ? "checked" : "")}>
+              <input type="checkbox" className="chk" checked={agreed} onChange={e=>{setAgreed(e.target.checked); if(submitError) setSubmitError("");}}/>
+              <span className="text-base md:text-lg font-bold leading-relaxed">{t("form.agree")}</span>
+            </label>
+          </div>
+
           {submitError && (<div className="p-4 rounded-xl bg-[color:var(--coral)] text-white font-bold border-[3px] border-[color:var(--ink)] bounce-in" style={{boxShadow:"4px 4px 0 var(--ink)"}}>❗ {submitError}</div>)}
-          <button type="submit" disabled={submitting} className="btn-chunk w-full md:w-auto px-10 py-5 text-xl min-w-[260px] inline-flex items-center justify-center gap-2">
+          <button type="submit" disabled={submitting || !agreed} className="btn-chunk w-full md:w-auto px-10 py-5 text-xl min-w-[260px] inline-flex items-center justify-center gap-2" title={!agreed ? "請先勾選同意 / Please tick the box first" : ""}>
             {submitting ? (<><svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" opacity=".3"/><path d="M12 2 A10 10 0 0 1 22 12" stroke="currentColor" strokeWidth="3" strokeLinecap="round"/></svg>{t("form.submitting")}</>) : ( t("form.submit") )}
           </button>
+          {!agreed && !submitting && (
+            <div className="text-center text-sm font-bold text-[color:var(--coral-deep)] -mt-2">👆 請先勾選同意風險告知才能送出 / Check the box above to enable submission</div>
+          )}
         </form>
       );
     }
@@ -2500,14 +2521,27 @@ Phone: {{phone}}</p>
             <div className="lang-picker-sub">請選擇語言開始填寫報名表<br/>Choose your language to continue</div>
             <div className="lang-picker-grid">
               <button className="lang-picker-btn zh" onClick={() => onPick("zh")}>
-                <div className="lang-picker-flag">🇹🇼</div>
+                <div className="lang-picker-flag">
+                  <svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" width="60" height="40" style={{display:"block"}}>
+                    {/* Red field */}
+                    <rect width="60" height="40" fill="#FE0000"/>
+                    {/* Blue canton */}
+                    <rect width="30" height="20" fill="#000095"/>
+                    {/* White sun: 12 rays + center disk */}
+                    <g transform="translate(15 10)">
+                      {Array.from({length:12}).map((_, i) => (
+                        <polygon key={i} points="0,-7 1.55,-2.1 0,0 -1.55,-2.1" fill="#fff" transform={`rotate(${i*30})`}/>
+                      ))}
+                      <circle r="3" fill="#000095"/>
+                      <circle r="2.5" fill="#fff"/>
+                    </g>
+                  </svg>
+                </div>
                 <div className="lang-picker-name">中文</div>
-                <div className="lang-picker-tag">Chinese</div>
               </button>
               <button className="lang-picker-btn en" onClick={() => onPick("en")}>
                 <div className="lang-picker-flag">🌐</div>
                 <div className="lang-picker-name">English</div>
-                <div className="lang-picker-tag">英文</div>
               </button>
             </div>
           </div>
@@ -2523,17 +2557,13 @@ Phone: {{phone}}</p>
       useEffect(() => { try{ window.localStorage.setItem("nmdc_lang", lang); } catch(_){}; }, [lang]);
       useEffect(() => { document.documentElement.lang = lang === "zh" ? "zh-TW" : "en"; }, [lang]);
 
-      // Language picker — shown on first visit
-      const [showLangPicker, setShowLangPicker] = useState(() => {
-        try{ return !window.localStorage.getItem("nmdc_lang_chosen"); } catch(_){ return true; }
-      });
+      // Language picker — shown every time the page loads
+      const [showLangPicker, setShowLangPicker] = useState(true);
       function pickLang(chosen){
         setLang(chosen);
-        try{ window.localStorage.setItem("nmdc_lang_chosen", "1"); } catch(_){}
         setShowLangPicker(false);
       }
       function dismissLangPicker(){
-        try{ window.localStorage.setItem("nmdc_lang_chosen", "1"); } catch(_){}
         setShowLangPicker(false);
       }
 
