@@ -141,6 +141,61 @@
     .edit-backdrop.open{ opacity:1; pointer-events:auto; }
     .edit-badge{ position:fixed; top:8px; left:50%; transform:translateX(-50%); z-index:50; background:var(--nmdc-green); color:#fff; padding:6px 14px; border:2.5px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); font-weight:800; font-size:12px; letter-spacing:0.1em; }
 
+    /* Emergency contact block on registration form (red theme) */
+    .em-block{ position:relative; padding:22px 22px 26px; border-radius:18px; border:3px solid var(--ink); background:linear-gradient(180deg, #FFE5DE 0%, #FFD6CB 100%); box-shadow:6px 6px 0 var(--ink); margin-top:8px; }
+    .em-block::before{ content:""; position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:60%; height:6px; background:repeating-linear-gradient(90deg, var(--coral-deep) 0 14px, #ffffff 14px 28px); border-radius:6px 6px 0 0; }
+    .em-head{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+    .em-tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:var(--coral-deep); color:#fff; border:2.5px solid var(--ink); border-radius:999px; font-size:11px; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; box-shadow:2px 2px 0 var(--ink); }
+    .em-title{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1.1; color:var(--coral-deep); }
+    .em-sub{ font-size:14px; font-weight:600; color:#7a3528; margin-bottom:14px; }
+    @media (min-width:768px){ .em-title{ font-size:2rem; } .em-sub{ font-size:15px; } }
+    .em-block .field{ background:#fff; }
+    .em-block .field:focus{ box-shadow:4px 4px 0 var(--coral-deep); }
+
+    /* Form sections — basic & diet */
+    .form-section{ position:relative; padding:22px 22px 26px; border-radius:18px; border:3px solid var(--ink); box-shadow:6px 6px 0 var(--ink); }
+    .form-section.basic{ background:linear-gradient(180deg, #FFF6DC 0%, #FFEEC0 100%); }
+    .form-section.diet{ background:linear-gradient(180deg, #DCF6E5 0%, #C0EAD0 100%); }
+    .form-section-head{ display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+    .form-section-tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border:2.5px solid var(--ink); border-radius:999px; font-size:11px; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; box-shadow:2px 2px 0 var(--ink); }
+    .form-section.basic .form-section-tag{ background:var(--sun-deep); color:#fff; }
+    .form-section.diet .form-section-tag{ background:var(--nmdc-green-dark); color:#fff; }
+    .form-section-title{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1.1; color:var(--ink); }
+    .form-section.diet .form-section-title{ color:var(--nmdc-green-dark); }
+    .form-section-sub{ font-size:14px; font-weight:600; color:var(--ink-soft); margin-bottom:14px; }
+    @media (min-width:768px){
+      .form-section-title{ font-size:2rem; }
+      .form-section-sub{ font-size:15px; }
+    }
+
+    /* Diet radio options */
+    .diet-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .diet-opt{ display:flex; align-items:center; gap:10px; padding:14px 16px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; font-weight:700; }
+    .diet-opt:hover{ background:var(--cream-warm); transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
+    .diet-opt input{ accent-color:var(--nmdc-green-dark); width:20px; height:20px; flex-shrink:0; }
+    .diet-opt.active{ background:var(--nmdc-green); color:#fff; }
+    .diet-opt.active input{ accent-color:#fff; }
+    .diet-other-input{ margin-top:10px; width:100%; padding:12px 14px; border:2.5px solid var(--ink); border-radius:10px; font-size:15px; font-family:inherit; font-weight:500; background:#fff; box-shadow:3px 3px 0 var(--ink); }
+    .diet-other-input:focus{ outline:none; box-shadow:4px 4px 0 var(--nmdc-green-dark); }
+    @media (max-width:520px){ .diet-grid{ grid-template-columns:1fr; } }
+
+    /* Yes/No toggle */
+    .yn-group{ display:flex; gap:10px; flex-wrap:wrap; }
+    .yn-btn{ flex:1; min-width:100px; padding:14px 18px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; font-family:inherit; }
+    .yn-btn:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
+    .yn-btn.active.yes{ background:var(--nmdc-green); color:#fff; }
+    .yn-btn.active.no{ background:var(--ink-soft); color:#fff; }
+
+    /* Companion sub-card */
+    .companion-card{ background:#FFFEF5; border:2.5px dashed var(--ink); border-radius:14px; padding:14px 16px; margin-top:12px; }
+    .companion-card-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Caprasimo',serif; font-size:1.1rem; }
+    .companion-card-num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--sun-deep); color:#fff; border:2px solid var(--ink); border-radius:999px; font-weight:800; font-size:13px; }
+    .companion-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media (max-width:520px){ .companion-grid{ grid-template-columns:1fr; } }
+
+    .same-diet-row{ margin-top:14px; padding:12px 14px; background:rgba(255,255,255,0.6); border:2px solid var(--ink); border-radius:10px; display:flex; align-items:center; gap:10px; cursor:pointer; }
+    .same-diet-row:hover{ background:#fff; }
+
     /* Reorder UI */
     .reorder-item{
       display:flex; align-items:center; gap:8px;
@@ -231,6 +286,16 @@
     .lang-picker-name{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1; }
     .lang-picker-tag{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:0.1em; text-transform:uppercase; }
     .lang-picker-emojis{ text-align:center; font-size:28px; margin-bottom:8px; letter-spacing:8px; }
+    .lang-picker-slogan{ position:relative; margin:18px auto 22px; padding:18px 18px; max-width:460px; background:linear-gradient(135deg, rgba(0,176,80,0.10) 0%, rgba(109,200,232,0.12) 100%); border:2.5px dashed var(--nmdc-green-dark); border-radius:14px; }
+    .lang-picker-slogan::before{ content:"❝"; position:absolute; top:-14px; left:14px; font-family:Georgia,serif; font-size:48px; color:var(--nmdc-green-dark); line-height:1; background:var(--cream); padding:0 8px; }
+    .lang-picker-slogan::after{ content:"❞"; position:absolute; bottom:-30px; right:14px; font-family:Georgia,serif; font-size:48px; color:var(--nmdc-green-dark); line-height:1; background:var(--cream); padding:0 8px; }
+    .slogan-zh{ font-family:'Noto Sans TC',serif; font-weight:700; font-size:1.15rem; line-height:1.5; color:var(--ink); text-align:center; letter-spacing:0.04em; }
+    .slogan-en{ font-family:'Caprasimo',serif; font-size:0.95rem; color:var(--nmdc-green-dark); text-align:center; margin-top:8px; letter-spacing:0.01em; line-height:1.3; }
+    @media (max-width:480px){
+      .lang-picker-slogan{ padding:14px 14px; margin:14px auto 20px; }
+      .slogan-zh{ font-size:1rem; }
+      .slogan-en{ font-size:0.85rem; }
+    }
     @media (max-width:480px){
       .lang-picker-title{ font-size:1.9rem; }
       .lang-picker-card{ padding:26px 20px 22px; }
@@ -260,6 +325,9 @@
     .reg-table tr:last-child td{ border-bottom:0; }
     .reg-table th{ background:var(--sun); font-weight:800; position:sticky; top:0; border-bottom:2px solid var(--ink); font-size:11px; letter-spacing:0.05em; text-transform:uppercase; }
     .reg-table tr:hover td{ background:#FFFBEB; }
+    .reg-lang-badge{ display:inline-block; padding:2px 8px; border:1.5px solid var(--ink); border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.05em; }
+    .reg-lang-badge.zh{ background:#FFE5DE; color:#B53A1F; }
+    .reg-lang-badge.en{ background:#D9EFFA; color:#1F6691; }
     .reg-serial{ font-family:'Caprasimo',serif; font-size:1.1em; color:var(--nmdc-green-dark); }
     .reg-small{ color:var(--ink-soft); font-size:11px; }
 
@@ -418,6 +486,30 @@ Phone: {{phone}}</p>
         "field.title.label": "職稱", "field.title.sub": "Job title", "field.title.ph": "例：環安工程師",
         "field.phone.label": "電話", "field.phone.sub": "Phone", "field.phone.ph": "0912-345-678",
         "field.email.label": "電子信箱", "field.email.sub": "Email", "field.email.ph": "you@company.com",
+        "field.blood.label": "血型", "field.blood.sub": "Blood Type", "field.blood.ph": "請選擇 / Select",
+        "section.basic.head": "📋 基本資訊", "section.basic.sub": "Basic Info — 來個自我介紹吧",
+        "section.diet.head": "🍽️ 飲食習慣", "section.diet.sub": "Dietary preference — 餐點會依此安排",
+        "diet.option.meat": "葷食 / Regular",
+        "diet.option.veg": "素食 / Vegetarian",
+        "diet.option.halal": "Halal 清真食物",
+        "diet.option.other": "其他 / Other",
+        "diet.other.ph": "請說明你的飲食需求…",
+        "diet.same.label": "攜眷飲食與我相同 / Companions same as me",
+        "companion.toggle.label": "攜眷一起參加？",
+        "companion.toggle.sub": "Bringing companions?",
+        "companion.yes": "是 Yes",
+        "companion.no": "否 No",
+        "companion.count.label": "攜眷人數",
+        "companion.count.sub": "Number of companions",
+        "companion.heading": "攜眷 #{{n}} / Companion #{{n}}",
+        "companion.name.label": "姓名 Name",
+        "companion.name.ph": "攜眷姓名",
+        "companion.blood.label": "血型 Blood",
+        "companion.diet.label": "飲食 Diet",
+        "emergency.head": "🚨 緊急聯絡資訊",
+        "emergency.sub": "活動當天若有突發狀況，我們會聯絡這位人選。",
+        "field.emName.label": "緊急聯絡人姓名", "field.emName.sub": "Emergency contact name", "field.emName.ph": "例：王小明（與你的關係）",
+        "field.emPhone.label": "緊急聯絡電話", "field.emPhone.sub": "Emergency phone", "field.emPhone.ph": "0912-345-678",
         "form.agree": "我已經確認本活動的注意事項和風險告知，沒問題！",
         "form.submit": "送出報名 🌊",
         "form.submitting": "送出中…",
@@ -539,6 +631,30 @@ Phone: {{phone}}</p>
         "field.title.label": "Job Title", "field.title.sub": "職稱", "field.title.ph": "e.g. EHS Engineer",
         "field.phone.label": "Phone", "field.phone.sub": "電話", "field.phone.ph": "0912-345-678",
         "field.email.label": "Email", "field.email.sub": "信箱", "field.email.ph": "you@company.com",
+        "field.blood.label": "Blood Type", "field.blood.sub": "血型", "field.blood.ph": "Select / 請選擇",
+        "section.basic.head": "📋 Basic Info", "section.basic.sub": "Tell us about yourself",
+        "section.diet.head": "🍽️ Dietary Preference", "section.diet.sub": "Meals will follow your selection",
+        "diet.option.meat": "Regular / 葷食",
+        "diet.option.veg": "Vegetarian / 素食",
+        "diet.option.halal": "Halal",
+        "diet.option.other": "Other / 其他",
+        "diet.other.ph": "Please describe your dietary needs…",
+        "diet.same.label": "Companions same dietary preference as me",
+        "companion.toggle.label": "Bringing companions?",
+        "companion.toggle.sub": "攜眷一起參加",
+        "companion.yes": "Yes 是",
+        "companion.no": "No 否",
+        "companion.count.label": "Number of Companions",
+        "companion.count.sub": "攜眷人數",
+        "companion.heading": "Companion #{{n}} / 攜眷 #{{n}}",
+        "companion.name.label": "Name",
+        "companion.name.ph": "Companion's full name",
+        "companion.blood.label": "Blood Type",
+        "companion.diet.label": "Diet",
+        "emergency.head": "🚨 Emergency Contact Info",
+        "emergency.sub": "Who should we call if anything happens during the event.",
+        "field.emName.label": "Emergency Contact Name", "field.emName.sub": "緊急聯絡人姓名", "field.emName.ph": "e.g. Jane Doe (relationship)",
+        "field.emPhone.label": "Emergency Phone", "field.emPhone.sub": "緊急聯絡電話", "field.emPhone.ph": "0912-345-678",
         "form.agree": "I've read the event notes and risk notice — all good!",
         "form.submit": "Count me in 🌊",
         "form.submitting": "Submitting…",
@@ -647,13 +763,25 @@ Phone: {{phone}}</p>
       { id:"risk", label:"風險告知 Risk", keys:["risk.head","risk.body"], multi:["risk.body"] },
       { id:"form", label:"報名表 Form", keys:[
         "form.tag","form.head","form.sub",
+        "section.basic.head","section.basic.sub",
         "field.name.label","field.name.sub","field.name.ph",
         "field.company.label","field.company.sub","field.company.ph",
         "field.title.label","field.title.sub","field.title.ph",
         "field.phone.label","field.phone.sub","field.phone.ph",
         "field.email.label","field.email.sub","field.email.ph",
+        "field.blood.label","field.blood.sub","field.blood.ph",
+        "companion.toggle.label","companion.toggle.sub","companion.yes","companion.no",
+        "companion.count.label","companion.count.sub",
+        "companion.heading","companion.name.label","companion.name.ph",
+        "companion.blood.label","companion.diet.label",
+        "section.diet.head","section.diet.sub",
+        "diet.option.meat","diet.option.veg","diet.option.halal","diet.option.other",
+        "diet.other.ph","diet.same.label",
+        "emergency.head","emergency.sub",
+        "field.emName.label","field.emName.sub","field.emName.ph",
+        "field.emPhone.label","field.emPhone.sub","field.emPhone.ph",
         "form.agree","form.submit","form.submitting"
-      ]},
+      ], multi:["emergency.sub","section.basic.sub","section.diet.sub"] },
       { id:"err", label:"錯誤訊息 Error Messages", keys:[
         "err.required","err.email","err.phone","err.agree",
         "err.network","err.config","err.server",
@@ -691,6 +819,14 @@ Phone: {{phone}}</p>
       { key:"{{title}}", label:"職稱 / Title" },
       { key:"{{email}}", label:"信箱 / Email" },
       { key:"{{phone}}", label:"電話 / Phone" },
+      { key:"{{blood}}", label:"血型 / Blood" },
+      { key:"{{diet}}", label:"飲食 / Diet" },
+      { key:"{{emName}}", label:"緊急聯絡人 / Em. Name" },
+      { key:"{{emPhone}}", label:"緊急電話 / Em. Phone" },
+      { key:"{{companionCount}}", label:"攜眷數 / Companion Count" },
+      { key:"{{companionNames}}", label:"攜眷姓名 / Companion Names" },
+      { key:"{{companionList}}", label:"攜眷詳細 / Companion List(HTML)" },
+      { key:"{{totalSeats}}", label:"總席次 / Total Seats" },
       { key:"{{confirmationNumber}}", label:"報名序號 / Conf #" },
       { key:"{{serial}}", label:"流水號 / Serial" },
       { key:"{{eventName}}", label:"活動名稱 / Event" }
@@ -1304,6 +1440,7 @@ Phone: {{phone}}</p>
       const [loading, setLoading] = useState(false);
       const [err, setErr] = useState("");
       const [filter, setFilter] = useState("");
+      const [langFilter, setLangFilter] = useState("all");  // "all" | "zh" | "en"
 
       async function load(){
         setLoading(true); setErr("");
@@ -1328,8 +1465,17 @@ Phone: {{phone}}</p>
       }
       function exportCsv(){
         if(!list || list.length === 0) return;
-        const headers = ["Serial","Name","Company","Title","Phone","Email","Lang","Timestamp"];
-        const rows = list.map(r => [r.serial, r.name, r.company, r.title, r.phone, r.email, r.lang, r.timestamp]);
+        const headers = ["Serial","Name","Company","Title","Phone","Email","Blood","Diet","EmergencyName","EmergencyPhone","CompanionCount","CompanionDetails","FormLanguage","LangCode","Timestamp"];
+        const rows = [];
+        list.forEach(r => {
+          // Main row
+          const compDetail = (r.companions || []).map((c, i) => `#${i+1} ${c.name||""} (${c.blood||""}/${c.diet||""})`).join(" | ");
+          rows.push([r.serial, r.name, r.company, r.title, r.phone, r.email, r.blood || "", r.diet || "", r.emName || "", r.emPhone || "", r.companionCount || 0, compDetail, r.langLabel || (r.lang === "en" ? "🇬🇧 English" : "🇹🇼 中文"), r.lang, r.timestamp]);
+          // One row per companion (flattened — easier for grouping)
+          (r.companions || []).forEach((c, i) => {
+            rows.push([`${r.serial}-${i+1}`, c.name || "", r.company, "(攜眷 / companion of " + r.name + ")", r.phone, r.email, c.blood || "", c.diet || "", r.emName || "", r.emPhone || "", "", "", r.langLabel || (r.lang === "en" ? "🇬🇧 English" : "🇹🇼 中文"), r.lang, r.timestamp]);
+          });
+        });
         const csv = [headers, ...rows].map(r => r.map(v => `"${String(v == null ? "" : v).replace(/"/g, '""')}"`).join(",")).join("\n");
         const blob = new Blob(["\ufeff" + csv], { type:"text/csv;charset=utf-8;" });
         const url = URL.createObjectURL(blob);
@@ -1339,40 +1485,111 @@ Phone: {{phone}}</p>
       }
       const filtered = useMemo(() => {
         if(!list) return [];
-        if(!filter.trim()) return list;
-        const q = filter.trim().toLowerCase();
-        return list.filter(r => [r.name, r.company, r.title, r.email, r.phone, r.serial].some(v => String(v || "").toLowerCase().includes(q)));
-      }, [list, filter]);
+        let arr = list;
+        if(langFilter !== "all"){
+          arr = arr.filter(r => r.lang === langFilter);
+        }
+        if(filter.trim()){
+          const q = filter.trim().toLowerCase();
+          arr = arr.filter(r => {
+            const compNames = (r.companions || []).map(c => c.name || "").join(" ");
+            return [r.name, r.company, r.title, r.email, r.phone, r.serial, r.emName, r.emPhone, compNames].some(v => String(v || "").toLowerCase().includes(q));
+          });
+        }
+        return arr;
+      }, [list, filter, langFilter]);
+
+      // Counts per language for the filter buttons
+      const langCounts = useMemo(() => {
+        if(!list) return { zh:0, en:0 };
+        return list.reduce((acc, r) => {
+          if(r.lang === "en") acc.en++; else acc.zh++;
+          return acc;
+        }, { zh:0, en:0 });
+      }, [list]);
+
+      // Total seats taken (main + companions)
+      const totalSeats = useMemo(() => {
+        if(!list) return 0;
+        return list.reduce((s, r) => s + 1 + (r.companionCount || 0), 0);
+      }, [list]);
 
       return (
         <div className="edit-drawer-body">
           <div className="flex items-center justify-between mb-3 gap-2">
             <div>
-              <div className="font-display text-xl">👥 {list ? list.length : "—"} / {registered || "?"} 人</div>
-              <div className="text-xs text-[color:var(--ink-soft)]">Registered people</div>
+              <div className="font-display text-xl">👥 {list ? list.length : "—"} 筆 / 共 {totalSeats} 席</div>
+              <div className="text-xs text-[color:var(--ink-soft)]">Registrations · Total seats incl. companions</div>
             </div>
             <div className="flex gap-2">
               <button onClick={load} disabled={loading} className="btn-outline px-3 py-1 text-xs">{loading ? "…" : "🔄 更新"}</button>
               <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs">📥 CSV</button>
             </div>
           </div>
-          <input type="text" placeholder="🔍 搜尋姓名 / 公司 / 信箱…" value={filter} onChange={e => setFilter(e.target.value)} className="edit-input mb-3"/>
+
+          {/* Language filter pills */}
+          {list && list.length > 0 && (
+            <div className="flex gap-2 mb-3 flex-wrap">
+              <button onClick={() => setLangFilter("all")} className={"lang-pill " + (langFilter === "all" ? "active" : "")}>
+                👥 全部 ({list.length})
+              </button>
+              <button onClick={() => setLangFilter("zh")} className={"lang-pill " + (langFilter === "zh" ? "active" : "")}>
+                🇹🇼 中文 ({langCounts.zh})
+              </button>
+              <button onClick={() => setLangFilter("en")} className={"lang-pill " + (langFilter === "en" ? "active" : "")}>
+                🇬🇧 English ({langCounts.en})
+              </button>
+            </div>
+          )}
+
+          <input type="text" placeholder="🔍 搜尋姓名 / 公司 / 信箱 / 攜眷…" value={filter} onChange={e => setFilter(e.target.value)} className="edit-input mb-3"/>
 
           {err && (<div className="p-3 rounded-xl bg-[color:var(--coral)] text-white font-bold text-sm border-2 border-[color:var(--ink)] mb-3">❗ {err}</div>)}
           {loading && <div className="text-center py-10 text-[color:var(--ink-soft)] font-bold">載入中…</div>}
           {!loading && list && list.length === 0 && (<div className="text-center py-10"><div className="text-5xl mb-2">🏖️</div><div className="font-bold text-[color:var(--ink-soft)]">還沒有人報名</div></div>)}
+          {!loading && list && list.length > 0 && filtered.length === 0 && (<div className="text-center py-6 text-[color:var(--ink-soft)] text-sm font-medium">沒有符合條件的人</div>)}
 
           {!loading && filtered.length > 0 && (
             <div className="overflow-x-auto">
               <table className="reg-table">
-                <thead><tr><th>#</th><th>姓名 Name</th><th>公司 / 職稱</th><th>聯絡</th><th></th></tr></thead>
+                <thead><tr><th>#</th><th>姓名 / 血型 / 飲食</th><th>公司 / 職稱 / 介面</th><th>聯絡</th><th>🚨 緊急聯絡</th><th>👨‍👩‍👧 攜眷</th><th></th></tr></thead>
                 <tbody>
                   {filtered.map(r => (
                     <tr key={r.serial}>
                       <td className="reg-serial">{pad(r.serial)}</td>
-                      <td><div className="font-bold">{r.name}</div><div className="reg-small">{formatTs(r.timestamp)}</div></td>
-                      <td><div>{r.company}</div><div className="reg-small">{r.title}</div></td>
-                      <td><div className="reg-small">{r.phone}</div><div><a href={`mailto:${r.email}`} className="text-[color:var(--nmdc-green-dark)] underline text-xs">{r.email}</a></div></td>
+                      <td>
+                        <div className="font-bold">{r.name}</div>
+                        <div className="reg-small">{formatTs(r.timestamp)}</div>
+                        {r.blood && <div className="reg-small" style={{color:"var(--coral-deep)", fontWeight:700, marginTop:2}}>🩸 {r.blood}</div>}
+                        {r.diet && <div className="reg-small" style={{color:"var(--nmdc-green-dark)", fontWeight:700, marginTop:2}}>🍽️ {r.diet}</div>}
+                      </td>
+                      <td>
+                        <div>{r.company}</div>
+                        <div className="reg-small">{r.title}</div>
+                        <div style={{marginTop:4}}>
+                          <span className={"reg-lang-badge " + r.lang}>{r.lang === "en" ? "🇬🇧 EN" : "🇹🇼 中"}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="reg-small">{r.phone}</div>
+                        <div><a href={`mailto:${r.email}`} className="text-[color:var(--nmdc-green-dark)] underline text-xs">{r.email}</a></div>
+                      </td>
+                      <td style={{background:"#FFF0EC"}}>
+                        <div className="font-bold text-[color:var(--coral-deep)]" style={{fontSize:12}}>{r.emName || "—"}</div>
+                        <div className="reg-small">{r.emPhone ? <a href={`tel:${r.emPhone.replace(/\D/g,"")}`} className="text-[color:var(--coral-deep)]">{r.emPhone}</a> : "—"}</div>
+                      </td>
+                      <td style={{background:r.companionCount > 0 ? "#FFF7E6" : ""}}>
+                        {r.companionCount > 0 ? (
+                          <>
+                            <div className="font-bold text-[color:var(--sun-deep)]" style={{fontSize:12}}>+{r.companionCount} 位</div>
+                            {(r.companions || []).map((c, i) => (
+                              <div key={i} className="reg-small" style={{marginTop:2}}>
+                                {i+1}. {c.name}{c.blood ? ` 🩸${c.blood}` : ""}{c.diet ? ` 🍽️${c.diet}` : ""}
+                              </div>
+                            ))}
+                          </>
+                        ) : <div className="reg-small">—</div>}
+                      </td>
                       <td><button onClick={() => del(r.serial, r.name)} className="btn-danger text-[11px] px-2 py-1">🗑</button></td>
                     </tr>
                   ))}
@@ -1809,21 +2026,39 @@ Phone: {{phone}}</p>
       );
     }
 
-    function Field({ id, label, sub, value, onChange, onBlur, error, type="text", placeholder, autoComplete, inputMode }){
+    function Field({ id, label, sub, value, onChange, onBlur, error, type="text", placeholder, autoComplete, inputMode, options }){
+      const isSelect = type === "select" && Array.isArray(options);
       return (
         <div>
           <label htmlFor={id} className="block mb-2">
             <span className="font-display text-xl md:text-2xl text-[color:var(--ink)]">{label}</span>
             <span className="ml-2 text-sm font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{sub}</span>
           </label>
-          <input id={id} type={type} value={value} onChange={onChange} onBlur={onBlur} placeholder={placeholder} autoComplete={autoComplete} inputMode={inputMode} className={`field w-full px-4 py-3.5 text-lg ${error ? "err" : ""}`}/>
+          {isSelect ? (
+            <select id={id} value={value} onChange={onChange} onBlur={onBlur} className={`field w-full px-4 py-3.5 text-lg ${error ? "err" : ""}`} style={{appearance:"none", backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A2340'><path d='M7 10l5 5 5-5z'/></svg>\")", backgroundRepeat:"no-repeat", backgroundPosition:"right 12px center", paddingRight:"40px"}}>
+              <option value="">{placeholder}</option>
+              {options.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          ) : (
+            <input id={id} type={type} value={value} onChange={onChange} onBlur={onBlur} placeholder={placeholder} autoComplete={autoComplete} inputMode={inputMode} className={`field w-full px-4 py-3.5 text-lg ${error ? "err" : ""}`}/>
+          )}
           {error && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)] flex items-center gap-1.5"><span>❗</span>{error}</div>}
         </div>
       );
     }
 
-    function RegistrationForm({ t, lang, onSuccess }){
-      const blank = { name:"", company:"", title:"", phone:"", email:"" };
+    const BLOOD_TYPES = ["A", "B", "AB", "O", "RH-", "不確定 / Unknown"];
+
+    function RegistrationForm({ t, lang, onSuccess, configRemaining }){
+      const blank = {
+        name:"", company:"", title:"", phone:"", email:"", blood:"",
+        emName:"", emPhone:"",
+        diet:"", dietOther:"",
+        bringCompanions:"",  // "" | "yes" | "no"
+        companionCount:1,
+        sameDiet:true,
+        companions:[]   // array of { name, blood, diet, dietOther }
+      };
       const [form, setForm] = useState(blank);
       const [errors, setErrors] = useState({});
       const [agreed, setAgreed] = useState(false);
@@ -1835,27 +2070,114 @@ Phone: {{phone}}</p>
         if(errors[k]) setErrors(er => ({...er, [k]:""}));
         if(submitError) setSubmitError("");
       };
-      const validate = k => {
-        const v = form[k].trim();
+      const setCompanion = (idx, k, v) => {
+        setForm(f => {
+          const next = [...f.companions];
+          while(next.length <= idx) next.push({ name:"", blood:"", diet:"", dietOther:"" });
+          next[idx] = { ...next[idx], [k]: v };
+          return { ...f, companions: next };
+        });
+        if(submitError) setSubmitError("");
+      };
+
+      // When "yes" is chosen, ensure companions array length matches count
+      useEffect(() => {
+        if(form.bringCompanions !== "yes") return;
+        setForm(f => {
+          const target = Math.max(1, Math.min(5, parseInt(f.companionCount, 10) || 1));
+          const next = [...f.companions];
+          while(next.length < target) next.push({ name:"", blood:"", diet:"", dietOther:"" });
+          while(next.length > target) next.pop();
+          return { ...f, companions: next };
+        });
+      }, [form.companionCount, form.bringCompanions]);
+
+      // The "main field" set we always validate
+      const mainFields = ["name","company","title","phone","email","blood","emName","emPhone"];
+
+      const validateField = (k) => {
+        const v = String(form[k] || "").trim();
         if(!v) return t("err.required");
         if(k === "email" && !emailRegex.test(v)) return t("err.email");
-        if(k === "phone" && !phoneRegex.test(v)) return t("err.phone");
+        if((k === "phone" || k === "emPhone") && !phoneRegex.test(v)) return t("err.phone");
         return "";
       };
+
       const validateAll = () => {
         const next = {};
-        Object.keys(blank).forEach(k => { const e = validate(k); if(e) next[k] = e; });
+        mainFields.forEach(k => { const e = validateField(k); if(e) next[k] = e; });
+
+        // Diet
+        if(!form.diet) next.diet = t("err.required");
+        if(form.diet === "other" && !form.dietOther.trim()) next.dietOther = t("err.required");
+
+        // Companions
+        if(!form.bringCompanions) next.bringCompanions = t("err.required");
+        if(form.bringCompanions === "yes"){
+          form.companions.forEach((c, i) => {
+            if(!c.name.trim()) next[`c${i}_name`] = t("err.required");
+            if(!c.blood) next[`c${i}_blood`] = t("err.required");
+            if(!form.sameDiet){
+              if(!c.diet) next[`c${i}_diet`] = t("err.required");
+              if(c.diet === "other" && !c.dietOther.trim()) next[`c${i}_dietOther`] = t("err.required");
+            }
+          });
+        }
+
         setErrors(next);
         return Object.keys(next).length === 0;
       };
+
+      // Total seats this submission will occupy
+      const totalSeats = 1 + (form.bringCompanions === "yes" ? form.companions.length : 0);
+
       async function handleSubmit(e){
         e && e.preventDefault();
         setSubmitError("");
-        if(!validateAll()) return;
+        if(!validateAll()){
+          // Scroll to first error
+          setTimeout(() => {
+            const errEl = document.querySelector(".field.err");
+            if(errEl) errEl.scrollIntoView({ behavior:"smooth", block:"center" });
+          }, 50);
+          return;
+        }
         if(!agreed){ setSubmitError(t("err.agree")); return; }
+
+        // Pre-flight check that there's enough room for everyone
+        if(typeof configRemaining === "number" && totalSeats > configRemaining){
+          setSubmitError(`名額不足，目前剩 ${configRemaining} 席，本次需要 ${totalSeats} 席。 / Not enough slots — ${configRemaining} left, you need ${totalSeats}.`);
+          return;
+        }
+
         setSubmitting(true);
         try{
-          const payload = { name:form.name.trim(), company:form.company.trim(), title:form.title.trim(), phone:form.phone.trim(), email:form.email.trim().toLowerCase(), lang };
+          // Resolve diet to a clean string
+          const dietFinal = form.diet === "other" ? `其他: ${form.dietOther.trim()}` : form.diet;
+
+          // Build companions payload
+          const companions = form.bringCompanions === "yes" ? form.companions.map(c => ({
+            name: c.name.trim(),
+            blood: c.blood,
+            diet: form.sameDiet
+              ? dietFinal
+              : (c.diet === "other" ? `其他: ${c.dietOther.trim()}` : c.diet)
+          })) : [];
+
+          const payload = {
+            name: form.name.trim(),
+            company: form.company.trim(),
+            title: form.title.trim(),
+            phone: form.phone.trim(),
+            email: form.email.trim().toLowerCase(),
+            blood: form.blood.trim(),
+            emName: form.emName.trim(),
+            emPhone: form.emPhone.trim(),
+            diet: dietFinal,
+            companions: companions,
+            companionCount: companions.length,
+            lang
+          };
           const res = await xhrPost(GAS_URL, payload);
           if(res.success){ onSuccess(res); }
           else {
@@ -1866,17 +2188,147 @@ Phone: {{phone}}</p>
         finally { setSubmitting(false); }
       }
 
+      const dietOpts = [
+        { val:"meat",  label: t("diet.option.meat") },
+        { val:"veg",   label: t("diet.option.veg") },
+        { val:"halal", label: t("diet.option.halal") },
+        { val:"other", label: t("diet.option.other") }
+      ];
+
       return (
-        <form onSubmit={handleSubmit} noValidate className="space-y-5">
-          <div className="grid md:grid-cols-2 gap-5">
-            <Field id="f-name"    label={t("field.name.label")}    sub={t("field.name.sub")}    value={form.name}    onChange={set("name")}    onBlur={()=>setErrors(e=>({...e,name:validate("name")}))}       error={errors.name}    placeholder={t("field.name.ph")}    autoComplete="name"/>
-            <Field id="f-company" label={t("field.company.label")} sub={t("field.company.sub")} value={form.company} onChange={set("company")} onBlur={()=>setErrors(e=>({...e,company:validate("company")}))} error={errors.company} placeholder={t("field.company.ph")} autoComplete="organization"/>
-            <Field id="f-title"   label={t("field.title.label")}   sub={t("field.title.sub")}   value={form.title}   onChange={set("title")}   onBlur={()=>setErrors(e=>({...e,title:validate("title")}))}     error={errors.title}   placeholder={t("field.title.ph")}   autoComplete="organization-title"/>
-            <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validate("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="tel" type="tel"/>
-            <div className="md:col-span-2">
-              <Field id="f-email" label={t("field.email.label")}   sub={t("field.email.sub")}   value={form.email}   onChange={set("email")}   onBlur={()=>setErrors(e=>({...e,email:validate("email")}))}     error={errors.email}   placeholder={t("field.email.ph")}   autoComplete="email" inputMode="email" type="email"/>
+        <form onSubmit={handleSubmit} noValidate className="space-y-6">
+
+          {/* === SECTION 1: Basic Info === */}
+          <div className="form-section basic">
+            <div className="form-section-head"><span className="form-section-tag">📋 Basic</span></div>
+            <div className="form-section-title">{t("section.basic.head")}</div>
+            <div className="form-section-sub">{t("section.basic.sub")}</div>
+
+            <div className="grid md:grid-cols-2 gap-5">
+              <Field id="f-name"    label={t("field.name.label")}    sub={t("field.name.sub")}    value={form.name}    onChange={set("name")}    onBlur={()=>setErrors(e=>({...e,name:validateField("name")}))}       error={errors.name}    placeholder={t("field.name.ph")}    autoComplete="name"/>
+              <Field id="f-company" label={t("field.company.label")} sub={t("field.company.sub")} value={form.company} onChange={set("company")} onBlur={()=>setErrors(e=>({...e,company:validateField("company")}))} error={errors.company} placeholder={t("field.company.ph")} autoComplete="organization"/>
+              <Field id="f-title"   label={t("field.title.label")}   sub={t("field.title.sub")}   value={form.title}   onChange={set("title")}   onBlur={()=>setErrors(e=>({...e,title:validateField("title")}))}     error={errors.title}   placeholder={t("field.title.ph")}   autoComplete="organization-title"/>
+              <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validateField("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="tel" type="tel"/>
+              <Field id="f-email"   label={t("field.email.label")}   sub={t("field.email.sub")}   value={form.email}   onChange={set("email")}   onBlur={()=>setErrors(e=>({...e,email:validateField("email")}))}     error={errors.email}   placeholder={t("field.email.ph")}   autoComplete="email" inputMode="email" type="email"/>
+              <Field id="f-blood"   label={t("field.blood.label")}   sub={t("field.blood.sub")}   value={form.blood}   onChange={set("blood")}   onBlur={()=>setErrors(e=>({...e,blood:validateField("blood")}))}     error={errors.blood}   placeholder={t("field.blood.ph")}   type="select" options={BLOOD_TYPES}/>
+            </div>
+
+            {/* Companion toggle */}
+            <div className="mt-6 pt-5 border-t-2 border-dashed border-[color:var(--ink)] border-opacity-25">
+              <label className="block mb-3">
+                <span className="font-display text-xl md:text-2xl text-[color:var(--ink)]">👨‍👩‍👧 {t("companion.toggle.label")}</span>
+                <span className="ml-2 text-sm font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{t("companion.toggle.sub")}</span>
+              </label>
+              <div className="yn-group">
+                <button type="button" className={"yn-btn yes " + (form.bringCompanions === "yes" ? "active" : "")} onClick={() => { setForm(f => ({...f, bringCompanions:"yes"})); if(errors.bringCompanions) setErrors(er => ({...er, bringCompanions:""})); }}>
+                  ✅ {t("companion.yes")}
+                </button>
+                <button type="button" className={"yn-btn no " + (form.bringCompanions === "no" ? "active" : "")} onClick={() => { setForm(f => ({...f, bringCompanions:"no", companions:[]})); if(errors.bringCompanions) setErrors(er => ({...er, bringCompanions:""})); }}>
+                  ❌ {t("companion.no")}
+                </button>
+              </div>
+              {errors.bringCompanions && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)]">❗ {errors.bringCompanions}</div>}
+
+              {form.bringCompanions === "yes" && (
+                <div className="mt-5">
+                  <Field id="f-cc" label={t("companion.count.label")} sub={t("companion.count.sub")}
+                    value={form.companionCount}
+                    onChange={(e) => setForm(f => ({...f, companionCount: parseInt(e.target.value, 10) || 1}))}
+                    type="select" options={["1","2","3","4","5"]}
+                    placeholder=""/>
+
+                  {form.companions.map((c, i) => (
+                    <div key={i} className="companion-card">
+                      <div className="companion-card-head">
+                        <span className="companion-card-num">{i+1}</span>
+                        <span>{t("companion.heading").replace("{{n}}", String(i+1))}</span>
+                      </div>
+                      <div className="companion-grid">
+                        <Field id={`f-c${i}-name`} label={t("companion.name.label")} sub={"#"+(i+1)}
+                          value={c.name}
+                          onChange={(e) => { setCompanion(i, "name", e.target.value); if(errors[`c${i}_name`]) setErrors(er => ({...er, [`c${i}_name`]:""})); }}
+                          error={errors[`c${i}_name`]}
+                          placeholder={t("companion.name.ph")}/>
+                        <Field id={`f-c${i}-blood`} label={t("companion.blood.label")} sub={t("field.blood.sub")}
+                          value={c.blood}
+                          onChange={(e) => { setCompanion(i, "blood", e.target.value); if(errors[`c${i}_blood`]) setErrors(er => ({...er, [`c${i}_blood`]:""})); }}
+                          error={errors[`c${i}_blood`]}
+                          type="select" options={BLOOD_TYPES}
+                          placeholder={t("field.blood.ph")}/>
+                      </div>
+                      {/* Per-companion diet (only when sameDiet is OFF) */}
+                      {!form.sameDiet && (
+                        <div className="mt-3">
+                          <div className="text-sm font-bold text-[color:var(--ink-soft)] uppercase tracking-wider mb-2">🍽️ {t("companion.diet.label")}</div>
+                          <div className="diet-grid">
+                            {dietOpts.map(opt => (
+                              <label key={opt.val} className={"diet-opt " + (c.diet === opt.val ? "active" : "")}>
+                                <input type="radio" name={`c${i}-diet`} value={opt.val} checked={c.diet === opt.val}
+                                  onChange={() => { setCompanion(i, "diet", opt.val); if(errors[`c${i}_diet`]) setErrors(er => ({...er, [`c${i}_diet`]:""})); }}/>
+                                <span>{opt.label}</span>
+                              </label>
+                            ))}
+                          </div>
+                          {c.diet === "other" && (
+                            <input type="text" placeholder={t("diet.other.ph")} value={c.dietOther} onChange={(e) => setCompanion(i, "dietOther", e.target.value)} className="diet-other-input"/>
+                          )}
+                          {errors[`c${i}_diet`] && <div className="mt-1 text-sm font-bold text-[color:var(--coral-deep)]">❗ {errors[`c${i}_diet`]}</div>}
+                          {errors[`c${i}_dietOther`] && <div className="mt-1 text-sm font-bold text-[color:var(--coral-deep)]">❗ {errors[`c${i}_dietOther`]}</div>}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
+
+          {/* === SECTION 2: Diet === */}
+          <div className="form-section diet">
+            <div className="form-section-head"><span className="form-section-tag">🍽️ Meal</span></div>
+            <div className="form-section-title">{t("section.diet.head")}</div>
+            <div className="form-section-sub">{t("section.diet.sub")}</div>
+            <div className="diet-grid">
+              {dietOpts.map(opt => (
+                <label key={opt.val} className={"diet-opt " + (form.diet === opt.val ? "active" : "")}>
+                  <input type="radio" name="diet" value={opt.val} checked={form.diet === opt.val}
+                    onChange={() => { setForm(f => ({...f, diet: opt.val})); if(errors.diet) setErrors(er => ({...er, diet:""})); }}/>
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            {form.diet === "other" && (
+              <input type="text" placeholder={t("diet.other.ph")} value={form.dietOther} onChange={(e) => { setForm(f => ({...f, dietOther: e.target.value})); if(errors.dietOther) setErrors(er => ({...er, dietOther:""})); }} className="diet-other-input"/>
+            )}
+            {errors.diet && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)]">❗ {errors.diet}</div>}
+            {errors.dietOther && <div className="mt-2 text-base font-bold text-[color:var(--coral-deep)]">❗ {errors.dietOther}</div>}
+
+            {form.bringCompanions === "yes" && form.companions.length > 0 && (
+              <label className="same-diet-row">
+                <input type="checkbox" className="chk" checked={form.sameDiet} onChange={(e) => setForm(f => ({...f, sameDiet: e.target.checked}))}/>
+                <span className="text-base font-bold leading-relaxed">{t("diet.same.label")}</span>
+              </label>
+            )}
+          </div>
+
+          {/* === SECTION 3: Emergency === */}
+          <div className="em-block">
+            <div className="em-head"><span className="em-tag">⚠️ Emergency</span></div>
+            <div className="em-title">{t("emergency.head")}</div>
+            <div className="em-sub">{t("emergency.sub")}</div>
+            <div className="grid md:grid-cols-2 gap-5">
+              <Field id="f-emName"  label={t("field.emName.label")}  sub={t("field.emName.sub")}  value={form.emName}  onChange={set("emName")}  onBlur={()=>setErrors(e=>({...e,emName:validateField("emName")}))}   error={errors.emName}  placeholder={t("field.emName.ph")}  autoComplete="name"/>
+              <Field id="f-emPhone" label={t("field.emPhone.label")} sub={t("field.emPhone.sub")} value={form.emPhone} onChange={set("emPhone")} onBlur={()=>setErrors(e=>({...e,emPhone:validateField("emPhone")}))} error={errors.emPhone} placeholder={t("field.emPhone.ph")} autoComplete="tel" inputMode="tel" type="tel"/>
+            </div>
+          </div>
+
+          {/* Total seats hint */}
+          {totalSeats > 1 && (
+            <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-bold text-center">
+              📊 本次報名共佔 <span className="text-[color:var(--coral-deep)] text-lg font-num">{totalSeats}</span> 席（本人 1 + 攜眷 {totalSeats - 1}） · {totalSeats} seat(s) total
+            </div>
+          )}
+
           <label className="flex items-start gap-3 cursor-pointer pt-3 p-4 rounded-xl bg-[color:var(--sun)] bg-opacity-40 border-2 border-[color:var(--ink)]">
             <input type="checkbox" className="chk" checked={agreed} onChange={e=>{setAgreed(e.target.checked); if(submitError) setSubmitError("");}}/>
             <span className="text-base md:text-lg font-bold leading-relaxed">{t("form.agree")}</span>
@@ -1957,7 +2409,7 @@ Phone: {{phone}}</p>
               ) : isFull ? (
                 <ClosedCard kind="full" t={t}/>
               ) : isOpen ? (
-                <RegistrationForm t={t} lang={lang} onSuccess={onSuccess}/>
+                <RegistrationForm t={t} lang={lang} onSuccess={onSuccess} configRemaining={config ? config.remaining : null}/>
               ) : (
                 <ClosedCard kind="deadline" t={t}/>
               )}
@@ -2037,9 +2489,15 @@ Phone: {{phone}}</p>
             <div className="lang-picker-emojis">🏖️ 🌊 🐚</div>
             <div className="lang-picker-title">
               Welcome!
-              <div className="block text-[color:var(--nmdc-green)]" style={{fontSize:"0.65em", marginTop:"6px"}}>歡迎參加淨灘 🎉</div>
+              <div className="block text-[color:var(--nmdc-green)]" style={{fontSize:"0.62em", marginTop:"6px"}}>歡迎參加 NMDC 淨灘活動 💚</div>
             </div>
-            <div className="lang-picker-sub">請選擇語言 / Choose Your Language</div>
+
+            <div className="lang-picker-slogan">
+              <div className="slogan-zh">「我們的工程在海上，我們的心也在海邊」</div>
+              <div className="slogan-en">We work on the sea — and we care for the shore</div>
+            </div>
+
+            <div className="lang-picker-sub">請選擇語言開始填寫報名表<br/>Choose your language to continue</div>
             <div className="lang-picker-grid">
               <button className="lang-picker-btn zh" onClick={() => onPick("zh")}>
                 <div className="lang-picker-flag">🇹🇼</div>
