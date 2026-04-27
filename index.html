@@ -290,7 +290,7 @@ const WKDAYS=['日','一','二','三','四','五','六'];
 
 // ═══ Google Sheets Sync (via Apps Script API) ═══
 const GAS_URL='https://script.google.com/macros/s/AKfycbzpixbSRvbXgVqGhPCZ71cou91mN5J7k306TsZHTUh2MsEbTEj-zh26PKwOCDCj7Qsz/exec';
-let NCR_URL=localStorage.getItem('ncr-gas-url')||'https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
+let NCR_URL=localStorage.getItem('ncr-gas-url')||GAS_URL; // 改善單資料透過 EHS GAS 讀取
 let _ncrCache=null; // cache fetched NCR data
 
 async function fetchData(){
