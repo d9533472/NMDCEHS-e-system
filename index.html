@@ -291,7 +291,7 @@ const WKDAYS=['日','一','二','三','四','五','六'];
 // ═══ Google Sheets Sync (via Apps Script API) ═══
 const GAS_URL='https://script.google.com/macros/s/AKfycbzpixbSRvbXgVqGhPCZ71cou91mN5J7k306TsZHTUh2MsEbTEj-zh26PKwOCDCj7Qsz/exec';
 localStorage.removeItem('ncr-gas-url');
-let NCR_URL=''; // 改善單暫時停用
+let NCR_URL=GAS_URL; // 改善單資料透過 EHS GAS 讀取
 let _ncrCache=null; // cache fetched NCR data
 
 async function fetchData(){
@@ -1685,10 +1685,11 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   }catch(e){}
 
   setLoad(95,'載入介面…');
-  D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
-  if(sessionStorage.getItem(AK)==='1')isEditor=true;
-  renderAll();
-
+  try{
+    D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
+    if(sessionStorage.getItem(AK)==='1')isEditor=true;
+    renderAll();
+  }catch(err){console.error('init render error:',err);}
   setLoad(100,'完成！');
   setTimeout(hideLoad,400);
 
