@@ -1684,9 +1684,11 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   }catch(e){}
 
   setLoad(95,'載入介面…');
-  D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
-  if(sessionStorage.getItem(AK)==='1')isEditor=true;
-  renderAll();
+  try{
+    D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
+    if(sessionStorage.getItem(AK)==='1')isEditor=true;
+    renderAll();
+  }catch(e){console.error('renderAll error:',e);}
 
   setLoad(100,'完成！');
   setTimeout(hideLoad,400);
