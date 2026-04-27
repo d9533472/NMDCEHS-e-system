@@ -1677,7 +1677,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
         const t=setTimeout(()=>ctrl.abort(),5000);
         const r=await fetch(GAS_URL,{signal:ctrl.signal});
         clearTimeout(t);
-        if(r.ok){const sd=await r.json();sheetEmpty=!sd||typeof sd!=='object'||Object.keys(sd).length<=1;}
+        if(r.ok){const sd=await r.json();sheetEmpty=!sd||typeof sd!=='object'||!sd.parts||!sd.parts.length;}
       }
     }catch(e){sheetEmpty=true;}
     if(sheetEmpty){setLoad(85,'同步資料至 Google Sheets…');await pushData();console.log('✅ synced');}
