@@ -1667,29 +1667,34 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   // 3) Defaults
   if(!loaded){setLoad(60,'使用預設資料…');D=makeDefault();}
 
-  // 4) Sync to Sheet if empty (with timeout)
-  setLoad(70,'檢查同步狀態…');
-  try{
-    localStorage.setItem('env-cache',JSON.stringify(D));
-    let sheetEmpty=true;
-    try{
-      if(GAS_URL){
-        const ctrl=new AbortController();
-        const t=setTimeout(()=>ctrl.abort(),5000);
-        const r=await fetch(GAS_URL,{signal:ctrl.signal});
-        clearTimeout(t);
-        if(r.ok){const sd=await r.json();sheetEmpty=!sd||typeof sd!=='object'||!sd.parts||!sd.parts.length;}
-      }
-    }catch(e){sheetEmpty=true;}
-    if(sheetEmpty){setLoad(85,'同步資料至 Google Sheets…');await pushData();console.log('✅ synced');}
-  }catch(e){}
+  // 4) 背景同步（不阻擋畫面載入）
+  localStorage.setItem('env-cache',JSON.stringify(D));
 
   setLoad(95,'載入介面…');
   D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
   if(sessionStorage.getItem(AK)==='1')isEditor=true;
-  renderAll();
+  try{renderAll();}catch(e){console.error('render error:',e);}
   setLoad(100,'完成！');
   setTimeout(hideLoad,400);
+
+  // 背景同步 GAS（不影響載入）
+  if(GAS_URL){
+    setTimeout(async()=>{
+      try{
+        const ctrl=new AbortController();
+        setTimeout(()=>ctrl.abort(),8000);
+        const r=await fetch(GAS_URL,{signal:ctrl.signal});
+        if(r.ok){
+          const sd=await r.json();
+          if(sd&&sd.parts&&sd.parts.length){
+            const old=JSON.stringify(D);
+            D=sd;fixData();
+            if(JSON.stringify(D)!==old){localStorage.setItem('env-cache',JSON.stringify(D));renderAll();}
+          }
+        }
+      }catch(e){}
+    },300);
+  }
 
   // Fetch NCR immediately after page loads
   if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){console.error('NCR renderTab error:',e);}}).catch(e=>console.warn('NCR fetch error:',e));}
