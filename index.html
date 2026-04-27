@@ -1081,7 +1081,7 @@ function saveNcrUrl(){
   localStorage.setItem('ncr-gas-url',NCR_URL);
   $('mNcrUrl').classList.add('hidden');
   _ncrCache=null;
-  if(NCR_URL){fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});}
+  if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){console.error('NCR render:',e);}}).catch(()=>{});}
   showToast('✅ 改善單 URL 已儲存');
 }
 
@@ -1694,12 +1694,12 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   setTimeout(hideLoad,400);
 
   // Fetch NCR immediately after page loads
-  if(NCR_URL){fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});}
+  if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){console.error('NCR renderTab error:',e);}}).catch(e=>console.warn('NCR fetch error:',e));}
 
   // Auto-refresh for viewers every 2 min
   setInterval(async()=>{if(isEditor)return;try{const f=await fetchData();if(f){D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});renderAll();}}catch(e){}},2*60*1000);
   // Refresh NCR every 5 min
-  if(NCR_URL){setInterval(()=>{fetchNcrExpiring().then(r=>{_ncrCache=r;if(activeTab==='bulletin')renderTab();});},5*60*1000);}
+  if(NCR_URL){setInterval(()=>{fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){}}).catch(()=>{});},5*60*1000);}
 })();
 </script>
 
