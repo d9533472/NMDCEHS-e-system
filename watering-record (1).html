@@ -775,7 +775,13 @@ async function editRecord(key){
   try{
     const result=await apiGet('action=get&key='+encodeURIComponent(key));
     if(!result.success||!result.data)throw new Error(result.error||'找不到紀錄');
-    clearFormSilent();loadData(result.data);
+    // 快取 dailyWaters 到 cloudIndex
+    const rec=result.data;
+    const dw=[];
+    if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
+    else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
+    if(cloudIndex[key])cloudIndex[key].dailyWaters=dw;
+    clearFormSilent();loadData(rec);
     currentEditKey=key;isEditing=true;
     switchTab(0);toast('✅ 已從雲端載入');
   }catch(err){
@@ -1065,14 +1071,43 @@ async function renderCumulative(){
   if(!cumData[loc])await loadCumData(loc);
   const dailyMap={...(cumData[loc]||{})};
   _cumAutoMap={};
-  Object.values(cloudIndex).forEach(meta=>{
+
+  // 找出該地點所有紀錄
+  const postRecords=[];// post-4/20 需要抓水表數據的紀錄
+  Object.entries(cloudIndex).forEach(([key,meta])=>{
     if(meta.location!==loc||!meta.startDate)return;
+    if(key.startsWith('__'))return;
     if(meta.dailyWaters){
+      // 已有快取
       meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0){dailyMap[dt]=w;_cumAutoMap[dt]=w;}else if(!(dt in dailyMap))dailyMap[dt]=0;});
+    }else if(isNewFormat(meta.startDate)){
+      // post-4/20 但沒有 dailyWaters → 需要從雲端抓
+      postRecords.push(key);
+      for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
     }else{
       for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
     }
   });
+
+  // 從雲端抓缺少 dailyWaters 的 post-4/20 紀錄
+  if(postRecords.length){
+    $('cumBody').innerHTML='<tr><td colspan="3" style="padding:12px;color:var(--text-light);">⏳ 讀取水表資料中...</td></tr>';
+    for(const key of postRecords){
+      try{
+        const result=await apiGet('action=get&key='+encodeURIComponent(key));
+        if(result.success&&result.data){
+          const rec=result.data;
+          const dw=[];
+          if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
+          else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
+          // 快取到 cloudIndex 避免重複抓
+          cloudIndex[key].dailyWaters=dw;
+          dw.forEach((w,i)=>{const dt=addDays(rec.startDate,i);if(w>0){dailyMap[dt]=w;_cumAutoMap[dt]=w;}});
+        }
+      }catch(e){/* skip */}
+    }
+  }
+
   _cumDates=Object.keys(dailyMap).sort();
   let cum=0,h='';
   if(!_cumDates.length){h='<tr><td colspan="3" style="color:#999;padding:20px;">尚無紀錄</td></tr>';}
@@ -1115,6 +1150,9 @@ switchTab(2);
       cloudIndex=result.index;
       renderList();
       toast(`☁️ 已連線，共 ${result.total} 筆紀錄`);
+      // 背景預載累計水量資料
+      loadCumData('台中').catch(()=>{});
+      loadCumData('通霄').catch(()=>{});
     }else{
       renderList();
       toast('☁️ 雲端無資料');
