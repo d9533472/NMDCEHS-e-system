@@ -1112,7 +1112,17 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
         <KpiCard label="總開單數" value={total} sub="累計改善單張數" color="var(--accent-blue)" />
         <KpiCard label="總缺失件數" value={totalDefects} sub="累計缺失條數" color="var(--accent-purple)" />
         <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" filter={{status:'Open'}} />
-        <KpiCard label="Closed 已結" value={closed} sub="已完成" color="var(--accent-green)" filter={{status:'Closed'}} />
+        <div className="kpi-card" style={{cursor:'pointer'}} onClick={()=>onFilterClick({status:'Closed'})} title="點擊查看已結案">
+          <div className="kpi-stripe" style={{background:'var(--accent-green)'}}></div>
+          <div className="kpi-label" style={{color:'var(--accent-green)'}}>Closed 已結</div>
+          <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:36,fontWeight:900,lineHeight:1,color:'var(--accent-green)'}}>{closed}</div>
+            <div style={{fontSize:11,color:'var(--text-muted)'}}>張</div>
+          </div>
+          <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>
+            缺失 <span style={{fontFamily:"'JetBrains Mono',monospace",fontWeight:700,color:'var(--accent-green)'}}>{activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)}</span> 條
+          </div>
+        </div>
         <KpiCard label="關單率" value={`${closeRate}%`} sub={`以缺失件數計算`} color="var(--accent-teal)" />
         {pnTotal>0 && (
           <div className="kpi-card" style={{cursor:'pointer'}} onClick={()=>onFilterClick({type:'PN'})} title="點擊查看罰單">
