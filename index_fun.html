@@ -794,10 +794,12 @@ Phone: {{phone}}</p>
     };
 
     // Display / layout settings (admin only; stored in Content sheet like text)
-    // Values are always strings. Booleans use "true"/"false".
+    // Values are always strings. Booleans use "true"/"false". Numbers stored as strings.
     const DISPLAY_DEFAULTS = {
       "display.showCountdown": "true",
-      "display.sectionOrder": "info,status,schedule,form,notes"
+      "display.sectionOrder": "info,status,schedule,form,notes",
+      "config.maxSlots": "200",
+      "config.maxSlotsBaishatun": "60"
     };
 
     // SCHEDULE_COUNT kept for legacy fallback only — the live schedule is now fully dynamic.
@@ -1273,6 +1275,10 @@ Phone: {{phone}}</p>
           <LayoutSection open={openSections.layout} onToggle={() => setOpenSections(s => ({ ...s, layout: !s.layout }))}
             edits={edits} setEdits={setEdits} serverContent={serverContent}/>
 
+          {/* Special: Slot limit controls (not language-specific, applies to GAS backend) */}
+          <SlotsSection open={openSections.slots} onToggle={() => setOpenSections(s => ({ ...s, slots: !s.slots }))}
+            edits={edits} setEdits={setEdits} serverContent={serverContent} registered={registered}/>
+
           {filteredSections.map(sec => (
             <div key={sec.id} className="edit-section">
               <div className="edit-section-head" onClick={() => setOpenSections(s => ({ ...s, [sec.id]: !s[sec.id] }))}>
@@ -1479,6 +1485,98 @@ Phone: {{phone}}</p>
                   );
                 })}
                 <div className="text-xs text-[color:var(--ink-soft)] mt-2">⚡ 順序改動會同時套用到中／英版網站。</div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ---- Slots Section (admin only, controls GAS slot limits) ----
+    function SlotsSection({ open, onToggle, edits, setEdits, serverContent, registered }){
+      const maxKey  = "config.maxSlots";
+      const maxBKey = "config.maxSlotsBaishatun";
+
+      const maxVal  = getDisplay(maxKey,  edits, serverContent);
+      const maxBVal = getDisplay(maxBKey, edits, serverContent);
+
+      function setVal(key, val){
+        const defaultVal = DISPLAY_DEFAULTS[key];
+        const committed = serverContent[key] !== undefined ? serverContent[key] : defaultVal;
+        setEdits(prev => {
+          const next = { ...prev };
+          if(String(val) === String(committed)) delete next[key];
+          else next[key] = String(val);
+          return next;
+        });
+      }
+      function reset(key){
+        setEdits(prev => { const n = { ...prev }; delete n[key]; return n; });
+      }
+      function sanitize(v){
+        const n = parseInt(v, 10);
+        return Number.isFinite(n) && n > 0 ? String(n) : "";
+      }
+
+      const maxDirty  = edits[maxKey]  !== undefined;
+      const maxBDirty = edits[maxBKey] !== undefined;
+
+      const maxNum  = parseInt(maxVal,  10) || 0;
+      const maxBNum = parseInt(maxBVal, 10) || 0;
+      const warn    = maxBNum > maxNum;
+
+      return (
+        <div className="edit-section special">
+          <div className="edit-section-head" onClick={onToggle}>
+            <span>🎟️ 名額設定 Slot Limits {(maxDirty || maxBDirty) && <span className="text-[color:var(--coral-deep)]">●</span>}</span>
+            <span>{open ? "▾" : "▸"}</span>
+          </div>
+          {open && (
+            <div className="edit-section-body">
+
+              <div className="edit-row">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="edit-key">📊 總名額上限 Total Cap</div>
+                  {maxDirty && <button onClick={() => reset(maxKey)} className="text-[10px] font-bold text-[color:var(--coral-deep)] hover:underline">↺ reset</button>}
+                </div>
+                <input
+                  type="number" min="1" step="1"
+                  value={maxVal}
+                  onChange={e => setVal(maxKey, sanitize(e.target.value) || e.target.value)}
+                  onBlur={e => setVal(maxKey, sanitize(e.target.value) || DISPLAY_DEFAULTS[maxKey])}
+                  className={"edit-input " + (maxDirty ? "dirty" : "")}
+                />
+                <div className="text-xs text-[color:var(--ink-soft)] mt-1">
+                  目前已報名 <strong>{registered || 0}</strong> 人 → 還能再收 <strong>{Math.max(0, maxNum - (registered || 0))}</strong> 人
+                </div>
+              </div>
+
+              <div className="edit-row">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="edit-key">🌊 白沙屯子上限 Baishatun Sub-cap</div>
+                  {maxBDirty && <button onClick={() => reset(maxBKey)} className="text-[10px] font-bold text-[color:var(--coral-deep)] hover:underline">↺ reset</button>}
+                </div>
+                <input
+                  type="number" min="1" step="1"
+                  value={maxBVal}
+                  onChange={e => setVal(maxBKey, sanitize(e.target.value) || e.target.value)}
+                  onBlur={e => setVal(maxBKey, sanitize(e.target.value) || DISPLAY_DEFAULTS[maxBKey])}
+                  className={"edit-input " + (maxBDirty ? "dirty" : "")}
+                />
+                <div className="text-xs text-[color:var(--ink-soft)] mt-1">
+                  公司欄含「白沙屯」三個字的報名才會套這個上限。
+                </div>
+              </div>
+
+              {warn && (
+                <div className="p-3 rounded-xl border-2 border-[color:var(--coral)] bg-[color:var(--coral)]/10 text-xs font-bold text-[color:var(--coral-deep)]">
+                  ⚠️ 白沙屯子上限 ({maxBNum}) 超過總名額 ({maxNum})。建議白沙屯子上限 ≤ 總名額。
+                </div>
+              )}
+
+              <div className="text-xs text-[color:var(--ink-soft)] mt-2 leading-relaxed">
+                💡 改完按上方「💾 儲存」，<strong>不需要重新部署 GAS</strong>。<br/>
+                💡 如果欄位空白，會自動套用程式預設值（總 200 / 白沙屯 60）。
               </div>
             </div>
           )}
