@@ -1193,7 +1193,7 @@ Phone: {{phone}}</p>
               <div className={"edit-tab " + (tab === "blast" ? "active" : "")} onClick={() => setTab("blast")}>📢 群發</div>
             </div>
 
-            {tab === "text" && <TextTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>}
+            {tab === "text" && <TextTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent} registered={registered}/>}
             {tab === "email" && <EmailTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>}
             {tab === "reg" && <RegTab editPassword={editPassword} registered={registered} onDataChanged={onDataChanged}/>}
             {tab === "blast" && <BlastTab editPassword={editPassword} registered={registered}/>}
@@ -1219,7 +1219,7 @@ Phone: {{phone}}</p>
     }
 
     // ---- Tab 1: Text ----
-    function TextTab({ lang, setLang, edits, setEdits, serverContent }){
+    function TextTab({ lang, setLang, edits, setEdits, serverContent, registered }){
       const [openSections, setOpenSections] = useState({ layout:true, hero:false });
       const [search, setSearch] = useState("");
 
