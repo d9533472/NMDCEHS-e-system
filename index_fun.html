@@ -2201,7 +2201,10 @@ Phone: {{phone}}</p>
             {config ? (
               <div className="grid md:grid-cols-2 gap-6">
                 <Countdown deadline={config.deadline} t={t}/>
-                <SlotsBar registered={config.registered} total={config.maxSlots ?? config.total} t={t}/>
+                <SlotsBar
+                  registered={IS_BAISHATUN ? (config.baishatunRegistered ?? 0) : config.registered}
+                  total={IS_BAISHATUN ? (config.maxSlotsBaishatun ?? 60) : (config.maxSlots ?? config.total)}
+                  t={t}/>
               </div>
             ) : (
               <div className="grid md:grid-cols-2 gap-6">
