@@ -1876,9 +1876,11 @@ Phone: {{phone}}</p>
               <img src={TPC_LOGO} alt="台灣電力公司 Taiwan Power Company" className="h-12 md:h-16 w-auto"/>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <button onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="btn-outline px-3 md:px-4 py-1.5 text-xs md:text-sm">
-                🌐 {lang === "zh" ? "EN" : "中"}
-              </button>
+              {!IS_BAISHATUN && (
+                <button onClick={() => setLang(lang === "zh" ? "en" : "zh")} className="btn-outline px-3 md:px-4 py-1.5 text-xs md:text-sm">
+                  🌐 {lang === "zh" ? "EN" : "中"}
+                </button>
+              )}
               {editMode && (<button onClick={onEdit} className="btn-chunk px-3 md:px-4 py-1.5 text-xs md:text-sm">⚙️</button>)}
             </div>
           </div>
@@ -2746,14 +2748,16 @@ Phone: {{phone}}</p>
 
     function App(){
       const [lang, setLang] = useState(() => {
+        // 白沙屯版鎖定中文
+        if(IS_BAISHATUN) return "zh";
         try{ const saved = window.localStorage.getItem("nmdc_lang"); if(saved === "zh" || saved === "en") return saved; } catch(_){}
         return "zh";
       });
-      useEffect(() => { try{ window.localStorage.setItem("nmdc_lang", lang); } catch(_){}; }, [lang]);
+      useEffect(() => { try{ if(!IS_BAISHATUN) window.localStorage.setItem("nmdc_lang", lang); } catch(_){}; }, [lang]);
       useEffect(() => { document.documentElement.lang = lang === "zh" ? "zh-TW" : "en"; }, [lang]);
 
-      // Language picker — shown every time the page loads
-      const [showLangPicker, setShowLangPicker] = useState(true);
+      // Language picker — 白沙屯版不顯示，其他版面正常顯示
+      const [showLangPicker, setShowLangPicker] = useState(!IS_BAISHATUN);
       function pickLang(chosen){
         setLang(chosen);
         setShowLangPicker(false);
