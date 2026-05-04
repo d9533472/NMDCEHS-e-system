@@ -156,19 +156,26 @@
   .pdf-pt th,.pdf-pt td{border:1px solid #333;padding:4px 5px;text-align:center;vertical-align:middle;}
   .pdf-pt th{background:#e8e8e8;font-weight:600;}
   .pdf-pt .pt-day-cell{background:#f5f5f0;font-weight:600;width:16px;font-size:9px;padding:1px 2px;white-space:nowrap;}
-  .pdf-pt .pt-img-cell{width:30%;position:relative;}
+  .pdf-pt .pt-img-cell{width:36%;position:relative;}
   .pdf-pt .pt-img-cell img{max-width:100%;max-height:130px;object-fit:contain;}
   .pdf-pt .pt-img-wrap{position:relative;display:inline-block;}
   .pdf-pt .pt-img-wrap img{max-width:100%;max-height:130px;object-fit:contain;display:block;}
   .pdf-pt .pt-watermark{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;white-space:nowrap;}
-  .pdf-pt .pt-meter-cell{width:11%;}
-  .pdf-pt .pt-meter-cell img{max-width:100%;max-height:115px;object-fit:contain;}
+  .pdf-pt .pt-meter-cell{width:8%;font-size:12px;}
   .pdf-pt .pt-total-cell{font-weight:700;width:7%;font-size:12px;}
   .loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
   .loading-overlay.open{display:flex;}
   .loading-overlay .spinner{width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
   .loading-overlay .load-msg{font-size:14px;color:var(--text);font-weight:500;}
   @keyframes spin{to{transform:rotate(360deg);}}
+  .meter-report{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:8px;overflow:hidden;}
+  .meter-report th,.meter-report td{border:1px solid var(--border);padding:6px 10px;text-align:center;}
+  .meter-report th{background:#f0f0ea;font-weight:600;font-size:12px;}
+  .meter-report .month-total{background:#e8f0e6;font-weight:700;color:var(--accent);vertical-align:middle;}
+  .meter-report .grand-total{background:var(--accent);color:#fff;font-weight:700;vertical-align:middle;}
+  .meter-report-header{text-align:center;margin-bottom:8px;}
+  .meter-report-header h2{font-size:18px;margin-bottom:4px;}
+  .meter-report-header .sub{font-size:13px;color:var(--text-light);}
   @media(max-width:768px){
     .app-header{padding:10px 14px;}.app-header h1{font-size:14px;}.tab-btn{padding:6px 12px;font-size:12px;}
     .meta-bar{padding:10px 14px;}.tab-panel{padding:12px 14px;}
@@ -184,7 +191,8 @@
     <button class="tab-btn" onclick="switchTab(0)">📝 灑水紀錄</button>
     <button class="tab-btn" onclick="switchTab(1)">📷 照片紀錄</button>
     <button class="tab-btn active" onclick="switchTab(2)">📋 已儲存紀錄</button>
-    <button class="tab-btn" onclick="switchTab(3)">💧 累計用水量</button>
+    <button class="tab-btn" onclick="switchTab(3)">💧 每日用水量</button>
+    <button class="tab-btn" onclick="switchTab(4)">📊 用水抄表紀錄表</button>
   </div>
 </div>
 
@@ -266,7 +274,31 @@
     <button class="btn btn-save btn-sm" onclick="saveCumData()">💾 儲存手動輸入</button>
     <span style="font-size:11px;color:var(--text-light);">4/19以前手動輸入 ｜ 4/20以後自動計算</span>
   </div>
-  <div style="max-height:70vh;overflow-y:auto;"><table class="cum-table"><thead><tr><th>日期</th><th>當日用水量(m³)</th><th>累計用水量(m³)</th></tr></thead><tbody id="cumBody"></tbody></table></div>
+  <div style="max-height:70vh;overflow-y:auto;"><table class="cum-table"><thead><tr><th>日期</th><th>當日用水量(m³)</th><th>每日用水量(m³)</th></tr></thead><tbody id="cumBody"></tbody></table></div>
+</div>
+
+<div class="tab-panel" id="tab4">
+  <div class="list-toolbar">
+    <select id="meterLoc" onchange="renderMeterReport()">
+      <option value="台中">台中工區</option>
+      <option value="通霄">通霄工區</option>
+    </select>
+    <div class="mg"><label style="font-size:12px;">水表位置</label><input type="text" id="meterPosition" placeholder="例：工地裸露地表灑水車用" style="width:220px;" oninput="renderMeterReport()"></div>
+    <button class="btn btn-outline btn-sm" onclick="renderMeterReport()">🔄 重新計算</button>
+    <button class="btn btn-pdf btn-sm" onclick="exportMeterPdf()">📄 匯出 PDF</button>
+  </div>
+  <div id="meterReportWrap" style="max-height:60vh;overflow-y:auto;"></div>
+  <div class="sig-section" style="margin-top:12px;">
+    <h3>簽核欄</h3>
+    <div class="sig-row">
+      <div class="sig-item"><label>現場環保工程師</label><input type="text" id="meterSig_engineer">
+        <div class="sig-upload-row"><img id="meterSigImg_engineer" class="sig-preview" style="display:none;"><button class="btn btn-outline btn-sm sig-upload-btn" onclick="document.getElementById('meterSigFile_engineer').click()">上傳簽名檔</button><button class="btn btn-danger btn-sm sig-remove-btn" id="meterSigRm_engineer" onclick="removeMeterSig('engineer')" style="display:none;">✕</button><input type="file" id="meterSigFile_engineer" accept="image/*" style="display:none" onchange="onMeterSigSelect('engineer',event)"></div>
+      </div>
+      <div class="sig-item"><label>環境保護負責人</label><input type="text" id="meterSig_manager">
+        <div class="sig-upload-row"><img id="meterSigImg_manager" class="sig-preview" style="display:none;"><button class="btn btn-outline btn-sm sig-upload-btn" onclick="document.getElementById('meterSigFile_manager').click()">上傳簽名檔</button><button class="btn btn-danger btn-sm sig-remove-btn" id="meterSigRm_manager" onclick="removeMeterSig('manager')" style="display:none;">✕</button><input type="file" id="meterSigFile_manager" accept="image/*" style="display:none" onchange="onMeterSigSelect('manager',event)"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="actions hidden" id="actionBar">
@@ -403,11 +435,12 @@ function switchTab(idx){
   $('actionBar').classList.toggle('hidden',idx>1);
   if(idx===2)renderList();
   if(idx===3)renderCumulative();
+  if(idx===4)renderMeterReport();
 }
 
 /* ===== Build UI ===== */
 function buildRecordTable(){
-  let h='<table class="record-table" id="recTable"><thead><tr><th colspan="2">日期/時段</th><th>灑水開始時間</th><th>灑水結束時間</th><th>灑水方式</th><th class="water-col">累計用水量(m³)<br><span id="waterNote" style="font-weight:400;font-size:9px;color:#999;">與「💧累計用水量」頁籤連動</span></th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>';
+  let h='<table class="record-table" id="recTable"><thead><tr><th colspan="2">日期/時段</th><th>灑水開始時間</th><th>灑水結束時間</th><th>灑水方式</th><th class="water-col">每日用水量(m³)<br><span id="waterNote" style="font-weight:400;font-size:9px;color:#999;">水表數據自動計算</span></th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>';
   for(let d=0;d<DAYS;d++){
     const ra=`d${d}_am`,rp=`d${d}_pm`;
     h+=`<tr class="day-header"><td id="dayColspan_${d}" colspan="8"><span id="dayLabel_${d}">第 ${d+1} 天</span> <button class="btn-add-period" onclick="addPeriod(${d})" title="新增灑水時段">＋</button></td></tr>`;
@@ -460,7 +493,7 @@ function buildPhotoGrid(){
 }
 function buildPhotoTable(){
   const dayLabels=['第一天','第二天','第三天','第四天','第五天','第六天','第七天'];
-  let h='<table class="photo-table"><thead><tr><th>日期</th><th>灑水照片</th><th colspan="2">第1次取水（前→後）</th><th colspan="2">第2次取水（前→後）</th><th>總灑水量<br>(m³)<br><span style="font-weight:400;font-size:9px;color:var(--text-light);">與灑水紀錄<br>「累計用水量」連動</span></th></tr></thead><tbody>';
+  let h='<table class="photo-table"><thead><tr><th>日期</th><th>灑水照片</th><th colspan="2">第1次取水（前→後）</th><th colspan="2">第2次取水（前→後）</th><th>總灑水量<br>(m³)<br><span style="font-weight:400;font-size:9px;color:var(--text-light);">與灑水紀錄<br>「每日用水量」連動</span></th></tr></thead><tbody>';
   for(let d=0;d<DAYS;d++){
     h+=`<tr>`;
     h+=`<td class="pt-day"><span id="ptDayLabel_${d}">${dayLabels[d]}</span><br><span style="font-size:10px;" id="ptDayDate_${d}"></span></td>`;
@@ -471,17 +504,12 @@ function buildPhotoTable(){
     h+=`<img id="ptImg_${d}_spray" style="display:none;">`;
     h+=`<input type="file" id="ptInput_${d}_spray" accept="image/*" style="display:none" onchange="onPtPhotoSelect(${d},'spray',event)">`;
     h+=`</td>`;
-    // 4個水表位置：m1s(第1次前), m1e(第1次後), m2s(第2次前), m2e(第2次後)
+    // 4個水表度數（純數字輸入）
     for(const m of['m1s','m1e','m2s','m2e']){
       const label={m1s:'取水前',m1e:'取水後',m2s:'取水前',m2e:'取水後'}[m];
-      h+=`<td class="pt-meter">`;
-      h+=`<div class="pt-mini" onclick="document.getElementById('ptInput_${d}_${m}').click()">`;
-      h+=`<button class="pt-remove" onclick="event.stopPropagation();removePtPhoto(${d},'${m}')">×</button>`;
-      h+=`<div class="pt-placeholder" id="ptPh_${d}_${m}" style="font-size:10px;">${label}</div>`;
-      h+=`<img id="ptImg_${d}_${m}" style="display:none;">`;
-      h+=`<input type="file" id="ptInput_${d}_${m}" accept="image/*" style="display:none" onchange="onPtPhotoSelect(${d},'${m}',event)">`;
-      h+=`</div>`;
-      h+=`<input type="number" id="ptNum_${d}_${m}" step="0.01" min="0" placeholder="水表" oninput="calcAndSync(${d})" class="pt-meter-num">`;
+      h+=`<td class="pt-meter" style="vertical-align:middle;text-align:center;">`;
+      h+=`<div style="font-size:10px;color:var(--text-light);margin-bottom:3px;">${label}</div>`;
+      h+=`<input type="number" id="ptNum_${d}_${m}" step="0.01" min="0" placeholder="水表度數" oninput="calcAndSync(${d})" class="pt-meter-num">`;
       h+=`</td>`;
     }
     h+=`<td class="pt-total" id="ptTotal_${d}">—</td>`;
@@ -499,44 +527,28 @@ function calcAndSync(d){
   const w2=m2e>m2s?(m2e-m2s):0;
   const total=w1+w2;
   $(`ptTotal_${d}`).textContent=total>0?total.toFixed(1):'—';
-  // 更新累計用水量顯示
+  // 更新每日用水量顯示
   updateRecordCumDisplay();
 }
 
-// 計算並顯示灑水紀錄表的累計用水量（從第一天累加到該日）
+// 顯示灑水紀錄表的每日用水量
 function updateRecordCumDisplay(){
-  const loc=$('locBadge').textContent;
   const sd=$('startDate').value;
-  if(!loc||loc==='—'||!sd)return;
-  // 收集所有日水量：cloudIndex + cumData + 當前編輯中的水表數據
-  const dailyMap={...(cumData[loc]||{})};
-  Object.entries(cloudIndex).forEach(([key,meta])=>{
-    if(meta.location!==loc||!meta.startDate)return;
-    if(meta.dailyWaters){
-      meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0)dailyMap[dt]=w;});
-    }
-  });
-  // 覆蓋當前編輯紀錄的日水量（即時水表數據）
+  if(!sd)return;
+  const loc=$('locBadge').textContent;
   const useNew=isNewFormat(sd);
   for(let d=0;d<DAYS;d++){
     const dt=addDays(sd,d);
+    let w=0;
     if(useNew){
       const totalEl=$(`ptTotal_${d}`);
-      const v=totalEl?parseFloat(totalEl.textContent):0;
-      if(v>0)dailyMap[dt]=v;else dailyMap[dt]=0;
+      w=totalEl?parseFloat(totalEl.textContent)||0:0;
+    }else{
+      // pre-4/20: 從 cumData 取
+      if(cumData[loc]&&cumData[loc][dt])w=cumData[loc][dt];
     }
-    // pre-4/20: 日水量從 cumData 取，不從表單取
-  }
-  // 排序所有日期，算累計
-  const allDates=Object.keys(dailyMap).sort();
-  let cum=0;
-  const cumMap={};
-  allDates.forEach(dt=>{cum+=dailyMap[dt]||0;cumMap[dt]=cum;});
-  // 更新紀錄表顯示
-  for(let d=0;d<DAYS;d++){
-    const dt=addDays(sd,d);
     const el=$(`d${d}_water`);
-    if(el)el.value=cumMap[dt]?cumMap[dt].toFixed(1):'';
+    if(el)el.value=w>0?w.toFixed(1):'';
   }
 }
 
@@ -544,7 +556,7 @@ function switchPhotoFormat(useNew){
   $('photoGrid').style.display=useNew?'none':'flex';
   $('photoTableWrap').style.display=useNew?'block':'none';
   $('photoDesc').textContent=useNew?'灑水照片 + 水表照片與數字（自動計算總灑水量並連動紀錄表）':'點擊卡片上傳照片，週一至週日各一張';
-  // 累計用水量欄：一律顯示、一律唯讀（顯示累計值）
+  // 每日用水量欄：一律顯示、一律唯讀
   document.querySelectorAll('.water-col').forEach(el=>el.style.display='');
   for(let d=0;d<DAYS;d++){
     const cs=$(`dayColspan_${d}`);if(cs)cs.colSpan=8;
@@ -630,7 +642,7 @@ function collectData(){
     data.photoTable=[];
     for(let d=0;d<DAYS;d++){
       const row={};
-      for(const p of['spray','m1s','m1e','m2s','m2e']){
+      for(const p of['spray']){
         const img=$(`ptImg_${d}_${p}`);
         row[p+'Src']=img&&img.style.display!=='none'?img.src:'';
       }
@@ -659,7 +671,7 @@ function loadData(data){
     switchPhotoFormat(true);
     data.photoTable.forEach((pt,d)=>{
       if(d>=DAYS)return;
-      for(const p of['spray','m1s','m1e','m2s','m2e']){
+      for(const p of['spray']){
         const src=pt[p+'Src'];
         if(src){const el=$(`ptImg_${d}_${p}`);if(el){el.src=src;el.style.display='block';const ph=$(`ptPh_${d}_${p}`);if(ph)ph.style.display='none';}}
       }
@@ -715,7 +727,7 @@ function clearFormSilent(){
   // 清除舊格式照片
   for(let i=0;i<PHOTOS;i++)removePhoto(i);
   // 清除新格式照片+水表
-  for(let d=0;d<DAYS;d++){for(const p of['spray','m1s','m1e','m2s','m2e']){removePtPhoto(d,p);const n=$(`ptNum_${d}_${p}`);if(n)n.value='';}const t=$(`ptTotal_${d}`);if(t)t.textContent='—';}
+  for(let d=0;d<DAYS;d++){removePtPhoto(d,'spray');for(const m of['m1s','m1e','m2s','m2e']){const n=$(`ptNum_${d}_${m}`);if(n)n.value='';}const t=$(`ptTotal_${d}`);if(t)t.textContent='—';}
   $('sig_engineer').value='';$('sig_manager').value='';for(const r of['engineer','manager'])removeSigImg(r);syncSig();
   fieldSource={water:null,len:null,person:null};currentEditKey=null;isEditing=false;
 }
@@ -852,31 +864,23 @@ function buildPdfHtml(data,isFirst){
 
   // Page 1: Record table
   const useNew=data.photoFormat==='table';
-  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>累計用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
+  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
   if(data.days){
-    // 計算累計用水量（與累計頁籤連動）
-    const loc=data.location||'';
-    const dailyMap={...(cumData[loc]||{})};
-    Object.entries(cloudIndex).forEach(([k,meta])=>{
-      if(meta.location!==loc||!meta.startDate)return;
-      if(meta.dailyWaters)meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0)dailyMap[dt]=w;});
-    });
-    // 覆蓋當前紀錄的日水量
-    data.days.forEach((day,d)=>{const dt=day.date||addDays(data.startDate||'',d);const v=parseFloat(day.water)||0;if(v>0)dailyMap[dt]=v;});
-    const allDt=Object.keys(dailyMap).sort();let cumV=0;const cumMap={};allDt.forEach(dt=>{cumV+=dailyMap[dt]||0;cumMap[dt]=cumV;});
-
+    let weekTotal=0;
     data.days.forEach((day,d)=>{
       const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;
-      const dayDate=day.date||addDays(data.startDate||'',d);
-      const cumVal=cumMap[dayDate]?cumMap[dayDate].toFixed(1):'';
+      const dailyW=parseFloat(day.water)||0;
+      weekTotal+=dailyW;
       const rs=2+(day.extra?day.extra.length:0);
       for(const p of['am','pm']){
         const r=day[p]||{};
-        const waterTd=p==='am'?`<td rowspan="${rs}" style="vertical-align:middle;font-weight:600;color:#3a6ea5;">${cumVal}</td>`:'';
+        const waterTd=p==='am'?`<td rowspan="${rs}" style="vertical-align:middle;">${dailyW>0?dailyW.toFixed(1):''}</td>`:'';
         h+=`<tr><td>${p==='am'?dt:''}</td><td>${p==='am'?'上午':'下午'}</td><td>${r.start||''}</td><td>${r.end||''}</td><td>${METHODS[r.method]||METHODS[DM]}</td>${waterTd}<td>${r.len||''}</td><td>${r.person||''}</td></tr>`;
       }
       if(day.extra){day.extra.forEach((ex)=>{h+=`<tr><td></td><td>${ex.label||''}</td><td>${ex.start||''}</td><td>${ex.end||''}</td><td>${METHODS[ex.method]||METHODS[DM]}</td><td>${ex.len||''}</td><td>${ex.person||''}</td></tr>`;});}
     });
+    // 右下角加當週累計
+    h+=`<tr><td colspan="5" style="text-align:right;font-weight:600;border:none;padding-top:6px;">本週累計水量：</td><td colspan="3" style="font-weight:700;color:#3a6ea5;font-size:15px;border:none;padding-top:6px;">${weekTotal>0?weekTotal.toFixed(1):'—'} m³</td></tr>`;
   }
   h+='</tbody></table>'+sigHtml+'</div>';
 
@@ -892,10 +896,10 @@ function buildPdfHtml(data,isFirst){
         const wm=dayDate||'';
         r+=`<tr><td class="pt-day-cell">${dt}</td>`;
         r+=`<td class="pt-img-cell">${pt.spraySrc?`<div class="pt-img-wrap"><img src="${pt.spraySrc}"><span class="pt-watermark">${wm}</span></div>`:'—'}</td>`;
-        r+=`<td class="pt-meter-cell">${pt.m1sSrc?`<img src="${pt.m1sSrc}">`:'—'}</td>`;
-        r+=`<td class="pt-meter-cell">${pt.m1eSrc?`<img src="${pt.m1eSrc}">`:'—'}</td>`;
-        r+=`<td class="pt-meter-cell">${pt.m2sSrc?`<img src="${pt.m2sSrc}">`:'—'}</td>`;
-        r+=`<td class="pt-meter-cell">${pt.m2eSrc?`<img src="${pt.m2eSrc}">`:'—'}</td>`;
+        r+=`<td class="pt-meter-cell">${pt.m1sVal||'—'}</td>`;
+        r+=`<td class="pt-meter-cell">${pt.m1eVal||'—'}</td>`;
+        r+=`<td class="pt-meter-cell">${pt.m2sVal||'—'}</td>`;
+        r+=`<td class="pt-meter-cell">${pt.m2eVal||'—'}</td>`;
         r+=`<td class="pt-total-cell">${pt.water||'—'}</td></tr>`;
       }
       return r;
@@ -915,11 +919,13 @@ function buildPdfHtml(data,isFirst){
 const PDF_OPT={margin:0,image:{type:'jpeg',quality:0.92},html2canvas:{scale:2,useCORS:true,logging:false,scrollX:0,scrollY:0},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['css','legacy'],before:'.pdf-newpage'}};
 
 let _pdfFilename='灑水紀錄.pdf';
+let _pdfOrientation='landscape'; // 'landscape' or 'portrait'
 
-function showInPreview(html,title,filename){
+function showInPreview(html,title,filename,orient){
   _pdfFilename=filename;
+  _pdfOrientation=orient||'landscape';
   $('previewTitle').textContent=title;
-  $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone">${html}</div>`;
+  $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone" style="width:${_pdfOrientation==='portrait'?'210mm':'297mm'};">${html}</div>`;
   $('previewModal').classList.add('open');
   $('previewModal').scrollTop=0;
 }
@@ -927,7 +933,7 @@ function showInPreview(html,title,filename){
 /* 單筆預覽（從編輯頁） */
 function openPreview(){
   const data=collectData();
-  showInPreview(buildPdfHtml(data),'📄 預覽紀錄',`灑水紀錄_${data.location||''}_${data.startDate||''}.pdf`);
+  showInPreview(buildPdfHtml(data),'📄 預覽紀錄',`灑水紀錄_${data.location||''}_${data.startDate||''}.pdf`,'landscape');
 }
 function closePreview(){$('previewModal').classList.remove('open');}
 
@@ -982,21 +988,17 @@ async function doExportFromPreview(){
       img.style.width=(img.naturalWidth*ratio)+'px';
     }
   });
-  zone.querySelectorAll('.pt-meter-cell img').forEach(img=>{
-    if(img.naturalHeight>100){
-      const ratio=100/img.naturalHeight;
-      img.style.height='100px';
-      img.style.width=(img.naturalWidth*ratio)+'px';
-    }
-  });
   // 暫時讓預覽滿版
   const modal=$('previewModal');
   const inner=modal.querySelector('.preview-inner');
   const body=$('previewBody');
   const origInner=inner.style.cssText;
   const origBody=body.style.cssText;
-  inner.style.cssText='max-width:none;margin:0;border-radius:0;overflow:visible;';
+  const isPortrait=_pdfOrientation==='portrait';
+  const renderW=isPortrait?794:1122; // 210mm or 297mm in px
+  inner.style.cssText=`max-width:none;margin:0;border-radius:0;overflow:visible;width:${renderW}px;`;
   body.style.cssText='padding:0;overflow:visible;';
+  zone.style.width=renderW+'px';
   modal.scrollTop=0;
 
   const pages=[...zone.querySelectorAll('.pdf-page')];
@@ -1007,7 +1009,7 @@ async function doExportFromPreview(){
     const canvases=[];
     for(let i=0;i<pages.length;i++){
       toast(`📄 截圖中... ${i+1}/${pages.length} 頁`);
-      const c=await html2canvas(pages[i],{scale:2,useCORS:true,logging:false,scrollX:0,scrollY:0});
+      const c=await html2canvas(pages[i],{scale:2,useCORS:true,logging:false,scrollX:0,scrollY:0,windowWidth:renderW});
       canvases.push(c);
     }
 
@@ -1016,8 +1018,8 @@ async function doExportFromPreview(){
     const{jsPDF:JsPDF}=window.jspdf;
 
     // 3. 逐頁加入 PDF（每頁獨立，不會溢出）
-    const pdf=new JsPDF({orientation:'landscape',unit:'mm',format:'a4'});
-    const pdfW=297,pdfH=210;
+    const pdf=new JsPDF({orientation:_pdfOrientation,unit:'mm',format:'a4'});
+    const pdfW=isPortrait?210:297,pdfH=isPortrait?297:210;
 
     canvases.forEach((canvas,i)=>{
       if(i>0)pdf.addPage();
@@ -1036,6 +1038,7 @@ async function doExportFromPreview(){
   // 還原樣式
   inner.style.cssText=origInner;
   body.style.cssText=origBody;
+  zone.style.width='';
 }
 
 /* ===== Cumulative Water Tab ===== */
@@ -1132,6 +1135,139 @@ function recalcCum(){
     const totalEl=$(`cumTotal_${key}`);
     if(totalEl)totalEl.textContent=cum.toFixed(1);
   });
+}
+
+/* ===== Meter Report (用水抄表紀錄表) ===== */
+// 共用：收集每週水量資料
+function collectWeeklyData(loc){
+  const weeklyMap={};
+  Object.entries(cloudIndex).forEach(([key,meta])=>{
+    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
+    let wt=0;
+    if(meta.dailyWaters){meta.dailyWaters.forEach(w=>{wt+=w||0;});}
+    weeklyMap[meta.startDate]=(weeklyMap[meta.startDate]||0)+wt;
+  });
+  if(cumData[loc]){
+    Object.entries(cumData[loc]).forEach(([dt,w])=>{
+      const mon=getMonday(dt);
+      weeklyMap[mon]=(weeklyMap[mon]||0)+w;
+    });
+  }
+  const weeks=Object.keys(weeklyMap).sort();
+  // 按結束日期所屬月份分組
+  const months=[];// [{month:'2025-09', weeks:[{sd,ed,wt}]}]
+  let curMonth=null;
+  weeks.forEach(sd=>{
+    const ed=addDays(sd,6);
+    const m=ed.slice(0,7);// 跨月時歸屬到結束日的月份
+    const wt=weeklyMap[sd]||0;
+    if(!curMonth||curMonth.month!==m){
+      curMonth={month:m,weeks:[]};months.push(curMonth);
+    }
+    curMonth.weeks.push({sd,ed,wt});
+  });
+  return months;
+}
+
+async function renderMeterReport(){
+  const loc=$('meterLoc').value;
+  const pos=$('meterPosition').value||'工地裸露地表灑水車用';
+  if(!cumData[loc])await loadCumData(loc);
+  const months=collectWeeklyData(loc);
+  if(!months.length){$('meterReportWrap').innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light);">尚無水量資料</div>';return;}
+  let h=`<div class="meter-report-header"><h2>用水抄表紀錄表</h2><div class="sub">工程名稱：${DEFAULT_PROJECT}（${loc}工區）</div><div class="sub">水表用途：${pos}</div></div>`;
+  h+=`<table class="meter-report"><thead><tr><th>日期區間</th><th>每周累積水量</th><th>每月累積水量</th><th>總水量</th></tr></thead><tbody>`;
+  let grandTotal=0;
+  months.forEach(mg=>{
+    const monthTotal=mg.weeks.reduce((s,w)=>s+w.wt,0);
+    grandTotal+=monthTotal;
+    const rs=mg.weeks.length;
+    mg.weeks.forEach((w,wi)=>{
+      h+=`<tr><td>${w.sd} ～ ${w.ed}</td><td>${w.wt>0?w.wt.toFixed(1)+' m³':'—'}</td>`;
+      if(wi===0){
+        h+=`<td class="month-total" rowspan="${rs}">${monthTotal.toFixed(1)} m³</td>`;
+        h+=`<td class="grand-total" rowspan="${rs}" style="background:var(--am);color:#fff;">${grandTotal.toFixed(1)} m³</td>`;
+      }
+      h+=`</tr>`;
+    });
+  });
+  h+=`</tbody></table>`;
+  $('meterReportWrap').innerHTML=h;
+}
+
+/* ===== Meter Report Signatures ===== */
+function onMeterSigSelect(role,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{compressImage(ev.target.result,400,0.8,c=>{$(`meterSigImg_${role}`).src=c;$(`meterSigImg_${role}`).style.display='block';$(`meterSigRm_${role}`).style.display='inline-block';});};r.readAsDataURL(f);}
+function removeMeterSig(role){$(`meterSigImg_${role}`).src='';$(`meterSigImg_${role}`).style.display='none';$(`meterSigRm_${role}`).style.display='none';$(`meterSigFile_${role}`).value='';}
+
+function buildMeterReportPdfHtml(){
+  const loc=$('meterLoc').value;
+  const pos=$('meterPosition').value||'工地裸露地表灑水車用';
+  const months=collectWeeklyData(loc);
+  const engName=$('meterSig_engineer').value||'';
+  const mgrName=$('meterSig_manager').value||'';
+  const engImg=$('meterSigImg_engineer').style.display!=='none'?$('meterSigImg_engineer').src:'';
+  const mgrImg=$('meterSigImg_manager').style.display!=='none'?$('meterSigImg_manager').src:'';
+
+  let h=`<div class="pdf-page" style="width:210mm;height:290mm;max-height:290mm;padding:12mm 16mm;box-sizing:border-box;font-family:'Noto Sans TC',sans-serif;background:#fff;">`;
+  // 標題
+  h+=`<h2 style="text-align:center;font-size:22px;font-weight:700;margin:0 0 12px;letter-spacing:2px;">用水抄表紀錄表</h2>`;
+  // 上方資訊（靠左）
+  h+=`<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">`;
+  h+=`<tr><td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="4"><b>工程名稱：</b>${DEFAULT_PROJECT}（${loc}工區）</td></tr>`;
+  h+=`<tr><td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="2"><b>水表用途：</b>${pos}</td>`;
+  h+=`<td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="2"><b>水表位置：</b>${$('meterPosition').value||''}</td></tr>`;
+  h+=`</table>`;
+  // 主表格
+  h+=`<table style="width:100%;border-collapse:collapse;font-size:13px;">`;
+  h+=`<thead><tr>`;
+  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:38%;">日期區間</th>`;
+  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:20%;">每周累積水量</th>`;
+  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:21%;">每月累積水量</th>`;
+  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:21%;">總水量</th>`;
+  h+=`</tr></thead><tbody>`;
+  let grandTotal=0;
+  months.forEach(mg=>{
+    const monthTotal=mg.weeks.reduce((s,w)=>s+w.wt,0);
+    grandTotal+=monthTotal;
+    const rs=mg.weeks.length;
+    mg.weeks.forEach((w,wi)=>{
+      h+=`<tr>`;
+      h+=`<td style="border:1px solid #333;padding:6px 10px;text-align:left;">${w.sd} ～ ${w.ed}</td>`;
+      h+=`<td style="border:1px solid #333;padding:6px;text-align:center;">${w.wt>0?w.wt.toFixed(1)+' m³':'—'}</td>`;
+      if(wi===0){
+        h+=`<td style="border:1px solid #333;padding:6px;text-align:center;font-weight:700;background:#f5f5f0;vertical-align:middle;" rowspan="${rs}">${monthTotal.toFixed(1)} m³</td>`;
+        h+=`<td style="border:1px solid #333;padding:6px;text-align:center;font-weight:700;background:#e8f0e6;vertical-align:middle;" rowspan="${rs}">${grandTotal.toFixed(1)} m³</td>`;
+      }
+      h+=`</tr>`;
+    });
+  });
+  // 空行填充
+  const totalRows=months.reduce((s,m)=>s+m.weeks.length,0);
+  if(totalRows<10){for(let i=0;i<10-totalRows;i++){h+=`<tr><td style="border:1px solid #333;padding:6px;">&nbsp;</td><td style="border:1px solid #333;padding:6px;"></td><td style="border:1px solid #333;padding:6px;"></td><td style="border:1px solid #333;padding:6px;"></td></tr>`;}}
+  h+=`</tbody></table>`;
+  // 簽名欄
+  h+=`<div style="display:flex;justify-content:space-around;margin-top:24px;font-size:13px;align-items:flex-end;">`;
+  h+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
+  h+=engImg?`<img src="${engImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
+  h+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">現場環保工程師：${engName}</div></div>`;
+  h+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
+  h+=mgrImg?`<img src="${mgrImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
+  h+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">環境保護負責人：${mgrName}</div></div>`;
+  h+=`</div>`;
+  h+=`</div>`;
+  return h;
+}
+
+async function exportMeterPdf(){
+  const loc=$('meterLoc').value;
+  if(!cumData[loc])await loadCumData(loc);
+  const html=buildMeterReportPdfHtml();
+  _pdfFilename=`用水抄表紀錄表_${loc}.pdf`;
+  _pdfOrientation='portrait';
+  $('previewTitle').textContent='📄 用水抄表紀錄表';
+  $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone" style="width:210mm;">${html}</div>`;
+  $('previewModal').classList.add('open');
+  $('previewModal').scrollTop=0;
 }
 
 /* ===== Init ===== */
