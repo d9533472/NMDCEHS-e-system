@@ -1207,54 +1207,75 @@ function buildMeterReportPdfHtml(){
   const mgrName=$('meterSig_manager').value||'';
   const engImg=$('meterSigImg_engineer').style.display!=='none'?$('meterSigImg_engineer').src:'';
   const mgrImg=$('meterSigImg_manager').style.display!=='none'?$('meterSigImg_manager').src:'';
+  const PS='width:210mm;min-height:280mm;padding:12mm 16mm;box-sizing:border-box;font-family:\'Noto Sans TC\',sans-serif;background:#fff;';
+  const S='border:1px solid #333;padding:6px;';
+  const SH='border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;';
 
-  let h=`<div class="pdf-page" style="width:210mm;height:290mm;max-height:290mm;padding:12mm 16mm;box-sizing:border-box;font-family:'Noto Sans TC',sans-serif;background:#fff;">`;
-  // 標題
-  h+=`<h2 style="text-align:center;font-size:22px;font-weight:700;margin:0 0 12px;letter-spacing:2px;">用水抄表紀錄表</h2>`;
-  // 上方資訊（靠左）
-  h+=`<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">`;
-  h+=`<tr><td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="4"><b>工程名稱：</b>${DEFAULT_PROJECT}（${loc}工區）</td></tr>`;
-  h+=`<tr><td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="2"><b>水表用途：</b>${pos}</td>`;
-  h+=`<td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="2"><b>水表位置：</b>${$('meterPosition').value||''}</td></tr>`;
-  h+=`</table>`;
-  // 主表格
-  h+=`<table style="width:100%;border-collapse:collapse;font-size:13px;">`;
-  h+=`<thead><tr>`;
-  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:38%;">日期區間</th>`;
-  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:20%;">每周累積水量</th>`;
-  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:21%;">每月累積水量</th>`;
-  h+=`<th style="border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;width:21%;">總水量</th>`;
-  h+=`</tr></thead><tbody>`;
-  let grandTotal=0;
+  // 計算每月的 grandTotal
+  let gt=0;
+  months.forEach(mg=>{const mt=mg.weeks.reduce((s,w)=>s+w.wt,0);gt+=mt;mg.monthTotal=mt;mg.grandTotal=gt;});
+
+  // 按完整月份分頁（不拆月份，rowspan 才不會跨頁）
+  const FIRST_LIMIT=23, NEXT_LIMIT=28;
+  const pages=[];// each page = array of month groups
+  let curPage=[],curRows=0,isFirst=true;
   months.forEach(mg=>{
-    const monthTotal=mg.weeks.reduce((s,w)=>s+w.wt,0);
-    grandTotal+=monthTotal;
-    const rs=mg.weeks.length;
-    mg.weeks.forEach((w,wi)=>{
-      h+=`<tr>`;
-      h+=`<td style="border:1px solid #333;padding:6px 10px;text-align:left;">${w.sd} ～ ${w.ed}</td>`;
-      h+=`<td style="border:1px solid #333;padding:6px;text-align:center;">${w.wt>0?w.wt.toFixed(1)+' m³':'—'}</td>`;
-      if(wi===0){
-        h+=`<td style="border:1px solid #333;padding:6px;text-align:center;font-weight:700;background:#f5f5f0;vertical-align:middle;" rowspan="${rs}">${monthTotal.toFixed(1)} m³</td>`;
-        h+=`<td style="border:1px solid #333;padding:6px;text-align:center;font-weight:700;background:#e8f0e6;vertical-align:middle;" rowspan="${rs}">${grandTotal.toFixed(1)} m³</td>`;
-      }
-      h+=`</tr>`;
-    });
+    const limit=isFirst?FIRST_LIMIT:NEXT_LIMIT;
+    if(curRows+mg.weeks.length>limit&&curPage.length>0){
+      pages.push(curPage);curPage=[];curRows=0;isFirst=false;
+    }
+    curPage.push(mg);curRows+=mg.weeks.length;
   });
-  // 空行填充
-  const totalRows=months.reduce((s,m)=>s+m.weeks.length,0);
-  if(totalRows<10){for(let i=0;i<10-totalRows;i++){h+=`<tr><td style="border:1px solid #333;padding:6px;">&nbsp;</td><td style="border:1px solid #333;padding:6px;"></td><td style="border:1px solid #333;padding:6px;"></td><td style="border:1px solid #333;padding:6px;"></td></tr>`;}}
-  h+=`</tbody></table>`;
-  // 簽名欄
-  h+=`<div style="display:flex;justify-content:space-around;margin-top:24px;font-size:13px;align-items:flex-end;">`;
-  h+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
-  h+=engImg?`<img src="${engImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
-  h+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">現場環保工程師：${engName}</div></div>`;
-  h+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
-  h+=mgrImg?`<img src="${mgrImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
-  h+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">環境保護負責人：${mgrName}</div></div>`;
-  h+=`</div>`;
-  h+=`</div>`;
+  if(curPage.length)pages.push(curPage);
+  if(!pages.length)pages.push([]);
+
+  function makeTableHead(){
+    return `<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr><th style="${SH}width:38%;">日期區間</th><th style="${SH}width:20%;">每周累積水量</th><th style="${SH}width:21%;">每月累積水量</th><th style="${SH}width:21%;">總水量</th></tr></thead><tbody>`;
+  }
+  function makeMonthRows(mg){
+    let r='';const rs=mg.weeks.length;
+    mg.weeks.forEach((w,wi)=>{
+      r+=`<tr><td style="${S}text-align:left;">${w.sd} ～ ${w.ed}</td>`;
+      r+=`<td style="${S}text-align:center;">${w.wt>0?w.wt.toFixed(1)+' m³':'—'}</td>`;
+      if(wi===0){
+        r+=`<td style="${S}text-align:center;font-weight:700;background:#f5f5f0;vertical-align:middle;" rowspan="${rs}">${mg.monthTotal.toFixed(1)} m³</td>`;
+        r+=`<td style="${S}text-align:center;font-weight:700;background:#e8f0e6;vertical-align:middle;" rowspan="${rs}">${mg.grandTotal.toFixed(1)} m³</td>`;
+      }
+      r+=`</tr>`;
+    });
+    return r;
+  }
+  function makeSig(){
+    let s=`<div style="display:flex;justify-content:space-around;margin-top:24px;font-size:13px;align-items:flex-end;">`;
+    s+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
+    s+=engImg?`<img src="${engImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
+    s+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">現場環保工程師：${engName}</div></div>`;
+    s+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
+    s+=mgrImg?`<img src="${mgrImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
+    s+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">環境保護負責人：${mgrName}</div></div>`;
+    s+=`</div>`;
+    return s;
+  }
+
+  let h='';
+  pages.forEach((pageMonths,pi)=>{
+    const isFirstP=pi===0, isLastP=pi===pages.length-1;
+    h+=`<div class="pdf-page${isFirstP?'':' pdf-newpage'}" style="${PS}">`;
+    if(isFirstP){
+      h+=`<h2 style="text-align:center;font-size:22px;font-weight:700;margin:0 0 12px;letter-spacing:2px;">用水抄表紀錄表</h2>`;
+      h+=`<table style="width:100%;border-collapse:collapse;margin-bottom:12px;">`;
+      h+=`<tr><td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="4"><b>工程名稱：</b>${DEFAULT_PROJECT}（${loc}工區）</td></tr>`;
+      h+=`<tr><td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="2"><b>水表用途：</b>${pos}</td>`;
+      h+=`<td style="border:1.5px solid #333;padding:8px 12px;font-size:13px;text-align:left;" colspan="2"><b>水表位置：</b>${$('meterPosition').value||''}</td></tr></table>`;
+    }else{
+      h+=`<div style="text-align:center;font-size:14px;color:#666;margin-bottom:8px;">用水抄表紀錄表（續）— ${loc}工區</div>`;
+    }
+    h+=makeTableHead();
+    pageMonths.forEach(mg=>{h+=makeMonthRows(mg);});
+    h+=`</tbody></table>`;
+    h+=makeSig();
+    h+=`</div>`;
+  });
   return h;
 }
 
