@@ -934,7 +934,7 @@ function ItemPieChart({ records, itemOptions, onFilterClick }) {
   );
 }
 
-function DashboardTab({ records, itemOptions, onFilterClick }) {
+function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [quickPeriod, setQuickPeriod] = useState('all');
@@ -1050,6 +1050,7 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
           <div className="page-title">📊 總覽儀表板</div>
           <div className="page-sub">{PROJECT.name}</div>
         </div>
+        <button className="btn btn-secondary" onClick={onExport} title="匯出 KPI 總結圖片">📊 匯出總結</button>
         <button className="btn btn-primary" onClick={()=>onFilterClick({_newrecord:true})}>➕ 新增紀錄</button>
       </div>
       {/* 日期篩選列 */}
@@ -1081,38 +1082,84 @@ function DashboardTab({ records, itemOptions, onFilterClick }) {
           style={{background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'5px 10px',fontSize:12,fontFamily:'inherit'}} />
         {useFiltered && <span style={{fontSize:12,color:'var(--accent-blue)',fontWeight:700}}>共 {filteredRecs.length} 筆</span>}
       </div>
-      <div className="kpi-grid">
-        {overdueRecs.length>0 && (
-          <div className="kpi-card" style={{cursor:'pointer',borderColor:'#ef4444',borderWidth:2,background:'linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.04))',boxShadow:'0 0 0 3px rgba(239,68,68,.15)'}}
-            onClick={()=>onFilterClick({_overdue:true})} title="點擊查看逾期紀錄">
-            <div className="kpi-stripe" style={{background:'#ef4444',height:5}}></div>
-            <div className="kpi-label" style={{color:'#ef4444',fontWeight:800}}>⚠️ 逾期未結 <span style={{fontSize:10,opacity:.7}}>↗</span></div>
-            <div className="kpi-value" style={{color:'#ef4444',fontSize:40}}>{overdueRecs.length}</div>
-            <div className="kpi-sub" style={{color:'#ef4444',fontWeight:600}}>張已超過關單期限！</div>
+      {/* ─── 匯出區域 ─── */}
+      <div id="kpi-export-area" style={{background:'var(--bg-primary)',padding:20,borderRadius:12}}>
+        {/* 標題列 */}
+        <div style={{marginBottom:16,paddingBottom:12,borderBottom:'2px solid var(--border)'}}>
+          <div style={{fontSize:14,fontWeight:700,color:'var(--text-primary)'}}>通霄電廠二期 海管工程 — 環保改善追蹤 KPI 總結</div>
+          <div style={{fontSize:11,color:'var(--text-muted)',marginTop:2}}>匯出日期：{new Date().toLocaleDateString('zh-TW')}　{dateFrom||dateTo ? `篩選區間：${dateFrom||''}～${dateTo||''}` : '全部期間'}</div>
+        </div>
+        {/* 4 張 KPI */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+          <KpiCard label="總缺失件數" value={totalDefects} sub="累計缺失條數" color="var(--accent-blue)" />
+          <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" />
+          <div className="kpi-card">
+            <div className="kpi-stripe" style={{background:'var(--accent-green)'}}></div>
+            <div className="kpi-label" style={{color:'var(--accent-green)'}}>Closed 已結</div>
+            <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:36,fontWeight:900,lineHeight:1,color:'var(--accent-green)'}}>{closed}</div>
+              <div style={{fontSize:11,color:'var(--text-muted)'}}>張</div>
+            </div>
+            <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>缺失 <span style={{fontFamily:"'JetBrains Mono',monospace",fontWeight:700,color:'var(--accent-green)'}}>{activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)}</span> 條</div>
           </div>
-        )}
-        {near7Recs.length>0 && (
-          <div className="kpi-card" style={{cursor:'pointer',borderColor:'rgba(245,158,11,.5)',background:'rgba(245,158,11,.06)'}}
-            onClick={()=>onFilterClick({_neardue:true})} title="點擊查看即將到期紀錄">
-            <div className="kpi-stripe" style={{background:'#f59e0b'}}></div>
-            <div className="kpi-label" style={{color:'#d97706'}}>⏰ 即將到期 <span style={{fontSize:10,opacity:.6}}>↗</span></div>
-            <div style={{display:'flex',flexDirection:'column',gap:6,marginTop:8}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                <span style={{fontSize:11,color:'#d97706',fontWeight:700}}>3天內</span>
-                <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:22,fontWeight:900,color: near3Recs.length>0?'#ef4444':'#d97706'}}>{near3Recs.length}</span>
+          <KpiCard label="關單率" value={`${closeRate}%`} sub="以缺失件數計算" color="var(--accent-teal)" />
+        </div>
+      </div>{/* end kpi-export-area */}
+      {(overdueRecs.length>0 || near7Recs.length>0) && (
+        <div style={{display:'grid',gridTemplateColumns:overdueRecs.length>0&&near7Recs.length>0?'1fr 1fr':'1fr',gap:12,marginBottom:16}}>
+          {overdueRecs.length>0 && (
+            <div className="kpi-card" style={{cursor:'pointer',borderColor:'#ef4444',borderWidth:2,background:'linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.04))',boxShadow:'0 0 0 3px rgba(239,68,68,.15)'}}
+              onClick={()=>onFilterClick({_overdue:true})}>
+              <div className="kpi-stripe" style={{background:'#ef4444',height:5}}></div>
+              <div className="kpi-label" style={{color:'#ef4444',fontWeight:800}}>⚠️ 逾期未結</div>
+              <div style={{display:'flex',alignItems:'baseline',gap:8}}>
+                <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:40,fontWeight:900,color:'#ef4444',lineHeight:1}}>{overdueRecs.length}</div>
+                <div style={{fontSize:13,color:'#ef4444',fontWeight:700}}>張已超過關單期限</div>
               </div>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                <span style={{fontSize:11,color:'#92400e',fontWeight:700}}>7天內</span>
-                <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:22,fontWeight:900,color:'#d97706'}}>{near7Recs.length}</span>
+              <div style={{marginTop:8,display:'flex',flexWrap:'wrap',gap:4}}>
+                {overdueRecs.map(r=>(
+                  <span key={r.id} style={{fontSize:10,background:'rgba(239,68,68,.15)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:4,padding:'2px 6px',fontFamily:"'JetBrains Mono',monospace"}}>{r.number}</span>
+                ))}
               </div>
             </div>
-            <div className="kpi-sub" style={{color:'#d97706',marginTop:4}}>張待關單</div>
-          </div>
-        )}
+          )}
+          {near7Recs.length>0 && (
+            <div className="kpi-card" style={{cursor:'pointer',borderColor:'rgba(245,158,11,.5)',borderWidth:2,background:'rgba(245,158,11,.06)'}}
+              onClick={()=>onFilterClick({_neardue:true})}>
+              <div className="kpi-stripe" style={{background:'#f59e0b'}}></div>
+              <div className="kpi-label" style={{color:'#d97706',fontWeight:800}}>⏰ 即將到期</div>
+              <div style={{display:'flex',gap:20,marginTop:4}}>
+                <div><div style={{fontSize:11,color:'#d97706',fontWeight:700,marginBottom:2}}>3天內</div>
+                  <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:near3Recs.length>0?'#ef4444':'#d97706',lineHeight:1}}>{near3Recs.length}</div></div>
+                <div><div style={{fontSize:11,color:'#92400e',fontWeight:700,marginBottom:2}}>7天內</div>
+                  <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:'#d97706',lineHeight:1}}>{near7Recs.length}</div></div>
+              </div>
+              <div style={{marginTop:8,display:'flex',flexWrap:'wrap',gap:4}}>
+                {near7Recs.map(r=>(
+                  <span key={r.id} style={{fontSize:10,background:'rgba(245,158,11,.15)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:4,padding:'2px 6px',fontFamily:"'JetBrains Mono',monospace"}}>{r.number}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── 主要 KPI 列 ─── */}
+      <div className="kpi-grid" id="kpi-summary">
         <KpiCard label="總開單數" value={total} sub="累計改善單張數" color="var(--accent-blue)" />
         <KpiCard label="總缺失件數" value={totalDefects} sub="累計缺失條數" color="var(--accent-purple)" />
         <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" filter={{status:'Open'}} />
-        <KpiCard label="Closed 已結" value={closed} sub="已完成" color="var(--accent-green)" filter={{status:'Closed'}} />
+        <div className="kpi-card" style={{cursor:'pointer'}} onClick={()=>onFilterClick({status:'Closed'})} title="點擊查看已結案">
+          <div className="kpi-stripe" style={{background:'var(--accent-green)'}}></div>
+          <div className="kpi-label" style={{color:'var(--accent-green)'}}>Closed 已結</div>
+          <div style={{display:'flex',alignItems:'baseline',gap:6}}>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:36,fontWeight:900,lineHeight:1,color:'var(--accent-green)'}}>{closed}</div>
+            <div style={{fontSize:11,color:'var(--text-muted)'}}>張</div>
+          </div>
+          <div style={{fontSize:11,color:'var(--text-muted)',marginTop:4}}>
+            缺失 <span style={{fontFamily:"'JetBrains Mono',monospace",fontWeight:700,color:'var(--accent-green)'}}>{activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0)}</span> 條
+          </div>
+        </div>
         <KpiCard label="關單率" value={`${closeRate}%`} sub={`以缺失件數計算`} color="var(--accent-teal)" />
         {pnTotal>0 && (
           <div className="kpi-card" style={{cursor:'pointer'}} onClick={()=>onFilterClick({type:'PN'})} title="點擊查看罰單">
@@ -1320,6 +1367,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
         </div>
         <div style={{display:'flex',gap:8}}>
           <button className="btn btn-secondary" onClick={onRefresh} disabled={saving}>🔄 重新整理</button>
+          <button className="btn btn-secondary" onClick={()=>window.open(PHOTO_SYSTEM_URL,'_blank')} title="開啟改善照片表產生器">📷 照片系統</button>
           <button className="btn btn-primary" onClick={()=>{setMode('add');setEditRec(null);setShowModal(true);}}>➕ 新增紀錄</button>
         </div>
       </div>
@@ -1597,48 +1645,31 @@ function App() {
     return rec;
   });
 
-  // ── 載入索引（Drive JSON）────────────────────────────────
   const loadFromCloud = useCallback(async (url) => {
     setLoading(true); setLoadingMsg('從雲端載入資料...');
     try {
       const data = await xhrGet((url||gasUrl) + '?action=index');
       let cloudRecords = normalizeRecords(data.records || []);
-
-      // 首次連線：遷移舊 Sheet 資料或匯入 SEED
+      const cfg = {
+        itemOptions:  (data.config?.itemOptions  || data.itemOptions)  || DEFAULT_ITEMS,
+        areaOptions:  (data.config?.areaOptions  || data.areaOptions)  || DEFAULT_AREAS,
+        unitOptions:  (data.config?.unitOptions  || data.unitOptions)  || DEFAULT_UNITS,
+        peopleOptions:(data.config?.peopleOptions|| data.peopleOptions)|| DEFAULT_PEOPLE,
+      };
       if (cloudRecords.length === 0) {
-        setLoadingMsg('首次連線，正在遷移資料...');
-        // 嘗試讀舊 Sheet
+        setLoadingMsg('首次連線，正在遷移資料至 Drive...');
         let seedRecs = SEED_RECORDS;
         try {
           const oldData = await xhrGet((url||gasUrl) + '?action=read');
           if (oldData.records && oldData.records.length > 0)
             seedRecs = normalizeRecords(oldData.records);
         } catch(e) {}
-        setLoadingMsg(`匯入 ${seedRecs.length} 筆資料至 Drive...`);
-        // 批次寫入每筆紀錄
-        for (let i = 0; i < seedRecs.length; i++) {
-          setLoadingMsg(`匯入第 ${i+1}/${seedRecs.length} 筆...`);
-          await xhrPost((url||gasUrl), { action:'saveRecord', record: seedRecs[i] });
-        }
-        // 儲存 config
-        const cfg = {
-          itemOptions: data.itemOptions || DEFAULT_ITEMS,
-          areaOptions: data.areaOptions || DEFAULT_AREAS,
-          unitOptions: data.unitOptions || DEFAULT_UNITS,
-          peopleOptions: data.peopleOptions || DEFAULT_PEOPLE,
-        };
-        await xhrPost((url||gasUrl), { action:'saveConfig', config: cfg });
+        setLoadingMsg(`一次性遷移 ${seedRecs.length} 筆，請稍候（約 30 秒）...`);
+        await xhrPost((url||gasUrl), { action:'migrateAll', records: seedRecs, config: cfg });
         cloudRecords = seedRecs;
-        setConfig(cfg);
-      } else {
-        setConfig({
-          itemOptions: data.config?.itemOptions || data.itemOptions || DEFAULT_ITEMS,
-          areaOptions: data.config?.areaOptions || data.areaOptions || DEFAULT_AREAS,
-          unitOptions: data.config?.unitOptions || data.unitOptions || DEFAULT_UNITS,
-          peopleOptions: data.config?.peopleOptions || data.peopleOptions || DEFAULT_PEOPLE,
-        });
       }
       setRecords(cloudRecords);
+      setConfig(cfg);
       setLastSync(new Date().toLocaleString('zh-TW'));
       setSyncState('ok'); setConnected(true);
     } catch(e) {
@@ -1801,7 +1832,33 @@ function App() {
 
       {/* Content */}
       <div className="content">
-        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ if(filter._newrecord){ setTab('records'); setActiveFilter({_newrecord:true, _ts:Date.now()}); } else { setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); } }} />}
+        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ if(filter._newrecord){ setTab('records'); setActiveFilter({_newrecord:true, _ts:Date.now()}); } else { setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); } }} onExport={()=>{
+          // 動態載入 html2canvas 並截取 KPI 區塊
+          const el = document.getElementById('kpi-export-area');
+          if (!el) { alert('找不到匯出區域'); return; }
+          const script = document.createElement('script');
+          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+          script.onload = () => {
+            html2canvas(el, { scale: 2, backgroundColor: '#eef2f7', useCORS: true }).then(canvas => {
+              const a = document.createElement('a');
+              const date = new Date().toISOString().slice(0,10);
+              a.download = `TPC海管工程_KPI總結_${date}.png`;
+              a.href = canvas.toDataURL('image/png');
+              a.click();
+            });
+          };
+          if (window.html2canvas) {
+            html2canvas(el, { scale: 2, backgroundColor: '#eef2f7', useCORS: true }).then(canvas => {
+              const a = document.createElement('a');
+              const date = new Date().toISOString().slice(0,10);
+              a.download = `TPC海管工程_KPI總結_${date}.png`;
+              a.href = canvas.toDataURL('image/png');
+              a.click();
+            });
+          } else {
+            document.head.appendChild(script);
+          }
+        }} />}
         {tab==='records' && (
           <RecordsTab
             records={records} config={config} saving={saving} gasUrl={gasUrl} connected={connected}
