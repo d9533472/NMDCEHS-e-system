@@ -8,6 +8,7 @@
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{
   --bg:#f4f6f9;--bg2:#edf0f5;--card:#ffffff;--card2:#f8f9fb;
@@ -60,7 +61,7 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
 <body>
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#7c8ba0"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
 <script type="text/babel">
-const VER='3.2.0';
+const VER='3.3.0';
 const DEFAULT_API='https://script.google.com/macros/s/AKfycbxJAuZHtubqyArcDCJetUH7Czdffo_vbystwcipZP-rqEG3Uzmv61emQ7fZp-JYM3Bffg/exec';
 const{useState,useEffect,useMemo,useCallback,useRef}=React;
 
@@ -82,86 +83,29 @@ const Kpi=({l,v,s,a,i})=><div className="fi" style={{background:'#fff',border:'1
 const Mdl=({open,close,title,wide,children})=>{if(!open)return null;return<div className="ov" onClick={close}><div className="ob"/><div className="md" onClick={e=>e.stopPropagation()} style={{maxWidth:wide?960:640,width:'95vw',maxHeight:'88vh',overflowY:'auto'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,paddingBottom:14,borderBottom:'1px solid var(--border)'}}><h3 style={{fontSize:17,fontWeight:800,color:'var(--fg2)'}}>{title}</h3><button onClick={close} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:'var(--muted)'}}>✕</button></div>{children}</div></div>};
 const CSSBar=({data,k1,k2,lk})=>{const mx=Math.max(...data.map(d=>Math.max(d[k1]||0,d[k2]||0)),1);return<div style={{display:'flex',alignItems:'flex-end',gap:5,height:180,paddingTop:10}}>{data.map((d,i)=><div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',flex:1,gap:3,minWidth:0}}><div style={{display:'flex',alignItems:'flex-end',gap:2,height:150,width:'100%'}}><div title={'預算: '+fN(d[k1])} style={{flex:1,borderRadius:'4px 4px 0 0',background:'#e2e8f0',height:Math.max((d[k1]||0)/mx*150,2)}}/><div title={'已查驗: '+fN(d[k2])} style={{flex:1,borderRadius:'4px 4px 0 0',background:'var(--accent)',height:Math.max((d[k2]||0)/mx*150,2)}}/></div><div style={{fontSize:9,color:'var(--muted)',textAlign:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:'100%'}}>{d[lk]}</div></div>)}</div>};
 
-/* ── BudgetEdit ── */
-function BudgetEdit({item,onOk,onNo,ld}){
-  const[f,sF]=useState({item_name_cn:item.item_name_cn||'',item_name_en:item.item_name_en||'',unit:item.unit||'',budget_qty:item.budget_qty||'',unit_price:item.unit_price||'',remarks:item.remarks||''});
-  const bt=parseFloat(f.budget_qty||0)*parseFloat(f.unit_price||0);
-  return<div>
-    <div className="fr"><div><label className="fl">項目名稱 (中)</label><input value={f.item_name_cn} onChange={e=>sF(x=>({...x,item_name_cn:e.target.value}))}/></div><div><label className="fl">項目名稱 (英)</label><input value={f.item_name_en} onChange={e=>sF(x=>({...x,item_name_en:e.target.value}))}/></div></div>
-    <div className="fr3"><div><label className="fl">單位</label><input value={f.unit} onChange={e=>sF(x=>({...x,unit:e.target.value}))}/></div><div><label className="fl">預算數量</label><input type="number" step="any" value={f.budget_qty} onChange={e=>sF(x=>({...x,budget_qty:e.target.value}))}/></div><div><label className="fl">單價</label><input type="number" step="any" value={f.unit_price} onChange={e=>sF(x=>({...x,unit_price:e.target.value}))}/></div></div>
-    <div style={{background:'var(--bg)',borderRadius:'var(--radius)',padding:12,marginBottom:14,border:'1px solid var(--border)',fontSize:13}}>預算總價: <strong className="mono" style={{color:'var(--accent)'}}>{fN(bt)}</strong></div>
-    <div style={{marginBottom:14}}><label className="fl">備註</label><textarea rows={2} value={f.remarks} onChange={e=>sF(x=>({...x,remarks:e.target.value}))} style={{resize:'vertical'}}/></div>
-    <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:14,borderTop:'1px solid var(--border)'}}><button className="bg" onClick={onNo}>取消</button><button className="bp" disabled={ld} onClick={()=>{onOk({...f,budget_qty:parseFloat(f.budget_qty),unit_price:parseFloat(f.unit_price),budget_total:bt})}}>{ld?<><span className="spinner"/> 儲存中...</>:'☁ 儲存至雲端'}</button></div>
-  </div>;
-}
-
-/* ── Form (支援可量化/不可量化) ── */
-function Form({bi,ins,init,fixId,onOk,onNo,ld,onBatch}){
+/* ── Form ── */
+function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
   const ID_PREFIX='NMDC-POE-BOQ-E-';
   const initNo=init?.id?String(init.id).replace(ID_PREFIX,''):'';
+  const[autoNo,sAutoNo]=useState('');
   const isEdit=!!init;
-  /* 判斷 init 或 fixId 的類別 */
-  const fixItem=fixId?bi.find(b=>b.id===fixId):null;
-  const initItem=init?bi.find(b=>b.id===init.budget_item_id):null;
-  const autoMode=(fixItem||initItem)?(String((fixItem||initItem).item_no).startsWith('6.2')?'pct':'qty'):null;
-  const initPct=init?.inspected_pct||(autoMode==='pct'&&init?.inspected_qty?(parseFloat(init.inspected_qty)*100):'');
-  const[mode,sMode]=useState(autoMode||(init?.inspection_type==='pct'?'pct':'qty'));
-  const[f,sF]=useState({budget_item_id:fixId||init?.budget_item_id||'',inspection_no:initNo,inspection_date:init?.inspection_date?String(init.inspection_date).slice(0,10):td(),submit_date:init?.submit_date?String(init.submit_date).slice(0,10):'',approve_date:init?.approve_date?String(init.approve_date).slice(0,10):'',inspected_qty:init?.inspected_qty||'',inspected_pct:initPct,note:init?.note||''});
-  const[selIds,sSelIds]=useState([]);/* 不可量化多選 */
+  /* 自動取號 */
+  useEffect(()=>{if(!isEdit&&api){api.get('getNextNumber').then(r=>{sAutoNo(String(r.next_number).padStart(3,'0'))}).catch(()=>{})};},[]);
+  const[f,sF]=useState({budget_item_id:fixId||init?.budget_item_id||'',inspection_no:initNo,inspection_date:init?.inspection_date?String(init.inspection_date).slice(0,10):td(),submit_date:init?.submit_date?String(init.submit_date).slice(0,10):'',approve_date:init?.approve_date?String(init.approve_date).slice(0,10):'',inspected_qty:init?.inspected_qty||'',note:init?.note||''});
+  const displayNo=f.inspection_no||autoNo||'(自動產生)';
   const[files,sFiles]=useState([]);const fr=useRef();
-
-  const qtyItems=bi.filter(b=>String(b.item_no).startsWith('6.1'));
-  const pctItems=bi.filter(b=>String(b.item_no).startsWith('6.2'));
   const sel=bi.find(b=>b.id===f.budget_item_id);
   const eq=sel?ins.filter(i=>i.budget_item_id===sel.id&&i.id!==init?.id).reduce((s,i)=>s+parseFloat(i.inspected_qty||0),0):0;
   const rem=sel?sel.budget_qty-eq:0;
-
-  const toggleSel=id=>sSelIds(p=>p.includes(id)?p.filter(x=>x!==id):[...p,id]);
-  const selAll=()=>{const ids=pctItems.map(b=>b.id);sSelIds(p=>p.length===ids.length?[]:ids)};
-
   return<div>
-    {/* 類型切換 (新增時顯示, 編輯或指定項目不顯示) */}
-    {!isEdit&&!fixId&&<div style={{display:'flex',gap:0,marginBottom:18,borderRadius:'var(--radius)',overflow:'hidden',border:'1.5px solid var(--border)'}}>
-      <button onClick={()=>{sMode('qty');sF(x=>({...x,budget_item_id:''}));sSelIds([])}} style={{flex:1,padding:'10px 16px',fontWeight:600,fontSize:13,borderRadius:0,background:mode==='qty'?'var(--accent)':'#fff',color:mode==='qty'?'#fff':'var(--muted)',border:'none'}}>📦 可量化查驗 (6.1)</button>
-      <button onClick={()=>{sMode('pct');sF(x=>({...x,budget_item_id:''}))}} style={{flex:1,padding:'10px 16px',fontWeight:600,fontSize:13,borderRadius:0,background:mode==='pct'?'var(--accent)':'#fff',color:mode==='pct'?'#fff':'var(--muted)',border:'none',borderLeft:'1.5px solid var(--border)'}}>📊 不可量化查驗 (6.2)</button>
-    </div>}
-    {isEdit&&<div style={{marginBottom:14}}><span className="tag" style={{background:mode==='pct'?'var(--amberBg)':'#eff6ff',color:mode==='pct'?'var(--amber)':'var(--accent)',fontSize:11,padding:'4px 12px'}}>{mode==='pct'?'📊 不可量化 (%)':'📦 可量化 (數量)'}</span></div>}
-
-    <div style={{marginBottom:14}}><label className="fl">查驗編號 *</label><div style={{display:'flex',alignItems:'center',gap:0}}><span style={{background:'var(--bg2)',border:'1.5px solid var(--border)',borderRight:'none',borderRadius:'var(--radius) 0 0 var(--radius)',padding:'9px 12px',fontSize:13,color:'var(--muted)',fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap',fontWeight:600}}>{ID_PREFIX}</span><input value={f.inspection_no} onChange={e=>sF(x=>({...x,inspection_no:e.target.value}))} placeholder="001" style={{borderRadius:'0 var(--radius) var(--radius) 0',fontFamily:"'JetBrains Mono'",fontWeight:600}}/></div>{f.inspection_no&&<div style={{fontSize:11,color:'var(--accent)',marginTop:4,fontFamily:"'JetBrains Mono'"}}>完整編號: {ID_PREFIX}{f.inspection_no}</div>}</div>
-
-    {/* ═══ 可量化: 單選項目 + 數量 ═══ */}
-    {mode==='qty'&&<>
-      <div><label className="fl">預算項目 *</label><select value={f.budget_item_id} disabled={!!fixId} onChange={e=>sF(x=>({...x,budget_item_id:e.target.value}))} style={{marginBottom:14}}><option value="">— 請選擇 —</option>{(fixId?bi:qtyItems).map(b=><option key={b.id} value={b.id}>{b.item_no} {b.item_name_cn}</option>)}</select></div>
-      {sel&&<div style={{background:'var(--bg)',borderRadius:'var(--radius)',padding:14,marginBottom:14,border:'1px solid var(--border)'}}><div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,fontSize:12}}><div>單位: <strong>{sel.unit}</strong></div><div>單價: <strong className="mono">{fmt(sel.unit_price)}</strong></div><div>預算數量: <strong className="mono">{fmt(sel.budget_qty)}</strong></div><div>已查驗: <span className="mono">{fmt(eq)}</span></div><div style={{color:'var(--amber)',fontWeight:700}}>剩餘: <span className="mono">{fmt(rem)}</span></div><div>預算金額: <span className="mono">{fmt(sel.budget_total)}</span></div></div></div>}
-      <div className="fr3"><div><label className="fl">查驗日期 *</label><input type="date" value={f.inspection_date} onChange={e=>sF(x=>({...x,inspection_date:e.target.value}))}/></div><div><label className="fl">提送日期</label><input type="date" value={f.submit_date} onChange={e=>sF(x=>({...x,submit_date:e.target.value}))}/></div><div><label className="fl">核准日期</label><input type="date" value={f.approve_date} onChange={e=>sF(x=>({...x,approve_date:e.target.value}))}/></div></div>
-      <div className="fr">
-        <div><label className="fl">查驗數量 * {rem>0&&<span style={{color:'var(--amber)'}}>(max {fmt(rem)})</span>}</label><input type="number" step="any" min="0.01" value={f.inspected_qty} placeholder="0" onChange={e=>sF(x=>({...x,inspected_qty:e.target.value}))}/>{f.inspected_qty&&sel&&<div style={{fontSize:12,color:'var(--accent)',marginTop:5,fontWeight:600}}>查驗金額: {fN(parseFloat(f.inspected_qty||0)*sel.unit_price)}</div>}</div>
-        <div><label className="fl">備註</label><textarea rows={3} value={f.note} placeholder="查驗說明..." style={{resize:'vertical'}} onChange={e=>sF(x=>({...x,note:e.target.value}))}/></div>
-      </div>
-    </>}
-
-    {/* ═══ 不可量化: 多選項目 + 百分比 ═══ */}
-    {mode==='pct'&&<>
-      {!isEdit&&!fixId&&<div style={{marginBottom:14}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label className="fl" style={{margin:0}}>選擇預算項目 * ({selIds.length}/{pctItems.length} 已選)</label><button className="bg" onClick={selAll} style={{fontSize:10,padding:'3px 10px'}}>{selIds.length===pctItems.length?'取消全選':'全選'}</button></div>
-        <div style={{maxHeight:200,overflowY:'auto',border:'1px solid var(--border)',borderRadius:'var(--radius)',background:'#fff'}}>
-          {pctItems.map(b=>{const eqB=ins.filter(i=>i.budget_item_id===b.id).reduce((s,i)=>s+parseFloat(i.inspected_qty||0),0);const remB=b.budget_qty-eqB;const usedPct=(eqB*100).toFixed(0);return<label key={b.id} style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',borderBottom:'1px solid var(--border)',cursor:'pointer',background:selIds.includes(b.id)?'#eff6ff':'transparent',transition:'background .1s'}}>
-            <input type="checkbox" checked={selIds.includes(b.id)} onChange={()=>toggleSel(b.id)} style={{width:16,height:16,accentColor:'var(--accent)'}}/>
-            <div style={{flex:1,minWidth:0}}><div style={{fontSize:12,fontWeight:600}}><span style={{color:'var(--accent)',fontFamily:"'JetBrains Mono'",marginRight:6}}>{b.item_no}</span>{b.item_name_cn}</div><div style={{fontSize:10,color:'var(--muted)'}}>{fN(b.budget_total)} · 已查驗 {usedPct}% · 剩餘 {(100-parseFloat(usedPct)).toFixed(0)}%</div></div>
-          </label>})}
-        </div>
-      </div>}
-      {(isEdit||fixId)&&<div><label className="fl">預算項目</label><select value={f.budget_item_id} disabled style={{marginBottom:14}}>{bi.map(b=><option key={b.id} value={b.id}>{b.item_no} {b.item_name_cn}</option>)}</select></div>}
-      <div className="fr3"><div><label className="fl">查驗日期 *</label><input type="date" value={f.inspection_date} onChange={e=>sF(x=>({...x,inspection_date:e.target.value}))}/></div><div><label className="fl">提送日期</label><input type="date" value={f.submit_date} onChange={e=>sF(x=>({...x,submit_date:e.target.value}))}/></div><div><label className="fl">核准日期</label><input type="date" value={f.approve_date} onChange={e=>sF(x=>({...x,approve_date:e.target.value}))}/></div></div>
-      <div className="fr">
-        <div><label className="fl">查驗比例 (%) *</label><div style={{display:'flex',alignItems:'center',gap:0}}><input type="number" step="0.1" min="0.1" max="100" value={f.inspected_pct} placeholder="30" onChange={e=>sF(x=>({...x,inspected_pct:e.target.value}))} style={{borderRadius:'var(--radius) 0 0 var(--radius)'}}/><span style={{background:'var(--bg2)',border:'1.5px solid var(--border)',borderLeft:'none',borderRadius:'0 var(--radius) var(--radius) 0',padding:'9px 12px',fontSize:14,fontWeight:700,color:'var(--muted)'}}>%</span></div>
-        {f.inspected_pct&&!isEdit&&!fixId&&selIds.length>0&&<div style={{fontSize:12,color:'var(--accent)',marginTop:5,fontWeight:600}}>本次查驗 {selIds.length} 項 · 合計金額: {fN(selIds.reduce((s,id)=>{const b=bi.find(x=>x.id===id);return s+(b?b.budget_total*parseFloat(f.inspected_pct||0)/100:0)},0))}</div>}
-        {f.inspected_pct&&(isEdit||fixId)&&sel&&<div style={{fontSize:12,color:'var(--accent)',marginTop:5,fontWeight:600}}>查驗金額: {fN(sel.budget_total*parseFloat(f.inspected_pct||0)/100)}</div>}
-        </div>
-        <div><label className="fl">備註</label><textarea rows={3} value={f.note} placeholder="查驗說明..." style={{resize:'vertical'}} onChange={e=>sF(x=>({...x,note:e.target.value}))}/></div>
-      </div>
-    </>}
-
+    <div style={{marginBottom:14}}><label className="fl">查驗編號 {isEdit?'*':''}</label><div style={{display:'flex',alignItems:'center',gap:0}}><span style={{background:'var(--bg2)',border:'1.5px solid var(--border)',borderRight:'none',borderRadius:'var(--radius) 0 0 var(--radius)',padding:'9px 12px',fontSize:13,color:'var(--muted)',fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap',fontWeight:600}}>{ID_PREFIX}</span><input value={f.inspection_no} onChange={e=>sF(x=>({...x,inspection_no:e.target.value}))} placeholder={autoNo||'自動產生'} style={{borderRadius:'0 var(--radius) var(--radius) 0',fontFamily:"'JetBrains Mono'",fontWeight:600}}/></div><div style={{fontSize:11,color:'var(--accent)',marginTop:4,fontFamily:"'JetBrains Mono'"}}>{isEdit?'完整編號: '+ID_PREFIX+f.inspection_no:f.inspection_no?'自訂編號: '+ID_PREFIX+f.inspection_no:'將自動產生: '+ID_PREFIX+(autoNo||'...')}</div>{!isEdit&&<div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>留空 = 自動遞增，也可手動指定</div>}</div>
+    <div><label className="fl">預算項目 *</label><select value={f.budget_item_id} disabled={!!fixId} onChange={e=>sF(x=>({...x,budget_item_id:e.target.value}))} style={{marginBottom:14}}><option value="">— 請選擇 —</option>{bi.map(b=><option key={b.id} value={b.id}>{b.item_no} {b.item_name_cn}</option>)}</select></div>
+    {sel&&<div style={{background:'var(--bg)',borderRadius:'var(--radius)',padding:14,marginBottom:14,border:'1px solid var(--border)'}}><div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,fontSize:12}}><div>單位: <strong>{sel.unit}</strong></div><div>單價: <strong className="mono">{fmt(sel.unit_price)}</strong></div><div>預算數量: <strong className="mono">{fmt(sel.budget_qty)}</strong></div><div>已查驗: <span className="mono">{fmt(eq)}</span></div><div style={{color:'var(--amber)',fontWeight:700}}>剩餘: <span className="mono">{fmt(rem)}</span></div><div>預算金額: <span className="mono">{fmt(sel.budget_total)}</span></div></div></div>}
+    <div className="fr3"><div><label className="fl">查驗日期 *</label><input type="date" value={f.inspection_date} onChange={e=>sF(x=>({...x,inspection_date:e.target.value}))}/></div><div><label className="fl">提送日期</label><input type="date" value={f.submit_date} onChange={e=>sF(x=>({...x,submit_date:e.target.value}))}/></div><div><label className="fl">核准日期</label><input type="date" value={f.approve_date} onChange={e=>sF(x=>({...x,approve_date:e.target.value}))}/></div></div>
+    <div className="fr">
+      <div><label className="fl">查驗數量 * {rem>0&&<span style={{color:'var(--amber)'}}>(max {fmt(rem)})</span>}</label><input type="number" step="any" min="0.01" value={f.inspected_qty} placeholder="0" onChange={e=>sF(x=>({...x,inspected_qty:e.target.value}))}/>{f.inspected_qty&&sel&&<div style={{fontSize:12,color:'var(--accent)',marginTop:5,fontWeight:600}}>查驗金額: {fN(parseFloat(f.inspected_qty||0)*sel.unit_price)}</div>}</div>
+      <div><label className="fl">備註</label><textarea rows={3} value={f.note} placeholder="查驗說明..." style={{resize:'vertical'}} onChange={e=>sF(x=>({...x,note:e.target.value}))}/></div>
+    </div>
     <div style={{marginBottom:18}}>
       <label className="fl">附件 → Google Drive</label>
       <input type="file" ref={fr} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const r=new FileReader();r.onload=()=>sFiles(p=>[...p,{filename:file.name,mimeType:file.type,size:file.size,content:r.result.split(',')[1]}]);r.readAsDataURL(file)});e.target.value=''}} style={{display:'none'}} accept="image/*,.pdf,.xlsx,.xls,.doc,.docx"/>
@@ -171,29 +115,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,onBatch}){
     {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'var(--bg)',padding:'4px 10px',borderRadius:4,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
     <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:14,borderTop:'1px solid var(--border)'}}>
       <button className="bg" onClick={onNo}>取消</button>
-      <button className="bp" disabled={ld} onClick={()=>{
-        if(!f.inspection_no||!f.inspection_no.trim())return alert('請輸入查驗編號');
-        if(!f.inspection_date)return alert('請輸入查驗日期');
-        if(mode==='qty'){
-          if(!f.budget_item_id)return alert('請選擇項目');
-          const q=parseFloat(f.inspected_qty);if(isNaN(q)||q<=0)return alert('數量>0');
-          if(!isEdit&&q>rem)return alert('超過剩餘! max:'+rem);
-          onOk({...f,inspected_qty:q,inspection_type:'qty',attachments:files});
-        }else{
-          const pct=parseFloat(f.inspected_pct);if(isNaN(pct)||pct<=0||pct>100)return alert('比例需 0.1~100');
-          const qtyVal=pct/100;/* 轉成小數當 qty, 因為 budget_qty=1 for LS items */
-          if(isEdit||fixId){
-            /* 編輯或指定項目: 單筆 */
-            onOk({...f,inspected_qty:qtyVal,inspected_pct:pct,inspection_type:'pct',attachments:files});
-          }else{
-            /* 新增多選: 批次 */
-            if(selIds.length===0)return alert('請至少選擇一個項目');
-            const batchNo=f.inspection_no;
-            const items=selIds.map((id,i)=>({...f,budget_item_id:id,inspection_no:batchNo+(selIds.length>1?'-'+(i+1):''),inspected_qty:qtyVal,inspected_pct:pct,inspection_type:'pct',attachments:i===0?files:[]}));
-            onBatch?onBatch(items):items.forEach(it=>onOk(it));
-          }
-        }
-      }}>{ld?<><span className="spinner"/> 儲存至雲端...</>:isEdit?'☁ 儲存至雲端':mode==='pct'&&!fixId&&selIds.length>1?'☁ 批次新增 ('+selIds.length+'筆)':'☁ 新增並儲存至雲端'}</button>
+      <button className="bp" disabled={ld} onClick={()=>{if(isEdit&&(!f.inspection_no||!f.inspection_no.trim()))return alert('編輯時必須保留查驗編號');if(!f.budget_item_id)return alert('請選擇項目');if(!f.inspection_date)return alert('請輸入查驗日期');const q=parseFloat(f.inspected_qty);if(isNaN(q)||q<=0)return alert('數量>0');if(!init&&q>rem)return alert('超過剩餘! max:'+rem);onOk({...f,inspected_qty:q,attachments:files})}}>{ld?<><span className="spinner"/> 儲存至雲端...</>:init?'☁ 儲存至雲端':'☁ 新增並儲存至雲端'}</button>
     </div>
   </div>;
 }
@@ -201,14 +123,13 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,onBatch}){
 /* ── ItemDetail ── */
 function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
   const recs=ins.filter(i=>i.budget_item_id===it.id).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date)));
-  const isPct=String(it.item_no).startsWith('6.2');
   return<div>
-    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:18,fontSize:12.5}}><div>類別: <strong>{it.category}</strong></div><div>單位: <strong>{it.unit}</strong>{isPct&&<span className="tag" style={{background:'var(--amberBg)',color:'var(--amber)',marginLeft:6}}>不可量化</span>}</div><div>編碼: <span className="mono" style={{fontSize:11}}>{it.code}</span></div></div>
-    <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l={isPct?"預算金額":"預算數量"} v={isPct?fN(it.budget_total):fmt(it.budget_qty)} a="var(--muted)" i="📦"/><Kpi l="已核准" v={isPct?fP(it.inspected_qty):fmt(it.inspected_qty)} s={fN(it.inspected_amt)} a="var(--green)" i="✅"/>{(it.pending_qty||0)>0&&<Kpi l="待核准" v={isPct?fP(it.pending_qty):fmt(it.pending_qty)} s={fN(it.pending_amt)} a="#f59e0b" i="⏳"/>}<Kpi l="未查驗" v={isPct?fP(it.remaining_qty):fmt(it.remaining_qty)} s={fN(it.remaining_amt)} a="var(--amber)" i="📋"/><Kpi l="核准比例" v={fP(it.ratio)} a="var(--accent)" i="📊"/></div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:18,fontSize:12.5}}><div>類別: <strong>{it.category}</strong></div><div>單位: <strong>{it.unit}</strong></div><div>編碼: <span className="mono" style={{fontSize:11}}>{it.code}</span></div></div>
+    <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fmt(it.budget_qty)} a="var(--muted)" i="📦"/><Kpi l="已核准" v={fmt(it.inspected_qty)} s={fN(it.inspected_amt)} a="var(--green)" i="✅"/>{(it.pending_qty||0)>0&&<Kpi l="待核准" v={fmt(it.pending_qty)} s={fN(it.pending_amt)} a="#f59e0b" i="⏳"/>}<Kpi l="未查驗" v={fmt(it.remaining_qty)} s={fN(it.remaining_amt)} a="var(--amber)" i="📋"/><Kpi l="核准比例" v={fP(it.ratio)} a="var(--accent)" i="📊"/></div>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h4 style={{fontSize:14,fontWeight:700}}>歷次查驗 ({recs.length}筆)</h4>{auth&&<button className="bp" style={{fontSize:12,padding:'5px 14px'}} onClick={onAdd}>＋ 新增</button>}</div>
     {recs.length===0?<div style={{padding:32,textAlign:'center',color:'var(--muted)'}}>尚無查驗紀錄</div>
-    :<div style={{overflowX:'auto'}}><table><thead><tr><th>編號</th><th>查驗日期</th><th>提送日期</th><th>核准日期</th><th style={{textAlign:'right'}}>{isPct?'比例':'數量'}</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
-      {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td style={{fontSize:12}}>{fD(r.inspection_date)}</td><td style={{fontSize:12}}>{fD(r.submit_date)}</td><td style={{fontSize:12}}>{fD(r.approve_date)}</td><td className="num">{isPct?fP(r.inspected_qty):fmt(r.inspected_qty)}</td><td className="num" style={{color:'var(--green)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.note||'—'}</td>
+    :<div style={{overflowX:'auto'}}><table><thead><tr><th>編號</th><th>查驗日期</th><th>提送日期</th><th>核准日期</th><th style={{textAlign:'right'}}>數量</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
+      {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td style={{fontSize:12}}>{fD(r.inspection_date)}</td><td style={{fontSize:12}}>{fD(r.submit_date)}</td><td style={{fontSize:12}}>{fD(r.approve_date)}</td><td className="num">{fmt(r.inspected_qty)}</td><td className="num" style={{color:'var(--green)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{r.note||'—'}</td>
       <td>{r.attachment_ids?.length>0?r.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):'—'}</td>
       {auth&&<td><div style={{display:'flex',gap:4}}><button className="bg" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onEdit(r)}>編輯</button><button className="bd" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onDel(r.id)}>刪除</button></div></td>}</tr>)}
     </tbody></table></div>}
@@ -242,10 +163,10 @@ function App(){
   const doLogout=()=>{sAuth(false);toast('已登出')};
 
   const addI=async d=>{sSub(true);try{const r=await api.current.post('addInspection',d);toast('☁ '+r.inspection_id+' '+r.message);sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
-  const batchAddI=async items=>{sSub(true);try{for(let i=0;i<items.length;i++){const r=await api.current.post('addInspection',items[i]);toast('☁ '+(i+1)+'/'+items.length+' '+r.inspection_id)}sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const updI=async(id,d)=>{sSub(true);try{await api.current.post('updateInspection',{inspection_id:id,inspection_no:d.inspection_no,inspection_date:d.inspection_date,submit_date:d.submit_date,approve_date:d.approve_date,inspected_qty:d.inspected_qty,note:d.note,new_attachments:d.attachments});toast('☁ 已更新至雲端');sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
-  const updBudget=async(id,d)=>{sSub(true);try{await api.current.post('updateBudgetItem',{budget_item_id:id,...d});toast('☁ 預算項目已更新');sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const delI=async id=>{if(!confirm('確定刪除？'))return;try{await api.current.post('deleteInspection',{inspection_id:id});toast('☁ 已從雲端刪除');await sync()}catch(e){toast(e.message,'err')}};
+  const importBudget=async(items)=>{sSub(true);try{const r=await api.current.post('importBudgetData',{items});toast('☁ '+r.message);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
+  const uploadToFolder=async(folderId,inspId,fileData)=>{sSub(true);try{await api.current.post('uploadToFolder',{folder_id:folderId,inspection_id:inspId,...fileData});toast('☁ 附件已上傳');await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const ldLogs=async()=>{try{sLogs(await api.current.get('getLogs',{limit:200}))}catch(e){toast(e.message,'err')}};
   const csv=()=>{if(!data)return;const rows=[['編號','查驗日期','提送日期','核准日期','項次','項目','數量','單價','金額','備註']];data.inspections.forEach(i=>{const b=data.budgetItems.find(x=>x.id===i.budget_item_id);rows.push([i.id,i.inspection_date,i.submit_date||'',i.approve_date||'',b?.item_no||'',i.item_name_snapshot,i.inspected_qty,i.unit_price_snapshot,i.inspected_amount,i.note||''])});const c=rows.map(r=>r.map(c=>'"'+c+'"').join(',')).join('\n');const bl=new Blob(['\ufeff'+c],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(bl);Object.assign(document.createElement('a'),{href:u,download:'inspection_'+td()+'.csv'}).click()};
 
@@ -342,7 +263,7 @@ function App(){
         <table><thead><tr>{['項次','類別','項目名稱','單位'].map(h=><th key={h}>{h}</th>)}{['預算數量','單價','預算總價','已核准金額','待核准金額','未查驗金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['進度','狀態',''].map(h=><th key={h}>{h}</th>)}</tr></thead>
         <tbody>{fSm.map(s=><tr key={s.id}>
           <td style={{fontWeight:700,color:'var(--accent)',fontSize:12,fontFamily:"'JetBrains Mono'"}}>{s.item_no}</td>
-          <td><span className="tag" style={{background:'#eff6ff',color:'var(--accent)'}}>{s.category}</span>{String(s.item_no).startsWith('6.2')&&<span className="tag" style={{background:'var(--amberBg)',color:'var(--amber)',marginLeft:4}}>%</span>}</td>
+          <td><span className="tag" style={{background:'#eff6ff',color:'var(--accent)'}}>{s.category}</span></td>
           <td style={{maxWidth:200,fontSize:12}}><div style={{fontWeight:600}}>{s.item_name_cn}</div><div style={{fontSize:10,color:'var(--muted)'}}>{s.item_name_en}</div></td>
           <td style={{fontSize:11}}>{s.unit}</td>
           <td className="num">{fmt(s.budget_qty)}</td><td className="num">{fmt(s.unit_price)}</td><td className="num" style={{fontWeight:600}}>{fmt(s.budget_total)}</td>
@@ -351,7 +272,7 @@ function App(){
           <td className="num" style={{color:'var(--amber)'}}>{fmt(s.remaining_amt)}</td>
           <td><div className="pt" style={{width:64}}><div className="pf" style={{width:Math.min(s.ratio*100,100)+'%',background:s.ratio>=1?'var(--green)':s.ratio>0?'var(--accent)':'transparent'}}/></div><div style={{fontSize:10,marginTop:2,fontFamily:"'JetBrains Mono'"}}>{fP(s.ratio)}</div></td>
           <td><Dot r={s.ratio}/></td>
-          <td><div style={{display:'flex',gap:4}}>{auth&&<button className="bg" style={{fontSize:10,padding:'4px 8px'}} onClick={()=>sMl({t:'budget-edit',p:s})}>✏️</button>}<button className="bg" style={{fontSize:11,padding:'4px 10px'}} onClick={()=>sMl({t:'item',p:s})}>查看</button></div></td>
+          <td><button className="bg" style={{fontSize:11,padding:'4px 10px'}} onClick={()=>sMl({t:'item',p:s})}>查看</button></td>
         </tr>)}</tbody>
         <tfoot><tr style={{fontWeight:700,background:'var(--bg2)'}}><td colSpan={6} style={{textAlign:'right',color:'var(--muted)'}}>合計</td><td className="num">{fmt(fSm.reduce((s,b)=>s+b.budget_total,0))}</td><td className="num" style={{color:'var(--green)'}}>{fmt(fSm.reduce((s,b)=>s+b.inspected_amt,0))}</td><td className="num" style={{color:'#f59e0b'}}>{fmt(fSm.reduce((s,b)=>s+(b.pending_amt||0),0))}</td><td className="num" style={{color:'var(--amber)'}}>{fmt(fSm.reduce((s,b)=>s+b.remaining_amt,0))}</td><td colSpan={3}/></tr></tfoot></table>
       </div>
@@ -365,7 +286,7 @@ function App(){
       </div>
       <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:200}}/><input type="date" value={fD1} onChange={e=>sFD1(e.target.value)} style={{width:150}}/><span style={{alignSelf:'center',color:'var(--muted)',fontSize:12}}>～</span><input type="date" value={fD2} onChange={e=>sFD2(e.target.value)} style={{width:150}}/>{(fC||fS||fD1||fD2)&&<button className="bg" onClick={clr} style={{fontSize:11}}>✕ 清除</button>}</div>
       <div style={{overflowX:'auto',background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',boxShadow:'var(--shadow)'}}>
-        <table><thead><tr>{['編號','狀態','查驗日期','提送日期','核准日期','項次','項目'].map(h=><th key={h}>{h}</th>)}{['數量/比例','金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['備註','附件'].map(h=><th key={h}>{h}</th>)}{auth&&<th>操作</th>}</tr></thead>
+        <table><thead><tr>{['編號','狀態','查驗日期','提送日期','核准日期','項次','項目'].map(h=><th key={h}>{h}</th>)}{['數量','金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['備註','附件'].map(h=><th key={h}>{h}</th>)}{auth&&<th>操作</th>}</tr></thead>
         <tbody>{fIn.length===0?<tr><td colSpan={auth?12:11} style={{textAlign:'center',padding:48,color:'var(--muted)'}}>{ins.length===0?'尚無紀錄':'無符合條件'}</td></tr>
         :fIn.map(i=>{const b=sm.find(x=>x.id===i.budget_item_id);const approved=i.approve_date&&String(i.approve_date).trim()!=='';return<tr key={i.id}>
           <td className="mono" style={{color:'var(--accent)',fontSize:11}}>{i.id}</td>
@@ -375,7 +296,7 @@ function App(){
           <td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(i.approve_date)}</td>
           <td style={{fontWeight:600,color:'var(--accent)',fontSize:12}}>{b?.item_no}</td>
           <td style={{fontSize:12,maxWidth:160,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{i.item_name_snapshot}</td>
-          <td className="num">{b&&String(b.item_no).startsWith('6.2')?fP(i.inspected_qty):fmt(i.inspected_qty)}</td>
+          <td className="num">{fmt(i.inspected_qty)}</td>
           <td className="num" style={{fontWeight:600,color:approved?'var(--green)':'#f59e0b'}}>{fmt(i.inspected_amount)}</td>
           <td style={{fontSize:11,maxWidth:120,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{i.note||'—'}</td>
           <td>{i.attachment_ids?.length>0?i.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):'—'}</td>
@@ -408,7 +329,14 @@ function App(){
           </div>
           <button className="bg" onClick={sync}>☁↓ 從雲端同步</button>
         </div>
-        {data?.drive_folder_id&&<div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:24,boxShadow:'var(--shadow)'}}><h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>📁 Google Drive 附件</h3><a href={'https://drive.google.com/drive/folders/'+data.drive_folder_id} target="_blank" rel="noopener" style={{color:'var(--accent)',fontSize:13}}>🔗 開啟附件資料夾</a></div>}
+        {data?.drive_folder_id&&<div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:24,boxShadow:'var(--shadow)'}}><h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>📁 Google Drive 附件</h3><a href={'https://drive.google.com/drive/folders/'+data.drive_folder_id} target="_blank" rel="noopener" style={{color:'var(--accent)',fontSize:13}}>🔗 開啟附件資料夾</a><div style={{fontSize:11,color:'var(--muted)',marginTop:6}}>每個查驗紀錄自動建立子資料夾 (NMDC-POE-BOQ-E-XXX)</div></div>}
+        {auth&&<div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:24,boxShadow:'var(--shadow)'}}>
+          <h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>📥 匯入/更新預算項目</h3>
+          <div style={{fontSize:12,color:'var(--muted)',marginBottom:12,lineHeight:1.8}}>上傳 Excel (.xlsx) 來更新預算數量、單價、金額。<br/>以 <strong>budget_item_id</strong> 比對：有的更新、沒有的新增。</div>
+          <input type="file" accept=".xlsx,.xls,.csv" style={{display:'none'}} id="budgetFile" onChange={async e=>{const file=e.target.files[0];if(!file)return;toast('解析 Excel...');try{const ab=await file.arrayBuffer();const wb=XLSX.read(ab);const wsN=wb.SheetNames.find(n=>n.includes('預算'))||wb.SheetNames[0];const rows=XLSX.utils.sheet_to_json(wb.Sheets[wsN]);if(!rows.length){toast('無資料','err');return}const items=rows.map(r=>({budget_item_id:r.budget_item_id||'',item_no:r.item_no||'',category:r.category||'',category_en:r.category_en||'',item_name_cn:r.item_name_cn||'',item_name_en:r.item_name_en||'',unit:r.unit||'',budget_qty:r.budget_qty||0,unit_price:r.unit_price||0,budget_total:r.budget_total||0,remarks:r.remarks||'',code:r.code||''})).filter(i=>i.budget_item_id);if(!items.length){toast('需要 budget_item_id 欄位','err');return}if(confirm('匯入 '+items.length+' 筆？'))await importBudget(items)}catch(err){toast('失敗: '+err.message,'err')}e.target.value=''}}/>
+          <button className="bp" onClick={()=>document.getElementById('budgetFile')?.click()} disabled={sub}>{sub?<><span className="spinner"/> 匯入中...</>:'📥 選擇 Excel 匯入'}</button>
+          <div style={{fontSize:10,color:'var(--muted)',marginTop:6}}>支援 .xlsx / .xls / .csv</div>
+        </div>}
         <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:24,boxShadow:'var(--shadow)'}}>
           <h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>系統資訊</h3>
           <div style={{fontSize:12,color:'var(--muted)',lineHeight:2.2,display:'grid',gridTemplateColumns:'100px 1fr',gap:'2px 12px'}}>
@@ -437,11 +365,10 @@ function App(){
     </Mdl>
 
     {/* ═══ CRUD MODALS ═══ */}
-    <Mdl open={ml?.t==='add'} close={()=>sMl(null)} title="新增查驗紀錄"><Form bi={sm} ins={ins} onOk={addI} onBatch={batchAddI} onNo={()=>sMl(null)} ld={sub}/></Mdl>
-    <Mdl open={ml?.t==='addfor'} close={()=>sMl(null)} title={'新增查驗 — '+(ml?.p?.item_no||'')}>{ml?.p&&<Form bi={sm} ins={ins} fixId={ml.p.id} onOk={addI} onBatch={batchAddI} onNo={()=>sMl(null)} ld={sub}/>}</Mdl>
-    <Mdl open={ml?.t==='edit'} close={()=>sMl(null)} title="編輯查驗">{ml?.p&&<Form bi={sm} ins={ins} init={ml.p} onOk={d=>updI(ml.p.id,d)} onNo={()=>sMl(null)} ld={sub}/>}</Mdl>
+    <Mdl open={ml?.t==='add'} close={()=>sMl(null)} title="新增查驗紀錄"><Form bi={sm} ins={ins} onOk={addI} onNo={()=>sMl(null)} ld={sub} api={api.current}/></Mdl>
+    <Mdl open={ml?.t==='addfor'} close={()=>sMl(null)} title={'新增查驗 — '+(ml?.p?.item_no||'')}>{ml?.p&&<Form bi={sm} ins={ins} fixId={ml.p.id} onOk={addI} onNo={()=>sMl(null)} ld={sub} api={api.current}/>}</Mdl>
+    <Mdl open={ml?.t==='edit'} close={()=>sMl(null)} title="編輯查驗">{ml?.p&&<Form bi={sm} ins={ins} init={ml.p} onOk={d=>updI(ml.p.id,d)} onNo={()=>sMl(null)} ld={sub} api={api.current}/>}</Mdl>
     <Mdl open={ml?.t==='item'} close={()=>sMl(null)} wide title={ml?.p?ml.p.item_no+' — '+ml.p.item_name_cn:''}>{ml?.p&&<Detail item={ml.p} ins={ins} auth={auth} onAdd={()=>sMl({t:'addfor',p:ml.p})} onEdit={i=>sMl({t:'edit',p:i})} onDel={delI}/>}</Mdl>
-    <Mdl open={ml?.t==='budget-edit'} close={()=>sMl(null)} title={'✏️ 編輯預算 — '+(ml?.p?.item_no||'')}>{ml?.p&&<BudgetEdit item={ml.p} onOk={d=>updBudget(ml.p.id,d)} onNo={()=>sMl(null)} ld={sub}/>}</Mdl>
   </div>;
 }
 
