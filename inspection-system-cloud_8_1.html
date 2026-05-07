@@ -247,8 +247,30 @@ function App(){
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(270px,1fr))',gap:10}}>{topR.map(s=><div key={s.id} onClick={()=>sMl({t:'item',p:s})} style={{background:'var(--bg)',borderRadius:'var(--radius)',padding:'14px 16px',border:'1px solid var(--border)',cursor:'pointer'}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}><span style={{fontSize:11,fontWeight:700,color:'var(--accent)'}}>{s.item_no}</span><Dot r={s.ratio}/></div><div style={{fontSize:12,fontWeight:600,marginBottom:8,lineHeight:1.4}}>{s.item_name_cn}</div><div className="pt"><div className="pf" style={{width:Math.min(s.ratio*100,100)+'%',background:s.ratio>=1?'var(--green)':s.ratio>0?'var(--accent)':'transparent'}}/></div><div style={{display:'flex',justifyContent:'space-between',marginTop:8,fontSize:11,color:'var(--muted)'}}><span>{fP(s.ratio)}</span><span style={{color:'var(--amber)'}}>{fN(s.remaining_amt)}</span></div></div>)}</div>
       </div>
       <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:22,boxShadow:'var(--shadow)'}}>
-        <h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>各項目進度</h3>
-        <div style={{maxHeight:340,overflowY:'auto'}}>{sm.map(s=><div key={s.id} onClick={()=>sMl({t:'item',p:s})} style={{display:'flex',alignItems:'center',gap:12,padding:'7px 0',borderBottom:'1px solid var(--border)',cursor:'pointer'}}><span style={{fontSize:11,fontWeight:700,color:'var(--accent)',minWidth:52,fontFamily:"'JetBrains Mono'"}}>{s.item_no}</span><span style={{fontSize:11.5,flex:1,lineHeight:1.3}}>{s.item_name_cn}</span><div className="pt" style={{width:120}}><div className="pf" style={{width:Math.min(s.ratio*100,100)+'%',background:s.ratio>=1?'var(--green)':s.ratio>0?'var(--accent)':'transparent'}}/></div><span style={{fontSize:11,fontWeight:600,minWidth:44,textAlign:'right',fontFamily:"'JetBrains Mono'"}}>{fP(s.ratio)}</span></div>)}</div>
+        <h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>各項目查驗狀態總覽</h3>
+        <div style={{overflowX:'auto'}}><table><thead><tr>
+          <th>項次</th><th>項目名稱</th><th style={{textAlign:'right'}}>總數量</th>
+          <th style={{textAlign:'right'}}>已查驗</th><th style={{textAlign:'right'}}>已核准</th><th style={{textAlign:'right'}}>剩餘</th><th>進度</th>
+        </tr></thead><tbody>
+        {sm.map(s=>{
+          const isPct=String(s.item_no).startsWith('6.2');
+          const totalSubmitted=s.total_qty||0;/* 已查驗=有紀錄的 (含待核准) */
+          const approved=s.inspected_qty||0;/* 已核准 */
+          const remaining=s.budget_qty-totalSubmitted;/* 剩餘=預算-已查驗 */
+          const subPct=s.budget_qty>0?totalSubmitted/s.budget_qty:0;
+          const appPct=s.budget_qty>0?approved/s.budget_qty:0;
+          const remPct=s.budget_qty>0?remaining/s.budget_qty:0;
+          const fQ=v=>isPct?fP(v):fmt(v);
+          return<tr key={s.id} onClick={()=>sMl({t:'item',p:s})} style={{cursor:'pointer'}}>
+            <td style={{fontWeight:700,color:'var(--accent)',fontSize:11,fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap'}}>{s.item_no}</td>
+            <td style={{fontSize:12,minWidth:140}}>{s.item_name_cn}</td>
+            <td className="num" style={{fontWeight:600}}>{fQ(s.budget_qty)}</td>
+            <td className="num"><span style={{color:'#2563eb',fontWeight:600}}>{fQ(totalSubmitted)}</span><br/><span style={{fontSize:10,color:'var(--muted)'}}>{fP(subPct)}</span></td>
+            <td className="num"><span style={{color:'var(--green)',fontWeight:600}}>{fQ(approved)}</span><br/><span style={{fontSize:10,color:'var(--muted)'}}>{fP(appPct)}</span></td>
+            <td className="num"><span style={{color:remaining<=0?'var(--green)':'var(--amber)',fontWeight:600}}>{fQ(Math.max(remaining,0))}</span><br/><span style={{fontSize:10,color:'var(--muted)'}}>{fP(Math.max(remPct,0))}</span></td>
+            <td style={{minWidth:80}}><div className="pt"><div className="pf" style={{width:Math.min(subPct*100,100)+'%',background:'#bfdbfe'}}/></div><div className="pt" style={{marginTop:2}}><div className="pf" style={{width:Math.min(appPct*100,100)+'%',background:'var(--green)'}}/></div><div style={{fontSize:9,color:'var(--muted)',marginTop:2,display:'flex',justifyContent:'space-between'}}><span style={{color:'#2563eb'}}>查驗</span><span style={{color:'var(--green)'}}>核准</span></div></td>
+          </tr>})}
+        </tbody></table></div>
       </div>
     </div>}
 
