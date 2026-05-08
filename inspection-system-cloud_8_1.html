@@ -78,6 +78,15 @@ const fT=d=>{if(!d)return'';try{return new Date(d).toLocaleTimeString('zh-TW',{h
 const td=()=>new Date().toISOString().slice(0,10);
 
 const Dot=({r})=>{const c=r===0?'#94a3b8':r<1?'#d97706':'#059669';return<span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:c}}/>{r===0?'未開始':r<1?'進行中':'已完成'}</span>};
+/* ── EditCell: 點擊即編輯，blur/Enter 存雲端 ── */
+function EC({val,field,id,onSave,ok,isN,style:st}){
+  const[e,sE]=useState(false);const[v,sV]=useState(val);const r=useRef();
+  useEffect(()=>{sV(val)},[val]);
+  useEffect(()=>{if(e&&r.current){r.current.focus();if(r.current.select)r.current.select()}},[e]);
+  const save=()=>{sE(false);const nv=isN?parseFloat(v)||0:v;if(String(nv)!==String(val))onSave(id,{[field]:nv})};
+  if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed #cbd5e1':'none'}} title={ok?'點擊編輯':''}>{isN?fmt(val):(val||'—')}</span>;
+  return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'#eff6ff',outline:'none'}}/>;
+}
 const Cloud=({s,t})=>s==='syncing'?<span className="cb csy"><span className="spinner" style={{width:10,height:10,borderWidth:1.5}}/> 同步中</span>:<span className="cb cok">☁ 雲端 {t&&fT(t)}</span>;
 const Kpi=({l,v,s,a,i})=><div className="fi" style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:'18px 22px',flex:'1 1 170px',minWidth:155,borderLeft:'3.5px solid '+(a||'var(--accent)'),boxShadow:'var(--shadow)',position:'relative',overflow:'hidden'}}><div style={{position:'absolute',top:10,right:14,fontSize:28,opacity:.06}}>{i}</div><div style={{fontSize:10.5,color:'var(--muted)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6}}>{l}</div><div style={{fontSize:21,fontWeight:800,color:'var(--fg2)',marginTop:6,fontFamily:"'JetBrains Mono'"}}>{v}</div>{s&&<div style={{fontSize:11,color:a||'var(--muted)',marginTop:3,fontWeight:600}}>{s}</div>}</div>;
 const Mdl=({open,close,title,wide,children})=>{if(!open)return null;return<div className="ov" onClick={close}><div className="ob"/><div className="md" onClick={e=>e.stopPropagation()} style={{maxWidth:wide?960:640,width:'95vw',maxHeight:'88vh',overflowY:'auto'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,paddingBottom:14,borderBottom:'1px solid var(--border)'}}><h3 style={{fontSize:17,fontWeight:800,color:'var(--fg2)'}}>{title}</h3><button onClick={close} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:'var(--muted)'}}>✕</button></div>{children}</div></div>};
@@ -165,6 +174,7 @@ function App(){
   const addI=async d=>{sSub(true);try{const r=await api.current.post('addInspection',d);toast('☁ '+r.inspection_id+' '+r.message);sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const updI=async(id,d)=>{sSub(true);try{await api.current.post('updateInspection',{inspection_id:id,inspection_no:d.inspection_no,inspection_date:d.inspection_date,submit_date:d.submit_date,approve_date:d.approve_date,inspected_qty:d.inspected_qty,note:d.note,new_attachments:d.attachments});toast('☁ 已更新至雲端');sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const delI=async id=>{if(!confirm('確定刪除？'))return;try{await api.current.post('deleteInspection',{inspection_id:id});toast('☁ 已從雲端刪除');await sync()}catch(e){toast(e.message,'err')}};
+  const updBudget=async(id,d)=>{try{await api.current.post('updateBudgetItem',{budget_item_id:id,...d});toast('☁ 已更新');await sync()}catch(e){toast(e.message,'err')}};
   const importBudget=async(items)=>{sSub(true);try{const r=await api.current.post('importBudgetData',{items});toast('☁ '+r.message);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const uploadToFolder=async(folderId,inspId,fileData)=>{sSub(true);try{await api.current.post('uploadToFolder',{folder_id:folderId,inspection_id:inspId,...fileData});toast('☁ 附件已上傳');await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const ldLogs=async()=>{try{sLogs(await api.current.get('getLogs',{limit:200}))}catch(e){toast(e.message,'err')}};
@@ -286,9 +296,11 @@ function App(){
         <tbody>{fSm.map(s=><tr key={s.id}>
           <td style={{fontWeight:700,color:'var(--accent)',fontSize:12,fontFamily:"'JetBrains Mono'"}}>{s.item_no}</td>
           <td><span className="tag" style={{background:'#eff6ff',color:'var(--accent)'}}>{s.category}</span></td>
-          <td style={{minWidth:180,fontSize:12}}><div style={{fontWeight:600}}>{s.item_name_cn}</div><div style={{fontSize:10,color:'var(--muted)'}}>{s.item_name_en}</div></td>
-          <td style={{fontSize:11}}>{s.unit}</td>
-          <td className="num">{fmt(s.budget_qty)}</td><td className="num">{fmt(s.unit_price)}</td><td className="num" style={{fontWeight:600}}>{fmt(s.budget_total)}</td>
+          <td style={{minWidth:180,fontSize:12}}><div style={{fontWeight:600}}><EC val={s.item_name_cn} field="item_name_cn" id={s.id} onSave={updBudget} ok={auth}/></div><div style={{fontSize:10,color:'var(--muted)'}}><EC val={s.item_name_en} field="item_name_en" id={s.id} onSave={updBudget} ok={auth}/></div></td>
+          <td style={{fontSize:11}}><EC val={s.unit} field="unit" id={s.id} onSave={updBudget} ok={auth}/></td>
+          <td className="num"><EC val={s.budget_qty} field="budget_qty" id={s.id} onSave={(id,d)=>{d.budget_total=parseFloat(d.budget_qty||0)*s.unit_price;updBudget(id,d)}} ok={auth} isN/></td>
+          <td className="num"><EC val={s.unit_price} field="unit_price" id={s.id} onSave={(id,d)=>{d.budget_total=s.budget_qty*parseFloat(d.unit_price||0);updBudget(id,d)}} ok={auth} isN/></td>
+          <td className="num" style={{fontWeight:600}}>{fmt(s.budget_total)}</td>
           <td className="num" style={{color:'var(--green)',fontWeight:600}}>{fmt(s.inspected_amt)}</td>
           <td className="num" style={{color:s.pending_amt>0?'#f59e0b':'var(--muted)'}}>{s.pending_amt>0?fmt(s.pending_amt):'—'}</td>
           <td className="num" style={{color:'var(--amber)'}}>{fmt(s.remaining_amt)}</td>
