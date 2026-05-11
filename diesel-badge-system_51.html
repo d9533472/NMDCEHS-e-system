@@ -366,6 +366,22 @@ function renderExport(root){
           <button class="btn bsm bs" onclick="App.selAll(false)">全不選</button>
         </div>
       </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="expSearch" placeholder="🔍 搜尋車號..." style="flex:1;min-width:120px;padding:6px 10px;font-size:12px" onkeydown="if(event.key==='Enter')App.updPicker()">
+        <button class="btn bsm bs" onclick="App.updPicker()">查詢</button>
+        <select id="expBadgeFilter" style="padding:6px 8px;font-size:12px" onchange="App.updPicker()">
+          <option value="">全部標章等級</option>
+          <optgroup label="施工機具">
+            <option value="金級">金級</option><option value="銀級">銀級</option><option value="普級">普級</option>
+          </optgroup>
+          <optgroup label="運輸車輛">
+            <option value="新購五期車">新購五期車</option><option value="新購六期車">新購六期車</option><option value="優級">優級</option><option value="合格">合格</option>
+          </optgroup>
+          <option value="__none__">未取得標章</option>
+        </select>
+        <button class="btn bsm bs" onclick="App.selFiltered(true)">勾選篩選結果</button>
+        <button class="btn bsm bs" onclick="App.selFiltered(false)">取消篩選結果</button>
+      </div>
       <div id="recPicker" style="max-height:300px;overflow-y:auto;border:1px solid var(--bd);border-radius:6px"></div>
     </div>
     <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
@@ -412,10 +428,17 @@ function genPrev(){
     const ty={};recs.forEach(r=>{if(!ty[r.vehicleType])ty[r.vehicleType]={t:0,p:0};ty[r.vehicleType].t++;if(r.hasBadge==='是')ty[r.vehicleType].p++;});
     const en=Object.entries(ty).sort((a,b)=>b[1].t-a[1].t);if(!en.length)return'<div style="color:#999;font-size:11px;padding:6px">尚無資料</div>';
     let tA=0,pA=0;
-    let rows=en.map(([k,d],i)=>{tA+=d.t;pA+=d.p;const p=d.t?Math.round(d.p/d.t*100):0;const bg=i%2===0?'#fff':'#f9f9f9';const pc=p>=80?'#16a34a':p>=50?'#b45309':'#dc2626';return'<tr style="background:'+bg+'"><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;font-size:12px">'+esc(k)+'</td><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:12px">'+d.t+'</td><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:12px;color:#16a34a;font-weight:600">'+d.p+'</td><td style="padding:5px 10px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:12px;color:'+pc+';font-weight:700">'+p+'%</td></tr>';}).join('');
+    let rows=en.map(([k,d],i)=>{tA+=d.t;pA+=d.p;const p=d.t?Math.round(d.p/d.t*100):0;const bg=i%2===0?'#fff':'#f9f9f9';const pc=p>=80?'#16a34a':p>=50?'#b45309':'#dc2626';return'<tr style="background:'+bg+'"><td style="padding:4px 8px;border-bottom:1px solid #e5e5e5;font-size:11px">'+esc(k)+'</td><td style="padding:4px 8px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:11px">'+d.t+'</td><td style="padding:4px 8px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:11px;color:#16a34a;font-weight:600">'+d.p+'</td><td style="padding:4px 8px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:11px;color:'+pc+';font-weight:700">'+p+'%</td></tr>';}).join('');
     const tp=tA?Math.round(pA/tA*100):0;
-    rows+='<tr style="background:'+color+'18"><td style="padding:5px 10px;font-weight:700;font-size:12px">合計</td><td style="padding:5px 10px;text-align:center;font-weight:700;font-size:12px">'+tA+'</td><td style="padding:5px 10px;text-align:center;font-weight:700;font-size:12px;color:#16a34a">'+pA+'</td><td style="padding:5px 10px;text-align:center;font-weight:900;font-size:13px;color:'+color+'">'+tp+'%</td></tr>';
-    return'<div><div style="font-size:13px;font-weight:700;padding:6px 10px;background:'+color+';color:#fff;border-radius:4px 4px 0 0;letter-spacing:1px">'+icon+' '+title+'</div><table style="width:100%;border-collapse:collapse;border:1px solid #ddd;border-top:none"><thead><tr style="background:#f5f5f5"><th style="padding:5px 10px;text-align:left;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">車輛機具型式</th><th style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">數量</th><th style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">有標章數</th><th style="padding:5px 10px;text-align:center;font-size:11px;font-weight:700;color:#555;border-bottom:2px solid #ccc">通過率</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+    rows+='<tr style="background:'+color+'18"><td style="padding:4px 8px;font-weight:700;font-size:11px">合計</td><td style="padding:4px 8px;text-align:center;font-weight:700;font-size:11px">'+tA+'</td><td style="padding:4px 8px;text-align:center;font-weight:700;font-size:11px;color:#16a34a">'+pA+'</td><td style="padding:4px 8px;text-align:center;font-weight:900;font-size:12px;color:'+color+'">'+tp+'%</td></tr>';
+    // Badge level breakdown
+    const levels=title==='施工機具'?['金級','銀級','普級']:['新購五期車','新購六期車','優級','合格'];
+    const bl={};levels.forEach(l=>{bl[l]=0;});bl['不合格']=0;
+    recs.forEach(r=>{if(r.hasBadge==='是'&&bl[r.badgeLevel]!==undefined)bl[r.badgeLevel]++;else bl['不合格']++;});
+    let blRows=levels.map((l,i)=>{const bg2=i%2===0?'#fff':'#f9f9f9';return'<tr style="background:'+bg2+'"><td style="padding:4px 8px;border-bottom:1px solid #e5e5e5;font-size:11px">'+l+'</td><td style="padding:4px 8px;border-bottom:1px solid #e5e5e5;text-align:center;font-size:11px;font-weight:600">'+bl[l]+'</td></tr>';}).join('');
+    blRows+='<tr style="background:#fef2f2"><td style="padding:4px 8px;font-size:11px;color:#dc2626;font-weight:600">不合格</td><td style="padding:4px 8px;text-align:center;font-size:11px;font-weight:700;color:#dc2626">'+bl['不合格']+'</td></tr>';
+    const blTbl='<div style="margin-top:6px"><table style="width:100%;border-collapse:collapse;border:1px solid #ddd"><thead><tr style="background:#f0f0f0"><th style="padding:4px 8px;text-align:left;font-size:10px;font-weight:700;color:#555;border-bottom:1px solid #ccc">標章等級</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:1px solid #ccc">數量</th></tr></thead><tbody>'+blRows+'</tbody></table></div>';
+    return'<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:700;padding:5px 8px;background:'+color+';color:#fff;border-radius:4px 4px 0 0;letter-spacing:1px">'+icon+' '+title+'</div><table style="width:100%;border-collapse:collapse;border:1px solid #ddd;border-top:none"><thead><tr style="background:#f5f5f5"><th style="padding:4px 8px;text-align:left;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">車輛機具型式</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">數量</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">有標章數</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">通過率</th></tr></thead><tbody>'+rows+'</tbody></table>'+blTbl+'</div>';
   }
 
   h+=`<div class="pp2">
@@ -604,7 +627,7 @@ if(API){
   document.getElementById('syncOverlay').remove();
 }
 
-return{go,fl,doSearch,clearSearch,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,selAll,saveDrive,openPicker,closePicker,pickFile};
+return{go,fl,doSearch,clearSearch,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile};
 })();
 </script>
 </body>
