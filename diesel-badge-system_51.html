@@ -254,7 +254,9 @@ function renderList(root){
     return true;
   });
   let h=`<div class="tb np">
-    <input type="text" placeholder="🔍 搜尋車號、車輛型式..." value="${esc(root._s||'')}" oninput="App.fl(this.value,'s')">
+    <input type="text" id="searchInput" placeholder="🔍 搜尋車號、車輛型式..." value="${esc(root._s||'')}" onkeydown="if(event.key==='Enter')App.doSearch()">
+    <button class="btn bs" onclick="App.doSearch()">🔍 查詢</button>
+    <button class="btn bs" onclick="App.clearSearch()" style="padding:9px 10px">✕</button>
     <select onchange="App.fl(this.value,'t')"><option value="">全部類型</option><option value="施工機具"${fT==='施工機具'?' selected':''}>施工機具</option><option value="運輸車輛"${fT==='運輸車輛'?' selected':''}>運輸車輛</option></select>
     <select onchange="App.fl(this.value,'b')"><option value="">全部標章</option><option value="是"${fB==='是'?' selected':''}>已取得</option><option value="否"${fB==='否'?' selected':''}>未取得</option></select>
     <button class="btn bp" onclick="App.newRec()">➕ 新增資料</button>
@@ -267,6 +269,8 @@ function renderList(root){
   h+='</div>';root.innerHTML=h;
 }
 function fl(v,k){const r=document.getElementById('root');r['_'+k]=v;renderList(r);}
+function doSearch(){const v=document.getElementById('searchInput')?.value||'';fl(v,'s');}
+function clearSearch(){const inp=document.getElementById('searchInput');if(inp)inp.value='';fl('','s');}
 function togEx(id){const r=R.find(x=>x.id===id);if(r){r.excluded=!r.excluded;sav();render();}}
 
 // === FORM ===
@@ -570,7 +574,7 @@ if(API){
   document.getElementById('syncOverlay').remove();
 }
 
-return{go,fl,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,saveDrive,openPicker,closePicker,pickFile};
+return{go,fl,doSearch,clearSearch,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,saveDrive,openPicker,closePicker,pickFile};
 })();
 </script>
 </body>
