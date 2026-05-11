@@ -110,8 +110,11 @@ tr:hover td{background:rgba(245,158,11,.03)}
   .wrap{padding:0;max-width:100%}
   .pp2{box-shadow:none;border:none;margin:0;padding:0;page-break-after:always;page-break-inside:avoid;height:277mm;display:table;width:100%;table-layout:fixed}
   .pp2 .page-content{display:table-row;height:100%}
-  .pp2 .page-content>div{padding:10px 0}
-  .ppb .iw{height:200px}
+  .pp2 .page-content>div{padding:10px 0;overflow:hidden}
+  .ppb .iw{height:160px}
+  .ppb .iw img{max-height:160px}
+  .ppg.c2{gap:8px}
+  .pp2 table{font-size:12px}
   .card{display:none!important}
   .exp-area{display:block!important}
   .exp-area .pp2{display:table!important}
@@ -350,14 +353,24 @@ function renderExport(root){
   const minD=dates[0]||new Date().toISOString().slice(0,10),maxD=dates[dates.length-1]||minD;
   root.innerHTML=`<div class="card np fi-anim"><div class="ctit">🔎 篩選</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px">
-      <div class="fi"><label style="color:var(--acc);font-weight:700">輸出範圍</label><div class="rg"><label class="ro"><input type="radio" name="expR" value="all" checked onchange="document.getElementById('drB').style.display='none'"> 全部</label><label class="ro"><input type="radio" name="expR" value="date" onchange="document.getElementById('drB').style.display='block'"> 日期區間</label></div><div id="drB" style="display:none;margin-top:6px"><div style="display:flex;gap:6px;align-items:center"><input type="date" id="eDF" value="${minD}" style="width:auto"><span style="color:var(--t3)">～</span><input type="date" id="eDT" value="${maxD}" style="width:auto"></div></div></div>
-      <div class="fi"><label style="color:var(--acc);font-weight:700">機具種類</label><div class="chk-grid"><label class="chk-item checked"><input type="checkbox" value="施工機具" checked onchange="this.parentElement.classList.toggle('checked',this.checked)"> 施工機具</label><label class="chk-item checked"><input type="checkbox" value="運輸車輛" checked onchange="this.parentElement.classList.toggle('checked',this.checked)"> 運輸車輛</label></div></div>
+      <div class="fi"><label style="color:var(--acc);font-weight:700">輸出範圍</label><div class="rg"><label class="ro"><input type="radio" name="expR" value="all" checked onchange="document.getElementById('drB').style.display='none';App.updPicker()"> 全部</label><label class="ro"><input type="radio" name="expR" value="date" onchange="document.getElementById('drB').style.display='block';App.updPicker()"> 日期區間</label></div><div id="drB" style="display:none;margin-top:6px"><div style="display:flex;gap:6px;align-items:center"><input type="date" id="eDF" value="${minD}" style="width:auto" onchange="App.updPicker()"><span style="color:var(--t3)">～</span><input type="date" id="eDT" value="${maxD}" style="width:auto" onchange="App.updPicker()"></div></div></div>
+      <div class="fi"><label style="color:var(--acc);font-weight:700">機具種類</label><div class="chk-grid"><label class="chk-item checked"><input type="checkbox" value="施工機具" checked onchange="this.parentElement.classList.toggle('checked',this.checked);App.updPicker()"> 施工機具</label><label class="chk-item checked"><input type="checkbox" value="運輸車輛" checked onchange="this.parentElement.classList.toggle('checked',this.checked);App.updPicker()"> 運輸車輛</label></div></div>
       <div class="fi"><label style="color:var(--acc);font-weight:700">車輛清冊</label><div class="chk-grid"><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expRoster" onchange="this.parentElement.classList.toggle('checked',this.checked)"> 輸出車輛清冊</label></div></div>
-      <div class="fi"><label style="color:var(--acc);font-weight:700">排除項目</label><div class="chk-grid"><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expInclEx" onchange="this.parentElement.classList.toggle('checked',this.checked)"> 包含已排除統計的紀錄</label></div></div>
+      <div class="fi"><label style="color:var(--acc);font-weight:700">排除項目</label><div class="chk-grid"><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expInclEx" onchange="this.parentElement.classList.toggle('checked',this.checked);App.updPicker()"> 包含已排除統計的紀錄</label></div></div>
+    </div>
+    <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--bd)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <label style="font-size:12px;font-weight:700;color:var(--acc)">📋 選擇要輸出的紀錄</label>
+        <div style="display:flex;gap:6px">
+          <button class="btn bsm bs" onclick="App.selAll(true)">全選</button>
+          <button class="btn bsm bs" onclick="App.selAll(false)">全不選</button>
+        </div>
+      </div>
+      <div id="recPicker" style="max-height:300px;overflow-y:auto;border:1px solid var(--bd);border-radius:6px"></div>
     </div>
     <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
   </div><div id="expA" class="exp-area"></div>`;
-  updCnt();
+  updPicker();
 }
 function getFiltered(){
   const isAll=document.querySelector('input[name="expR"][value="all"]')?.checked;
@@ -366,10 +379,27 @@ function getFiltered(){
   const inclEx=document.getElementById('expInclEx')?.checked;
   return R.filter(r=>{if(!inclEx&&r.excluded)return false;if(!isAll&&df&&dt&&r.updatedAt){const d=r.updatedAt.slice(0,10);if(d<df||d>dt)return false;}if(cats.length&&!cats.includes(r.category))return false;return true;});
 }
-function updCnt(){const el=document.getElementById('eCnt');if(el)el.textContent='符合：'+getFiltered().length+'/'+R.length+' 筆';}
+function updPicker(){
+  const f=getFiltered();
+  const el=document.getElementById('recPicker');if(!el)return;
+  el.innerHTML=f.map(r=>{
+    const bc=r.category==='施工機具'?'#b45309':'#0e7490';
+    const badge=r.hasBadge==='是'?'<span style="color:#16a34a;font-weight:700">✓ '+r.badgeLevel+'</span>':'<span style="color:#dc2626">✗ 未取得</span>';
+    return'<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:12px" onmouseover="this.style.background=\'var(--accd)\'" onmouseout="this.style.background=\'\'"><input type="checkbox" class="expRecChk" value="'+r.id+'" checked style="accent-color:var(--ok);width:15px;height:15px;flex-shrink:0"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+bc+';flex-shrink:0"></span><span style="font-weight:600;font-family:JetBrains Mono,monospace;min-width:100px">'+esc(r.plateNumber)+'</span><span style="color:var(--t2)">'+esc(r.vehicleType)+'</span><span style="margin-left:auto">'+badge+'</span></label>';
+  }).join('');
+  if(!f.length) el.innerHTML='<p style="padding:16px;text-align:center;color:var(--t3)">無符合條件的紀錄</p>';
+  updCnt();
+}
+function selAll(checked){document.querySelectorAll('.expRecChk').forEach(c=>{c.checked=checked;});updCnt();}
+function getSelectedRecords(){
+  const ids=[...document.querySelectorAll('.expRecChk:checked')].map(c=>c.value);
+  const f=getFiltered();
+  return f.filter(r=>ids.includes(r.id));
+}
+function updCnt(){const sel=document.querySelectorAll('.expRecChk:checked').length;const tot=document.querySelectorAll('.expRecChk').length;const el=document.getElementById('eCnt');if(el)el.textContent='已選：'+sel+'/'+tot+' 筆';}
 function genPrev(){
-  const f=getFiltered();const a=document.getElementById('expA');if(!a)return;
-  if(!f.length){a.innerHTML='<div class="es" style="padding:30px"><p>無資料</p></div>';return;}
+  const f=getSelectedRecords();const a=document.getElementById('expA');if(!a)return;
+  if(!f.length){a.innerHTML='<div class="es" style="padding:30px"><p>請先勾選要輸出的紀錄</p></div>';return;}
   let h=`<div class="np" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--t2)">預覽 ${f.length+1} 頁（含總表）</span><button class="btn bp" onclick="window.print()">🖨️ 列印 / PDF</button></div>`;
 
   // === 第一頁：總表（一頁內） ===
@@ -574,7 +604,7 @@ if(API){
   document.getElementById('syncOverlay').remove();
 }
 
-return{go,fl,doSearch,clearSearch,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,saveDrive,openPicker,closePicker,pickFile};
+return{go,fl,doSearch,clearSearch,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,selAll,saveDrive,openPicker,closePicker,pickFile};
 })();
 </script>
 </body>
