@@ -398,15 +398,26 @@ function getFiltered(){
 function updPicker(){
   const f=getFiltered();
   const el=document.getElementById('recPicker');if(!el)return;
-  el.innerHTML=f.map(r=>{
+  const sq=(document.getElementById('expSearch')?.value||'').trim().toUpperCase();
+  const bf=document.getElementById('expBadgeFilter')?.value||'';
+  const prevChecked=new Set([...document.querySelectorAll('.expRecChk:checked')].map(c=>c.value));
+  const isFirst=!document.querySelectorAll('.expRecChk').length;
+  const filtered=f.filter(r=>{
+    if(sq&&!r.plateNumber.toUpperCase().includes(sq)&&!r.vehicleType.toUpperCase().includes(sq))return false;
+    if(bf==='__none__'&&r.hasBadge==='是')return false;
+    if(bf&&bf!=='__none__'&&r.badgeLevel!==bf)return false;
+    return true;
+  });
+  el.innerHTML=filtered.map(r=>{
     const bc=r.category==='施工機具'?'#b45309':'#0e7490';
     const badge=r.hasBadge==='是'?'<span style="color:#16a34a;font-weight:700">✓ '+r.badgeLevel+'</span>':'<span style="color:#dc2626">✗ 未取得</span>';
-    return'<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:12px" onmouseover="this.style.background=\'var(--accd)\'" onmouseout="this.style.background=\'\'"><input type="checkbox" class="expRecChk" value="'+r.id+'" checked style="accent-color:var(--ok);width:15px;height:15px;flex-shrink:0"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+bc+';flex-shrink:0"></span><span style="font-weight:600;font-family:JetBrains Mono,monospace;min-width:100px">'+esc(r.plateNumber)+'</span><span style="color:var(--t2)">'+esc(r.vehicleType)+'</span><span style="margin-left:auto">'+badge+'</span></label>';
+    return'<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:12px" onmouseover="this.style.background=\'var(--accd)\'" onmouseout="this.style.background=\'\'"><input type="checkbox" class="expRecChk" value="'+r.id+'" '+(isFirst||prevChecked.has(r.id)?'checked':'')+' style="accent-color:var(--ok);width:15px;height:15px;flex-shrink:0" onchange="App.updCnt()"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+bc+';flex-shrink:0"></span><span style="font-weight:600;font-family:JetBrains Mono,monospace;min-width:100px">'+esc(r.plateNumber)+'</span><span style="color:var(--t2)">'+esc(r.vehicleType)+'</span><span style="margin-left:auto">'+badge+'</span></label>';
   }).join('');
-  if(!f.length) el.innerHTML='<p style="padding:16px;text-align:center;color:var(--t3)">無符合條件的紀錄</p>';
+  if(!filtered.length) el.innerHTML='<p style="padding:16px;text-align:center;color:var(--t3)">無符合條件的紀錄</p>';
   updCnt();
 }
 function selAll(checked){document.querySelectorAll('.expRecChk').forEach(c=>{c.checked=checked;});updCnt();}
+function selFiltered(checked){document.querySelectorAll('#recPicker .expRecChk').forEach(c=>{c.checked=checked;});updCnt();}
 function getSelectedRecords(){
   const ids=[...document.querySelectorAll('.expRecChk:checked')].map(c=>c.value);
   const f=getFiltered();
