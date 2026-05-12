@@ -62,6 +62,13 @@ td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#7c8ba0"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
 <script type="text/babel">
 const VER='3.3.0';
+const STAGES=[
+  {n:1,l:'NMDC自檢完成',s:'自檢',c:'#6366f1',bg:'#eef2ff'},
+  {n:2,l:'已找POE查驗',s:'POE',c:'#0ea5e9',bg:'#f0f9ff'},
+  {n:3,l:'查驗紀錄完成',s:'紀錄完成',c:'#8b5cf6',bg:'#f5f3ff'},
+  {n:4,l:'已提交台電',s:'已提交',c:'#f59e0b',bg:'#fffbeb'},
+  {n:5,l:'台電已核准',s:'已核准',c:'#059669',bg:'#ecfdf5'},
+];
 const DEFAULT_API='https://script.google.com/macros/s/AKfycbxJAuZHtubqyArcDCJetUH7Czdffo_vbystwcipZP-rqEG3Uzmv61emQ7fZp-JYM3Bffg/exec';
 const{useState,useEffect,useMemo,useCallback,useRef}=React;
 
@@ -87,6 +94,8 @@ function EC({val,field,id,onSave,ok,isN,style:st}){
   if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed #cbd5e1':'none'}} title={ok?'點擊編輯':''}>{isN?fmt(val):(val||'—')}</span>;
   return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'#eff6ff',outline:'none'}}/>;
 }
+/* ── StageBadge ── */
+function SB({stage,small}){const st=STAGES[(stage||1)-1]||STAGES[0];return<span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:small?9:10,fontWeight:600,padding:small?'2px 6px':'3px 10px',borderRadius:20,background:st.bg,color:st.c,whiteSpace:'nowrap',border:'1px solid '+st.c+'22'}}><span style={{width:small?5:6,height:small?5:6,borderRadius:'50%',background:st.c}}/>{small?st.s:st.l}</span>}
 const Cloud=({s,t})=>s==='syncing'?<span className="cb csy"><span className="spinner" style={{width:10,height:10,borderWidth:1.5}}/> 同步中</span>:<span className="cb cok">☁ 雲端 {t&&fT(t)}</span>;
 const Kpi=({l,v,s,a,i})=><div className="fi" style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:'18px 22px',flex:'1 1 170px',minWidth:155,borderLeft:'3.5px solid '+(a||'var(--accent)'),boxShadow:'var(--shadow)',position:'relative',overflow:'hidden'}}><div style={{position:'absolute',top:10,right:14,fontSize:28,opacity:.06}}>{i}</div><div style={{fontSize:10.5,color:'var(--muted)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6}}>{l}</div><div style={{fontSize:21,fontWeight:800,color:'var(--fg2)',marginTop:6,fontFamily:"'JetBrains Mono'"}}>{v}</div>{s&&<div style={{fontSize:11,color:a||'var(--muted)',marginTop:3,fontWeight:600}}>{s}</div>}</div>;
 const Mdl=({open,close,title,wide,children})=>{if(!open)return null;return<div className="ov" onClick={close}><div className="ob"/><div className="md" onClick={e=>e.stopPropagation()} style={{maxWidth:wide?960:640,width:'95vw',maxHeight:'88vh',overflowY:'auto'}}><div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,paddingBottom:14,borderBottom:'1px solid var(--border)'}}><h3 style={{fontSize:17,fontWeight:800,color:'var(--fg2)'}}>{title}</h3><button onClick={close} style={{background:'none',border:'none',fontSize:18,cursor:'pointer',color:'var(--muted)'}}>✕</button></div>{children}</div></div>};
@@ -100,7 +109,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
   const isEdit=!!init;
   /* 自動取號 */
   useEffect(()=>{if(!isEdit&&api){api.get('getNextNumber').then(r=>{sAutoNo(String(r.next_number).padStart(3,'0'))}).catch(()=>{})};},[]);
-  const[f,sF]=useState({budget_item_id:fixId||init?.budget_item_id||'',inspection_no:initNo,inspection_date:init?.inspection_date?String(init.inspection_date).slice(0,10):td(),submit_date:init?.submit_date?String(init.submit_date).slice(0,10):'',approve_date:init?.approve_date?String(init.approve_date).slice(0,10):'',inspected_qty:init?.inspected_qty||'',note:init?.note||''});
+  const[f,sF]=useState({budget_item_id:fixId||init?.budget_item_id||'',inspection_no:initNo,inspection_date:init?.inspection_date?String(init.inspection_date).slice(0,10):td(),submit_date:init?.submit_date?String(init.submit_date).slice(0,10):'',approve_date:init?.approve_date?String(init.approve_date).slice(0,10):'',inspected_qty:init?.inspected_qty||'',note:init?.note||'',stage:init?.stage||1});
   const displayNo=f.inspection_no||autoNo||'(自動產生)';
   const[files,sFiles]=useState([]);const fr=useRef();
   const sel=bi.find(b=>b.id===f.budget_item_id);
@@ -115,6 +124,11 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
       <div><label className="fl">查驗數量 * {rem>0&&<span style={{color:'var(--amber)'}}>(max {fmt(rem)})</span>}</label><input type="number" step="any" min="0.01" value={f.inspected_qty} placeholder="0" onChange={e=>sF(x=>({...x,inspected_qty:e.target.value}))}/>{f.inspected_qty&&sel&&<div style={{fontSize:12,color:'var(--accent)',marginTop:5,fontWeight:600}}>查驗金額: {fN(parseFloat(f.inspected_qty||0)*sel.unit_price)}</div>}</div>
       <div><label className="fl">備註</label><textarea rows={3} value={f.note} placeholder="查驗說明..." style={{resize:'vertical'}} onChange={e=>sF(x=>({...x,note:e.target.value}))}/></div>
     </div>
+    <div style={{marginBottom:16}}>
+      <label className="fl">查驗階段</label>
+      <div style={{display:'flex',flexWrap:'wrap',gap:6}}>{STAGES.map(st=><button key={st.n} onClick={()=>{const upd={stage:st.n};if(st.n===5&&!f.approve_date)upd.approve_date=td();sF(x=>({...x,...upd}))}} style={{fontSize:11,fontWeight:600,padding:'6px 14px',borderRadius:20,border:'1.5px solid '+(f.stage===st.n?st.c:' var(--border)'),background:f.stage===st.n?st.bg:'#fff',color:f.stage===st.n?st.c:'var(--muted)',cursor:'pointer',transition:'all .15s'}}>{st.n}. {st.l}</button>)}</div>
+      {f.stage===5&&<div style={{marginTop:8}}><label className="fl">核准日期（自動帶入，可修改）</label><input type="date" value={f.approve_date} onChange={e=>sF(x=>({...x,approve_date:e.target.value}))}/></div>}
+    </div>
     <div style={{marginBottom:18}}>
       <label className="fl">附件 → Google Drive</label>
       <input type="file" ref={fr} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const r=new FileReader();r.onload=()=>sFiles(p=>[...p,{filename:file.name,mimeType:file.type,size:file.size,content:r.result.split(',')[1]}]);r.readAsDataURL(file)});e.target.value=''}} style={{display:'none'}} accept="image/*,.pdf,.xlsx,.xls,.doc,.docx"/>
@@ -124,7 +138,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'var(--bg)',padding:'4px 10px',borderRadius:4,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
     <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:14,borderTop:'1px solid var(--border)'}}>
       <button className="bg" onClick={onNo}>取消</button>
-      <button className="bp" disabled={ld} onClick={()=>{if(isEdit&&(!f.inspection_no||!f.inspection_no.trim()))return alert('編輯時必須保留查驗編號');if(!f.budget_item_id)return alert('請選擇項目');if(!f.inspection_date)return alert('請輸入查驗日期');const q=parseFloat(f.inspected_qty);if(isNaN(q)||q<=0)return alert('數量>0');if(!init&&q>rem)return alert('超過剩餘! max:'+rem);onOk({...f,inspected_qty:q,attachments:files})}}>{ld?<><span className="spinner"/> 儲存至雲端...</>:init?'☁ 儲存至雲端':'☁ 新增並儲存至雲端'}</button>
+      <button className="bp" disabled={ld} onClick={()=>{if(isEdit&&(!f.inspection_no||!f.inspection_no.trim()))return alert('編輯時必須保留查驗編號');if(!f.budget_item_id)return alert('請選擇項目');if(!f.inspection_date)return alert('請輸入查驗日期');const q=parseFloat(f.inspected_qty);if(isNaN(q)||q<=0)return alert('數量>0');if(!init&&q>rem)return alert('超過剩餘! max:'+rem);onOk({...f,inspected_qty:q,stage:f.stage,attachments:files})}}>{ld?<><span className="spinner"/> 儲存至雲端...</>:init?'☁ 儲存至雲端':'☁ 新增並儲存至雲端'}</button>
     </div>
   </div>;
 }
@@ -137,8 +151,8 @@ function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
     <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fmt(it.budget_qty)} a="var(--muted)" i="📦"/><Kpi l="已核准" v={fmt(it.inspected_qty)} s={fN(it.inspected_amt)} a="var(--green)" i="✅"/>{(it.pending_qty||0)>0&&<Kpi l="待核准" v={fmt(it.pending_qty)} s={fN(it.pending_amt)} a="#f59e0b" i="⏳"/>}<Kpi l="未查驗" v={fmt(it.remaining_qty)} s={fN(it.remaining_amt)} a="var(--amber)" i="📋"/><Kpi l="核准比例" v={fP(it.ratio)} a="var(--accent)" i="📊"/></div>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h4 style={{fontSize:14,fontWeight:700}}>歷次查驗 ({recs.length}筆)</h4>{auth&&<button className="bp" style={{fontSize:12,padding:'5px 14px'}} onClick={onAdd}>＋ 新增</button>}</div>
     {recs.length===0?<div style={{padding:32,textAlign:'center',color:'var(--muted)'}}>尚無查驗紀錄</div>
-    :<div style={{overflowX:'auto'}}><table><thead><tr><th>編號</th><th>查驗日期</th><th>提送日期</th><th>核准日期</th><th style={{textAlign:'right'}}>數量</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
-      {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.inspection_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.submit_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.approve_date)}</td><td className="num">{fmt(r.inspected_qty)}</td><td className="num" style={{color:'var(--green)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,minWidth:100}}>{r.note||'—'}</td>
+    :<div style={{overflowX:'auto'}}><table><thead><tr><th>編號</th><th>階段</th><th>查驗日期</th><th>提送日期</th><th>核准日期</th><th style={{textAlign:'right'}}>數量</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
+      {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td><SB stage={r.stage} small/></td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.inspection_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.submit_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.approve_date)}</td><td className="num">{fmt(r.inspected_qty)}</td><td className="num" style={{color:'var(--green)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,minWidth:100}}>{r.note||'—'}</td>
       <td>{r.attachment_ids?.length>0?r.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):'—'}</td>
       {auth&&<td><div style={{display:'flex',gap:4}}><button className="bg" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onEdit(r)}>編輯</button><button className="bd" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onDel(r.id)}>刪除</button></div></td>}</tr>)}
     </tbody></table></div>}
@@ -172,7 +186,8 @@ function App(){
   const doLogout=()=>{sAuth(false);toast('已登出')};
 
   const addI=async d=>{sSub(true);try{const r=await api.current.post('addInspection',d);toast('☁ '+r.inspection_id+' '+r.message);sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
-  const updI=async(id,d)=>{sSub(true);try{await api.current.post('updateInspection',{inspection_id:id,inspection_no:d.inspection_no,inspection_date:d.inspection_date,submit_date:d.submit_date,approve_date:d.approve_date,inspected_qty:d.inspected_qty,note:d.note,new_attachments:d.attachments});toast('☁ 已更新至雲端');sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
+  const updI=async(id,d)=>{sSub(true);try{await api.current.post('updateInspection',{inspection_id:id,inspection_no:d.inspection_no,inspection_date:d.inspection_date,submit_date:d.submit_date,approve_date:d.approve_date,inspected_qty:d.inspected_qty,note:d.note,stage:d.stage,new_attachments:d.attachments});toast('☁ 已更新至雲端');sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
+  const updStage=async(id,stage)=>{try{await api.current.post('updateInspection',{inspection_id:id,stage});toast('☁ 階段已更新');await sync()}catch(e){toast(e.message,'err')}};
   const delI=async id=>{if(!confirm('確定刪除？'))return;try{await api.current.post('deleteInspection',{inspection_id:id});toast('☁ 已從雲端刪除');await sync()}catch(e){toast(e.message,'err')}};
   const updBudget=async(id,d)=>{try{await api.current.post('updateBudgetItem',{budget_item_id:id,...d});toast('☁ 已更新');await sync()}catch(e){toast(e.message,'err')}};
   const importBudget=async(items)=>{sSub(true);try{const r=await api.current.post('importBudgetData',{items});toast('☁ '+r.message);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
@@ -247,6 +262,15 @@ function App(){
         <div className="pt" style={{height:10,borderRadius:5}}><div className="pf" style={{width:Math.min((tot.overallRatio||0)*100,100)+'%',background:'linear-gradient(90deg,var(--accent3),var(--accent2))',borderRadius:5}}/></div>
         <div style={{display:'flex',justifyContent:'space-between',marginTop:8,fontSize:11,color:'var(--muted)'}}><span>已核准: {fN(tot.totalInspected)}</span>{(tot.totalPending||0)>0&&<span style={{color:'#f59e0b'}}>待核准: {fN(tot.totalPending)}</span>}<span>未查驗: {fN(tot.totalRemaining)}</span></div>
       </div>
+      {/* Pipeline 階段統計 */}
+      <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:22,marginBottom:24,boxShadow:'var(--shadow)'}}>
+        <h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>查驗階段 Pipeline</h3>
+        <div style={{display:'flex',gap:0,marginBottom:16}}>{STAGES.map((st,idx)=>{const cnt=(tot.stageCounts||[])[idx]||0;const total=tot.totalRecords||1;const pct=total>0?(cnt/total*100):0;return<div key={st.n} style={{flex:Math.max(pct,8)+'%',textAlign:'center',padding:'10px 4px',background:st.bg,borderLeft:idx>0?'2px solid #fff':'none',borderRadius:idx===0?'8px 0 0 8px':idx===4?'0 8px 8px 0':'0',position:'relative'}}>
+          <div style={{fontSize:18,fontWeight:800,color:st.c}}>{cnt}</div>
+          <div style={{fontSize:9,fontWeight:600,color:st.c}}>{st.s}</div>
+        </div>})}</div>
+        <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>{STAGES.map((st,idx)=>{const cnt=(tot.stageCounts||[])[idx]||0;return<div key={st.n} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'var(--muted)'}}><span style={{width:8,height:8,borderRadius:'50%',background:st.c}}/>{st.n}. {st.l}: <strong style={{color:st.c}}>{cnt}筆</strong></div>})}</div>
+      </div>
       <div style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:22,marginBottom:24,boxShadow:'var(--shadow)'}}>
         <h3 style={{fontSize:14,fontWeight:700,marginBottom:4}}>類別預算 vs 已查驗</h3>
         <div style={{display:'flex',gap:12,marginBottom:8,fontSize:10}}><span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:10,height:10,background:'#e2e8f0',borderRadius:2,display:'inline-block'}}/>預算</span><span style={{display:'flex',alignItems:'center',gap:4}}><span style={{width:10,height:10,background:'var(--accent)',borderRadius:2,display:'inline-block'}}/>已查驗</span></div>
@@ -320,18 +344,18 @@ function App(){
       </div>
       <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:200}}/><input type="date" value={fD1} onChange={e=>sFD1(e.target.value)} style={{width:150}}/><span style={{alignSelf:'center',color:'var(--muted)',fontSize:12}}>～</span><input type="date" value={fD2} onChange={e=>sFD2(e.target.value)} style={{width:150}}/>{(fC||fS||fD1||fD2)&&<button className="bg" onClick={clr} style={{fontSize:11}}>✕ 清除</button>}</div>
       <div style={{overflowX:'auto',background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',boxShadow:'var(--shadow)'}}>
-        <table><thead><tr>{['編號','狀態','查驗日期','提送日期','核准日期','項次','項目'].map(h=><th key={h}>{h}</th>)}{['數量','金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['備註','附件'].map(h=><th key={h}>{h}</th>)}{auth&&<th>操作</th>}</tr></thead>
+        <table><thead><tr>{['編號','階段','查驗日期','提送日期','核准日期','項次','項目'].map(h=><th key={h}>{h}</th>)}{['數量','金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['備註','附件'].map(h=><th key={h}>{h}</th>)}{auth&&<th>操作</th>}</tr></thead>
         <tbody>{fIn.length===0?<tr><td colSpan={auth?12:11} style={{textAlign:'center',padding:48,color:'var(--muted)'}}>{ins.length===0?'尚無紀錄':'無符合條件'}</td></tr>
-        :fIn.map(i=>{const b=sm.find(x=>x.id===i.budget_item_id);const approved=i.approve_date&&String(i.approve_date).trim()!=='';return<tr key={i.id}>
+        :fIn.map(i=>{const b=sm.find(x=>x.id===i.budget_item_id);const stg=parseInt(i.stage)||1;return<tr key={i.id}>
           <td className="mono" style={{color:'var(--accent)',fontSize:11}}>{i.id}</td>
-          <td>{approved?<span className="tag" style={{background:'var(--greenBg)',color:'var(--green)'}}>已核准</span>:i.submit_date&&String(i.submit_date).trim()!==''?<span className="tag" style={{background:'var(--amberBg)',color:'var(--amber)'}}>已提送</span>:<span className="tag" style={{background:'var(--bg2)',color:'var(--muted)'}}>待提送</span>}</td>
+          <td style={{cursor:auth&&stg<5?'pointer':'default'}} onClick={()=>{if(auth&&stg<5)updStage(i.id,stg+1)}} title={auth&&stg<5?'點擊推進到下一階段':''}><SB stage={stg} small/>{auth&&stg<5&&<span style={{fontSize:9,color:'var(--muted)',marginLeft:4}}>▶</span>}</td>
           <td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(i.inspection_date)}</td>
           <td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(i.submit_date)}</td>
           <td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(i.approve_date)}</td>
           <td style={{fontWeight:600,color:'var(--accent)',fontSize:12}}>{b?.item_no}</td>
           <td style={{fontSize:12,minWidth:120}}>{i.item_name_snapshot}</td>
-          <td className="num">{fmt(i.inspected_qty)}</td>
-          <td className="num" style={{fontWeight:600,color:approved?'var(--green)':'#f59e0b'}}>{fmt(i.inspected_amount)}</td>
+          <td className="num">{b&&String(b.item_no).startsWith('6.2')?fP(i.inspected_qty):fmt(i.inspected_qty)}</td>
+          <td className="num" style={{fontWeight:600,color:stg===5?'var(--green)':stg>=4?'#f59e0b':'var(--muted)'}}>{fmt(i.inspected_amount)}</td>
           <td style={{fontSize:11,minWidth:100}}>{i.note||'—'}</td>
           <td>{i.attachment_ids?.length>0?i.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):'—'}</td>
           {auth&&<td><div style={{display:'flex',gap:4}}><button className="bg" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>sMl({t:'edit',p:i})}>編輯</button><button className="bd" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>delI(i.id)}>刪除</button></div></td>}
