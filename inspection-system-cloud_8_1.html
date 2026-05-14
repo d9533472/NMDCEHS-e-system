@@ -162,9 +162,7 @@ function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
 /* ═══ MAIN APP ═══ */
 function App(){
   const[auth,sAuth]=useState(false);
-  const[loginModal,sLM]=useState(false);
-  const[loginU,sLU]=useState('');const[loginP,sLP]=useState('');const[loginErr,sLE]=useState('');
-  const[data,sData]=useState(null);const[ss,sSs]=useState('idle');const[ls,sLs]=useState(null);
+  const doLogin=()=>{sAuth(true);toast('已登入，可進行新增/編輯/刪除')};  const[data,sData]=useState(null);const[ss,sSs]=useState('idle');const[ls,sLs]=useState(null);
   const[pg,sPg]=useState('dash');const[ml,sMl]=useState(null);const[ts,sTs]=useState([]);
   const[sub,sSub]=useState(false);const[logs,sLogs]=useState(null);
   const[fC,sFC]=useState('');const[fS,sFS]=useState('');const[fD1,sFD1]=useState('');const[fD2,sFD2]=useState('');
@@ -182,7 +180,6 @@ function App(){
 
   useEffect(()=>{api.current=mkApi(DEFAULT_API);sync();},[]);
 
-  const doLogin=()=>{if(loginU==='123'&&loginP==='123'){sAuth(true);sLM(false);sLU('');sLP('');sLE('');toast('已登入，可進行新增/編輯/刪除')}else sLE('帳號或密碼錯誤')};
   const doLogout=()=>{sAuth(false);toast('已登出')};
 
   const addI=async d=>{sSub(true);try{const r=await api.current.post('addInspection',d);toast('☁ '+r.inspection_id+' '+r.message);sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
@@ -235,7 +232,7 @@ function App(){
             <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8,padding:'0 6px'}}><div style={{width:24,height:24,borderRadius:6,background:'var(--accent)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,color:'#fff',fontWeight:700}}>A</div><div><div style={{fontSize:12,fontWeight:600}}>管理員</div><div style={{fontSize:10,color:'var(--muted)'}}>可新增/編輯/刪除</div></div></div>
             <button className="bg" onClick={doLogout} style={{width:'100%',justifyContent:'center',fontSize:12}}>🚪 登出</button>
           </div>
-          :<button className="bp" onClick={()=>sLM(true)} style={{width:'100%',justifyContent:'center',fontSize:12}}>🔐 登入管理</button>
+          :<div onClick={doLogin} style={{width:'100%',textAlign:'center',cursor:'pointer',fontSize:11,color:'var(--accent)',padding:'8px 0',borderRadius:'var(--radius)',border:'1px dashed var(--border)'}} title="點擊登入管理">🔐</div>
         }
       </div>
       <div style={{padding:'10px 12px 4px',fontSize:10,color:'var(--muted2)'}}>v{VER}</div>
@@ -243,7 +240,7 @@ function App(){
     {/* Mobile Nav */}
     <div className="mnav" style={{display:'none',position:'fixed',bottom:0,left:0,right:0,zIndex:100,background:'#fff',borderTop:'1px solid var(--border)',justifyContent:'space-around',padding:'6px 0',paddingBottom:'max(6px, env(safe-area-inset-bottom))'}}>
       {nav.map(n=><div key={n.k} onClick={()=>chP(n.k)} style={{textAlign:'center',fontSize:9,padding:'2px 6px',cursor:'pointer',color:pg===n.k?'var(--accent)':'var(--muted)',fontWeight:pg===n.k?600:400}}><div style={{fontSize:17}}>{n.i}</div>{n.l}</div>)}
-      <div onClick={()=>{if(auth)doLogout();else sLM(true)}} style={{textAlign:'center',fontSize:9,padding:'2px 6px',cursor:'pointer',color:auth?'var(--green)':'var(--accent)',fontWeight:600}}><div style={{fontSize:17}}>{auth?'👤':'🔐'}</div>{auth?'登出':'登入'}</div>
+      <div onClick={()=>{if(auth)doLogout();else doLogin()}} style={{textAlign:'center',fontSize:9,padding:'2px 6px',cursor:'pointer',color:auth?'var(--green)':'var(--accent)',fontWeight:600}}><div style={{fontSize:17}}>{auth?'👤':'🔐'}</div>{auth?'登出':'登入'}</div>
     </div>
 
     <main className="main-area" style={{flex:1,padding:'24px 28px',overflowY:'auto',maxHeight:'100vh',paddingBottom:80}}>
@@ -412,16 +409,6 @@ function App(){
     </main>
 
     {/* ═══ LOGIN MODAL ═══ */}
-    <Mdl open={loginModal} close={()=>{sLM(false);sLE('')}} title="🔐 登入管理">
-      <div style={{maxWidth:320,margin:'0 auto'}}>
-        <div style={{marginBottom:14}}><label className="fl">帳號</label><input value={loginU} onChange={e=>{sLU(e.target.value);sLE('')}} placeholder="帳號" autoFocus/></div>
-        <div style={{marginBottom:20}}><label className="fl">密碼</label><input type="password" value={loginP} onChange={e=>{sLP(e.target.value);sLE('')}} placeholder="密碼" onKeyDown={e=>{if(e.key==='Enter')doLogin()}}/></div>
-        {loginErr&&<div style={{marginBottom:14,padding:10,background:'var(--redBg)',borderRadius:6,fontSize:12,color:'var(--red)',border:'1px solid #fecaca',textAlign:'center'}}>{loginErr}</div>}
-        <button className="bp" style={{width:'100%',justifyContent:'center',padding:12}} onClick={doLogin}>登入</button>
-        <div style={{textAlign:'center',marginTop:12,fontSize:11,color:'var(--muted)'}}>登入後可新增、編輯、刪除查驗紀錄</div>
-      </div>
-    </Mdl>
-
     {/* ═══ CRUD MODALS ═══ */}
     <Mdl open={ml?.t==='add'} close={()=>sMl(null)} title="新增查驗紀錄"><Form bi={sm} ins={ins} onOk={addI} onNo={()=>sMl(null)} ld={sub} api={api.current}/></Mdl>
     <Mdl open={ml?.t==='addfor'} close={()=>sMl(null)} title={'新增查驗 — '+(ml?.p?.item_no||'')}>{ml?.p&&<Form bi={sm} ins={ins} fixId={ml.p.id} onOk={addI} onNo={()=>sMl(null)} ld={sub} api={api.current}/>}</Mdl>
