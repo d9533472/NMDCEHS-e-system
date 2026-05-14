@@ -128,6 +128,7 @@ tr:hover td{background:rgba(245,158,11,.03)}
 @keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}.fi-anim{animation:fi .3s ease}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:var(--bg0)}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 </head>
 <body>
 <div class="hdr">
@@ -135,7 +136,8 @@ tr:hover td{background:rgba(245,158,11,.03)}
   <div class="hdr-r">
     <button class="btn bsm bp" onclick="App.saveDrive()">☁️ 儲存到 Drive</button>
     <button class="btn bsm binfo" onclick="App.openPicker()">📂 從 Drive 載入</button>
-    <button class="btn bsm bs" onclick="App.expJSON()">📥 匯出</button>
+    <button class="btn bsm bs" onclick="App.expExcel()">📊 Excel</button>
+    <button class="btn bsm bs" onclick="App.expJSON()">📥 JSON</button>
     <label class="btn bsm bs" style="cursor:pointer">📤 匯入<input type="file" accept=".json" style="display:none" onchange="App.impJSON(event)"></label>
     <span class="rc" id="rc">0 筆</span>
   </div>
@@ -288,7 +290,7 @@ function renderForm(root,pf){
   let blO='<option value="">請選擇</option>';
   if(r.category==='施工機具')['金級','銀級','普級'].forEach(l=>{blO+=`<option value="${l}"${r.badgeLevel===l?' selected':''}>${l}</option>`;});
   else if(r.category==='運輸車輛')['新購五期車','新購六期車','優級','合格'].forEach(l=>{blO+=`<option value="${l}"${r.badgeLevel===l?' selected':''}>${l}</option>`;});
-  function pb(k,lbl,ic){const s=PD[k];if(s)return`<div class="fi"><label>${lbl}</label><div style="display:flex;gap:8px;margin-top:4px"><div class="pp"><img src="${s}"><button class="rp" onclick="App.rmP('${k}')">&times;</button></div></div></div>`;return`<div class="fi"><label>${lbl}</label><div class="upa" onclick="document.getElementById('f_${k}').click()"><div class="ui">${ic}</div><div class="ut">點擊上傳</div></div><input type="file" id="f_${k}" accept="image/*" style="display:none" onchange="App.upP('${k}',this)"></div>`;}
+  function pb(k,lbl,ic){const s=PD[k];if(s)return`<div class="fi"><label>${lbl}</label><div style="display:flex;gap:8px;margin-top:4px"><div class="pp" style="cursor:zoom-in" onclick="App.zoomPhoto('${s}')"><img src="${s}"><button class="rp" onclick="App.rmP('${k}')">&times;</button></div></div></div>`;return`<div class="fi"><label>${lbl}</label><div class="upa" onclick="document.getElementById('f_${k}').click()"><div class="ui">${ic}</div><div class="ut">點擊上傳</div></div><input type="file" id="f_${k}" accept="image/*" style="display:none" onchange="App.upP('${k}',this)"></div>`;}
 
   root.innerHTML=`<div class="card fi-anim"><div class="ctit">${title}</div><div class="fg">
     <div class="fi"><label><span class="req">施工機具 / 運輸車輛</span></label><div class="rg"><label class="ro"><input type="radio" name="cat" value="施工機具"${r.category==='施工機具'?' checked':''} onchange="App.catCh()"> 施工機具</label><label class="ro"><input type="radio" name="cat" value="運輸車輛"${r.category==='運輸車輛'?' checked':''} onchange="App.catCh()"> 運輸車輛</label></div></div>
@@ -598,6 +600,214 @@ function clearAll(){R=[];sav();toast('🗑️ 已清除');render();}
 function esc(s){if(!s)return'';return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function bCls(r){if(r.hasBadge!=='是')return'bno';if(r.badgeLevel==='金級')return'bg';if(['銀級','優級','新購六期車'].includes(r.badgeLevel))return'bsi';if(['普級','合格','新購五期車'].includes(r.badgeLevel))return'bbr';return'bin';}
 
+// === Photo Zoom ===
+function zoomPhoto(src){if(!src)return;const m=document.getElementById('photoZoom');const img=document.getElementById('photoZoomImg');img.src=src;m.style.display='flex';}
+
+// === Excel Export ===
+async function expExcel(){
+  if(!R.length){toast('沒有資料',true);return;}
+  toast('📊 產生 Excel 中...');
+  const active=R.filter(r=>!r.excluded);
+  const eq=active.filter(r=>r.category==='施工機具');
+  const tr=active.filter(r=>r.category==='運輸車輛');
+  const projName='通霄電廠二期更新改建計畫海底輸氣管線統包工程';
+  const projEn='Tung-Hsiao Power Plant 2nd Stage Renewal Project - Subsea Gas Pipeline';
+
+  const wb=new ExcelJS.Workbook();
+  wb.creator='NMDC EHS';
+
+  // --- Styles ---
+  const dark={type:'pattern',pattern:'solid',fgColor:{argb:'FF0F1419'}};
+  const accent={type:'pattern',pattern:'solid',fgColor:{argb:'FFF59E0B'}};
+  const accentLight={type:'pattern',pattern:'solid',fgColor:{argb:'14F59E0B'}};
+  const subHdr={type:'pattern',pattern:'solid',fgColor:{argb:'FF1E2A3A'}};
+  const stripe={type:'pattern',pattern:'solid',fgColor:{argb:'FFF8FAFC'}};
+  const totalFill={type:'pattern',pattern:'solid',fgColor:{argb:'FF253347'}};
+  const wht={bold:true,color:{argb:'FFFFFFFF'},size:11,name:'Microsoft JhengHei'};
+  const whtSm={bold:true,color:{argb:'FFFFFFFF'},size:10,name:'Microsoft JhengHei'};
+  const amberFont={bold:true,color:{argb:'FFF59E0B'},size:11,name:'Microsoft JhengHei'};
+  const bf={size:10,name:'Microsoft JhengHei'};
+  const bfBold={...bf,bold:true};
+  const mono={size:10,name:'Consolas'};
+  const bd={top:{style:'thin',color:{argb:'FF2D3F54'}},bottom:{style:'thin',color:{argb:'FF2D3F54'}},left:{style:'thin',color:{argb:'FF2D3F54'}},right:{style:'thin',color:{argb:'FF2D3F54'}}};
+  const bdThick={top:{style:'medium',color:{argb:'FFF59E0B'}},bottom:{style:'medium',color:{argb:'FFF59E0B'}},left:{style:'medium',color:{argb:'FFF59E0B'}},right:{style:'medium',color:{argb:'FFF59E0B'}}};
+  const ct={horizontal:'center',vertical:'middle',wrapText:true};
+  const lt={horizontal:'left',vertical:'middle',wrapText:true};
+
+  function sRow(ws,rn,fill,font,al){ws.getRow(rn).eachCell(c=>{c.fill=fill;c.font=font;c.alignment=al||ct;c.border=bd;});}
+  function autoH(ws,rn,base){const row=ws.getRow(rn);let maxLines=1;row.eachCell(c=>{if(c.value){const lines=String(c.value).split('\n').length;const charLines=Math.ceil(String(c.value).length/20);maxLines=Math.max(maxLines,lines,charLines>2?charLines:1);}});row.height=Math.max(base||18,maxLines*16);}
+
+  const today=new Date();
+  const todayStr=today.getFullYear()+'/'+(today.getMonth()+1).toString().padStart(2,'0')+'/'+today.getDate().toString().padStart(2,'0');
+
+  // ============ Sheet 1: 統計總表 ============
+  const ws1=wb.addWorksheet('統計總表');
+  ws1.columns=[{width:22},{width:11},{width:11},{width:3},{width:22},{width:11},{width:11}];
+
+  // Title
+  ws1.mergeCells('A1:G1');
+  ws1.getCell('A1').value=projName;
+  ws1.getCell('A1').fill=dark;ws1.getCell('A1').font={...wht,size:12};ws1.getCell('A1').alignment=ct;ws1.getCell('A1').border=bd;
+  ws1.getRow(1).height=36;
+
+  // Sub title
+  ws1.mergeCells('A2:G2');
+  ws1.getCell('A2').value='柴油運輸車輛及施工機具管理標章 — 統計總表';
+  ws1.getCell('A2').fill=subHdr;ws1.getCell('A2').font=amberFont;ws1.getCell('A2').alignment=ct;ws1.getCell('A2').border=bd;
+  ws1.getRow(2).height=28;
+
+  // Period
+  ws1.mergeCells('A3:G3');
+  ws1.getCell('A3').value='統計期間：2025/09/01 ～ '+todayStr+'　｜　資料筆數：'+active.length+' 筆';
+  ws1.getCell('A3').font={...bf,color:{argb:'FF8899AA'}};ws1.getCell('A3').alignment=ct;ws1.getCell('A3').border=bd;ws1.getCell('A3').fill={type:'pattern',pattern:'solid',fgColor:{argb:'FF1A2332'}};
+
+  // Vehicle header
+  ws1.mergeCells('A5:C5');ws1.getCell('A5').value='🚚 運輸車輛';
+  ws1.getCell('A5').fill=dark;ws1.getCell('A5').font=wht;ws1.getCell('A5').alignment=ct;ws1.getCell('A5').border=bdThick;
+  ws1.mergeCells('E5:G5');ws1.getCell('E5').value='🏗️ 施工機具';
+  ws1.getCell('E5').fill=dark;ws1.getCell('E5').font=wht;ws1.getCell('E5').alignment=ct;ws1.getCell('E5').border=bdThick;
+
+  ws1.getRow(6).values=['車輛型式','查驗數量','通過數量','','機具型式','查驗數量','通過數量'];
+  sRow(ws1,6,subHdr,whtSm,ct);
+
+  // Stats data
+  const trTypes={};tr.forEach(r=>{const k=r.vehicleType;if(!trTypes[k])trTypes[k]={t:0,p:0};trTypes[k].t++;if(r.hasBadge==='是')trTypes[k].p++;});
+  const eqTypes={};eq.forEach(r=>{const k=r.vehicleType;if(!eqTypes[k])eqTypes[k]={t:0,p:0};eqTypes[k].t++;if(r.hasBadge==='是')eqTypes[k].p++;});
+  const trE=Object.entries(trTypes).sort((a,b)=>b[1].t-a[1].t);
+  const eqE=Object.entries(eqTypes).sort((a,b)=>b[1].t-a[1].t);
+  const maxR=Math.max(trE.length,eqE.length,1);
+  let trT=0,trP=0,eqT=0,eqP=0;
+  for(let i=0;i<maxR;i++){
+    const rn=7+i;const row=ws1.getRow(rn);const bg=i%2===0?null:stripe;
+    const t=trE[i];const e=eqE[i];
+    if(t){row.getCell(1).value=t[0];row.getCell(2).value=t[1].t;row.getCell(3).value=t[1].p;trT+=t[1].t;trP+=t[1].p;}
+    if(e){row.getCell(5).value=e[0];row.getCell(6).value=e[1].t;row.getCell(7).value=e[1].p;eqT+=e[1].t;eqP+=e[1].p;}
+    [1,2,3,5,6,7].forEach(c=>{const cell=row.getCell(c);cell.font=c===2||c===3||c===6||c===7?{...mono,size:11}:bf;cell.border=bd;cell.alignment=c===1||c===5?lt:ct;if(bg)cell.fill=bg;});
+  }
+
+  // Totals
+  const tR=7+maxR;
+  ws1.getRow(tR).values=['合計',trT,trP,'','合計',eqT,eqP];
+  [1,2,3,5,6,7].forEach(c=>{const cell=ws1.getRow(tR).getCell(c);cell.fill=totalFill;cell.font={...wht,size:12};cell.alignment=ct;cell.border=bdThick;});
+  const pR=tR+1;
+  ws1.getRow(pR).values=['通過率',trT?(trP/trT):0,'','','通過率',eqT?(eqP/eqT):0,''];
+  ws1.mergeCells('B'+pR+':C'+pR);ws1.mergeCells('F'+pR+':G'+pR);
+  ws1.getCell('B'+pR).numFmt='0.0%';ws1.getCell('F'+pR).numFmt='0.0%';
+  [1,2,5,6].forEach(c=>{const cell=ws1.getRow(pR).getCell(c);cell.font=c===2||c===6?{...amberFont,size:14}:bfBold;cell.border=bd;cell.alignment=ct;});
+
+  // Badge level breakdown
+  const bR=pR+2;
+  ws1.mergeCells('A'+bR+':C'+bR);ws1.getCell('A'+bR).value='運輸車輛 — 標章等級分類';
+  ws1.getCell('A'+bR).fill=subHdr;ws1.getCell('A'+bR).font=whtSm;ws1.getCell('A'+bR).alignment=ct;ws1.getCell('A'+bR).border=bd;
+  ws1.mergeCells('E'+bR+':G'+bR);ws1.getCell('E'+bR).value='施工機具 — 標章等級分類';
+  ws1.getCell('E'+bR).fill=subHdr;ws1.getCell('E'+bR).font=whtSm;ws1.getCell('E'+bR).alignment=ct;ws1.getCell('E'+bR).border=bd;
+
+  const trLvls=['新購五期車','新購六期車','優級','合格','不合格'];
+  const eqLvls=['金級','銀級','普級','不合格'];
+  const trLC={};trLvls.forEach(l=>{trLC[l]=0;});tr.forEach(r=>{if(r.hasBadge==='是'&&trLC[r.badgeLevel]!==undefined)trLC[r.badgeLevel]++;else trLC['不合格']++;});
+  const eqLC={};eqLvls.forEach(l=>{eqLC[l]=0;});eq.forEach(r=>{if(r.hasBadge==='是'&&eqLC[r.badgeLevel]!==undefined)eqLC[r.badgeLevel]++;else eqLC['不合格']++;});
+
+  const maxBL=Math.max(trLvls.length,eqLvls.length);
+  for(let i=0;i<maxBL;i++){
+    const rn=bR+1+i;const row=ws1.getRow(rn);const bg=i%2===0?null:stripe;
+    if(i<trLvls.length){row.getCell(1).value=trLvls[i];row.getCell(2).value=trLC[trLvls[i]];
+      const isNo=trLvls[i]==='不合格';
+      row.getCell(1).font=isNo?{...bf,color:{argb:'FFDC2626'},bold:true}:bf;
+      row.getCell(2).font=isNo?{...mono,color:{argb:'FFDC2626'},bold:true}:{...mono,size:11};}
+    if(i<eqLvls.length){row.getCell(5).value=eqLvls[i];row.getCell(6).value=eqLC[eqLvls[i]];
+      const isNo=eqLvls[i]==='不合格';
+      row.getCell(5).font=isNo?{...bf,color:{argb:'FFDC2626'},bold:true}:bf;
+      row.getCell(6).font=isNo?{...mono,color:{argb:'FFDC2626'},bold:true}:{...mono,size:11};}
+    [1,2,3,5,6,7].forEach(c=>{const cell=row.getCell(c);if(!cell.font)cell.font=bf;cell.border=bd;cell.alignment=c===1||c===5?lt:ct;if(bg)cell.fill=bg;});
+  }
+
+  // ============ Sheet 2: 明細表 ============
+  const ws2=wb.addWorksheet('明細表');
+  ws2.columns=[{width:6},{width:12},{width:18},{width:18},{width:10},{width:12},{width:12},{width:16}];
+
+  ws2.mergeCells('A1:H1');ws2.getCell('A1').value=projName;
+  ws2.getCell('A1').fill=dark;ws2.getCell('A1').font={...wht,size:11};ws2.getCell('A1').alignment=ct;ws2.getCell('A1').border=bd;
+  ws2.getRow(1).height=32;
+
+  ws2.mergeCells('A2:H2');ws2.getCell('A2').value='柴油運輸車輛及施工機具管理標章 — 明細表　｜　統計期間：2025/09/01 ～ '+todayStr;
+  ws2.getCell('A2').fill=subHdr;ws2.getCell('A2').font=amberFont;ws2.getCell('A2').alignment=ct;ws2.getCell('A2').border=bd;
+  ws2.getRow(2).height=26;
+
+  ws2.getRow(3).values=['項次','分類','車號/編號','車輛/機具種類','燃油','取得標章','標章等級','標章編號'];
+  sRow(ws2,3,dark,whtSm,ct);ws2.getRow(3).height=24;
+
+  // Helper: write a category section
+  function writeSection(ws,startRow,title,icon,color,recs){
+    let rn=startRow;
+    // Section header
+    ws.mergeCells('A'+rn+':H'+rn);
+    ws.getCell('A'+rn).value=icon+' '+title+'（共 '+recs.length+' 台）';
+    ws.getCell('A'+rn).fill={type:'pattern',pattern:'solid',fgColor:{argb:color}};
+    ws.getCell('A'+rn).font={...whtSm,size:10};ws.getCell('A'+rn).alignment=lt;ws.getCell('A'+rn).border=bd;
+    ws.getRow(rn).height=22;
+    rn++;
+
+    // Data rows
+    const pass=recs.filter(r=>r.hasBadge==='是').length;
+    recs.forEach((r,i)=>{
+      const row=ws.getRow(rn);
+      row.values=[i+1,r.category,r.plateNumber,r.vehicleType,r.fuelType,r.hasBadge,r.hasBadge==='是'?r.badgeLevel:'—',r.badgeNumber||''];
+      row.eachCell(c=>{c.font=bf;c.border=bd;c.alignment=ct;});
+      row.getCell(3).font={...mono,size:10};row.getCell(8).font={...mono,size:10};
+      row.getCell(4).alignment=lt;
+      if(r.category==='施工機具')row.getCell(2).font={...bf,bold:true,color:{argb:'FFB45309'}};
+      else row.getCell(2).font={...bf,bold:true,color:{argb:'FF0E7490'}};
+      if(r.hasBadge==='是')row.getCell(6).font={...bf,bold:true,color:{argb:'FF16A34A'}};
+      else row.getCell(6).font={...bf,bold:true,color:{argb:'FFDC2626'}};
+      if(i%2===1)row.eachCell(c=>{c.fill=stripe;});
+      autoH(ws,rn,18);
+      rn++;
+    });
+
+    // Subtotal
+    const pct=recs.length?Math.round(pass/recs.length*100)+'%':'0%';
+    ws.mergeCells('A'+rn+':C'+rn);ws.getCell('A'+rn).value='小計：'+recs.length+' 台';
+    ws.getCell('D'+rn).value='通過：'+pass+' 台';
+    ws.mergeCells('E'+rn+':F'+rn);ws.getCell('E'+rn).value='通過率';
+    ws.mergeCells('G'+rn+':H'+rn);ws.getCell('G'+rn).value=pct;
+    const subFill2={type:'pattern',pattern:'solid',fgColor:{argb:color}};
+    ws.getRow(rn).eachCell(c=>{c.fill=subFill2;c.font={...wht,size:10};c.alignment=ct;c.border=bd;});
+    ws.getRow(rn).height=24;
+    rn++;
+    return rn;
+  }
+
+  // Sort within each category by vehicleType
+  const trSorted=[...tr].sort((a,b)=>a.vehicleType.localeCompare(b.vehicleType));
+  const eqSorted=[...eq].sort((a,b)=>a.vehicleType.localeCompare(b.vehicleType));
+
+  let curRow=4;
+  curRow=writeSection(ws2,curRow,'運輸車輛','🚚','FF0E7490',trSorted);
+  curRow++; // blank row
+  curRow=writeSection(ws2,curRow,'施工機具','🏗️','FFB45309',eqSorted);
+  curRow++; // blank row
+
+  // Grand total
+  const allCount=tr.length+eq.length;
+  const allPass=tr.filter(r=>r.hasBadge==='是').length+eq.filter(r=>r.hasBadge==='是').length;
+  const allPct=allCount?Math.round(allPass/allCount*100)+'%':'0%';
+  ws2.mergeCells('A'+curRow+':C'+curRow);ws2.getCell('A'+curRow).value='總計：'+allCount+' 台';
+  ws2.getCell('D'+curRow).value='通過：'+allPass+' 台';
+  ws2.mergeCells('E'+curRow+':F'+curRow);ws2.getCell('E'+curRow).value='總通過率';
+  ws2.mergeCells('G'+curRow+':H'+curRow);ws2.getCell('G'+curRow).value=allPct;
+  ws2.getRow(curRow).eachCell(c=>{c.fill=totalFill;c.font={...wht,size:11};c.alignment=ct;c.border=bdThick;});
+  ws2.getRow(curRow).height=28;
+
+  // ============ Generate ============
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;
+  const fn='柴油管理標章_'+today.getFullYear()+(''+(today.getMonth()+1)).padStart(2,'0')+(''+today.getDate()).padStart(2,'0')+'.xlsx';
+  a.download=fn;a.click();URL.revokeObjectURL(url);
+  toast('📊 已匯出 '+fn);
+}
+
 // === INIT ===
 ld();renderTabs();render();
 
@@ -638,8 +848,13 @@ if(API){
   document.getElementById('syncOverlay').remove();
 }
 
-return{go,fl,doSearch,clearSearch,togEx,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile};
+return{go,fl,doSearch,clearSearch,togEx,zoomPhoto,expExcel,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile};
 })();
 </script>
+
+<!-- Photo Zoom Modal -->
+<div id="photoZoom" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:500;cursor:zoom-out;justify-content:center;align-items:center" onclick="this.style.display='none'">
+  <img id="photoZoomImg" style="max-width:95%;max-height:95%;object-fit:contain;border-radius:8px">
+</div>
 </body>
 </html>
