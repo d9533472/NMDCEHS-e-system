@@ -1035,8 +1035,20 @@ function calcLeaveHrs(){
   const s=$('inLvTS').value,e=$('inLvTE').value;
   if(!s||!e)return;
   const [sh,sm]=s.split(':').map(Number),[eh,em]=e.split(':').map(Number);
-  let diff=(eh*60+em)-(sh*60+sm);if(diff<=0)return;
-  $('inLvH').value=Math.round(diff/60*2)/2;
+  const startMin=sh*60+sm,endMin=eh*60+em;
+  if(endMin<=startMin)return;
+  let total=endMin-startMin;
+  // 扣除午休 12:00~13:00
+  const lunchS=720,lunchE=780;
+  if(startMin<lunchE&&endMin>lunchS){
+    total-=Math.min(endMin,lunchE)-Math.max(startMin,lunchS);
+  }
+  $('inLvH').value=Math.round(total/60*2)/2;
+}
+function setLeavePreset(t){
+  const p={full:['08:00','17:00',8],am:['08:00','12:00',4],pm:['13:00','17:00',4]}[t];
+  if(!p)return;
+  $('inLvTS').value=p[0];$('inLvTE').value=p[1];$('inLvH').value=p[2];
 }
 function calcLeaveDays(){
   const s=$('inLvS').value,e=$('inLvE').value;
@@ -1285,16 +1297,7 @@ function sendTrkEmail(){
   html+=`<p style="margin:6px 0 0;color:#bbf7d0;font-size:12px">製表日期：${today}　·　待辦共 ${pending.length} 項</p>`;
   html+=`</td></tr>`;
 
-  // ── 本周公告 ──
-  // 計算本周一到本周日
-  const todayDate=new Date();
-  const dayOfWeek=todayDate.getDay(); // 0=日,1=一...6=六
-  const diffToMon=dayOfWeek===0?-6:1-dayOfWeek;
-  const weekStart=new Date(todayDate);weekStart.setDate(todayDate.getDate()+diffToMon);weekStart.setHours(0,0,0,0);
-  const weekEnd=new Date(weekStart);weekEnd.setDate(weekStart.getDate()+6);weekEnd.setHours(23,59,59,999);
-  const weekStartStr=weekStart.getFullYear()+'-'+String(weekStart.getMonth()+1).padStart(2,'0')+'-'+String(weekStart.getDate()).padStart(2,'0');
-  const weekEndStr=weekEnd.getFullYear()+'-'+String(weekEnd.getMonth()+1).padStart(2,'0')+'-'+String(weekEnd.getDate()).padStart(2,'0');
-  const thisWeekBuls=(D.bulletins||[]).filter(b=>b.date>=weekStartStr&&b.date<=weekEndStr);
+  // 本周公告已移除
 
   // helper: section header bar
   function sectionHeader(title,bg,textColor){
@@ -1305,32 +1308,29 @@ function sendTrkEmail(){
   html+=`<tr><td bgcolor="#ffffff" style="background:#ffffff;padding:8px 24px 24px;border:1px solid #d1d5db;border-top:none">`;
   html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
 
-  // ══ SECTION 1: 公告內容 ══
-  html+=sectionHeader('📢 一、公告內容（本周 '+weekStartStr+' ～ '+weekEndStr+'）','#1e40af','#ffffff');
-  if(thisWeekBuls.length){
-    html+=`<tr><td style="padding:4px 0 12px">`;
-    html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;border:1px solid #d1d5db">`;
-    html+=`<tr bgcolor="#1e40af" style="background:#1e40af">`;
-    html+=`<td bgcolor="#1e40af" width="90" style="padding:8px 12px;background:#1e40af;color:#ffffff;font-weight:bold;font-size:11px;letter-spacing:1px;border-right:1px solid #1e3a8a;white-space:nowrap"><font color="#ffffff">日期</font></td>`;
-    html+=`<td bgcolor="#1e40af" style="padding:8px 12px;background:#1e40af;color:#ffffff;font-weight:bold;font-size:11px;letter-spacing:1px"><font color="#ffffff">公告內容</font></td>`;
-    html+=`</tr>`;
-    thisWeekBuls.forEach((b,i)=>{
-      const bg=i%2===0?'#ffffff':'#eff6ff';
-      const rawText=(b.text||'').replace(/&nbsp;/gi,' ').replace(/<br[^>]*>/gi,'\n').replace(/<\/p>/gi,'\n').replace(/<\/div>/gi,'\n').replace(/<[^>]+>/g,'').replace(/\s*\n\s*/g,'\n').trim();
-      const noteHtml=rawText.split('\n').filter(l=>l.trim()).map(l=>esc(l)).join('<br>');
-      html+=`<tr bgcolor="${bg}" style="background:${bg}">`;
-      html+=`<td bgcolor="${bg}" width="90" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;border-right:1px solid #e5e7eb;white-space:nowrap;color:#374151;font-weight:bold;font-size:12px">${b.date}</td>`;
-      html+=`<td bgcolor="${bg}" style="padding:8px 12px;background:${bg};border-top:1px solid #e5e7eb;color:#111827">${noteHtml||'—'}</td>`;
-      html+=`</tr>`;
-    });
-    html+=`</table></td></tr>`;
-  } else {
-    html+=`<tr><td style="padding:8px 0 12px"><p style="margin:0;font-size:13px;color:#9ca3af;font-style:italic">本周暫無公告</p></td></tr>`;
-  }
+  // ══ SECTION 1: 改善單 ══
+  html+=sectionHeader('📋 一、改善單狀況','#b45309','#ffffff');
+  // NCR stats from full records (not just expiring)
+  // We only have expiring records in cache, so calculate from those + show summary
+  const ncrTotal='—'; // 需手動填寫
+  const ncrOpen=ncrAll.length>0?ncrAll.filter(r=>r.daysLeft!==undefined).length:'—';
+  const ncrClosed='—'; // 需手動填寫
+  const ncrRate='—'; // 需手動填寫
 
-  // ══ SECTION 2: 改善單 ══
-  html+=`<tr><td style="padding:8px 0 0"></td></tr>`;
-  html+=sectionHeader('📋 二、改善單狀況','#b45309','#ffffff');
+  // Stats summary table
+  html+=`<tr><td style="padding:8px 0 4px">`;
+  html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;font-family:Arial,sans-serif;font-size:13px;border:1px solid #d1d5db;margin-bottom:12px">`;
+  html+=`<tr bgcolor="#fef3c7" style="background:#fef3c7">`;
+  ['缺失單總數','尚未結案','已結案','關單率','已逾期數量'].forEach(th=>{
+    html+=`<td bgcolor="#fef3c7" style="padding:8px 14px;background:#fef3c7;color:#92400e;font-weight:bold;font-size:12px;text-align:center;border-right:1px solid #fcd34d">${th}</td>`;
+  });
+  html+=`</tr><tr bgcolor="#ffffff" style="background:#ffffff">`;
+  [ncrTotal, ncrOpen, ncrClosed, ncrRate, ncrExpired.length||'0'].forEach(v=>{
+    const isNum = v!=='—';
+    html+=`<td bgcolor="#ffffff" style="padding:10px 14px;background:#ffffff;color:${isNum?'#111827':'#9ca3af'};font-weight:bold;font-size:16px;text-align:center;border-right:1px solid #e5e7eb;border-top:1px solid #e5e7eb">${v}</td>`;
+  });
+  html+=`</tr></table></td></tr>`;
+
   if(ncrAll.length){
     html+=`<tr><td style="padding:4px 0 12px">`;
     html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
@@ -1344,7 +1344,7 @@ function sendTrkEmail(){
 
   // ══ SECTION 3: 追蹤事項 ══
   html+=`<tr><td style="padding:8px 0 0"></td></tr>`;
-  html+=sectionHeader('✅ 三、追蹤事項','#166534','#ffffff');
+  html+=sectionHeader('✅ 二、追蹤事項','#166534','#ffffff');
   html+=`<tr><td style="padding:4px 0 12px">`;
   html+=`<table width="100%" cellpadding="0" cellspacing="0" border="0">`;
   html+=tableSection('⚠️ 已過期（'+overdue.length+' 項）','#b91c1c',overdue);
@@ -1378,8 +1378,7 @@ function copyTrkEmailHtml(){
     const item=new ClipboardItem({'text/html':blob});
     navigator.clipboard.write([item]).then(()=>{
       $('mTrkEmail').classList.add('hidden');
-      showToast('✅ 已複製！Outlook 開啟中，請按 Ctrl+V 貼上');
-      setTimeout(openOutlookForEmail,300);
+      showToast('✅ 已複製！請到 Outlook 新增郵件後按 Ctrl+V 貼上');
     }).catch(()=>fallbackCopy(html));
   }catch(e){fallbackCopy(html);}
 }
@@ -1393,8 +1392,7 @@ function fallbackCopy(html){
   try{
     document.execCommand('copy');
     $('mTrkEmail').classList.add('hidden');
-    showToast('✅ 已複製！Outlook 開啟中，請按 Ctrl+V 貼上');
-    setTimeout(openOutlookForEmail,300);
+    showToast('✅ 已複製！請到 Outlook 新增郵件後按 Ctrl+V 貼上');
   }catch(e){showToast('⚠️ 複製失敗，請手動複製','err');}
   sel.removeAllRanges();document.body.removeChild(div);
 }
@@ -1734,6 +1732,13 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div><label class="form-label">起始日期</label><input class="form-input" type="date" id="inLvS" oninput="lvStartChg()"></div>
       <div><label class="form-label">結束日期</label><input class="form-input" type="date" id="inLvE" oninput="calcLeaveDays()"></div>
+    </div>
+    <div><label class="form-label">快速選擇</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" onclick="setLeavePreset('full')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">🌞 整天 (8h)</button>
+        <button type="button" onclick="setLeavePreset('am')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">🌅 上午 (4h)</button>
+        <button type="button" onclick="setLeavePreset('pm')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">🌇 下午 (4h)</button>
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div><label class="form-label">起始時間（選填）</label><input class="form-input" type="time" id="inLvTS" oninput="calcLeaveHrs()"></div>
