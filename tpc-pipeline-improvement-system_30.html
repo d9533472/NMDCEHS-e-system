@@ -1090,7 +1090,7 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
           <div style={{fontSize:11,color:'var(--text-muted)',marginTop:2}}>匯出日期：{new Date().toLocaleDateString('zh-TW')}　{dateFrom||dateTo ? `篩選區間：${dateFrom||''}～${dateTo||''}` : '全部期間'}</div>
         </div>
         {/* 4 張 KPI */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12}}>
           <KpiCard label="總缺失件數" value={totalDefects} sub="累計缺失條數" color="var(--accent-blue)" />
           <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" />
           <div className="kpi-card">
