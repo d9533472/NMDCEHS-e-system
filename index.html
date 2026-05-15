@@ -1044,6 +1044,7 @@ function calcLeaveHrs(){
     total-=Math.min(endMin,lunchE)-Math.max(startMin,lunchS);
   }
   $('inLvH').value=Math.round(total/60*2)/2;
+  calcLeaveDays();
 }
 function setLeavePreset(t){
   const p={full:['08:00','17:00',8],am:['08:00','12:00',4],pm:['13:00','17:00',4]}[t];
@@ -1051,17 +1052,14 @@ function setLeavePreset(t){
   $('inLvTS').value=p[0];$('inLvTE').value=p[1];$('inLvH').value=p[2];
 }
 function calcLeaveDays(){
+  const h=Number($('inLvH').value)||0;
+  if(h>0){$('inLvD').value=Math.round(h/8*2)/2;return;}
+  // fallback: count weekdays
   const s=$('inLvS').value,e=$('inLvE').value;
   if(!s||!e)return;
-  const sd=new Date(s),ed=new Date(e);
-  if(ed<sd)return;
-  // count weekdays (Mon-Fri) between dates
+  const sd=new Date(s),ed=new Date(e);if(ed<sd)return;
   let days=0,cur=new Date(sd);
-  while(cur<=ed){
-    const dow=cur.getDay();
-    if(dow!==0&&dow!==6)days++;
-    cur.setDate(cur.getDate()+1);
-  }
+  while(cur<=ed){const dow=cur.getDay();if(dow!==0&&dow!==6)days++;cur.setDate(cur.getDate()+1);}
   $('inLvD').value=days||1;
 }
 function saveLeave(){
@@ -1743,7 +1741,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div><label class="form-label">起始時間（選填）</label><input class="form-input" type="time" id="inLvTS" oninput="calcLeaveHrs()"></div>
       <div><label class="form-label">結束時間（選填）</label><input class="form-input" type="time" id="inLvTE" oninput="calcLeaveHrs()"></div>
-      <div><label class="form-label">請假時數</label><input class="form-input" type="number" id="inLvH" step="0.5" min="0" placeholder="時數"></div>
+      <div><label class="form-label">請假時數</label><input class="form-input" type="number" id="inLvH" step="0.5" min="0" placeholder="時數" oninput="calcLeaveDays()"></div>
     </div>
     <div><label class="form-label">請假天數（自動計算工作日，可手動調整）</label><input class="form-input" type="number" id="inLvD" step="0.5" min="0.5" placeholder="天數"></div>
     <div><label class="form-label">備註（選填）</label><input class="form-input" id="inLvN" placeholder="例：就醫、家庭事務…"></div>
