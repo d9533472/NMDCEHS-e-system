@@ -1050,7 +1050,11 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
           <div className="page-title">📊 總覽儀表板</div>
           <div className="page-sub">{PROJECT.name}</div>
         </div>
-        <button className="btn btn-secondary" onClick={onExport} title="匯出 KPI 總結圖片">📊 匯出總結</button>
+        <button className="btn btn-secondary" onClick={()=>onExport({
+          totalDefects, open, closed,
+          closedDefs: activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0),
+          closeRate
+        })} title="匯出 KPI 總結圖片">📊 匯出總結</button>
         <button className="btn btn-primary" onClick={()=>onFilterClick({_newrecord:true})}>➕ 新增紀錄</button>
       </div>
       {/* 日期篩選列 */}
@@ -1837,31 +1841,63 @@ function App() {
 
       {/* Content */}
       <div className="content">
-        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ if(filter._newrecord){ setTab('records'); setActiveFilter({_newrecord:true, _ts:Date.now()}); } else { setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); } }} onExport={()=>{
-          // 動態載入 html2canvas 並截取 KPI 區塊
-          const el = document.getElementById('kpi-export-area');
-          if (!el) { alert('找不到匯出區域'); return; }
-          const script = document.createElement('script');
-          script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-          script.onload = () => {
-            html2canvas(el, { scale: 2, backgroundColor: '#eef2f7', useCORS: true }).then(canvas => {
+        {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ if(filter._newrecord){ setTab('records'); setActiveFilter({_newrecord:true, _ts:Date.now()}); } else { setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); } }} onExport={(exportData)=>{
+          // 動態建立排版精美的匯出元素
+          const doExport = () => {
+            const dateStr = new Date().toLocaleDateString('zh-TW');
+            const el = document.createElement('div');
+            el.style.cssText = `
+              position:fixed; left:-9999px; top:0;
+              width:620px; padding:0;
+              background:#ffffff;
+              font-family:'Noto Sans TC',sans-serif;
+              box-sizing:border-box;
+              border-radius:16px;
+              overflow:hidden;
+              box-shadow:0 4px 32px rgba(0,0,0,.12);
+            `;
+            const cards = [
+              { label:'總缺失件數', value: exportData.totalDefects, sub:'累計缺失條數',   color:'#0369a1', bg:'#eff8ff', border:'#bae6fd', sub2:'#64b5d6' },
+              { label:'Open 未結',  value: exportData.open,         sub:'待改善件數',     color:'#b91c1c', bg:'#fff1f2', border:'#fecaca', sub2:'#f08080' },
+              { label:'Closed 已結',value: `${exportData.closed}張`, sub:`缺失 ${exportData.closedDefs} 條`, color:'#15803d', bg:'#f0fdf4', border:'#bbf7d0', sub2:'#5fba87' },
+              { label:'關單率',     value: `${exportData.closeRate}%`, sub:'以缺失件數計算', color:'#0e7490', bg:'#ecfeff', border:'#a5f3fc', sub2:'#5cb8c8' },
+            ];
+            el.innerHTML = `
+              <div style="background:linear-gradient(135deg,#0c1f3d,#1e3a5f);padding:22px 28px 20px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:38px;height:38px;background:linear-gradient(135deg,#38bdf8,#0369a1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🌊</div>
+                  <div>
+                    <div style="font-size:15px;font-weight:700;color:#e8f4fd;letter-spacing:.3px;">通霄電廠二期海底輸氣管線統包工程</div>
+                    <div style="font-size:11px;color:#7ab0d4;margin-top:3px;">環保改善缺失追蹤 KPI 總結　匯出日期：${dateStr}</div>
+                  </div>
+                </div>
+              </div>
+              <div style="padding:20px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8fafc;">
+                ${cards.map(c=>`
+                  <div style="background:${c.bg};border:1.5px solid ${c.border};border-radius:12px;padding:22px 16px;text-align:center;">
+                    <div style="font-size:13px;font-weight:800;color:${c.color};letter-spacing:.6px;margin-bottom:10px;">${c.label}</div>
+                    <div style="font-family:'Courier New',monospace;font-size:58px;font-weight:900;line-height:1;color:${c.color};margin-bottom:8px;">${c.value}</div>
+                    <div style="font-size:11px;color:${c.sub2};">${c.sub}</div>
+                  </div>`).join('')}
+              </div>
+              <div style="padding:10px 20px 14px;background:#f8fafc;font-size:10px;color:#94abbe;text-align:right;border-top:1px solid #e8eef4;">
+                NMDC Energy ｜ TPC 通霄電廠二期海管工程
+              </div>`;
+            document.body.appendChild(el);
+            html2canvas(el, { scale:3, backgroundColor:'#ffffff', useCORS:true, logging:false }).then(canvas => {
+              document.body.removeChild(el);
               const a = document.createElement('a');
-              const date = new Date().toISOString().slice(0,10);
-              a.download = `TPC海管工程_KPI總結_${date}.png`;
+              a.download = `TPC海管工程_KPI總結_${new Date().toISOString().slice(0,10)}.png`;
               a.href = canvas.toDataURL('image/png');
               a.click();
             });
           };
-          if (window.html2canvas) {
-            html2canvas(el, { scale: 2, backgroundColor: '#eef2f7', useCORS: true }).then(canvas => {
-              const a = document.createElement('a');
-              const date = new Date().toISOString().slice(0,10);
-              a.download = `TPC海管工程_KPI總結_${date}.png`;
-              a.href = canvas.toDataURL('image/png');
-              a.click();
-            });
-          } else {
-            document.head.appendChild(script);
+          if (window.html2canvas) { doExport(); }
+          else {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            s.onload = doExport;
+            document.head.appendChild(s);
           }
         }} />}
         {tab==='records' && (
