@@ -1053,7 +1053,9 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
         <button className="btn btn-secondary" onClick={()=>onExport({
           totalDefects, open, closed,
           closedDefs: activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0),
-          closeRate
+          closeRate,
+          itemMap,
+          itemOptions,
         })} title="匯出 KPI 總結圖片">📊 匯出總結</button>
         <button className="btn btn-primary" onClick={()=>onFilterClick({_newrecord:true})}>➕ 新增紀錄</button>
       </div>
@@ -1848,13 +1850,12 @@ function App() {
             const el = document.createElement('div');
             el.style.cssText = `
               position:fixed; left:-9999px; top:0;
-              width:620px; padding:0;
+              width:960px; height:720px;
               background:#ffffff;
               font-family:'Noto Sans TC',sans-serif;
               box-sizing:border-box;
-              border-radius:16px;
+              border-radius:0;
               overflow:hidden;
-              box-shadow:0 4px 32px rgba(0,0,0,.12);
             `;
             const cards = [
               { label:'總缺失件數', value: exportData.totalDefects, sub:'累計缺失條數',   color:'#0369a1', bg:'#eff8ff', border:'#bae6fd', sub2:'#64b5d6' },
@@ -1862,34 +1863,158 @@ function App() {
               { label:'Closed 已結',value: `${exportData.closed}張`, sub:`缺失 ${exportData.closedDefs} 條`, color:'#15803d', bg:'#f0fdf4', border:'#bbf7d0', sub2:'#5fba87' },
               { label:'關單率',     value: `${exportData.closeRate}%`, sub:'以缺失件數計算', color:'#0e7490', bg:'#ecfeff', border:'#a5f3fc', sub2:'#5cb8c8' },
             ];
+            // 缺失分類統計
+            const imap = exportData.itemMap || {};
+            const iopts = exportData.itemOptions || {};
+            const maxVal = Math.max(...Object.values(imap).map(v=>v.total||0), 1);
+            const itemRows = Object.entries(imap)
+              .sort((a,b)=>(b[1].total||0)-(a[1].total||0))
+              .map(([k,v],i) => {
+                const pct = Math.round((v.total/maxVal)*100);
+                const closedPct = Math.round((v.closed/v.total)*100)||0;
+                const barColor = ['#3b82f6','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4'][i%6];
+                return `
+                  <div style="margin-bottom:4px;">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px;">
+                      <span style="font-size:11px;font-weight:700;color:#1e3a5f;">${k}. ${iopts[k]||''}</span>
+                      <span style="font-size:13px;font-weight:900;font-family:'Courier New',monospace;color:${barColor};">${v.total}</span>
+                    </div>
+                    <div style="background:#e8eef4;border-radius:99px;height:9px;overflow:hidden;">
+                      <div style="height:100%;border-radius:99px;background:${barColor};width:${pct}%;"></div>
+                    </div>
+                    <div style="font-size:9px;color:#94abbe;margin-top:1px;">已結 ${v.closed||0} 條（${closedPct}%）</div>
+                  </div>`;
+              }).join('');
+
+            // 圓餅圖資料
+            const pieColors = ['#3b82f6','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4'];
+            const pieEntries = Object.entries(imap).sort((a,b)=>(b[1].total||0)-(a[1].total||0));
+            const pieTotal = pieEntries.reduce((s,[,v])=>s+(v.total||0),0);
+
             el.innerHTML = `
-              <div style="background:linear-gradient(135deg,#0c1f3d,#1e3a5f);padding:22px 28px 20px;">
-                <div style="display:flex;align-items:center;gap:12px;">
-                  <div style="width:38px;height:38px;background:linear-gradient(135deg,#38bdf8,#0369a1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🌊</div>
-                  <div>
-                    <div style="font-size:15px;font-weight:700;color:#e8f4fd;letter-spacing:.3px;">通霄電廠二期海底輸氣管線統包工程</div>
-                    <div style="font-size:11px;color:#7ab0d4;margin-top:3px;">環保改善缺失追蹤 KPI 總結　匯出日期：${dateStr}</div>
+              <div style="display:grid;grid-template-columns:440px 1fr;height:720px;background:#f0f4f8;">
+                <!-- 左欄 -->
+                <div style="display:flex;flex-direction:column;padding:14px 10px 14px 14px;gap:10px;border-right:1px solid #d1dae6;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0;">
+                    ${cards.map(c=>`
+                      <div style="background:${c.bg};border:1.5px solid ${c.border};border-radius:10px;padding:12px 10px;text-align:center;">
+                        <div style="font-size:10px;font-weight:800;color:${c.color};letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase;">${c.label}</div>
+                        <div style="font-family:'Courier New',monospace;font-size:42px;font-weight:900;line-height:1;color:${c.color};margin-bottom:4px;">${c.value}</div>
+                        <div style="font-size:9px;color:${c.sub2};">${c.sub}</div>
+                      </div>`).join('')}
+                  </div>
+                  <div style="background:#fff;border:1px solid #d1dae6;border-radius:10px;padding:12px 14px;flex:1;min-height:0;">
+                    <div style="font-size:10px;font-weight:800;color:#1e3a5f;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:2px solid #e2eaf2;">📊 環境缺失分類統計</div>
+                    ${itemRows}
                   </div>
                 </div>
-              </div>
-              <div style="padding:20px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;background:#f8fafc;">
-                ${cards.map(c=>`
-                  <div style="background:${c.bg};border:1.5px solid ${c.border};border-radius:12px;padding:22px 16px;text-align:center;">
-                    <div style="font-size:13px;font-weight:800;color:${c.color};letter-spacing:.6px;margin-bottom:10px;">${c.label}</div>
-                    <div style="font-family:'Courier New',monospace;font-size:58px;font-weight:900;line-height:1;color:${c.color};margin-bottom:8px;">${c.value}</div>
-                    <div style="font-size:11px;color:${c.sub2};">${c.sub}</div>
-                  </div>`).join('')}
-              </div>
-              <div style="padding:10px 20px 14px;background:#f8fafc;font-size:10px;color:#94abbe;text-align:right;border-top:1px solid #e8eef4;">
-                NMDC Energy ｜ TPC 通霄電廠二期海管工程
+                <!-- 右欄 -->
+                <div style="display:flex;flex-direction:column;background:#fff;">
+                  <div style="background:linear-gradient(135deg,#0c1f3d,#1e3a5f);padding:14px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                    <div style="width:34px;height:34px;background:linear-gradient(135deg,#38bdf8,#0369a1);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:17px;">🌊</div>
+                    <div>
+                      <div style="font-size:13px;font-weight:700;color:#e8f4fd;">通霄電廠二期海底輸氣管線統包工程</div>
+                      <div style="font-size:10px;color:#7ab0d4;margin-top:2px;">環保改善缺失追蹤 KPI　匯出日期：${dateStr}　NMDC Energy</div>
+                    </div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 16px 8px;gap:6px;">
+                    <div style="font-size:11px;font-weight:800;color:#1e3a5f;letter-spacing:.5px;align-self:flex-start;">缺失項目分布</div>
+                    <canvas id="export-pie" width="440" height="440" style="flex-shrink:0;max-width:100%;"></canvas>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 8px;width:100%;">
+                      ${pieEntries.map(([k,v],i)=>`
+                        <div style="display:flex;align-items:center;gap:5px;">
+                          <div style="width:10px;height:10px;border-radius:3px;background:${pieColors[i%pieColors.length]};flex-shrink:0;"></div>
+                          <span style="font-size:10px;color:#1e3a5f;font-weight:600;">${k}. ${iopts[k]||''}&nbsp;<span style="font-family:'Courier New',monospace;font-weight:900;color:${pieColors[i%pieColors.length]};">${Math.round(v.total/pieTotal*100)}%</span></span>
+                        </div>`).join('')}
+                    </div>
+                  </div>
+                </div>
               </div>`;
+
+            requestAnimationFrame(() => {
+              const cvs = el.querySelector('#export-pie');
+              if (!cvs) return;
+              const ctx = cvs.getContext('2d');
+              const cx = 220, cy = 220, r = 205, ir = 95;
+              let angle = -Math.PI / 2;
+
+              pieEntries.forEach(([k, v], i) => {
+                const slice = (v.total / pieTotal) * Math.PI * 2;
+                const pct = Math.round(v.total / pieTotal * 100);
+                const color = pieColors[i % pieColors.length];
+
+                // 扇形（加 1px 間隙讓每片有分隔感）
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, angle + 0.015, angle + slice - 0.015);
+                ctx.closePath();
+                ctx.fillStyle = color;
+                ctx.shadowColor = 'rgba(0,0,0,0.15)';
+                ctx.shadowBlur = 6;
+                ctx.fill();
+                ctx.restore();
+
+                // 切片內文字（% + 縮寫）
+                if (pct >= 4) {
+                  const mid = angle + slice / 2;
+                  const labelR = (r * 0.65);
+                  const lx = cx + Math.cos(mid) * labelR;
+                  const ly = cy + Math.sin(mid) * labelR;
+                  ctx.save();
+                  ctx.translate(lx, ly);
+                  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                  // 百分比（大）
+                  ctx.fillStyle = '#ffffff';
+                  ctx.font = 'bold 18px Courier New';
+                  ctx.fillText(pct + '%', 0, pct >= 8 ? -8 : 0);
+                  // 縮寫名稱（小，只有夠大的切片才顯示）
+                  if (pct >= 8) {
+                    const name = (iopts[k] || '').replace(/防制措施/,'防制').replace(/廢水廢油/,'廢油').replace(/出入口/,'出入').slice(0, 4);
+                    ctx.font = '11px sans-serif';
+                    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+                    ctx.fillText(name, 0, 10);
+                  }
+                  ctx.restore();
+                }
+                angle += slice;
+              });
+
+              // 甜甜圈中心
+              ctx.beginPath();
+              ctx.arc(cx, cy, ir, 0, Math.PI * 2);
+              const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, ir);
+              grad.addColorStop(0, '#f8fafc');
+              grad.addColorStop(1, '#ffffff');
+              ctx.fillStyle = grad;
+              ctx.fill();
+
+              // 中心文字
+              ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+              ctx.fillStyle = '#0c1f3d';
+              ctx.font = 'bold 38px Courier New';
+              ctx.fillText(pieTotal, cx, cy - 12);
+              ctx.font = 'bold 13px sans-serif';
+              ctx.fillStyle = '#5a7899';
+              ctx.fillText('缺失件數', cx, cy + 16);
+            });
             document.body.appendChild(el);
-            html2canvas(el, { scale:3, backgroundColor:'#ffffff', useCORS:true, logging:false }).then(canvas => {
+            // 強制載入字體後再截圖
+            document.fonts.ready.then(() => {
+              setTimeout(() => html2canvas(el, {
+                scale: 4,
+                backgroundColor: '#ffffff',
+                useCORS: true,
+                logging: false,
+                allowTaint: true,
+                imageTimeout: 0,
+              }).then(canvas => {
               document.body.removeChild(el);
               const a = document.createElement('a');
               a.download = `TPC海管工程_KPI總結_${new Date().toISOString().slice(0,10)}.png`;
               a.href = canvas.toDataURL('image/png');
               a.click();
+            }), 300);
             });
           };
           if (window.html2canvas) { doExport(); }
