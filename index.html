@@ -343,7 +343,7 @@ function seedSchedule(){
     'Jacqueline':{1:'R',2:'R',3:'中',4:'H',5:'H',6:'R',7:'R',8:'R',9:'R',10:'R',11:'R',12:'中',13:'霄',14:'霄',15:'R',16:'R',17:'R',18:'R',19:'H',20:'R',21:'R',22:'R',23:'R',24:'R',25:'H',26:'H',27:'R',28:'H',29:'H',30:'R'}
   }};
 }
-function save(){localStorage.setItem('env-cache',JSON.stringify(D));if(!isEditor)return;clearTimeout(syncTimer);setSS('syncing');syncTimer=setTimeout(()=>{pushData();},2500);}
+function save(){localStorage.setItem('env-cache',JSON.stringify(D));if(!isEditor)return;pushing=false;clearTimeout(syncTimer);setSS('syncing');syncTimer=setTimeout(()=>{pushData();},2500);}
 function saveDraft(){localStorage.setItem('env-cache',JSON.stringify(D));schDraft=true;renderSchDraftBadge();}
 function renderSchDraftBadge(){const b=$('schDraftBadge');if(!b)return;b.style.display=schDraft?'inline-flex':'none';}
 async function publishSch(){if(!confirm('確定要發布班表？所有人將看到最新版本。'))return;schDraft=false;clearTimeout(syncTimer);const ok=await pushData();if(ok)showToast('📤 班表已發布！');renderTab();}
