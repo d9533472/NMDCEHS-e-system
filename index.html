@@ -407,7 +407,7 @@ function canTabEdit(){editingTabKey=null;renderTabs();}
 function switchTab(k){activeTab=k;renderTabs();renderTab();}
 function renderTab(){let h='';
   if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
-  $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});}
+  $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});}
 
 // ═══ 1 BULLETIN ═══
 function renderBulHTML(){
@@ -1671,7 +1671,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   localStorage.setItem('env-cache',JSON.stringify(D));
 
   setLoad(95,'載入介面…');
-  D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
+  (D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});
   if(sessionStorage.getItem(AK)==='1')isEditor=true;
   try{renderAll();}catch(e){console.error('render error:',e);}
   setLoad(100,'完成！');
@@ -1688,7 +1688,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
           const sd=await r.json();
           if(sd&&sd.parts&&sd.parts.length){
             const old=JSON.stringify(D);
-            D=sd;fixData();
+            D={...makeDefault(),...sd};fixData();
             if(JSON.stringify(D)!==old){localStorage.setItem('env-cache',JSON.stringify(D));renderAll();}
           }
         }
@@ -1700,7 +1700,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){console.error('NCR renderTab error:',e);}}).catch(e=>console.warn('NCR fetch error:',e));}
 
   // Auto-refresh for viewers every 2 min
-  setInterval(async()=>{if(isEditor)return;try{const f=await fetchData();if(f){D.sections.forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});renderAll();}}catch(e){}},2*60*1000);
+  setInterval(async()=>{if(isEditor)return;try{const f=await fetchData();if(f){(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});renderAll();}}catch(e){}},2*60*1000);
   // Refresh NCR every 5 min
   if(NCR_URL){setInterval(()=>{fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){}}).catch(()=>{});},5*60*1000);}
 })();
