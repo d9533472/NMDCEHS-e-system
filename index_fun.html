@@ -1890,7 +1890,21 @@ Phone: {{phone}}</p>
         setLoading(true); setErr("");
         try{
           const res = await xhrPost(GAS_URL, { action:"listRegistrations", password:editPassword });
-          if(res.success){ setList(res.list || res.registrations || []); }
+          if(res.success){
+            // Safety net: normalize each registration so frontend never crashes on bad data.
+            // companions can come back as a JSON string from older GAS versions — parse it.
+            const raw = res.list || res.registrations || [];
+            const normalized = raw.map(r => {
+              let comps = r.companions;
+              if(typeof comps === "string"){
+                try{ const p = JSON.parse(comps); comps = Array.isArray(p) ? p : []; }
+                catch(_){ comps = []; }
+              }
+              if(!Array.isArray(comps)) comps = [];
+              return { ...r, companions: comps };
+            });
+            setList(normalized);
+          }
           else { setErr("讀取失敗：" + (res.error || "未知")); setList([]); }
         } catch(e){ setErr("連線失敗"); setList([]); }
         finally{ setLoading(false); }
