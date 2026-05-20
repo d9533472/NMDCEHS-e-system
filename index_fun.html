@@ -10,7 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Caprasimo&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Shrikhand&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -18,118 +18,137 @@
 
   <style>
     :root{
-      --nmdc-navy:#0A2340; --nmdc-green:#00B050; --nmdc-green-dark:#009043; --nmdc-green-light:#42D47C;
-      --sun:#FFCB47; --sun-deep:#F5A623;
-      --sky:#6DC8E8; --sky-deep:#2AA0D6;
-      --coral:#FF6B4A; --coral-deep:#E85533;
-      --cream:#FFF5E4; --cream-warm:#FFEED2;
-      --sand:#F5E3BE; --sand-deep:#E8CE94;
-      --ink:#0A2340; --ink-soft:#4A5E7A;
-      --tpc-blue:#1A75B8;
+      /* ====== NEW PALETTE: Cream base + Wave Blue accent + Sun Yellow sparingly ====== */
+      --cream:#FBF7EE;          /* primary background — soft cream */
+      --cream-warm:#F4EEDF;     /* slightly deeper for section alternation */
+      --ink:#163654;            /* main text — deep ocean ink (softer than pure black) */
+      --ink-soft:#5C7187;       /* secondary text */
+      --line:#E3DBC7;           /* subtle dividers / borders */
+      --line-strong:#C9BFA6;    /* slightly stronger dividers */
+
+      --wave:#1E6FAB;           /* main accent — wave blue */
+      --wave-deep:#155989;      /* deeper hover state */
+      --wave-soft:#E6EFF7;      /* very light blue tint backgrounds */
+
+      --sun:#F5C24A;            /* sparing highlight only */
+      --sun-soft:#FCEFC9;       /* light sun tint */
+
+      /* legacy aliases — kept so existing class names still resolve */
+      --nmdc-green:#1E6FAB;
+      --nmdc-green-dark:#155989;
+      --nmdc-green-light:#4A95C8;
+      --nmdc-navy:#163654;
+      --sun-deep:#D9A634;
+      --sky:#4A95C8; --sky-deep:#1E6FAB;
+      --coral:#F5C24A;
+      --coral-deep:#D9A634;
+      --sand:#F4EEDF; --sand-deep:#E3DBC7;
+      --tpc-blue:#1E6FAB;
     }
     html,body{ background:var(--cream); color:var(--ink); scroll-behavior:smooth; }
-    body{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; font-size:17px; }
-    .font-display{ font-family:'Caprasimo','Noto Sans TC',serif; letter-spacing:-0.01em; }
-    .font-chunk{ font-family:'Shrikhand','Caprasimo','Noto Sans TC',serif; }
-    .font-num{ font-family:'Caprasimo',serif; font-feature-settings:'tnum'; }
+    body{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden; font-size:16px; }
 
-    .bg-paper{
-      background:
-        radial-gradient(circle at 15% 10%, rgba(255,203,71,0.12) 0%, transparent 40%),
-        radial-gradient(circle at 85% 30%, rgba(0,176,80,0.08) 0%, transparent 45%),
-        radial-gradient(circle at 50% 100%, rgba(109,200,232,0.10) 0%, transparent 50%),
-        var(--cream);
-    }
-    .bg-dots{ background-image: radial-gradient(circle, rgba(10,35,64,0.08) 1px, transparent 1.5px); background-size: 18px 18px; }
+    /* All heading "fonts" are now the same sans, just heavier weight + tighter tracking */
+    .font-display{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; font-weight:800; letter-spacing:-0.02em; }
+    .font-chunk{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; font-weight:800; letter-spacing:-0.01em; }
+    .font-num{ font-family:'Plus Jakarta Sans',system-ui,sans-serif; font-weight:800; font-feature-settings:'tnum'; letter-spacing:-0.02em; }
 
-    .sticker{ background:#fff; border:3px solid var(--ink); border-radius:22px; box-shadow:8px 8px 0 var(--ink); transition:transform .15s ease, box-shadow .15s ease; }
-    .sticker:hover{ transform:translate(-3px,-3px) rotate(0deg) !important; box-shadow:12px 12px 0 var(--ink); }
+    /* Backgrounds — clean, no dots */
+    .bg-paper{ background:var(--cream); }
+    .bg-dots{ background:transparent; }
+
+    /* Cards — flat white, light border, subtle shadow only */
+    .sticker{ background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 1px 2px rgba(22,54,84,0.04); transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+    .sticker:hover{ transform:translate(-2px,-2px) rotate(0deg) !important; box-shadow:0 6px 18px rgba(22,54,84,0.08); border-color:var(--line-strong); }
     .sticker-clickable:hover{ cursor:pointer; }
-    .sticker-green{ background:var(--nmdc-green); color:#fff; }
-    .sticker-sun{ background:var(--sun); }
-    .sticker-coral{ background:var(--coral); color:#fff; }
-    .sticker-sky{ background:var(--sky); }
+    .sticker-green{ background:var(--wave); color:#fff; border-color:var(--wave-deep); }
+    .sticker-sun{ background:var(--sun-soft); border-color:var(--sun); }
+    .sticker-coral{ background:var(--wave-soft); color:var(--wave-deep); border-color:var(--wave); }
+    .sticker-sky{ background:var(--wave-soft); border-color:var(--wave); }
 
-    .btn-chunk{ background:var(--nmdc-green); color:#fff; border:3px solid var(--ink); border-radius:999px; box-shadow:5px 5px 0 var(--ink); font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; letter-spacing:0.02em; transition:transform .12s cubic-bezier(.34,1.56,.64,1), box-shadow .12s ease, background .15s; }
-    .btn-chunk:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); background:var(--nmdc-green-light); }
-    .btn-chunk:active{ transform:translate(3px,3px); box-shadow:2px 2px 0 var(--ink); }
-    .btn-chunk:disabled{ background:#9FBFAB; cursor:not-allowed; transform:none !important; box-shadow:5px 5px 0 var(--ink) !important; }
+    /* Buttons — modern flat, no chunky offset */
+    .btn-chunk{ background:var(--wave); color:#fff; border:none; border-radius:999px; box-shadow:0 4px 12px rgba(30,111,171,0.25); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; letter-spacing:0.01em; transition:background .15s ease, box-shadow .15s ease, transform .1s ease; }
+    .btn-chunk:hover{ background:var(--wave-deep); box-shadow:0 6px 16px rgba(30,111,171,0.35); transform:translateY(-1px); }
+    .btn-chunk:active{ transform:translateY(0); box-shadow:0 2px 6px rgba(30,111,171,0.25); }
+    .btn-chunk:disabled{ background:#A8BCCD; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
 
-    .btn-outline{ background:#fff; color:var(--ink); border:2px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; font-weight:700; }
-    .btn-outline:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); background:var(--sun); }
-    .btn-outline:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+    .btn-outline{ background:#fff; color:var(--wave); border:1.5px solid var(--wave); border-radius:999px; box-shadow:none; transition:all .15s ease; font-weight:600; }
+    .btn-outline:hover{ background:var(--wave-soft); transform:translateY(-1px); }
+    .btn-outline:active{ transform:translateY(0); }
 
-    .btn-danger{ background:var(--coral); color:#fff; border:2px solid var(--ink); border-radius:999px; box-shadow:3px 3px 0 var(--ink); font-weight:800; transition:all .12s ease; }
-    .btn-danger:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); background:var(--coral-deep); }
+    .btn-danger{ background:#E5685A; color:#fff; border:none; border-radius:999px; box-shadow:0 3px 10px rgba(229,104,90,0.25); font-weight:700; transition:all .15s ease; }
+    .btn-danger:hover{ background:#D04A3C; transform:translateY(-1px); }
 
-    .field{ background:#fff; border:2.5px solid var(--ink); border-radius:12px; transition:all .12s ease; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:500; }
-    .field:focus{ outline:none; box-shadow:4px 4px 0 var(--nmdc-green); transform:translate(-1px,-1px); }
-    .field.err{ border-color:var(--coral-deep); background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
-    .field.err:focus{ box-shadow:5px 5px 0 var(--coral); }
+    /* Form fields — light border, blue focus ring */
+    .field{ background:#fff; border:1.5px solid var(--line-strong); border-radius:10px; transition:all .15s ease; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:500; }
+    .field:focus{ outline:none; border-color:var(--wave); box-shadow:0 0 0 3px var(--wave-soft); transform:none; }
+    .field.err{ border-color:#E5685A; background:#FDF3F1; box-shadow:0 0 0 3px rgba(229,104,90,0.12); }
+    .field.err:focus{ border-color:#D04A3C; box-shadow:0 0 0 3px rgba(229,104,90,0.18); }
 
-    .chk{ appearance:none; width:26px; height:26px; border:2.5px solid var(--ink); border-radius:6px; background:#fff; cursor:pointer; position:relative; flex-shrink:0; margin-top:2px; transition:all .12s ease; }
-    .chk:hover{ background:var(--sun); }
-    .chk:checked{ background:var(--nmdc-green); border-color:var(--ink); }
-    .chk:checked::after{ content:""; position:absolute; left:7px; top:2px; width:7px; height:14px; border:solid #fff; border-width:0 3px 3px 0; transform:rotate(45deg); }
+    .chk{ appearance:none; width:22px; height:22px; border:1.5px solid var(--line-strong); border-radius:5px; background:#fff; cursor:pointer; position:relative; flex-shrink:0; margin-top:2px; transition:all .15s ease; }
+    .chk:hover{ border-color:var(--wave); background:var(--wave-soft); }
+    .chk:checked{ background:var(--wave); border-color:var(--wave); }
+    .chk:checked::after{ content:""; position:absolute; left:6px; top:2px; width:6px; height:11px; border:solid #fff; border-width:0 2.5px 2.5px 0; transform:rotate(45deg); }
 
-    .wavy{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'><path d='M0 5 Q10 0 20 5 T40 5' stroke='%2300B050' stroke-width='3' fill='none' stroke-linecap='round'/></svg>"); background-position:0 100%; background-size:40px 10px; background-repeat:repeat-x; padding-bottom:12px; }
-    .wavy-coral{ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 10'><path d='M0 5 Q10 0 20 5 T40 5' stroke='%23FF6B4A' stroke-width='3' fill='none' stroke-linecap='round'/></svg>"); background-position:0 100%; background-size:40px 10px; background-repeat:repeat-x; padding-bottom:12px; }
+    .wavy{ padding-bottom:0; }   /* removed underline waves */
+    .wavy-coral{ padding-bottom:0; }
 
-    .tag{ display:inline-flex; align-items:center; gap:6px; padding:5px 14px; background:var(--sun); border:2px solid var(--ink); border-radius:999px; font-size:13px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; }
+    .tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:var(--wave-soft); border:1px solid var(--wave); color:var(--wave-deep); border-radius:999px; font-size:12px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; }
 
     @keyframes spin-slow{ from{transform:rotate(0);} to{transform:rotate(360deg);} }
-    @keyframes bounce-in{ 0%{opacity:0; transform:translateY(20px) scale(.9);} 60%{opacity:1; transform:translateY(-4px) scale(1.02);} 100%{opacity:1; transform:none;} }
-    @keyframes wiggle{ 0%,100%{ transform:rotate(-2deg);} 50%{ transform:rotate(2deg);} }
-    @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-10px);} }
-    @keyframes count-bounce{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.08);} }
-    @keyframes sway{ 0%,100%{ transform:rotate(-4deg);} 50%{ transform:rotate(4deg);} }
+    @keyframes bounce-in{ 0%{opacity:0; transform:translateY(12px);} 100%{opacity:1; transform:none;} }
+    @keyframes wiggle{ 0%,100%{ transform:rotate(0deg);} }                /* disabled wiggle */
+    @keyframes float{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-4px);} }
+    @keyframes count-bounce{ 0%,100%{ transform:scale(1);} }              /* disabled count bounce */
+    @keyframes sway{ 0%,100%{ transform:rotate(0deg);} }                  /* disabled sway */
     .spin-slow{ animation:spin-slow 30s linear infinite; transform-origin:center; }
-    .bounce-in{ animation:bounce-in .7s cubic-bezier(.34,1.56,.64,1) backwards; }
-    .wiggle{ animation:wiggle 3s ease-in-out infinite; }
-    .float{ animation:float 4s ease-in-out infinite; }
-    .count-bounce{ animation:count-bounce 1s ease-in-out infinite; }
-    .sway{ animation:sway 5s ease-in-out infinite; display:inline-block; }
+    .bounce-in{ animation:bounce-in .5s ease-out backwards; }
+    .wiggle{ animation:none; }
+    .float{ animation:float 5s ease-in-out infinite; }
+    .count-bounce{ animation:none; }
+    .sway{ animation:none; display:inline-block; }
 
-    .ticket{ background:#fff; border:2.5px solid var(--ink); border-radius:14px; position:relative; padding:20px 22px; box-shadow:4px 4px 0 var(--ink); }
+    .ticket{ background:#fff; border:1px solid var(--line); border-radius:12px; position:relative; padding:18px 20px; box-shadow:0 1px 3px rgba(22,54,84,0.04); }
 
-    /* Timeline item for schedule */
+    /* Schedule rows — clean cards, blue time label */
     .sched-row{
-      display:flex; align-items:stretch; gap:16px;
-      background:#fff; border:2.5px solid var(--ink); border-radius:14px;
-      box-shadow:5px 5px 0 var(--ink);
+      display:flex; align-items:stretch; gap:0;
+      background:#fff; border:1px solid var(--line); border-radius:12px;
+      box-shadow:0 1px 2px rgba(22,54,84,0.04);
       overflow:hidden;
-      transition:transform .15s, box-shadow .15s;
+      transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
     }
-    .sched-row:hover{ transform:translate(-2px,-2px); box-shadow:7px 7px 0 var(--ink); }
+    .sched-row:hover{ transform:translateY(-2px); box-shadow:0 6px 18px rgba(22,54,84,0.08); border-color:var(--line-strong); }
     .sched-time{
-      background:var(--nmdc-navy); color:var(--cream);
-      padding:16px 18px; display:flex; align-items:center; justify-content:center;
-      font-family:'Caprasimo',serif; font-size:1.6rem; min-width:120px;
-      border-right:2.5px solid var(--ink);
+      background:var(--wave-soft); color:var(--wave-deep);
+      padding:14px 16px; display:flex; align-items:center; justify-content:center;
+      font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.3rem; min-width:110px;
+      border-right:1px solid var(--line);
+      letter-spacing:-0.02em;
     }
-    .sched-text{ flex:1; padding:16px 18px; display:flex; align-items:center; font-size:1.05rem; font-weight:500; }
+    .sched-text{ flex:1; padding:14px 16px; display:flex; align-items:center; font-size:1rem; font-weight:500; color:var(--ink); }
     @media (max-width:640px){
-      .sched-time{ min-width:90px; font-size:1.3rem; padding:12px; }
-      .sched-text{ padding:12px 14px; font-size:0.98rem; }
+      .sched-time{ min-width:80px; font-size:1.05rem; padding:10px; }
+      .sched-text{ padding:10px 12px; font-size:0.95rem; }
     }
 
-    /* Edit drawer */
-    .edit-drawer{ position:fixed; top:0; right:0; bottom:0; width:100%; max-width:560px; background:var(--cream); border-left:3px solid var(--ink); box-shadow:-10px 0 0 var(--ink); z-index:60; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); }
+    /* Edit drawer — keep functional, lighter borders */
+    .edit-drawer{ position:fixed; top:0; right:0; bottom:0; width:100%; max-width:560px; background:var(--cream); border-left:1px solid var(--line-strong); box-shadow:-6px 0 20px rgba(22,54,84,0.10); z-index:60; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .3s cubic-bezier(.4,0,.2,1); }
     .edit-drawer.open{ transform:translateX(0); }
-    .edit-drawer-head{ padding:14px 18px; background:var(--nmdc-navy); color:var(--cream); border-bottom:3px solid var(--ink); display:flex; align-items:center; justify-content:space-between; }
+    .edit-drawer-head{ padding:14px 18px; background:var(--wave); color:#fff; border-bottom:none; display:flex; align-items:center; justify-content:space-between; }
     .edit-drawer-body{ flex:1; overflow-y:auto; padding:14px; }
-    .edit-drawer-foot{ padding:12px 14px; border-top:3px solid var(--ink); background:#fff; display:flex; gap:8px; }
-    .edit-tabs{ display:flex; background:#fff; border-bottom:3px solid var(--ink); overflow-x:auto; }
-    .edit-tab{ flex:1; min-width:90px; padding:12px 8px; font-size:12px; font-weight:800; border-right:2px solid var(--ink); cursor:pointer; text-align:center; background:#fff; transition:background .12s; white-space:nowrap; letter-spacing:0.02em; user-select:none; color:var(--ink); }
+    .edit-drawer-foot{ padding:12px 14px; border-top:1px solid var(--line); background:#fff; display:flex; gap:8px; }
+    .edit-tabs{ display:flex; background:#fff; border-bottom:1px solid var(--line); overflow-x:auto; }
+    .edit-tab{ flex:1; min-width:90px; padding:12px 8px; font-size:12px; font-weight:700; border-right:1px solid var(--line); cursor:pointer; text-align:center; background:#fff; transition:background .15s; white-space:nowrap; letter-spacing:0.02em; user-select:none; color:var(--ink-soft); }
     .edit-tab:last-child{ border-right:0; }
-    .edit-tab:hover{ background:var(--cream-warm); }
-    .edit-tab.active{ background:var(--nmdc-green); color:#fff; }
+    .edit-tab:hover{ background:var(--cream-warm); color:var(--ink); }
+    .edit-tab.active{ background:var(--wave); color:#fff; }
 
-    .edit-section{ margin-bottom:12px; background:#fff; border:2px solid var(--ink); border-radius:12px; overflow:hidden; }
-    .edit-section-head{ padding:10px 14px; background:var(--sun); border-bottom:2px solid var(--ink); font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:14px; user-select:none; }
-    .edit-section.special .edit-section-head{ background:var(--nmdc-green-light); }
+    .edit-section{ margin-bottom:12px; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .edit-section-head{ padding:10px 14px; background:var(--cream-warm); border-bottom:1px solid var(--line); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:space-between; font-size:14px; user-select:none; color:var(--ink); }
+    .edit-section.special .edit-section-head{ background:var(--wave-soft); color:var(--wave-deep); }
     .edit-section-body{ padding:8px 12px; }
-    .edit-row{ padding:8px 0; border-bottom:1px dashed var(--sand-deep); }
+    .edit-row{ padding:8px 0; border-bottom:1px dashed var(--line); }
     .edit-row:last-child{ border-bottom:0; }
     .edit-key{ font-family:'Plus Jakarta Sans',monospace; font-size:10px; color:var(--ink-soft); font-weight:700; letter-spacing:0.05em; margin-bottom:4px; text-transform:uppercase; }
     .edit-input{ width:100%; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-size:14px; padding:8px 10px; border:2px solid var(--ink); border-radius:8px; background:#fff; font-weight:500; resize:vertical; box-sizing:border-box; }
@@ -146,7 +165,7 @@
     .em-block::before{ content:""; position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:60%; height:6px; background:repeating-linear-gradient(90deg, var(--coral-deep) 0 14px, #ffffff 14px 28px); border-radius:6px 6px 0 0; }
     .em-head{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
     .em-tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; background:var(--coral-deep); color:#fff; border:2.5px solid var(--ink); border-radius:999px; font-size:11px; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; box-shadow:2px 2px 0 var(--ink); }
-    .em-title{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1.1; color:var(--coral-deep); }
+    .em-title{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.6rem; line-height:1.1; color:var(--coral-deep); }
     .em-sub{ font-size:14px; font-weight:600; color:#7a3528; margin-bottom:14px; }
     @media (min-width:768px){ .em-title{ font-size:2rem; } .em-sub{ font-size:15px; } }
     .em-block .field{ background:#fff; }
@@ -156,7 +175,7 @@
     .final-agree{ position:relative; padding:22px 22px 20px; border-radius:18px; border:3px solid var(--coral-deep); background:linear-gradient(180deg, #FFE5DE 0%, #FFCEC0 100%); box-shadow:6px 6px 0 var(--ink); }
     .final-agree::before{ content:""; position:absolute; top:-6px; left:50%; transform:translateX(-50%); width:70%; height:6px; background:repeating-linear-gradient(90deg, var(--coral-deep) 0 14px, var(--sun) 14px 28px); border-radius:6px 6px 0 0; }
     .final-agree-head{ text-align:center; margin-bottom:10px; }
-    .final-agree-title{ font-family:'Caprasimo',serif; font-size:1.5rem; line-height:1.2; color:var(--coral-deep); margin-bottom:10px; text-align:center; }
+    .final-agree-title{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.5rem; line-height:1.2; color:var(--coral-deep); margin-bottom:10px; text-align:center; }
     @media (min-width:768px){ .final-agree-title{ font-size:1.9rem; } }
     .final-agree-body{ background:#fff; padding:14px 16px; border-radius:12px; border:2px solid var(--ink); font-size:14px; line-height:1.65; color:var(--ink); margin-bottom:14px; font-weight:500; }
     @media (min-width:768px){ .final-agree-body{ font-size:15px; padding:16px 18px; } }
@@ -203,7 +222,7 @@
     .form-section-tag{ display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border:2.5px solid var(--ink); border-radius:999px; font-size:11px; font-weight:900; letter-spacing:0.12em; text-transform:uppercase; box-shadow:2px 2px 0 var(--ink); }
     .form-section.basic .form-section-tag{ background:var(--sun-deep); color:#fff; }
     .form-section.diet .form-section-tag{ background:var(--nmdc-green-dark); color:#fff; }
-    .form-section-title{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1.1; color:var(--ink); }
+    .form-section-title{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.6rem; line-height:1.1; color:var(--ink); }
     .form-section.diet .form-section-title{ color:var(--nmdc-green-dark); }
     .form-section-sub{ font-size:14px; font-weight:600; color:var(--ink-soft); margin-bottom:14px; }
     @media (min-width:768px){
@@ -237,7 +256,7 @@
 
     /* Companion sub-card */
     .companion-card{ background:#FFFEF5; border:2.5px dashed var(--ink); border-radius:14px; padding:14px 16px; margin-top:12px; }
-    .companion-card-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Caprasimo',serif; font-size:1.1rem; }
+    .companion-card-head{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.1rem; }
     .companion-card-num{ display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--sun-deep); color:#fff; border:2px solid var(--ink); border-radius:999px; font-weight:800; font-size:13px; }
     .companion-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     @media (max-width:520px){ .companion-grid{ grid-template-columns:1fr; } }
@@ -250,7 +269,7 @@
     .companion-diet-row{ background:rgba(255,255,255,0.7); border:2px dashed var(--ink); border-radius:12px; padding:14px; }
     .companion-diet-row .diet-opt{ padding:10px 12px; box-shadow:2px 2px 0 var(--ink); }
     .companion-diet-row .diet-opt:hover{ box-shadow:3px 3px 0 var(--ink); }
-    .companion-diet-name{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Caprasimo',serif; font-size:1.1rem; color:var(--nmdc-green-dark); }
+    .companion-diet-name{ display:flex; align-items:center; gap:8px; margin-bottom:10px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.1rem; color:var(--nmdc-green-dark); }
     .companion-diet-name .companion-card-num{ background:var(--nmdc-green); }
 
     /* Reorder UI */
@@ -317,7 +336,7 @@
     .sched-edit-act.danger{ background:#FFE5DE; }
     .sched-edit-act.danger:hover{ background:var(--coral); color:#fff; }
     .sched-edit-body{ display:grid; grid-template-columns:90px 1fr; gap:6px; }
-    .sched-edit-time{ background:#F0F7FF; border:1.5px solid var(--ink); border-radius:6px; padding:6px 8px; font-family:'Caprasimo',serif; font-size:14px; text-align:center; outline:none; font-weight:600; }
+    .sched-edit-time{ background:#F0F7FF; border:1.5px solid var(--ink); border-radius:6px; padding:6px 8px; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:14px; text-align:center; outline:none; font-weight:600; }
     .sched-edit-time:focus{ background:#fff; box-shadow:2px 2px 0 var(--sky-deep); }
     .sched-edit-text{ border:1.5px solid var(--ink); border-radius:6px; padding:6px 8px; font-size:13px; outline:none; font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:500; }
     .sched-edit-text:focus{ box-shadow:2px 2px 0 var(--nmdc-green); }
@@ -331,7 +350,7 @@
     @keyframes pop-in{ 0%{opacity:0; transform:scale(.85) translateY(20px);} 100%{opacity:1; transform:none;} }
     .lang-picker-close{ position:absolute; top:12px; right:12px; width:36px; height:36px; background:#fff; border:2.5px solid var(--ink); border-radius:999px; font-weight:800; cursor:pointer; box-shadow:2px 2px 0 var(--ink); }
     .lang-picker-close:hover{ background:var(--sun); transform:translate(-1px,-1px); box-shadow:3px 3px 0 var(--ink); }
-    .lang-picker-title{ font-family:'Caprasimo',serif; font-size:2.4rem; line-height:1.1; text-align:center; margin-bottom:6px; }
+    .lang-picker-title{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:2.4rem; line-height:1.1; text-align:center; margin-bottom:6px; }
     .lang-picker-sub{ text-align:center; font-size:14px; color:var(--ink-soft); font-weight:600; margin-bottom:24px; letter-spacing:0.02em; }
     .lang-picker-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
     .lang-picker-btn{ background:#fff; border:3px solid var(--ink); border-radius:20px; padding:22px 16px; cursor:pointer; font-family:inherit; text-align:center; box-shadow:5px 5px 0 var(--ink); transition:all .15s cubic-bezier(.34,1.56,.64,1); display:flex; flex-direction:column; align-items:center; gap:8px; }
@@ -343,14 +362,14 @@
     .lang-picker-flag svg{ height:40px; width:auto; }
     /* Flag (rectangular) — bordered + boxed */
     .lang-picker-btn.zh .lang-picker-flag svg{ border:1.5px solid var(--ink); border-radius:4px; box-shadow:2px 2px 0 var(--ink); }
-    .lang-picker-name{ font-family:'Caprasimo',serif; font-size:1.6rem; line-height:1; }
+    .lang-picker-name{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.6rem; line-height:1; }
     .lang-picker-tag{ font-size:12px; font-weight:700; color:var(--ink-soft); letter-spacing:0.1em; text-transform:uppercase; }
     .lang-picker-emojis{ text-align:center; font-size:28px; margin-bottom:8px; letter-spacing:8px; }
     .lang-picker-slogan{ position:relative; margin:18px auto 22px; padding:18px 26px; max-width:460px; background:linear-gradient(135deg, rgba(0,176,80,0.10) 0%, rgba(109,200,232,0.12) 100%); border:2.5px dashed var(--nmdc-green-dark); border-radius:14px; }
     .lang-picker-slogan::before{ content:"❝"; position:absolute; top:-22px; left:-8px; font-family:Georgia,serif; font-size:36px; color:var(--nmdc-green-dark); line-height:1; background:var(--cream); padding:0 6px; border-radius:50%; }
     .lang-picker-slogan::after{ content:"❞"; position:absolute; bottom:-32px; right:-8px; font-family:Georgia,serif; font-size:36px; color:var(--nmdc-green-dark); line-height:1; background:var(--cream); padding:0 6px; border-radius:50%; }
     .slogan-zh{ font-family:'Noto Sans TC',serif; font-weight:700; font-size:1.15rem; line-height:1.5; color:var(--ink); text-align:center; letter-spacing:0.04em; }
-    .slogan-en{ font-family:'Caprasimo',serif; font-size:0.95rem; color:var(--nmdc-green-dark); text-align:center; margin-top:8px; letter-spacing:0.01em; line-height:1.3; }
+    .slogan-en{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:0.95rem; color:var(--nmdc-green-dark); text-align:center; margin-top:8px; letter-spacing:0.01em; line-height:1.3; }
     @media (max-width:480px){
       .lang-picker-slogan{ padding:14px 14px; margin:14px auto 20px; }
       .slogan-zh{ font-size:1rem; }
@@ -389,7 +408,7 @@
     .reg-lang-badge{ display:inline-block; padding:2px 8px; border:1.5px solid var(--ink); border-radius:999px; font-size:10px; font-weight:800; letter-spacing:0.05em; }
     .reg-lang-badge.zh{ background:#FFE5DE; color:#B53A1F; }
     .reg-lang-badge.en{ background:#D9EFFA; color:#1F6691; }
-    .reg-serial{ font-family:'Caprasimo',serif; font-size:1.1em; color:var(--nmdc-green-dark); }
+    .reg-serial{ font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif; font-weight:800; font-size:1.1em; color:var(--nmdc-green-dark); }
     .reg-small{ color:var(--ink-soft); font-size:11px; }
 
     .toast{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:80; padding:12px 20px; border:2.5px solid var(--ink); border-radius:999px; box-shadow:4px 4px 0 var(--ink); font-weight:700; background:var(--nmdc-green); color:#fff; animation:bounce-in .5s cubic-bezier(.34,1.56,.64,1); max-width:90vw; text-align:center; }
@@ -1020,15 +1039,15 @@ Phone: {{phone}}</p>
     function BeachDoodles({ items }){
       // items: [{emoji, left, top, size, rot, delay, anim}]
       return (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+        <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-50" aria-hidden>
           {items.map((it, i) => (
             <div key={i} className={"beach-doodle " + (it.anim || "float")}
               style={{
                 left:it.left, top:it.top,
                 fontSize:it.size || "32px",
-                transform:`rotate(${it.rot || 0}deg)`,
+                transform:`rotate(${(it.rot || 0)/3}deg)`,
                 animationDelay:`${it.delay || 0}s`,
-                animationDuration:`${it.dur || 4}s`
+                animationDuration:`${it.dur || 6}s`
               }}>
               {it.emoji}
             </div>
@@ -1037,6 +1056,10 @@ Phone: {{phone}}</p>
       );
     }
     function Confetti(){
+      // Disabled — too noisy for the clean palette. Return null.
+      return null;
+    }
+    function _ConfettiOriginal(){
       const shapes = [
         { left:"5%",  top:"15%", color:"var(--sun)",   rot:"-15deg", shape:"square" },
         { left:"92%", top:"12%", color:"var(--coral)", rot:"25deg",  shape:"triangle" },
@@ -1602,6 +1625,75 @@ Phone: {{phone}}</p>
         });
       }
 
+      // Build the live token list for the current language so admin can copy-paste
+      const [showTokens, setShowTokens] = useState(false);
+      // Resolve a content key for current lang, honoring unsaved edits first
+      function resolveContent(shortKey){
+        const editKey = `${lang}.${shortKey}`;
+        if(edits[editKey] !== undefined) return edits[editKey];
+        if(serverContent[editKey] !== undefined) return serverContent[editKey];
+        return DEFAULTS[lang][shortKey] ?? "";
+      }
+      const SITE_TOKENS = [
+        { token:"info.when.big",       label:"📅 淨灘日期" },
+        { token:"info.when.sub",       label:"📅 日期說明" },
+        { token:"info.where.big",      label:"📍 淨灘地點" },
+        { token:"info.where.sub",      label:"📍 地點說明" },
+        { token:"info.where.mapUrl",   label:"🗺️ Google Maps 連結" },
+        { token:"info.who.big",        label:"👥 預計人數" },
+        { token:"info.contact.line1Label", label:"📞 聯絡人 1 標籤" },
+        { token:"info.contact.line1Val",   label:"📞 聯絡人 1 號碼" },
+        { token:"info.contact.line2Label", label:"📞 聯絡人 2 標籤" },
+        { token:"info.contact.line2Val",   label:"📞 聯絡人 2 號碼" }
+      ];
+      const USER_TOKENS = [
+        { token:"name",               label:"👤 姓名" },
+        { token:"company",            label:"🏢 公司 / 團體" },
+        { token:"title",              label:"💼 職稱" },
+        { token:"email",              label:"📧 信箱" },
+        { token:"phone",              label:"📱 電話" },
+        { token:"blood",              label:"🩸 血型" },
+        { token:"diet",               label:"🍽️ 飲食" },
+        { token:"emName",             label:"🆘 緊急聯絡人" },
+        { token:"emPhone",            label:"🆘 緊急聯絡電話" },
+        { token:"companionCount",     label:"👨‍👩‍👧 攜眷人數" },
+        { token:"totalSeats",         label:"🎟️ 總席次（本人+攜眷）" },
+        { token:"confirmationNumber", label:"🔢 報名序號" },
+        { token:"companionNames",     label:"👨‍👩‍👧 攜眷姓名（頓號分隔）" },
+        { token:"companionList",      label:"👨‍👩‍👧 攜眷列表（HTML <ul>）" }
+      ];
+      const META_TOKENS = [
+        { token:"eventName", label:"🏖️ 活動名稱" },
+        { token:"deadline",  label:"⏰ 報名截止" }
+      ];
+
+      function copyToken(tok){
+        const text = "{{" + tok + "}}";
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(text);
+          } else {
+            const ta = document.createElement("textarea");
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            document.execCommand("copy"); document.body.removeChild(ta);
+          }
+        } catch(_){}
+      }
+
+      function TokenRow({ token, label, preview }){
+        return (
+          <div className="flex items-center gap-2 py-1.5 px-2 rounded hover:bg-[color:var(--cream-warm)] cursor-pointer group"
+               onClick={() => copyToken(token)} title="點一下複製">
+            <code className="text-xs font-mono bg-white border border-[color:var(--line)] px-1.5 py-0.5 rounded shrink-0 text-[color:var(--wave-deep)]">{`{{${token}}}`}</code>
+            <span className="text-xs text-[color:var(--ink-soft)] shrink-0">{label}</span>
+            {preview !== undefined && (
+              <span className="text-xs text-[color:var(--ink)] truncate flex-1 min-w-0">→ <span className="font-medium">{String(preview).slice(0, 40)}{String(preview).length > 40 ? "…" : ""}</span></span>
+            )}
+            <span className="opacity-0 group-hover:opacity-100 text-[10px] text-[color:var(--wave)] shrink-0">複製</span>
+          </div>
+        );
+      }
+
       return (
         <div className="edit-drawer-body">
           <div className="mb-3 flex items-center gap-2">
@@ -1610,14 +1702,43 @@ Phone: {{phone}}</p>
             <button className={"lang-pill " + (lang === "en" ? "active" : "")} onClick={() => setLang("en")}>English</button>
           </div>
 
-          <div className="p-3 rounded-xl bg-[color:var(--cream-warm)] border-2 border-[color:var(--ink)] text-sm font-medium mb-4">
-            💌 <strong>確認信樣板</strong>：報名成功後系統會自動寄這封信。<code className="bg-white px-1 rounded">{'{{name}}'}</code> 之類會自動填入個人資料。
+          <div className="p-3 rounded-xl bg-[color:var(--wave-soft)] border border-[color:var(--wave)] text-sm font-medium mb-4 text-[color:var(--ink)]">
+            💌 <strong>確認信樣板</strong>：報名成功後系統會自動寄這封信。
+            <div className="mt-1 text-xs text-[color:var(--ink-soft)]">
+              ✨ <strong>連動功能</strong>：信裡放 <code className="bg-white px-1 rounded text-[color:var(--wave-deep)]">{'{{info.where.big}}'}</code> 之類的標籤，地點/時間/聯絡人改了，信件也會跟著變。
+            </div>
+          </div>
+
+          {/* Tokens reference */}
+          <div className="mb-4 border border-[color:var(--line)] rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between px-3 py-2 bg-[color:var(--cream-warm)] cursor-pointer"
+                 onClick={() => setShowTokens(s => !s)}>
+              <span className="text-sm font-bold text-[color:var(--ink)]">🏷️ 可用標籤列表（{lang === "zh" ? "中文" : "英文"} 當前值）</span>
+              <span className="text-xs text-[color:var(--ink-soft)]">{showTokens ? "▾ 收起" : "▸ 展開"}</span>
+            </div>
+            {showTokens && (
+              <div className="bg-white p-2 max-h-[300px] overflow-y-auto">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--wave-deep)] px-2 pt-1 pb-0.5">🌐 活動資訊（改 admin 會連動）</div>
+                {SITE_TOKENS.map(it => (
+                  <TokenRow key={it.token} token={it.token} label={it.label} preview={resolveContent(it.token)}/>
+                ))}
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--wave-deep)] px-2 pt-2 pb-0.5">👤 報名者資料（每封信不同）</div>
+                {USER_TOKENS.map(it => (
+                  <TokenRow key={it.token} token={it.token} label={it.label}/>
+                ))}
+                <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--wave-deep)] px-2 pt-2 pb-0.5">⚙️ 系統值</div>
+                {META_TOKENS.map(it => (
+                  <TokenRow key={it.token} token={it.token} label={it.label}/>
+                ))}
+                <div className="text-[10px] text-[color:var(--ink-soft)] px-2 pt-2 pb-1">💡 點任一行可複製整個標籤到剪貼簿</div>
+              </div>
+            )}
           </div>
 
           <div className="edit-row mb-4">
             <div className="flex items-center justify-between">
               <div className="edit-key">📧 主旨 / Subject ({lang})</div>
-              {isDirty("email.subject") && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
+              {isDirty("email.subject") && <span className="text-[10px] font-bold text-[color:var(--wave-deep)]">● dirty</span>}
             </div>
             <input type="text" value={valueOf("email.subject")} onChange={e => updateEdit("email.subject", e.target.value)} className={"edit-input " + (isDirty("email.subject") ? "dirty" : "")}/>
           </div>
@@ -1625,7 +1746,7 @@ Phone: {{phone}}</p>
           <div className="edit-row">
             <div className="flex items-center justify-between mb-2">
               <div className="edit-key">📝 內文 / Body ({lang})</div>
-              {isDirty("email.body") && <span className="text-[10px] font-bold text-[color:var(--nmdc-green-dark)]">● dirty</span>}
+              {isDirty("email.body") && <span className="text-[10px] font-bold text-[color:var(--wave-deep)]">● dirty</span>}
             </div>
             <RichEditor value={valueOf("email.body")} onChange={v => updateEdit("email.body", v)} dirty={isDirty("email.body")}/>
           </div>
@@ -1942,16 +2063,15 @@ Phone: {{phone}}</p>
         });
       }
       return (
-        <section className="bg-[color:var(--sun)] border-b-4 border-[color:var(--ink)] relative overflow-hidden">
-          <div className="absolute inset-0 bg-dots opacity-30 pointer-events-none"></div>
-          <div className="max-w-5xl mx-auto px-5 md:px-8 py-6 md:py-8 relative z-10">
+        <section className="bg-[color:var(--wave-soft)] border-y border-[color:var(--wave)]/30 relative">
+          <div className="max-w-5xl mx-auto px-5 md:px-8 py-6 md:py-8 relative">
             <div className="flex items-start gap-4 md:gap-5">
-              <div className="text-4xl md:text-5xl shrink-0 leading-none">📣</div>
+              <div className="text-3xl md:text-4xl shrink-0 leading-none">📣</div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs md:text-sm font-bold tracking-widest uppercase text-[color:var(--coral-deep)] mb-1">
+                <div className="text-xs md:text-sm font-bold tracking-widest uppercase text-[color:var(--wave-deep)] mb-1">
                   {head}
                 </div>
-                <h2 className="font-display text-2xl md:text-4xl text-[color:var(--ink)] mb-3 leading-tight">
+                <h2 className="font-display text-xl md:text-3xl text-[color:var(--ink)] mb-3 leading-tight">
                   {title}
                 </h2>
                 <div className="text-sm md:text-base text-[color:var(--ink)] space-y-1">
@@ -2004,10 +2124,10 @@ Phone: {{phone}}</p>
           <div className="max-w-6xl mx-auto px-5 md:px-8 grid md:grid-cols-[1fr_auto] gap-10 items-center relative z-10">
             <div>
               <div className="tag mb-4 md:mb-6 bounce-in">{t("hero.chip")}</div>
-              <div className="text-xl md:text-3xl font-bold text-[color:var(--nmdc-green)] mb-3 bounce-in flex flex-wrap items-center gap-2 md:gap-3" style={{animationDelay:"80ms"}}>
+              <div className="text-xl md:text-3xl font-bold text-[color:var(--wave)] mb-3 bounce-in flex flex-wrap items-center gap-2 md:gap-3" style={{animationDelay:"80ms"}}>
                 <span>{t("hero.subtitle")}</span>
                 {IS_BAISHATUN && (
-                  <span className="inline-flex items-center gap-1 text-sm md:text-base bg-[color:var(--coral)] text-white px-3 py-1 rounded-full border-2 border-[color:var(--ink)]" style={{boxShadow:"3px 3px 0 var(--ink)"}}>
+                  <span className="inline-flex items-center gap-1 text-sm md:text-base bg-[color:var(--sun-soft)] text-[color:var(--ink)] px-3 py-1 rounded-full border border-[color:var(--sun)]">
                     🌊 白沙屯淨灘團
                   </span>
                 )}
@@ -2053,7 +2173,7 @@ Phone: {{phone}}</p>
             <div className="grid md:grid-cols-2 gap-7 md:gap-10">
 
               {/* When */}
-              <div className="sticker sticker-sun p-7 md:p-10 bounce-in" style={{ transform:"rotate(-1deg)" }}>
+              <div className="sticker sticker-sun p-7 md:p-10 bounce-in">
                 <div className="flex items-start gap-5">
                   <div className="text-5xl md:text-6xl shrink-0">📅</div>
                   <div className="flex-1 min-w-0">
@@ -2067,7 +2187,7 @@ Phone: {{phone}}</p>
               {/* Where — clickable Google Maps */}
               <a href={mapUrl} target="_blank" rel="noopener" onClick={openMap}
                  className="sticker sticker-sky sticker-clickable p-7 md:p-10 bounce-in block no-underline text-[color:var(--ink)]"
-                 style={{ transform:"rotate(0.8deg)", animationDelay:"90ms" }}>
+                 style={{ animationDelay:"90ms" }}>
                 <div className="flex items-start gap-5">
                   <div className="text-5xl md:text-6xl shrink-0">📍</div>
                   <div className="flex-1 min-w-0">
@@ -2082,7 +2202,7 @@ Phone: {{phone}}</p>
               </a>
 
               {/* People & Teams (combined) */}
-              <div className="sticker sticker-green p-7 md:p-10 bounce-in" style={{ transform:"rotate(-0.8deg)", animationDelay:"180ms" }}>
+              <div className="sticker sticker-green p-7 md:p-10 bounce-in" style={{ animationDelay:"180ms" }}>
                 <div className="flex items-start gap-5">
                   <div className="text-5xl md:text-6xl shrink-0">👥</div>
                   <div className="flex-1 min-w-0">
@@ -2097,7 +2217,7 @@ Phone: {{phone}}</p>
               </div>
 
               {/* Contact */}
-              <div className="sticker sticker-coral p-7 md:p-10 bounce-in" style={{ transform:"rotate(1deg)", animationDelay:"270ms" }}>
+              <div className="sticker sticker-coral p-7 md:p-10 bounce-in" style={{ animationDelay:"270ms" }}>
                 <div className="flex items-start gap-5">
                   <div className="text-5xl md:text-6xl shrink-0">📞</div>
                   <div className="flex-1 min-w-0">
