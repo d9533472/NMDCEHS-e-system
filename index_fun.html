@@ -57,6 +57,19 @@
     .bg-paper{ background:var(--cream); }
     .bg-dots{ background:transparent; }
 
+    /* ====== Hero text — sizes driven by CSS variables, admin-editable ====== */
+    /* Defaults match the original Tailwind sizes; admin overrides via inline var. */
+    .hero-chip-size{ font-size: var(--hero-chip-m, 0.81rem); }
+    .hero-subtitle-size{ font-size: var(--hero-sub-m, 1.25rem); line-height:1.2; }
+    .hero-title-size{ font-size: var(--hero-title-m, 3rem); line-height:0.95; }
+    .hero-tagline-size{ font-size: var(--hero-tag-m, 1rem); line-height:1.4; }
+    @media (min-width: 768px){
+      .hero-chip-size{ font-size: var(--hero-chip-d, 0.85rem); }
+      .hero-subtitle-size{ font-size: var(--hero-sub-d, 1.875rem); }
+      .hero-title-size{ font-size: var(--hero-title-d, 8rem); line-height:0.9; }
+      .hero-tagline-size{ font-size: var(--hero-tag-d, 1.5rem); }
+    }
+
     /* Cards — flat white, light border, subtle shadow only */
     .sticker{ background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 1px 2px rgba(22,54,84,0.04); transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
     .sticker:hover{ transform:translate(-2px,-2px) rotate(0deg) !important; box-shadow:0 6px 18px rgba(22,54,84,0.08); border-color:var(--line-strong); }
@@ -818,7 +831,16 @@ Phone: {{phone}}</p>
       "display.showCountdown": "true",
       "display.sectionOrder": "info,status,schedule,form,notes",
       "config.maxSlots": "200",
-      "config.maxSlotsBaishatun": "60"
+      "config.maxSlotsBaishatun": "60",
+      // Hero text sizes (in rem). M = mobile (<768px), D = desktop (≥768px)
+      "hero.chip.sizeM": "0.81",
+      "hero.chip.sizeD": "0.85",
+      "hero.subtitle.sizeM": "1.25",
+      "hero.subtitle.sizeD": "1.875",
+      "hero.title.sizeM": "3",
+      "hero.title.sizeD": "8",
+      "hero.tagline.sizeM": "1",
+      "hero.tagline.sizeD": "1.5"
     };
 
     // SCHEDULE_COUNT kept for legacy fallback only — the live schedule is now fully dynamic.
@@ -1302,6 +1324,10 @@ Phone: {{phone}}</p>
           <SlotsSection open={openSections.slots} onToggle={() => setOpenSections(s => ({ ...s, slots: !s.slots }))}
             edits={edits} setEdits={setEdits} serverContent={serverContent} registered={registered}/>
 
+          {/* Special: Hero font sizes (not language-specific) */}
+          <HeroFontsSection open={openSections.heroFonts} onToggle={() => setOpenSections(s => ({ ...s, heroFonts: !s.heroFonts }))}
+            edits={edits} setEdits={setEdits} serverContent={serverContent}/>
+
           {filteredSections.map(sec => (
             <div key={sec.id} className="edit-section">
               <div className="edit-section-head" onClick={() => setOpenSections(s => ({ ...s, [sec.id]: !s[sec.id] }))}>
@@ -1600,6 +1626,104 @@ Phone: {{phone}}</p>
               <div className="text-xs text-[color:var(--ink-soft)] mt-2 leading-relaxed">
                 💡 改完按上方「💾 儲存」，<strong>不需要重新部署 GAS</strong>。<br/>
                 💡 如果欄位空白，會自動套用程式預設值（總 200 / 白沙屯 60）。
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ---- Hero Fonts Section (admin only, controls Hero font sizes) ----
+    function HeroFontsSection({ open, onToggle, edits, setEdits, serverContent }){
+      const ROWS = [
+        { label:"🏷️ Tag (小徽章)",  km:"hero.chip.sizeM",     kd:"hero.chip.sizeD",     sample:t => t("hero.chip"),     minRem:0.5, maxRem:2 },
+        { label:"📝 副標 Subtitle",  km:"hero.subtitle.sizeM", kd:"hero.subtitle.sizeD", sample:t => t("hero.subtitle"), minRem:0.8, maxRem:4 },
+        { label:"🪧 大標 Title",     km:"hero.title.sizeM",    kd:"hero.title.sizeD",    sample:t => t("hero.title1"),   minRem:1.5, maxRem:12 },
+        { label:"💬 Tagline",        km:"hero.tagline.sizeM",  kd:"hero.tagline.sizeD",  sample:t => t("hero.tagline"),  minRem:0.7, maxRem:3 }
+      ];
+
+      function valOf(key){ return getDisplay(key, edits, serverContent); }
+      function dirty(key){ return edits[key] !== undefined; }
+      function setVal(key, v){
+        const committed = serverContent[key] !== undefined ? serverContent[key] : (DISPLAY_DEFAULTS[key] ?? "");
+        setEdits(prev => {
+          const next = { ...prev };
+          if(String(v) === String(committed)) delete next[key];
+          else next[key] = String(v);
+          return next;
+        });
+      }
+      function reset(key){
+        setEdits(prev => { const n = { ...prev }; delete n[key]; return n; });
+      }
+      function resetAll(){
+        setEdits(prev => {
+          const n = { ...prev };
+          ROWS.forEach(r => { delete n[r.km]; delete n[r.kd]; });
+          return n;
+        });
+      }
+      const anyDirty = ROWS.some(r => dirty(r.km) || dirty(r.kd));
+
+      function Slider({ keyName, minRem, maxRem }){
+        const num = parseFloat(valOf(keyName));
+        const safe = Number.isFinite(num) && num > 0 ? num : parseFloat(DISPLAY_DEFAULTS[keyName] || "1");
+        const isDirty = dirty(keyName);
+        return (
+          <div className="flex items-center gap-2">
+            <input type="range" min={minRem} max={maxRem} step="0.05"
+              value={safe}
+              onChange={e => setVal(keyName, parseFloat(e.target.value).toFixed(2))}
+              className="flex-1 accent-[color:var(--wave)]"
+              style={{ height:"4px" }}/>
+            <input type="number" min={minRem} max={maxRem} step="0.1"
+              value={safe}
+              onChange={e => setVal(keyName, e.target.value)}
+              className={"edit-input " + (isDirty ? "dirty" : "")}
+              style={{ width:"72px", padding:"6px 8px", textAlign:"right" }}/>
+            <span className="text-[10px] text-[color:var(--ink-soft)] font-bold w-7">rem</span>
+            {isDirty && (
+              <button onClick={() => reset(keyName)} className="text-[10px] font-bold text-[color:var(--wave-deep)] hover:underline shrink-0">↺</button>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <div className="edit-section special">
+          <div className="edit-section-head" onClick={onToggle}>
+            <span>🔤 Hero 字體大小 Hero Font Sizes {anyDirty && <span className="text-[color:var(--wave-deep)]">●</span>}</span>
+            <span>{open ? "▾" : "▸"}</span>
+          </div>
+          {open && (
+            <div className="edit-section-body">
+              <div className="text-xs text-[color:var(--ink-soft)] mb-3 leading-relaxed">
+                調整首頁四個文字元素的字級。每個元素可分別設定 <strong>📱手機</strong> 跟 <strong>🖥️ 桌機</strong> 大小（單位：rem，1 rem ≈ 16px）。
+              </div>
+
+              {ROWS.map(row => (
+                <div key={row.km} className="edit-row">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="edit-key">{row.label}</div>
+                  </div>
+                  <div className="space-y-2 pl-1">
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--ink-soft)] mb-1">📱 手機 (&lt; 768px)</div>
+                      <Slider keyName={row.km} minRem={row.minRem} maxRem={row.maxRem}/>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--ink-soft)] mb-1">🖥️ 桌機 (≥ 768px)</div>
+                      <Slider keyName={row.kd} minRem={row.minRem} maxRem={row.maxRem}/>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="text-xs text-[color:var(--ink-soft)]">💡 改完按「💾 儲存」即生效</div>
+                {anyDirty && (
+                  <button onClick={resetAll} className="text-xs font-bold text-[color:var(--wave-deep)] hover:underline">↺ 全部還原</button>
+                )}
               </div>
             </div>
           )}
@@ -2106,7 +2230,7 @@ Phone: {{phone}}</p>
       );
     }
 
-    function Hero({ t, editMode }){
+    function Hero({ t, editMode, edits, serverContent }){
       const clickGuard = editMode ? (e) => e.preventDefault() : undefined;
       // On mobile, all doodles move to edges/corners so they don't overlap text
       const doodles = [
@@ -2117,14 +2241,30 @@ Phone: {{phone}}</p>
         { emoji:"🌴", left:"95%", top:"48%", size:"36px", rot:-12, delay:1.5, anim:"sway", dur:7 },
         { emoji:"🐠", left:"3%",  top:"52%", size:"32px", rot:18,  delay:0.6, anim:"float" }
       ];
+      // Pull admin-tuned font sizes (in rem) — fall back to DISPLAY_DEFAULTS automatically
+      function sz(key){
+        const v = (edits && serverContent) ? getDisplay(key, edits, serverContent) : (DISPLAY_DEFAULTS[key] ?? "");
+        const n = parseFloat(v);
+        return Number.isFinite(n) && n > 0 ? n + "rem" : (DISPLAY_DEFAULTS[key] + "rem");
+      }
+      const sizeVars = {
+        "--hero-chip-m":  sz("hero.chip.sizeM"),
+        "--hero-chip-d":  sz("hero.chip.sizeD"),
+        "--hero-sub-m":   sz("hero.subtitle.sizeM"),
+        "--hero-sub-d":   sz("hero.subtitle.sizeD"),
+        "--hero-title-m": sz("hero.title.sizeM"),
+        "--hero-title-d": sz("hero.title.sizeD"),
+        "--hero-tag-m":   sz("hero.tagline.sizeM"),
+        "--hero-tag-d":   sz("hero.tagline.sizeD")
+      };
       return (
-        <section className="relative py-12 md:py-24 bg-paper overflow-hidden">
+        <section className="relative py-12 md:py-24 bg-paper overflow-hidden" style={sizeVars}>
           <Confetti/>
           <BeachDoodles items={doodles}/>
           <div className="max-w-6xl mx-auto px-5 md:px-8 grid md:grid-cols-[1fr_auto] gap-10 items-center relative z-10">
             <div>
-              <div className="tag mb-4 md:mb-6 bounce-in">{t("hero.chip")}</div>
-              <div className="text-xl md:text-3xl font-bold text-[color:var(--wave)] mb-3 bounce-in flex flex-wrap items-center gap-2 md:gap-3" style={{animationDelay:"80ms"}}>
+              <div className="tag hero-chip-size mb-4 md:mb-6 bounce-in">{t("hero.chip")}</div>
+              <div className="hero-subtitle-size font-bold text-[color:var(--wave)] mb-3 bounce-in flex flex-wrap items-center gap-2 md:gap-3" style={{animationDelay:"80ms"}}>
                 <span>{t("hero.subtitle")}</span>
                 {IS_BAISHATUN && (
                   <span className="inline-flex items-center gap-1 text-sm md:text-base bg-[color:var(--sun-soft)] text-[color:var(--ink)] px-3 py-1 rounded-full border border-[color:var(--sun)]">
@@ -2132,11 +2272,11 @@ Phone: {{phone}}</p>
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-[3rem] sm:text-[4rem] md:text-[8rem] leading-[0.95] md:leading-[0.9] tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
+              <h1 className="font-display hero-title-size tracking-tight mb-4 bounce-in" style={{animationDelay:"160ms"}}>
                 <span className="block">{t("hero.title1")}</span>
                 <span className="inline-block text-[color:var(--nmdc-green)] wiggle">{t("hero.title2")}</span>
               </h1>
-              <p className="text-base md:text-2xl text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
+              <p className="hero-tagline-size text-[color:var(--ink-soft)] font-medium max-w-lg bounce-in" style={{animationDelay:"240ms"}}>
                 {t("hero.tagline")}
               </p>
               <div className="mt-6 md:mt-8 flex flex-wrap gap-3 bounce-in" style={{animationDelay:"320ms"}}>
@@ -3096,7 +3236,7 @@ Phone: {{phone}}</p>
           {editMode && (<div className="edit-badge">⚙️ ADMIN MODE{dirtyCount > 0 && ` · ${dirtyCount} UNSAVED`}</div>)}
           <Header lang={lang} setLang={setLang} onEdit={() => setPanelOpen(true)} editMode={editMode} t={txt}/>
           <AnnouncementBanner t={txt}/>
-          <Hero t={txt} editMode={editMode}/>
+          <Hero t={txt} editMode={editMode} edits={edits} serverContent={serverContent}/>
           {sectionOrder.map(id => renderSection(id))}
           <Footer t={txt} onEnterEdit={enterEditMode}/>
 
