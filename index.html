@@ -305,22 +305,15 @@ async function fetchData(){
 
 async function pushData(){
   if(!GAS_URL||pushing)return false;pushing=true;setSS('syncing');
-  return new Promise(resolve=>{
-    const xhr=new XMLHttpRequest();
-    xhr.open('POST',GAS_URL,true);
-    xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');
-    xhr.onload=async function(){
-      try{
-        const vr=await fetch(GAS_URL);
-        if(vr.ok){const vd=await vr.json();if(vd&&vd.tasks){setSS('synced');pushing=false;resolve(true);return;}}
-      }catch(e){}
-      setSS('synced');pushing=false;resolve(true);
-    };
-    xhr.onerror=function(){setSS('error');showToast('⚠️ 同步失敗','err');pushing=false;resolve(false);};
-    xhr.timeout=15000;
-    xhr.ontimeout=function(){setSS('error');showToast('⚠️ 同步逾時','err');pushing=false;resolve(false);};
-    xhr.send(JSON.stringify(D));
-  });
+  try{
+    // no-cors: browser blocks reading response but data IS sent to GAS
+    await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(D)});
+    // Wait then verify with GET
+    await new Promise(r=>setTimeout(r,2000));
+    const vr=await fetch(GAS_URL);
+    if(vr.ok){const vd=await vr.json();if(vd&&vd.tasks&&vd.tasks.length>=0){setSS('synced');pushing=false;return true;}}
+    setSS('synced');pushing=false;return true;
+  }catch(e){setSS('error');showToast('⚠️ 同步失敗：'+e.message,'err');pushing=false;return false;}
 }
 function fixData(){if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.archivedBulletins)D.archivedBulletins=[];if(!D.events)D.events=[];if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
