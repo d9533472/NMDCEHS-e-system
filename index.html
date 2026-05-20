@@ -306,11 +306,14 @@ async function fetchData(){
 async function pushData(){
   if(!GAS_URL||pushing)return false;pushing=true;setSS('syncing');
   try{
-    await fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(D)});
-    await new Promise(r=>setTimeout(r,1500));
-    const vr=await fetch(GAS_URL);
-    if(vr.ok){const vd=await vr.json();if(vd&&typeof vd==='object'&&Object.keys(vd).length>1){setSS('synced');pushing=false;return true;}}
-    setSS('synced');pushing=false;return true;
+    const json=JSON.stringify(D);
+    const url=GAS_URL+'?action=save&data='+encodeURIComponent(json);
+    const ctrl=new AbortController();
+    const t=setTimeout(()=>ctrl.abort(),10000);
+    const r=await fetch(url,{signal:ctrl.signal});
+    clearTimeout(t);
+    if(r.ok){const d=await r.json();if(d&&d.ok){setSS('synced');pushing=false;return true;}}
+    setSS('error');showToast('⚠️ 同步失敗','err');pushing=false;return false;
   }catch(e){setSS('error');showToast('⚠️ 同步失敗：'+e.message,'err');pushing=false;return false;}
 }
 function fixData(){if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.archivedBulletins)D.archivedBulletins=[];if(!D.events)D.events=[];if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
