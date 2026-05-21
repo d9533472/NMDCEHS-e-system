@@ -288,17 +288,6 @@
     <button class="btn btn-pdf btn-sm" onclick="exportMeterPdf()">📄 匯出 PDF</button>
   </div>
   <div id="meterReportWrap" style="max-height:60vh;overflow-y:auto;"></div>
-  <div class="sig-section" style="margin-top:12px;">
-    <h3>簽核欄</h3>
-    <div class="sig-row">
-      <div class="sig-item"><label>現場環保工程師</label><input type="text" id="meterSig_engineer">
-        <div class="sig-upload-row"><img id="meterSigImg_engineer" class="sig-preview" style="display:none;"><button class="btn btn-outline btn-sm sig-upload-btn" onclick="document.getElementById('meterSigFile_engineer').click()">上傳簽名檔</button><button class="btn btn-danger btn-sm sig-remove-btn" id="meterSigRm_engineer" onclick="removeMeterSig('engineer')" style="display:none;">✕</button><input type="file" id="meterSigFile_engineer" accept="image/*" style="display:none" onchange="onMeterSigSelect('engineer',event)"></div>
-      </div>
-      <div class="sig-item"><label>環境保護負責人</label><input type="text" id="meterSig_manager">
-        <div class="sig-upload-row"><img id="meterSigImg_manager" class="sig-preview" style="display:none;"><button class="btn btn-outline btn-sm sig-upload-btn" onclick="document.getElementById('meterSigFile_manager').click()">上傳簽名檔</button><button class="btn btn-danger btn-sm sig-remove-btn" id="meterSigRm_manager" onclick="removeMeterSig('manager')" style="display:none;">✕</button><input type="file" id="meterSigFile_manager" accept="image/*" style="display:none" onchange="onMeterSigSelect('manager',event)"></div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="actions hidden" id="actionBar">
@@ -1273,7 +1262,7 @@ function buildMeterReportPdfHtml(){
     h+=makeTableHead();
     pageMonths.forEach(mg=>{h+=makeMonthRows(mg);});
     h+=`</tbody></table>`;
-    h+=makeSig();
+
     h+=`</div>`;
   });
   return h;
