@@ -572,6 +572,11 @@ Phone: {{phone}}</p>
         "status.left": "席還在",
         "status.expired": "報名已截止",
         "status.full": "名額已滿",
+        "stats.head": "各單位報名統計",
+        "stats.unit1.label": "NMDC",
+        "stats.unit2.label": "TPC/POE",
+        "stats.unit3.label": "白沙屯淨灘團",
+        "stats.unit4.label": "其他",
 
         "schedule.tag": "🕐 流程",
         "schedule.head": "活動流程",
@@ -728,6 +733,11 @@ Phone: {{phone}}</p>
         "status.left": "spots left",
         "status.expired": "Registration closed",
         "status.full": "Fully booked",
+        "stats.head": "Registrations by Unit",
+        "stats.unit1.label": "NMDC",
+        "stats.unit2.label": "TPC/POE",
+        "stats.unit3.label": "Baishatun Cleanup",
+        "stats.unit4.label": "Others",
 
         "schedule.tag": "🕐 AGENDA",
         "schedule.head": "Run of show",
@@ -861,7 +871,12 @@ Phone: {{phone}}</p>
       "hero.tagline.sizeM": "1",
       "hero.tagline.sizeD": "1.5",
       // QR / image on success card (base64 data URL, single image — same for both languages)
-      "success.image.data": ""
+      "success.image.data": "",
+      // Per-unit registration counts (manual, admin-editable)
+      "stats.unit1.count": "0",
+      "stats.unit2.count": "0",
+      "stats.unit3.count": "0",
+      "stats.unit4.count": "0"
     };
 
     // SCHEDULE_COUNT kept for legacy fallback only — the live schedule is now fully dynamic.
@@ -912,7 +927,8 @@ Phone: {{phone}}</p>
       { id:"status", label:"倒數 & 名額 Status", keys:[
         "status.tag","status.head","status.sub","status.slots","status.filled",
         "status.days","status.hrs","status.min","status.sec",
-        "status.left","status.expired","status.full"
+        "status.left","status.expired","status.full",
+        "stats.head","stats.unit1.label","stats.unit2.label","stats.unit3.label","stats.unit4.label"
       ]},
       { id:"schedule", label:"活動流程 Schedule", keys:["schedule.tag","schedule.head","schedule.sub"], customEditor:"schedule" },
       { id:"notes", label:"注意事項 Notes", keys:[
@@ -1408,6 +1424,10 @@ Phone: {{phone}}</p>
 
           {/* Special: Success image (QR code etc., shared across languages) */}
           <SuccessImageSection open={openSections.successImage} onToggle={() => setOpenSections(s => ({ ...s, successImage: !s.successImage }))}
+            edits={edits} setEdits={setEdits} serverContent={serverContent}/>
+
+          {/* Special: Per-unit registration counts (shared across languages) */}
+          <UnitStatsSection open={openSections.unitStats} onToggle={() => setOpenSections(s => ({ ...s, unitStats: !s.unitStats }))}
             edits={edits} setEdits={setEdits} serverContent={serverContent}/>
 
           {filteredSections.map(sec => (
@@ -1954,6 +1974,94 @@ Phone: {{phone}}</p>
 
               <div className="mt-4 pt-3 border-t border-dashed border-[color:var(--line)] text-xs text-[color:var(--ink-soft)] leading-relaxed">
                 💡 標題跟說明文字可以在「文字編輯」→ 找「成功畫面 Success」分組裡編輯 <code className="bg-white px-1 rounded text-[color:var(--wave-deep)]">ok.image.title</code> 跟 <code className="bg-white px-1 rounded text-[color:var(--wave-deep)]">ok.image.caption</code>（中英分開）。
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ---- Unit Stats Section (admin only — per-unit registration counts) ----
+    function UnitStatsSection({ open, onToggle, edits, setEdits, serverContent }){
+      const UNITS = [1, 2, 3, 4];
+
+      function countKey(idx){ return `stats.unit${idx}.count`; }
+      function getCount(idx){ return getDisplay(countKey(idx), edits, serverContent); }
+      function isDirty(idx){ return edits[countKey(idx)] !== undefined; }
+      function getLabelZh(idx){
+        const key = `zh.stats.unit${idx}.label`;
+        if(edits[key] !== undefined) return edits[key];
+        if(serverContent[key] !== undefined) return serverContent[key];
+        return (DEFAULTS.zh && DEFAULTS.zh[`stats.unit${idx}.label`]) || "—";
+      }
+      function setCount(idx, v){
+        const key = countKey(idx);
+        const committed = serverContent[key] !== undefined ? serverContent[key] : (DISPLAY_DEFAULTS[key] || "0");
+        const cleaned = String(parseInt(v, 10) || 0);
+        setEdits(prev => {
+          const next = { ...prev };
+          if(cleaned === String(committed)) delete next[key];
+          else next[key] = cleaned;
+          return next;
+        });
+      }
+      function bump(idx, delta){
+        const cur = parseInt(getCount(idx), 10) || 0;
+        setCount(idx, Math.max(0, cur + delta));
+      }
+      function resetAll(){
+        setEdits(prev => {
+          const n = { ...prev };
+          UNITS.forEach(i => { delete n[countKey(i)]; });
+          return n;
+        });
+      }
+      const anyDirty = UNITS.some(i => isDirty(i));
+      const total = UNITS.reduce((a, i) => a + (parseInt(getCount(i), 10) || 0), 0);
+
+      return (
+        <div className="edit-section special">
+          <div className="edit-section-head" onClick={onToggle}>
+            <span>📊 各單位報名人數 Unit Counts {anyDirty && <span className="text-[color:var(--wave-deep)]">●</span>}</span>
+            <span>{open ? "▾" : "▸"}</span>
+          </div>
+          {open && (
+            <div className="edit-section-body">
+              <div className="text-xs text-[color:var(--ink-soft)] mb-3 leading-relaxed">
+                顯示在「報名倒數」區下方的 4 格統計。<br/>
+                數字共用（兩個語言版本看到一樣），標籤可以中英分開（去「文字編輯 → 倒數 & 名額 Status」改）。
+              </div>
+
+              {UNITS.map(i => (
+                <div key={i} className="edit-row">
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="edit-key">#{i} · {getLabelZh(i)}</div>
+                    {isDirty(i) && <button onClick={() => setEdits(prev => { const n = {...prev}; delete n[countKey(i)]; return n; })} className="text-[10px] font-bold text-[color:var(--wave-deep)] hover:underline">↺ reset</button>}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button type="button" onClick={() => bump(i, -1)} className="btn-outline px-3 py-1 text-sm font-bold" style={{minWidth:"40px"}}>−</button>
+                    <input type="number" min="0" step="1"
+                      value={getCount(i)}
+                      onChange={e => setCount(i, e.target.value)}
+                      className={"edit-input " + (isDirty(i) ? "dirty" : "")}
+                      style={{textAlign:"center", flex:1}}/>
+                    <button type="button" onClick={() => bump(i, 1)} className="btn-outline px-3 py-1 text-sm font-bold" style={{minWidth:"40px"}}>＋</button>
+                    <span className="text-xs text-[color:var(--ink-soft)] font-bold w-6">人</span>
+                  </div>
+                </div>
+              ))}
+
+              <div className="flex items-center justify-between pt-3 mt-2 border-t border-dashed border-[color:var(--line)]">
+                <div className="text-sm font-bold text-[color:var(--ink)]">
+                  合計：<span className="font-num text-lg text-[color:var(--wave-deep)]">{total}</span> 人
+                </div>
+                {anyDirty && (
+                  <button onClick={resetAll} className="text-xs font-bold text-[color:var(--wave-deep)] hover:underline">↺ 全部還原</button>
+                )}
+              </div>
+
+              <div className="text-xs text-[color:var(--ink-soft)] mt-3 leading-relaxed">
+                💡 改完按「💾 儲存」即生效，不用部署 GAS。
               </div>
             </div>
           )}
@@ -2801,7 +2909,30 @@ Phone: {{phone}}</p>
       );
     }
 
-    function StatusSection({ config, t, lang }){
+    function StatusSection({ config, t, lang, edits, serverContent }){
+      // Read manual unit counts + labels for unit stats row.
+      // Counts are universal (DISPLAY_DEFAULTS), labels are per-language (DEFAULTS[lang]).
+      function getLabel(idx){
+        const key = `${lang}.stats.unit${idx}.label`;
+        if(edits && edits[key] !== undefined) return edits[key];
+        if(serverContent && serverContent[key] !== undefined) return serverContent[key];
+        return (DEFAULTS[lang] && DEFAULTS[lang][`stats.unit${idx}.label`]) || "";
+      }
+      function getCount(idx){
+        const key = `stats.unit${idx}.count`;
+        const v = (edits && edits[key] !== undefined)
+                    ? edits[key]
+                    : (serverContent && serverContent[key] !== undefined ? serverContent[key] : DISPLAY_DEFAULTS[key]);
+        const n = parseInt(v, 10);
+        return Number.isFinite(n) ? n : 0;
+      }
+      const units = [1,2,3,4].map(i => ({
+        idx: i,
+        label: getLabel(i),
+        count: getCount(i)
+      }));
+      const totalManual = units.reduce((a, u) => a + u.count, 0);
+
       return (
         <section className="relative py-16 md:py-20 bg-[color:var(--sun)] border-y-[3px] border-[color:var(--ink)] overflow-hidden">
           <div className="absolute inset-0 bg-dots opacity-50"/>
@@ -2825,6 +2956,27 @@ Phone: {{phone}}</p>
                 <div className="h-48 bg-white/50 rounded-3xl border-[3px] border-[color:var(--ink)]"/>
               </div>
             )}
+
+            {/* === Per-unit registration stats === */}
+            <div className="mt-8 md:mt-10">
+              <div className="text-center mb-4">
+                <div className="text-xs md:text-sm font-extrabold tracking-[0.2em] uppercase text-[color:var(--ink-soft)]">{t("stats.head")}</div>
+                {totalManual > 0 && (
+                  <div className="text-xs text-[color:var(--ink-soft)] mt-1">
+                    {lang === "en" ? `Total: ${totalManual}` : `合計 ${totalManual} 人`}
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                {units.map(u => (
+                  <div key={u.idx} className="bg-white rounded-2xl border border-[color:var(--line)] py-4 md:py-5 px-4 text-center" style={{boxShadow:"0 2px 6px rgba(22,54,84,0.06)"}}>
+                    <div className="text-xs md:text-sm font-bold text-[color:var(--ink-soft)] uppercase tracking-wider mb-1 truncate" title={u.label}>{u.label || "—"}</div>
+                    <div className="font-num text-3xl md:text-4xl text-[color:var(--wave-deep)] tabular-nums leading-none">{u.count}</div>
+                    <div className="text-[10px] md:text-xs text-[color:var(--ink-soft)] mt-1 font-medium">{lang === "en" ? (u.count === 1 ? "person" : "people") : "人"}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
       );
@@ -3623,7 +3775,7 @@ Phone: {{phone}}</p>
         if(id === "info") return <InfoStickers key="info" t={txt} editMode={editMode}/>;
         if(id === "status"){
           if(!showCountdown) return null;
-          return <StatusSection key="status" config={config} t={txt} lang={lang}/>;
+          return <StatusSection key="status" config={config} t={txt} lang={lang} edits={edits} serverContent={serverContent}/>;
         }
         if(id === "schedule") return <Schedule key="schedule" t={txt} lang={lang} edits={edits} serverContent={serverContent}/>;
         if(id === "form") return <FormSection key="form" config={config} configError={configError} isOpen={isOpen} isFull={isFull} isExpired={isExpired} t={txt} lang={lang} success={success} onSuccess={handleSuccess} onAgain={handleAgain} serverContent={serverContent} edits={edits}/>;
