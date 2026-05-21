@@ -456,9 +456,116 @@
       ::-webkit-scrollbar-track{ background:var(--cream); }
       ::-webkit-scrollbar-thumb{ background:var(--nmdc-green); border:3px solid var(--cream); border-radius:999px; }
     }
+
+    /* ============================================================
+       Initial loader — full-screen overlay, fades out when data arrives
+       ============================================================ */
+    .loader-screen{
+      position:fixed; inset:0; z-index:9999;
+      background:var(--cream);
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:20px;
+      opacity:1; pointer-events:auto;
+      transition:opacity .55s ease;
+      font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif;
+    }
+    .loader-screen.is-hidden{ opacity:0; pointer-events:none; }
+
+    /* Stage holds sun + waves */
+    .loader-stage{
+      position:relative;
+      width:160px; height:160px;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    /* Glowing sun (太陽) — pulses subtly */
+    .loader-sun{
+      width:78px; height:78px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, #FFE39A 0%, var(--sun) 55%, var(--sun-deep) 100%);
+      box-shadow:
+        0 0 0 6px rgba(245,194,74,0.18),
+        0 0 30px 10px rgba(245,194,74,0.32),
+        0 8px 24px rgba(30,111,171,0.18);
+      animation:loader-sun-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes loader-sun-pulse{
+      0%,100%{ transform:scale(1); filter:brightness(1); }
+      50%{ transform:scale(1.06); filter:brightness(1.08); }
+    }
+
+    /* Three expanding waves rippling outward */
+    .loader-waves{
+      position:absolute; inset:0;
+      display:flex; align-items:center; justify-content:center;
+      pointer-events:none;
+    }
+    .loader-waves span{
+      position:absolute;
+      width:80px; height:80px;
+      border-radius:50%;
+      border:2.5px solid var(--wave);
+      opacity:0;
+      animation:loader-wave-ripple 2.4s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+    }
+    .loader-waves span:nth-child(2){ animation-delay:0.8s; }
+    .loader-waves span:nth-child(3){ animation-delay:1.6s; }
+    @keyframes loader-wave-ripple{
+      0%   { transform:scale(0.6); opacity:0; border-width:3px; }
+      25%  { opacity:0.7; }
+      100% { transform:scale(2.2); opacity:0; border-width:1px; }
+    }
+
+    .loader-text{
+      font-weight:700;
+      font-size:15px;
+      letter-spacing:0.08em;
+      color:var(--wave-deep);
+      text-transform:uppercase;
+      display:flex; align-items:center; gap:8px;
+    }
+    .loader-text::after{
+      content:"";
+      display:inline-block;
+      width:6px; height:6px;
+      border-radius:50%;
+      background:var(--wave);
+      animation:loader-dot-blink 1.2s ease-in-out infinite;
+    }
+    @keyframes loader-dot-blink{
+      0%,100%{ opacity:0.2; transform:scale(0.7); }
+      50%    { opacity:1;   transform:scale(1); }
+    }
+
+    .loader-sub{
+      font-size:13px;
+      font-weight:600;
+      color:var(--ink-soft);
+      letter-spacing:0.02em;
+    }
+
+    /* Respect motion preferences */
+    @media (prefers-reduced-motion: reduce){
+      .loader-sun{ animation:none; }
+      .loader-waves span{ animation:none; opacity:0.3; }
+      .loader-text::after{ animation:none; }
+    }
   </style>
 </head>
 <body>
+  <!-- Initial loader — shown from the moment HTML loads, hidden once React renders + GAS data arrives -->
+  <div id="initial-loader" class="loader-screen" aria-live="polite" aria-label="Loading">
+    <div class="loader-stage">
+      <div class="loader-sun" aria-hidden="true"></div>
+      <div class="loader-waves" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="loader-text">載入中・Loading</div>
+    <div class="loader-sub">2026 NMDC 團隊淨灘</div>
+  </div>
+
   <div id="root"></div>
 
   <script type="text/babel" data-presets="env,react">
@@ -3816,6 +3923,21 @@ Phone: {{phone}}</p>
         return () => clearInterval(id);
       // eslint-disable-next-line
       }, []);
+
+      // Hide the initial loader once data arrives OR error happens OR safety timeout.
+      useEffect(() => {
+        function hideLoader(){
+          const el = document.getElementById("initial-loader");
+          if(!el) return;
+          if(el.classList.contains("is-hidden")) return;
+          el.classList.add("is-hidden");
+          setTimeout(() => { try{ el.remove(); } catch(_){} }, 700);
+        }
+        if(config || configError){ hideLoader(); }
+        // Safety: never let the loader stick more than 12 s
+        const safety = setTimeout(hideLoader, 12000);
+        return () => clearTimeout(safety);
+      }, [config, configError]);
 
       const isOpen = config && config.open && config.remaining > 0 && new Date() < new Date(config.deadline);
       const isFull = config && config.remaining === 0;
