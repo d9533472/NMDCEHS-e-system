@@ -2763,7 +2763,10 @@ Phone: {{phone}}</p>
     // Email Preview Modal (shared between BlastTab + EmailTab)
     // ============================================================
     // Expand tokens client-side so admin can preview without sending.
-    function expandEmailTokens(text, lang, serverContent, edits, sample){
+    // mode: "body" (default) — full expansion + auto-append qrImage
+    //       "subject" — strip {{qrImage}} (it's HTML, doesn't belong in subject), no auto-append, clean HTML
+    function expandEmailTokens(text, lang, serverContent, edits, sample, mode){
+      const isSubject = (mode === "subject");
       let out = String(text || "");
       const s = sample || {};
 
@@ -2826,7 +2829,8 @@ Phone: {{phone}}</p>
         "{{team}}":               s.team || "NMDC",
         "{{companionNames}}":     s.companionNames || "張小華、李大明",
         "{{companionList}}":      s.companionList || "<ul><li>1. 張小華（血型 A、飲食 葷）</li><li>2. 李大明（血型 O、飲食 素）</li></ul>",
-        "{{qrImage}}":            qrImageHtml
+        // For subject mode, swap qrImage token to empty string (it's HTML, doesn't belong in a subject)
+        "{{qrImage}}":            isSubject ? "" : qrImageHtml
       };
       // Track if body has the QR token before expanding (for auto-append preview behavior)
       const bodyHasQrToken = out.indexOf("{{qrImage}}") >= 0;
@@ -2851,17 +2855,23 @@ Phone: {{phone}}</p>
       out = out.split("{{eventName}}").join("2026 NMDC 團隊淨灘");
       out = out.split("{{deadline}}").join("2026 年 06 月 30 日 23:59");
 
-      // 4) Auto-append QR at end if template doesn't reference the token (matches GAS behavior)
-      if(!bodyHasQrToken && qrImageHtml){
+      // 4) Auto-append QR at end of BODY if template doesn't reference the token (matches GAS behavior)
+      //    DO NOT auto-append for subject — subjects are plain text, not HTML
+      if(!isSubject && !bodyHasQrToken && qrImageHtml){
         out = out + qrImageHtml;
+      }
+
+      // 5) For subject: final HTML strip as safety net (matches GAS cleanSubject_)
+      if(isSubject){
+        out = out.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
       }
       return out;
     }
 
     function EmailPreviewModal({ open, onClose, subject, body, lang, serverContent, edits, sampleData }){
       if(!open) return null;
-      const previewSubject = expandEmailTokens(subject || "(no subject)", lang, serverContent, edits, sampleData);
-      const previewBody    = expandEmailTokens(body || "", lang, serverContent, edits, sampleData);
+      const previewSubject = expandEmailTokens(subject || "(no subject)", lang, serverContent, edits, sampleData, "subject");
+      const previewBody    = expandEmailTokens(body || "", lang, serverContent, edits, sampleData, "body");
       return (
         <div className="fixed inset-0 z-[80] flex items-start md:items-center justify-center p-3 md:p-8" style={{background:"rgba(22,54,84,0.55)"}}>
           <div className="bg-white rounded-2xl border border-[color:var(--line-strong)] shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden" style={{boxShadow:"0 20px 60px rgba(22,54,84,0.3)"}}>
