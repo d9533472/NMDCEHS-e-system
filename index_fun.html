@@ -798,9 +798,10 @@ Phone: {{phone}}</p>
         "status.full": "名額已滿",
         "stats.head": "各單位報名統計",
         "stats.unit1.label": "NMDC",
-        "stats.unit2.label": "TPC/POE",
-        "stats.unit3.label": "白沙屯淨灘團",
-        "stats.unit4.label": "其他",
+        "stats.unit2.label": "TPC",
+        "stats.unit3.label": "POE",
+        "stats.unit4.label": "白沙屯淨灘團",
+        "stats.unit5.label": "其他",
 
         "schedule.tag": "🕐 流程",
         "schedule.head": "活動流程",
@@ -959,9 +960,10 @@ Phone: {{phone}}</p>
         "status.full": "Fully booked",
         "stats.head": "Registrations by Unit",
         "stats.unit1.label": "NMDC",
-        "stats.unit2.label": "TPC/POE",
-        "stats.unit3.label": "Baishatun Cleanup",
-        "stats.unit4.label": "Others",
+        "stats.unit2.label": "TPC",
+        "stats.unit3.label": "POE",
+        "stats.unit4.label": "Baishatun Cleanup",
+        "stats.unit5.label": "Others",
 
         "schedule.tag": "🕐 AGENDA",
         "schedule.head": "Run of show",
@@ -1103,12 +1105,14 @@ Phone: {{phone}}</p>
       "stats.unit2.count": "0",
       "stats.unit3.count": "0",
       "stats.unit4.count": "0",
+      "stats.unit5.count": "0",
       // Per-unit mode: "manual" = use the counts above, "auto" = compute from company keywords
       "stats.mode": "auto",
-      // Keywords for auto classification (comma-separated). Unit 4 = "其他" (fallback).
+      // Keywords for auto classification (comma-separated). Unit 5 = "其他" (fallback).
       "stats.unit1.keywords": "NMDC",
-      "stats.unit2.keywords": "TPC,POE,台灣電力公司,台電,香港商海油",
-      "stats.unit3.keywords": "白沙屯"
+      "stats.unit2.keywords": "TPC,台灣電力公司,台電",
+      "stats.unit3.keywords": "POE,香港商海油",
+      "stats.unit4.keywords": "白沙屯"
     };
 
     // SCHEDULE_COUNT kept for legacy fallback only — the live schedule is now fully dynamic.
@@ -1160,7 +1164,7 @@ Phone: {{phone}}</p>
         "status.tag","status.head","status.sub","status.slots","status.filled",
         "status.days","status.hrs","status.min","status.sec",
         "status.left","status.expired","status.full",
-        "stats.head","stats.unit1.label","stats.unit2.label","stats.unit3.label","stats.unit4.label"
+        "stats.head","stats.unit1.label","stats.unit2.label","stats.unit3.label","stats.unit4.label","stats.unit5.label"
       ]},
       { id:"schedule", label:"活動流程 Schedule", keys:["schedule.tag","schedule.head","schedule.sub"], customEditor:"schedule" },
       { id:"notes", label:"注意事項 Notes", keys:[
@@ -2246,7 +2250,7 @@ Phone: {{phone}}</p>
 
     // ---- Unit Stats Section (admin only — per-unit registration counts) ----
     function UnitStatsSection({ open, onToggle, edits, setEdits, serverContent }){
-      const UNITS = [1, 2, 3, 4];
+      const UNITS = [1, 2, 3, 4, 5];
 
       // ===== Mode =====
       const MODE_KEY = "stats.mode";
@@ -2316,7 +2320,7 @@ Phone: {{phone}}</p>
       function resetKw(idx){
         setEdits(prev => { const n = { ...prev }; delete n[kwKey(idx)]; return n; });
       }
-      const anyKwDirty = [1,2,3].some(i => isKwDirty(i));
+      const anyKwDirty = [1,2,3,4].some(i => isKwDirty(i));
 
       return (
         <div className="edit-section special">
@@ -2351,7 +2355,7 @@ Phone: {{phone}}</p>
               {mode === "auto" && (
                 <>
                   <div className="text-xs font-bold tracking-wider uppercase text-[color:var(--wave-deep)] mt-3 mb-2">🔍 自動分類關鍵字</div>
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3, 4].map(i => (
                     <div key={i} className="edit-row">
                       <div className="flex items-center justify-between mb-1">
                         <div className="edit-key">#{i} · {getLabelZh(i)}</div>
@@ -2367,9 +2371,9 @@ Phone: {{phone}}</p>
                     </div>
                   ))}
                   <div className="edit-row">
-                    <div className="edit-key mb-1">#4 · 其他 Others</div>
+                    <div className="edit-key mb-1">#5 · 其他 Others</div>
                     <div className="text-xs text-[color:var(--ink-soft)] leading-relaxed">
-                      自動裝載「不符合 #1–#3 任何關鍵字」的報名，不需要設定。
+                      自動裝載「不符合 #1–#4 任何關鍵字」的報名，不需要設定。
                     </div>
                   </div>
                 </>
@@ -2584,6 +2588,8 @@ Phone: {{phone}}</p>
       const [err, setErr] = useState("");
       const [filter, setFilter] = useState("");
       const [langFilter, setLangFilter] = useState("all");  // "all" | "zh" | "en"
+      const [unitFilter, setUnitFilter] = useState("all");  // "all" | "NMDC" | "TPC" | "POE" | "BST" | "Other"
+      const [resetting, setResetting] = useState(false);
 
       async function load(){
         setLoading(true); setErr("");
@@ -2600,6 +2606,8 @@ Phone: {{phone}}</p>
                 catch(_){ comps = []; }
               }
               if(!Array.isArray(comps)) comps = [];
+              // Backfill unit if GAS didn't return it (older GAS versions)
+              if(!r.unit){ r = { ...r, unit: classifyCompanyClient(r.company) }; }
               return { ...r, companions: comps };
             });
             setList(normalized);
@@ -2620,6 +2628,40 @@ Phone: {{phone}}</p>
           } else { window.alert("刪除失敗：" + (res.error || "未知")); }
         } catch(e){ window.alert("連線失敗"); }
       }
+
+      // Client-side classifier — mirrors GAS classifyCompany_ for backward compat
+      // when old GAS responses don't include `unit` field
+      function classifyCompanyClient(company){
+        const c = String(company || "");
+        const cLower = c.toLowerCase();
+        if(c.indexOf("白沙屯") >= 0) return "BST";
+        if(cLower.indexOf("poe") >= 0 || c.indexOf("香港商海油") >= 0) return "POE";
+        if(cLower.indexOf("tpc") >= 0 || c.indexOf("台灣電力公司") >= 0 || c.indexOf("台電") >= 0) return "TPC";
+        if(cLower.indexOf("nmdc") >= 0) return "NMDC";
+        return "Other";
+      }
+
+      // Reset all registrations — TWO confirmations + typed phrase before fire
+      async function resetAll(){
+        if(!list || list.length === 0){ window.alert("目前沒有任何報名資料"); return; }
+        const n = list.length;
+        if(!window.confirm(`⚠️ 警告：此動作會「永久刪除」全部 ${n} 筆報名資料，無法復原！\n\n建議使用情境：測試期間結束、準備接收正式報名前。\n\n確定要繼續嗎？`)) return;
+        const typed = window.prompt(`請輸入「RESET」（大寫）來確認刪除 ${n} 筆資料：`);
+        if(typed !== "RESET"){ window.alert("已取消（未輸入正確的 RESET）"); return; }
+        setResetting(true);
+        try{
+          const res = await xhrPost(GAS_URL, { action:"resetAllRegistrations", password:editPassword, confirm:"RESET_ALL_REGISTRATIONS" });
+          if(res.success){
+            window.alert(`✅ 已刪除 ${res.deleted} 筆報名資料。`);
+            setList([]);
+            onDataChanged && onDataChanged();
+          } else {
+            window.alert("重置失敗：" + (res.error || "未知"));
+          }
+        } catch(e){ window.alert("連線失敗"); }
+        finally{ setResetting(false); }
+      }
+
       function exportCsv(){
         if(!list || list.length === 0) return;
         const headers = ["Serial","Name","Company","Title","Phone","Email","Blood","Diet","EmergencyName","EmergencyPhone","CompanionCount","CompanionDetails","FormLanguage","LangCode","Timestamp"];
@@ -2646,6 +2688,9 @@ Phone: {{phone}}</p>
         if(langFilter !== "all"){
           arr = arr.filter(r => r.lang === langFilter);
         }
+        if(unitFilter !== "all"){
+          arr = arr.filter(r => (r.unit || "Other") === unitFilter);
+        }
         if(filter.trim()){
           const q = filter.trim().toLowerCase();
           arr = arr.filter(r => {
@@ -2654,7 +2699,7 @@ Phone: {{phone}}</p>
           });
         }
         return arr;
-      }, [list, filter, langFilter]);
+      }, [list, filter, langFilter, unitFilter]);
 
       // Counts per language for the filter buttons
       const langCounts = useMemo(() => {
@@ -2663,6 +2708,17 @@ Phone: {{phone}}</p>
           if(r.lang === "en") acc.en++; else acc.zh++;
           return acc;
         }, { zh:0, en:0 });
+      }, [list]);
+
+      // Counts per unit for the filter buttons
+      const unitCounts = useMemo(() => {
+        const c = { NMDC:0, TPC:0, POE:0, BST:0, Other:0 };
+        if(!list) return c;
+        list.forEach(r => {
+          const u = r.unit || "Other";
+          if(c[u] !== undefined) c[u]++; else c.Other++;
+        });
+        return c;
       }, [list]);
 
       // Total seats taken (main + companions)
@@ -2699,6 +2755,30 @@ Phone: {{phone}}</p>
             </div>
           )}
 
+          {/* Unit filter pills */}
+          {list && list.length > 0 && (
+            <div className="flex gap-2 mb-3 flex-wrap">
+              <button onClick={() => setUnitFilter("all")} className={"lang-pill " + (unitFilter === "all" ? "active" : "")}>
+                🌐 所有單位 ({list.length})
+              </button>
+              <button onClick={() => setUnitFilter("NMDC")} className={"lang-pill " + (unitFilter === "NMDC" ? "active" : "")}>
+                NMDC ({unitCounts.NMDC})
+              </button>
+              <button onClick={() => setUnitFilter("TPC")} className={"lang-pill " + (unitFilter === "TPC" ? "active" : "")}>
+                TPC ({unitCounts.TPC})
+              </button>
+              <button onClick={() => setUnitFilter("POE")} className={"lang-pill " + (unitFilter === "POE" ? "active" : "")}>
+                POE ({unitCounts.POE})
+              </button>
+              <button onClick={() => setUnitFilter("BST")} className={"lang-pill " + (unitFilter === "BST" ? "active" : "")}>
+                🌊 白沙屯 ({unitCounts.BST})
+              </button>
+              <button onClick={() => setUnitFilter("Other")} className={"lang-pill " + (unitFilter === "Other" ? "active" : "")}>
+                ✨ 其他 ({unitCounts.Other})
+              </button>
+            </div>
+          )}
+
           <input type="text" placeholder="🔍 搜尋姓名 / 公司 / 信箱 / 攜眷…" value={filter} onChange={e => setFilter(e.target.value)} className="edit-input mb-3"/>
 
           {err && (<div className="p-3 rounded-xl bg-[color:var(--coral)] text-white font-bold text-sm border-2 border-[color:var(--ink)] mb-3">❗ {err}</div>)}
@@ -2721,7 +2801,17 @@ Phone: {{phone}}</p>
                         {r.diet && <div className="reg-small" style={{color:"var(--nmdc-green-dark)", fontWeight:700, marginTop:2}}>🍽️ {r.diet}</div>}
                       </td>
                       <td>
-                        <div>{r.company}</div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {r.unit && (
+                            <span style={{
+                              fontSize:9, fontWeight:800, padding:"2px 6px", borderRadius:4,
+                              background: r.unit === "NMDC" ? "#D7F0E0" : r.unit === "TPC" ? "#FFE9CC" : r.unit === "POE" ? "#E1ECFF" : r.unit === "BST" ? "#C6E5FA" : "#EEE",
+                              color: r.unit === "NMDC" ? "#1B6B3B" : r.unit === "TPC" ? "#A05A00" : r.unit === "POE" ? "#1E40A6" : r.unit === "BST" ? "#155989" : "#555",
+                              letterSpacing:".05em"
+                            }}>{r.unit === "BST" ? "白沙屯" : r.unit}</span>
+                          )}
+                          <span>{r.company}</span>
+                        </div>
                         <div className="reg-small">{r.title}</div>
                         <div style={{marginTop:4}}>
                           <span className={"reg-lang-badge " + r.lang}>{r.lang === "en" ? "🇬🇧 EN" : "🇹🇼 中"}</span>
@@ -2752,6 +2842,23 @@ Phone: {{phone}}</p>
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+
+          {/* ========== Danger Zone — Reset all registrations ========== */}
+          {!loading && (
+            <div className="mt-8 pt-6 border-t-2 border-dashed border-[color:#E5685A]/40">
+              <div className="rounded-xl bg-[color:#FDF3F1] border-2 border-[color:#E5685A] p-4">
+                <div className="font-bold text-[color:#D04A3C] text-sm mb-1">⚠️ 危險區 Danger Zone</div>
+                <div className="text-xs text-[color:var(--ink-soft)] mb-3 leading-relaxed">
+                  「重置」會 <strong>永久刪除全部 {list ? list.length : 0} 筆報名資料</strong>，序號計數歸零。<br/>
+                  典型使用：測試期間結束 → 正式接收報名前清空。
+                </div>
+                <button onClick={resetAll} disabled={resetting || !list || list.length === 0}
+                        className="btn-danger px-4 py-2 text-sm font-bold">
+                  {resetting ? "處理中…" : "🗑 重置全部報名資料"}
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -3358,7 +3465,7 @@ Phone: {{phone}}</p>
         if(mode === "manual") return getManualCount(idx);
         return Number(autoStats[`unit${idx}`] || 0);
       }
-      const units = [1,2,3,4].map(i => ({
+      const units = [1,2,3,4,5].map(i => ({
         idx: i,
         label: getLabel(i),
         count: countFor(i)
@@ -3399,7 +3506,7 @@ Phone: {{phone}}</p>
                     : `合計 ${totalUnits} 人 · ${mode === "auto" ? "自動統計" : "手動填寫"}`}
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4 [&>*:last-child]:col-span-2 md:[&>*:last-child]:col-span-1">
                 {units.map(u => (
                   <div key={u.idx} className="bg-white rounded-2xl border border-[color:var(--line)] py-4 md:py-5 px-4 text-center" style={{boxShadow:"0 2px 6px rgba(22,54,84,0.06)"}}>
                     <div className="text-xs md:text-sm font-bold text-[color:var(--ink-soft)] uppercase tracking-wider mb-1 truncate" title={u.label}>{u.label || "—"}</div>
@@ -3515,6 +3622,49 @@ Phone: {{phone}}</p>
       const [agreed, setAgreed] = useState(false);
       const [submitting, setSubmitting] = useState(false);
       const [submitError, setSubmitError] = useState("");
+
+      // ===== Company dropdown state =====
+      // Fixed 4 options; 5th = "其他" → reveals custom text input.
+      // Values intentionally contain the stats keywords (NMDC / TPC / POE / 白沙屯)
+      // so auto-categorisation in computeUnitStats_ keeps working without changes.
+      const COMPANY_OPTIONS_FIXED = ["NMDC", "TPC", "POE", "白沙屯淨灘團"];
+      const initCompanyMode = (() => {
+        if(!form.company) return "";
+        if(COMPANY_OPTIONS_FIXED.includes(form.company)) return form.company;
+        return "__OTHER__";
+      })();
+      const [companyMode, setCompanyMode] = useState(initCompanyMode);
+      const [companyOther, setCompanyOther] = useState(
+        initCompanyMode === "__OTHER__" ? form.company : ""
+      );
+      function changeCompanyMode(mode){
+        setCompanyMode(mode);
+        if(mode === "__OTHER__"){
+          setForm(f => ({ ...f, company: companyOther || "" }));
+        } else {
+          setForm(f => ({ ...f, company: mode }));
+        }
+        if(errors.company) setErrors(er => ({ ...er, company: "" }));
+      }
+      function changeCompanyOther(text){
+        setCompanyOther(text);
+        setForm(f => ({ ...f, company: text }));
+        if(errors.company) setErrors(er => ({ ...er, company: "" }));
+      }
+      // Re-sync internal state when form is reset externally (e.g. "Register another" button)
+      useEffect(() => {
+        const derived = companyMode === "__OTHER__" ? companyOther : companyMode;
+        if(form.company !== derived){
+          if(!form.company){
+            setCompanyMode(""); setCompanyOther("");
+          } else if(COMPANY_OPTIONS_FIXED.includes(form.company)){
+            setCompanyMode(form.company); setCompanyOther("");
+          } else {
+            setCompanyMode("__OTHER__"); setCompanyOther(form.company);
+          }
+        }
+      // eslint-disable-next-line
+      }, [form.company]);
 
       const set = k => e => {
         let v = e.target.value;
@@ -3704,7 +3854,53 @@ Phone: {{phone}}</p>
 
             <div className="grid md:grid-cols-2 gap-5">
               <Field id="f-name"    label={t("field.name.label")}    sub={t("field.name.sub")}    value={form.name}    onChange={set("name")}    onBlur={()=>setErrors(e=>({...e,name:validateField("name")}))}       error={errors.name}    placeholder={t("field.name.ph")}    autoComplete="name"/>
-              <Field id="f-company" label={t("field.company.label")} sub={t("field.company.sub")} value={form.company} onChange={set("company")} onBlur={()=>setErrors(e=>({...e,company:validateField("company")}))} error={errors.company} placeholder={t("field.company.ph")} autoComplete="organization"/>
+
+              {/* === Company: dropdown with 4 fixed options + custom "Other" === */}
+              <div>
+                <label htmlFor="f-company" className="block mb-2">
+                  <span className="font-display text-xl md:text-2xl text-[color:var(--ink)]">{t("field.company.label")}</span>
+                  <span className="ml-2 text-sm font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">{t("field.company.sub")}</span>
+                </label>
+                {IS_BAISHATUN ? (
+                  /* Baishatun route: locked to 白沙屯淨灘團 — no dropdown */
+                  <div className="field w-full px-4 py-3.5 text-lg flex items-center gap-2" style={{background:"var(--wave-soft)", cursor:"not-allowed", color:"var(--ink)"}}>
+                    <span>🌊</span>
+                    <span className="font-medium">白沙屯淨灘團</span>
+                    <span className="ml-auto text-xs text-[color:var(--ink-soft)] font-bold">{lang === "en" ? "(auto)" : "(自動帶入)"}</span>
+                  </div>
+                ) : (
+                  <>
+                    <select
+                      id="f-company"
+                      value={companyMode}
+                      onChange={e => changeCompanyMode(e.target.value)}
+                      onBlur={() => setErrors(e => ({...e, company: validateField("company")}))}
+                      className={`field w-full px-4 py-3.5 text-lg ${errors.company && companyMode !== "__OTHER__" ? "err" : ""}`}
+                      style={{appearance:"none", backgroundImage:"url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230A2340'><path d='M7 10l5 5 5-5z'/></svg>\")", backgroundRepeat:"no-repeat", backgroundPosition:"right 12px center", paddingRight:"40px"}}
+                    >
+                      <option value="">{lang === "en" ? "Select…" : "請選擇…"}</option>
+                      <option value="NMDC">NMDC</option>
+                      <option value="TPC">TPC</option>
+                      <option value="POE">POE</option>
+                      <option value="白沙屯淨灘團">{lang === "en" ? "Baishatun Cleanup Team / 白沙屯淨灘團" : "白沙屯淨灘團"}</option>
+                      <option value="__OTHER__">{lang === "en" ? "Other (specify below)" : "其他（請於下方輸入）"}</option>
+                    </select>
+                    {companyMode === "__OTHER__" && (
+                      <input
+                        type="text"
+                        value={companyOther}
+                        onChange={e => changeCompanyOther(e.target.value)}
+                        onBlur={() => setErrors(e => ({...e, company: validateField("company")}))}
+                        placeholder={lang === "en" ? "Enter your company / team name…" : "請輸入公司或團體名稱…"}
+                        autoComplete="organization"
+                        className={`field w-full px-4 py-3.5 text-lg mt-3 ${errors.company ? "err" : ""}`}
+                      />
+                    )}
+                  </>
+                )}
+                {errors.company && <div className="field-error-msg"><span>❗</span>{errors.company}</div>}
+              </div>
+
               <Field id="f-title"   label={t("field.title.label")}   sub={t("field.title.sub")}   value={form.title}   onChange={set("title")}   onBlur={()=>setErrors(e=>({...e,title:validateField("title")}))}     error={errors.title}   placeholder={t("field.title.ph")}   autoComplete="organization-title"/>
               <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validateField("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="numeric" type="tel"/>
               <Field id="f-email"   label={t("field.email.label")}   sub={t("field.email.sub")}   value={form.email}   onChange={set("email")}   onBlur={()=>setErrors(e=>({...e,email:validateField("email")}))}     error={errors.email}   placeholder={t("field.email.ph")}   autoComplete="email" inputMode="email" type="email"/>
