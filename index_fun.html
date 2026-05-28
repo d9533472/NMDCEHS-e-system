@@ -163,6 +163,17 @@
     .edit-section-body{ padding:8px 12px; }
     .edit-row{ padding:8px 0; border-bottom:1px dashed var(--line); }
 
+    /* Rich-text success message body — sits on dark wave-blue background */
+    .success-rich-body{ line-height:1.6; }
+    .success-rich-body p{ margin:0 0 0.7em; }
+    .success-rich-body a{ color:#FCEFC9; text-decoration:underline; font-weight:700; }
+    .success-rich-body strong,.success-rich-body b{ font-weight:800; }
+    .success-rich-body ul,.success-rich-body ol{ margin:0.4em 0 0.7em 1.4em; }
+    .success-rich-body ul li{ list-style:disc; }
+    .success-rich-body ol li{ list-style:decimal; }
+    .success-rich-body h1,.success-rich-body h2,.success-rich-body h3{ font-weight:800; margin:0.6em 0 0.3em; }
+    .success-rich-body img{ max-width:100%; height:auto; border-radius:8px; margin:0.4em 0; }
+
     /* Email preview body inside modal — reset Tailwind reset and approximate email-client rendering */
     .email-preview-body{ font-family:'Plus Jakarta Sans','Noto Sans TC',Arial,sans-serif; color:#222; line-height:1.6; font-size:15px; }
     .email-preview-body p{ margin:0 0 1em; }
@@ -894,6 +905,7 @@ Phone: {{phone}}</p>
         "ok.again": "再報一位",
         "ok.image.title": "📱 加入 LINE 群組",
         "ok.image.caption": "掃描下方 QR Code，接收活動最新通知。",
+        "ok.body.html": "",
 
         "closed.deadline.title": "報名已截止",
         "closed.deadline.sub": "想候補？聯絡主辦窗口。",
@@ -1056,6 +1068,7 @@ Phone: {{phone}}</p>
         "ok.again": "Register another",
         "ok.image.title": "📱 Join the LINE Group",
         "ok.image.caption": "Scan the QR code below for event updates.",
+        "ok.body.html": "",
 
         "closed.deadline.title": "Registration closed",
         "closed.deadline.sub": "For waitlist, contact the organizer.",
@@ -1247,6 +1260,15 @@ Phone: {{phone}}</p>
       { key:"{{qrImage}}", label:"📷 QR 圖片 / QR Image Block" }
     ];
 
+    // Tokens available on the registration-success screen (data we have at success time)
+    const SUCCESS_TOKENS = [
+      { key:"{{name}}", label:"姓名 / Name" },
+      { key:"{{confirmationNumber}}", label:"報名序號 / Conf #" },
+      { key:"{{totalSeats}}", label:"總席次 / Total Seats" },
+      { key:"{{companionCount}}", label:"攜眷數 / Companion Count" },
+      { key:"{{company}}", label:"公司 / Company" }
+    ];
+
     // ====================================================================
     // XHR helpers
     // ====================================================================
@@ -1403,7 +1425,8 @@ Phone: {{phone}}</p>
       "#7B2D8E", "#C91B6C", "#ffffff"
     ];
 
-    function RichEditor({ value, onChange, dirty }){
+    function RichEditor({ value, onChange, dirty, tokens }){
+      const tokenList = tokens || EMAIL_TOKENS;
       const ref = useRef(null);
       const imgFileRef = useRef(null);
       const [showColorPalette, setShowColorPalette] = useState(false);
@@ -1538,7 +1561,7 @@ Phone: {{phone}}</p>
           )}
           <div className="mt-2 text-xs text-[color:var(--ink-soft)]">
             <div className="font-bold mb-1">🏷️ 可插入的標籤 / Placeholders：</div>
-            <div>{EMAIL_TOKENS.map(t => <span key={t.key} className="token-chip" onClick={() => insertToken(t.key)} title={t.label}>{t.key}</span>)}</div>
+            <div>{tokenList.map(t => <span key={t.key} className="token-chip" onClick={() => insertToken(t.key)} title={t.label}>{t.key}</span>)}</div>
           </div>
         </div>
       );
@@ -1666,6 +1689,10 @@ Phone: {{phone}}</p>
           {/* Special: Per-unit registration counts (shared across languages) */}
           <UnitStatsSection open={openSections.unitStats} onToggle={() => setOpenSections(s => ({ ...s, unitStats: !s.unitStats }))}
             edits={edits} setEdits={setEdits} serverContent={serverContent}/>
+
+          {/* Special: Rich-text success message body (per language) */}
+          <SuccessMessageSection open={openSections.successMsg} onToggle={() => setOpenSections(s => ({ ...s, successMsg: !s.successMsg }))}
+            lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>
 
           {filteredSections.map(sec => (
             <div key={sec.id} className="edit-section">
@@ -2415,6 +2442,68 @@ Phone: {{phone}}</p>
               <div className="text-xs text-[color:var(--ink-soft)] mt-3 leading-relaxed">
                 💡 改完按「💾 儲存」即生效，不用部署 GAS。<br/>
                 💡 各格名稱（NMDC / TPC/POE 等）可在「文字編輯 → 倒數 & 名額 Status」分組改（中英分開）。
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ---- Success Message Section (admin only — rich-text body on success screen) ----
+    function SuccessMessageSection({ open, onToggle, lang, setLang, edits, setEdits, serverContent }){
+      const KEY = "ok.body.html";
+      const editKey = `${lang}.${KEY}`;
+      function valueOf(){
+        if(edits[editKey] !== undefined) return edits[editKey];
+        if(serverContent[editKey] !== undefined) return serverContent[editKey];
+        return (DEFAULTS[lang] && DEFAULTS[lang][KEY]) || "";
+      }
+      const isDirty = edits[editKey] !== undefined;
+      function updateEdit(v){
+        const committed = serverContent[editKey] !== undefined ? serverContent[editKey] : ((DEFAULTS[lang] && DEFAULTS[lang][KEY]) || "");
+        setEdits(prev => {
+          const next = { ...prev };
+          if(v === committed) delete next[editKey];
+          else next[editKey] = v;
+          return next;
+        });
+      }
+      function clearBody(){
+        if(!window.confirm("確定要清空這個語言的富文字訊息？\n清空後會改回顯示原本的純文字（ok.sub）。")) return;
+        updateEdit("");
+      }
+      const hasContent = valueOf() && valueOf().trim() && valueOf().replace(/<[^>]*>/g, "").trim();
+
+      return (
+        <div className="edit-section special">
+          <div className="edit-section-head" onClick={onToggle}>
+            <span>✨ 報名成功訊息（富文字）Success Message {isDirty && <span className="text-[color:var(--wave-deep)]">●</span>}</span>
+            <span>{open ? "▾" : "▸"}</span>
+          </div>
+          {open && (
+            <div className="edit-section-body">
+              <div className="text-xs text-[color:var(--ink-soft)] mb-3 leading-relaxed">
+                報名成功畫面中央那段訊息，可以用富文字（粗體、顏色、連結、清單）自由編排。<br/>
+                💡 留空 = 改回顯示原本的純文字（在「成功畫面 Success」分組的 <code className="bg-white px-1 rounded">ok.sub</code>）。<br/>
+                💡 可插入標籤 <code className="bg-white px-1 rounded">{"{{name}}"}</code>、<code className="bg-white px-1 rounded">{"{{confirmationNumber}}"}</code> 等，報名者會看到自己的資料。
+              </div>
+
+              {/* Language toggle */}
+              <div className="flex gap-2 mb-3">
+                <button type="button" onClick={() => setLang("zh")} className={"lang-pill " + (lang === "zh" ? "active" : "")}>🇹🇼 中文</button>
+                <button type="button" onClick={() => setLang("en")} className={"lang-pill " + (lang === "en" ? "active" : "")}>🇬🇧 English</button>
+                <span className="ml-auto text-xs text-[color:var(--ink-soft)] self-center">目前編輯：{lang === "en" ? "English" : "中文"}</span>
+              </div>
+
+              <RichEditor value={valueOf()} onChange={updateEdit} dirty={isDirty} tokens={SUCCESS_TOKENS}/>
+
+              <div className="flex items-center justify-between mt-3">
+                <div className="text-xs text-[color:var(--ink-soft)]">
+                  {hasContent ? "✅ 將顯示這段富文字" : "⬜ 空白 → 顯示原本純文字 ok.sub"}
+                </div>
+                {hasContent && (
+                  <button type="button" onClick={clearBody} className="text-xs font-bold text-[color:var(--wave-deep)] hover:underline">🧹 清空改回純文字</button>
+                )}
               </div>
             </div>
           )}
@@ -4085,12 +4174,35 @@ Phone: {{phone}}</p>
         return "";
       })();
       const isLinked = hasImage && safeUrl;
+
+      // Rich-text success body (admin-edited HTML). If set, replaces the plain ok.sub text.
+      const richBodyRaw = (serverContent && edits)
+        ? getDisplay("ok.body.html", edits, serverContent)
+        : "";
+      const hasRichBody = richBodyRaw && String(richBodyRaw).replace(/<[^>]*>/g, "").trim();
+      const richBodyHtml = hasRichBody ? (() => {
+        let html = String(richBodyRaw);
+        const tok = {
+          "{{name}}": data.name || "",
+          "{{confirmationNumber}}": data.confirmationNumber || "",
+          "{{totalSeats}}": String(seats),
+          "{{companionCount}}": String(companions),
+          "{{company}}": data.company || ""
+        };
+        Object.keys(tok).forEach(k => { html = html.split(k).join(tok[k]); });
+        return html;
+      })() : "";
+
       return (
         <div className="relative p-8 md:p-12 rounded-2xl bg-[color:var(--wave)] text-white border border-[color:var(--wave-deep)] overflow-hidden bounce-in" style={{boxShadow:"0 10px 30px rgba(30,111,171,0.25)"}}>
           <div className="relative z-10">
             <div className="text-6xl mb-4">🎉</div>
             <h3 className="font-display text-4xl md:text-6xl mb-3">{t("ok.head")}</h3>
-            <p className="text-lg md:text-xl mb-6 max-w-md font-medium whitespace-pre-line opacity-95">{t("ok.sub")}</p>
+            {hasRichBody ? (
+              <div className="success-rich-body text-lg md:text-xl mb-6 max-w-md opacity-95" dangerouslySetInnerHTML={{__html: richBodyHtml}}/>
+            ) : (
+              <p className="text-lg md:text-xl mb-6 max-w-md font-medium whitespace-pre-line opacity-95">{t("ok.sub")}</p>
+            )}
 
             {/* Big highlighted name × seat count */}
             <div className="inline-flex flex-wrap items-baseline gap-3 px-5 py-3 rounded-xl bg-white/15 backdrop-blur-sm border border-white/30 mb-8">
