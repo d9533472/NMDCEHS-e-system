@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>灑水紀錄彙總表 產生器 v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script defer src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+  :root{--paper:#f4f1ea;--ink:#1b1b1a;--muted:#6b6b66;--line:#d6d1c4;--panel:#fbfaf6;
+    --accent:#c2410c;--accent2:#0f3a5f;--ok:#1f6e43;--shadow:0 1px 0 #fff inset,0 2px 14px rgba(40,30,10,.07);}
+  *{box-sizing:border-box}html,body{margin:0;padding:0}
+  body{background:linear-gradient(180deg,transparent 0,transparent calc(100% - 1px),rgba(0,0,0,.02) 100%) 0 0/100% 28px,var(--paper);
+    color:var(--ink);font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.55;-webkit-text-size-adjust:100%}
+  .wrap{max-width:1080px;margin:0 auto;padding:18px 16px 90px}
+  header.top{border:2px solid var(--ink);background:var(--panel);box-shadow:var(--shadow);padding:16px 18px;margin-bottom:16px;position:relative;overflow:hidden}
+  header.top:before{content:"";position:absolute;top:0;left:0;right:0;height:6px;background:repeating-linear-gradient(45deg,var(--ink) 0 14px,var(--accent) 14px 28px)}
+  .kicker{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--accent);margin-top:6px}
+  h1{font-size:22px;margin:.25em 0 .15em;font-weight:900}.sub{color:var(--muted);font-size:13.5px}
+  .logout{position:absolute;top:14px;right:16px;font-family:"JetBrains Mono",monospace;font-size:11px;border:1.5px solid var(--ink);background:#fff;padding:4px 9px;cursor:pointer}
+  .panel{border:1.5px solid var(--line);background:var(--panel);box-shadow:var(--shadow);margin-bottom:16px}
+  .panel>.hd{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1.5px solid var(--line);background:linear-gradient(180deg,#fff,#f0ece1)}
+  .num{font-family:"JetBrains Mono",monospace;font-weight:700;background:var(--ink);color:var(--paper);width:24px;height:24px;display:grid;place-items:center;font-size:13px;flex:none}
+  .hd h2{font-size:15px;margin:0;font-weight:700}.bd{padding:16px}
+  label.fld{display:block;margin:0 0 12px}label.fld>span{display:block;font-size:12.5px;font-weight:700;color:#3a3a36;margin-bottom:5px}
+  label.fld>span small{font-weight:400;color:var(--muted)}
+  input[type=text],input[type=number],input[type=date],input[type=password],select{width:100%;padding:10px 11px;border:1.5px solid var(--line);background:#fff;font:inherit;font-size:15px;color:var(--ink)}
+  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px;border-color:var(--accent)}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}@media(min-width:680px){.grid3{grid-template-columns:1fr 1fr 1fr}}
+  .drop{border:2px dashed var(--line);background:#fff;padding:14px;text-align:center;cursor:pointer;transition:.15s}
+  .drop:hover,.drop.drag{border-color:var(--accent);background:#fff7f1}.drop b{color:var(--accent2)}.drop .hint{font-size:12px;color:var(--muted);margin-top:4px}
+  .files{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+  .filechip{display:flex;align-items:center;gap:8px;font-size:13px;font-family:"JetBrains Mono",monospace;background:#f0ece1;border:1px solid var(--line);padding:6px 9px}
+  .filechip .x{margin-left:auto;cursor:pointer;color:var(--accent);font-weight:700}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .preset{border:1.5px solid var(--ink);background:#fff;padding:7px 13px;font-weight:700;font-size:13px;cursor:pointer}
+  .stations{display:flex;flex-wrap:wrap;gap:7px}
+  .stations label{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);padding:5px 10px;font-size:13px;cursor:pointer;background:#fff;font-family:"JetBrains Mono",monospace}
+  .stations label.on{border-color:var(--accent);background:#fff7f1;color:var(--accent)}.stations input{display:none}
+  .areacard{border:1.5px solid var(--ink);background:#fff;margin-bottom:14px}
+  .areacard>.ah{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#eee7d8;border-bottom:1.5px solid var(--ink)}
+  .areacard>.ah b{font-size:14px}.areacard>.ah .del{margin-left:auto;border:1.5px solid var(--accent);color:var(--accent);background:#fff;font-weight:700;font-size:12px;padding:3px 9px;cursor:pointer}
+  .areacard>.ab{padding:13px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:6px}
+  button.go{font:inherit;font-weight:900;font-size:16px;letter-spacing:.04em;color:var(--paper);background:var(--accent);border:2px solid var(--ink);padding:13px 24px;cursor:pointer;box-shadow:3px 3px 0 var(--ink);transition:.08s}
+  button.go:active{transform:translate(3px,3px);box-shadow:none}button.go:disabled{background:#bbb;box-shadow:3px 3px 0 #888;border-color:#888;cursor:not-allowed}
+  button.go.alt{background:var(--accent2)}button.go.dk{background:var(--ink)}
+  button.ghost{font:inherit;font-weight:700;font-size:14px;background:#fff;border:1.5px solid var(--ink);padding:10px 16px;cursor:pointer}
+  .status{font-family:"JetBrains Mono",monospace;font-size:13px;margin-top:12px;padding:10px 12px;border-left:4px solid var(--accent2);background:#eef3f7;white-space:pre-wrap;display:none}
+  .status.show{display:block}.status.err{border-color:var(--accent);background:#fdeee7;color:#7a2d10}.status.ok{border-color:var(--ok);background:#eef6f0;color:#13502f}
+  .summary{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+  .summary th,.summary td{border:1px solid var(--line);padding:6px 9px;text-align:center;font-family:"JetBrains Mono",monospace}
+  .summary th{background:#f0ece1;font-family:inherit}.summary td.l{text-align:left;font-family:inherit;font-weight:700}
+  .areaprev{margin-top:18px}
+  .areaprev>h3{font-size:15px;border-left:5px solid var(--accent);padding-left:9px;margin:18px 0 6px}
+  .mtbl{width:100%;border-collapse:collapse;font-family:"BiauKai","DFKai-SB","標楷體",serif;font-size:12px;margin-bottom:18px;background:#fff;border:1.5px solid var(--ink)}
+  .mtbl caption{caption-side:top;text-align:left;font-family:"Noto Sans TC";font-weight:700;font-size:13px;padding:6px 4px;color:var(--accent2)}
+  .mtbl th,.mtbl td{border:1px solid #999;padding:3px 5px;text-align:center;vertical-align:middle}
+  .mtbl thead th{background:#e8e3d6;font-family:"Noto Sans TC";font-size:11px}
+  .mtbl td.warn{text-align:left;font-size:10px;line-height:1.35;white-space:nowrap}.mtbl tr.lv td{background:#fff3e6}.mtbl td.aqihi{color:var(--accent);font-weight:700}
+  .note{font-size:12px;color:var(--muted);background:#f0ece1;border:1px solid var(--line);padding:9px 11px;margin-top:6px}
+  .foot{font-size:11.5px;color:var(--muted);text-align:center;margin-top:26px;font-family:"JetBrains Mono",monospace}
+  .hide{display:none}
+  /* login */
+  #login{position:fixed;inset:0;background:var(--paper);display:grid;place-items:center;z-index:50}
+  #login .box{border:2px solid var(--ink);background:var(--panel);box-shadow:6px 6px 0 var(--ink);padding:26px;width:min(360px,90vw)}
+  #login .box:before{content:"";display:block;height:6px;margin:-26px -26px 18px;background:repeating-linear-gradient(45deg,var(--ink) 0 14px,var(--accent) 14px 28px)}
+  #login h2{margin:0 0 4px;font-size:19px}#login p{margin:0 0 16px;color:var(--muted);font-size:13px}
+  #login .err{color:var(--accent);font-size:13px;margin-top:8px;min-height:18px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login"><div class="box">
+  <h2>環境監測｜登入</h2><p>灑水紀錄彙總表產生器 v2</p>
+  <label class="fld"><span>密碼</span><input type="password" id="pw" autocomplete="current-password"></label>
+  <button class="go" id="loginBtn" style="width:100%">進入</button>
+  <div class="err" id="loginErr"></div>
+</div></div>
+
+<div class="wrap hide" id="app">
+  <header class="top">
+    <div class="logout" id="logout">登出</div>
+    <div class="kicker">NMDC · ENV · 環境監測</div>
+    <h1>營建工地灑水紀錄彙總表 產生器 <span style="font-family:'JetBrains Mono';font-size:14px;color:var(--accent)">v2</span></h1>
+    <div class="sub">多工區批次產生 · 自動日均 AQI／警告等級／氣溫 · Word 輸出 · Google Sheet 雲端存取</div>
+  </header>
+
+  <!-- 1 shared inputs -->
+  <section class="panel"><div class="hd"><span class="num">1</span><h2>共用設定</h2></div><div class="bd">
+    <label class="fld"><span>AQI 資料來源</span></label>
+    <div class="presets" id="srcToggle" style="margin-bottom:12px">
+      <div class="preset" data-src="csv">① 上傳 CSV</div>
+      <div class="preset" data-src="api">② 自動抓取（環境部 API）</div>
+    </div>
+
+    <div id="srcCsv">
+      <div class="drop" id="dropAqi">點此選擇／拖入 <b>AQI CSV</b><div class="hint">每月一檔，可一次多選</div>
+        <input type="file" id="aqiInput" accept=".csv" multiple class="hide"></div>
+      <div class="files" id="aqiFiles"></div>
+    </div>
+
+    <div id="srcApi" class="hide">
+      <div class="grid2">
+        <label class="fld"><span>API 金鑰<small>　環境部開放平台</small></span><input type="text" id="apiKey" placeholder="xxxxxxxx-xxxx-..."></label>
+        <label class="fld"><span>CORS 代理網址<small>　選填，被擋時用</small></span><input type="text" id="proxyUrl" placeholder="https://your-worker.workers.dev/?url="></label>
+      </div>
+      <div class="grid3">
+        <label class="fld"><span>資料集代碼</span><input type="text" id="dataId" value="aqx_p_488"></label>
+        <label class="fld"><span>測站欄位名</span><input type="text" id="siteField" value="sitename"></label>
+        <label class="fld"><span>日期欄位名</span><input type="text" id="dateField" value="datacreationdate"></label>
+      </div>
+      <div class="actions" style="margin-top:0">
+        <button class="ghost" id="btnLoadSites">載入測站清單</button>
+        <button class="ghost" id="btnTestApi">測試抓取</button>
+      </div>
+      <div class="status" id="apistatus"></div>
+      <div class="note" style="margin-top:10px">⚠ 若把本頁公開放在 GitHub Pages，網頁原始碼會含你的 API 金鑰。建議：頁面設為私人、或改用匿名（清空金鑰，300 次/日）、或讓代理 Worker 保管金鑰。</div>
+    </div>
+
+    <div class="grid3" style="margin-top:14px">
+      <label class="fld"><span>起始日期</span><input type="date" id="dStart"></label>
+      <label class="fld"><span>結束日期</span><input type="date" id="dEnd"></label>
+      <label class="fld"><span>氣溫來源</span><select id="tsrc"><option value="mean">日平均溫</option><option value="max">日最高溫</option><option value="min">日最低溫</option></select></label>
+    </div>
+    <label class="fld"><span>工程名稱（共用）</span><input type="text" id="projName" value="通霄電廠第二期更新改建計畫－海底輸氣管線統包工程"></label>
+  </div></section>
+
+  <!-- 2 areas -->
+  <section class="panel"><div class="hd"><span class="num">2</span><h2>工區（可多區批次）</h2></div><div class="bd">
+    <div class="presets">
+      <div class="preset" data-add="tongxiao">＋ 通霄工區（苗栗＋三義）</div>
+      <div class="preset" data-add="taichung">＋ 台中工區（沙鹿）</div>
+      <div class="preset" data-add="custom">＋ 自訂工區</div>
+    </div>
+    <div id="areaList"></div>
+  </div></section>
+
+  <!-- 3 generate -->
+  <section class="panel"><div class="hd"><span class="num">3</span><h2>產生 ＆ 下載</h2></div><div class="bd">
+    <div class="actions">
+      <button class="go" id="btnGo">產生預覽（全部工區）</button>
+      <button class="go alt hide" id="btnZip">⬇ 下載全部 Word（ZIP）</button>
+      <button class="ghost hide" id="btnEach">各別下載</button>
+    </div>
+    <div class="status" id="status"></div>
+    <div id="summaryBox"></div>
+  </div></section>
+
+  <!-- 4 cloud -->
+  <section class="panel"><div class="hd"><span class="num">4</span><h2>雲端（Google Sheet）</h2></div><div class="bd">
+    <label class="fld"><span>GAS Web App URL<small>　部署 code.gs 後貼上 /exec 網址</small></span>
+      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/XXXX/exec"></label>
+    <div class="actions" style="margin-top:0">
+      <button class="ghost" id="btnPing">測試連線</button>
+      <button class="go dk hide" id="btnSaveCloud">把本次結果存到雲端</button>
+    </div>
+    <div class="note" style="margin-top:12px">從雲端直接產生（不需重新上傳檔案）：</div>
+    <div class="grid3" style="margin-top:10px">
+      <label class="fld"><span>工區</span><select id="cloudArea"><option value="">先測試連線載入</option></select></label>
+      <label class="fld"><span>起始</span><input type="date" id="cStart"></label>
+      <label class="fld"><span>結束</span><input type="date" id="cEnd"></label>
+    </div>
+    <div class="actions" style="margin-top:0">
+      <button class="go alt" id="btnCloudGen">從雲端產生 Word</button>
+    </div>
+    <div class="status" id="cstatus"></div>
+  </div></section>
+
+  <div class="areaprev" id="preview"></div>
+  <div class="foot">單一檔案 · 純前端運算 · 僅在你按「存到雲端」時才傳送資料至你自己的 Google Sheet</div>
+</div>
+
+<script>
+"use strict";
+/* ===== CONFIG ===== */
+const APP_PASSWORD="123";          // ← 登入密碼，可自行修改
+/* ================== */
+
+const $=id=>document.getElementById(id);
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const pad=n=>String(n).padStart(2,"0");
+const iso=(y,m,d)=>`${y}-${pad(m)}-${pad(d)}`;
+const daysInMonth=(y,m)=>new Date(y,m,0).getDate();
+const fmt=v=>(v===""||v==null||isNaN(v))?"":(Number(v)===Math.trunc(Number(v))?String(Math.trunc(Number(v))):String(+(+v).toFixed(1)));
+const setS=(el,msg,cls="")=>{el.className="status show "+cls;el.textContent=msg;};
+
+/* ===== LOGIN ===== */
+// 將全形數字/字母轉半形並去除前後空白，避免中文輸入法打出全形「１２３」無法登入
+const normPw=s=>String(s||"").replace(/[\uFF01-\uFF5E]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)).replace(/\u3000/g," ").trim();
+function showApp(){ $("login").classList.add("hide"); $("app").classList.remove("hide"); init(); }
+function tryLogin(){ if(normPw($("pw").value)===APP_PASSWORD){ LS.set("water_auth","1"); showApp(); } else { $("loginErr").textContent="密碼錯誤（提示：請用半形數字 123）"; } }
+$("loginBtn").onclick=tryLogin;
+$("pw").addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); tryLogin(); } });
+$("logout").onclick=()=>{ LS.set("water_auth",""); location.reload(); };
+/* 自動登入移到檔案最末（待 S 等變數初始化後才執行），避免 TDZ */
+
+/* ===== STATE ===== */
+const S={aqiSrc:"csv",aqiFiles:[],allStations:[],areas:[],results:null,apiAqi:null};
+let AID=0;
+
+/* ===== shared file picker ===== */
+function wireDrop(dropId,inputId,onFiles){
+  const d=$(dropId),i=$(inputId);
+  d.addEventListener("click",()=>i.click());
+  i.addEventListener("change",()=>onFiles([...i.files]));
+  ["dragover","dragenter"].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.classList.add("drag");}));
+  ["dragleave","drop"].forEach(e=>d.addEventListener(e,ev=>{ev.preventDefault();d.classList.remove("drag");}));
+  d.addEventListener("drop",ev=>onFiles([...ev.dataTransfer.files]));
+}
+function initShared(){
+  wireDrop("dropAqi","aqiInput",fs=>{
+    const csv=fs.filter(f=>/\.csv$/i.test(f.name));
+    S.aqiFiles=S.aqiFiles.concat(csv);
+    const seen=new Set(); S.aqiFiles=S.aqiFiles.filter(f=>{if(seen.has(f.name))return false;seen.add(f.name);return true;});
+    renderAqiChips(); detectStations();
+  });
+}
+
+/* ===== AQI source toggle ===== */
+function setSrc(src){
+  S.aqiSrc=src;
+  document.querySelectorAll("#srcToggle .preset").forEach(p=>p.classList.toggle("on",p.dataset.src===src));
+  $("srcCsv").classList.toggle("hide",src!=="csv");
+  $("srcApi").classList.toggle("hide",src!=="api");
+  LS.set("water_src",src);
+}
+document.querySelectorAll("#srcToggle .preset").forEach(p=>p.onclick=()=>setSrc(p.dataset.src));
+
+/* ===== MOENV open-data API ===== */
+function apiKey(){ return $("apiKey").value.trim(); }
+function withProxy(u){ const px=$("proxyUrl").value.trim(); return px?(px+encodeURIComponent(u)):u; }
+async function apiGet(params){
+  const id=$("dataId").value.trim()||"aqx_p_488";
+  const qs=Object.entries(params).map(([k,v])=>k+"="+encodeURIComponent(v)).join("&");
+  const key=apiKey()?("&api_key="+encodeURIComponent(apiKey())):"";
+  const url=`https://data.moenv.gov.tw/api/v2/${id}?${qs}${key}`;
+  const r=await fetch(withProxy(url));
+  if(!r.ok)throw new Error("HTTP "+r.status);
+  const j=await r.json();
+  const recs=j.records||(j.result&&j.result.records)||[];
+  const total=(j.total!=null?j.total:(j.result&&j.result.total))||recs.length;
+  return {recs,total,raw:j};
+}
+const gf=(rec,names)=>{ for(const k in rec){ const lk=k.toLowerCase(); if(names.includes(lk))return rec[k]; } return undefined; };
+function recAqi(r){ return gf(r,["aqi"]); }
+function recSite(r){ return gf(r,["sitename","site","sitenameen"]); }
+function recDate(r){ return String(gf(r,["datacreationdate","monitordate","publishtime","date"])||""); }
+
+$("btnLoadSites").onclick=async()=>{const st=$("apistatus");
+  try{ setS(st,"從即時 AQI 載入測站清單…");
+    // aqx_p_432 = 即時 AQI（全測站，一次取得站名）
+    const prevId=$("dataId").value; $("dataId").value="aqx_p_432";
+    const {recs}=await apiGet({format:"json",offset:0,limit:1000});
+    $("dataId").value=prevId;
+    const names=[...new Set(recs.map(recSite).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b),"zh-Hant"));
+    if(!names.length)throw new Error("回應無測站，請檢查金鑰/欄位名");
+    S.allStations=names; S.areas.forEach(renderStationsFor);
+    setS(st,`已載入 ${names.length} 個測站 ✓`,"ok");
+  }catch(e){ $("dataId").value="aqx_p_488"; setS(st,fetchErr(e),"err"); } };
+
+$("btnTestApi").onclick=async()=>{const st=$("apistatus");
+  try{
+    const site=(S.areas.find(a=>a.stations.size)||{stations:new Set(["苗栗"])}).stations.values().next().value;
+    const start=$("dStart").value||"2025-08-01";
+    setS(st,`測試抓取 ${site}（${start}）…`);
+    const f=`${$("siteField").value.trim()},EQ,${site}|${$("dateField").value.trim()},GR,${start} 00:00:00|${$("dateField").value.trim()},LE,${start} 23:00:00`;
+    const {recs,total}=await apiGet({format:"json",offset:0,limit:3,filters:f});
+    if(!recs.length){ setS(st,`連線成功，但此條件查無資料。請確認測站名「${site}」、欄位名、日期是否正確。`,"err"); return; }
+    const r0=recs[0];
+    setS(st,`成功 ✓ total≈${total}\n第一筆欄位：${Object.keys(r0).join(", ")}\n解析 → 測站=${recSite(r0)} / AQI=${recAqi(r0)} / 日期=${recDate(r0)}`,"ok");
+  }catch(e){ setS(st,fetchErr(e),"err"); } };
+
+function fetchErr(e){
+  const m=String(e.message||e);
+  if(/Failed to fetch|NetworkError|CORS/i.test(m))
+    return "連線/CORS 失敗：政府 API 可能擋瀏覽器跨域。請在「CORS 代理網址」填入你的 Cloudflare Worker（附檔 aqi-proxy-worker.js），格式如 https://xxx.workers.dev/?url=";
+  return "失敗："+m;
+}
+
+/* fetch one station full range, paginate, return [{date,aqi}] within range */
+async function fetchStationAqi(site,start,end,onProg){
+  const sf=$("siteField").value.trim(),df=$("dateField").value.trim();
+  const filters=`${sf},EQ,${site}|${df},GR,${start} 00:00:00|${df},LE,${end} 23:00:00`;
+  const limit=1000; let offset=0,all=[],guard=0;
+  while(guard++<60){
+    const {recs}=await apiGet({format:"json",offset,limit,filters});
+    all=all.concat(recs);
+    if(onProg)onProg(all.length);
+    if(recs.length<limit)break;
+    offset+=limit;
+  }
+  return all;
+}
+/* build {date:{station:avg}} from API for the chosen stations */
+async function fetchAqiApi(stations,start,end,status){
+  const acc={};
+  for(const s of stations){
+    setS(status,`API 抓取 AQI：${s}…`);
+    const recs=await fetchStationAqi(s,start,end,n=>setS(status,`API 抓取 AQI：${s}（${n} 筆）…`));
+    for(const r of recs){
+      const a=parseFloat(recAqi(r)); if(isNaN(a))continue;
+      const d=recDate(r).slice(0,10); if(!/^\d{4}-\d{2}-\d{2}$/.test(d))continue;
+      (acc[d]=acc[d]||{});(acc[d][s]=acc[d][s]||{s:0,n:0});acc[d][s].s+=a;acc[d][s].n++;
+    }
+  }
+  const out={};for(const d in acc){out[d]={};for(const s in acc[d])out[d][s]=Math.round(acc[d][s].s/acc[d][s].n);}return out;
+}
+function renderAqiChips(){
+  $("aqiFiles").innerHTML=S.aqiFiles.map((f,i)=>`<div class="filechip">📄 ${f.name} <span class="x" data-i="${i}">✕</span></div>`).join("");
+  $("aqiFiles").querySelectorAll(".x").forEach(x=>x.onclick=()=>{S.aqiFiles.splice(+x.dataset.i,1);renderAqiChips();detectStations();});
+}
+async function detectStations(){
+  if(!S.aqiFiles.length)return;
+  const names=new Set(); let minD="9999-99-99",maxD="0000-00-00";
+  for(const f of S.aqiFiles){
+    const txt=await f.text(); const lines=txt.split(/\r?\n/);
+    for(let i=1;i<lines.length;i++){const ln=lines[i];if(!ln)continue;const c=ln.indexOf(",");if(c<1)continue;names.add(ln.slice(0,c).replace(/^\uFEFF/,""));}
+    const m=f.name.match(/(\d{4})-(\d{2})/);
+    if(m){const ms=`${m[1]}-${m[2]}-01`;if(ms<minD)minD=ms;const me=iso(+m[1],+m[2],daysInMonth(+m[1],+m[2]));if(me>maxD)maxD=me;}
+  }
+  S.allStations=[...names].filter(Boolean).sort((a,b)=>a.localeCompare(b,"zh-Hant"));
+  if(minD!=="9999-99-99"&&!$("dStart").value)$("dStart").value=minD;
+  if(maxD!=="0000-00-00"&&!$("dEnd").value)$("dEnd").value=maxD;
+  S.areas.forEach(renderStationsFor); // refresh station chips in each area
+}
+
+/* ===== area cards ===== */
+const PRESETS={
+  tongxiao:{name:"通霄工區",stations:["苗栗","三義"],lat:24.4991,lon:120.6731},
+  taichung:{name:"台中工區",stations:["沙鹿"],lat:24.2256,lon:120.5688},
+  custom:{name:"",stations:[],lat:24.4991,lon:120.6731}
+};
+$("areaList");
+document.querySelectorAll(".preset[data-add]").forEach(b=>b.onclick=()=>addArea(PRESETS[b.dataset.add]));
+function addArea(cfg){
+  const id="a"+(AID++);
+  const a={id,name:cfg.name,stations:new Set(cfg.stations),lat:cfg.lat,lon:cfg.lon,waterFile:null};
+  S.areas.push(a);
+  const card=document.createElement("div"); card.className="areacard"; card.id="card_"+id;
+  card.innerHTML=`
+    <div class="ah"><b>工區</b><span style="font-family:'JetBrains Mono';color:var(--muted);font-size:12px">#${id}</span>
+      <button class="del" data-id="${id}">移除</button></div>
+    <div class="ab">
+      <label class="fld"><span>工區名稱</span><input type="text" class="aName" value="${cfg.name}"></label>
+      <label class="fld"><span>AQI 測站（警告等級取較高者）</span></label>
+      <div class="stations aStations"></div>
+      <div class="grid2" style="margin-top:12px">
+        <label class="fld"><span>緯度 lat</span><input type="number" step="0.0001" class="aLat" value="${cfg.lat}"></label>
+        <label class="fld"><span>經度 lon</span><input type="number" step="0.0001" class="aLon" value="${cfg.lon}"></label>
+      </div>
+      <label class="fld"><span>每日用水量檔（.doc / .docx）</span></label>
+      <div class="drop aDrop">點此選擇／拖入 <b>用水量檔</b><div class="hint">本工區專用</div>
+        <input type="file" class="aWater" accept=".doc,.docx" style="display:none"></div>
+      <div class="files aWaterFiles"></div>
+    </div>`;
+  $("areaList").appendChild(card);
+  card.querySelector(".del").onclick=()=>{ S.areas=S.areas.filter(x=>x.id!==id); card.remove(); };
+  card.querySelector(".aName").oninput=e=>a.name=e.target.value;
+  card.querySelector(".aLat").oninput=e=>a.lat=parseFloat(e.target.value);
+  card.querySelector(".aLon").oninput=e=>a.lon=parseFloat(e.target.value);
+  const drop=card.querySelector(".aDrop"),win=card.querySelector(".aWater");
+  drop.addEventListener("click",()=>win.click());
+  ["dragover","dragenter"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.add("drag");}));
+  ["dragleave","drop"].forEach(e=>drop.addEventListener(e,ev=>{ev.preventDefault();drop.classList.remove("drag");}));
+  const takeWater=f=>{a.waterFile=f;card.querySelector(".aWaterFiles").innerHTML=`<div class="filechip">💧 ${f.name} <span class="x">✕</span></div>`;
+    const x=card.querySelector(".aWaterFiles .x"); if(x)x.onclick=()=>{a.waterFile=null;card.querySelector(".aWaterFiles").innerHTML="";};};
+  win.addEventListener("change",()=>{ if(win.files[0])takeWater(win.files[0]); });
+  drop.addEventListener("drop",ev=>{ev.preventDefault();drop.classList.remove("drag");const f=[...ev.dataTransfer.files].find(f=>/\.docx?$/i.test(f.name));if(f)takeWater(f);});
+  renderStationsFor(a);
+}
+function renderStationsFor(a){
+  const card=$("card_"+a.id); if(!card)return;
+  const box=card.querySelector(".aStations");
+  if(!S.allStations.length){ box.innerHTML='<span class="note" style="margin:0">上傳 AQI CSV 後列出</span>'; return; }
+  box.innerHTML=S.allStations.map(s=>`<label class="${a.stations.has(s)?'on':''}"><input type="checkbox" value="${s}" ${a.stations.has(s)?'checked':''}>${s}</label>`).join("");
+  box.querySelectorAll("input").forEach(cb=>cb.onchange=()=>{cb.checked?a.stations.add(cb.value):a.stations.delete(cb.value);cb.parentElement.classList.toggle("on",cb.checked);});
+}
+
+/* ===== parsing / compute (validated core) ===== */
+async function parseWater(file){
+  const buf=await file.arrayBuffer(),bytes=new Uint8Array(buf); let text="";
+  if(bytes[0]===0x50&&bytes[1]===0x4B){ const zip=await JSZip.loadAsync(buf); text=(await zip.file("word/document.xml").async("string")).replace(/<[^>]+>/g," "); }
+  else{ let enc="utf-8"; if(bytes[0]===0xFF&&bytes[1]===0xFE)enc="utf-16le"; else if(bytes[0]===0xFE&&bytes[1]===0xFF)enc="utf-16be";
+    const raw=new TextDecoder(enc).decode(buf);
+    try{const doc=new DOMParser().parseFromString(raw,"text/html");text=doc.body?doc.body.textContent:raw;}catch(_){text=raw.replace(/<[^>]+>/g," ");} }
+  const water={}; const re=/(\d{4}-\d{2}-\d{2})[\s\u3000]*（.）[\s\u3000]*([0-9]+(?:\.[0-9]+)?)/g; let m,c=0;
+  while((m=re.exec(text))){water[m[1]]=parseFloat(m[2]);c++;}
+  if(!c){const re2=/(\d{4}-\d{2}-\d{2})[^\d]{1,8}([0-9]+(?:\.[0-9]+)?)/g;while((m=re2.exec(text)))if(!(m[1] in water))water[m[1]]=parseFloat(m[2]);}
+  return water;
+}
+async function parseAqi(files,stations){
+  const want=new Set(stations),acc={};
+  for(const f of files){const txt=await f.text(),lines=txt.split(/\r?\n/);
+    for(let i=1;i<lines.length;i++){const ln=lines[i];if(!ln)continue;const c=ln.indexOf(",");if(c<1)continue;
+      const site=ln.slice(0,c).replace(/^\uFEFF/,"");if(!want.has(site))continue;
+      const p=ln.split(","),aqi=parseFloat(p[2]);if(isNaN(aqi))continue;
+      const dt=(p[20]||"").replace(/"/g,"").trim().slice(0,10);if(!/^\d{4}-\d{2}-\d{2}$/.test(dt))continue;
+      (acc[dt]=acc[dt]||{});(acc[dt][site]=acc[dt][site]||{s:0,n:0});acc[dt][site].s+=aqi;acc[dt][site].n++;}}
+  const out={};for(const d in acc){out[d]={};for(const s in acc[d])out[d][s]=Math.round(acc[d][s].s/acc[d][s].n);}return out;
+}
+async function fetchTemp(lat,lon,start,end,which){
+  const v=which==="max"?"temperature_2m_max":which==="min"?"temperature_2m_min":"temperature_2m_mean";
+  const url=`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&start_date=${start}&end_date=${end}&daily=${v}&timezone=Asia%2FTaipei`;
+  const r=await fetch(url); if(!r.ok)throw new Error("氣溫 API "+r.status);
+  const j=await r.json(),t={},T=j.daily[v]||[]; j.daily.time.forEach((d,i)=>{if(T[i]!=null)t[d]=T[i];}); return t;
+}
+function warnLevel(a){if(a==null||a<=100)return 0;if(a<=150)return 1;if(a<=200)return 2;if(a<=300)return 3;if(a<=400)return 4;return 5;}
+function buildData(water,aqi,temp,stations,startISO,endISO){
+  const [sy,sm]=startISO.split("-").map(Number),[ey,em]=endISO.split("-").map(Number);
+  const months=[];let cur=new Date(sy,sm-1,1);const last=new Date(ey,em-1,1);
+  while(cur<=last){const y=cur.getFullYear(),mo=cur.getMonth()+1,nd=daysInMonth(y,mo);let cum=0;const rows=[];
+    for(let day=1;day<=nd;day++){const ds=iso(y,mo,day);const w=water[ds]||0;cum+=w;
+      if(ds<startISO||ds>endISO)continue;
+      const vals=stations.map(s=>(aqi[ds]&&aqi[ds][s]!=null)?aqi[ds][s]:null);
+      const mx=vals.reduce((a,b)=>b==null?a:(a==null?b:Math.max(a,b)),null);
+      rows.push({idx:day,iso:ds,date:`${y}/${mo}/${day}`,temp:(ds in temp)?fmt(Math.round(temp[ds])):"",
+        water:fmt(w),cum:fmt(Math.round(cum*10)/10),aqi:vals.map(v=>v==null?"":v),level:warnLevel(mx),remark:w>0?"":"未出工"});}
+    if(rows.length){const mw=rows.reduce((a,r)=>a+(parseFloat(r.water)||0),0);
+      months.push({year:y,month:mo,rows,monthWater:fmt(Math.round(mw*10)/10),
+        noWork:rows.filter(r=>r.remark==="未出工").length,warnDays:rows.filter(r=>r.level>0).length});}
+    cur.setMonth(cur.getMonth()+1);}
+  return months;
+}
+/* rebuild months from cloud rows (already have iso/date/temp/water/cum/aqi/level/remark) */
+function monthsFromRows(rows,stations){
+  rows.sort((a,b)=>a.iso<b.iso?-1:1);
+  const bym={};
+  rows.forEach(r=>{const [y,mo]=r.iso.split("-").map(Number);const k=y+"-"+mo;(bym[k]=bym[k]||{year:y,month:mo,rows:[]});
+    const day=+r.iso.split("-")[2];
+    bym[k].rows.push({idx:day,iso:r.iso,date:`${y}/${mo}/${day}`,temp:fmt(r.temp),water:fmt(r.water),cum:fmt(r.cum),
+      aqi:stations.map(s=>(r.aqi&&r.aqi[s]!=null)?r.aqi[s]:""),level:+r.level||0,remark:r.remark||""});});
+  return Object.values(bym).sort((a,b)=>a.year-b.year||a.month-b.month).map(m=>{
+    const mw=m.rows.reduce((a,r)=>a+(parseFloat(r.water)||0),0);
+    return {...m,monthWater:fmt(Math.round(mw*10)/10),noWork:m.rows.filter(r=>r.remark==="未出工").length,warnDays:m.rows.filter(r=>r.level>0).length};});
+}
+
+/* ===== preview ===== */
+function warnCellText(l){const cb=on=>on?"■":"□";return `${cb(l===0)}未發布空品惡化警告　預警等級：${cb(l===1)}二級${cb(l===2)}一級　嚴重惡化：${cb(l===3)}三級${cb(l===4)}二級${cb(l===5)}一級`;}
+function renderAll(results){
+  let html="";
+  results.forEach(R=>{
+    html+=`<h3>${R.area}</h3>`;
+    R.months.forEach(m=>{
+      html+=`<table class="mtbl"><caption>${R.area}　${m.year}/${pad(m.month)}（月用水 ${m.monthWater} m³／未出工 ${m.noWork}／預警 ${m.warnDays}）</caption>`+
+        "<thead><tr><th>項次</th><th>日期</th><th>天氣℃</th><th>當日/累計<br>用水量(m³)</th><th>空品惡化警告等級</th>"+
+        R.stations.map(s=>`<th>AQI<br>${s}</th>`).join("")+"<th>備註</th></tr></thead><tbody>";
+      m.rows.forEach(r=>{html+=`<tr class="${r.level>0?'lv':''}"><td>${r.idx}</td><td>${r.date}</td><td>${r.temp}</td><td>${r.water} / ${r.cum}</td>`+
+        `<td class="warn">${warnCellText(r.level)}</td>`+r.aqi.map(v=>`<td class="${(v!==''&&v>100)?'aqihi':''}">${v}</td>`).join("")+`<td>${r.remark}</td></tr>`;});
+      html+="</tbody></table>";
+    });
+  });
+  $("preview").innerHTML=html;
+}
+function renderSummary(results){
+  let html="";
+  results.forEach(R=>{
+    let total=0,nw=0,wn=0;
+    const rows=R.months.map(m=>{total+=parseFloat(m.monthWater)||0;nw+=m.noWork;wn+=m.warnDays;
+      return `<tr><td class="l">${m.year}/${pad(m.month)}</td><td>${m.rows.length}</td><td>${m.monthWater}</td><td>${m.noWork}</td><td>${m.warnDays}</td></tr>`;}).join("");
+    html+=`<table class="summary"><thead><tr><th colspan="5" style="background:#1b1b1a;color:#f4f1ea">${R.area}</th></tr>
+      <tr><th>月份</th><th>列數</th><th>月用水</th><th>未出工</th><th>預警</th></tr></thead><tbody>${rows}</tbody>
+      <tfoot><tr><th class="l">合計</th><th></th><th>${fmt(Math.round(total*10)/10)}</th><th>${nw}</th><th>${wn}</th></tr></tfoot></table><div style="height:10px"></div>`;
+  });
+  $("summaryBox").innerHTML=html;
+}
+
+/* ===== docx ===== */
+function buildDocxBlob(months,stations,area,proj){
+  const D=window.docx;
+  const {Document,Packer,Paragraph,TextRun,Table,TableRow,TableCell,AlignmentType,BorderStyle,WidthType,ShadingType,VerticalAlign,PageBreak}=D;
+  const FONT="標楷體",ns=stations.length;
+  let COLW; if(ns===1)COLW=[600,1300,800,1500,3466,1000,1800];
+  else{COLW=[600,1250,800,1450,3066];for(let i=0;i<ns;i++)COLW.push(Math.round(1500/ns));COLW.push(1800);}
+  COLW[COLW.length-1]+=(10466-COLW.reduce((a,b)=>a+b,0));
+  const TOTAL=COLW.reduce((a,b)=>a+b,0),NCOL=COLW.length;
+  const bd={style:BorderStyle.SINGLE,size:4,color:"000000"},BORDERS={top:bd,bottom:bd,left:bd,right:bd};
+  const nb={style:BorderStyle.NONE,size:0,color:"FFFFFF"},NOB={top:nb,bottom:nb,left:nb,right:nb};
+  const M={top:40,bottom:40,left:60,right:60};
+  const run=(t,o={})=>new TextRun({text:String(t),bold:!!o.b,size:o.sz||18,font:FONT});
+  const para=(rs,al)=>new Paragraph({alignment:al||AlignmentType.CENTER,spacing:{before:0,after:0,line:240,lineRule:"auto"},children:Array.isArray(rs)?rs:[rs]});
+  const cell=(ch,o={})=>{const x={borders:o.noB?NOB:BORDERS,margins:M,verticalAlign:VerticalAlign.CENTER,children:(Array.isArray(ch)?ch:[ch]).map(c=>c instanceof Paragraph?c:para(c))};
+    if(o.span)x.columnSpan=o.span;if(o.w)x.width={size:o.w,type:WidthType.DXA};if(o.fill)x.shading={fill:o.fill,type:ShadingType.CLEAR};return new TableCell(x);};
+  const warnP=lv=>{const cb=on=>on?"■":"□";return[
+    para([run(cb(lv===0)+"未發布空品惡化警告",{sz:15,b:lv===0})],AlignmentType.LEFT),
+    para([run("預警等級："+cb(lv===1)+"二級 "+cb(lv===2)+"一級",{sz:15,b:lv===1||lv===2})],AlignmentType.LEFT),
+    para([run("嚴重惡化："+cb(lv===3)+"三級 "+cb(lv===4)+"二級 "+cb(lv===5)+"一級",{sz:15,b:lv>=3})],AlignmentType.LEFT)];};
+  const HEAD=["項次","日期\n(年/月/日)","天氣\n(°C)","當日／累計\n用水量(m³)","空品惡化警告等級"].concat(stations.map(s=>"空品AQI\n"+s)).concat(["備註"]);
+  const titleRow=()=>new TableRow({children:[cell(para(run(`營建工地灑水紀錄彙總表（${area}）`,{b:true,sz:24})),{span:NCOL,noB:true})]});
+  const projRow=()=>new TableRow({children:[cell(para([run("工程名稱："+proj,{b:true,sz:18})],AlignmentType.LEFT),{span:NCOL,noB:true})]});
+  const headRow=()=>new TableRow({tableHeader:true,children:HEAD.map((h,i)=>cell(h.split("\n").map(l=>para(run(l,{b:true,sz:16}))),{w:COLW[i],fill:"D9D9D9"}))});
+  const signRow=()=>{const h=Math.ceil(NCOL/2);return new TableRow({children:[cell(para([run("環境保護管理人員：",{sz:18})],AlignmentType.LEFT),{span:h,noB:true}),cell(para([run("工地負責人：",{sz:18})],AlignmentType.LEFT),{span:NCOL-h,noB:true})]});};
+  const blankRow=()=>new TableRow({children:COLW.map(w=>cell(para(run("",{sz:18})),{w}))});
+  const dataRow=r=>{if(!r)return blankRow();const c=[cell(para(run(r.idx,{sz:18})),{w:COLW[0]}),cell(para(run(r.date,{sz:18})),{w:COLW[1]}),cell(para(run(r.temp,{sz:18})),{w:COLW[2]}),cell(para(run(r.water+" / "+r.cum,{sz:17})),{w:COLW[3]}),cell(warnP(r.level),{w:COLW[4]})];
+    r.aqi.forEach((v,i)=>c.push(cell(para(run(v,{sz:18})),{w:COLW[5+i]})));c.push(cell(para(run(r.remark,{sz:18})),{w:COLW[NCOL-1]}));return new TableRow({children:c});};
+  const block=(m,s,e)=>{const rows=[titleRow(),projRow(),headRow()];for(let i=s;i<=e;i++)rows.push(dataRow(m.rows.find(x=>x.idx===i)||null));rows.push(signRow());return new Table({width:{size:TOTAL,type:WidthType.DXA},columnWidths:COLW,rows});};
+  const children=[];let first=true;
+  months.forEach(m=>{[[1,15],[16,31]].forEach(([s,e])=>{if(!m.rows.some(r=>r.idx>=s&&r.idx<=e))return;if(!first)children.push(new Paragraph({children:[new PageBreak()]}));first=false;children.push(block(m,s,e));});});
+  const doc=new Document({styles:{default:{document:{run:{font:FONT,size:18}}}},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:720,right:720,bottom:720,left:720}}},children}]});
+  return Packer.toBlob(doc);
+}
+function dl(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();}
+
+/* ===== generate ===== */
+$("btnGo").onclick=async()=>{
+  const st=$("status");
+  try{
+    if(S.aqiSrc==="csv"){ if(!S.aqiFiles.length)return setS(st,"請先上傳 AQI CSV。","err"); }
+    else { if(!apiKey() && !$("proxyUrl").value.trim()) setS(st,"提醒：未填 API 金鑰，將以匿名模式抓取（300 次/日）。"); }
+    if(!S.areas.length)return setS(st,"請至少新增一個工區。","err");
+    const start=$("dStart").value,end=$("dEnd").value;
+    if(!start||!end||start>end)return setS(st,"請設定正確的起訖日期。","err");
+    for(const a of S.areas){
+      if(![...a.stations].length)return setS(st,`工區「${a.name||a.id}」尚未選測站。`,"err");
+      if(!a.waterFile)return setS(st,`工區「${a.name||a.id}」尚未上傳用水量檔。`,"err");
+    }
+    $("btnGo").disabled=true;$("btnZip").classList.add("hide");$("btnEach").classList.add("hide");$("btnSaveCloud").classList.add("hide");
+    const proj=$("projName").value.trim(),which=$("tsrc").value,results=[];
+    // API mode: fetch AQI once for the union of all needed stations
+    let apiAqi=null;
+    if(S.aqiSrc==="api"){
+      const union=[...new Set([].concat(...S.areas.map(a=>[...a.stations])))];
+      try{ apiAqi=await fetchAqiApi(union,start,end,st); }
+      catch(e){ $("btnGo").disabled=false; return setS(st,"AQI "+fetchErr(e),"err"); }
+    }
+    for(const a of S.areas){
+      const stations=[...a.stations];
+      setS(st,`【${a.name}】解析用水量…`);
+      const water=await parseWater(a.waterFile);
+      setS(st,`【${a.name}】計算 AQI 日均…`);
+      const aqi=(S.aqiSrc==="api")?apiAqi:await parseAqi(S.aqiFiles,stations);
+      setS(st,`【${a.name}】抓取氣溫 (${a.lat}, ${a.lon})…`);
+      let temp={}; try{temp=await fetchTemp(a.lat,a.lon,start,end,which);}catch(e){setS(st,`⚠【${a.name}】氣溫抓取失敗(${e.message})，氣溫留空，其餘照常。`,"err");}
+      const months=buildData(water,aqi,temp,stations,start,end);
+      if(months.length)results.push({area:a.name||a.id,stations,proj,months});
+    }
+    if(!results.length){return setS(st,"區間內沒有資料。","err");}
+    S.results=results; renderSummary(results); renderAll(results);
+    setS(st,`完成 ✓　${results.length} 個工區、共 ${results.reduce((n,R)=>n+R.months.reduce((x,m)=>x+m.rows.length,0),0)} 列。`,"ok");
+    $("btnZip").classList.remove("hide");$("btnEach").classList.remove("hide");
+    if($("gasUrl").value.trim())$("btnSaveCloud").classList.remove("hide");
+  }catch(e){setS(st,"錯誤："+e.message,"err");console.error(e);}
+  finally{$("btnGo").disabled=false;}
+};
+$("btnEach").onclick=async()=>{
+  if(!S.results)return;const s=$("dStart").value,e=$("dEnd").value;
+  for(const R of S.results){const blob=await buildDocxBlob(R.months,R.stations,R.area,R.proj);dl(blob,`營建工地灑水紀錄彙總表_${R.area}_${s}至${e}.docx`);await new Promise(r=>setTimeout(r,400));}
+};
+$("btnZip").onclick=async()=>{
+  if(!S.results)return;const s=$("dStart").value,e=$("dEnd").value;const zip=new JSZip();
+  setS($("status"),"打包 ZIP…");
+  for(const R of S.results){const blob=await buildDocxBlob(R.months,R.stations,R.area,R.proj);zip.file(`營建工地灑水紀錄彙總表_${R.area}_${s}至${e}.docx`,blob);}
+  const z=await zip.generateAsync({type:"blob"});dl(z,`灑水紀錄彙總表_${s}至${e}.zip`);
+  setS($("status"),"ZIP 已下載 ✓","ok");
+};
+
+/* ===== GAS cloud ===== */
+function gas(payload){
+  const url=$("gasUrl").value.trim(); if(!url)return Promise.reject(new Error("尚未填入 GAS URL"));
+  return new Promise((res,rej)=>{
+    const xhr=new XMLHttpRequest(); xhr.open("POST",url,true);
+    xhr.setRequestHeader("Content-Type","text/plain;charset=utf-8"); // 避免 CORS preflight
+    xhr.onload=()=>{ try{res(JSON.parse(xhr.responseText));}catch(e){rej(new Error("回應解析失敗："+xhr.responseText.slice(0,120)));} };
+    xhr.onerror=()=>rej(new Error("連線失敗")); xhr.send(JSON.stringify(payload));
+  });
+}
+$("gasUrl").value=LS.get("water_gas")||"";
+$("gasUrl").oninput=()=>LS.set("water_gas",$("gasUrl").value.trim());
+$("btnPing").onclick=async()=>{const c=$("cstatus");try{setS(c,"測試中…");const r=await gas({action:"ping"});
+  if(r.ok){setS(c,"連線成功 ✓ "+(r.msg||""),"ok");loadCloudAreas();}else setS(c,"回應異常："+JSON.stringify(r),"err");}
+  catch(e){setS(c,"連線失敗："+e.message,"err");}};
+async function loadCloudAreas(){try{const r=await gas({action:"areas"});if(r.ok){const sel=$("cloudArea");
+  sel.innerHTML='<option value="">選擇工區…</option>'+r.areas.map(a=>`<option value="${a.area}">${a.area}（${(a.stations||[]).join("、")}）</option>`).join("");
+  S._cloudAreas=r.areas;}}catch(e){}}
+$("btnSaveCloud").onclick=async()=>{if(!S.results)return;const c=$("cstatus");
+  try{let added=0,updated=0;
+    for(const R of S.results){
+      const rows=[];R.months.forEach(m=>m.rows.forEach(r=>rows.push({iso:r.iso,date:r.date,temp:r.temp,water:r.water,cum:r.cum,
+        aqi:Object.fromEntries(R.stations.map((s,i)=>[s,r.aqi[i]])),level:r.level,remark:r.remark})));
+      setS(c,`儲存【${R.area}】${rows.length} 筆…`);
+      const resp=await gas({action:"save",area:R.area,projName:R.proj,lat:0,lon:0,stations:R.stations,rows});
+      if(resp.ok){added+=resp.added||0;updated+=resp.updated||0;}else throw new Error(JSON.stringify(resp));
+    }
+    setS(c,`已存雲端 ✓　新增 ${added}、更新 ${updated} 筆。`,"ok");loadCloudAreas();
+  }catch(e){setS(c,"儲存失敗："+e.message,"err");}};
+$("btnCloudGen").onclick=async()=>{const c=$("cstatus");
+  try{const area=$("cloudArea").value,s=$("cStart").value,e=$("cEnd").value;
+    if(!area)return setS(c,"請先選擇工區（按測試連線載入清單）。","err");
+    if(!s||!e||s>e)return setS(c,"請設定正確的起訖日期。","err");
+    setS(c,"從雲端讀取…");
+    const r=await gas({action:"load",area,start:s,end:e});
+    if(!r.ok)throw new Error(JSON.stringify(r));
+    if(!r.rows||!r.rows.length)return setS(c,"雲端此區間查無資料。","err");
+    const stations=(r.config&&r.config.stations&&r.config.stations.length)?r.config.stations:Object.keys(r.rows[0].aqi||{});
+    const proj=(r.config&&r.config.projName)||$("projName").value.trim();
+    const months=monthsFromRows(r.rows,stations);
+    const R={area,stations,proj,months};
+    S.results=[R];renderSummary([R]);renderAll([R]);
+    const blob=await buildDocxBlob(months,stations,area,proj);dl(blob,`營建工地灑水紀錄彙總表_${area}_${s}至${e}.docx`);
+    setS(c,`已從雲端產生 ✓ ${months.length} 個月。`,"ok");
+  }catch(e){setS(c,"失敗："+e.message,"err");}};
+
+/* ===== init ===== */
+function init(){ initShared();
+  if(!S.areas.length){ addArea(PRESETS.tongxiao); addArea(PRESETS.taichung); }
+  // API settings: prefill + persist
+  $("apiKey").value=LS.get("water_apikey")||"42b1d5d6-8f1e-4152-86a9-cf1b39ba64da";
+  $("apiKey").oninput=()=>LS.set("water_apikey",$("apiKey").value.trim());
+  $("proxyUrl").value=LS.get("water_proxy")||"";
+  $("proxyUrl").oninput=()=>LS.set("water_proxy",$("proxyUrl").value.trim());
+  setSrc(LS.get("water_src")||"csv");
+}
+
+/* 自動登入：放在最末，確保 S / PRESETS / init 等都已就緒 */
+if(LS.get("water_auth")==="1"){ showApp(); }
+</script>
+</body>
+</html>
