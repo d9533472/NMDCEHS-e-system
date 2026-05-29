@@ -1214,7 +1214,7 @@ Phone: {{phone}}</p>
         "err.network","err.config","err.server",
         "err.full","err.deadline","err.duplicate","err.notEnough","err.fixN","err.generic"
       ]},
-      { id:"ok", label:"成功畫面 Success", keys:["ok.head","ok.sub","ok.conf","ok.name","ok.again","ok.image.title","ok.image.caption"], multi:["ok.sub","ok.image.caption"], customEditor:"successBody" },
+      { id:"ok", label:"成功畫面 Success", keys:["ok.head","ok.conf","ok.name","ok.again","ok.image.title","ok.image.caption"], multi:["ok.image.caption"], customEditor:"successBody" },
       { id:"closed", label:"關閉畫面 Closed States", keys:[
         "closed.deadline.title","closed.deadline.sub",
         "closed.full.title","closed.full.sub"
@@ -2452,14 +2452,37 @@ Phone: {{phone}}</p>
     function SuccessBodyEditor({ lang, edits, setEdits, serverContent }){
       const KEY = "ok.body.html";
       const editKey = `${lang}.${KEY}`;
-      function valueOf(){
-        if(edits[editKey] !== undefined) return edits[editKey];
-        if(serverContent[editKey] !== undefined) return serverContent[editKey];
-        return (DEFAULTS[lang] && DEFAULTS[lang][KEY]) || "";
+      const subKey = `${lang}.ok.sub`;   // legacy plain text — used as initial seed if rich is empty
+      // Auto-convert plain text (with line breaks) → HTML <p>/<br>
+      function plainToHtml(text){
+        const t = String(text || "");
+        if(!t) return "";
+        // Already HTML?
+        if(/<[a-z][\s\S]*?>/i.test(t)) return t;
+        // Escape & convert: split blank-line-separated paragraphs, then \n → <br>
+        const esc = s => s.replace(/[<>&]/g, c => ({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+        return t.split(/\n{2,}/).map(p => "<p>" + esc(p).replace(/\n/g, "<br>") + "</p>").join("");
       }
+      function rawValue(){
+        if(edits[editKey] !== undefined) return edits[editKey];
+        if(serverContent[editKey]) return serverContent[editKey];
+        return "";
+      }
+      function seedValue(){
+        // Try legacy ok.sub (per language) as starting point
+        if(edits[subKey] !== undefined) return edits[subKey];
+        if(serverContent[subKey]) return serverContent[subKey];
+        return (DEFAULTS[lang] && DEFAULTS[lang]["ok.sub"]) || "";
+      }
+      // Editor displays: rich content if set, else converted legacy ok.sub as a seed
+      const displayValue = (() => {
+        const r = rawValue();
+        if(r) return r;
+        return plainToHtml(seedValue());
+      })();
       const isDirty = edits[editKey] !== undefined;
       function updateEdit(v){
-        const committed = serverContent[editKey] !== undefined ? serverContent[editKey] : ((DEFAULTS[lang] && DEFAULTS[lang][KEY]) || "");
+        const committed = serverContent[editKey] || "";
         setEdits(prev => {
           const next = { ...prev };
           if(v === committed) delete next[editKey];
@@ -2468,28 +2491,29 @@ Phone: {{phone}}</p>
         });
       }
       function clearBody(){
-        if(!window.confirm("確定要清空富文字訊息？\n清空後會改回顯示上方的純文字 ok.sub。")) return;
+        if(!window.confirm("確定要清空富文字訊息？\n清空後會改回顯示原本的純文字（如果還有）。")) return;
         updateEdit("");
       }
-      const hasContent = valueOf() && valueOf().replace(/<[^>]*>/g, "").trim();
+      const hasContent = rawValue() && String(rawValue()).replace(/<[^>]*>/g, "").trim();
+      const usingSeed = !rawValue() && !!seedValue();
 
       return (
         <div className="edit-row" style={{borderBottom:"none", paddingTop:14}}>
           <div className="rounded-xl border-2 border-[color:var(--wave)] bg-[color:var(--wave-soft)] p-3">
             <div className="flex items-center justify-between mb-2">
-              <div className="edit-key" style={{color:"var(--wave-deep)"}}>✨ ok.sub 富文字版（{lang === "en" ? "EN" : "中"}）{isDirty && <span className="text-[color:var(--wave-deep)]"> ●</span>}</div>
+              <div className="edit-key" style={{color:"var(--wave-deep)"}}>✨ 報名成功訊息 富文字 ・ {lang === "en" ? "English" : "中文"} {isDirty && <span className="text-[color:var(--wave-deep)]"> ●</span>}</div>
               {hasContent && (
                 <button type="button" onClick={clearBody} className="text-[10px] font-bold text-[color:var(--wave-deep)] hover:underline">🧹 清空</button>
               )}
             </div>
             <div className="text-[11px] text-[color:var(--ink-soft)] mb-2 leading-relaxed">
               想要粗體 / 顏色 / 連結 / 清單就用這個富文字框。<br/>
-              💡 <strong>有內容時會「蓋過」上面的 ok.sub 純文字</strong>；留空 = 顯示上面的 ok.sub。<br/>
-              💡 可插入 <code className="bg-white px-1 rounded">{"{{name}}"}</code> <code className="bg-white px-1 rounded">{"{{confirmationNumber}}"}</code> 等標籤。
+              💡 可插入 <code className="bg-white px-1 rounded">{"{{name}}"}</code> <code className="bg-white px-1 rounded">{"{{confirmationNumber}}"}</code> <code className="bg-white px-1 rounded">{"{{totalSeats}}"}</code> 等標籤。<br/>
+              {usingSeed && <span>💡 已自動把你原本的純文字訊息帶進來（可以直接編輯它）。</span>}
             </div>
-            <RichEditor value={valueOf()} onChange={updateEdit} dirty={isDirty} tokens={SUCCESS_TOKENS}/>
+            <RichEditor value={displayValue} onChange={updateEdit} dirty={isDirty} tokens={SUCCESS_TOKENS}/>
             <div className="text-[11px] text-[color:var(--ink-soft)] mt-2">
-              {hasContent ? "✅ 報名成功畫面會顯示這段富文字" : "⬜ 目前空白 → 顯示上面的 ok.sub 純文字"}
+              {hasContent ? "✅ 報名成功畫面會顯示這段內容" : (usingSeed ? "ℹ️ 預覽中（尚未儲存）— 按上方「💾 儲存」後生效" : "⬜ 目前空白")}
             </div>
           </div>
         </div>
@@ -3026,35 +3050,52 @@ Phone: {{phone}}</p>
         const caption     = look("ok.image.caption");
         const tapHint     = lang === "en" ? "👆 Tap to open" : "👆 點圖直接前往";
         const buttonLabel = lang === "en" ? "👉 Tap here to open the link" : "👉 點此前往連結";
-        const imgTag      = '<img src="' + imageData + '" alt="QR Code" style="display:block; width:220px; height:220px; max-width:100%; border:1px solid #eee; border-radius:8px;" />';
-        let inner = imgTag;
+        const imgTag      = '<img src="' + imageData + '" alt="QR Code" width="220" height="220" style="display:block; width:220px; height:220px; max-width:100%; border:1px solid #eee; border-radius:8px;" />';
+
+        // QR block: image (optionally wrapped in <a>) + hint text in separate row
+        let qrBlock;
         if(safeUrl){
-          inner = '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" style="text-decoration:none; display:inline-block;">'
-                + imgTag
-                + '<div style="text-align:center; margin-top:8px; font-size:11px; font-weight:bold; color:#155989; letter-spacing:0.05em;">' + tapHint + '</div>'
-                + '</a>';
+          qrBlock = ''
+            + '<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">'
+            +   '<tr><td style="padding:0;">'
+            +     '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" style="display:block; text-decoration:none;">'
+            +       imgTag
+            +     '</a>'
+            +   '</td></tr>'
+            +   '<tr><td align="center" style="padding-top:8px; text-align:center;">'
+            +     '<span style="font-size:11px; font-weight:700; color:#155989; letter-spacing:0.05em; font-family:Arial,sans-serif;">' + tapHint + '</span>'
+            +   '</td></tr>'
+            + '</table>';
+        } else {
+          qrBlock = '<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">'
+                  +   '<tr><td style="padding:0;">' + imgTag + '</td></tr>'
+                  + '</table>';
         }
-        // Big button-style link below QR (only when URL is set)
-        let linkButton = "";
+
+        // Button + URL fallback
+        let actionBlock = "";
         if(safeUrl){
-          linkButton = '<div style="margin-top:18px;">'
-                     + '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" '
-                     +   'style="display:inline-block; padding:11px 24px; background:#1E6FAB; color:#ffffff; text-decoration:none; font-weight:700; font-size:15px; border-radius:8px; box-shadow:0 2px 6px rgba(30,111,171,0.3);">'
-                     +   buttonLabel
-                     + '</a>'
-                     + '<div style="margin-top:10px; font-size:12px; color:#888; word-break:break-all;">'
-                     +   '🔗 <a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" style="color:#888; text-decoration:underline;">' + safeUrl + '</a>'
-                     + '</div>'
-                     + '</div>';
+          actionBlock = ''
+            + '<table role="presentation" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse; margin-top:18px;">'
+            +   '<tr><td bgcolor="#1E6FAB" style="background-color:#1E6FAB; border-radius:8px;">'
+            +     '<a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" '
+            +        'style="display:inline-block; padding:12px 26px; color:#ffffff; text-decoration:none; font-weight:700; font-size:15px; font-family:Arial,sans-serif; line-height:1.2;">'
+            +       buttonLabel
+            +     '</a>'
+            +   '</td></tr>'
+            + '</table>'
+            + '<div style="margin-top:10px; font-size:12px; color:#888; word-break:break-all; font-family:Arial,sans-serif;">'
+            +   '🔗 <a href="' + safeUrl + '" target="_blank" rel="noopener noreferrer" style="color:#888; text-decoration:underline;">' + safeUrl + '</a>'
+            + '</div>';
         }
-        return [
-          '<div style="margin-top:28px; padding-top:18px; border-top:1px solid #ddd; font-family:Arial,sans-serif;">',
-          '  <div style="font-size:17px; font-weight:bold; color:#163654; margin-bottom:6px;">' + title + '</div>',
-          '  <div style="font-size:14px; color:#555; margin-bottom:14px; line-height:1.5;">' + caption + '</div>',
-          '  <div>' + inner + '</div>',
-          linkButton,
-          '</div>'
-        ].join("\n");
+
+        return ''
+          + '<div style="margin-top:28px; padding-top:18px; border-top:1px solid #ddd; font-family:Arial,sans-serif;">'
+          +   '<div style="font-size:17px; font-weight:bold; color:#163654; margin-bottom:6px;">' + title + '</div>'
+          +   '<div style="font-size:14px; color:#555; margin-bottom:14px; line-height:1.5;">' + caption + '</div>'
+          +   qrBlock
+          +   actionBlock
+          + '</div>';
       }
       const qrImageHtml = buildQrImageHtml();
 
@@ -4210,9 +4251,10 @@ Phone: {{phone}}</p>
       })();
       const isLinked = hasImage && safeUrl;
 
-      // Rich-text success body (admin-edited HTML). If set, replaces the plain ok.sub text.
+      // Rich-text success body (admin-edited HTML). Per-language key: `zh.ok.body.html` or `en.ok.body.html`.
+      const richKey = lang + ".ok.body.html";
       const richBodyRaw = (serverContent && edits)
-        ? getDisplay("ok.body.html", edits, serverContent)
+        ? (edits[richKey] !== undefined ? edits[richKey] : (serverContent[richKey] || ""))
         : "";
       const hasRichBody = richBodyRaw && String(richBodyRaw).replace(/<[^>]*>/g, "").trim();
       const richBodyHtml = hasRichBody ? (() => {
