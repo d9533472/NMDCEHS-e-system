@@ -246,6 +246,9 @@
         "lookup.col.companions": "攜眷",
         "lookup.col.date":       "報名時間",
         "lookup.col.diet":       "飲食",
+        "lookup.col.transport":  "交通方式",
+        "lookup.transport.self":    "🚗 自行開車",
+        "lookup.transport.shuttle": "🚌 搭公司接駁車（從台北辦公室及梧棲辦公室出發）",
         "lookup.no.companions":  "（無）",
         "err.load":        "讀取活動資訊失敗，請重新整理頁面"
       },
@@ -292,6 +295,9 @@
         "lookup.col.companions": "Companions",
         "lookup.col.date":       "Registered",
         "lookup.col.diet":       "Diet",
+        "lookup.col.transport":  "Transport",
+        "lookup.transport.self":    "🚗 Self-drive",
+        "lookup.transport.shuttle": "🚌 Company shuttle (from Taipei & Wuqi offices)",
         "lookup.no.companions":  "(none)",
         "err.load":        "Failed to load event info. Please refresh."
       }
@@ -443,6 +449,8 @@
                         <Row label={t("lookup.col.seats")}        value={`${r.totalSeats} ${lang === "en" ? (r.totalSeats > 1 ? "seats" : "seat") : "席"} (${lang === "en" ? `you + ${r.companionCount}` : `本人 + 攜眷 ${r.companionCount}`})`}/>
                         <Row label={t("lookup.col.diet")}         value={r.diet || "—"}/>
                         <Row label={t("lookup.col.date")}         value={formatDate(r.timestamp, lang) || "—"}/>
+                        {r.transport === "self" && <Row label={t("lookup.col.transport")} value={t("lookup.transport.self")}/>}
+                        {r.transport === "shuttle" && <Row label={t("lookup.col.transport")} value={t("lookup.transport.shuttle")}/>}
                         <Row label={t("lookup.col.companions")}   value={
                           r.companions && r.companions.length
                             ? r.companions.map(c => c.name + (c.diet ? ` (${c.diet})` : "")).join("、")

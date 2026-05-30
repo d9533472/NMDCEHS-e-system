@@ -284,6 +284,28 @@
     .yn-group{ display:flex; gap:10px; flex-wrap:wrap; }
     .yn-group.err{ padding:8px; border:2.5px solid var(--coral-deep); border-radius:14px; background:#FFF0EC; box-shadow:4px 4px 0 var(--coral); }
     .yn-btn{ flex:1; min-width:100px; padding:14px 18px; background:#fff; border:2.5px solid var(--ink); border-radius:12px; font-weight:800; font-size:15px; cursor:pointer; box-shadow:3px 3px 0 var(--ink); transition:all .12s ease; font-family:inherit; }
+
+    /* Stackable option picker (used for NMDC transport choice) */
+    .opt-pick{
+      display:block; width:100%; text-align:left;
+      padding:13px 16px;
+      background:white; color:var(--ink);
+      border:2.5px solid var(--ink); border-radius:12px;
+      font-weight:700; font-size:15px;
+      cursor:pointer; transition:all .15s ease;
+      font-family:inherit;
+    }
+    .opt-pick:hover{ background:var(--cream-warm); }
+    .opt-pick.active{
+      background:var(--wave); color:white;
+      border-color:var(--wave-deep);
+      box-shadow:3px 3px 0 var(--wave-deep);
+    }
+    .opt-pick-sub{
+      font-size:11px; font-weight:600;
+      opacity:0.85; margin-top:4px;
+      letter-spacing:0.02em;
+    }
     .yn-btn:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
     .yn-btn.active.yes{ background:var(--nmdc-green); color:#fff; }
     .yn-btn.active.no{ background:var(--ink-soft); color:#fff; }
@@ -2961,8 +2983,14 @@ Phone: {{phone}}</p>
                           <span>{r.company}</span>
                         </div>
                         <div className="reg-small">{r.title}</div>
-                        <div style={{marginTop:4}}>
+                        <div style={{marginTop:4}} className="flex flex-wrap items-center gap-1">
                           <span className={"reg-lang-badge " + r.lang}>{r.lang === "en" ? "🇬🇧 EN" : "🇹🇼 中"}</span>
+                          {r.transport === "self" && (
+                            <span style={{fontSize:9, fontWeight:800, padding:"2px 6px", borderRadius:4, background:"#FFF4D6", color:"#85650A", letterSpacing:".05em"}}>🚗 自行開車</span>
+                          )}
+                          {r.transport === "shuttle" && (
+                            <span style={{fontSize:9, fontWeight:800, padding:"2px 6px", borderRadius:4, background:"#E1ECFF", color:"#1E40A6", letterSpacing:".05em"}}>🚌 接駁車</span>
+                          )}
                         </div>
                       </td>
                       <td>
@@ -3761,7 +3789,8 @@ Phone: {{phone}}</p>
         bringCompanions:"",  // "" | "yes" | "no"
         companionCount:1,
         sameDiet:true,
-        companions:[]   // array of { name, blood, diet, dietOther }
+        companions:[],   // array of { name, blood, diet, dietOther }
+        transport:""     // NMDC-only: "" | "self" | "shuttle"
       };
       const [form, setForm] = useState(blank);
       const [errors, setErrors] = useState({});
@@ -3786,11 +3815,13 @@ Phone: {{phone}}</p>
       function changeCompanyMode(mode){
         setCompanyMode(mode);
         if(mode === "__OTHER__"){
-          setForm(f => ({ ...f, company: companyOther || "" }));
+          setForm(f => ({ ...f, company: companyOther || "", transport:"" }));
         } else {
-          setForm(f => ({ ...f, company: mode }));
+          // Auto-clear transport when changing away from NMDC (transport is NMDC-only)
+          setForm(f => ({ ...f, company: mode, transport: mode === "NMDC" ? f.transport : "" }));
         }
         if(errors.company) setErrors(er => ({ ...er, company: "" }));
+        if(errors.transport) setErrors(er => ({ ...er, transport: "" }));
       }
       function changeCompanyOther(text){
         setCompanyOther(text);
@@ -3873,6 +3904,8 @@ Phone: {{phone}}</p>
         mainFields.forEach(k => { const er = validateField(k); if(er) allErr[k] = er; });
         if(!form.diet) allErr.diet = t("err.required");
         if(form.diet === "other" && !form.dietOther.trim()) allErr.dietOther = t("err.required");
+        // Transport is required ONLY when company is NMDC (employee shuttle option)
+        if(companyMode === "NMDC" && !form.transport) allErr.transport = t("err.required");
         if(!form.bringCompanions) allErr.bringCompanions = t("err.required");
         if(form.bringCompanions === "yes"){
           form.companions.forEach((c, i) => {
@@ -3958,6 +3991,7 @@ Phone: {{phone}}</p>
             emName: form.emName.trim(),
             emPhone: form.emPhone.trim(),
             diet: dietFinal,
+            transport: companyMode === "NMDC" ? form.transport : "",   // only sent for NMDC
             companions: companions,
             companionCount: companions.length,
             lang
@@ -4046,6 +4080,36 @@ Phone: {{phone}}</p>
                 )}
                 {errors.company && <div className="field-error-msg"><span>❗</span>{errors.company}</div>}
               </div>
+
+              {/* === Transport — only shows when NMDC is selected (employee shuttle option) === */}
+              {companyMode === "NMDC" && (
+                <div>
+                  <label className="block mb-2">
+                    <span className="font-display text-xl md:text-2xl text-[color:var(--ink)]">
+                      {lang === "en" ? "🚗 Transport" : "🚗 交通方式"}
+                    </span>
+                    <span className="ml-2 text-sm font-bold tracking-wider text-[color:var(--ink-soft)] uppercase">
+                      {lang === "en" ? "NMDC only" : "NMDC 員工"}
+                    </span>
+                  </label>
+                  <div className="flex flex-col gap-2">
+                    <button type="button"
+                      className={"opt-pick " + (form.transport === "self" ? "active" : "")}
+                      onClick={() => { setForm(f => ({...f, transport:"self"})); if(errors.transport) setErrors(er => ({...er, transport:""})); }}>
+                      🚗 {lang === "en" ? "Self-drive" : "自行開車"}
+                    </button>
+                    <button type="button"
+                      className={"opt-pick " + (form.transport === "shuttle" ? "active" : "")}
+                      onClick={() => { setForm(f => ({...f, transport:"shuttle"})); if(errors.transport) setErrors(er => ({...er, transport:""})); }}>
+                      🚌 {lang === "en" ? "Company shuttle" : "搭公司接駁車"}
+                      <div className="opt-pick-sub">
+                        {lang === "en" ? "Departs from Taipei & Wuqi offices" : "從台北辦公室及梧棲辦公室出發"}
+                      </div>
+                    </button>
+                  </div>
+                  {errors.transport && <div className="field-error-msg"><span>❗</span>{errors.transport}</div>}
+                </div>
+              )}
 
               <Field id="f-title"   label={t("field.title.label")}   sub={t("field.title.sub")}   value={form.title}   onChange={set("title")}   onBlur={()=>setErrors(e=>({...e,title:validateField("title")}))}     error={errors.title}   placeholder={t("field.title.ph")}   autoComplete="organization-title"/>
               <Field id="f-phone"   label={t("field.phone.label")}   sub={t("field.phone.sub")}   value={form.phone}   onChange={set("phone")}   onBlur={()=>setErrors(e=>({...e,phone:validateField("phone")}))}     error={errors.phone}   placeholder={t("field.phone.ph")}   autoComplete="tel" inputMode="numeric" type="tel"/>
