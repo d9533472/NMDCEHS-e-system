@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NMDC 一起淨一夏 · NMDC Energy Summer Clean</title>
+  <meta name="description" content="NMDC 一起淨一夏・安達希淨灘日｜NMDC Energy Summer Clean ESG Campaign — schedule + safety notes">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&family=Noto+Sans+TC:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    /* ============================================================
+       Same design tokens as main page for visual consistency
+       ============================================================ */
+    :root{
+      --cream:#FBF7EE; --cream-warm:#F8F2E5; --sand-light:#FCEFC9;
+      --ink:#163654; --ink-soft:#4A5F73;
+      --wave:#1E6FAB; --wave-deep:#155989; --wave-soft:#E6EFF7;
+      --sun:#F5C24A; --sun-soft:#FCEFC9;
+      --nmdc-green:#2A9D5C; --coral:#E5685A;
+      --line:#E5DDC9;
+    }
+    *{ -webkit-tap-highlight-color: transparent; }
+    html,body{ background:var(--cream); color:var(--ink); }
+    body{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; font-weight:500; }
+    .font-display{ font-family:'Plus Jakarta Sans','Noto Sans TC',system-ui,sans-serif; font-weight:800; letter-spacing:-0.01em; line-height:1.1; }
+    .font-num{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; }
+
+    /* Tag pill */
+    .tag{
+      display:inline-block; padding:6px 16px; border-radius:999px;
+      font-size:11px; font-weight:800; letter-spacing:0.18em;
+      border-width:2px; border-style:solid;
+      text-transform:uppercase;
+    }
+
+    /* Wavy yellow underline */
+    .wavy{
+      background-image:linear-gradient(transparent calc(100% - 8px), var(--sun) calc(100% - 8px), var(--sun) calc(100% - 2px), transparent calc(100% - 2px));
+      background-size:100% 100%; background-repeat:no-repeat;
+    }
+
+    /* ====== Schedule row — color-coded time vs activity ====== */
+    .sched-row{
+      display:grid; grid-template-columns:0 1fr; gap:0; align-items:stretch;
+      background:white; border:2px solid var(--ink); border-radius:14px;
+      box-shadow:4px 4px 0 var(--ink);
+      overflow:hidden;
+    }
+    .sched-time{
+      background:var(--wave); color:#fff;
+      padding:18px 18px;
+      font-weight:800; font-size:16px;
+      letter-spacing:0.04em; line-height:1.2;
+      font-variant-numeric:tabular-nums;
+      display:flex; align-items:center; justify-content:center;
+      text-align:center;
+      border-right:2px solid var(--ink);
+      min-width:96px;
+    }
+    .sched-text{
+      padding:18px 22px;
+      font-weight:600; font-size:15px; line-height:1.55;
+      color:var(--ink);
+      background:white;
+      display:flex; align-items:center;
+    }
+    @media (min-width:768px){
+      .sched-row{ grid-template-columns:140px 1fr; }
+      .sched-time{ font-size:18px; min-width:140px; padding:22px 18px; }
+      .sched-text{ font-size:17px; padding:22px 28px; }
+    }
+    /* Alternating time pill colors for visual rhythm */
+    .sched-row:nth-child(5n+1) .sched-time{ background:var(--wave); }
+    .sched-row:nth-child(5n+2) .sched-time{ background:var(--nmdc-green); }
+    .sched-row:nth-child(5n+3) .sched-time{ background:var(--sun); color:var(--ink); }
+    .sched-row:nth-child(5n+4) .sched-time{ background:var(--coral); }
+    .sched-row:nth-child(5n+5) .sched-time{ background:var(--wave-deep); }
+
+    /* ====== Note ticket (注意事項) — matches main page style ====== */
+    .ticket{
+      background:white; border:2px solid var(--ink); border-radius:14px;
+      box-shadow:4px 4px 0 var(--ink);
+      padding:14px 18px;
+    }
+    @media (min-width:768px){ .ticket{ padding:18px 24px; } }
+
+    /* Bounce-in animation */
+    @keyframes bounce-in{
+      0%   { opacity:0; transform:translateY(10px); }
+      100% { opacity:1; transform:translateY(0); }
+    }
+    .bounce-in{ animation:bounce-in .45s ease-out backwards; }
+
+    /* Lang pill */
+    .lang-pill{
+      padding:7px 16px; border-radius:999px;
+      font-size:12px; font-weight:700; letter-spacing:0.04em;
+      background:white; border:2px solid var(--ink); color:var(--ink);
+      cursor:pointer; transition:all .15s ease;
+    }
+    .lang-pill:hover{ background:var(--cream-warm); }
+    .lang-pill.active{ background:var(--wave); color:white; border-color:var(--wave-deep); box-shadow:2px 2px 0 var(--ink); }
+
+    /* Lookup form */
+    .lookup-input{
+      width:100%; padding:14px 18px; border:2px solid var(--ink);
+      border-radius:12px; background:white; font-size:16px; font-weight:600;
+      box-shadow:3px 3px 0 var(--ink);
+      transition:all .15s ease;
+      color:var(--ink);
+    }
+    .lookup-input:focus{ outline:none; border-color:var(--wave); box-shadow:4px 4px 0 var(--wave-deep); }
+    .lookup-btn{
+      padding:14px 28px; border:2px solid var(--ink); border-radius:12px;
+      background:var(--wave); color:white;
+      font-weight:800; font-size:15px; letter-spacing:0.04em;
+      cursor:pointer; transition:all .15s ease;
+      box-shadow:3px 3px 0 var(--ink);
+      white-space:nowrap;
+    }
+    .lookup-btn:hover:not(:disabled){ background:var(--wave-deep); transform:translate(-1px,-1px); box-shadow:4px 4px 0 var(--ink); }
+    .lookup-btn:active:not(:disabled){ transform:translate(2px,2px); box-shadow:1px 1px 0 var(--ink); }
+    .lookup-btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+    /* Result card */
+    .result-card{
+      background:white; border:2px solid var(--ink); border-radius:16px;
+      box-shadow:5px 5px 0 var(--ink);
+      padding:18px 22px;
+    }
+    @media (min-width:768px){ .result-card{ padding:24px 28px; } }
+    .result-serial{
+      display:inline-block; padding:6px 14px;
+      background:var(--nmdc-green); color:white;
+      font-weight:800; font-size:14px; letter-spacing:0.06em;
+      border-radius:999px; font-variant-numeric:tabular-nums;
+    }
+
+    /* Floating beach doodles */
+    .doodle{
+      position:absolute; pointer-events:none;
+      opacity:0.4; user-select:none;
+    }
+    @keyframes float-soft{
+      0%,100%{ transform:translateY(0) rotate(var(--rot)); }
+      50%    { transform:translateY(-12px) rotate(calc(var(--rot) + 5deg)); }
+    }
+    .doodle.float{ animation:float-soft 5s ease-in-out infinite; animation-delay:var(--delay); }
+
+    /* Initial loader */
+    .loader{
+      position:fixed; inset:0; z-index:9999;
+      background:linear-gradient(180deg, #FBF7EE 0%, #FCEFC9 50%, #E6EFF7 100%);
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:18px; transition:opacity .55s ease;
+    }
+    .loader.gone{ opacity:0; pointer-events:none; }
+    .loader-spinner{
+      width:54px; height:54px;
+      border:5px solid rgba(30,111,171,0.15);
+      border-top-color:var(--wave);
+      border-radius:50%;
+      animation:spin .9s cubic-bezier(0.5,0,0.5,1) infinite;
+    }
+    @keyframes spin{ to{ transform:rotate(360deg); } }
+    .loader-text{
+      font-weight:800; font-size:13px;
+      letter-spacing:0.18em; color:var(--wave-deep);
+      text-transform:uppercase;
+    }
+    .loader-sub{ font-size:12px; font-weight:700; color:var(--ink); }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .doodle.float{ animation:none; }
+      .bounce-in{ animation:none; }
+      .loader-spinner{ animation:none; border-top-color:rgba(30,111,171,0.6); }
+    }
+  </style>
+</head>
+<body>
+  <div id="loader" class="loader" aria-live="polite" aria-label="Loading">
+    <div class="loader-spinner"></div>
+    <div class="loader-text">載入中・Loading</div>
+    <div class="loader-sub">🌊 NMDC 一起淨一夏</div>
+  </div>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
+
+    // Note emojis — same order as main page so emoji ↔ note.N alignment matches
+    const NOTE_EMOJIS = ["👕","🧤","👒","💧","🚶","⚠️","🔪","🌊","🌱","🦀","☀️","🩺","🛑"];
+    const NOTE_COUNT  = NOTE_EMOJIS.length;
+
+    const DEFAULTS = {
+      zh: {
+        "page.title":      "NMDC 一起淨一夏",
+        "page.subtitle":   "安達希淨灘日",
+        "schedule.tag":    "活動流程",
+        "schedule.head":   "當日流程",
+        "schedule.sub":    "從集合到賦歸，一目了然",
+        "schedule.empty":  "— 尚未設定流程，請稍後再來看 —",
+        "schedule.note":   "* 確切時程以活動當日現場公告為準",
+        "notes.tag":       "⚠️ 重要",
+        "notes.head":      "注意事項",
+        "notes.sub":       "出門前看一下，安全第一！",
+        "note.0":  "穿舒適便利的衣服，自己帶毛巾跟水，多補水。",
+        "note.1":  "戴手套防止割傷，穿包覆性好的鞋子。",
+        "note.2":  "建議長褲或薄長袖 + 帽子，防曬又保護。",
+        "note.3":  "隨時帶水壺補水，不要亂丟垃圾。",
+        "note.4":  "活動中不要奔跑，隨時注意手腳安全。",
+        "note.5":  "東西卡在沙裡不要硬挖，找隨隊人員幫忙。",
+        "note.6":  "注意螺類、針具、玻璃和銳利物，拾取小心。",
+        "note.7":  "搬海漂垃圾注意重量跟平衡，留意漲退潮。",
+        "note.8":  "不要踩踏海灘植物和沙丘植栽。",
+        "note.9":  "注意避免傷害海灘生物，像寄居蟹、海星。",
+        "note.10": "戶外很曬，做好防曬（防曬乳、太陽眼鏡、帽子、防曬衣）。",
+        "note.11": "自行評估身體狀況再參加，不舒服立刻告知隨隊人員。",
+        "note.12": "頭暈、中暑、體力不支立刻停止並休息。",
+        "lookup.tag":      "🔎 查詢",
+        "lookup.head":     "查詢我的報名",
+        "lookup.sub":      "輸入姓名查詢報名狀態（也可查到自己掛在他人攜眷的紀錄）",
+        "lookup.ph":       "輸入姓名…",
+        "lookup.go":       "查詢",
+        "lookup.searching":"查詢中…",
+        "lookup.none":     "查無資料 — 確認姓名拼寫是否正確",
+        "lookup.found":    "找到",
+        "lookup.records":  "筆報名",
+        "lookup.empty":    "請輸入姓名",
+        "lookup.err":      "查詢失敗，請稍後再試",
+        "lookup.col.serial":     "報名序號",
+        "lookup.col.registrant": "報名人",
+        "lookup.col.company":    "公司",
+        "lookup.col.title":      "職稱",
+        "lookup.col.seats":      "總席次",
+        "lookup.col.companions": "攜眷",
+        "lookup.col.date":       "報名時間",
+        "lookup.col.diet":       "飲食",
+        "lookup.no.companions":  "（無）",
+        "err.load":        "讀取活動資訊失敗，請重新整理頁面"
+      },
+      en: {
+        "page.title":      "NMDC Energy Summer Clean",
+        "page.subtitle":   "ESG Campaign",
+        "schedule.tag":    "SCHEDULE",
+        "schedule.head":   "Run of Show",
+        "schedule.sub":    "From check-in to wrap-up, all in one place",
+        "schedule.empty":  "— Schedule not set yet, check back soon —",
+        "schedule.note":   "* Final timing follows on-site announcements on event day",
+        "notes.tag":       "⚠️ IMPORTANT",
+        "notes.head":      "What to know",
+        "notes.sub":       "Read before you head out — safety first!",
+        "note.0":  "Wear comfy clothes. Bring your own towel & water — stay hydrated.",
+        "note.1":  "Gloves prevent cuts. Wear closed, beach-friendly shoes.",
+        "note.2":  "Long pants / thin long sleeves + hat. Sun + coverage.",
+        "note.3":  "Keep a water bottle close. Don't litter.",
+        "note.4":  "Don't run during the activity — watch your step.",
+        "note.5":  "Don't dig out buried items alone — call the team lead.",
+        "note.6":  "Watch for shells, needles, glass & sharp items.",
+        "note.7":  "Mind the weight, balance & incoming tide when moving debris.",
+        "note.8":  "Avoid trampling beach plants and dune vegetation.",
+        "note.9":  "Don't disturb wildlife — hermit crabs, starfish, etc.",
+        "note.10": "Sun's strong — sunscreen, shades, hat, sun-protective clothing.",
+        "note.11": "Assess your condition. Feel off? Tell the support team.",
+        "note.12": "Dizziness, heat, fatigue — stop and rest immediately.",
+        "lookup.tag":      "🔎 LOOKUP",
+        "lookup.head":     "Check my registration",
+        "lookup.sub":      "Enter a name to look up your registration (also finds you in someone else's companion list)",
+        "lookup.ph":       "Enter name…",
+        "lookup.go":       "Search",
+        "lookup.searching":"Searching…",
+        "lookup.none":     "No matches — please check the spelling",
+        "lookup.found":    "Found",
+        "lookup.records":  "record(s)",
+        "lookup.empty":    "Please enter a name",
+        "lookup.err":      "Search failed, please try again later",
+        "lookup.col.serial":     "Confirmation",
+        "lookup.col.registrant": "Registrant",
+        "lookup.col.company":    "Company",
+        "lookup.col.title":      "Title",
+        "lookup.col.seats":      "Total seats",
+        "lookup.col.companions": "Companions",
+        "lookup.col.date":       "Registered",
+        "lookup.col.diet":       "Diet",
+        "lookup.no.companions":  "(none)",
+        "err.load":        "Failed to load event info. Please refresh."
+      }
+    };
+
+    // ===== Helpers =====
+    function xhrGet(url){
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.timeout = 15000;
+        xhr.onload = () => { try{ resolve(JSON.parse(xhr.responseText)); } catch(e){ reject(e); } };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.ontimeout = () => reject(new Error("Timeout"));
+        xhr.send();
+      });
+    }
+    function xhrPost(url, body){
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", url, true);
+        // text/plain avoids CORS preflight on GAS
+        xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+        xhr.timeout = 15000;
+        xhr.onload = () => { try{ resolve(JSON.parse(xhr.responseText)); } catch(e){ reject(e); } };
+        xhr.onerror = () => reject(new Error("Network error"));
+        xhr.ontimeout = () => reject(new Error("Timeout"));
+        xhr.send(JSON.stringify(body));
+      });
+    }
+    function pad(n){ return String(n).padStart(2, "0"); }
+    function formatDate(iso, lang){
+      if(!iso) return "";
+      const d = new Date(iso);
+      if(isNaN(d)) return "";
+      const y = d.getFullYear(), m = pad(d.getMonth()+1), day = pad(d.getDate());
+      const hh = pad(d.getHours()), mm = pad(d.getMinutes());
+      return lang === "en" ? `${y}/${m}/${day} ${hh}:${mm}` : `${y}/${m}/${day} ${hh}:${mm}`;
+    }
+
+    // Parse schedule items (JSON array preferred, legacy fallback supported)
+    function parseScheduleItems(lang, content){
+      if(!content) return [];
+      const raw = content[lang + ".schedule.items"];
+      if(raw){
+        try{
+          const arr = JSON.parse(raw);
+          if(Array.isArray(arr)) return arr.map(x => ({ time: String(x.time || ""), text: String(x.text || "") }));
+        } catch(_){}
+      }
+      const items = [];
+      for(let i = 0; i < 20; i++){
+        const time = content[lang + ".schedule." + i + ".time"] || "";
+        const text = content[lang + ".schedule." + i + ".text"] || "";
+        if(time || text) items.push({ time, text });
+      }
+      return items;
+    }
+
+    // ===== Lookup Section =====
+    function LookupSection({ lang, t }){
+      const [query, setQuery] = useState("");
+      const [state, setState] = useState("idle"); // "idle" | "loading" | "done" | "error"
+      const [results, setResults] = useState([]);
+      const [err, setErr] = useState("");
+      const inputRef = useRef(null);
+
+      async function doSearch(){
+        const q = query.trim();
+        if(!q){
+          setErr(t("lookup.empty"));
+          setState("idle"); setResults([]);
+          return;
+        }
+        setState("loading"); setErr(""); setResults([]);
+        try{
+          const res = await xhrPost(GAS_URL, { action:"lookupByName", query: q });
+          if(res && res.success){
+            setResults(res.results || []);
+            setState("done");
+          } else {
+            setErr(t("lookup.err") + (res && res.error ? " (" + res.error + ")" : ""));
+            setState("error");
+          }
+        } catch(e){
+          setErr(t("lookup.err"));
+          setState("error");
+        }
+      }
+      function onKey(e){ if(e.key === "Enter") doSearch(); }
+
+      return (
+        <section className="py-16 md:py-20 px-4 md:px-8 bg-[color:var(--cream)] relative overflow-hidden">
+          <span className="doodle float" style={{left:"4%",  top:"15%", fontSize:"34px", "--rot":"-8deg", "--delay":"0s"  }} aria-hidden="true">🔎</span>
+          <span className="doodle float" style={{left:"90%", top:"70%", fontSize:"32px", "--rot":"10deg", "--delay":"0.8s"}} aria-hidden="true">📋</span>
+
+          <div className="max-w-3xl mx-auto relative">
+            <div className="text-center mb-8">
+              <div className="inline-block tag bg-[color:var(--wave)] text-white border-[color:var(--ink)] mb-3">{t("lookup.tag")}</div>
+              <h2 className="font-display text-3xl md:text-5xl mb-3"><span className="wavy">{t("lookup.head")}</span></h2>
+              <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)] max-w-xl mx-auto">{t("lookup.sub")}</p>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-3 mb-6">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={e => { setQuery(e.target.value); if(err) setErr(""); }}
+                onKeyDown={onKey}
+                placeholder={t("lookup.ph")}
+                maxLength={60}
+                autoComplete="name"
+                className="lookup-input flex-1"
+                aria-label={t("lookup.head")}/>
+              <button onClick={doSearch} disabled={state === "loading"} className="lookup-btn">
+                {state === "loading" ? "⏳ " + t("lookup.searching") : "🔎 " + t("lookup.go")}
+              </button>
+            </div>
+
+            {err && (
+              <div className="text-center text-[color:var(--coral)] font-bold mb-4">⚠ {err}</div>
+            )}
+
+            {state === "done" && results.length === 0 && (
+              <div className="text-center text-[color:var(--ink-soft)] font-bold py-6">
+                😕 {t("lookup.none")}
+              </div>
+            )}
+
+            {state === "done" && results.length > 0 && (
+              <>
+                <div className="text-center text-sm font-bold text-[color:var(--ink-soft)] mb-4">
+                  ✅ {t("lookup.found")} <span className="text-[color:var(--wave-deep)] text-base">{results.length}</span> {t("lookup.records")}
+                </div>
+                <div className="space-y-4">
+                  {results.map((r, i) => (
+                    <div key={i} className="result-card bounce-in" style={{animationDelay:`${i * 60}ms`}}>
+                      <div className="flex flex-wrap items-center gap-2 mb-3">
+                        <span className="result-serial">{r.serial}</span>
+                        <span className="font-display text-xl md:text-2xl">{r.name}</span>
+                        <span className="text-sm font-bold text-[color:var(--ink-soft)] ml-auto">
+                          {r.lang === "en" ? "🇬🇧 EN" : "🇹🇼 中"}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm md:text-base">
+                        <Row label={t("lookup.col.company")}      value={r.company || "—"}/>
+                        <Row label={t("lookup.col.title")}        value={r.title   || "—"}/>
+                        <Row label={t("lookup.col.seats")}        value={`${r.totalSeats} ${lang === "en" ? (r.totalSeats > 1 ? "seats" : "seat") : "席"} (${lang === "en" ? `you + ${r.companionCount}` : `本人 + 攜眷 ${r.companionCount}`})`}/>
+                        <Row label={t("lookup.col.diet")}         value={r.diet || "—"}/>
+                        <Row label={t("lookup.col.date")}         value={formatDate(r.timestamp, lang) || "—"}/>
+                        <Row label={t("lookup.col.companions")}   value={
+                          r.companions && r.companions.length
+                            ? r.companions.map(c => c.name + (c.diet ? ` (${c.diet})` : "")).join("、")
+                            : t("lookup.no.companions")
+                        }/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </section>
+      );
+    }
+
+    function Row({ label, value }){
+      return (
+        <div className="flex gap-2 items-baseline">
+          <span className="font-bold text-[color:var(--ink-soft)] text-xs md:text-sm whitespace-nowrap" style={{letterSpacing:"0.06em"}}>{label}</span>
+          <span className="font-medium text-[color:var(--ink)] break-words">{value}</span>
+        </div>
+      );
+    }
+
+    // ===== App =====
+    function App(){
+      const [lang, setLang] = useState(() => {
+        try{
+          const p = new URLSearchParams(location.search).get("lang");
+          if(p === "en" || p === "zh") return p;
+        } catch(_){}
+        try{
+          const nav = (navigator.language || "").toLowerCase();
+          if(nav.indexOf("en") === 0) return "en";
+        } catch(_){}
+        return "zh";
+      });
+      const [content, setContent] = useState(null);
+      const [error, setError] = useState("");
+
+      function t(key){
+        if(content){
+          const v = content[lang + "." + key];
+          if(v != null && v !== "") return v;
+        }
+        return (DEFAULTS[lang] && DEFAULTS[lang][key]) || "";
+      }
+
+      useEffect(() => {
+        let cancelled = false;
+        xhrGet(GAS_URL)
+          .then(data => { if(!cancelled) setContent((data && data.content) || {}); })
+          .catch(() => { if(!cancelled) setError("ERR"); });
+        return () => { cancelled = true; };
+      }, []);
+
+      useEffect(() => {
+        if(content === null && !error) return;
+        const tt = setTimeout(() => {
+          const el = document.getElementById("loader");
+          if(el){
+            el.classList.add("gone");
+            setTimeout(() => { try{ el.remove(); } catch(_){} }, 600);
+          }
+        }, 400);
+        return () => clearTimeout(tt);
+      }, [content, error]);
+
+      useEffect(() => {
+        try{
+          document.documentElement.lang = (lang === "en" ? "en" : "zh-Hant");
+          const ti = t("page.title");
+          const sub = t("page.subtitle");
+          document.title = ti + (sub ? " · " + sub : "");
+        } catch(_){}
+        // eslint-disable-next-line
+      }, [lang, content]);
+
+      const items = parseScheduleItems(lang, content);
+
+      return (
+        <div className="min-h-screen flex flex-col">
+          {/* ============ Top bar ============ */}
+          <header className="border-b-2 border-[color:var(--ink)] bg-[color:var(--cream-warm)] sticky top-0 z-40 backdrop-blur-sm">
+            <div className="max-w-5xl mx-auto px-4 md:px-8 py-3 flex items-center justify-between gap-3">
+              <div className="font-display text-sm md:text-lg truncate" style={{color:"var(--ink)"}}>
+                🌊 {t("page.title")}
+              </div>
+              <div className="flex gap-2 shrink-0" role="group" aria-label="Language">
+                <button onClick={() => setLang("zh")} className={"lang-pill " + (lang === "zh" ? "active" : "")} aria-pressed={lang === "zh"}>🇹🇼 中</button>
+                <button onClick={() => setLang("en")} className={"lang-pill " + (lang === "en" ? "active" : "")} aria-pressed={lang === "en"}>🇬🇧 EN</button>
+              </div>
+            </div>
+          </header>
+
+          {/* ============ Big title ============ */}
+          <section className="pt-12 md:pt-20 pb-2 md:pb-4 px-4 md:px-8 bg-[color:var(--cream)] relative overflow-hidden">
+            <span className="doodle float" style={{left:"4%",  top:"30%", fontSize:"42px", "--rot":"-15deg","--delay":"0s"  }} aria-hidden="true">☀️</span>
+            <span className="doodle float" style={{left:"90%", top:"20%", fontSize:"38px", "--rot":"12deg", "--delay":"0.7s"}} aria-hidden="true">🌊</span>
+            <span className="doodle float" style={{left:"8%",  top:"75%", fontSize:"36px", "--rot":"-5deg", "--delay":"1.3s"}} aria-hidden="true">🐚</span>
+            <span className="doodle float" style={{left:"86%", top:"78%", fontSize:"40px", "--rot":"10deg", "--delay":"0.5s"}} aria-hidden="true">🏖️</span>
+            <div className="max-w-5xl mx-auto text-center relative">
+              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl mb-3 leading-tight">
+                <span className="wavy">{t("page.title")}</span>
+              </h1>
+              <div className="font-display text-2xl md:text-4xl text-[color:var(--wave-deep)]">
+                {t("page.subtitle")}
+              </div>
+            </div>
+          </section>
+
+          {/* ============ Schedule ============ */}
+          <main className="flex-1 relative overflow-hidden">
+            <span className="doodle float" style={{left:"3%",  top:"6%",  fontSize:"34px", "--rot":"-10deg","--delay":"0s"  }} aria-hidden="true">🧤</span>
+            <span className="doodle float" style={{left:"92%", top:"12%", fontSize:"32px", "--rot":"8deg",  "--delay":"0.6s"}} aria-hidden="true">🗑️</span>
+
+            <section className="py-12 md:py-16 px-4 md:px-8 relative">
+              <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-8 md:mb-12">
+                  <div className="inline-block tag bg-[color:var(--nmdc-green)] text-white border-[color:var(--ink)] mb-3">{t("schedule.tag")}</div>
+                  <h2 className="font-display text-3xl md:text-5xl mb-3">
+                    <span className="wavy">{t("schedule.head")}</span>
+                  </h2>
+                  <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)] max-w-xl mx-auto">
+                    {t("schedule.sub")}
+                  </p>
+                </div>
+
+                {error && <div className="text-center text-[color:var(--coral)] font-bold py-10">{t("err.load")}</div>}
+
+                {!error && content && items.length === 0 && (
+                  <div className="text-center text-[color:var(--ink-soft)] text-sm font-bold py-10">
+                    {t("schedule.empty")}
+                  </div>
+                )}
+
+                {!error && items.length > 0 && (
+                  <>
+                    <div className="space-y-3 md:space-y-4">
+                      {items.map((item, i) => (
+                        (!item.time && !item.text) ? null : (
+                          <div key={i} className="sched-row bounce-in" style={{animationDelay:`${i * 60}ms`}}>
+                            <div className="sched-time">{item.time}</div>
+                            <div className="sched-text" style={{whiteSpace:"pre-line"}}>{item.text}</div>
+                          </div>
+                        )
+                      ))}
+                    </div>
+                    <div className="text-center text-xs md:text-sm text-[color:var(--ink-soft)] mt-6 font-medium">
+                      {t("schedule.note")}
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+
+            {/* ============ Notes (注意事項) ============ */}
+            <section className="py-12 md:py-20 px-4 md:px-8 bg-[color:var(--cream-warm)] relative overflow-hidden">
+              <span className="doodle float" style={{left:"2%",  top:"6%",  fontSize:"38px", "--rot":"-12deg","--delay":"0.3s"}} aria-hidden="true">🏖️</span>
+              <span className="doodle float" style={{left:"92%", top:"75%", fontSize:"40px", "--rot":"10deg", "--delay":"1.1s"}} aria-hidden="true">♻️</span>
+
+              <div className="max-w-4xl mx-auto relative">
+                <div className="text-center mb-8 md:mb-12">
+                  <div className="inline-block tag bg-[color:var(--coral)] text-white border-[color:var(--ink)] mb-3">{t("notes.tag")}</div>
+                  <h2 className="font-display text-3xl md:text-5xl mb-3">
+                    <span className="wavy">{t("notes.head")}</span>
+                  </h2>
+                  <p className="text-base md:text-lg font-medium text-[color:var(--ink-soft)] max-w-xl mx-auto">
+                    {t("notes.sub")}
+                  </p>
+                </div>
+
+                <div className="space-y-3 md:space-y-4">
+                  {NOTE_EMOJIS.map((emoji, i) => {
+                    const noteText = t("note." + i);
+                    if(!noteText) return null;
+                    return (
+                      <div key={i} className="ticket flex items-start gap-3 md:gap-4 bounce-in" style={{animationDelay:`${i * 40}ms`}}>
+                        <div className="flex items-center gap-2 shrink-0" style={{width:"36px"}}>
+                          <span className="font-num text-lg md:text-xl text-[color:var(--nmdc-green)] font-extrabold">{pad(i+1)}</span>
+                        </div>
+                        <div className="text-2xl md:text-3xl shrink-0" style={{width:"36px"}}>{emoji}</div>
+                        <p className="text-sm md:text-base font-medium leading-relaxed pt-0.5 flex-1">{noteText}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+
+            {/* ============ Lookup section ============ */}
+            <LookupSection lang={lang} t={t}/>
+          </main>
+
+          {/* ============ Footer ============ */}
+          <footer className="border-t-2 border-[color:var(--ink)] bg-[color:var(--cream-warm)] py-5 md:py-6">
+            <div className="max-w-4xl mx-auto px-4 md:px-8 text-center">
+              <div className="text-xs text-[color:var(--ink-soft)] font-medium">
+                NMDC Energy · 安達希能源
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+  </script>
+</body>
+</html>
