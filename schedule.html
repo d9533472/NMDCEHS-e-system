@@ -90,6 +90,45 @@
     }
     @media (min-width:768px){ .ticket{ padding:18px 24px; } }
 
+    /* ====== Stat card (per-unit registration counts at top of page) ====== */
+    .stat-card{
+      position:relative;
+      background:white;
+      border:2px solid var(--ink);
+      border-radius:14px;
+      box-shadow:4px 4px 0 var(--ink);
+      padding:16px 8px 14px;
+      text-align:center;
+      overflow:hidden;
+    }
+    .stat-card::before{
+      content:""; position:absolute; inset:0 0 auto 0;
+      height:6px; background:var(--accent, var(--wave));
+    }
+    .stat-label{
+      font-size:11px; font-weight:800;
+      letter-spacing:0.08em;
+      color:var(--ink); opacity:0.7;
+      margin:6px 0 4px; line-height:1.2;
+      min-height:2.4em;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .stat-num{
+      font-size:32px; font-weight:800;
+      color:var(--ink); line-height:1;
+      font-variant-numeric:tabular-nums;
+    }
+    .stat-sub{
+      font-size:10px; font-weight:700;
+      color:var(--ink-soft);
+      margin-top:4px; letter-spacing:0.04em;
+    }
+    @media (min-width:768px){
+      .stat-card{ padding:18px 10px 16px; }
+      .stat-label{ font-size:12px; }
+      .stat-num{ font-size:38px; }
+    }
+
     /* Bounce-in animation */
     @keyframes bounce-in{
       0%   { opacity:0; transform:translateY(10px); }
@@ -211,6 +250,14 @@
         "schedule.sub":    "從集合到賦歸，一目了然",
         "schedule.empty":  "— 尚未設定流程，請稍後再來看 —",
         "schedule.note":   "* 確切時程以活動當日現場公告為準",
+        "stats.head":      "各單位報名統計",
+        "stats.unit1.label": "NMDC",
+        "stats.unit2.label": "TPC",
+        "stats.unit3.label": "POE",
+        "stats.unit4.label": "白沙屯淨灘團",
+        "stats.unit5.label": "其他",
+        "stats.seats":     "人",
+        "stats.total":     "總計",
         "notes.tag":       "⚠️ 重要",
         "notes.head":      "注意事項",
         "notes.sub":       "出門前看一下，安全第一！",
@@ -260,6 +307,14 @@
         "schedule.sub":    "From check-in to wrap-up, all in one place",
         "schedule.empty":  "— Schedule not set yet, check back soon —",
         "schedule.note":   "* Final timing follows on-site announcements on event day",
+        "stats.head":      "Registrations by Unit",
+        "stats.unit1.label": "NMDC",
+        "stats.unit2.label": "TPC",
+        "stats.unit3.label": "POE",
+        "stats.unit4.label": "Baishatun Cleanup",
+        "stats.unit5.label": "Others",
+        "stats.seats":     "ppl",
+        "stats.total":     "Total",
         "notes.tag":       "⚠️ IMPORTANT",
         "notes.head":      "What to know",
         "notes.sub":       "Read before you head out — safety first!",
@@ -476,6 +531,51 @@
       );
     }
 
+    // ===== Stats Section (per-unit registration counts at top of page) =====
+    function StatsSection({ lang, t, content, statusData }){
+      // Mode: "auto" (computed from sheet by GAS) | "manual" (admin-typed counts)
+      const mode = (content && content["stats.mode"]) || "auto";
+      // Decide count per unit
+      const auto = (statusData && statusData.unitStats) || {};
+      function manualCount(i){ return parseInt(content && content[`stats.unit${i}.count`], 10) || 0; }
+      function autoCount(i){   return parseInt(auto[`unit${i}`], 10) || 0; }
+      const counts = [1,2,3,4,5].map(i => mode === "manual" ? manualCount(i) : autoCount(i));
+      const total = counts.reduce((a, b) => a + b, 0);
+
+      // Color accents per unit (matches the schedule time-pill rotation)
+      const ACCENTS = [
+        "var(--nmdc-green)",   // unit1: NMDC = brand green
+        "var(--wave-deep)",    // unit2: TPC  = deep blue (Taipower energy theme)
+        "var(--coral)",        // unit3: POE  = warm orange
+        "var(--wave)",         // unit4: BST  = ocean blue (coastal community)
+        "var(--sun)"           // unit5: Other = sun yellow
+      ];
+
+      return (
+        <section className="pt-8 md:pt-10 pb-4 px-4 md:px-8 bg-[color:var(--cream)] relative">
+          <div className="max-w-5xl mx-auto">
+            <div className="text-center mb-5 md:mb-6">
+              <div className="font-display text-lg md:text-2xl text-[color:var(--ink)]">
+                📊 {t("stats.head")}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2.5 md:gap-3.5">
+              {[1,2,3,4,5].map((i, idx) => (
+                <div key={i} className="stat-card bounce-in" style={{"--accent": ACCENTS[idx], animationDelay:`${idx * 60}ms`}}>
+                  <div className="stat-label">{t(`stats.unit${i}.label`)}</div>
+                  <div className="stat-num">{counts[idx]}</div>
+                  <div className="stat-sub">{t("stats.seats")}</div>
+                </div>
+              ))}
+            </div>
+            <div className="text-center text-xs md:text-sm font-bold text-[color:var(--ink-soft)] mt-4">
+              {t("stats.total")}：<span className="text-[color:var(--wave-deep)] text-base md:text-lg font-num">{total}</span> {t("stats.seats")}
+            </div>
+          </div>
+        </section>
+      );
+    }
+
     // ===== App =====
     function App(){
       const [lang, setLang] = useState(() => {
@@ -490,6 +590,7 @@
         return "zh";
       });
       const [content, setContent] = useState(null);
+      const [statusData, setStatusData] = useState(null);   // holds unitStats etc.
       const [error, setError] = useState("");
 
       function t(key){
@@ -503,7 +604,11 @@
       useEffect(() => {
         let cancelled = false;
         xhrGet(GAS_URL)
-          .then(data => { if(!cancelled) setContent((data && data.content) || {}); })
+          .then(data => {
+            if(cancelled) return;
+            setContent((data && data.content) || {});
+            setStatusData(data || null);
+          })
           .catch(() => { if(!cancelled) setError("ERR"); });
         return () => { cancelled = true; };
       }, []);
@@ -546,6 +651,9 @@
               </div>
             </div>
           </header>
+
+          {/* ============ Stats: per-unit headcount ============ */}
+          <StatsSection lang={lang} t={t} content={content || {}} statusData={statusData}/>
 
           {/* ============ Big title ============ */}
           <section className="pt-12 md:pt-20 pb-2 md:pb-4 px-4 md:px-8 bg-[color:var(--cream)] relative overflow-hidden">
