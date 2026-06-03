@@ -1160,10 +1160,37 @@ function collectWeeklyData(loc){
   return months;
 }
 
+// 確保該地點所有紀錄的 dailyWaters 已載入
+async function ensureDailyWaters(loc){
+  const needFetch=[];
+  Object.entries(cloudIndex).forEach(([key,meta])=>{
+    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
+    if(!meta.dailyWaters)needFetch.push(key);
+  });
+  if(!needFetch.length)return;
+  showLoading(`⏳ 讀取水量資料 0/${needFetch.length}...`);
+  for(let i=0;i<needFetch.length;i++){
+    $('loadMsg').textContent=`⏳ 讀取水量資料 ${i+1}/${needFetch.length}...`;
+    try{
+      const result=await apiGet('action=get&key='+encodeURIComponent(needFetch[i]));
+      if(result.success&&result.data){
+        const rec=result.data;const dw=[];
+        if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
+        else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
+        if(cloudIndex[needFetch[i]])cloudIndex[needFetch[i]].dailyWaters=dw;
+      }
+    }catch(e){/* skip */}
+  }
+  hideLoading();
+}
+
 async function renderMeterReport(){
   const loc=$('meterLoc').value;
   const pos=$('meterPosition').value||'工地裸露地表灑水車用';
-  if(!cumData[loc])await loadCumData(loc);
+  try{
+    if(!cumData[loc])await loadCumData(loc);
+    await ensureDailyWaters(loc);
+  }catch(e){/* continue with whatever data we have */}
   const months=collectWeeklyData(loc);
   if(!months.length){$('meterReportWrap').innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light);">尚無水量資料</div>';return;}
   let h=`<div class="meter-report-header"><h2>用水抄表紀錄表</h2><div class="sub">工程名稱：${DEFAULT_PROJECT}（${loc}工區）</div><div class="sub">水表用途：${pos}</div></div>`;
@@ -1186,18 +1213,10 @@ async function renderMeterReport(){
   $('meterReportWrap').innerHTML=h;
 }
 
-/* ===== Meter Report Signatures ===== */
-function onMeterSigSelect(role,e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{compressImage(ev.target.result,400,0.8,c=>{$(`meterSigImg_${role}`).src=c;$(`meterSigImg_${role}`).style.display='block';$(`meterSigRm_${role}`).style.display='inline-block';});};r.readAsDataURL(f);}
-function removeMeterSig(role){$(`meterSigImg_${role}`).src='';$(`meterSigImg_${role}`).style.display='none';$(`meterSigRm_${role}`).style.display='none';$(`meterSigFile_${role}`).value='';}
-
 function buildMeterReportPdfHtml(){
   const loc=$('meterLoc').value;
   const pos=$('meterPosition').value||'工地裸露地表灑水車用';
   const months=collectWeeklyData(loc);
-  const engName=$('meterSig_engineer').value||'';
-  const mgrName=$('meterSig_manager').value||'';
-  const engImg=$('meterSigImg_engineer').style.display!=='none'?$('meterSigImg_engineer').src:'';
-  const mgrImg=$('meterSigImg_manager').style.display!=='none'?$('meterSigImg_manager').src:'';
   const PS='width:210mm;min-height:280mm;padding:12mm 16mm;box-sizing:border-box;font-family:\'Noto Sans TC\',sans-serif;background:#fff;';
   const S='border:1px solid #333;padding:6px;';
   const SH='border:1.5px solid #333;padding:8px;background:#e8e8e8;font-weight:700;';
@@ -1236,18 +1255,6 @@ function buildMeterReportPdfHtml(){
     });
     return r;
   }
-  function makeSig(){
-    let s=`<div style="display:flex;justify-content:space-around;margin-top:24px;font-size:13px;align-items:flex-end;">`;
-    s+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
-    s+=engImg?`<img src="${engImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
-    s+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">現場環保工程師：${engName}</div></div>`;
-    s+=`<div style="display:inline-flex;flex-direction:column;align-items:center;min-width:180px;">`;
-    s+=mgrImg?`<img src="${mgrImg}" style="max-width:120px;max-height:50px;object-fit:contain;margin-bottom:2px;">`:'<div style="width:140px;height:50px;"></div>';
-    s+=`<div style="border-top:1px solid #333;padding-top:3px;min-width:140px;text-align:center;">環境保護負責人：${mgrName}</div></div>`;
-    s+=`</div>`;
-    return s;
-  }
-
   let h='';
   pages.forEach((pageMonths,pi)=>{
     const isFirstP=pi===0, isLastP=pi===pages.length-1;
@@ -1271,15 +1278,23 @@ function buildMeterReportPdfHtml(){
 }
 
 async function exportMeterPdf(){
-  const loc=$('meterLoc').value;
-  if(!cumData[loc])await loadCumData(loc);
-  const html=buildMeterReportPdfHtml();
-  _pdfFilename=`用水抄表紀錄表_${loc}.pdf`;
-  _pdfOrientation='portrait';
-  $('previewTitle').textContent='📄 用水抄表紀錄表';
-  $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone" style="width:210mm;">${html}</div>`;
-  $('previewModal').classList.add('open');
-  $('previewModal').scrollTop=0;
+  try{
+    const loc=$('meterLoc').value;
+    if(!cumData[loc])await loadCumData(loc);
+    await ensureDailyWaters(loc);
+    const html=buildMeterReportPdfHtml();
+    if(!html||html.indexOf('pdf-page')<0){toast('沒有可匯出的資料',true);return;}
+    _pdfFilename=`用水抄表紀錄表_${loc}.pdf`;
+    _pdfOrientation='portrait';
+    $('previewTitle').textContent='📄 用水抄表紀錄表';
+    $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone" style="width:210mm;">${html}</div>`;
+    $('previewModal').classList.add('open');
+    $('previewModal').scrollTop=0;
+  }catch(err){
+    hideLoading();
+    toast('❌ 匯出失敗：'+err.message,true);
+    console.error('exportMeterPdf error:',err);
+  }
 }
 
 /* ===== Export Cumulative (PDF + Word) ===== */
@@ -1334,13 +1349,15 @@ function buildCumPdfHtml(){
 
 function exportCumPdf(){
   const loc=$('cumLoc').value;
-  const html=buildCumPdfHtml();
-  _pdfFilename=`每日用水量_${loc}.pdf`;
-  _pdfOrientation='portrait';
-  $('previewTitle').textContent=`📄 每日用水量 — ${loc}`;
-  $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone" style="width:210mm;">${html}</div>`;
-  $('previewModal').classList.add('open');
-  $('previewModal').scrollTop=0;
+  ensureDailyWaters(loc).then(()=>{
+    const html=buildCumPdfHtml();
+    _pdfFilename=`每日用水量_${loc}.pdf`;
+    _pdfOrientation='portrait';
+    $('previewTitle').textContent=`📄 每日用水量 — ${loc}`;
+    $('previewBody').innerHTML=`<div class="pdf-render-zone" id="pdfRenderZone" style="width:210mm;">${html}</div>`;
+    $('previewModal').classList.add('open');
+    $('previewModal').scrollTop=0;
+  });
 }
 
 function exportCumWord(){
