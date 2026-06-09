@@ -1050,12 +1050,24 @@ async function saveCumData(){
   document.querySelectorAll('[id^="cumInput_"]').forEach(el=>{
     const date=el.dataset.date;
     const val=parseFloat(el.value);
-    if(!isNaN(val)&&val>0){if(!cumData[loc])cumData[loc]={};cumData[loc][date]=val;}
-    else if(cumData[loc])delete cumData[loc][date];
+    if(!isNaN(val)&&val>0){
+      if(!cumData[loc])cumData[loc]={};
+      cumData[loc][date]=val;
+      // 同步到 dailyWatersCache（覆蓋舊值）
+      if(!dailyWatersCache)dailyWatersCache={};
+      if(!dailyWatersCache[loc])dailyWatersCache[loc]={};
+      dailyWatersCache[loc][date]=val;
+    }else{
+      if(cumData[loc])delete cumData[loc][date];
+      if(dailyWatersCache&&dailyWatersCache[loc])delete dailyWatersCache[loc][date];
+    }
   });
   try{
+    // 存到 __cumulative_ 備份
     await apiPost({action:'save',key:CUM_KEY_PREFIX+loc,data:cumData[loc]||{}});
-    toast('✅ 已儲存');renderCumulative();
+    // 同步到 Drive JSON 水量檔（覆蓋）
+    await apiPost({action:'updateWaters',location:loc,waters:cumData[loc]||{}});
+    toast('✅ 已儲存並同步');renderCumulative();
   }catch(e){toast('❌ 儲存失敗：'+e.message,true);}
 }
 let _cumDates=[];  // 保存排序後的日期用於即時重算
@@ -1067,7 +1079,7 @@ async function renderCumulative(){
   await ensureDailyWaters(loc);
   // 合併：手動輸入(cumData) + 試算表水量(dailyWatersCache)
   const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
-  const dailyMap={...(cumData[loc]||{}),...sheetW};
+  const dailyMap={...sheetW,...(cumData[loc]||{})};
   _cumAutoMap={...sheetW};
 
   // 補上所有紀錄的日期（即使沒有水量資料也要顯示）
@@ -1108,7 +1120,7 @@ function collectWeeklyData(loc){
   const weeklyMap={};
   // 從試算表+手動輸入合併水量，按週加總
   const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
-  const allW={...(cumData[loc]||{}),...sheetW};
+  const allW={...sheetW,...(cumData[loc]||{})};
   Object.entries(allW).forEach(([dt,w])=>{
     const mon=getMonday(dt);
     weeklyMap[mon]=(weeklyMap[mon]||0)+(w||0);
@@ -1281,7 +1293,7 @@ function buildCumPdfHtml(){
 
   // 收集資料（跟 renderCumulative 一樣的邏輯）
   const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
-  const dailyMap={...(cumData[loc]||{}),...sheetW};
+  const dailyMap={...sheetW,...(cumData[loc]||{})};
   Object.entries(cloudIndex).forEach(([key,meta])=>{
     if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
     for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
@@ -1335,7 +1347,7 @@ async function exportCumWord(){
   await loadDailyWatersFromSheet();
   const loc=$('cumLoc').value;
   const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
-  const dailyMap={...(cumData[loc]||{}),...sheetW};
+  const dailyMap={...sheetW,...(cumData[loc]||{})};
   Object.entries(cloudIndex).forEach(([key,meta])=>{
     if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
     for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
