@@ -1063,6 +1063,7 @@ let _cumAutoMap={};  // post-4/20 自動計算的值
 async function renderCumulative(){
   const loc=$('cumLoc').value;
   if(!cumData[loc])await loadCumData(loc);
+  await ensureDailyWaters(loc);
   const dailyMap={...(cumData[loc]||{})};
   _cumAutoMap={};
 
@@ -1135,7 +1136,27 @@ function collectWeeklyData(loc){
 
 // 確保該地點所有紀錄的 dailyWaters 已載入
 // dailyWaters 現在存在索引裡，開頁面就有，不用逐筆抓
-async function ensureDailyWaters(loc){}
+async function ensureDailyWaters(loc){
+  const need=[];
+  Object.entries(cloudIndex).forEach(([key,meta])=>{
+    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
+    if(!meta.dailyWaters)need.push(key);
+  });
+  if(!need.length)return;
+  showLoading(`⏳ 讀取水量資料（${need.length}筆）...`);
+  try{
+    for(const key of need){
+      const result=await apiGet('action=get&key='+encodeURIComponent(key));
+      if(result.success&&result.data){
+        const rec=result.data;const dw=[];
+        if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
+        else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
+        if(cloudIndex[key])cloudIndex[key].dailyWaters=dw;
+      }
+    }
+  }catch(e){}
+  hideLoading();
+}
 
 async function renderMeterReport(){
   const loc=$('meterLoc').value;
