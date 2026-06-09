@@ -272,6 +272,7 @@
     <select id="cumLoc" onchange="renderCumulative()"><option value="台中">台中</option><option value="通霄">通霄</option></select>
     <button class="btn btn-outline btn-sm" onclick="renderCumulative()">🔄 重新計算</button>
     <button class="btn btn-save btn-sm" onclick="saveCumData()">💾 儲存手動輸入</button>
+    <button class="btn btn-outline btn-sm" onclick="syncWaterFromRecords()">☁️ 從紀錄同步水量</button>
     <button class="btn btn-pdf btn-sm" onclick="exportCumPdf()">📄 匯出 PDF</button>
     <button class="btn btn-outline btn-sm" onclick="exportCumWord()">📝 匯出 Word</button>
     <span style="font-size:11px;color:var(--text-light);">4/19以前手動輸入 ｜ 4/20以後自動計算</span>
@@ -1141,6 +1142,22 @@ async function loadDailyWatersFromSheet(){
   }catch(e){dailyWatersCache={};}
 }
 async function ensureDailyWaters(loc){await loadDailyWatersFromSheet();}
+
+async function syncWaterFromRecords(){
+  if(!confirm('從所有灑水紀錄重新同步水量到試算表？\n（4/20後的水量會從水表數據重新計算）'))return;
+  showLoading('☁️ 同步水量中...');
+  try{
+    const result=await apiPost({action:'rebuildWaters'});
+    if(result.success&&result.data){
+      dailyWatersCache=result.data;
+      toast('✅ 水量同步完成');
+      renderCumulative();
+    }else{
+      toast('❌ 同步失敗：'+(result.error||''),true);
+    }
+  }catch(e){toast('❌ 同步失敗：'+e.message,true);}
+  finally{hideLoading();}
+}
 
 async function renderMeterReport(){
   const loc=$('meterLoc').value;
