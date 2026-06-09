@@ -528,6 +528,7 @@ function updateRecordCumDisplay(){
   if(!sd)return;
   const loc=$('locBadge').textContent;
   const useNew=isNewFormat(sd);
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
   for(let d=0;d<DAYS;d++){
     const dt=addDays(sd,d);
     let w=0;
@@ -535,8 +536,7 @@ function updateRecordCumDisplay(){
       const totalEl=$(`ptTotal_${d}`);
       w=totalEl?parseFloat(totalEl.textContent)||0:0;
     }else{
-      // pre-4/20: 從 cumData 取
-      if(cumData[loc]&&cumData[loc][dt])w=cumData[loc][dt];
+      w=sheetW[dt]||((cumData[loc]&&cumData[loc][dt])||0);
     }
     const el=$(`d${d}_water`);
     if(el)el.value=w>0?w.toFixed(1):'';
@@ -1064,16 +1064,15 @@ async function renderCumulative(){
   const loc=$('cumLoc').value;
   if(!cumData[loc])await loadCumData(loc);
   await ensureDailyWaters(loc);
-  const dailyMap={...(cumData[loc]||{})};
-  _cumAutoMap={};
+  // 合併：手動輸入(cumData) + 試算表水量(dailyWatersCache)
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  const dailyMap={...(cumData[loc]||{}),...sheetW};
+  _cumAutoMap={...sheetW};
 
+  // 補上所有紀錄的日期（即使沒有水量資料也要顯示）
   Object.entries(cloudIndex).forEach(([key,meta])=>{
     if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
-    if(meta.dailyWaters){
-      meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0){dailyMap[dt]=w;_cumAutoMap[dt]=w;}else if(!(dt in dailyMap))dailyMap[dt]=0;});
-    }else{
-      for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
-    }
+    for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
   });
 
   _cumDates=Object.keys(dailyMap).sort();
@@ -1106,18 +1105,13 @@ function recalcCum(){
 // 共用：收集每週水量資料
 function collectWeeklyData(loc){
   const weeklyMap={};
-  Object.entries(cloudIndex).forEach(([key,meta])=>{
-    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
-    let wt=0;
-    if(meta.dailyWaters){meta.dailyWaters.forEach(w=>{wt+=w||0;});}
-    weeklyMap[meta.startDate]=(weeklyMap[meta.startDate]||0)+wt;
+  // 從試算表+手動輸入合併水量，按週加總
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  const allW={...(cumData[loc]||{}),...sheetW};
+  Object.entries(allW).forEach(([dt,w])=>{
+    const mon=getMonday(dt);
+    weeklyMap[mon]=(weeklyMap[mon]||0)+(w||0);
   });
-  if(cumData[loc]){
-    Object.entries(cumData[loc]).forEach(([dt,w])=>{
-      const mon=getMonday(dt);
-      weeklyMap[mon]=(weeklyMap[mon]||0)+w;
-    });
-  }
   const weeks=Object.keys(weeklyMap).sort();
   // 按結束日期所屬月份分組
   const months=[];// [{month:'2025-09', weeks:[{sd,ed,wt}]}]
@@ -1136,27 +1130,17 @@ function collectWeeklyData(loc){
 
 // 確保該地點所有紀錄的 dailyWaters 已載入
 // dailyWaters 現在存在索引裡，開頁面就有，不用逐筆抓
-async function ensureDailyWaters(loc){
-  const need=[];
-  Object.entries(cloudIndex).forEach(([key,meta])=>{
-    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
-    if(!meta.dailyWaters)need.push(key);
-  });
-  if(!need.length)return;
-  showLoading(`⏳ 讀取水量資料（${need.length}筆）...`);
+// 從試算表一次讀取所有水量（取代逐筆抓取）
+let dailyWatersCache=null; // {台中:{date:water}, 通霄:{date:water}}
+async function loadDailyWatersFromSheet(){
+  if(dailyWatersCache)return;
   try{
-    for(const key of need){
-      const result=await apiGet('action=get&key='+encodeURIComponent(key));
-      if(result.success&&result.data){
-        const rec=result.data;const dw=[];
-        if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
-        else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
-        if(cloudIndex[key])cloudIndex[key].dailyWaters=dw;
-      }
-    }
-  }catch(e){}
-  hideLoading();
+    const result=await apiGet('action=getDailyWaters');
+    if(result.success&&result.data)dailyWatersCache=result.data;
+    else dailyWatersCache={};
+  }catch(e){dailyWatersCache={};}
 }
+async function ensureDailyWaters(loc){await loadDailyWatersFromSheet();}
 
 async function renderMeterReport(){
   const loc=$('meterLoc').value;
@@ -1279,15 +1263,11 @@ function buildCumPdfHtml(){
   const PS='width:210mm;min-height:280mm;padding:12mm 16mm;box-sizing:border-box;font-family:\'Noto Sans TC\',sans-serif;background:#fff;';
 
   // 收集資料（跟 renderCumulative 一樣的邏輯）
-  const dailyMap={...(cumData[loc]||{})};
-  const autoMap={};
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  const dailyMap={...(cumData[loc]||{}),...sheetW};
   Object.entries(cloudIndex).forEach(([key,meta])=>{
     if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
-    if(meta.dailyWaters){
-      meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0){dailyMap[dt]=w;autoMap[dt]=w;}else if(!(dt in dailyMap))dailyMap[dt]=0;});
-    }else{
-      for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
-    }
+    for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
   });
   const dates=Object.keys(dailyMap).sort();
 
@@ -1375,7 +1355,8 @@ switchTab(2);
       cloudIndex=result.index;
       renderList();
       toast(`☁️ 已連線，共 ${result.total} 筆紀錄`);
-      // 背景預載累計水量資料
+      // 背景預載水量資料
+      loadDailyWatersFromSheet().catch(()=>{});
       loadCumData('台中').catch(()=>{});
       loadCumData('通霄').catch(()=>{});
     }else{
