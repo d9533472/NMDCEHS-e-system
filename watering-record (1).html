@@ -1331,12 +1331,14 @@ function exportCumPdf(){
   });
 }
 
-function exportCumWord(){
+async function exportCumWord(){
+  await loadDailyWatersFromSheet();
   const loc=$('cumLoc').value;
-  const dailyMap={...(cumData[loc]||{})};
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  const dailyMap={...(cumData[loc]||{}),...sheetW};
   Object.entries(cloudIndex).forEach(([key,meta])=>{
     if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
-    if(meta.dailyWaters){meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0)dailyMap[dt]=w;});}
+    for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
   });
   const dates=Object.keys(dailyMap).sort();
   let cum=0;
