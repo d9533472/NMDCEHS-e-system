@@ -1066,41 +1066,14 @@ async function renderCumulative(){
   const dailyMap={...(cumData[loc]||{})};
   _cumAutoMap={};
 
-  // 找出該地點所有紀錄
-  const postRecords=[];// post-4/20 需要抓水表數據的紀錄
   Object.entries(cloudIndex).forEach(([key,meta])=>{
-    if(meta.location!==loc||!meta.startDate)return;
-    if(key.startsWith('__'))return;
+    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
     if(meta.dailyWaters){
-      // 已有快取
       meta.dailyWaters.forEach((w,i)=>{const dt=addDays(meta.startDate,i);if(w>0){dailyMap[dt]=w;_cumAutoMap[dt]=w;}else if(!(dt in dailyMap))dailyMap[dt]=0;});
-    }else if(isNewFormat(meta.startDate)){
-      // post-4/20 但沒有 dailyWaters → 需要從雲端抓
-      postRecords.push(key);
-      for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
     }else{
       for(let i=0;i<7;i++){const dt=addDays(meta.startDate,i);if(!(dt in dailyMap))dailyMap[dt]=0;}
     }
   });
-
-  // 從雲端抓缺少 dailyWaters 的 post-4/20 紀錄
-  if(postRecords.length){
-    $('cumBody').innerHTML='<tr><td colspan="3" style="padding:12px;color:var(--text-light);">⏳ 讀取水表資料中...</td></tr>';
-    for(const key of postRecords){
-      try{
-        const result=await apiGet('action=get&key='+encodeURIComponent(key));
-        if(result.success&&result.data){
-          const rec=result.data;
-          const dw=[];
-          if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
-          else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
-          // 快取到 cloudIndex 避免重複抓
-          cloudIndex[key].dailyWaters=dw;
-          dw.forEach((w,i)=>{const dt=addDays(rec.startDate,i);if(w>0){dailyMap[dt]=w;_cumAutoMap[dt]=w;}});
-        }
-      }catch(e){/* skip */}
-    }
-  }
 
   _cumDates=Object.keys(dailyMap).sort();
   let cum=0,h='';
@@ -1161,28 +1134,8 @@ function collectWeeklyData(loc){
 }
 
 // 確保該地點所有紀錄的 dailyWaters 已載入
-async function ensureDailyWaters(loc){
-  const needFetch=[];
-  Object.entries(cloudIndex).forEach(([key,meta])=>{
-    if(meta.location!==loc||!meta.startDate||key.startsWith('__'))return;
-    if(!meta.dailyWaters)needFetch.push(key);
-  });
-  if(!needFetch.length)return;
-  showLoading(`⏳ 讀取水量資料 0/${needFetch.length}...`);
-  for(let i=0;i<needFetch.length;i++){
-    $('loadMsg').textContent=`⏳ 讀取水量資料 ${i+1}/${needFetch.length}...`;
-    try{
-      const result=await apiGet('action=get&key='+encodeURIComponent(needFetch[i]));
-      if(result.success&&result.data){
-        const rec=result.data;const dw=[];
-        if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
-        else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
-        if(cloudIndex[needFetch[i]])cloudIndex[needFetch[i]].dailyWaters=dw;
-      }
-    }catch(e){/* skip */}
-  }
-  hideLoading();
-}
+// dailyWaters 現在存在索引裡，開頁面就有，不用逐筆抓
+async function ensureDailyWaters(loc){}
 
 async function renderMeterReport(){
   const loc=$('meterLoc').value;
