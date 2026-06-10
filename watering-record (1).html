@@ -273,6 +273,7 @@
     <button class="btn btn-outline btn-sm" onclick="renderCumulative()">🔄 重新計算</button>
     <button class="btn btn-save btn-sm" onclick="saveCumData()">💾 儲存手動輸入</button>
     <button class="btn btn-outline btn-sm" onclick="syncWaterFromRecords()">☁️ 從紀錄同步水量</button>
+    <button class="btn btn-outline btn-sm" onclick="syncWaterToRecords()">📥 寫回灑水紀錄</button>
     <button class="btn btn-pdf btn-sm" onclick="exportCumPdf()">📄 匯出 PDF</button>
     <button class="btn btn-outline btn-sm" onclick="exportCumWord()">📝 匯出 Word</button>
     <span style="font-size:11px;color:var(--text-light);">4/19以前手動輸入 ｜ 4/20以後自動計算</span>
@@ -1368,6 +1369,28 @@ async function exportCumWord(){
   a.download=`每日用水量_${loc}.doc`;
   a.click();URL.revokeObjectURL(a.href);
   toast('✅ Word 檔案已下載');
+}
+
+async function syncWaterToRecords(){
+  const loc=$('cumLoc').value;
+  if(!confirm(`把「${loc}」4/19前手動輸入的每日用水量寫回對應的灑水紀錄？\n這樣匯出灑水紀錄 PDF 時水量欄就會有值。`))return;
+  // 收集 pre-4/20 手動水量
+  const waters={};
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  const cumW=cumData[loc]||{};
+  const merged={...sheetW,...cumW};
+  Object.entries(merged).forEach(([dt,w])=>{
+    if(dt<NEW_FORMAT_DATE&&w>0)waters[dt]=w;
+  });
+  if(!Object.keys(waters).length){toast('沒有 4/19 前的手動水量資料',true);return;}
+  showLoading('📥 寫回灑水紀錄中...');
+  try{
+    const result=await apiPost({action:'syncWaterToRecords',location:loc,waters:waters});
+    if(result.success){
+      toast(`✅ 已更新 ${result.updated||0} 筆紀錄`);
+    }else{toast('❌ '+result.error,true);}
+  }catch(e){toast('❌ '+e.message,true);}
+  finally{hideLoading();}
 }
 
 /* ===== Init ===== */
