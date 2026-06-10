@@ -2897,6 +2897,31 @@ Phone: {{phone}}</p>
         return list.reduce((s, r) => s + 1 + (r.companionCount || 0), 0);
       }, [list]);
 
+      // Diet breakdown — counts every attendee (main + every companion), keyed by their diet string.
+      // Returns sorted [{ key, label, icon, count }] descending by count.
+      const dietCounts = useMemo(() => {
+        if(!list) return [];
+        const counts = {};
+        function tally(d){
+          if(!d) return;
+          const s = String(d).trim();
+          if(!s) return;
+          // Group all "其他: xxx" custom diets under one bucket "其他" so the line stays short.
+          // Detail is still visible in the per-row table below if admin wants to see specifics.
+          const key = /^其他[:：]/.test(s) ? "其他" : s;
+          counts[key] = (counts[key] || 0) + 1;
+        }
+        list.forEach(r => {
+          tally(r.diet);
+          (r.companions || []).forEach(c => tally(c.diet));
+        });
+        // Icon per diet (extend as needed)
+        const ICONS = { "葷食":"🍖", "素食":"🥗", "蛋奶素":"🥚", "全素":"🌱", "海鮮素":"🐟", "其他":"🌶️" };
+        return Object.keys(counts)
+          .map(k => ({ key:k, label:k, icon: ICONS[k] || "🍴", count: counts[k] }))
+          .sort((a, b) => b.count - a.count);
+      }, [list]);
+
       return (
         <div className="edit-drawer-body">
           <div className="flex items-center justify-between mb-3 gap-2">
@@ -2909,6 +2934,22 @@ Phone: {{phone}}</p>
               <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs">📥 CSV</button>
             </div>
           </div>
+
+          {/* Diet breakdown — counts every attendee (main + companions) */}
+          {dietCounts.length > 0 && (
+            <div className="mb-3 p-2.5 rounded-lg bg-[color:var(--cream-warm)] border border-[color:var(--line)]">
+              <div className="text-[10px] font-bold tracking-widest text-[color:var(--ink-soft)] uppercase mb-1.5">🍴 飲食統計 Diet breakdown</div>
+              <div className="flex flex-wrap gap-1.5">
+                {dietCounts.map(d => (
+                  <span key={d.key} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink)]">
+                    <span>{d.icon}</span>
+                    <span>{d.label}</span>
+                    <span className="font-num text-[color:var(--wave-deep)] ml-0.5">{d.count}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Language filter pills */}
           {list && list.length > 0 && (
