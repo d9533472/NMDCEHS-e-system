@@ -2922,6 +2922,25 @@ Phone: {{phone}}</p>
           .sort((a, b) => b.count - a.count);
       }, [list]);
 
+      // Transport breakdown — NMDC employees only (transport field is NMDC-only).
+      // Counts each NMDC registration's transport choice. Also counts companions
+      // (they presumably travel together with the main registrant in the same way).
+      const transportCounts = useMemo(() => {
+        if(!list) return null;
+        let self = 0, shuttle = 0, unset = 0;
+        list.forEach(r => {
+          if(r.unit !== "NMDC") return;
+          // Each registration = main person + companions, all travel together
+          const seats = 1 + (r.companionCount || 0);
+          if(r.transport === "self")         self    += seats;
+          else if(r.transport === "shuttle") shuttle += seats;
+          else                               unset   += seats;
+        });
+        const totalNmdc = self + shuttle + unset;
+        if(totalNmdc === 0) return null;   // no NMDC registrations → don't render
+        return { self, shuttle, unset, totalNmdc };
+      }, [list]);
+
       return (
         <div className="edit-drawer-body">
           <div className="flex items-center justify-between mb-3 gap-2">
@@ -2947,6 +2966,32 @@ Phone: {{phone}}</p>
                     <span className="font-num text-[color:var(--wave-deep)] ml-0.5">{d.count}</span>
                   </span>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Transport breakdown — NMDC only */}
+          {transportCounts && (
+            <div className="mb-3 p-2.5 rounded-lg bg-[color:var(--wave-soft)] border border-[color:var(--line)]">
+              <div className="text-[10px] font-bold tracking-widest text-[color:var(--ink-soft)] uppercase mb-1.5">🚐 NMDC 交通統計 Transport (NMDC only) · {transportCounts.totalNmdc} 人</div>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink)]">
+                  <span>🚗</span>
+                  <span>自行開車</span>
+                  <span className="font-num text-[color:var(--wave-deep)] ml-0.5">{transportCounts.self}</span>
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink)]">
+                  <span>🚌</span>
+                  <span>接駁車</span>
+                  <span className="font-num text-[color:var(--wave-deep)] ml-0.5">{transportCounts.shuttle}</span>
+                </span>
+                {transportCounts.unset > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink-soft)]" title="這些人是在「交通方式」欄位推出前報名的">
+                    <span>❓</span>
+                    <span>未設定</span>
+                    <span className="font-num ml-0.5">{transportCounts.unset}</span>
+                  </span>
+                )}
               </div>
             </div>
           )}
