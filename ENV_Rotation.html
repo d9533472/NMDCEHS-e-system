@@ -28,6 +28,27 @@
   .actions button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;
     padding:7px 12px;border-radius:9px;font-size:12px;cursor:pointer;font-weight:600}
   .actions button.solid{background:#2dd4bf;border-color:#2dd4bf;color:#06302b}
+  .actions button.pubbtn{background:#f59e0b;border-color:#f59e0b;color:#3b1d00}
+  .pubbtn{background:#f59e0b;border:1px solid #f59e0b;color:#3b1d00;font-weight:700;cursor:pointer;
+    padding:7px 12px;border-radius:9px;font-size:12px}
+  .pubbtn.wide{display:block;width:100%;padding:13px;font-size:14px;margin-top:6px;border-radius:11px}
+  .pubbtn:active{transform:scale(.98)}
+  .pubbar{margin:10px 14px 0;padding:9px 14px;border-radius:10px;font-size:12px;font-weight:700}
+  .pub-sending{background:#fef9c3;color:#854d0e} .pub-ok{background:#dcfce7;color:#166534}
+  .pub-err{background:#fee2e2;color:#991b1b}
+  .flbl{display:block;font-size:12px;color:var(--muted);font-weight:600;margin:8px 0 4px}
+  .finput{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px;
+    color:var(--ink);background:#fff;font-family:inherit}
+  .method{padding:12px 0;border-top:1px solid var(--line)}
+  .method:first-child{border-top:none;padding-top:2px}
+  .mtitle{font-weight:800;font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;background:#e2e8f0;color:#475569}
+  .badge.ok{background:#dcfce7;color:#166534}
+  .cgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .ccard{background:#f8fafc;border-radius:10px;padding:10px 6px;text-align:center}
+  .ccard .cnm{font-weight:800;font-size:13px;margin-bottom:6px}
+  .ccard input{width:54px;padding:6px;border:1px solid var(--line);border-radius:8px;font-size:16px;font-weight:800;text-align:center;color:var(--ink)}
+  .ccard .cunit{font-size:11px;color:var(--muted);margin-top:3px}
   .actions button:active{transform:scale(.97)}
 
   .legend{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;font-size:11px;color:var(--muted);align-items:center}
@@ -37,7 +58,33 @@
   .c-r{background:var(--r-bg);color:var(--r)} .c-h{background:var(--h-bg);color:var(--h)}
   .legend .li{display:flex;align-items:center;gap:4px}
 
-  .tablewrap{padding:0 10px}
+  .tablewrap{padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .scrollhint{text-align:center;font-size:11px;color:#94a3b8;padding:2px 0 6px;letter-spacing:1px}
+  @media print{.scrollhint{display:none}}
+  /* ===== horizontal roster ===== */
+  .hgrid{border-collapse:separate;border-spacing:0;background:var(--card);border-radius:14px;
+    width:auto;min-width:100%;box-shadow:0 1px 3px rgba(15,39,64,.08)}
+  .hgrid th,.hgrid td{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .hgrid .nh,.hgrid .nm{position:sticky;left:0;z-index:5;background:#fff;min-width:80px;width:80px;
+    text-align:left;padding:7px 8px;font-weight:800;font-size:13px}
+  .hgrid thead .nh{z-index:7;background:var(--navy);color:#fff;border-top-left-radius:14px}
+  .hgrid tbody .nm{box-shadow:2px 0 4px -2px rgba(15,39,64,.15)}
+  .hgrid .dcol{min-width:36px;width:36px;padding:4px 0 2px;text-align:center;background:var(--navy2);
+    color:#fff;cursor:pointer;vertical-align:top}
+  .hgrid .dcol .dn{font-weight:800;font-size:13px;line-height:1.15}
+  .hgrid .dcol .dn.warn{color:#fca5a5}
+  .hgrid .dcol .dw{font-size:10px;opacity:.85;line-height:1.1}
+  .hgrid .dcol .dt{font-size:9px;font-weight:800;line-height:1.3;height:13px}
+  .hgrid .dcol .dt.t2{color:#fde68a} .hgrid .dcol .dt.t1{color:#bae6fd}
+  .hgrid .dcol.h-we{background:#33507a}
+  .hgrid .dcol.h-hol{background:#7c5e1e}
+  .hgrid .dcol.h-today{box-shadow:inset 0 -3px 0 #2dd4bf}
+  .hgrid tbody td{padding:3px 2px;text-align:center}
+  .hgrid tbody td.h-we{background:#f8fafc}
+  .hgrid tbody td.h-hol{background:#fff7ed}
+  .hgrid tbody td.h-today{background:#ecfeff}
+  .hgrid .cell{min-width:28px;height:26px;font-size:14px}
+  .hhint{font-size:11px;color:var(--muted);text-align:center;padding:7px 10px 0}
   table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);
     border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,39,64,.08)}
   thead th{position:sticky;top:0;background:var(--navy2);color:#fff;font-size:12px;font-weight:700;
@@ -98,16 +145,32 @@
   .lday.we{background:#f1f5f9;color:#94a3b8}
   .lday.on{background:var(--h-bg);border-color:var(--h);color:var(--h);font-weight:800}
   .lday:active{transform:scale(.92)}
+  .othead{display:flex;align-items:center;gap:8px;margin:2px 0 12px;font-size:13px;color:var(--muted)}
+  .othead input{width:64px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;font-size:15px;font-weight:700;text-align:center;color:var(--ink)}
+  .ottable{width:100%;border-collapse:collapse;font-size:13px}
+  .ottable th{background:#f1f5f9;color:#475569;font-weight:700;padding:8px 4px;text-align:center;border-bottom:1px solid var(--line)}
+  .ottable th small{display:block;font-size:10px;color:#94a3b8;font-weight:500}
+  .ottable td{padding:9px 4px;text-align:center;border-bottom:1px solid var(--line)}
+  .ottable td.otname{text-align:left;padding-left:6px;font-weight:800}
+  .ottable td i{font-style:normal;font-size:10px;color:#94a3b8;margin-left:1px}
+  .ottable td .z{color:#cbd5e1}
+  .ottable td.oth b{font-size:17px;color:var(--tx);font-weight:900}
+  .ottable tr.otsum td{background:#fff7ed;font-weight:800;border-top:2px solid var(--tx-bg)}
+  .ottable tr.otsum td.oth b{color:#9a3412}
   .note{font-size:11px;color:var(--muted);line-height:1.7;padding:2px 2px}
   .badwarn{margin:10px;padding:10px 14px;background:var(--bad-bg);color:#991b1b;border-radius:11px;font-size:12px;font-weight:600}
 
   @media print{
-    .topbar .actions,.panel,.legend,.sheet-bg{display:none!important}
+    @page{size:landscape}
+    .topbar .actions,.panel,.legend,.sheet-bg,.hhint,.pubbar{display:none!important}
     .topbar{position:static;background:#fff;color:#000;border-bottom:2px solid #000}
     .topbar h1{color:#000}.topbar .sub{color:#444}.monthrow .nav{display:none}
     #root{padding-bottom:0}
-    table{box-shadow:none}
-    thead th{background:#e2e8f0;color:#000}
+    .tablewrap{overflow:visible}
+    .hgrid{box-shadow:none;font-size:10px}
+    .hgrid .dcol{min-width:0}
+    .hgrid thead th{background:#e2e8f0;color:#000}
+    .hgrid .nh{background:#e2e8f0;color:#000}
     .cell{border:1px solid #ccc}
   }
 </style>
@@ -156,7 +219,8 @@ function resolve(s,person,manual,auto,ov){
   if(dayType(s,ov)==='WORK'){ const d=getDow(s); if(d>=1&&d<=5)return person.weekday[d-1]; return 'OFF'; }
   return 'OFF';
 }
-function generate(y,m,people,manual,ov){
+function generate(y,m,people,manual,ov,carry){
+  carry=carry||{};
   const days=monthDays(y,m), auto={}, load={};
   people.forEach(p=>load[p.id]=0);
   const setA=(s,id,v)=>{(auto[s]||(auto[s]={}))[id]=v;};
@@ -166,7 +230,8 @@ function generate(y,m,people,manual,ov){
   function pick(s,cap,order,exclude){
     const c=people.filter(p=>p[cap]&&p.id!==exclude&&!fixed(s,p.id)&&!(auto[s]&&auto[s][p.id]!==undefined));
     if(!c.length)return null;
-    c.sort((a,b)=> load[a.id]!==load[b.id]?load[a.id]-load[b.id]:order.indexOf(a.id)-order.indexOf(b.id));
+    c.sort((a,b)=>{ const ab=a.backup?1:0,bb=b.backup?1:0; if(ab!==bb)return ab-bb;
+      return load[a.id]!==load[b.id]?load[a.id]-load[b.id]:order.indexOf(a.id)-order.indexOf(b.id); });
     return c[0];
   }
   for(const s of days){
@@ -180,7 +245,8 @@ function generate(y,m,people,manual,ov){
     }else{
       if(!any){
         const c=people.filter(p=>!fixed(s,p.id));
-        c.sort((a,b)=>load[a.id]-load[b.id]||people.indexOf(a)-people.indexOf(b));
+        c.sort((a,b)=>{ const ab=a.backup?1:0,bb=b.backup?1:0; if(ab!==bb)return ab-bb;
+          return load[a.id]-load[b.id]||people.indexOf(a)-people.indexOf(b); });
         if(c[0]){setA(s,c[0].id,c[0].single);load[c[0].id]++;}
       }
     }
@@ -201,32 +267,36 @@ function generate(y,m,people,manual,ov){
       setA(s,'paul',post);
     }
   }
-  for(const p of people) fixStreak(y,m,p,manual,auto,ov);
+  for(const p of people) fixStreak(y,m,p,manual,auto,ov,carry);
   return auto;
 }
-function fixStreak(y,m,person,manual,auto,ov){
+function fixStreak(y,m,person,manual,auto,ov,carry){
   const days=monthDays(y,m);
+  const c=Math.max(0,Math.min(6,(carry&&carry[person.id])|0));
   for(let g=0;g<60;g++){
-    const st=days.map(s=>resolve(s,person,manual,auto,ov));
+    const mw=days.map(s=>isWork(resolve(s,person,manual,auto,ov)));
+    const ext=new Array(c).fill(true).concat(mw);
     let s=-1,rs=-1;
-    for(let i=0;i<st.length;i++){ if(isWork(st[i])){if(rs<0)rs=i; if(i-rs+1>=7){s=rs;break;}} else rs=-1; }
+    for(let i=0;i<ext.length;i++){ if(ext[i]){if(rs<0)rs=i; if(i-rs+1>=7){s=rs;break;}} else rs=-1; }
     if(s<0)break;
-    const hi=Math.min(days.length-1,s+6); let t=-1;
-    for(let i=hi;i>=s;i--){ const ds=days[i];
+    const hi=Math.min(ext.length-1,s+6); let t=-1;
+    for(let i=hi;i>=s;i--){ const mi=i-c; if(mi<0)continue; const ds=days[mi];
       if(manual[ds]&&manual[ds][person.id]!==undefined)continue;
-      if(dayType(ds,ov)==='WORK'&&isWork(resolve(ds,person,manual,auto,ov))){t=i;break;} }
-    if(t<0){ for(let i=hi;i>=s;i--){ const ds=days[i];
+      if(dayType(ds,ov)==='WORK'&&isWork(resolve(ds,person,manual,auto,ov))){t=mi;break;} }
+    if(t<0){ for(let i=hi;i>=s;i--){ const mi=i-c; if(mi<0)continue; const ds=days[mi];
       if(manual[ds]&&manual[ds][person.id]!==undefined)continue;
-      if(auto[ds]&&auto[ds][person.id]!==undefined){t=i;break;} } }
+      if(auto[ds]&&auto[ds][person.id]!==undefined){t=mi;break;} } }
     if(t<0)break;
     (auto[days[t]]||(auto[days[t]]={}))[person.id]='H';
   }
 }
-function detectStreaks(y,m,people,manual,auto,ov){
+function detectStreaks(y,m,people,manual,auto,ov,carry){
+  carry=carry||{};
   const days=monthDays(y,m), bad=new Set();
-  for(const p of people){ const st=days.map(s=>resolve(s,p,manual,auto,ov)); let i=0;
-    while(i<st.length){ if(isWork(st[i])){let j=i; while(j<st.length&&isWork(st[j]))j++;
-      if(j-i>=7){for(let k=i;k<j;k++)bad.add(days[k]+'|'+p.id);} i=j;} else i++; } }
+  for(const p of people){ const c=Math.max(0,Math.min(6,carry[p.id]|0));
+    const ext=new Array(c).fill(true).concat(days.map(s=>isWork(resolve(s,p,manual,auto,ov)))); let i=0;
+    while(i<ext.length){ if(ext[i]){let j=i; while(j<ext.length&&ext[j])j++;
+      if(j-i>=7){for(let k=i;k<j;k++){const mi=k-c; if(mi>=0)bad.add(days[mi]+'|'+p.id);}} i=j;} else i++; } }
   return bad;
 }
 function coverageWarn(s,people,manual,auto,ov){
@@ -252,30 +322,36 @@ const DEFAULT_PEOPLE = [{
   weekday: ['R', 'R', 'R', 'R', 'R'],
   tc: true,
   tx: true,
-  single: 'R'
-}, {
-  id: 'jacqueline',
-  name: 'Jacqueline',
-  weekday: ['R', '中', '中', '霄', 'R'],
-  tc: true,
-  tx: true,
-  single: '中'
-}, {
-  id: 'sean',
-  name: 'Sean',
-  weekday: ['中', '中', '中', '中', '中'],
-  tc: true,
-  tx: false,
-  single: '中'
+  single: 'R',
+  backup: true
 }, {
   id: 'raymond',
   name: 'Raymond',
   weekday: ['霄', '霄', '霄', '霄', '霄'],
   tc: false,
   tx: true,
-  single: '霄'
+  single: '霄',
+  backup: false
+}, {
+  id: 'sean',
+  name: 'Sean',
+  weekday: ['中', '中', '中', '中', '中'],
+  tc: true,
+  tx: false,
+  single: '中',
+  backup: false
+}, {
+  id: 'jacqueline',
+  name: 'Jacqueline',
+  weekday: ['R', '中', '中', '霄', 'R'],
+  tc: true,
+  tx: true,
+  single: '中',
+  backup: false
 }];
+const PERSON_ORDER = ['paul', 'raymond', 'sean', 'jacqueline'];
 const PEOPLE_KEY = 'roster_people_v1';
+const DEFAULT_EHS_URL = 'https://script.google.com/macros/s/AKfycbyWTuJEQc1jMVcl9kCuPlCfvfSgIg2piyw8ODr013JcJrwC2hm7dvkX2_n1eJ9K4WPn/exec';
 const monthKey = (y, m) => 'roster_v1_' + y + '_' + m;
 const chipClass = st => st === '中' ? 'c-tc' : st === '霄' ? 'c-tx' : st === 'R' ? 'c-r' : st === 'H' ? 'c-h' : '';
 const label = st => st === 'H' ? '休' : st === 'OFF' ? '·' : st;
@@ -296,14 +372,33 @@ function App() {
   const now = new Date();
   const [y, setY] = useState(now.getFullYear() < 2026 ? 2026 : now.getFullYear());
   const [m, setM] = useState(now.getFullYear() < 2026 ? 1 : now.getMonth() + 1);
-  const [people, setPeople] = useState(() => load(PEOPLE_KEY, DEFAULT_PEOPLE));
+  const [people, setPeople] = useState(() => {
+    const p = load(PEOPLE_KEY, DEFAULT_PEOPLE).map(x => ({
+      ...x,
+      backup: x.backup !== undefined ? x.backup : x.id === 'paul'
+    }));
+    p.sort((a, b) => {
+      const ia = PERSON_ORDER.indexOf(a.id),
+        ib = PERSON_ORDER.indexOf(b.id);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return p;
+  });
   const [store, setStore] = useState(() => load(monthKey(y, m), {
     manual: {},
     ov: {}
   }));
   const [sel, setSel] = useState(null); // {date,personId}
   const [daySel, setDaySel] = useState(null); // date
-
+  const [otHours, setOtHours] = useState(() => load('roster_otshift_v1', 8));
+  const [ehsUrl, setEhsUrl] = useState(() => load('roster_ehs_url_v1', DEFAULT_EHS_URL));
+  const [ehsToken, setEhsToken] = useState(() => load('roster_ehs_token_v1', ''));
+  const [pub, setPub] = useState({
+    state: 'idle',
+    msg: ''
+  });
+  const [imported, setImported] = useState(null);
+  const [syncMsg, setSyncMsg] = useState('');
   useEffect(() => {
     setStore(load(monthKey(y, m), {
       manual: {},
@@ -316,10 +411,23 @@ function App() {
   useEffect(() => {
     save(PEOPLE_KEY, people);
   }, [people]);
+  useEffect(() => {
+    save('roster_otshift_v1', otHours);
+  }, [otHours]);
+  useEffect(() => {
+    save('roster_ehs_url_v1', ehsUrl);
+  }, [ehsUrl]);
+  useEffect(() => {
+    save('roster_ehs_token_v1', ehsToken);
+  }, [ehsToken]);
   const manual = store.manual,
     ov = store.ov;
-  const auto = useMemo(() => generate(y, m, people, manual, ov), [y, m, people, manual, ov]);
-  const bad = useMemo(() => detectStreaks(y, m, people, manual, auto, ov), [y, m, people, manual, auto, ov]);
+  const prevY = m === 1 ? y - 1 : y,
+    prevM = m === 1 ? 12 : m - 1;
+  const autoCarry = useMemo(() => deriveCarry(prevY, prevM, people), [prevY, prevM, people]);
+  const carry = useMemo(() => store.carry ? store.carry : autoCarry || Object.fromEntries(people.map(p => [p.id, 0])), [store.carry, autoCarry, people]);
+  const auto = useMemo(() => generate(y, m, people, manual, ov, carry), [y, m, people, manual, ov, carry]);
+  const bad = useMemo(() => detectStreaks(y, m, people, manual, auto, ov, carry), [y, m, people, manual, auto, ov, carry]);
   const days = useMemo(() => monthDays(y, m), [y, m]);
   const todayStr = toStr(now);
   function setManual(date, id, val) {
@@ -407,7 +515,197 @@ function App() {
       };
     });
   }
+  function setCarry(id, val) {
+    setStore(s => {
+      const base = s.carry || autoCarry || Object.fromEntries(people.map(p => [p.id, 0]));
+      return {
+        ...s,
+        carry: {
+          ...base,
+          [id]: Math.max(0, Math.min(6, val | 0))
+        }
+      };
+    });
+  }
+  function resetCarry() {
+    setStore(s => {
+      const x = {
+        ...s
+      };
+      delete x.carry;
+      return x;
+    });
+  }
   const monthLabel = y + '年' + m + '月';
+  function otRowsNow() {
+    return people.map(p => {
+      let sat = 0,
+        sun = 0,
+        holi = 0;
+      days.forEach(s => {
+        if (dayType(s, ov) === 'WORK') return;
+        if (!isWork(resolve(s, p, manual, auto, ov))) return;
+        const k = isHoliday(s) ? 'holi' : getDow(s) === 6 ? 'sat' : getDow(s) === 0 ? 'sun' : 'holi';
+        if (k === 'sat') sat++;else if (k === 'sun') sun++;else holi++;
+      });
+      const d = sat + sun + holi;
+      return {
+        id: p.id,
+        name: p.name,
+        sat,
+        sun,
+        holi,
+        days: d,
+        hours: Number(otHours) || 0,
+        total: d * (Number(otHours) || 0)
+      };
+    });
+  }
+  function buildPayload() {
+    const rows = days.map(s => {
+      const cells = {};
+      people.forEach(p => {
+        cells[p.id] = resolve(s, p, manual, auto, ov);
+      });
+      return {
+        date: s,
+        dow: getDow(s),
+        type: dayType(s, ov),
+        holiday: HOLIDAYS_2026[s] || null,
+        cells
+      };
+    });
+    return {
+      action: 'publishRoster',
+      token: ehsToken || '',
+      year: y,
+      month: m,
+      people: people.map(p => ({
+        id: p.id,
+        name: p.name
+      })),
+      rows,
+      overtime: otRowsNow(),
+      shiftHours: Number(otHours) || 0,
+      publishedAt: new Date().toISOString()
+    };
+  }
+  function publish() {
+    if (!ehsUrl) {
+      setPub({
+        state: 'err',
+        msg: '尚未設定發布網址 — 請展開下方「EHS e-system 發布設定」貼上 GAS /exec 網址'
+      });
+      return;
+    }
+    if (!confirm(monthLabel + ' 班表將發布到 EHS e-system（寫入分頁「排班表_' + y + pad(m) + '」），確定？')) return;
+    setPub({
+      state: 'sending',
+      msg: '發布中…'
+    });
+    postRoster(ehsUrl, JSON.stringify(buildPayload()), 2, txt => {
+      let ok = true,
+        extra = '';
+      try {
+        const r = JSON.parse(txt);
+        ok = r.ok !== false;
+        extra = r.tab ? '→ ' + r.tab : r.msg || r.error || '';
+      } catch (e) {}
+      setPub(ok ? {
+        state: 'ok',
+        msg: '✓ 發布成功 ' + extra
+      } : {
+        state: 'err',
+        msg: '回應錯誤：' + extra
+      });
+    }, err => setPub({
+      state: 'err',
+      msg: '發布失敗：' + err
+    }));
+  }
+  function onBackupFile(file) {
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const obj = JSON.parse(r.result);
+        if (!obj.scheduleData) {
+          setImported(null);
+          setSyncMsg('⚠ 這份檔案沒有 scheduleData，可能不是 E-System 備份檔');
+          return;
+        }
+        setImported(obj);
+        const ym = y + '-' + pad(m);
+        const cur = obj.scheduleData[ym];
+        const cb = carryFromBackup(obj, prevY, prevM, people);
+        const man = cur && cur.cells ? manualFromCells(cur.cells, y, m, people) : null;
+        setStore(s => ({
+          ...s,
+          ...(man ? {
+            manual: man
+          } : {}),
+          ...(cb ? {
+            carry: cb
+          } : {})
+        }));
+        let msg = '已讀取備份。';
+        msg += man ? '✓ 已把 E-System 的 ' + ym + ' 現有班表載入工具，可直接微調。' : '備份內無 ' + ym + ' 班表，將用自動排班。';
+        if (cb) msg += ' 上月連七已校正。';
+        setSyncMsg(msg);
+      } catch (e) {
+        setImported(null);
+        setSyncMsg('⚠ 讀取失敗：JSON 格式錯誤');
+      }
+    };
+    r.readAsText(file);
+  }
+  function buildScheduleDataObj(nameOrder) {
+    let normalDays = 0;
+    days.forEach(s => {
+      if (dayType(s, ov) === 'WORK') normalDays++;
+    });
+    const byName = Object.fromEntries(people.map(p => [p.name, p]));
+    const order = nameOrder && nameOrder.length ? nameOrder.slice() : [];
+    people.forEach(p => {
+      if (order.indexOf(p.name) < 0) order.push(p.name);
+    });
+    const cells = {};
+    order.forEach(nm => {
+      const p = byName[nm];
+      if (!p) return;
+      const o = {};
+      days.forEach(s => {
+        const dn = String(Number(s.slice(8)));
+        let st = resolve(s, p, manual, auto, ov);
+        if (st === 'OFF' || st === '') st = 'H';
+        o[dn] = st;
+      });
+      cells[nm] = o;
+    });
+    return {
+      normalDays,
+      cells
+    };
+  }
+  function genImport() {
+    if (!imported) {
+      setSyncMsg('請先選擇 E-System 備份檔');
+      return;
+    }
+    const ym = y + '-' + pad(m);
+    const obj = JSON.parse(JSON.stringify(imported));
+    const sd = obj.scheduleData || {};
+    const sample = sd[ym] || sd[Object.keys(sd)[0]];
+    const nameOrder = sample && sample.cells ? Object.keys(sample.cells) : [];
+    sd[ym] = buildScheduleDataObj(nameOrder);
+    obj.scheduleData = sd;
+    obj.schMonths = obj.schMonths || [];
+    if (obj.schMonths.indexOf(ym) < 0) {
+      obj.schMonths.push(ym);
+      obj.schMonths.sort();
+    }
+    downloadJson(obj, 'esystem-backup-' + new Date().toISOString().slice(0, 10) + '.json');
+    setSyncMsg('✓ 已產生匯入檔（更新 ' + ym + '）。請到 E-System 按「匯入」選此檔。');
+  }
 
   // stats
   const stats = people.map(p => {
@@ -453,7 +751,12 @@ function App() {
   }, "\u6E05\u7A7A\u6574\u6708"), /*#__PURE__*/React.createElement("button", {
     className: "solid",
     onClick: () => window.print()
-  }, "\u5217\u5370 / PDF"))), /*#__PURE__*/React.createElement("div", {
+  }, "\u5217\u5370 / PDF"), /*#__PURE__*/React.createElement("button", {
+    className: "pubbtn",
+    onClick: publish
+  }, "\uD83D\uDE80 \u767C\u5E03\u5230 EHS")), pub.state !== 'idle' && /*#__PURE__*/React.createElement("div", {
+    className: 'pubbar pub-' + pub.state
+  }, pub.msg)), /*#__PURE__*/React.createElement("div", {
     className: "legend"
   }, /*#__PURE__*/React.createElement("span", {
     className: "li"
@@ -488,55 +791,72 @@ function App() {
   }, "\u7D05\u6846 = \u9023\u7E8C7\u5929")), bad.size > 0 && /*#__PURE__*/React.createElement("div", {
     className: "badwarn"
   }, "\u26A0 \u6709\u4EBA\u9023\u7E8C\u4E0A\u73ED\u9054 7 \u5929\u4EE5\u4E0A\uFF08\u7D05\u6846\uFF09\uFF0C\u8ACB\u9EDE\u8A72\u683C\u5B89\u6392\u88DC\u4F11\uFF08\u4F11\uFF09\u3002"), /*#__PURE__*/React.createElement("div", {
+    className: "scrollhint"
+  }, "\u2190 \u5DE6\u53F3\u6ED1\u52D5\u770B\u6574\u6708 \u2192"), /*#__PURE__*/React.createElement("div", {
     className: "tablewrap"
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
-    className: "dh"
-  }, "\u65E5\u671F"), people.map(p => /*#__PURE__*/React.createElement("th", {
-    key: p.id
-  }, p.name)))), /*#__PURE__*/React.createElement("tbody", null, days.map(s => {
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "hgrid"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "nh"
+  }, "\u59D3\u540D"), days.map(s => {
     const dow = getDow(s),
       t = dayType(s, ov),
       hol = HOLIDAYS_2026[s];
     const warn = coverageWarn(s, people, manual, auto, ov);
-    const cls = (isNonWork(s) ? hol ? 'holiday' : 'weekend' : '') + (s === todayStr ? ' today' : '');
-    return /*#__PURE__*/React.createElement("tr", {
+    const cls = (hol ? 'h-hol' : isNonWork(s) ? 'h-we' : '') + (s === todayStr ? ' h-today' : '');
+    return /*#__PURE__*/React.createElement("th", {
       key: s,
-      className: cls
-    }, /*#__PURE__*/React.createElement("td", {
-      className: "date",
+      className: 'dcol ' + cls,
+      title: (hol ? hol + ' · ' : '') + (warn ? '⚠' + warn : ''),
       onClick: () => setDaySel(s)
-    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
-      className: "dnum"
-    }, Number(s.slice(8))), /*#__PURE__*/React.createElement("span", {
-      className: "dwk"
-    }, WK[dow]), t === 'DUTY2' && /*#__PURE__*/React.createElement("span", {
-      className: "daytag tag2"
-    }, "\u96D9"), t === 'DUTY1' && /*#__PURE__*/React.createElement("span", {
-      className: "daytag tag1"
-    }, "\u55AE")), hol && /*#__PURE__*/React.createElement("span", {
-      className: "hol"
-    }, hol), warn && /*#__PURE__*/React.createElement("span", {
-      className: "warn"
-    }, "\u26A0", warn)), people.map(p => {
-      const st = resolve(s, p, manual, auto, ov);
-      const isBad = bad.has(s + '|' + p.id);
-      const off = st === 'OFF';
-      return /*#__PURE__*/React.createElement("td", {
-        key: p.id
-      }, /*#__PURE__*/React.createElement("span", {
-        className: 'cell ' + chipClass(st) + (off ? ' off' : '') + (isBad ? ' bad' : ''),
-        onClick: () => setSel({
-          date: s,
-          personId: p.id
-        })
-      }, label(st)));
-    }));
-  })))), /*#__PURE__*/React.createElement(LeavePanel, {
+    }, /*#__PURE__*/React.createElement("div", {
+      className: 'dn' + (warn ? ' warn' : '')
+    }, Number(s.slice(8))), /*#__PURE__*/React.createElement("div", {
+      className: "dw"
+    }, WK[dow]), t === 'DUTY2' && /*#__PURE__*/React.createElement("div", {
+      className: "dt t2"
+    }, "\u96D9"), t === 'DUTY1' && /*#__PURE__*/React.createElement("div", {
+      className: "dt t1"
+    }, "\u55AE"), t === 'WORK' && /*#__PURE__*/React.createElement("div", {
+      className: "dt"
+    }, "\xA0"));
+  }))), /*#__PURE__*/React.createElement("tbody", null, people.map(p => /*#__PURE__*/React.createElement("tr", {
+    key: p.id
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "nm"
+  }, p.name), days.map(s => {
+    const st = resolve(s, p, manual, auto, ov);
+    const isBad = bad.has(s + '|' + p.id);
+    const off = st === 'OFF';
+    const hol = HOLIDAYS_2026[s];
+    const tcls = (hol ? 'h-hol' : isNonWork(s) ? 'h-we' : '') + (s === todayStr ? ' h-today' : '');
+    return /*#__PURE__*/React.createElement("td", {
+      key: s,
+      className: tcls
+    }, /*#__PURE__*/React.createElement("span", {
+      className: 'cell ' + chipClass(st) + (off ? ' off' : '') + (isBad ? ' bad' : ''),
+      onClick: () => setSel({
+        date: s,
+        personId: p.id
+      })
+    }, label(st)));
+  })))))), /*#__PURE__*/React.createElement("div", {
+    className: "hhint"
+  }, "\u2190 \u5DE6\u53F3\u6ED1\u52D5\u770B\u6574\u6708\uFF1B\u9EDE\u65E5\u671F\u6539\u503C\u73ED\u4EBA\u6578\u3001\u9EDE\u683C\u5B50\u6539\u73ED\u5225 \u2192"), /*#__PURE__*/React.createElement(LeavePanel, {
     days: days,
     people: people,
     manual: manual,
     onToggle: toggleLeave,
     onClear: clearLeave
+  }), /*#__PURE__*/React.createElement(CarryPanel, {
+    people: people,
+    carry: carry,
+    autoCarry: autoCarry,
+    custom: !!store.carry,
+    prevY: prevY,
+    prevM: prevM,
+    onSet: setCarry,
+    onReset: resetCarry
   }), /*#__PURE__*/React.createElement("details", {
     className: "panel"
   }, /*#__PURE__*/React.createElement("summary", null, "\uD83D\uDC65 \u4EBA\u54E1\u8A2D\u5B9A ", /*#__PURE__*/React.createElement("span", {
@@ -589,7 +909,18 @@ function App() {
       };
       setPeople(np);
     }
-  }), "\u53EF\u503C\u901A\u9704"), /*#__PURE__*/React.createElement("label", null, "\u55AE\u4EBA\u65E5\u5D17\u4F4D", /*#__PURE__*/React.createElement("select", {
+  }), "\u53EF\u503C\u901A\u9704"), /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: !!p.backup,
+    onChange: e => {
+      const np = [...people];
+      np[pi] = {
+        ...p,
+        backup: e.target.checked
+      };
+      setPeople(np);
+    }
+  }), "\u88DC\u7F3A(\u6700\u5F8C\u6392)"), /*#__PURE__*/React.createElement("label", null, "\u55AE\u4EBA\u65E5\u5D17\u4F4D", /*#__PURE__*/React.createElement("select", {
     value: p.single,
     onChange: e => {
       const np = [...people];
@@ -622,7 +953,27 @@ function App() {
     className: "panel"
   }, /*#__PURE__*/React.createElement("summary", null, "\u2139\uFE0F \u6392\u73ED\u898F\u5247 \u25BE"), /*#__PURE__*/React.createElement("div", {
     className: "body note"
-  }, "\xB7 \u4E00\uFF5E\u4E94\uFF1A\u4F9D\u5404\u4EBA\u5E73\u65E5\u56FA\u5B9A\u5D17\u4F4D\u4E0A\u73ED\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u516D\uFF08\u6216\u9023\u5047\u7B2C 1\u30012 \u5929\uFF09\uFF1A\u6392\u5169\u4EBA\uFF1D\u4E00\u53F0\u4E2D\uFF0B\u4E00\u901A\u9704\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u65E5\uFF08\u6216\u9023\u5047\u7B2C 3 \u5929\u8D77\uFF09\uFF1A\u6392\u4E00\u4EBA\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u7CFB\u7D71\u81EA\u52D5\u907F\u514D\u9023\u7E8C\u4E0A\u73ED 7 \u5929\uFF0C\u5FC5\u8981\u6642\u63D2\u5165\u88DC\u4F11\uFF08\u4F11\uFF09\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u5E73\u65E5 Sean \u6216 Raymond \u8ACB\u5047\uFF0C\u9810\u8A2D\u7531 Paul \u4EE3\u73ED\uFF08Sean\u2192\u53F0\u4E2D\u3001Raymond\u2192\u901A\u9704\uFF1B\u5169\u4EBA\u540C\u4F11\u5247 Paul \u88DC\u5176\u4E00\uFF09\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 2026 \u570B\u5B9A\u5047\u65E5\uFF0F\u9023\u5047\u5DF2\u5167\u5EFA\uFF0C\u6703\u81EA\u52D5\u6A19\u793A\u300C\u96D9\uFF0F\u55AE\u300D\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u9EDE\u65E5\u671F\u53EF\u6539\u7576\u5929\u503C\u73ED\u4EBA\u6578\uFF1B\u9EDE\u683C\u5B50\u53EF\u624B\u52D5\u8ABF\u6574\u6216\u8ACB\u5047\u3002")), sel && /*#__PURE__*/React.createElement(CellSheet, {
+  }, "\xB7 \u4E00\uFF5E\u4E94\uFF1A\u4F9D\u5404\u4EBA\u5E73\u65E5\u56FA\u5B9A\u5D17\u4F4D\u4E0A\u73ED\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u516D\uFF08\u6216\u9023\u5047\u7B2C 1\u30012 \u5929\uFF09\uFF1A\u6392\u5169\u4EBA\uFF1D\u4E00\u53F0\u4E2D\uFF0B\u4E00\u901A\u9704\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u65E5\uFF08\u6216\u9023\u5047\u7B2C 3 \u5929\u8D77\uFF09\uFF1A\u6392\u4E00\u4EBA\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u7CFB\u7D71\u81EA\u52D5\u907F\u514D\u9023\u7E8C\u4E0A\u73ED 7 \u5929\uFF0C\u5FC5\u8981\u6642\u63D2\u5165\u88DC\u4F11\uFF08\u4F11\uFF09\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u5E73\u65E5 Sean \u6216 Raymond \u8ACB\u5047\uFF0C\u9810\u8A2D\u7531 Paul \u4EE3\u73ED\uFF08Sean\u2192\u53F0\u4E2D\u3001Raymond\u2192\u901A\u9704\uFF1B\u5169\u4EBA\u540C\u4F11\u5247 Paul \u88DC\u5176\u4E00\uFF09\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 2026 \u570B\u5B9A\u5047\u65E5\uFF0F\u9023\u5047\u5DF2\u5167\u5EFA\uFF0C\u6703\u81EA\u52D5\u6A19\u793A\u300C\u96D9\uFF0F\u55AE\u300D\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u9EDE\u65E5\u671F\u53EF\u6539\u7576\u5929\u503C\u73ED\u4EBA\u6578\uFF1B\u9EDE\u683C\u5B50\u53EF\u624B\u52D5\u8ABF\u6574\u6216\u8ACB\u5047\u3002")), /*#__PURE__*/React.createElement(OvertimePanel, {
+    days: days,
+    people: people,
+    manual: manual,
+    auto: auto,
+    ov: ov,
+    hours: otHours,
+    setHours: setOtHours
+  }), /*#__PURE__*/React.createElement(SyncPanel, {
+    monthLabel: monthLabel,
+    onFile: onBackupFile,
+    onGen: genImport,
+    importedReady: !!imported,
+    syncMsg: syncMsg,
+    url: ehsUrl,
+    setUrl: setEhsUrl,
+    token: ehsToken,
+    setToken: setEhsToken,
+    pub: pub,
+    onPublish: publish
+  }), sel && /*#__PURE__*/React.createElement(CellSheet, {
     sel: sel,
     people: people,
     cur: resolve(sel.date, people.find(p => p.id === sel.personId), manual, auto, ov),
@@ -640,6 +991,339 @@ function App() {
     },
     onClose: () => setDaySel(null)
   }));
+}
+function OvertimePanel({
+  days,
+  people,
+  manual,
+  auto,
+  ov,
+  hours,
+  setHours
+}) {
+  const rows = people.map(p => {
+    let sat = 0,
+      sun = 0,
+      holi = 0;
+    days.forEach(s => {
+      if (dayType(s, ov) === 'WORK') return;
+      if (!isWork(resolve(s, p, manual, auto, ov))) return;
+      const k = isHoliday(s) ? 'holi' : getDow(s) === 6 ? 'sat' : getDow(s) === 0 ? 'sun' : 'holi';
+      if (k === 'sat') sat++;else if (k === 'sun') sun++;else holi++;
+    });
+    const d = sat + sun + holi;
+    return {
+      id: p.id,
+      name: p.name,
+      sat,
+      sun,
+      holi,
+      d,
+      h: d * hours
+    };
+  });
+  const tot = rows.reduce((a, r) => ({
+    sat: a.sat + r.sat,
+    sun: a.sun + r.sun,
+    holi: a.holi + r.holi,
+    d: a.d + r.d,
+    h: a.h + r.h
+  }), {
+    sat: 0,
+    sun: 0,
+    holi: 0,
+    d: 0,
+    h: 0
+  });
+  const hh = Number(hours) || 0;
+  return /*#__PURE__*/React.createElement("details", {
+    className: "panel",
+    open: true
+  }, /*#__PURE__*/React.createElement("summary", null, "\u23F1\uFE0F \u52A0\u73ED\u6642\u6578\u7D71\u8A08 ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#94a3b8',
+      fontWeight: 500
+    }
+  }, "\u5047\u65E5\u503C\u73ED \u25BE")), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "othead"
+  }, /*#__PURE__*/React.createElement("span", null, "\u6BCF\u73ED\u5DE5\u6642"), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    max: "24",
+    step: "0.5",
+    value: hours,
+    onChange: e => setHours(e.target.value === '' ? '' : Number(e.target.value))
+  }), /*#__PURE__*/React.createElement("span", null, "\u5C0F\u6642")), /*#__PURE__*/React.createElement("table", {
+    className: "ottable"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", null, "\u4EBA\u54E1"), /*#__PURE__*/React.createElement("th", null, "\u4F11\u606F\u65E5", /*#__PURE__*/React.createElement("small", null, "\u516D")), /*#__PURE__*/React.createElement("th", null, "\u4F8B\u5047\u65E5", /*#__PURE__*/React.createElement("small", null, "\u65E5")), /*#__PURE__*/React.createElement("th", null, "\u570B\u5B9A\u5047\u65E5"), /*#__PURE__*/React.createElement("th", null, "\u52A0\u73ED\u6642\u6578"))), /*#__PURE__*/React.createElement("tbody", null, rows.map(r => /*#__PURE__*/React.createElement("tr", {
+    key: r.id
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "otname"
+  }, r.name), /*#__PURE__*/React.createElement("td", null, r.sat ? /*#__PURE__*/React.createElement("span", null, r.sat, /*#__PURE__*/React.createElement("i", null, "\u5929")) : /*#__PURE__*/React.createElement("span", {
+    className: "z"
+  }, "\u2013")), /*#__PURE__*/React.createElement("td", null, r.sun ? /*#__PURE__*/React.createElement("span", null, r.sun, /*#__PURE__*/React.createElement("i", null, "\u5929")) : /*#__PURE__*/React.createElement("span", {
+    className: "z"
+  }, "\u2013")), /*#__PURE__*/React.createElement("td", null, r.holi ? /*#__PURE__*/React.createElement("span", null, r.holi, /*#__PURE__*/React.createElement("i", null, "\u5929")) : /*#__PURE__*/React.createElement("span", {
+    className: "z"
+  }, "\u2013")), /*#__PURE__*/React.createElement("td", {
+    className: "oth"
+  }, /*#__PURE__*/React.createElement("b", null, r.h), /*#__PURE__*/React.createElement("i", null, "h")))), /*#__PURE__*/React.createElement("tr", {
+    className: "otsum"
+  }, /*#__PURE__*/React.createElement("td", null, "\u5408\u8A08"), /*#__PURE__*/React.createElement("td", null, tot.sat || '–'), /*#__PURE__*/React.createElement("td", null, tot.sun || '–'), /*#__PURE__*/React.createElement("td", null, tot.holi || '–'), /*#__PURE__*/React.createElement("td", {
+    className: "oth"
+  }, /*#__PURE__*/React.createElement("b", null, tot.h), /*#__PURE__*/React.createElement("i", null, "h"))))), /*#__PURE__*/React.createElement("div", {
+    className: "note"
+  }, "\u52A0\u73ED\u6642\u6578 = \u5047\u65E5\u503C\u73ED\u5929\u6578 \xD7 \u6BCF\u73ED\u5DE5\u6642\uFF08", hh, " h\uFF09\u3002\u4F11\u606F\u65E5\uFF0F\u4F8B\u5047\u65E5\uFF0F\u570B\u5B9A\u5047\u65E5\u5206\u5217\uFF0C\u65B9\u4FBF\u4F9D\u52DE\u57FA\u6CD5\u4E0D\u540C\u8CBB\u7387\u8A08\u7B97\u52A0\u73ED\u8CBB\u3002\u5E73\u65E5\u6B63\u5E38\u4E0A\u73ED\u4E0D\u5217\u5165\u3002")));
+}
+function postRoster(url, body, retries, ok, err) {
+  let done = false;
+  function attempt(left) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+    xhr.timeout = 20000;
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4 || done) return;
+      if (xhr.status >= 200 && xhr.status < 300) {
+        done = true;
+        ok(xhr.responseText);
+      } else if (left > 0) {
+        setTimeout(() => attempt(left - 1), 900);
+      } else {
+        done = true;
+        err('HTTP ' + xhr.status);
+      }
+    };
+    xhr.ontimeout = function () {
+      if (done) return;
+      if (left > 0) setTimeout(() => attempt(left - 1), 900);else {
+        done = true;
+        err('逾時');
+      }
+    };
+    xhr.onerror = function () {
+      if (done) return;
+      if (left > 0) setTimeout(() => attempt(left - 1), 900);else {
+        done = true;
+        err('連線失敗');
+      }
+    };
+    xhr.send(body);
+  }
+  attempt(retries);
+}
+function manualFromCells(cells, y, m, people) {
+  const man = {},
+    ok = ['中', '霄', 'R', 'H'];
+  const byName = Object.fromEntries(people.map(p => [p.name, p]));
+  const nd = new Date(y, m, 0).getDate();
+  Object.keys(cells).forEach(nm => {
+    const p = byName[nm];
+    if (!p) return;
+    const row = cells[nm];
+    for (let d = 1; d <= nd; d++) {
+      let v = row[String(d)];
+      if (v === undefined || v === '') continue;
+      if (ok.indexOf(v) < 0) v = 'H';
+      const ds = y + '-' + pad(m) + '-' + pad(d);
+      (man[ds] || (man[ds] = {}))[p.id] = v;
+    }
+  });
+  return man;
+}
+function carryFromBackup(backup, py, pm, people) {
+  if (!backup || !backup.scheduleData) return null;
+  const md = backup.scheduleData[py + '-' + pad(pm)];
+  if (!md || !md.cells) return null;
+  const ndays = new Date(py, pm, 0).getDate();
+  const r = {};
+  people.forEach(p => {
+    const row = md.cells[p.name] || {};
+    let c = 0;
+    for (let d = ndays; d >= 1; d--) {
+      const v = row[String(d)];
+      if (v === 'R' || v === '中' || v === '霄') c++;else break;
+      if (c >= 6) break;
+    }
+    r[p.id] = Math.min(c, 6);
+  });
+  return r;
+}
+function deriveCarry(py, pm, people) {
+  const raw = load(monthKey(py, pm), null);
+  if (!raw) return null;
+  const pman = raw.manual || {},
+    pov = raw.ov || {};
+  const pa = generate(py, pm, people, pman, pov, {});
+  const pd = monthDays(py, pm);
+  const r = {};
+  people.forEach(p => {
+    let c = 0;
+    for (let i = pd.length - 1; i >= 0; i--) {
+      if (isWork(resolve(pd[i], p, pman, pa, pov))) c++;else break;
+      if (c >= 6) break;
+    }
+    r[p.id] = Math.min(c, 6);
+  });
+  return r;
+}
+function downloadJson(obj, filename) {
+  const blob = new Blob([JSON.stringify(obj)], {
+    type: 'application/json'
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+}
+function SyncPanel({
+  monthLabel,
+  onFile,
+  onGen,
+  importedReady,
+  syncMsg,
+  url,
+  setUrl,
+  token,
+  setToken,
+  pub,
+  onPublish
+}) {
+  return /*#__PURE__*/React.createElement("details", {
+    className: "panel",
+    open: true
+  }, /*#__PURE__*/React.createElement("summary", null, "\uD83D\uDD04 \u540C\u6B65\u5230 E-System ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#94a3b8',
+      fontWeight: 500
+    }
+  }, "\u73ED\u8868 \u25BE")), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "method"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, "\u65B9\u6CD5 A \xB7 \u8B80\u53D6 \u2192 \u5FAE\u8ABF \u2192 \u5BEB\u56DE ", /*#__PURE__*/React.createElement("span", {
+    className: "badge ok"
+  }, "\u63A8\u85A6\u30FB\u96F6\u98A8\u96AA")), /*#__PURE__*/React.createElement("div", {
+    className: "note"
+  }, "\u5728 E-System \u6309\u300C\u532F\u51FA\u300D\u4E0B\u8F09 .json \u2192 \u9078\u9032\u4F86\uFF1A\u5DE5\u5177\u6703**\u81EA\u52D5\u8F09\u5165\u8A72\u6708\u73FE\u6709\u73ED\u8868**\uFF0B\u6821\u6B63\u4E0A\u6708\u9023\u4E03\u3002\u4F60\u76F4\u63A5\u5728\u4E0A\u9762**\u5FAE\u8ABF**\uFF08\u9EDE\u683C\u5B50\u6539\u3001\u9EDE\u65E5\u671F\u6539\u4EBA\u6578\uFF09\uFF0C\u518D\u6309\u4E0B\u9762\u300C\u7522\u751F\u532F\u5165\u6A94\u300D\u2192 \u56DE E-System \u6309\u300C\u532F\u5165\u300D\u3002\u60F3\u6539\u7528\u81EA\u52D5\u6392\u73ED\uFF0C\u6309\u4E0A\u65B9\u300C\u6E05\u9664\u624B\u52D5\u8ABF\u6574\u300D\u5373\u53EF\u3002"), /*#__PURE__*/React.createElement("input", {
+    type: "file",
+    accept: ".json,application/json",
+    className: "finput",
+    onChange: e => {
+      if (e.target.files && e.target.files[0]) onFile(e.target.files[0]);
+    }
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "pubbtn wide",
+    disabled: !importedReady,
+    onClick: onGen,
+    style: {
+      opacity: importedReady ? 1 : .5
+    }
+  }, "\u7522\u751F ", monthLabel, " \u532F\u5165\u6A94"), syncMsg && /*#__PURE__*/React.createElement("div", {
+    className: 'pubbar ' + (syncMsg[0] === '✓' ? 'pub-ok' : syncMsg[0] === '⚠' ? 'pub-err' : 'pub-sending'),
+    style: {
+      margin: '10px 0 0'
+    }
+  }, syncMsg)), /*#__PURE__*/React.createElement("div", {
+    className: "method"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mtitle"
+  }, "\u65B9\u6CD5 B \xB7 \u76F4\u63A5\u5BEB\u5165 GAS ", /*#__PURE__*/React.createElement("span", {
+    className: "badge"
+  }, "\u9032\u968E")), /*#__PURE__*/React.createElement("div", {
+    className: "note"
+  }, "\u5BEB\u5230\u8A66\u7B97\u8868\u7368\u7ACB\u5206\u9801\u300C\u6392\u73ED\u8868_\u5E74\u6708\u300D\uFF08\u4E0D\u6703\u9032\u4E0A\u9762\u7684\u73ED\u8868\u9801\uFF09\uFF0C\u9700\u5148\u5728 EHS Apps Script \u52A0\u597D doPost handler\u3002"), /*#__PURE__*/React.createElement("label", {
+    className: "flbl"
+  }, "GAS /exec \u7DB2\u5740"), /*#__PURE__*/React.createElement("input", {
+    className: "finput",
+    value: url,
+    onChange: e => setUrl(e.target.value.trim()),
+    placeholder: "https://script.google.com/macros/s/XXXX/exec"
+  }), /*#__PURE__*/React.createElement("label", {
+    className: "flbl"
+  }, "\u901A\u884C\u78BC\uFF08\u9078\u586B\uFF09"), /*#__PURE__*/React.createElement("input", {
+    className: "finput",
+    value: token,
+    onChange: e => setToken(e.target.value),
+    placeholder: "\u7559\u7A7A\u5247\u4E0D\u9A57\u8B49"
+  }), /*#__PURE__*/React.createElement("button", {
+    className: "pubbtn wide",
+    onClick: onPublish
+  }, "\uD83D\uDE80 \u767C\u5E03 ", monthLabel, "\uFF08\u7368\u7ACB\u5206\u9801\uFF09"), pub.state !== 'idle' && /*#__PURE__*/React.createElement("div", {
+    className: 'pubbar pub-' + pub.state,
+    style: {
+      margin: '10px 0 0'
+    }
+  }, pub.msg))));
+}
+function CarryPanel({
+  people,
+  carry,
+  autoCarry,
+  custom,
+  prevY,
+  prevM,
+  onSet,
+  onReset
+}) {
+  const found = autoCarry != null;
+  return /*#__PURE__*/React.createElement("details", {
+    className: "panel"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u26D3\uFE0F \u4E0A\u6708\u5E95\u9023\u7E8C\u4E0A\u73ED ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#94a3b8',
+      fontWeight: 500
+    }
+  }, "\u8DE8\u6708\u9023\u4E03 \u25BE")), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "note",
+    style: {
+      marginBottom: 10
+    }
+  }, found ? '已自動讀取 ' + prevY + '年' + prevM + '月 班表，算出各人月底連續上班天數，並接續計算連七。下面數字可手動修正。' : '找不到 ' + prevY + '年' + prevM + '月 的存檔，預設為 0。若上月月底有人連續上班到月底，請在這裡填入天數（0–6）。'), /*#__PURE__*/React.createElement("div", {
+    className: "cgrid"
+  }, people.map(p => /*#__PURE__*/React.createElement("div", {
+    className: "ccard",
+    key: p.id
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "cnm"
+  }, p.name), /*#__PURE__*/React.createElement("input", {
+    type: "number",
+    min: "0",
+    max: "6",
+    value: carry[p.id] || 0,
+    onChange: e => onSet(p.id, Number(e.target.value))
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "cunit"
+  }, "\u5929")))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "note",
+    style: {
+      margin: 0
+    }
+  }, custom ? '目前為手動／匯入帶入值' : '目前為自動帶入（讀工具存檔）'), custom && /*#__PURE__*/React.createElement("button", {
+    className: "lclear",
+    onClick: onReset
+  }, "\u56DE\u81EA\u52D5")), /*#__PURE__*/React.createElement("div", {
+    className: "note",
+    style: {
+      marginTop: 8
+    }
+  }, "\u4F8B\uFF1A\u4E0A\u6708\u6700\u5F8C\u662F\u9031\u516D\u503C\u73ED\u3001\u4E14\u6574\u9031\u90FD\u4E0A\u73ED\uFF1D\u6708\u5E95\u9023 6 \u5929\uFF1B\u672C\u6708\u7B2C 1 \u5929\u82E5\u518D\u4E0A\u73ED\u5C31\u6703\u9023\u4E03\uFF0C\u7CFB\u7D71\u6703\u81EA\u52D5\u5728\u6708\u521D\u5B89\u6392\u88DC\u4F11\u3002")));
 }
 function LeavePanel({
   days,
