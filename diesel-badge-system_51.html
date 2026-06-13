@@ -221,7 +221,7 @@ async function pickFile(id){
   toast('☁️ 讀取中...');
   const res=await dGet({action:'readFile',fileId:id});
   if(res&&res.success&&res.data){
-    if(res.data.records)R=res.data.records;
+    if(res.data.records){const exMap={};R.forEach(r=>{if(r.excluded)exMap[r.id]=true;});R=res.data.records;R.forEach(r=>{if(exMap[r.id])r.excluded=true;});}
     if(res.data.contractors&&res.data.contractors.length)C=res.data.contractors;
     sav();toast('☁️ 已載入 '+res.filename+'（'+R.length+' 筆）');render();closePicker();
   }else toast('❌ 讀取失敗',true);
@@ -276,7 +276,7 @@ function renderList(root){
 function fl(v,k){const r=document.getElementById('root');r['_'+k]=v;renderList(r);}
 function doSearch(){const v=document.getElementById('searchInput')?.value||'';fl(v,'s');}
 function clearSearch(){const inp=document.getElementById('searchInput');if(inp)inp.value='';fl('','s');}
-function togEx(id){const r=R.find(x=>x.id===id);if(r){r.excluded=!r.excluded;sav();render();}}
+function togEx(id){const r=R.find(x=>x.id===id);if(r){r.excluded=!r.excluded;console.log('togEx',id,'excluded=',r.excluded);sav();render();}}
 
 // === FORM ===
 function newRec(){editId='';PD={v1:'',v2:'',web:''};tab='form';renderTabs();render();}
@@ -321,7 +321,8 @@ function saveForm(){
   if(!d.hasBadge){toast('請選擇是否取得標章',true);return;}
   if(!editId){const dup=R.find(r=>r.plateNumber===d.plateNumber);if(dup){showDup(dup.id,d.plateNumber);return;}}
   const rec={...d,id:editId||Date.now().toString(36)+Math.random().toString(36).slice(2,6),photo1:PD.v1,photo2:PD.v2,photoWeb:PD.web,updatedAt:new Date().toISOString()};
-  if(editId){const i=R.findIndex(r=>r.id===editId);if(i!==-1)R[i]=rec;else R.push(rec);}else R.push(rec);
+  // Preserve excluded flag when editing
+  if(editId){const old=R.find(r=>r.id===editId);if(old&&old.excluded)rec.excluded=true;const i=R.findIndex(r=>r.id===editId);if(i!==-1)R[i]=rec;else R.push(rec);}else R.push(rec);
   sav();toast('✅ 儲存成功！');editId='';PD={v1:'',v2:'',web:''};go('list');
 }
 function cancel(){editId='';PD={v1:'',v2:'',web:''};go('list');}
@@ -386,7 +387,7 @@ function renderExport(root){
       </div>
       <div id="recPicker" style="max-height:300px;overflow-y:auto;border:1px solid var(--bd);border-radius:6px"></div>
     </div>
-    <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
+    <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><button class="btn bp" onclick="App.expExcel()" style="background:var(--info)">📊 匯出 Excel</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
   </div><div id="expA" class="exp-area"></div>`;
   updPicker();
 }
@@ -532,40 +533,64 @@ function genPrev(){
   const sorted=[...eq,...tr];
   h+=sorted.map(r=>{
     const bt=r.hasBadge==='是'?r.badgeLevel+'（'+(r.badgeNumber||'—')+'）':'未取得';
-    let ph='';
-    if(r.photo1||r.photo2||r.photoWeb){
-      if(r.photo1||r.photo2){ph+='<div class="ppg c2">';
-        const pLabel=r.category==='施工機具'?'施工機具':'運輸車輛';
-        ph+=r.photo1?'<div class="ppb"><div class="iw"><img src="'+r.photo1+'"></div><div class="il">'+pLabel+'照片 1</div></div>':'<div class="ppb"><div class="iw" style="color:#aaa;font-size:12px">無照片</div><div class="il">'+pLabel+'照片 1</div></div>';
-        ph+=r.photo2?'<div class="ppb"><div class="iw"><img src="'+r.photo2+'"></div><div class="il">'+pLabel+'照片 2</div></div>':'<div class="ppb"><div class="iw" style="color:#aaa;font-size:12px">無照片</div><div class="il">'+pLabel+'照片 2</div></div>';
-        ph+='</div>';}
-      if(r.photoWeb)ph+='<div class="ppg c1" style="margin-top:12px"><div class="ppb"><div class="iw"><img src="'+r.photoWeb+'"></div><div class="il">網站查詢結果</div></div></div>';
-    }else ph='<p style="color:#999;font-size:11px;text-align:center">無照片</p>';
+    const pLabel=r.category==='施工機具'?'施工機具':'運輸車輛';
     const badgeColor=r.hasBadge==='是'?'#16a34a':'#dc2626';
     const catColor=r.category==='施工機具'?'#b45309':'#0e7490';
     const catIcon=r.category==='施工機具'?'🏗️':'🚚';
-    return'<div class="pp2">'+
-      '<div class="print-header"><div>通霄電廠二期更新改建計畫海底輸氣管線統包工程</div></div>'+
-      '<div class="page-content"><div>'+
-      '<h2 style="font-size:17px;border-bottom:2.5px solid #000;padding-bottom:7px;margin-bottom:3px;text-align:center">柴油運輸車輛及施工機具管理標章</h2>'+
-      '<div class="ps" style="margin-bottom:14px">NMDC Energy — Tongxiao Power Plant Phase II</div>'+
-      '<table style="width:100%;border-collapse:collapse;margin-bottom:16px;border:2px solid #333">'+
-        '<tr><td style="padding:8px 14px;background:'+catColor+';color:#fff;font-weight:700;font-size:13px;width:25%;border:1px solid #ddd" rowspan="2">'+catIcon+' '+r.category+'</td>'+
-        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">車號</td>'+
-        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">車輛機具</td>'+
-        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">燃油類型</td></tr>'+
-        '<tr><td style="padding:8px 14px;font-size:16px;font-weight:900;font-family:JetBrains Mono,monospace;border:1px solid #ddd">'+esc(r.plateNumber)+'</td>'+
-        '<td style="padding:8px 14px;font-size:14px;font-weight:600;border:1px solid #ddd">'+esc(r.vehicleType)+'</td>'+
-        '<td style="padding:8px 14px;font-size:14px;border:1px solid #ddd">'+r.fuelType+'</td></tr>'+
-        '<tr><td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd">取得標章</td>'+
-        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd">標章等級</td>'+
-        '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd" colspan="2">標章編號</td></tr>'+
-        '<tr><td style="padding:8px 14px;font-size:15px;font-weight:800;color:'+badgeColor+';border:1px solid #ddd">'+r.hasBadge+'</td>'+
-        '<td style="padding:8px 14px;font-size:14px;font-weight:600;border:1px solid #ddd">'+(r.badgeLevel||'—')+'</td>'+
-        '<td style="padding:8px 14px;font-size:14px;font-family:JetBrains Mono,monospace;border:1px solid #ddd" colspan="2">'+(r.badgeNumber||'—')+'</td></tr>'+
-      '</table>'+ph+
-      '</div></div>'+
-      '<div class="print-footer"><div></div></div>'+
+
+    // Build photo rows - each photo full width
+    let photoRows='';
+    const photos=[
+      {src:r.photo1, label:pLabel+'照片 1'},
+      {src:r.photo2, label:pLabel+'照片 2'},
+      {src:r.photoWeb, label:'網站查詢結果'}
+    ].filter(p=>p.src);
+
+    if(photos.length){
+      photoRows=photos.map(p=>
+        '<tr><td colspan="4" style="padding:8px;border:1px solid #ddd">'+
+          '<div style="text-align:center;cursor:zoom-in" onclick="App.zoomPhoto(\''+p.src+'\')">'+
+            '<img src="'+p.src+'" style="max-width:100%;max-height:280px;object-fit:contain;display:block;margin:0 auto">'+
+          '</div>'+
+          '<div style="text-align:center;font-size:10px;font-weight:600;color:#666;padding:4px 0;background:#f5f5f5;margin-top:6px;border-radius:3px">'+p.label+'</div>'+
+        '</td></tr>'
+      ).join('');
+    }else{
+      photoRows='<tr><td colspan="4" style="padding:16px;text-align:center;color:#999;font-size:11px;border:1px solid #ddd">無照片</td></tr>';
+    }
+
+    return'<div class="pp2" style="display:block;height:auto;page-break-after:always">'+
+      '<table style="width:100%;border-collapse:collapse">'+
+        '<thead>'+
+          '<tr><th colspan="4" style="padding:6px 0;background:#fff;border:none;text-align:center;font-size:10px;color:#333;font-weight:700">通霄電廠二期更新改建計畫海底輸氣管線統包工程</th></tr>'+
+          '<tr><th colspan="4" style="padding:8px 0 6px;background:#fff;border:none;border-bottom:2.5px solid #000;text-align:center;font-size:17px;font-weight:700">柴油運輸車輛及施工機具管理標章</th></tr>'+
+          '<tr><th colspan="4" style="padding:4px 0 10px;background:#fff;border:none;text-align:center;font-size:11px;color:#666;font-weight:400">NMDC Energy — Tongxiao Power Plant Phase II</th></tr>'+
+        '</thead>'+
+        '<tbody>'+
+          '<tr>'+
+            '<td style="padding:8px 14px;background:'+catColor+';color:#fff;font-weight:700;font-size:13px;width:25%;border:1px solid #ddd" rowspan="2">'+catIcon+' '+r.category+'</td>'+
+            '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">車號</td>'+
+            '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">車輛機具</td>'+
+            '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd;width:25%">燃油類型</td>'+
+          '</tr>'+
+          '<tr>'+
+            '<td style="padding:8px 14px;font-size:16px;font-weight:900;font-family:JetBrains Mono,monospace;border:1px solid #ddd">'+esc(r.plateNumber)+'</td>'+
+            '<td style="padding:8px 14px;font-size:14px;font-weight:600;border:1px solid #ddd">'+esc(r.vehicleType)+'</td>'+
+            '<td style="padding:8px 14px;font-size:14px;border:1px solid #ddd">'+r.fuelType+'</td>'+
+          '</tr>'+
+          '<tr>'+
+            '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd">取得標章</td>'+
+            '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd">標章等級</td>'+
+            '<td style="padding:4px 14px;background:#f5f5f5;font-size:10px;color:#666;font-weight:600;border:1px solid #ddd" colspan="2">標章編號</td>'+
+          '</tr>'+
+          '<tr>'+
+            '<td style="padding:8px 14px;font-size:15px;font-weight:800;color:'+badgeColor+';border:1px solid #ddd">'+r.hasBadge+'</td>'+
+            '<td style="padding:8px 14px;font-size:14px;font-weight:600;border:1px solid #ddd">'+(r.badgeLevel||'—')+'</td>'+
+            '<td style="padding:8px 14px;font-size:14px;font-family:JetBrains Mono,monospace;border:1px solid #ddd" colspan="2">'+(r.badgeNumber||'—')+'</td>'+
+          '</tr>'+
+          photoRows+
+        '</tbody>'+
+      '</table>'+
     '</div>';
   }).join('');
   a.innerHTML=h;
@@ -606,8 +631,19 @@ function zoomPhoto(src){if(!src)return;const m=document.getElementById('photoZoo
 // === Excel Export ===
 async function expExcel(){
   if(!R.length){toast('沒有資料',true);return;}
-  toast('📊 產生 Excel 中...');
-  const active=R.filter(r=>!r.excluded);
+  // Use picker if on export page, otherwise use non-excluded
+  const pickerChks=document.querySelectorAll('.expRecChk');
+  let active;
+  if(pickerChks.length>0){
+    const ids=new Set([...document.querySelectorAll('.expRecChk:checked')].map(c=>c.value));
+    const filtered=getFiltered();
+    active=filtered.filter(r=>ids.has(r.id));
+    if(!active.length){toast('請先勾選要匯出的紀錄',true);return;}
+  }else{
+    active=R.filter(r=>!r.excluded);
+    if(!active.length){toast('沒有可匯出的資料',true);return;}
+  }
+  toast('📊 產生 Excel 中（'+active.length+' 筆）...');
   const eq=active.filter(r=>r.category==='施工機具');
   const tr=active.filter(r=>r.category==='運輸車輛');
   const projName='通霄電廠二期更新改建計畫海底輸氣管線統包工程';
@@ -828,7 +864,11 @@ if(API){
         const data=await dGet({action:'readFile',fileId:files[0].id});
         console.log('📥 readFile result:', data?.success, data?.filename);
         if(data&&data.success&&data.data){
-          if(data.data.records)R=data.data.records;
+          if(data.data.records){
+            const exMap={};R.forEach(r=>{if(r.excluded)exMap[r.id]=true;});
+            R=data.data.records;
+            R.forEach(r=>{if(exMap[r.id])r.excluded=true;});
+          }
           if(data.data.contractors&&data.data.contractors.length)C=data.data.contractors;
           sav();render();
           msg.textContent='✅ 已載入 '+files[0].name+'（'+R.length+' 筆）';
