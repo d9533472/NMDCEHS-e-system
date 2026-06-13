@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EHS 排班系統 · 台中／通霄</title>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<style>
+  :root{
+    --navy:#0f2740; --navy2:#1c3a5c; --paper:#eef1f5; --card:#ffffff;
+    --ink:#1e293b; --muted:#64748b; --line:#e2e8f0;
+    --tc:#0f766e; --tc-bg:#ccfbf1; --tx:#b45309; --tx-bg:#fde68a;
+    --r:#334155; --r-bg:#e2e8f0; --h:#be123c; --h-bg:#ffe4e6;
+    --warn:#ea580c; --bad:#dc2626; --bad-bg:#fee2e2;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",Roboto,"PingFang TC","Microsoft JhengHei",sans-serif;}
+  #root{max-width:760px;margin:0 auto;padding-bottom:120px}
+  .topbar{background:var(--navy);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:30}
+  .topbar h1{margin:0;font-size:16px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+  .topbar h1 .sub{font-size:11px;font-weight:500;color:#9fb3c8}
+  .monthrow{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px}
+  .monthrow button.nav{background:var(--navy2);border:none;color:#fff;width:38px;height:38px;border-radius:10px;font-size:18px;cursor:pointer}
+  .monthrow .mlabel{font-size:20px;font-weight:700;min-width:140px;text-align:center}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+  .actions button{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:#fff;
+    padding:7px 12px;border-radius:9px;font-size:12px;cursor:pointer;font-weight:600}
+  .actions button.solid{background:#2dd4bf;border-color:#2dd4bf;color:#06302b}
+  .actions button:active{transform:scale(.97)}
+
+  .legend{display:flex;gap:6px;flex-wrap:wrap;padding:10px 14px;font-size:11px;color:var(--muted);align-items:center}
+  .chip{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;padding:0 6px;
+    border-radius:7px;font-weight:800;font-size:13px;line-height:1}
+  .c-tc{background:var(--tc-bg);color:var(--tc)} .c-tx{background:var(--tx-bg);color:var(--tx)}
+  .c-r{background:var(--r-bg);color:var(--r)} .c-h{background:var(--h-bg);color:var(--h)}
+  .legend .li{display:flex;align-items:center;gap:4px}
+
+  .tablewrap{padding:0 10px}
+  table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);
+    border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,39,64,.08)}
+  thead th{position:sticky;top:0;background:var(--navy2);color:#fff;font-size:12px;font-weight:700;
+    padding:10px 4px;z-index:10}
+  thead th.dh{width:84px;text-align:left;padding-left:12px}
+  tbody td{border-top:1px solid var(--line);text-align:center;padding:5px 2px;vertical-align:middle}
+  td.date{text-align:left;padding-left:10px;white-space:nowrap;font-size:12px;line-height:1.15}
+  td.date .dnum{font-weight:800;font-size:15px}
+  td.date .dwk{color:var(--muted);font-size:11px;margin-left:3px}
+  td.date .hol{display:block;font-size:10px;color:var(--tx);font-weight:700}
+  td.date .warn{display:block;font-size:10px;color:var(--warn);font-weight:700}
+  tr.weekend{background:#f8fafc} tr.holiday{background:#fff7ed}
+  tr.today td.date .dnum{color:#0f766e}
+  .cell{display:inline-flex;align-items:center;justify-content:center;min-width:42px;height:30px;border-radius:8px;
+    font-weight:800;font-size:15px;cursor:pointer;border:2px solid transparent;user-select:none}
+  .cell.off{color:#cbd5e1;font-weight:600;font-size:14px}
+  .cell.bad{border-color:var(--bad);background:var(--bad-bg)!important}
+  .daytag{font-size:10px;font-weight:800;padding:1px 5px;border-radius:6px;margin-left:4px;vertical-align:middle}
+  .tag2{background:#fde68a;color:#92400e} .tag1{background:#bae6fd;color:#075985}
+
+  /* bottom sheet */
+  .sheet-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:40;display:flex;align-items:flex-end}
+  .sheet{background:#fff;width:100%;max-width:760px;margin:0 auto;border-radius:18px 18px 0 0;padding:16px 16px 26px;
+    box-shadow:0 -8px 30px rgba(0,0,0,.2);animation:up .18s ease}
+  @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet h3{margin:2px 0 14px;font-size:15px}
+  .sheet h3 small{color:var(--muted);font-weight:500}
+  .optgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .opt{padding:12px 4px;border-radius:11px;border:1px solid var(--line);background:#f8fafc;text-align:center;
+    font-weight:700;font-size:14px;cursor:pointer}
+  .opt .big{display:block;font-size:20px;font-weight:900;margin-bottom:2px}
+  .opt.o-tc{background:var(--tc-bg);color:var(--tc);border-color:var(--tc)}
+  .opt.o-tx{background:var(--tx-bg);color:var(--tx);border-color:var(--tx)}
+  .opt.o-r{background:var(--r-bg);color:var(--r)} .opt.o-h{background:var(--h-bg);color:var(--h)}
+  .opt.o-off{color:var(--muted)} .opt.o-clear{color:#0369a1}
+  .sheet .close{margin-top:14px;width:100%;padding:12px;border:none;border-radius:11px;background:#0f2740;color:#fff;font-weight:700;font-size:14px;cursor:pointer}
+
+  .panel{margin:12px 10px;background:var(--card);border-radius:14px;box-shadow:0 1px 3px rgba(15,39,64,.08);overflow:hidden}
+  .panel summary{padding:13px 16px;font-weight:700;font-size:14px;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .panel summary::-webkit-details-marker{display:none}
+  .panel .body{padding:6px 14px 16px}
+  .prow{display:grid;grid-template-columns:1fr;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+  .prow .pname{font-weight:800;font-size:14px}
+  .wkrow{display:flex;gap:5px;align-items:center;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+  .wkrow select{font-size:13px;padding:3px;border-radius:6px;border:1px solid var(--line);background:#fff}
+  .wkrow label{display:flex;align-items:center;gap:3px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:4px 0}
+  .stcard{background:#f8fafc;border-radius:10px;padding:10px;text-align:center}
+  .stcard .nm{font-weight:800;font-size:13px;margin-bottom:4px}
+  .stcard .row{font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+  .stcard .row b{color:var(--ink)}
+  .lrow{padding:11px 0;border-top:1px solid var(--line)}
+  .lhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .lhead .lcount{font-size:12px;color:var(--muted)}
+  .lhead .lclear{margin-left:auto;font-size:11px;border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 10px;cursor:pointer;color:#be123c;font-weight:600}
+  .lgrid{display:flex;flex-wrap:wrap;gap:4px}
+  .lday{width:30px;height:30px;border:1px solid var(--line);background:#fff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;color:#334155;padding:0}
+  .lday.we{background:#f1f5f9;color:#94a3b8}
+  .lday.on{background:var(--h-bg);border-color:var(--h);color:var(--h);font-weight:800}
+  .lday:active{transform:scale(.92)}
+  .note{font-size:11px;color:var(--muted);line-height:1.7;padding:2px 2px}
+  .badwarn{margin:10px;padding:10px 14px;background:var(--bad-bg);color:#991b1b;border-radius:11px;font-size:12px;font-weight:600}
+
+  @media print{
+    .topbar .actions,.panel,.legend,.sheet-bg{display:none!important}
+    .topbar{position:static;background:#fff;color:#000;border-bottom:2px solid #000}
+    .topbar h1{color:#000}.topbar .sub{color:#444}.monthrow .nav{display:none}
+    #root{padding-bottom:0}
+    table{box-shadow:none}
+    thead th{background:#e2e8f0;color:#000}
+    .cell{border:1px solid #ccc}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- ===== core logic (plain JS, shared) ===== -->
+<script>
+const HOLIDAYS_2026 = {
+  '2026-01-01':'元旦',
+  '2026-02-16':'除夕','2026-02-17':'春節','2026-02-18':'春節','2026-02-19':'春節','2026-02-20':'春節',
+  '2026-02-27':'和平紀念(補)',
+  '2026-04-03':'兒童節(補)','2026-04-06':'清明(補)',
+  '2026-05-01':'勞動節',
+  '2026-06-19':'端午節',
+  '2026-09-25':'中秋節','2026-09-28':'教師節',
+  '2026-10-09':'國慶(補)',
+  '2026-10-26':'光復(補)',
+  '2026-12-25':'行憲紀念',
+};
+const pad = n => String(n).padStart(2,'0');
+const dstr = (y,m,d) => y+'-'+pad(m)+'-'+pad(d);
+const fromStr = s => { const a=s.split('-').map(Number); return new Date(a[0],a[1]-1,a[2]); };
+const toStr = dt => dstr(dt.getFullYear(), dt.getMonth()+1, dt.getDate());
+const addDays = (s,n) => { const dt=fromStr(s); dt.setDate(dt.getDate()+n); return toStr(dt); };
+const getDow = s => fromStr(s).getDay();
+const isHoliday = s => !!HOLIDAYS_2026[s];
+const isWeekend = s => { const d=getDow(s); return d===0||d===6; };
+const isNonWork = s => isWeekend(s)||isHoliday(s);
+function autoType(s){
+  if(!isNonWork(s)) return 'WORK';
+  let start=s; while(isNonWork(addDays(start,-1))) start=addDays(start,-1);
+  let len=0,cur=start; while(isNonWork(cur)){len++;cur=addDays(cur,1);}
+  let pos=0,p=start; while(p!==s){pos++;p=addDays(p,1);}
+  if(len===1) return 'DUTY1';
+  if(len===2) return pos===0?'DUTY2':'DUTY1';
+  return pos<=1?'DUTY2':'DUTY1';
+}
+function dayType(s,ov){ if(ov&&ov[s])return ov[s]; return autoType(s); }
+function monthDays(y,m){ const n=new Date(y,m,0).getDate(),a=[]; for(let d=1;d<=n;d++)a.push(dstr(y,m,d)); return a; }
+const isWork = st => st==='中'||st==='霄'||st==='R';
+function resolve(s,person,manual,auto,ov){
+  const mv=manual[s]&&manual[s][person.id]; if(mv!==undefined)return mv;
+  const av=auto[s]&&auto[s][person.id]; if(av!==undefined)return av;
+  if(dayType(s,ov)==='WORK'){ const d=getDow(s); if(d>=1&&d<=5)return person.weekday[d-1]; return 'OFF'; }
+  return 'OFF';
+}
+function generate(y,m,people,manual,ov){
+  const days=monthDays(y,m), auto={}, load={};
+  people.forEach(p=>load[p.id]=0);
+  const setA=(s,id,v)=>{(auto[s]||(auto[s]={}))[id]=v;};
+  const stateOf=(s,p)=>resolve(s,p,manual,auto,ov);
+  const fixed=(s,id)=> manual[s]&&manual[s][id]!==undefined;
+  const tcOrder=['sean','jacqueline','paul'], txOrder=['raymond','jacqueline','paul'];
+  function pick(s,cap,order,exclude){
+    const c=people.filter(p=>p[cap]&&p.id!==exclude&&!fixed(s,p.id)&&!(auto[s]&&auto[s][p.id]!==undefined));
+    if(!c.length)return null;
+    c.sort((a,b)=> load[a.id]!==load[b.id]?load[a.id]-load[b.id]:order.indexOf(a.id)-order.indexOf(b.id));
+    return c[0];
+  }
+  for(const s of days){
+    const t=dayType(s,ov); if(t==='WORK')continue;
+    let h中=false,h霄=false,any=false;
+    for(const p of people){const st=stateOf(s,p); if(isWork(st)){any=true; if(st==='中')h中=true; if(st==='霄')h霄=true;}}
+    if(t==='DUTY2'){
+      let first=null;
+      if(!h中){const p=pick(s,'tc',tcOrder,null); if(p){setA(s,p.id,'中');load[p.id]++;first=p.id;}}
+      if(!h霄){const p=pick(s,'tx',txOrder,first); if(p){setA(s,p.id,'霄');load[p.id]++;}}
+    }else{
+      if(!any){
+        const c=people.filter(p=>!fixed(s,p.id));
+        c.sort((a,b)=>load[a.id]-load[b.id]||people.indexOf(a)-people.indexOf(b));
+        if(c[0]){setA(s,c[0].id,c[0].single);load[c[0].id]++;}
+      }
+    }
+  }
+  // weekday cover: if Sean/Raymond on leave on a workday, Paul covers their post
+  const byId=Object.fromEntries(people.map(p=>[p.id,p]));
+  const paul=byId['paul'],sean=byId['sean'],ray=byId['raymond'],jac=byId['jacqueline'];
+  if(paul){
+    for(const s of days){
+      if(dayType(s,ov)!=='WORK')continue;
+      if(manual[s]&&manual[s]['paul']!==undefined)continue;
+      const seanOff=sean&&resolve(s,sean,manual,auto,ov)==='H';
+      const rayOff =ray &&resolve(s,ray ,manual,auto,ov)==='H';
+      if(!seanOff&&!rayOff)continue;
+      let post;
+      if(seanOff&&rayOff){ const jp=jac?resolve(s,jac,manual,auto,ov):null; post=jp==='中'?'霄':jp==='霄'?'中':'霄'; }
+      else post=seanOff?'中':'霄';
+      setA(s,'paul',post);
+    }
+  }
+  for(const p of people) fixStreak(y,m,p,manual,auto,ov);
+  return auto;
+}
+function fixStreak(y,m,person,manual,auto,ov){
+  const days=monthDays(y,m);
+  for(let g=0;g<60;g++){
+    const st=days.map(s=>resolve(s,person,manual,auto,ov));
+    let s=-1,rs=-1;
+    for(let i=0;i<st.length;i++){ if(isWork(st[i])){if(rs<0)rs=i; if(i-rs+1>=7){s=rs;break;}} else rs=-1; }
+    if(s<0)break;
+    const hi=Math.min(days.length-1,s+6); let t=-1;
+    for(let i=hi;i>=s;i--){ const ds=days[i];
+      if(manual[ds]&&manual[ds][person.id]!==undefined)continue;
+      if(dayType(ds,ov)==='WORK'&&isWork(resolve(ds,person,manual,auto,ov))){t=i;break;} }
+    if(t<0){ for(let i=hi;i>=s;i--){ const ds=days[i];
+      if(manual[ds]&&manual[ds][person.id]!==undefined)continue;
+      if(auto[ds]&&auto[ds][person.id]!==undefined){t=i;break;} } }
+    if(t<0)break;
+    (auto[days[t]]||(auto[days[t]]={}))[person.id]='H';
+  }
+}
+function detectStreaks(y,m,people,manual,auto,ov){
+  const days=monthDays(y,m), bad=new Set();
+  for(const p of people){ const st=days.map(s=>resolve(s,p,manual,auto,ov)); let i=0;
+    while(i<st.length){ if(isWork(st[i])){let j=i; while(j<st.length&&isWork(st[j]))j++;
+      if(j-i>=7){for(let k=i;k<j;k++)bad.add(days[k]+'|'+p.id);} i=j;} else i++; } }
+  return bad;
+}
+function coverageWarn(s,people,manual,auto,ov){
+  const t=dayType(s,ov); if(t==='WORK')return null;
+  let h中=false,h霄=false,any=false;
+  for(const p of people){const st=resolve(s,p,manual,auto,ov); if(isWork(st)){any=true;if(st==='中')h中=true;if(st==='霄')h霄=true;}}
+  if(t==='DUTY2'){ if(!h中&&!h霄)return '缺中/霄'; if(!h中)return '缺台中'; if(!h霄)return '缺通霄'; return null; }
+  return any?null:'缺值班';
+}
+</script>
+
+<!-- ===== React UI ===== -->
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo
+} = React;
+const WK = ['日', '一', '二', '三', '四', '五', '六'];
+const DEFAULT_PEOPLE = [{
+  id: 'paul',
+  name: 'Paul',
+  weekday: ['R', 'R', 'R', 'R', 'R'],
+  tc: true,
+  tx: true,
+  single: 'R'
+}, {
+  id: 'jacqueline',
+  name: 'Jacqueline',
+  weekday: ['R', '中', '中', '霄', 'R'],
+  tc: true,
+  tx: true,
+  single: '中'
+}, {
+  id: 'sean',
+  name: 'Sean',
+  weekday: ['中', '中', '中', '中', '中'],
+  tc: true,
+  tx: false,
+  single: '中'
+}, {
+  id: 'raymond',
+  name: 'Raymond',
+  weekday: ['霄', '霄', '霄', '霄', '霄'],
+  tc: false,
+  tx: true,
+  single: '霄'
+}];
+const PEOPLE_KEY = 'roster_people_v1';
+const monthKey = (y, m) => 'roster_v1_' + y + '_' + m;
+const chipClass = st => st === '中' ? 'c-tc' : st === '霄' ? 'c-tx' : st === 'R' ? 'c-r' : st === 'H' ? 'c-h' : '';
+const label = st => st === 'H' ? '休' : st === 'OFF' ? '·' : st;
+function load(k, f) {
+  try {
+    const v = localStorage.getItem(k);
+    return v ? JSON.parse(v) : f;
+  } catch (e) {
+    return f;
+  }
+}
+function save(k, v) {
+  try {
+    localStorage.setItem(k, JSON.stringify(v));
+  } catch (e) {}
+}
+function App() {
+  const now = new Date();
+  const [y, setY] = useState(now.getFullYear() < 2026 ? 2026 : now.getFullYear());
+  const [m, setM] = useState(now.getFullYear() < 2026 ? 1 : now.getMonth() + 1);
+  const [people, setPeople] = useState(() => load(PEOPLE_KEY, DEFAULT_PEOPLE));
+  const [store, setStore] = useState(() => load(monthKey(y, m), {
+    manual: {},
+    ov: {}
+  }));
+  const [sel, setSel] = useState(null); // {date,personId}
+  const [daySel, setDaySel] = useState(null); // date
+
+  useEffect(() => {
+    setStore(load(monthKey(y, m), {
+      manual: {},
+      ov: {}
+    }));
+  }, [y, m]);
+  useEffect(() => {
+    save(monthKey(y, m), store);
+  }, [store, y, m]);
+  useEffect(() => {
+    save(PEOPLE_KEY, people);
+  }, [people]);
+  const manual = store.manual,
+    ov = store.ov;
+  const auto = useMemo(() => generate(y, m, people, manual, ov), [y, m, people, manual, ov]);
+  const bad = useMemo(() => detectStreaks(y, m, people, manual, auto, ov), [y, m, people, manual, auto, ov]);
+  const days = useMemo(() => monthDays(y, m), [y, m]);
+  const todayStr = toStr(now);
+  function setManual(date, id, val) {
+    setStore(s => {
+      const man = JSON.parse(JSON.stringify(s.manual));
+      if (val === null) {
+        if (man[date]) {
+          delete man[date][id];
+          if (!Object.keys(man[date]).length) delete man[date];
+        }
+      } else {
+        (man[date] || (man[date] = {}))[id] = val;
+      }
+      return {
+        ...s,
+        manual: man
+      };
+    });
+  }
+  function setDayOv(date, val) {
+    setStore(s => {
+      const o = {
+        ...s.ov
+      };
+      if (val === null) delete o[date];else o[date] = val;
+      return {
+        ...s,
+        ov: o
+      };
+    });
+  }
+  function changeMonth(delta) {
+    let nm = m + delta,
+      ny = y;
+    if (nm < 1) {
+      nm = 12;
+      ny--;
+    }
+    if (nm > 12) {
+      nm = 1;
+      ny++;
+    }
+    setY(ny);
+    setM(nm);
+  }
+  function clearManual() {
+    if (confirm('清除本月所有手動調整與請假？（自動排班會重新計算）')) setStore(s => ({
+      ...s,
+      manual: {}
+    }));
+  }
+  function clearAll() {
+    if (confirm('清空本月全部設定（含休假與假日類型調整）？')) setStore({
+      manual: {},
+      ov: {}
+    });
+  }
+  function toggleLeave(date, id) {
+    setStore(s => {
+      const man = JSON.parse(JSON.stringify(s.manual));
+      if (man[date] && man[date][id] === 'H') {
+        delete man[date][id];
+        if (!Object.keys(man[date]).length) delete man[date];
+      } else {
+        (man[date] || (man[date] = {}))[id] = 'H';
+      }
+      return {
+        ...s,
+        manual: man
+      };
+    });
+  }
+  function clearLeave(id) {
+    setStore(s => {
+      const man = JSON.parse(JSON.stringify(s.manual));
+      Object.keys(man).forEach(d => {
+        if (man[d][id] === 'H') {
+          delete man[d][id];
+          if (!Object.keys(man[d]).length) delete man[d];
+        }
+      });
+      return {
+        ...s,
+        manual: man
+      };
+    });
+  }
+  const monthLabel = y + '年' + m + '月';
+
+  // stats
+  const stats = people.map(p => {
+    let work = 0,
+      h = 0,
+      duty = 0;
+    days.forEach(s => {
+      const st = resolve(s, p, manual, auto, ov);
+      if (isWork(st)) {
+        work++;
+        if (dayType(s, ov) !== 'WORK') duty++;
+      }
+      if (st === 'H') h++;
+    });
+    return {
+      id: p.id,
+      name: p.name,
+      work,
+      h,
+      duty
+    };
+  });
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    className: "topbar"
+  }, /*#__PURE__*/React.createElement("h1", null, "\u2693 EHS \u6392\u73ED\u7CFB\u7D71 ", /*#__PURE__*/React.createElement("span", {
+    className: "sub"
+  }, "\u53F0\u4E2D \xB7 \u901A\u9704")), /*#__PURE__*/React.createElement("div", {
+    className: "monthrow"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "nav",
+    onClick: () => changeMonth(-1)
+  }, "\u2039"), /*#__PURE__*/React.createElement("div", {
+    className: "mlabel"
+  }, monthLabel), /*#__PURE__*/React.createElement("button", {
+    className: "nav",
+    onClick: () => changeMonth(1)
+  }, "\u203A")), /*#__PURE__*/React.createElement("div", {
+    className: "actions"
+  }, /*#__PURE__*/React.createElement("button", {
+    onClick: clearManual
+  }, "\u6E05\u9664\u624B\u52D5\u8ABF\u6574"), /*#__PURE__*/React.createElement("button", {
+    onClick: clearAll
+  }, "\u6E05\u7A7A\u6574\u6708"), /*#__PURE__*/React.createElement("button", {
+    className: "solid",
+    onClick: () => window.print()
+  }, "\u5217\u5370 / PDF"))), /*#__PURE__*/React.createElement("div", {
+    className: "legend"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "li"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "chip c-tc"
+  }, "\u4E2D"), "\u53F0\u4E2D"), /*#__PURE__*/React.createElement("span", {
+    className: "li"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "chip c-tx"
+  }, "\u9704"), "\u901A\u9704"), /*#__PURE__*/React.createElement("span", {
+    className: "li"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "chip c-r"
+  }, "R"), "\u4E0A\u73ED/\u88DC\u7F3A"), /*#__PURE__*/React.createElement("span", {
+    className: "li"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "chip c-h"
+  }, "\u4F11"), "\u4F11\u5047"), /*#__PURE__*/React.createElement("span", {
+    className: "li"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "daytag tag2"
+  }, "\u96D9"), "\u5169\u4EBA\u503C\u73ED"), /*#__PURE__*/React.createElement("span", {
+    className: "li"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "daytag tag1"
+  }, "\u55AE"), "\u4E00\u4EBA\u503C\u73ED"), /*#__PURE__*/React.createElement("span", {
+    className: "li",
+    style: {
+      color: '#dc2626',
+      fontWeight: 700
+    }
+  }, "\u7D05\u6846 = \u9023\u7E8C7\u5929")), bad.size > 0 && /*#__PURE__*/React.createElement("div", {
+    className: "badwarn"
+  }, "\u26A0 \u6709\u4EBA\u9023\u7E8C\u4E0A\u73ED\u9054 7 \u5929\u4EE5\u4E0A\uFF08\u7D05\u6846\uFF09\uFF0C\u8ACB\u9EDE\u8A72\u683C\u5B89\u6392\u88DC\u4F11\uFF08\u4F11\uFF09\u3002"), /*#__PURE__*/React.createElement("div", {
+    className: "tablewrap"
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "dh"
+  }, "\u65E5\u671F"), people.map(p => /*#__PURE__*/React.createElement("th", {
+    key: p.id
+  }, p.name)))), /*#__PURE__*/React.createElement("tbody", null, days.map(s => {
+    const dow = getDow(s),
+      t = dayType(s, ov),
+      hol = HOLIDAYS_2026[s];
+    const warn = coverageWarn(s, people, manual, auto, ov);
+    const cls = (isNonWork(s) ? hol ? 'holiday' : 'weekend' : '') + (s === todayStr ? ' today' : '');
+    return /*#__PURE__*/React.createElement("tr", {
+      key: s,
+      className: cls
+    }, /*#__PURE__*/React.createElement("td", {
+      className: "date",
+      onClick: () => setDaySel(s)
+    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+      className: "dnum"
+    }, Number(s.slice(8))), /*#__PURE__*/React.createElement("span", {
+      className: "dwk"
+    }, WK[dow]), t === 'DUTY2' && /*#__PURE__*/React.createElement("span", {
+      className: "daytag tag2"
+    }, "\u96D9"), t === 'DUTY1' && /*#__PURE__*/React.createElement("span", {
+      className: "daytag tag1"
+    }, "\u55AE")), hol && /*#__PURE__*/React.createElement("span", {
+      className: "hol"
+    }, hol), warn && /*#__PURE__*/React.createElement("span", {
+      className: "warn"
+    }, "\u26A0", warn)), people.map(p => {
+      const st = resolve(s, p, manual, auto, ov);
+      const isBad = bad.has(s + '|' + p.id);
+      const off = st === 'OFF';
+      return /*#__PURE__*/React.createElement("td", {
+        key: p.id
+      }, /*#__PURE__*/React.createElement("span", {
+        className: 'cell ' + chipClass(st) + (off ? ' off' : '') + (isBad ? ' bad' : ''),
+        onClick: () => setSel({
+          date: s,
+          personId: p.id
+        })
+      }, label(st)));
+    }));
+  })))), /*#__PURE__*/React.createElement(LeavePanel, {
+    days: days,
+    people: people,
+    manual: manual,
+    onToggle: toggleLeave,
+    onClear: clearLeave
+  }), /*#__PURE__*/React.createElement("details", {
+    className: "panel"
+  }, /*#__PURE__*/React.createElement("summary", null, "\uD83D\uDC65 \u4EBA\u54E1\u8A2D\u5B9A ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#94a3b8',
+      fontWeight: 500
+    }
+  }, "\u5E73\u65E5\u56FA\u5B9A\u5D17\u4F4D \u25BE")), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, people.map((p, pi) => /*#__PURE__*/React.createElement("div", {
+    className: "prow",
+    key: p.id
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "pname"
+  }, p.name), /*#__PURE__*/React.createElement("div", {
+    className: "wkrow"
+  }, ['一', '二', '三', '四', '五'].map((d, di) => /*#__PURE__*/React.createElement("label", {
+    key: di
+  }, d, /*#__PURE__*/React.createElement("select", {
+    value: p.weekday[di],
+    onChange: e => {
+      const np = people.map(x => ({
+        ...x,
+        weekday: [...x.weekday]
+      }));
+      np[pi].weekday[di] = e.target.value;
+      setPeople(np);
+    }
+  }, /*#__PURE__*/React.createElement("option", null, "\u4E2D"), /*#__PURE__*/React.createElement("option", null, "\u9704"), /*#__PURE__*/React.createElement("option", null, "R"), /*#__PURE__*/React.createElement("option", null, "\u4F11"))))), /*#__PURE__*/React.createElement("div", {
+    className: "wkrow"
+  }, /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: p.tc,
+    onChange: e => {
+      const np = [...people];
+      np[pi] = {
+        ...p,
+        tc: e.target.checked
+      };
+      setPeople(np);
+    }
+  }), "\u53EF\u503C\u53F0\u4E2D"), /*#__PURE__*/React.createElement("label", null, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: p.tx,
+    onChange: e => {
+      const np = [...people];
+      np[pi] = {
+        ...p,
+        tx: e.target.checked
+      };
+      setPeople(np);
+    }
+  }), "\u53EF\u503C\u901A\u9704"), /*#__PURE__*/React.createElement("label", null, "\u55AE\u4EBA\u65E5\u5D17\u4F4D", /*#__PURE__*/React.createElement("select", {
+    value: p.single,
+    onChange: e => {
+      const np = [...people];
+      np[pi] = {
+        ...p,
+        single: e.target.value
+      };
+      setPeople(np);
+    }
+  }, /*#__PURE__*/React.createElement("option", null, "\u4E2D"), /*#__PURE__*/React.createElement("option", null, "\u9704"), /*#__PURE__*/React.createElement("option", null, "R")))))), /*#__PURE__*/React.createElement("div", {
+    className: "note"
+  }, "\u6539\u5B8C\u5E73\u65E5\u5D17\u4F4D\u5F8C\uFF0C\u6392\u73ED\u6703\u5373\u6642\u91CD\u7B97\u3002\u8ACB\u5047\u8ACB\u76F4\u63A5\u9EDE\u8A72\u4EBA\u7576\u5929\u683C\u5B50\u9078\u300C\u4F11\u300D\u3002"))), /*#__PURE__*/React.createElement("details", {
+    className: "panel"
+  }, /*#__PURE__*/React.createElement("summary", null, "\uD83D\uDCCA \u672C\u6708\u7D71\u8A08 \u25BE"), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "stats"
+  }, stats.map(s => /*#__PURE__*/React.createElement("div", {
+    className: "stcard",
+    key: s.id
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "nm"
+  }, s.name), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement("span", null, "\u4E0A\u73ED"), /*#__PURE__*/React.createElement("b", null, s.work)), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement("span", null, "\u5047\u65E5\u503C\u73ED"), /*#__PURE__*/React.createElement("b", null, s.duty)), /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement("span", null, "\u4F11\u5047"), /*#__PURE__*/React.createElement("b", null, s.h))))))), /*#__PURE__*/React.createElement("details", {
+    className: "panel"
+  }, /*#__PURE__*/React.createElement("summary", null, "\u2139\uFE0F \u6392\u73ED\u898F\u5247 \u25BE"), /*#__PURE__*/React.createElement("div", {
+    className: "body note"
+  }, "\xB7 \u4E00\uFF5E\u4E94\uFF1A\u4F9D\u5404\u4EBA\u5E73\u65E5\u56FA\u5B9A\u5D17\u4F4D\u4E0A\u73ED\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u516D\uFF08\u6216\u9023\u5047\u7B2C 1\u30012 \u5929\uFF09\uFF1A\u6392\u5169\u4EBA\uFF1D\u4E00\u53F0\u4E2D\uFF0B\u4E00\u901A\u9704\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u65E5\uFF08\u6216\u9023\u5047\u7B2C 3 \u5929\u8D77\uFF09\uFF1A\u6392\u4E00\u4EBA\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u7CFB\u7D71\u81EA\u52D5\u907F\u514D\u9023\u7E8C\u4E0A\u73ED 7 \u5929\uFF0C\u5FC5\u8981\u6642\u63D2\u5165\u88DC\u4F11\uFF08\u4F11\uFF09\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u5E73\u65E5 Sean \u6216 Raymond \u8ACB\u5047\uFF0C\u9810\u8A2D\u7531 Paul \u4EE3\u73ED\uFF08Sean\u2192\u53F0\u4E2D\u3001Raymond\u2192\u901A\u9704\uFF1B\u5169\u4EBA\u540C\u4F11\u5247 Paul \u88DC\u5176\u4E00\uFF09\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 2026 \u570B\u5B9A\u5047\u65E5\uFF0F\u9023\u5047\u5DF2\u5167\u5EFA\uFF0C\u6703\u81EA\u52D5\u6A19\u793A\u300C\u96D9\uFF0F\u55AE\u300D\u3002", /*#__PURE__*/React.createElement("br", null), "\xB7 \u9EDE\u65E5\u671F\u53EF\u6539\u7576\u5929\u503C\u73ED\u4EBA\u6578\uFF1B\u9EDE\u683C\u5B50\u53EF\u624B\u52D5\u8ABF\u6574\u6216\u8ACB\u5047\u3002")), sel && /*#__PURE__*/React.createElement(CellSheet, {
+    sel: sel,
+    people: people,
+    cur: resolve(sel.date, people.find(p => p.id === sel.personId), manual, auto, ov),
+    onPick: v => {
+      setManual(sel.date, sel.personId, v);
+      setSel(null);
+    },
+    onClose: () => setSel(null)
+  }), daySel && /*#__PURE__*/React.createElement(DaySheet, {
+    date: daySel,
+    cur: ov[daySel] || null,
+    onPick: v => {
+      setDayOv(daySel, v);
+      setDaySel(null);
+    },
+    onClose: () => setDaySel(null)
+  }));
+}
+function LeavePanel({
+  days,
+  people,
+  manual,
+  onToggle,
+  onClear
+}) {
+  return /*#__PURE__*/React.createElement("details", {
+    className: "panel"
+  }, /*#__PURE__*/React.createElement("summary", null, "\uD83D\uDCC5 \u7576\u6708\u4F11\u5047\u767B\u8A18 ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: '#94a3b8',
+      fontWeight: 500
+    }
+  }, "\u9EDE\u65E5\u671F\u767B\u8A18\u4F11\u5047 \u25BE")), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, people.map(p => {
+    const offDays = days.filter(s => manual[s] && manual[s][p.id] === 'H');
+    return /*#__PURE__*/React.createElement("div", {
+      className: "lrow",
+      key: p.id
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "lhead"
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "pname"
+    }, p.name), /*#__PURE__*/React.createElement("span", {
+      className: "lcount"
+    }, offDays.length > 0 ? '休 ' + offDays.length + ' 天' : '未登記'), offDays.length > 0 && /*#__PURE__*/React.createElement("button", {
+      className: "lclear",
+      onClick: () => onClear(p.id)
+    }, "\u6E05\u9664")), /*#__PURE__*/React.createElement("div", {
+      className: "lgrid"
+    }, days.map(s => {
+      const d = Number(s.slice(8));
+      const off = manual[s] && manual[s][p.id] === 'H';
+      const we = isNonWork(s);
+      return /*#__PURE__*/React.createElement("button", {
+        key: s,
+        className: 'lday' + (off ? ' on' : '') + (we ? ' we' : ''),
+        onClick: () => onToggle(s, p.id)
+      }, d);
+    })));
+  }), /*#__PURE__*/React.createElement("div", {
+    className: "note"
+  }, "\u7070\u5E95\u70BA\u516D\u65E5\uFF0F\u570B\u5B9A\u5047\u65E5\u3002\u9EDE\u4E00\u4E0B\u767B\u8A18\u4F11\u5047\uFF08\u8B8A\u7D05\uFF09\uFF0C\u518D\u9EDE\u4E00\u4E0B\u53D6\u6D88\uFF1B\u6392\u73ED\u6703\u81EA\u52D5\u907F\u958B\u4E26\u91CD\u65B0\u88DC\u4EBA\u3002")));
+}
+function CellSheet({
+  sel,
+  people,
+  cur,
+  onPick,
+  onClose
+}) {
+  const p = people.find(x => x.id === sel.personId);
+  const d = sel.date,
+    dow = getDow(d);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sheet-bg",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("h3", null, p.name, " ", /*#__PURE__*/React.createElement("small", null, "\xB7 ", Number(d.slice(5, 7)), "/", Number(d.slice(8)), "\uFF08", WK[dow], "\uFF09", HOLIDAYS_2026[d] || '')), /*#__PURE__*/React.createElement("div", {
+    className: "optgrid"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "opt o-tc",
+    onClick: () => onPick('中')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u4E2D"), "\u53F0\u4E2D"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-tx",
+    onClick: () => onPick('霄')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u9704"), "\u901A\u9704"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-r",
+    onClick: () => onPick('R')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "R"), "\u4E0A\u73ED"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-h",
+    onClick: () => onPick('H')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u4F11"), "\u4F11\u5047"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-off",
+    onClick: () => onPick('OFF')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\xB7"), "\u514D\u503C"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-clear",
+    onClick: () => onPick(null)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u21BA"), "\u56DE\u81EA\u52D5")), /*#__PURE__*/React.createElement("button", {
+    className: "close",
+    onClick: onClose
+  }, "\u95DC\u9589")));
+}
+function DaySheet({
+  date,
+  cur,
+  onPick,
+  onClose
+}) {
+  const dow = getDow(date);
+  return /*#__PURE__*/React.createElement("div", {
+    className: "sheet-bg",
+    onClick: onClose
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "sheet",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("h3", null, "\u8ABF\u6574\u7576\u5929\u503C\u73ED\u4EBA\u6578 ", /*#__PURE__*/React.createElement("small", null, "\xB7 ", Number(date.slice(5, 7)), "/", Number(date.slice(8)), "\uFF08", WK[dow], "\uFF09")), /*#__PURE__*/React.createElement("div", {
+    className: "optgrid"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "opt o-clear",
+    onClick: () => onPick(null)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u21BA"), "\u81EA\u52D5"), /*#__PURE__*/React.createElement("div", {
+    className: "opt",
+    onClick: () => onPick('WORK')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u4F5C"), "\u6B63\u5E38\u4E0A\u73ED\u65E5"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-tx",
+    onClick: () => onPick('DUTY2')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u96D9"), "\u5169\u4EBA\u503C\u73ED"), /*#__PURE__*/React.createElement("div", {
+    className: "opt o-r",
+    onClick: () => onPick('DUTY1')
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "big"
+  }, "\u55AE"), "\u4E00\u4EBA\u503C\u73ED")), /*#__PURE__*/React.createElement("button", {
+    className: "close",
+    onClick: onClose
+  }, "\u95DC\u9589")));
+}
+ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
+</script>
+</body>
+</html>
