@@ -58,7 +58,33 @@
   .c-r{background:var(--r-bg);color:var(--r)} .c-h{background:var(--h-bg);color:var(--h)}
   .legend .li{display:flex;align-items:center;gap:4px}
 
-  .tablewrap{padding:0 10px}
+  .tablewrap{padding:0 10px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .scrollhint{text-align:center;font-size:11px;color:#94a3b8;padding:2px 0 6px;letter-spacing:1px}
+  @media print{.scrollhint{display:none}}
+  /* ===== horizontal roster ===== */
+  .hgrid{border-collapse:separate;border-spacing:0;background:var(--card);border-radius:14px;
+    width:auto;min-width:100%;box-shadow:0 1px 3px rgba(15,39,64,.08)}
+  .hgrid th,.hgrid td{border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .hgrid .nh,.hgrid .nm{position:sticky;left:0;z-index:5;background:#fff;min-width:80px;width:80px;
+    text-align:left;padding:7px 8px;font-weight:800;font-size:13px}
+  .hgrid thead .nh{z-index:7;background:var(--navy);color:#fff;border-top-left-radius:14px}
+  .hgrid tbody .nm{box-shadow:2px 0 4px -2px rgba(15,39,64,.15)}
+  .hgrid .dcol{min-width:36px;width:36px;padding:4px 0 2px;text-align:center;background:var(--navy2);
+    color:#fff;cursor:pointer;vertical-align:top}
+  .hgrid .dcol .dn{font-weight:800;font-size:13px;line-height:1.15}
+  .hgrid .dcol .dn.warn{color:#fca5a5}
+  .hgrid .dcol .dw{font-size:10px;opacity:.85;line-height:1.1}
+  .hgrid .dcol .dt{font-size:9px;font-weight:800;line-height:1.3;height:13px}
+  .hgrid .dcol .dt.t2{color:#fde68a} .hgrid .dcol .dt.t1{color:#bae6fd}
+  .hgrid .dcol.h-we{background:#33507a}
+  .hgrid .dcol.h-hol{background:#7c5e1e}
+  .hgrid .dcol.h-today{box-shadow:inset 0 -3px 0 #2dd4bf}
+  .hgrid tbody td{padding:3px 2px;text-align:center}
+  .hgrid tbody td.h-we{background:#f8fafc}
+  .hgrid tbody td.h-hol{background:#fff7ed}
+  .hgrid tbody td.h-today{background:#ecfeff}
+  .hgrid .cell{min-width:28px;height:26px;font-size:14px}
+  .hhint{font-size:11px;color:var(--muted);text-align:center;padding:7px 10px 0}
   table{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);
     border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(15,39,64,.08)}
   thead th{position:sticky;top:0;background:var(--navy2);color:#fff;font-size:12px;font-weight:700;
@@ -135,12 +161,16 @@
   .badwarn{margin:10px;padding:10px 14px;background:var(--bad-bg);color:#991b1b;border-radius:11px;font-size:12px;font-weight:600}
 
   @media print{
-    .topbar .actions,.panel,.legend,.sheet-bg{display:none!important}
+    @page{size:landscape}
+    .topbar .actions,.panel,.legend,.sheet-bg,.hhint,.pubbar{display:none!important}
     .topbar{position:static;background:#fff;color:#000;border-bottom:2px solid #000}
     .topbar h1{color:#000}.topbar .sub{color:#444}.monthrow .nav{display:none}
     #root{padding-bottom:0}
-    table{box-shadow:none}
-    thead th{background:#e2e8f0;color:#000}
+    .tablewrap{overflow:visible}
+    .hgrid{box-shadow:none;font-size:10px}
+    .hgrid .dcol{min-width:0}
+    .hgrid thead th{background:#e2e8f0;color:#000}
+    .hgrid .nh{background:#e2e8f0;color:#000}
     .cell{border:1px solid #ccc}
   }
 </style>
@@ -295,12 +325,12 @@ const DEFAULT_PEOPLE = [{
   single: 'R',
   backup: true
 }, {
-  id: 'jacqueline',
-  name: 'Jacqueline',
-  weekday: ['R', '中', '中', '霄', 'R'],
-  tc: true,
+  id: 'raymond',
+  name: 'Raymond',
+  weekday: ['霄', '霄', '霄', '霄', '霄'],
+  tc: false,
   tx: true,
-  single: '中',
+  single: '霄',
   backup: false
 }, {
   id: 'sean',
@@ -311,14 +341,15 @@ const DEFAULT_PEOPLE = [{
   single: '中',
   backup: false
 }, {
-  id: 'raymond',
-  name: 'Raymond',
-  weekday: ['霄', '霄', '霄', '霄', '霄'],
-  tc: false,
+  id: 'jacqueline',
+  name: 'Jacqueline',
+  weekday: ['R', '中', '中', '霄', 'R'],
+  tc: true,
   tx: true,
-  single: '霄',
+  single: '中',
   backup: false
 }];
+const PERSON_ORDER = ['paul', 'raymond', 'sean', 'jacqueline'];
 const PEOPLE_KEY = 'roster_people_v1';
 const DEFAULT_EHS_URL = 'https://script.google.com/macros/s/AKfycbyWTuJEQc1jMVcl9kCuPlCfvfSgIg2piyw8ODr013JcJrwC2hm7dvkX2_n1eJ9K4WPn/exec';
 const monthKey = (y, m) => 'roster_v1_' + y + '_' + m;
@@ -342,11 +373,16 @@ function App() {
   const [y, setY] = useState(now.getFullYear() < 2026 ? 2026 : now.getFullYear());
   const [m, setM] = useState(now.getFullYear() < 2026 ? 1 : now.getMonth() + 1);
   const [people, setPeople] = useState(() => {
-    const p = load(PEOPLE_KEY, DEFAULT_PEOPLE);
-    return p.map(x => ({
+    const p = load(PEOPLE_KEY, DEFAULT_PEOPLE).map(x => ({
       ...x,
       backup: x.backup !== undefined ? x.backup : x.id === 'paul'
     }));
+    p.sort((a, b) => {
+      const ia = PERSON_ORDER.indexOf(a.id),
+        ib = PERSON_ORDER.indexOf(b.id);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+    });
+    return p;
   });
   const [store, setStore] = useState(() => load(monthKey(y, m), {
     manual: {},
@@ -755,50 +791,58 @@ function App() {
   }, "\u7D05\u6846 = \u9023\u7E8C7\u5929")), bad.size > 0 && /*#__PURE__*/React.createElement("div", {
     className: "badwarn"
   }, "\u26A0 \u6709\u4EBA\u9023\u7E8C\u4E0A\u73ED\u9054 7 \u5929\u4EE5\u4E0A\uFF08\u7D05\u6846\uFF09\uFF0C\u8ACB\u9EDE\u8A72\u683C\u5B89\u6392\u88DC\u4F11\uFF08\u4F11\uFF09\u3002"), /*#__PURE__*/React.createElement("div", {
+    className: "scrollhint"
+  }, "\u2190 \u5DE6\u53F3\u6ED1\u52D5\u770B\u6574\u6708 \u2192"), /*#__PURE__*/React.createElement("div", {
     className: "tablewrap"
-  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
-    className: "dh"
-  }, "\u65E5\u671F"), people.map(p => /*#__PURE__*/React.createElement("th", {
-    key: p.id
-  }, p.name)))), /*#__PURE__*/React.createElement("tbody", null, days.map(s => {
+  }, /*#__PURE__*/React.createElement("table", {
+    className: "hgrid"
+  }, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("th", {
+    className: "nh"
+  }, "\u59D3\u540D"), days.map(s => {
     const dow = getDow(s),
       t = dayType(s, ov),
       hol = HOLIDAYS_2026[s];
     const warn = coverageWarn(s, people, manual, auto, ov);
-    const cls = (isNonWork(s) ? hol ? 'holiday' : 'weekend' : '') + (s === todayStr ? ' today' : '');
-    return /*#__PURE__*/React.createElement("tr", {
+    const cls = (hol ? 'h-hol' : isNonWork(s) ? 'h-we' : '') + (s === todayStr ? ' h-today' : '');
+    return /*#__PURE__*/React.createElement("th", {
       key: s,
-      className: cls
-    }, /*#__PURE__*/React.createElement("td", {
-      className: "date",
+      className: 'dcol ' + cls,
+      title: (hol ? hol + ' · ' : '') + (warn ? '⚠' + warn : ''),
       onClick: () => setDaySel(s)
-    }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
-      className: "dnum"
-    }, Number(s.slice(8))), /*#__PURE__*/React.createElement("span", {
-      className: "dwk"
-    }, WK[dow]), t === 'DUTY2' && /*#__PURE__*/React.createElement("span", {
-      className: "daytag tag2"
-    }, "\u96D9"), t === 'DUTY1' && /*#__PURE__*/React.createElement("span", {
-      className: "daytag tag1"
-    }, "\u55AE")), hol && /*#__PURE__*/React.createElement("span", {
-      className: "hol"
-    }, hol), warn && /*#__PURE__*/React.createElement("span", {
-      className: "warn"
-    }, "\u26A0", warn)), people.map(p => {
-      const st = resolve(s, p, manual, auto, ov);
-      const isBad = bad.has(s + '|' + p.id);
-      const off = st === 'OFF';
-      return /*#__PURE__*/React.createElement("td", {
-        key: p.id
-      }, /*#__PURE__*/React.createElement("span", {
-        className: 'cell ' + chipClass(st) + (off ? ' off' : '') + (isBad ? ' bad' : ''),
-        onClick: () => setSel({
-          date: s,
-          personId: p.id
-        })
-      }, label(st)));
-    }));
-  })))), /*#__PURE__*/React.createElement(LeavePanel, {
+    }, /*#__PURE__*/React.createElement("div", {
+      className: 'dn' + (warn ? ' warn' : '')
+    }, Number(s.slice(8))), /*#__PURE__*/React.createElement("div", {
+      className: "dw"
+    }, WK[dow]), t === 'DUTY2' && /*#__PURE__*/React.createElement("div", {
+      className: "dt t2"
+    }, "\u96D9"), t === 'DUTY1' && /*#__PURE__*/React.createElement("div", {
+      className: "dt t1"
+    }, "\u55AE"), t === 'WORK' && /*#__PURE__*/React.createElement("div", {
+      className: "dt"
+    }, "\xA0"));
+  }))), /*#__PURE__*/React.createElement("tbody", null, people.map(p => /*#__PURE__*/React.createElement("tr", {
+    key: p.id
+  }, /*#__PURE__*/React.createElement("td", {
+    className: "nm"
+  }, p.name), days.map(s => {
+    const st = resolve(s, p, manual, auto, ov);
+    const isBad = bad.has(s + '|' + p.id);
+    const off = st === 'OFF';
+    const hol = HOLIDAYS_2026[s];
+    const tcls = (hol ? 'h-hol' : isNonWork(s) ? 'h-we' : '') + (s === todayStr ? ' h-today' : '');
+    return /*#__PURE__*/React.createElement("td", {
+      key: s,
+      className: tcls
+    }, /*#__PURE__*/React.createElement("span", {
+      className: 'cell ' + chipClass(st) + (off ? ' off' : '') + (isBad ? ' bad' : ''),
+      onClick: () => setSel({
+        date: s,
+        personId: p.id
+      })
+    }, label(st)));
+  })))))), /*#__PURE__*/React.createElement("div", {
+    className: "hhint"
+  }, "\u2190 \u5DE6\u53F3\u6ED1\u52D5\u770B\u6574\u6708\uFF1B\u9EDE\u65E5\u671F\u6539\u503C\u73ED\u4EBA\u6578\u3001\u9EDE\u683C\u5B50\u6539\u73ED\u5225 \u2192"), /*#__PURE__*/React.createElement(LeavePanel, {
     days: days,
     people: people,
     manual: manual,
