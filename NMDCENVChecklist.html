@@ -215,13 +215,13 @@
 
         .checkbox-cell {
             text-align: center;
-            width: 22px;
+            width: 18px;
             border-left: 1px solid #ddd;
         }
 
         .checkbox-input {
-            width: 11px;
-            height: 11px;
+            width: 10px;
+            height: 10px;
             cursor: pointer;
             margin: 0;
         }
@@ -607,6 +607,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(1, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(1, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(1, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -614,61 +615,73 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. SDS availability<span class="item-zh">安全資料表可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1a-na"></td>
                         </tr>
                         <tr>
                             <td>b. SDS compliance<span class="item-zh">安全資料表符合性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Awareness / training<span class="item-zh">認知/訓練</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1c-na"></td>
                         </tr>
                         <tr>
                             <td>d. P.P.E availability<span class="item-zh">個人防護具可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Labeling<span class="item-zh">標示</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Storage requirements<span class="item-zh">儲存要求</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1f-na"></td>
                         </tr>
                         <tr>
                             <td>g. Storage compatibility<span class="item-zh">儲存相容性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1g-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1g-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1g-na"></td>
                         </tr>
                         <tr>
                             <td>h. Spillage control<span class="item-zh">洩漏控制</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1h-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1h-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1h-na"></td>
                         </tr>
                         <tr>
                             <td>i. Unattended drums / cans<span class="item-zh">無人看管桶罐</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1i-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1i-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1i-na"></td>
                         </tr>
                         <tr>
                             <td>j. HazMat inventory<span class="item-zh">危險物品清冊</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1j-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1j-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1j-na"></td>
                         </tr>
                         <tr>
                             <td>k. Eyewash station<span class="item-zh">洗眼站</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1k-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1k-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="1k-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -683,6 +696,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(2, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(2, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(2, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -690,51 +704,61 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. SDS availability<span class="item-zh">安全資料表可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2a-na"></td>
                         </tr>
                         <tr>
                             <td>b. SDS compliance<span class="item-zh">安全資料表符合性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Awareness / Training<span class="item-zh">認知/訓練</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Labeling<span class="item-zh">標示</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Unattended drums / cans<span class="item-zh">無人看管桶罐</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Storage compatibility<span class="item-zh">儲存相容性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2f-na"></td>
                         </tr>
                         <tr>
                             <td>g. Spillage control<span class="item-zh">洩漏控制</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2g-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2g-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2g-na"></td>
                         </tr>
                         <tr>
                             <td>h. P.P.E availability<span class="item-zh">個人防護具可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2h-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2h-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2h-na"></td>
                         </tr>
                         <tr>
                             <td>i. Ventilation<span class="item-zh">通風</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2i-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2i-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="2i-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -749,6 +773,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(3, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(3, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(3, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -756,46 +781,55 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Availability of skips<span class="item-zh">垃圾桶可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Waste segregation<span class="item-zh">廢棄物分類</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Color codes and labeling<span class="item-zh">色碼與標示</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Skips overflowing<span class="item-zh">垃圾桶溢出</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Paint tins disposal<span class="item-zh">油漆罐處置</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Posters and signages<span class="item-zh">海報與標示牌</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3f-na"></td>
                         </tr>
                         <tr>
                             <td>g. Delay Collection<span class="item-zh">延遲收集</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3g-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3g-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3g-na"></td>
                         </tr>
                         <tr>
                             <td>h. Storage/disposal of Haz. waste<span class="item-zh">有害廢棄物儲存/處置</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3h-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3h-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="3h-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -810,6 +844,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(4, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(4, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(4, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -817,46 +852,55 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Cylinder condition<span class="item-zh">氣瓶狀況</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Labels /soap water<span class="item-zh">標籤/肥皂水</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Separation<span class="item-zh">分隔</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Area allocation<span class="item-zh">區域配置</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Protection from direct sunlight<span class="item-zh">避免陽光直射</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Cap/ gauge availability<span class="item-zh">蓋子/壓力表可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4f-na"></td>
                         </tr>
                         <tr>
                             <td>g. HazMat signages<span class="item-zh">危險物標示</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4g-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4g-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4g-na"></td>
                         </tr>
                         <tr>
                             <td>h. Storage compatibility<span class="item-zh">儲存相容性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4h-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4h-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="4h-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -872,6 +916,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(5, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(5, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(5, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -879,41 +924,49 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. HazMat secondary containment<span class="item-zh">危險物二次圍堵</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Chemical spillage/leaks<span class="item-zh">化學品洩漏</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Contaminated soil removed<span class="item-zh">污染土壤移除</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Machinery inspection<span class="item-zh">機具檢查</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Impervious maintenance area<span class="item-zh">不透水維修區</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Equipment washing area<span class="item-zh">設備清洗區</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5f-na"></td>
                         </tr>
                         <tr>
                             <td>g. Recovery of oily water<span class="item-zh">含油廢水回收</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5g-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5g-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="5g-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -928,6 +981,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(6, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(6, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(6, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -935,36 +989,43 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Spill kits availability<span class="item-zh">洩漏處理包可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Neutralizing agent availability<span class="item-zh">中和劑可用性</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Salvage drums<span class="item-zh">搶救桶</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Oil / chemical spill patches<span class="item-zh">油品/化學品洩漏痕跡</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Awareness/Training<span class="item-zh">認知/訓練</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Emergency contacts<span class="item-zh">緊急聯絡人</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="6f-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -979,6 +1040,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(7, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(7, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(7, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -986,36 +1048,43 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Respiratory protection<span class="item-zh">呼吸防護</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Hearing protection<span class="item-zh">聽力防護</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Area enclosure<span class="item-zh">區域圍封</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Storage blasting materials<span class="item-zh">噴砂材料儲存</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7d-na"></td>
                         </tr>
                         <tr>
                             <td>e. Breathing air filter<span class="item-zh">呼吸空氣過濾器</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7e-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7e-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7e-na"></td>
                         </tr>
                         <tr>
                             <td>f. Pressure hoses<span class="item-zh">壓力軟管</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7f-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7f-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="7f-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1030,6 +1099,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(8, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(8, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(8, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1037,26 +1107,31 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Effluent discharge<span class="item-zh">廢水排放</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Loose materials storage<span class="item-zh">散裝材料儲存</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Storage area – waterways distance<span class="item-zh">儲存區與水道距離</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8c-na"></td>
                         </tr>
                         <tr>
                             <td>d. Hazardous liquid containment<span class="item-zh">危險液體圍堵</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8d-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8d-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="8d-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1072,6 +1147,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(9, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(9, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(9, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1079,21 +1155,25 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Excess smoke from equipment<span class="item-zh">設備排放過多煙霧</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Emission monitoring data<span class="item-zh">排放監測資料</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Dust suppression<span class="item-zh">抑塵措施</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="9c-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1108,6 +1188,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(10, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(10, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(10, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1115,21 +1196,25 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Material storage<span class="item-zh">材料儲存</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Area tidiness<span class="item-zh">區域整潔</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Waste materials<span class="item-zh">廢棄材料</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="10c-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1144,6 +1229,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(11, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(11, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(11, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1151,21 +1237,25 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Drinking water cleanliness<span class="item-zh">飲用水清潔</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Toilet facilities<span class="item-zh">廁所設施</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Rest area<span class="item-zh">休息區</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="11c-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1180,6 +1270,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(12, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(12, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(12, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1187,21 +1278,25 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Noise monitoring<span class="item-zh">噪音監測</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Hearing protection<span class="item-zh">聽力防護</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12b-na"></td>
                         </tr>
                         <tr>
                             <td>c. Signages<span class="item-zh">標示</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="12c-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1217,6 +1312,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(13, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(13, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(13, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1224,21 +1320,25 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Eye / Ear protection<span class="item-zh">眼耳防護</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Gloves/ Coveralls / Aprons<span class="item-zh">手套/工作服/圍裙</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13b-na"></td>
                         </tr>
                         <tr>
                             <td>c. RP/ Filter/ Dust mask<span class="item-zh">呼吸器/濾芯/防塵口罩</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13c-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13c-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="13c-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1253,6 +1353,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(14, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(14, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(14, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1260,16 +1361,19 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Posters and signages<span class="item-zh">海報與標示牌</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14a-na"></td>
                         </tr>
                         <tr>
                             <td>b. HIP talks<span class="item-zh">HIP 宣導</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="14b-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1284,6 +1388,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(15, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(15, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(15, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1291,16 +1396,19 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td>a. Water Consumption<span class="item-zh">用水量</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15a-na"></td>
                         </tr>
                         <tr>
                             <td>b. Energy Conservation<span class="item-zh">節能</span></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="15b-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1315,6 +1423,7 @@
                         <div style="display: flex; gap: 3px;">
                             <button onclick="checkSection(16, 'yes')" style="padding: 2px 5px; font-size: 7px; background: #48bb78; color: white; border: none; border-radius: 3px; cursor: pointer;">✓全是</button>
                             <button onclick="checkSection(16, 'no')" style="padding: 2px 5px; font-size: 7px; background: #fc8181; color: white; border: none; border-radius: 3px; cursor: pointer;">✗全否</button>
+                            <button onclick="checkSection(16, 'na')" style="padding: 2px 5px; font-size: 7px; background: #a0aec0; color: white; border: none; border-radius: 3px; cursor: pointer;">NA</button>
                         </div>
                     </div>
                     <table class="checkbox-table">
@@ -1322,16 +1431,19 @@
                             <td class="item-label">ITEMS / 檢查項目</td>
                             <td class="checkbox-cell">Yes<br>是</td>
                             <td class="checkbox-cell">No<br>否</td>
+                            <td class="checkbox-cell">NA<br>不適用</td>
                         </tr>
                         <tr>
                             <td><input type="text" style="width:100%; border:none; font-size:8px; font-family: Arial, 'Microsoft JhengHei', sans-serif;" placeholder="Specify item / 請註明項目..."></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16a-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16a-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16a-na"></td>
                         </tr>
                         <tr>
                             <td><input type="text" style="width:100%; border:none; font-size:8px; font-family: Arial, 'Microsoft JhengHei', sans-serif;" placeholder="Specify item / 請註明項目..."></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16b-yes"></td>
                             <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16b-no"></td>
+                            <td class="checkbox-cell"><input type="checkbox" class="checkbox-input" name="16b-na"></td>
                         </tr>
                     </table>
                 </div>
@@ -1575,28 +1687,28 @@
     </div>
 
     <script>
-        // Check all YES or NO for a specific section
+        // Check all YES, NO, or NA for a specific section (three-way exclusive)
         function checkSection(sectionNum, type) {
-            const prefix = sectionNum + '';
             const checkboxes = document.querySelectorAll('.checkbox-input');
             
             checkboxes.forEach(checkbox => {
-                const name = checkbox.name;
-                // Check if this checkbox belongs to the current section
-                if (name.startsWith(prefix)) {
-                    if (type === 'yes' && name.includes('-yes')) {
-                        checkbox.checked = true;
-                        // Uncheck corresponding NO checkbox
-                        const noName = name.replace('-yes', '-no');
-                        const noCheckbox = document.querySelector(`input[name="${noName}"]`);
-                        if (noCheckbox) noCheckbox.checked = false;
-                    } else if (type === 'no' && name.includes('-no')) {
-                        checkbox.checked = true;
-                        // Uncheck corresponding YES checkbox
-                        const yesName = name.replace('-no', '-yes');
-                        const yesCheckbox = document.querySelector(`input[name="${yesName}"]`);
-                        if (yesCheckbox) yesCheckbox.checked = false;
-                    }
+                // Parse name format: "1a-yes", "10b-no", "16a-na"
+                const m = checkbox.name.match(/^(\d+)([a-z])-(yes|no|na)$/);
+                if (!m) return;
+                
+                const secNum = parseInt(m[1], 10);
+                const itemLetter = m[2];
+                const itemType = m[3];
+                
+                // Only act on checkboxes in the matching section
+                if (secNum !== sectionNum) return;
+                
+                if (itemType === type) {
+                    // Check the selected type
+                    checkbox.checked = true;
+                } else {
+                    // Uncheck the other two types for this item
+                    checkbox.checked = false;
                 }
             });
         }
@@ -1679,6 +1791,22 @@
             // Add listeners for location fields
             document.getElementById('location-select').addEventListener('change', syncHeaderData);
             document.getElementById('location-other').addEventListener('input', syncHeaderData);
+            
+            // Three-way exclusive: checking one box unchecks the other two for that item
+            document.querySelectorAll('.checkbox-input').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    if (!this.checked) return;
+                    const m = this.name.match(/^(\d+[a-z])-(yes|no|na)$/);
+                    if (!m) return;
+                    const itemKey = m[1];  // e.g. "1a"
+                    ['yes', 'no', 'na'].forEach(t => {
+                        if (t !== m[2]) {
+                            const other = document.querySelector(`input[name="${itemKey}-${t}"]`);
+                            if (other) other.checked = false;
+                        }
+                    });
+                });
+            });
         });
         
         // Prepare data for printing
