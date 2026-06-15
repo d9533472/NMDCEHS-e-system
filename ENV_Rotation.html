@@ -227,10 +227,19 @@ function generate(y,m,people,manual,ov,carry){
   const stateOf=(s,p)=>resolve(s,p,manual,auto,ov);
   const fixed=(s,id)=> manual[s]&&manual[s][id]!==undefined;
   const tcOrder=['sean','jacqueline','paul'], txOrder=['raymond','jacqueline','paul'];
+  function runBefore(s,p){
+    let count=0,cur=addDays(s,-1); const mk=s.slice(0,7);
+    while(cur.slice(0,7)===mk){ if(isWork(resolve(cur,p,manual,auto,ov)))count++; else return count; cur=addDays(cur,-1); }
+    return count + Math.max(0,Math.min(6,(carry[p.id])|0));
+  }
+  const wouldStreak=(s,p)=> runBefore(s,p)>=6;
   function pick(s,cap,order,exclude){
     const c=people.filter(p=>p[cap]&&p.id!==exclude&&!fixed(s,p.id)&&!(auto[s]&&auto[s][p.id]!==undefined));
     if(!c.length)return null;
-    c.sort((a,b)=>{ const ab=a.backup?1:0,bb=b.backup?1:0; if(ab!==bb)return ab-bb;
+    const rescuing=c.some(p=>wouldStreak(s,p));
+    c.sort((a,b)=>{ const aw=wouldStreak(s,a)?1:0,bw=wouldStreak(s,b)?1:0; if(aw!==bw)return aw-bw;
+      if(rescuing){const ap=a.id==='paul'?0:1,bp=b.id==='paul'?0:1; if(ap!==bp)return ap-bp;}
+      const ab=a.backup?1:0,bb=b.backup?1:0; if(ab!==bb)return ab-bb;
       return load[a.id]!==load[b.id]?load[a.id]-load[b.id]:order.indexOf(a.id)-order.indexOf(b.id); });
     return c[0];
   }
@@ -245,9 +254,12 @@ function generate(y,m,people,manual,ov,carry){
     }else{
       if(!any){
         const c=people.filter(p=>!fixed(s,p.id));
-        c.sort((a,b)=>{ const ab=a.backup?1:0,bb=b.backup?1:0; if(ab!==bb)return ab-bb;
+        const rescuing=c.some(p=>wouldStreak(s,p));
+        c.sort((a,b)=>{ const aw=wouldStreak(s,a)?1:0,bw=wouldStreak(s,b)?1:0; if(aw!==bw)return aw-bw;
+          if(rescuing){const ap=a.id==='paul'?0:1,bp=b.id==='paul'?0:1; if(ap!==bp)return ap-bp;}
+          const ab=a.backup?1:0,bb=b.backup?1:0; if(ab!==bb)return ab-bb;
           return load[a.id]-load[b.id]||people.indexOf(a)-people.indexOf(b); });
-        if(c[0]){setA(s,c[0].id,c[0].single);load[c[0].id]++;}
+        if(c[0]){setA(s,c[0].id,'R');load[c[0].id]++;}
       }
     }
   }
@@ -267,7 +279,7 @@ function generate(y,m,people,manual,ov,carry){
       setA(s,'paul',post);
     }
   }
-  for(const p of people) fixStreak(y,m,p,manual,auto,ov,carry);
+  // 不自動排休：連七只標紅框提示，由使用者自行安排補休
   return auto;
 }
 function fixStreak(y,m,person,manual,auto,ov,carry){
@@ -323,7 +335,7 @@ const DEFAULT_PEOPLE = [{
   tc: true,
   tx: true,
   single: 'R',
-  backup: true
+  backup: false
 }, {
   id: 'raymond',
   name: 'Raymond',
@@ -373,9 +385,20 @@ function App() {
   const [y, setY] = useState(now.getFullYear() < 2026 ? 2026 : now.getFullYear());
   const [m, setM] = useState(now.getFullYear() < 2026 ? 1 : now.getMonth() + 1);
   const [people, setPeople] = useState(() => {
-    const p = load(PEOPLE_KEY, DEFAULT_PEOPLE).map(x => ({
+    let p = load(PEOPLE_KEY, DEFAULT_PEOPLE).map(x => ({
+      ...x
+    }));
+    if (!load('roster_mig_v2', false)) {
+      // 一次性：讓 Paul 回到正常輪假日
+      p = p.map(x => x.id === 'paul' ? {
+        ...x,
+        backup: false
+      } : x);
+      save('roster_mig_v2', true);
+    }
+    p = p.map(x => ({
       ...x,
-      backup: x.backup !== undefined ? x.backup : x.id === 'paul'
+      backup: x.backup !== undefined ? x.backup : false
     }));
     p.sort((a, b) => {
       const ia = PERSON_ORDER.indexOf(a.id),
@@ -920,17 +943,7 @@ function App() {
       };
       setPeople(np);
     }
-  }), "\u88DC\u7F3A(\u6700\u5F8C\u6392)"), /*#__PURE__*/React.createElement("label", null, "\u55AE\u4EBA\u65E5\u5D17\u4F4D", /*#__PURE__*/React.createElement("select", {
-    value: p.single,
-    onChange: e => {
-      const np = [...people];
-      np[pi] = {
-        ...p,
-        single: e.target.value
-      };
-      setPeople(np);
-    }
-  }, /*#__PURE__*/React.createElement("option", null, "\u4E2D"), /*#__PURE__*/React.createElement("option", null, "\u9704"), /*#__PURE__*/React.createElement("option", null, "R")))))), /*#__PURE__*/React.createElement("div", {
+  }), "\u88DC\u7F3A(\u6700\u5F8C\u6392)")))), /*#__PURE__*/React.createElement("div", {
     className: "note"
   }, "\u6539\u5B8C\u5E73\u65E5\u5D17\u4F4D\u5F8C\uFF0C\u6392\u73ED\u6703\u5373\u6642\u91CD\u7B97\u3002\u8ACB\u5047\u8ACB\u76F4\u63A5\u9EDE\u8A72\u4EBA\u7576\u5929\u683C\u5B50\u9078\u300C\u4F11\u300D\u3002"))), /*#__PURE__*/React.createElement("details", {
     className: "panel"
