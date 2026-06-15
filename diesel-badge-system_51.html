@@ -185,8 +185,8 @@ function dGet(p){
     xhr.open('GET',API+'?'+new URLSearchParams(p));
     xhr.onload=function(){try{res(JSON.parse(xhr.responseText));}catch(e){console.error('dGet parse error',xhr.responseText.slice(0,200));res(null);}};
     xhr.onerror=function(){console.error('dGet network error');res(null);};
-    xhr.ontimeout=function(){console.error('dGet timeout');res(null);};
-    xhr.timeout=30000;
+    xhr.ontimeout=function(){console.error('dGet timeout (120s)');res(null);};
+    xhr.timeout=120000;
     xhr.send();
   });
 }
@@ -196,8 +196,16 @@ async function saveDrive(){
   if(!R.length){toast('沒有資料',true);return;}
   const now=new Date();
   const ts=now.getFullYear()+p2(now.getMonth()+1)+p2(now.getDate())+'_'+p2(now.getHours())+p2(now.getMinutes())+p2(now.getSeconds());
+  // Strip base64, keep only Drive URLs
+  const clean=R.map(r=>{
+    const c={...r};
+    ['photo1','photo2','photoWeb'].forEach(k=>{
+      if(c[k]&&!c[k].startsWith('https://'))c[k]='';
+    });
+    return c;
+  });
   toast('☁️ 儲存中...');
-  const res=await dPost({action:'saveFile',filename:'自主管理標章_'+ts+'.json',jsonData:{records:R,contractors:C,savedAt:now.toISOString()}});
+  const res=await dPost({action:'saveFile',filename:'自主管理標章_'+ts+'.json',jsonData:{records:clean,contractors:C,savedAt:now.toISOString()}});
   if(res&&res.success)toast('☁️ 已儲存！'+res.filename+' ('+Math.round(res.size/1024)+'KB)');
   else toast('❌ 失敗：'+(res?.error||'未知'),true);
 }
@@ -229,18 +237,19 @@ async function pickFile(id){
 
 // === Storage ===
 function ld(){try{R=JSON.parse(localStorage.getItem(SK))||[];}catch{R=[];}try{C=JSON.parse(localStorage.getItem(CK))||[];}catch{C=[];}}
-function sav(){try{const l=R.map(r=>({...r,photo1:'',photo2:'',photoWeb:''}));localStorage.setItem(SK,JSON.stringify(l));}catch{}try{localStorage.setItem(CK,JSON.stringify(C));}catch{}document.getElementById('rc').textContent=R.length+' 筆';}
+function sav(){try{const l=R.map(r=>{const c={...r};['photo1','photo2','photoWeb'].forEach(k=>{if(c[k]&&!c[k].startsWith('https://'))c[k]='';});return c;});localStorage.setItem(SK,JSON.stringify(l));}catch{}try{localStorage.setItem(CK,JSON.stringify(C));}catch{}document.getElementById('rc').textContent=R.length+' 筆';}
 
 // === Toast ===
 function toast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast show'+(e?' err':'');setTimeout(()=>t.className='toast',3000);}
 
 // === Compress ===
-function compress(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');let w=img.width,h=img.height;if(w>800){h=Math.round(h*800/w);w=800;}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',0.5));};img.onerror=()=>res('');img.src=e.target.result;};r.onerror=()=>res('');r.readAsDataURL(file);});}
+// Convert file to base64 (no compression - original quality)
+function fileToBase64(file){return new Promise(res=>{const r=new FileReader();r.onload=e=>{const b64=e.target.result.split(',')[1];res(b64);};r.onerror=()=>res('');r.readAsDataURL(file);});}
 
 function queryMoenv(p){if(!p){toast('請先輸入車號',true);return;}navigator.clipboard.writeText(p).then(()=>{toast('✅ 車號已複製！');setTimeout(()=>window.open(MOENV,'_blank'),300);}).catch(()=>{toast('✅ 已複製！');window.open(MOENV,'_blank');});}
 
 // === JSON ===
-function expJSON(){const d=JSON.stringify({records:R,contractors:C,exportDate:new Date().toISOString()});const b=new Blob([d],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='柴油管理標章_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('📥 已匯出 ('+Math.round(d.length/1024)+'KB)');}
+function expJSON(){const clean=R.map(r=>{const c={...r};['photo1','photo2','photoWeb'].forEach(k=>{if(c[k]&&!c[k].startsWith('https://'))c[k]='';});return c;});const d=JSON.stringify({records:clean,contractors:C,exportDate:new Date().toISOString()});const b=new Blob([d],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='柴油管理標章_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href);toast('📥 已匯出 ('+Math.round(d.length/1024)+'KB)');}
 function impJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{try{const d=JSON.parse(e.target.result);if(d.records){let a=0,u=0;d.records.forEach(r=>{const ex=R.find(m=>m.id===r.id);if(ex){Object.assign(ex,r);u++;}else{R.push(r);a++;}});if(d.contractors)d.contractors.forEach(c=>{if(!C.includes(c))C.push(c);});sav();toast('📤 新增'+a+'筆，更新'+u+'筆');render();}}catch{toast('❌ 格式錯誤',true);}};r.readAsText(f);ev.target.value='';}
 
 // === Tabs ===
@@ -267,9 +276,9 @@ function renderList(root){
     <button class="btn bp" onclick="App.newRec()">➕ 新增資料</button>
   </div><div class="card">`;
   if(!f.length){h+='<div class="es"><div class="ei">📭</div><p>尚無資料</p></div>';}
-  else{h+='<div class="tc"><table><thead><tr><th>#</th><th>統計</th><th>類型</th><th>車號</th><th>車輛機具</th><th>燃油</th><th>標章</th><th>等級</th><th>編號</th><th>操作</th></tr></thead><tbody>';
+  else{h+='<div class="tc"><table><thead><tr><th>#</th><th>統計</th><th>類型</th><th>車號</th><th>車輛機具</th><th>燃油</th><th>標章</th><th>等級</th><th>編號</th><th>更新時間</th><th>操作</th></tr></thead><tbody>';
     f.forEach((r,i)=>{const bc=bCls(r),bt=r.hasBadge==='是'?r.badgeLevel:'未取得';const ex=r.excluded;
-      h+=`<tr style="${ex?'opacity:.45':''}"><td style="color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:11px">${i+1}</td><td style="text-align:center"><input type="checkbox" ${ex?'':'checked'} onchange="App.togEx('${r.id}')" style="accent-color:var(--ok);width:16px;height:16px;cursor:pointer" title="${ex?'已排除統計，點擊納入':'納入統計中，點擊排除'}"></td><td><span class="bt ${r.category==='施工機具'?'bg':'bok'}">${r.category}</span></td><td style="font-weight:600;font-family:'JetBrains Mono',monospace">${esc(r.plateNumber)}</td><td>${esc(r.vehicleType)}</td><td>${r.fuelType}</td><td><span class="bt ${r.hasBadge==='是'?'bok':'bno'}">${r.hasBadge}</span></td><td><span class="bt ${bc}">${bt}</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.badgeNumber||'—'}</td><td style="white-space:nowrap"><button class="btn bsm binfo" onclick="App.queryMoenv('${esc(r.plateNumber)}')">🔍</button> <button class="btn bsm bs" onclick="App.editRec('${r.id}')">✏️</button> <button class="btn bsm bd" onclick="App.confirmDel('${r.id}')">🗑️</button></td></tr>`;
+      h+=`<tr style="${ex?'opacity:.45':''}"><td style="color:var(--t3);font-family:'JetBrains Mono',monospace;font-size:11px">${i+1}</td><td style="text-align:center"><input type="checkbox" ${ex?'':'checked'} onchange="App.togEx('${r.id}')" style="accent-color:var(--ok);width:16px;height:16px;cursor:pointer" title="${ex?'已排除統計，點擊納入':'納入統計中，點擊排除'}"></td><td><span class="bt ${r.category==='施工機具'?'bg':'bok'}">${r.category}</span></td><td style="font-weight:600;font-family:'JetBrains Mono',monospace">${esc(r.plateNumber)}</td><td>${esc(r.vehicleType)}</td><td>${r.fuelType}</td><td><span class="bt ${r.hasBadge==='是'?'bok':'bno'}">${r.hasBadge}</span></td><td><span class="bt ${bc}">${bt}</span></td><td style="font-family:'JetBrains Mono',monospace;font-size:11px">${r.badgeNumber||'—'}</td><td style="font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;white-space:nowrap">${r.updatedAt?new Date(r.updatedAt).toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'2026/06/13'}</td><td style="white-space:nowrap"><button class="btn bsm binfo" onclick="App.queryMoenv('${esc(r.plateNumber)}')">🔍</button> <button class="btn bsm bs" onclick="App.editRec('${r.id}')">✏️</button> <button class="btn bsm bd" onclick="App.confirmDel('${r.id}')">🗑️</button></td></tr>`;
     });h+='</tbody></table></div>';}
   h+='</div>';root.innerHTML=h;
 }
@@ -306,7 +315,22 @@ function renderForm(root,pf){
 }
 function catCh(){const c=document.querySelector('input[name="cat"]:checked')?.value;const s=document.getElementById('fBL');if(!s)return;s.innerHTML='<option value="">請選擇</option>';if(c==='施工機具')['金級','銀級','普級'].forEach(l=>s.innerHTML+=`<option value="${l}">${l}</option>`);else if(c==='運輸車輛')['新購五期車','新購六期車','優級','合格'].forEach(l=>s.innerHTML+=`<option value="${l}">${l}</option>`);}
 function badgeCh(){const v=document.querySelector('input[name="badge"]:checked')?.value==='是';document.getElementById('blG').style.display=v?'flex':'none';document.getElementById('bnG').style.display=v?'flex':'none';}
-async function upP(k,inp){const f=inp.files[0];if(!f)return;toast('📸 壓縮中...');const c=await compress(f);if(c){PD[k]=c;toast('✅ 已選取');const fv=readF();renderForm(document.getElementById('root'),{...fv,id:editId});}}
+async function upP(k,inp){const f=inp.files[0];if(!f)return;
+  if(API){
+    toast('📸 上傳照片到 Drive...');
+    const b64=await fileToBase64(f);
+    if(!b64){toast('❌ 讀取失敗',true);return;}
+    const plate=(document.getElementById('fPlate')?.value||'photo').trim();
+    const labels={v1:'照片1',v2:'照片2',web:'查詢結果'};
+    const fn=plate+'_'+labels[k]+'_'+Date.now()+'.jpg';
+    const res=await dPost({action:'uploadPhoto',base64:b64,filename:fn});
+    if(res&&res.url){PD[k]=res.url;toast('✅ 已上傳到 Drive（原始品質）');}
+    else{toast('❌ 上傳失敗：'+(res?.error||'未知'),true);return;}
+  }else{
+    toast('⚠️ 未連線 Drive，照片暫存本地（有壓縮）');
+    const r=new FileReader();r.onload=e=>{PD[k]=e.target.result;toast('✅ 已暫存');const fv=readF();renderForm(document.getElementById('root'),{...fv,id:editId});};r.readAsDataURL(f);return;
+  }
+  const fv=readF();renderForm(document.getElementById('root'),{...fv,id:editId});}
 function rmP(k){PD[k]='';const fv=readF();renderForm(document.getElementById('root'),{...fv,id:editId});}
 function readF(){return{category:document.querySelector('input[name="cat"]:checked')?.value||'',plateNumber:(document.getElementById('fPlate')?.value||'').trim().toUpperCase(),vehicleType:document.getElementById('fVtSel')?.value==='__o__'?(document.getElementById('fVtO')?.value||'').trim():(document.getElementById('fVtSel')?.value||''),fuelType:document.querySelector('input[name="fuel"]:checked')?.value||'柴油',hasBadge:document.querySelector('input[name="badge"]:checked')?.value||'',badgeLevel:document.getElementById('fBL')?.value||'',badgeNumber:(document.getElementById('fBN')?.value||'').trim()};}
 function chkDup(){const p=(document.getElementById('fPlate')?.value||'').trim().toUpperCase();const w=document.getElementById('dupW');if(!w)return;if(!p){w.style.display='none';return;}const fd=R.find(r=>r.plateNumber.toUpperCase()===p&&r.id!==editId);if(fd){w.style.display='block';w.innerHTML=`⚠️ <b>${p}</b> 已存在 <button class="btn bsm bp" style="margin-left:6px" onclick="App.showDup('${fd.id}','${p}')">叫出</button>`;}else w.style.display='none';}
@@ -548,7 +572,7 @@ function genPrev(){
 
     if(photos.length){
       photoRows=photos.map(p=>
-        '<tr><td colspan="4" style="padding:8px;border:1px solid #ddd">'+
+        '<tr style="page-break-inside:avoid"><td colspan="4" style="padding:8px;border:1px solid #ddd">'+
           '<div style="text-align:center;cursor:zoom-in" onclick="App.zoomPhoto(\''+p.src+'\')">'+
             '<img src="'+p.src+'" style="max-width:100%;max-height:280px;object-fit:contain;display:block;margin:0 auto">'+
           '</div>'+
@@ -859,8 +883,8 @@ if(API){
       console.log('📥 listFiles result:', res);
       const files=(res&&res.files)?res.files:[];
       if(files.length){
-        msg.textContent='載入 '+files[0].name+'...';
-        console.log('📖 Reading:', files[0].name, files[0].id);
+        msg.textContent='載入 '+files[0].name+' ('+Math.round(files[0].size/1024)+'KB)...';
+        console.log('📖 Reading:', files[0].name, files[0].id, Math.round(files[0].size/1024)+'KB');
         const data=await dGet({action:'readFile',fileId:files[0].id});
         console.log('📥 readFile result:', data?.success, data?.filename);
         if(data&&data.success&&data.data){
@@ -871,9 +895,10 @@ if(API){
           }
           if(data.data.contractors&&data.data.contractors.length)C=data.data.contractors;
           sav();render();
-          msg.textContent='✅ 已載入 '+files[0].name+'（'+R.length+' 筆）';
+          msg.textContent='✅ 已載入 '+data.filename+'（'+R.length+' 筆）';
         }else{
-          msg.textContent='⚠️ 讀取失敗，使用本地資料';
+          console.error('❌ readFile failed:', data);
+          msg.textContent='⚠️ 讀取失敗（檔案可能太大），使用本地資料';
         }
       }else{
         msg.textContent='Drive 資料夾無檔案，使用本地資料';
