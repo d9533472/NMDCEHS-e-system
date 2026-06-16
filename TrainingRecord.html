@@ -494,7 +494,7 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
     const m=nowMonth();
     const inM=records.filter(r=>monthKey(r.trainingDate)===m);
     const sum=a=>a.reduce((s,r)=>s+(Number(r.participantCount)||0),0);
-    const hrs=a=>Math.round(a.reduce((s,r)=>s+(Number(r.durationHours)||0),0)*10)/10;
+    const hrs=a=>Math.round(a.reduce((s,r)=>s+(Number(r.durationHours)||0)*(Number(r.participantCount)||0),0)*10)/10;
     const withAtt=records.filter(r=>(r.attachments||[]).length>0).length;
     const withPhoto=records.filter(r=>r.photo1Url||r.photo2Url).length;
     return {sessions:records.length, people:sum(records), hours:hrs(records),
@@ -519,11 +519,11 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
     <div className="kpis">
       <Kpi v={k.sessions} k="總訓練場次" grad="var(--g1)"/>
       <Kpi v={k.people} k="總受訓人數" grad="var(--g3)"/>
-      <Kpi v={k.hours} k="總訓練時數 (h)" grad="var(--g7)"/>
+      <Kpi v={k.hours} k="總受訓人時 (h)" grad="var(--g7)"/>
       <Kpi v={k.attRate+"%"} k="附件上傳完整率" bar={k.attRate} grad="var(--g5)"/>
       <Kpi v={k.mSessions} k="本月訓練場次" grad="var(--g6)"/>
       <Kpi v={k.mPeople} k="本月受訓人數" grad="var(--g4)"/>
-      <Kpi v={k.mHours} k="本月訓練時數 (h)" grad="var(--g8)"/>
+      <Kpi v={k.mHours} k="本月受訓人時 (h)" grad="var(--g8)"/>
       <Kpi v={k.photoRate+"%"} k="照片完整率" bar={k.photoRate} grad="var(--g2)"/>
     </div>
 
