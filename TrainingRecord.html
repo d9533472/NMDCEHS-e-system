@@ -113,6 +113,12 @@
   input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;cursor:pointer;vertical-align:middle}
   .selbar{display:flex;align-items:center;gap:10px;background:#eef3ff;border:1px solid #d7e2fb;
     border-radius:12px;padding:9px 14px;margin-bottom:12px}
+  .tag{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:999px;margin-right:4px;
+    background:#eef1f4;color:#9aa7b4;border:1px solid #e4e9ef;font-weight:600}
+  .tag.on{background:#e3f8ee;color:#0a8f54;border-color:#bdeed6}
+  .ckbox{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--txt);cursor:pointer;
+    background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:9px 14px;font-weight:600}
+  .ckbox input{margin:0}
   .act{display:inline-flex;gap:5px;justify-content:flex-end}
   .iconbtn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
     border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--mut);transition:.15s;padding:0}
@@ -254,7 +260,9 @@ function fmtSize(b){ b=Number(b)||0; return b<1024?b+"B":b<1048576?(b/1024).toFi
 function normRec(r){
   let c = Array.isArray(r.contractors) ? r.contractors : [];
   if(c.length===0 && r.company) c=[{name:r.company, count:Number(r.participantCount)||0}];
-  return {...r, contractors:c};
+  const hasPhoto  = (r.hasPhoto===undefined)  ? !!(r.photo1Url||r.photo2Url) : !!r.hasPhoto;
+  const hasSignIn = (r.hasSignIn===undefined) ? (r.attachments||[]).some(a=>a.type==="簽到表") : !!r.hasSignIn;
+  return {...r, contractors:c, hasPhoto, hasSignIn};
 }
 function loadKnownContractors(records){
   let ls=[];
@@ -441,7 +449,7 @@ function Kpi({v,k,bar,grad}){
 }
 
 function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpenLoad,currentLabel,includeAtt,onToggleAtt,loading}){
-  const [f,setF]=useState({from:"",to:"",company:"",instructor:""});
+  const [f,setF]=useState({from:"",to:"",company:"",instructor:"",signin:"",photo:""});
   const [preset,setPreset]=useState("all");
   const applyPreset=key=>{ const [from,to]=presetRange(key); setPreset(key); setF(s=>({...s,from,to})); };
   const setDate=(k,v)=>{ setPreset("custom"); setF(s=>({...s,[k]:v})); };
@@ -450,6 +458,10 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
     if(f.to   && r.trainingDate > f.to)   return false;
     if(f.company && !String(r.company||"").toLowerCase().includes(f.company.toLowerCase())) return false;
     if(f.instructor && r.instructor!==f.instructor) return false;
+    if(f.signin==="y" && !r.hasSignIn) return false;
+    if(f.signin==="n" && r.hasSignIn) return false;
+    if(f.photo==="y" && !r.hasPhoto) return false;
+    if(f.photo==="n" && r.hasPhoto) return false;
     return true;
   }).sort((a,b)=>String(b.trainingDate).localeCompare(String(a.trainingDate))),[records,f]);
 
@@ -521,7 +533,13 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
         <div style={{minWidth:130}}><label>講師</label>
           <select value={f.instructor} onChange={e=>setF({...f,instructor:e.target.value})}>
             <option value="">全部</option>{INSTRUCTORS.map(i=><option key={i}>{i}</option>)}</select></div>
-        <button className="btn ghost" onClick={()=>{setF({from:"",to:"",company:"",instructor:""});setPreset("all");}}>清除</button>
+        <div style={{minWidth:108}}><label>簽到表</label>
+          <select value={f.signin} onChange={e=>setF({...f,signin:e.target.value})}>
+            <option value="">全部</option><option value="y">有</option><option value="n">無</option></select></div>
+        <div style={{minWidth:108}}><label>照片</label>
+          <select value={f.photo} onChange={e=>setF({...f,photo:e.target.value})}>
+            <option value="">全部</option><option value="y">有</option><option value="n">無</option></select></div>
+        <button className="btn ghost" onClick={()=>{setF({from:"",to:"",company:"",instructor:"",signin:"",photo:""});setPreset("all");}}>清除</button>
       </div>
     </div>
 
@@ -554,10 +572,10 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
         <thead><tr>
           <th style={{width:34}}><input type="checkbox" checked={allSelected} onChange={toggleAll} title="全選"/></th>
           <th>訓練日期</th><th>廠商/公司</th><th>人數</th><th>講師</th>
-          <th className="hideSm">時數</th><th>附件</th><th>照片</th><th style={{textAlign:"right"}}>操作</th>
+          <th className="hideSm">時數</th><th>附件</th><th>照片</th><th>標記</th><th style={{textAlign:"right"}}>操作</th>
         </tr></thead>
         <tbody>
-        {filtered.length===0 && <tr><td colSpan="9" style={{textAlign:"center",padding:30}} className="muted">尚無資料</td></tr>}
+        {filtered.length===0 && <tr><td colSpan="10" style={{textAlign:"center",padding:30}} className="muted">尚無資料</td></tr>}
         {filtered.map(r=>{
           const nAtt=(r.attachments||[]).length, nPh=(r.photo1Url?1:0)+(r.photo2Url?1:0);
           return (
@@ -570,6 +588,10 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
             <td className="hideSm">{r.durationHours}h</td>
             <td><span className={"chip "+(nAtt? "ok":"no")}>{nAtt}</span></td>
             <td><span className={"chip "+(nPh? "ok":"no")}>{nPh}/2</span></td>
+            <td style={{whiteSpace:"nowrap"}}>
+              <span className={"tag "+(r.hasSignIn?"on":"")}>簽到表</span>
+              <span className={"tag "+(r.hasPhoto?"on":"")}>照片</span>
+            </td>
             <td style={{textAlign:"right",whiteSpace:"nowrap"}}>
               <div className="act">
                 <button className="iconbtn" title="匯出 PDF" onClick={()=>exportPdf(r,{includeAttachments:includeAtt})}><Icon n="pdf"/></button>
@@ -623,6 +645,7 @@ function RecordForm({rec,knownContractors,currentUser,onSave,onCancel,onToast}){
   const blank={id:"",trainingDate:new Date().toISOString().slice(0,10),company:"",
     participantCount:0,instructor:INSTRUCTORS[0],startTime:"09:00",endTime:"12:00",
     durationHours:3,location:"",category:"環保教育訓練",traineeRoster:[],
+    hasSignIn:false,hasPhoto:false,
     photo1Url:"",photo1Caption:"",photo2Url:"",photo2Caption:"",attachments:[],remarks:""};
   const [d,setD]=useState(rec? {...blank,...rec} : blank);
   const [busy,setBusy]=useState(false);
@@ -715,6 +738,14 @@ function RecordForm({rec,knownContractors,currentUser,onSave,onCancel,onToast}){
           <input type="time" value={d.endTime} onChange={e=>set("endTime",e.target.value)}/></div></div>
         <div className="grow" style={{minWidth:90}}><div className="field"><label>訓練時數（自動）</label>
           <input type="text" value={dur+" 小時"} disabled/></div></div>
+      </div>
+
+      <div className="sec">標記（方便整理 / 篩選）</div>
+      <div className="field">
+        <div className="row" style={{gap:12}}>
+          <label className="ckbox"><input type="checkbox" checked={!!d.hasSignIn} onChange={e=>set("hasSignIn",e.target.checked)}/> 簽到表</label>
+          <label className="ckbox"><input type="checkbox" checked={!!d.hasPhoto} onChange={e=>set("hasPhoto",e.target.checked)}/> 照片</label>
+        </div>
       </div>
 
       <div className="sec">受訓人員名冊</div>
