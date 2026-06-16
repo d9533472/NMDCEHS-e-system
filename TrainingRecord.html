@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>教育訓練紀錄系統</title>
+
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  :root{
+    --bg:#eef4f0; --panel:#ffffff; --panel2:#f1f7f3; --line:#e0ece6;
+    --txt:#16302a; --mut:#5d7a70; --accent:#0f9d76; --accent-d:#0c8765;
+    --ok:#12b76a; --warn:#f59e0b; --bad:#ef4444; --chip:#e8f3ee;
+    --shadow:0 1px 2px rgba(8,40,30,.04), 0 10px 28px rgba(8,40,30,.08);
+    --shadow-sm:0 1px 2px rgba(8,40,30,.05), 0 4px 12px rgba(8,40,30,.06);
+    --g1:linear-gradient(135deg,#6366f1,#8b5cf6);
+    --g2:linear-gradient(135deg,#0ea5e9,#22d3ee);
+    --g3:linear-gradient(135deg,#10b981,#34d399);
+    --g4:linear-gradient(135deg,#f59e0b,#fb923c);
+    --g5:linear-gradient(135deg,#ec4899,#f472b6);
+    --g6:linear-gradient(135deg,#3b82f6,#06b6d4);
+    --g7:linear-gradient(135deg,#0d9488,#2dd4bf);
+    --g8:linear-gradient(135deg,#65a30d,#a3e635);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;color:var(--txt);
+    background-color:var(--bg);
+    background-image:linear-gradient(rgba(15,157,118,.04) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(15,157,118,.04) 1px,transparent 1px);
+    background-size:27px 27px;
+    font-family:"Noto Sans TC","Microsoft JhengHei","Segoe UI",system-ui,sans-serif;font-size:14px;
+    -webkit-font-smoothing:antialiased}
+  button{font-family:inherit;cursor:pointer}
+  input,select,textarea{font-family:inherit}
+  a{color:var(--accent);text-decoration:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px}
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .grow{flex:1}
+  .muted{color:var(--mut)}
+  .btn{background:var(--accent);color:#fff;border:none;border-radius:10px;
+    padding:9px 16px;font-weight:600;font-size:14px;transition:.15s;box-shadow:0 1px 2px rgba(15,157,118,.28)}
+  .btn:hover{background:var(--accent-d)}
+  .btn.sec{background:#fff;color:var(--txt);border:1px solid var(--line);box-shadow:none}
+  .btn.sec:hover{background:var(--panel2);border-color:#d3dceb}
+  .btn.ghost{background:transparent;color:var(--mut);border:1px solid var(--line);box-shadow:none}
+  .btn.ghost:hover{background:var(--panel2);color:var(--txt)}
+  .btn.danger{background:#fff;color:var(--bad);border:1px solid #f3c9c9;box-shadow:none}
+  .btn.danger:hover{background:#fdecec}
+  .btn.sm{padding:6px 11px;font-size:13px;border-radius:8px}
+  input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{
+    background:#fff;border:1px solid var(--line);color:var(--txt);
+    border-radius:10px;padding:9px 12px;width:100%;font-size:14px;transition:.15s;outline:none}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,157,118,.16)}
+  input:disabled{background:var(--panel2);color:var(--mut)}
+  textarea{resize:vertical;min-height:64px}
+  label{display:block;font-size:12.5px;color:var(--mut);margin:0 0 6px;font-weight:500}
+  .field{margin-bottom:15px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:var(--shadow-sm)}
+  /* top bar */
+  .topbar{display:flex;align-items:center;gap:12px;padding:15px 22px;
+    background:rgba(255,255,255,.85);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+  .topbar h1{font-size:16.5px;margin:0;font-weight:800;letter-spacing:.2px;display:flex;align-items:center;gap:9px}
+  .topbar h1::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--g3)}
+  .topbar .sub{font-size:11.5px;color:var(--mut);margin-left:20px}
+  /* kpi */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:18px}
+  .kpi{border-radius:18px;padding:16px 16px 15px;color:#fff;position:relative;overflow:hidden;
+    box-shadow:0 8px 22px rgba(16,24,40,.12)}
+  .kpi::after{content:"";position:absolute;right:-22px;top:-22px;width:84px;height:84px;
+    border-radius:50%;background:rgba(255,255,255,.16)}
+  .kpi .v{font-size:27px;font-weight:800;line-height:1.05;letter-spacing:.5px}
+  .kpi .k{font-size:12px;color:rgba(255,255,255,.92);margin-top:5px;font-weight:500}
+  .kpi .bar{height:5px;border-radius:4px;background:rgba(255,255,255,.32);margin-top:10px;overflow:hidden}
+  .kpi .bar>i{display:block;height:100%;border-radius:4px;background:#fff}
+  /* presets */
+  .preset{background:var(--panel2);color:var(--mut);border:1px solid var(--line);
+    border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;transition:.15s}
+  .preset:hover{border-color:#cdd8ea;color:var(--txt)}
+  .preset.on{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(15,157,118,.32)}
+  /* table */
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tbl th{text-align:left;color:var(--mut);font-weight:600;font-size:12px;
+    padding:11px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  .tbl td{padding:11px 10px;border-bottom:1px solid #eef2f8;vertical-align:middle}
+  .tbl tr:last-child td{border-bottom:none}
+  .tbl tbody tr{transition:.12s}
+  .tbl tbody tr:hover td{background:#f6f9ff}
+  .chip{display:inline-block;background:var(--chip);border-radius:999px;
+    padding:3px 11px;font-size:11.5px;color:#41546b;font-weight:600}
+  .chip.ok{background:#e3f8ee;color:#0a8f54}
+  .chip.no{background:#fdeaea;color:#d23f3f}
+  .pill{font-size:11px;padding:2px 9px;border-radius:7px;background:var(--chip);color:#41546b;font-weight:600}
+  /* misc */
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+    background:#1f2a37;color:#fff;border:none;padding:11px 20px;border-radius:12px;
+    z-index:60;box-shadow:0 12px 32px rgba(16,24,40,.28);font-size:13.5px}
+  .modalbg{position:fixed;inset:0;background:rgba(17,24,39,.42);backdrop-filter:blur(3px);z-index:40;
+    display:flex;align-items:flex-start;justify-content:center;padding:26px;overflow:auto}
+  .modalbg .card{box-shadow:var(--shadow)}
+  .photoBox{border:1.5px dashed #d6deea;border-radius:12px;height:150px;display:flex;
+    align-items:center;justify-content:center;overflow:hidden;background:var(--panel2)}
+  .photoBox img{width:100%;height:100%;object-fit:cover}
+  .att{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--line);
+    border-radius:11px;background:var(--panel2);margin-bottom:8px}
+  .att .nm{font-size:13px;word-break:break-all}
+  input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px;cursor:pointer;vertical-align:middle}
+  .selbar{display:flex;align-items:center;gap:10px;background:#eef3ff;border:1px solid #d7e2fb;
+    border-radius:12px;padding:9px 14px;margin-bottom:12px}
+  .act{display:inline-flex;gap:5px;justify-content:flex-end}
+  .iconbtn{width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--mut);transition:.15s;padding:0}
+  .iconbtn:hover{background:var(--panel2);color:var(--accent);border-color:#bfe0d2}
+  .iconbtn.danger:hover{color:var(--bad);border-color:#f3c9c9;background:#fdecec}
+  .modal-card{width:760px;max-width:100%}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;
+    margin:-2px 0 18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+  .modal-head h2{margin:0;font-size:18px;font-weight:800;letter-spacing:.2px}
+  .modal-head .x{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);
+    background:#fff;color:var(--mut);font-size:15px;line-height:1;transition:.15s}
+  .modal-head .x:hover{background:var(--panel2);color:var(--txt)}
+  .sec{display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;
+    color:var(--txt);margin:20px 0 11px}
+  .sec::before{content:"";width:4px;height:14px;border-radius:3px;background:var(--accent)}
+  .form-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;
+    padding-top:16px;border-top:1px solid var(--line)}
+  .stat{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 13px;min-width:92px}
+  .stat .lbl{font-size:11px;color:var(--mut)}
+  .stat .val{font-size:15px;font-weight:700;margin-top:2px;color:var(--txt)}
+  .ver{background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+    color:var(--txt);padding:7px 10px;font-size:12.5px;max-width:230px}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid #cfd9e8;
+    border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .center{min-height:78vh;display:flex;align-items:center;justify-content:center}
+  @media(max-width:860px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .hideSm{display:none}
+    .topbar .sub{display:none}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/*==================== 設定 ====================*/
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwHOao4wAjpsg5twpkK556lICKc04tiEVSLqWjXWMQwHhHZ7a9lo7oCmJtHWZfv1ymQ/exec";
+const PROJECT_NAME = "通霄電廠二期更新改建計畫輸氣海管統包工程";
+const LOGO_B64 = "data:image/png;base64,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";
+const INSTRUCTORS = ["Paul","Sean","Raymond"];
+const ATTACH_TYPES = ["簽到表","訓練教材","掃描檔","其他"];
+
+/*==================== 工具 ====================*/
+function xhr(method, url, body, retries=2){
+  return new Promise((resolve,reject)=>{
+    const attempt = left=>{
+      const x = new XMLHttpRequest();
+      x.open(method, url, true);
+      if(method==="POST") x.setRequestHeader("Content-Type","text/plain;charset=utf-8");
+      x.timeout = 60000;
+      x.onload = ()=>{
+        if(x.status>=200 && x.status<400){
+          try{ resolve(JSON.parse(x.responseText)); }
+          catch(e){ resolve({ok:false,error:"回應格式錯誤",raw:x.responseText}); }
+        } else if(left>0){ setTimeout(()=>attempt(left-1),800); }
+        else reject(new Error("HTTP "+x.status));
+      };
+      x.onerror = ()=> left>0 ? setTimeout(()=>attempt(left-1),800) : reject(new Error("網路錯誤"));
+      x.ontimeout = ()=> left>0 ? setTimeout(()=>attempt(left-1),800) : reject(new Error("逾時"));
+      x.send(body||null);
+    };
+    attempt(retries);
+  });
+}
+const gasGet  = params => xhr("GET", GAS_URL + "?" + new URLSearchParams(params).toString());
+const gasPost = payload => xhr("POST", GAS_URL, JSON.stringify(payload));
+
+function extractDriveId(url){
+  if(!url) return "";
+  url = String(url).trim();
+  if(/^[A-Za-z0-9_-]{20,}$/.test(url)) return url;            // 直接是 ID
+  let m = url.match(/\/d\/([A-Za-z0-9_-]+)/) || url.match(/[?&]id=([A-Za-z0-9_-]+)/);
+  return m ? m[1] : "";
+}
+function driveThumb(url, w=1600){
+  const id = extractDriveId(url);
+  return id ? `https://drive.google.com/thumbnail?id=${id}&sz=w${w}` : url;
+}
+function calcHours(s,e){
+  if(!s||!e) return 0;
+  const [sh,sm]=s.split(":").map(Number), [eh,em]=e.split(":").map(Number);
+  let d=(eh*60+em)-(sh*60+sm); if(d<0) d+=1440;
+  return Math.round(d/60*100)/100;
+}
+function monthKey(d){ return d ? String(d).slice(0,7) : ""; }
+const nowMonth = ()=> new Date().toISOString().slice(0,7);
+function pct(a,b){ return b? Math.round(a/b*100):0; }
+function presetRange(key){
+  const t=new Date(); const d=new Date(t.getFullYear(),t.getMonth(),t.getDate());
+  const f=x=>`${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,"0")}-${String(x.getDate()).padStart(2,"0")}`;
+  const dow=(d.getDay()+6)%7;  // 週一為一週起始
+  if(key==="thisWeek"){ const s=new Date(d); s.setDate(d.getDate()-dow); const e=new Date(s); e.setDate(s.getDate()+6); return [f(s),f(e)]; }
+  if(key==="lastWeek"){ const s=new Date(d); s.setDate(d.getDate()-dow-7); const e=new Date(s); e.setDate(s.getDate()+6); return [f(s),f(e)]; }
+  if(key==="lastMonth"){ const s=new Date(d.getFullYear(),d.getMonth()-1,1); const e=new Date(d.getFullYear(),d.getMonth(),0); return [f(s),f(e)]; }
+  if(key==="thisYear"){ return [f(new Date(d.getFullYear(),0,1)), f(new Date(d.getFullYear(),11,31))]; }
+  if(key==="lastYear"){ return [f(new Date(d.getFullYear()-1,0,1)), f(new Date(d.getFullYear()-1,11,31))]; }
+  return ["",""]; // all
+}
+
+function fileToScaled(file,maxDim=2048){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        let {width:w,height:h}=img;
+        const s=Math.min(1,maxDim/Math.max(w,h)); w=Math.round(w*s); h=Math.round(h*s);
+        const c=document.createElement("canvas"); c.width=w; c.height=h;
+        c.getContext("2d").drawImage(img,0,0,w,h);
+        const png=file.type==="image/png";
+        res({base64:c.toDataURL(png?"image/png":"image/jpeg",0.92).split(",")[1],
+             mime:png?"image/png":"image/jpeg"});
+      };
+      img.onerror=rej; img.src=e.target.result;
+    };
+    r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+function fileToRawB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>res(e.target.result.split(",")[1]);
+    r.onerror=rej; r.readAsDataURL(file);
+  });
+}
+async function uploadToDrive(file,isImage){
+  let base64,mime;
+  if(isImage){ const o=await fileToScaled(file); base64=o.base64; mime=o.mime; }
+  else { base64=await fileToRawB64(file); mime=file.type||"application/octet-stream"; }
+  return gasPost({action:"upload", fileName:file.name, mimeType:mime, base64});
+}
+function fmtSize(b){ b=Number(b)||0; return b<1024?b+"B":b<1048576?(b/1024).toFixed(0)+"KB":(b/1048576).toFixed(1)+"MB"; }
+
+/* 多包商 + 包商記憶 */
+function normRec(r){
+  let c = Array.isArray(r.contractors) ? r.contractors : [];
+  if(c.length===0 && r.company) c=[{name:r.company, count:Number(r.participantCount)||0}];
+  return {...r, contractors:c};
+}
+function loadKnownContractors(records){
+  let ls=[];
+  try{ ls=JSON.parse(localStorage.getItem("tr_contractors")||"[]"); }catch(e){}
+  const set=new Set(ls);
+  (records||[]).forEach(r=>(r.contractors||[]).forEach(c=>c&&c.name&&set.add(c.name)));
+  return [...set].filter(Boolean).sort((a,b)=>String(a).localeCompare(String(b),"zh-Hant"));
+}
+function rememberContractors(names){
+  try{
+    const cur=new Set(JSON.parse(localStorage.getItem("tr_contractors")||"[]"));
+    (names||[]).forEach(n=>n&&cur.add(n));
+    localStorage.setItem("tr_contractors",JSON.stringify([...cur]));
+  }catch(e){}
+}
+
+/*==================== PDF 匯出 ====================*/
+async function fetchImgDataUrl(url){
+  const id=extractDriveId(url);
+  if(!id) return null;
+  try{ const r=await gasGet({action:"image",id}); return r.ok? r.dataUrl : null; }
+  catch(e){ return null; }
+}
+const PDF_HEADER = `
+  <div style="display:flex;justify-content:space-between;align-items:center;
+    border-bottom:1px solid #000;padding-bottom:10px;margin-bottom:18px">
+    <div>
+      <div style="font-size:19px;font-weight:800;line-height:1.35">通霄電廠二期更新改建計畫</div>
+      <div style="font-size:19px;font-weight:800;line-height:1.35">海底輸氣管線統包工程</div>
+      <div style="font-size:11px;color:#222;margin-top:3px">Tung-Hsiao Power Plant 2nd Stage Renewal Project Turn-key Contract of Subsea Gas Pipeline</div>
+    </div>
+    <img src="${LOGO_B64}" style="height:80px;margin-left:16px"/>
+  </div>`;
+async function nodeToCanvas(inner){
+  const node=document.createElement("div");
+  node.style.cssText="position:fixed;left:-9999px;top:0;width:794px;background:#fff;color:#111;"
+    +"padding:40px 44px;font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif";
+  node.innerHTML=inner;
+  document.body.appendChild(node);
+  try{ return await html2canvas(node,{scale:2,backgroundColor:"#ffffff",useCORS:true}); }
+  finally{ document.body.removeChild(node); }
+}
+async function renderRecordCanvas(rec){
+  const [p1,p2] = await Promise.all([fetchImgDataUrl(rec.photo1Url), fetchImgDataUrl(rec.photo2Url)]);
+  const photoBox = (src,cap,has)=>`
+    <div style="margin-bottom:14px">
+      <div style="border:1.5px solid #000;height:355px;display:flex;align-items:center;
+        justify-content:center;overflow:hidden;background:#fafafa">
+        ${ has && src
+            ? `<img src="${src}" style="max-width:100%;max-height:100%;object-fit:contain"/>`
+            : (has ? `<span style="color:#c0392b;font-size:15px">&#9888; 照片無法載入</span>`
+                   : `<span style="color:#bbb;font-size:14px">（未提供照片）</span>`) }
+      </div>
+      ${ cap ? `<div style="text-align:center;font-size:12.5px;color:#333;margin-top:5px">${cap}</div>` : "" }
+    </div>`;
+  return nodeToCanvas(PDF_HEADER
+    + `<div style="font-size:16px;font-weight:700;margin-bottom:24px">訓練日期: ${rec.trainingDate||"yyyy/mm/dd"}</div>`
+    + `<div style="text-align:center;margin-bottom:20px">
+         <div style="font-size:20px;font-weight:800;letter-spacing:1px">環保教育訓練記錄照片</div>
+         <div style="font-size:14px;margin-top:3px">Environmental Training Record Photos</div></div>`
+    + photoBox(p1, rec.photo1Caption, !!rec.photo1Url)
+    + photoBox(p2, rec.photo2Caption, !!rec.photo2Url));
+}
+function isImageAtt(a){
+  const s=(a.fileName||"")+" "+(a.fileUrl||"");
+  return /^image\//i.test(a.fileType||"") || /\.(jpe?g|png|gif|webp)(\?|$|\s)/i.test(s);
+}
+function isPdfAtt(a){
+  const s=(a.fileName||"")+" "+(a.fileUrl||"");
+  return /pdf/i.test(a.fileType||"") || /\.pdf(\?|$|\s)/i.test(s);
+}
+// 從 Drive 取回任意檔案的位元組（PDF/圖片皆可），透過 GAS 代理避開 CORS
+async function fetchFileBytes(url){
+  const id=extractDriveId(url); if(!id) return null;
+  try{
+    const r=await gasGet({action:"image",id});
+    if(!r.ok || !r.dataUrl) return null;
+    const comma=r.dataUrl.indexOf(","), b64=r.dataUrl.slice(comma+1);
+    const mime=(r.dataUrl.slice(5,comma).split(";")[0])||"";
+    const bin=atob(b64), arr=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    return {mime, bytes:arr, dataUrl:r.dataUrl};
+  }catch(e){ return null; }
+}
+// 把一張 canvas 當成整頁圖片畫進 pdf-lib 文件（A4，置中）
+async function addImagePage(out, canvas){
+  const png=await out.embedPng(canvas.toDataURL("image/png"));
+  const pw=595.28, ph=841.89, page=out.addPage([pw,ph]);
+  let w=pw, h=pw*canvas.height/canvas.width;
+  if(h>ph){ h=ph; w=ph*canvas.width/canvas.height; }
+  page.drawImage(png,{x:(pw-w)/2, y:(ph-h)/2, width:w, height:h});
+}
+const attSub=rec=>`<div style="font-size:12.5px;font-weight:600;color:#333;margin-bottom:14px">訓練日期: ${rec.trainingDate||""}　|　${rec.company||""}</div>`;
+async function attImageCanvas(rec,a,dataUrl){
+  const box=`<div style="border:1.5px solid #000;height:560px;display:flex;align-items:center;
+    justify-content:center;overflow:hidden;background:#fafafa">${
+    dataUrl?`<img src="${dataUrl}" style="max-width:100%;max-height:100%;object-fit:contain"/>`
+           :`<span style="color:#c0392b;font-size:15px">&#9888; 附件圖片無法載入</span>`}</div>`;
+  return nodeToCanvas(PDF_HEADER + attSub(rec)
+    + `<div style="text-align:center;font-size:17px;font-weight:800;margin-bottom:16px">附件 — ${a.type||"其他"}</div>`
+    + box + `<div style="text-align:center;font-size:12px;color:#333;margin-top:6px">${a.fileName||""}</div>`);
+}
+async function attListCanvas(rec,others){
+  const rows=others.map((a,i)=>`<tr>
+    <td style="border:1px solid #333;padding:6px 9px;text-align:center;width:36px">${i+1}</td>
+    <td style="border:1px solid #333;padding:6px 9px;width:88px">${a.type||"其他"}</td>
+    <td style="border:1px solid #333;padding:6px 9px">${a.fileName||""}</td>
+    <td style="border:1px solid #333;padding:6px 9px;font-size:10px;word-break:break-all;color:#1558d6">${a.fileUrl||""}</td></tr>`).join("");
+  return nodeToCanvas(PDF_HEADER + attSub(rec)
+    + `<div style="text-align:center;font-size:17px;font-weight:800;margin-bottom:16px">附件清單（無法合併之檔案）</div>`
+    + `<table style="width:100%;border-collapse:collapse;font-size:12.5px">
+         <tr style="background:#eef3f8;font-weight:700">
+           <td style="border:1px solid #333;padding:6px 9px;text-align:center">#</td>
+           <td style="border:1px solid #333;padding:6px 9px">類型</td>
+           <td style="border:1px solid #333;padding:6px 9px">檔名</td>
+           <td style="border:1px solid #333;padding:6px 9px">連結</td></tr>${rows}</table>`
+    + `<div style="font-size:11px;color:#666;margin-top:10px">※ DOCX 等檔案無法於瀏覽器內轉檔合併，以連結列示；圖片與 PDF 附件已合併於本檔內。</div>`);
+}
+// 組裝整份 PDF：照片紀錄頁 +（選用）附件內容合併
+async function buildMergedPdf(recs, opts={}, onProgress){
+  const { PDFDocument } = PDFLib;
+  const out = await PDFDocument.create();
+  for(let i=0;i<recs.length;i++){
+    const rec=recs[i];
+    if(onProgress) onProgress(i+1, recs.length);
+    await addImagePage(out, await renderRecordCanvas(rec));   // 照片紀錄頁
+    if(opts.includeAttachments){
+      const atts=(rec.attachments||[]).filter(a=>a.fileUrl||a.fileName);
+      const others=[];
+      for(const a of atts){
+        if(isImageAtt(a)){
+          const f=await fetchFileBytes(a.fileUrl);
+          await addImagePage(out, await attImageCanvas(rec, a, f&&f.dataUrl));
+        } else if(isPdfAtt(a)){
+          const f=await fetchFileBytes(a.fileUrl);
+          let merged=false;
+          if(f){ try{
+            const src=await PDFDocument.load(f.bytes,{ignoreEncryption:true});
+            const pages=await out.copyPages(src, src.getPageIndices());
+            pages.forEach(p=>out.addPage(p)); merged=true;
+          }catch(e){ merged=false; } }
+          if(!merged) others.push(a);   // 加密或損壞的 PDF → 退回清單
+        } else {
+          others.push(a);              // DOCX 等無法合併 → 清單
+        }
+      }
+      if(others.length) await addImagePage(out, await attListCanvas(rec, others));
+    }
+  }
+  return out.save();
+}
+function downloadBytes(bytes, name){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([bytes],{type:"application/pdf"}));
+  a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+}
+async function exportPdf(rec, opts={}){
+  try{
+    const bytes=await buildMergedPdf([rec], opts);
+    downloadBytes(bytes, `環保教育訓練記錄照片_${rec.company||""}_${rec.trainingDate||""}.pdf`);
+  }catch(e){ alert("PDF 匯出失敗："+e); }
+}
+async function exportPdfBatch(recs, opts={}, onProgress){
+  const bytes=await buildMergedPdf(recs, opts, onProgress);
+  const d=new Date(), ts=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+  downloadBytes(bytes, `環保教育訓練記錄照片_批次${recs.length}筆_${ts}.pdf`);
+}
+
+/*==================== 元件 ====================*/
+function Icon({n,size=16}){
+  const p={width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",
+    strokeWidth:2,strokeLinecap:"round",strokeLinejoin:"round"};
+  if(n==="pdf")  return <svg {...p}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>;
+  if(n==="edit") return <svg {...p}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>;
+  if(n==="trash")return <svg {...p}><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>;
+  return null;
+}
+
+function Kpi({v,k,bar,grad}){
+  return <div className="kpi" style={{background:grad||"var(--g1)"}}>
+    <div className="v">{v}</div><div className="k">{k}</div>
+    {bar!=null && <div className="bar"><i style={{width:bar+"%"}}/></div>}</div>;
+}
+
+function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpenLoad,currentLabel,includeAtt,onToggleAtt,loading}){
+  const [f,setF]=useState({from:"",to:"",company:"",instructor:""});
+  const [preset,setPreset]=useState("all");
+  const applyPreset=key=>{ const [from,to]=presetRange(key); setPreset(key); setF(s=>({...s,from,to})); };
+  const setDate=(k,v)=>{ setPreset("custom"); setF(s=>({...s,[k]:v})); };
+  const filtered=useMemo(()=>records.filter(r=>{
+    if(f.from && r.trainingDate < f.from) return false;
+    if(f.to   && r.trainingDate > f.to)   return false;
+    if(f.company && !String(r.company||"").toLowerCase().includes(f.company.toLowerCase())) return false;
+    if(f.instructor && r.instructor!==f.instructor) return false;
+    return true;
+  }).sort((a,b)=>String(b.trainingDate).localeCompare(String(a.trainingDate))),[records,f]);
+
+  const [sel,setSel]=useState(()=>new Set());
+  const [exporting,setExporting]=useState(null);   // null 或 {cur,total}
+  const visibleIds=filtered.map(r=>r.id);
+  const allSelected=visibleIds.length>0 && visibleIds.every(id=>sel.has(id));
+  const selectedRecs=filtered.filter(r=>sel.has(r.id));
+  const toggle=id=>{ const n=new Set(sel); n.has(id)?n.delete(id):n.add(id); setSel(n); };
+  const toggleAll=()=>setSel(allSelected? new Set() : new Set(visibleIds));
+  const doBatch=async()=>{
+    if(!selectedRecs.length) return;
+    setExporting({cur:0,total:selectedRecs.length});
+    try{ await exportPdfBatch(selectedRecs,{includeAttachments:includeAtt},(c,t)=>setExporting({cur:c,total:t})); }
+    catch(e){ alert("批次匯出失敗，請重試"); }
+    finally{ setExporting(null); }
+  };
+
+  const k=useMemo(()=>{
+    const m=nowMonth();
+    const inM=records.filter(r=>monthKey(r.trainingDate)===m);
+    const sum=a=>a.reduce((s,r)=>s+(Number(r.participantCount)||0),0);
+    const hrs=a=>Math.round(a.reduce((s,r)=>s+(Number(r.durationHours)||0),0)*10)/10;
+    const withAtt=records.filter(r=>(r.attachments||[]).length>0).length;
+    const withPhoto=records.filter(r=>r.photo1Url||r.photo2Url).length;
+    return {sessions:records.length, people:sum(records), hours:hrs(records),
+            mSessions:inM.length, mPeople:sum(inM), mHours:hrs(inM),
+            attRate:pct(withAtt,records.length), photoRate:pct(withPhoto,records.length)};
+  },[records]);
+
+  const csv=()=>{
+    const head=["訓練日期","公司","人數","講師","起","訖","時數","主題","附件數","照片數"];
+    const rows=filtered.map(r=>[r.trainingDate,r.company,r.participantCount,r.instructor,
+      r.startTime,r.endTime,r.durationHours,r.category,
+      (r.attachments||[]).length,(r.photo1Url?1:0)+(r.photo2Url?1:0)]);
+    const csvStr="\ufeff"+[head,...rows].map(a=>a.map(x=>`"${String(x??"").replace(/"/g,'""')}"`).join(",")).join("\n");
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([csvStr],{type:"text/csv"}));
+    a.download="教育訓練紀錄.csv"; a.click();
+  };
+
+  return (
+  <div className="wrap">
+    <div className="kpis">
+      <Kpi v={k.sessions} k="總訓練場次" grad="var(--g1)"/>
+      <Kpi v={k.people} k="總受訓人數" grad="var(--g3)"/>
+      <Kpi v={k.hours} k="總訓練時數 (h)" grad="var(--g7)"/>
+      <Kpi v={k.attRate+"%"} k="附件上傳完整率" bar={k.attRate} grad="var(--g5)"/>
+      <Kpi v={k.mSessions} k="本月訓練場次" grad="var(--g6)"/>
+      <Kpi v={k.mPeople} k="本月受訓人數" grad="var(--g4)"/>
+      <Kpi v={k.mHours} k="本月訓練時數 (h)" grad="var(--g8)"/>
+      <Kpi v={k.photoRate+"%"} k="照片完整率" bar={k.photoRate} grad="var(--g2)"/>
+    </div>
+
+    <div className="card" style={{marginBottom:16}}>
+      <div className="row" style={{gap:8,marginBottom:14}}>
+        {[["thisWeek","本週"],["lastWeek","上週"],["lastMonth","上月"],
+          ["thisYear","本年"],["lastYear","去年"],["all","全部"]].map(([key,lbl])=>(
+          <button key={key} className={"preset"+(preset===key?" on":"")} onClick={()=>applyPreset(key)}>{lbl}</button>
+        ))}
+      </div>
+      <div className="row" style={{alignItems:"flex-end"}}>
+        <div style={{minWidth:140}}><label>起始日期</label>
+          <input type="date" value={f.from} onChange={e=>setDate("from",e.target.value)}/></div>
+        <div style={{minWidth:140}}><label>結束日期</label>
+          <input type="date" value={f.to} onChange={e=>setDate("to",e.target.value)}/></div>
+        <div className="grow" style={{minWidth:150}}><label>公司 / 廠商</label>
+          <input type="text" value={f.company} placeholder="關鍵字" onChange={e=>setF({...f,company:e.target.value})}/></div>
+        <div style={{minWidth:130}}><label>講師</label>
+          <select value={f.instructor} onChange={e=>setF({...f,instructor:e.target.value})}>
+            <option value="">全部</option>{INSTRUCTORS.map(i=><option key={i}>{i}</option>)}</select></div>
+        <button className="btn ghost" onClick={()=>{setF({from:"",to:"",company:"",instructor:""});setPreset("all");}}>清除</button>
+      </div>
+    </div>
+
+    <div className="card">
+      <div className="row" style={{justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <div className="muted">共 <b style={{color:"var(--txt)"}}>{filtered.length}</b> 筆
+          <span style={{marginLeft:10}}>· 版本：<b style={{color:"var(--txt)"}}>{currentLabel||"未儲存"}</b></span></div>
+        <div className="row" style={{alignItems:"center"}}>
+          <label className="row" style={{gap:6,alignItems:"center",fontSize:13,color:"var(--mut)",
+            background:"var(--panel2)",border:"1px solid var(--line)",borderRadius:9,padding:"6px 10px",cursor:"pointer"}}
+            title="勾選後，匯出 PDF 會附加附件（圖片附件各成一頁，其他列成清單頁）">
+            <input type="checkbox" checked={includeAtt} onChange={onToggleAtt}/> PDF 含附件
+          </label>
+          <button className="btn sec sm" onClick={onSave}>{loading?<span className="spin"/>:"💾 儲存"}</button>
+          <button className="btn sec sm" onClick={onOpenLoad}>📂 讀取</button>
+          <button className="btn sec sm" onClick={csv}>⬇ CSV</button>
+          <button className="btn sm" onClick={onNew}>＋ 新增紀錄</button>
+        </div>
+      </div>
+      {selectedRecs.length>0 &&
+        <div className="selbar">
+          <span style={{fontWeight:600}}>已選 {selectedRecs.length} 筆</span>
+          <div className="grow"/>
+          <button className="btn sm" onClick={doBatch} disabled={!!exporting}>
+            {exporting? `匯出中 ${exporting.cur}/${exporting.total}…` : "批次匯出 PDF"}</button>
+          <button className="btn ghost sm" onClick={()=>setSel(new Set())} disabled={!!exporting}>取消選取</button>
+        </div>}
+      <div style={{overflowX:"auto"}}>
+      <table className="tbl">
+        <thead><tr>
+          <th style={{width:34}}><input type="checkbox" checked={allSelected} onChange={toggleAll} title="全選"/></th>
+          <th>訓練日期</th><th>廠商/公司</th><th>人數</th><th>講師</th>
+          <th className="hideSm">時數</th><th>附件</th><th>照片</th><th style={{textAlign:"right"}}>操作</th>
+        </tr></thead>
+        <tbody>
+        {filtered.length===0 && <tr><td colSpan="9" style={{textAlign:"center",padding:30}} className="muted">尚無資料</td></tr>}
+        {filtered.map(r=>{
+          const nAtt=(r.attachments||[]).length, nPh=(r.photo1Url?1:0)+(r.photo2Url?1:0);
+          return (
+          <tr key={r.id}>
+            <td><input type="checkbox" checked={sel.has(r.id)} onChange={()=>toggle(r.id)}/></td>
+            <td>{r.trainingDate}</td>
+            <td><a style={{cursor:"pointer"}} onClick={()=>onView(r)}>{r.company||"—"}</a></td>
+            <td>{r.participantCount}</td>
+            <td><span className="pill">{r.instructor}</span></td>
+            <td className="hideSm">{r.durationHours}h</td>
+            <td><span className={"chip "+(nAtt? "ok":"no")}>{nAtt}</span></td>
+            <td><span className={"chip "+(nPh? "ok":"no")}>{nPh}/2</span></td>
+            <td style={{textAlign:"right",whiteSpace:"nowrap"}}>
+              <div className="act">
+                <button className="iconbtn" title="匯出 PDF" onClick={()=>exportPdf(r,{includeAttachments:includeAtt})}><Icon n="pdf"/></button>
+                <button className="iconbtn" title="編輯" onClick={()=>onEdit(r)}><Icon n="edit"/></button>
+                <button className="iconbtn danger" title="刪除" onClick={()=>onDelete(r)}><Icon n="trash"/></button>
+              </div>
+            </td>
+          </tr>);
+        })}
+        </tbody>
+      </table>
+      </div>
+    </div>
+  </div>);
+}
+
+/* 照片上傳 / 連結 元件 */
+function PhotoInput({label,url,caption,onUrl,onCaption,onToast}){
+  const [busy,setBusy]=useState(false);
+  const pick=async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    setBusy(true);
+    try{ const r=await uploadToDrive(file,true);
+      if(r.ok){ onUrl(r.link); onToast("照片已上傳"); } else onToast("上傳失敗："+(r.error||""));
+    }catch(err){ onToast("上傳失敗"); }
+    setBusy(false); e.target.value="";
+  };
+  return (
+    <div className="field">
+      <label>{label}</label>
+      <div className="photoBox" style={{marginBottom:8}}>
+        {url ? <img src={driveThumb(url,800)} alt="" onError={e=>e.target.style.display="none"}/>
+             : <span className="muted">未提供</span>}
+      </div>
+      <div className="row" style={{marginBottom:8}}>
+        <label className="btn sec sm" style={{display:"inline-block"}}>
+          {busy? <span className="spin"/> : "上傳檔案"}
+          <input type="file" accept="image/*" style={{display:"none"}} onChange={pick} disabled={busy}/>
+        </label>
+        {url && <button className="btn ghost sm" onClick={()=>onUrl("")}>清除</button>}
+      </div>
+      <input type="text" placeholder="或貼上 Google Drive 圖片連結 / file ID"
+        value={url} onChange={e=>onUrl(e.target.value)} style={{marginBottom:8}}/>
+      <input type="text" placeholder="照片說明 (caption)" value={caption}
+        onChange={e=>onCaption(e.target.value)}/>
+    </div>
+  );
+}
+
+function RecordForm({rec,knownContractors,currentUser,onSave,onCancel,onToast}){
+  const blank={id:"",trainingDate:new Date().toISOString().slice(0,10),company:"",
+    participantCount:0,instructor:INSTRUCTORS[0],startTime:"09:00",endTime:"12:00",
+    durationHours:3,location:"",category:"環保教育訓練",traineeRoster:[],
+    photo1Url:"",photo1Caption:"",photo2Url:"",photo2Caption:"",attachments:[],remarks:""};
+  const [d,setD]=useState(rec? {...blank,...rec} : blank);
+  const [busy,setBusy]=useState(false);
+  const [rosterText,setRosterText]=useState((rec?.traineeRoster||[]).map(p=>p.unit?`${p.name},${p.unit}`:p.name).join("\n"));
+  const init = rec ? normRec(rec).contractors : [];
+  const [contractors,setContractors]=useState(init.length? init : [{name:"",count:0}]);
+  const set=(k,v)=>setD(s=>({...s,[k]:v}));
+  const dur=calcHours(d.startTime,d.endTime);
+  const totalP=contractors.reduce((s,c)=>s+(Number(c.count)||0),0);
+  const addC=()=>setContractors([...contractors,{name:"",count:0}]);
+  const updC=(i,k,v)=>{const a=[...contractors];a[i]={...a[i],[k]:v};setContractors(a);};
+  const delC=i=>setContractors(contractors.length>1?contractors.filter((_,j)=>j!==i):contractors);
+
+  const addAttach=async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    setBusy(true);
+    try{ const r=await uploadToDrive(file,false);
+      if(r.ok){ set("attachments",[...(d.attachments||[]),
+        {id:"A"+Date.now(),fileName:r.fileName,fileType:r.fileType,fileSize:r.fileSize,fileUrl:r.link,type:"其他"}]);
+        onToast("附件已上傳"); } else onToast("上傳失敗");
+    }catch(err){ onToast("上傳失敗"); }
+    setBusy(false); e.target.value="";
+  };
+  const addLinkAttach=()=>set("attachments",[...(d.attachments||[]),
+    {id:"A"+Date.now(),fileName:"",fileType:"",fileSize:0,fileUrl:"",type:"其他"}]);
+  const updAtt=(i,k,v)=>{ const a=[...d.attachments]; a[i]={...a[i],[k]:v}; set("attachments",a); };
+  const delAtt=i=>set("attachments",d.attachments.filter((_,j)=>j!==i));
+
+  const save=async()=>{
+    if(!d.trainingDate){ onToast("請填訓練日期"); return; }
+    const cleanC=contractors.map(c=>({name:(c.name||"").trim(),count:Number(c.count)||0})).filter(c=>c.name);
+    if(cleanC.length===0){ onToast("請至少輸入一個包商"); return; }
+    const roster=rosterText.split("\n").map(l=>l.trim()).filter(Boolean)
+      .map(l=>{const[n,u]=l.split(",");return{name:n.trim(),unit:(u||"").trim()};});
+    const now=new Date().toISOString();
+    const payload={...d, durationHours:dur, contractors:cleanC, category:"環保教育訓練",
+      company:cleanC.map(c=>c.name).join("、"),
+      participantCount:cleanC.reduce((s,c)=>s+c.count,0), traineeRoster:roster,
+      id:d.id||("TR"+Date.now()),
+      createdBy:d.createdBy||currentUser, createdAt:d.createdAt||now,
+      updatedBy:currentUser, updatedAt:now};
+    rememberContractors(cleanC.map(c=>c.name));
+    setBusy(true);
+    const ok=await onSave(payload);
+    setBusy(false);
+    if(!ok) onToast("儲存失敗，請重試");
+  };
+
+  return (
+  <div className="modalbg" onClick={e=>e.target===e.currentTarget&&onCancel()}>
+    <div className="card modal-card">
+      <div className="modal-head">
+        <h2>{rec?"編輯":"新增"}教育訓練紀錄</h2>
+        <button className="x" onClick={onCancel} aria-label="關閉">✕</button>
+      </div>
+
+      <div className="row">
+        <div className="grow"><div className="field"><label>訓練日期 *</label>
+          <input type="date" value={d.trainingDate} onChange={e=>set("trainingDate",e.target.value)}/></div></div>
+        <div style={{width:140}}><div className="field"><label>講師 *</label>
+          <select value={d.instructor} onChange={e=>set("instructor",e.target.value)}>
+            {INSTRUCTORS.map(i=><option key={i}>{i}</option>)}</select></div></div>
+      </div>
+
+      <datalist id="contractorList">
+        {(knownContractors||[]).map(n=><option key={n} value={n}/>)}
+      </datalist>
+      <div className="field">
+        <div className="row" style={{justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+          <label style={{margin:0}}>包商 / 人數 *</label>
+          <span className="muted" style={{fontSize:12.5}}>總人數：<b style={{color:"var(--txt)"}}>{totalP}</b> 人</span>
+        </div>
+        {contractors.map((c,i)=>(
+          <div className="row" key={i} style={{marginBottom:8,alignItems:"center"}}>
+            <input className="grow" list="contractorList" style={{minWidth:160}}
+              placeholder="包商 / 公司名稱（打過會記住，下次可下拉選）"
+              value={c.name} onChange={e=>updC(i,"name",e.target.value)}/>
+            <input type="number" min="0" placeholder="人數" style={{width:90}}
+              value={c.count} onChange={e=>updC(i,"count",e.target.value)}/>
+            <button className="btn danger sm" onClick={()=>delC(i)} disabled={contractors.length<=1}>✕</button>
+          </div>
+        ))}
+        <button className="btn sec sm" onClick={addC}>＋ 新增包商</button>
+      </div>
+
+      <div className="row">
+        <div style={{width:120}}><div className="field"><label>開始時間 *</label>
+          <input type="time" value={d.startTime} onChange={e=>set("startTime",e.target.value)}/></div></div>
+        <div style={{width:120}}><div className="field"><label>結束時間 *</label>
+          <input type="time" value={d.endTime} onChange={e=>set("endTime",e.target.value)}/></div></div>
+        <div className="grow" style={{minWidth:90}}><div className="field"><label>訓練時數（自動）</label>
+          <input type="text" value={dur+" 小時"} disabled/></div></div>
+      </div>
+
+      <div className="sec">受訓人員名冊</div>
+      <div className="field"><label>選填，一行一位；可用「姓名,單位」</label>
+        <textarea value={rosterText} onChange={e=>setRosterText(e.target.value)}
+          placeholder={"王小明,A承商\n李大華,B承商"}/></div>
+
+      <div className="sec">教育訓練照片（PDF 用）</div>
+      <div className="row">
+        <div className="grow">
+          <PhotoInput label="照片 1" url={d.photo1Url} caption={d.photo1Caption}
+            onUrl={v=>set("photo1Url",v)} onCaption={v=>set("photo1Caption",v)} onToast={onToast}/></div>
+        <div className="grow">
+          <PhotoInput label="照片 2" url={d.photo2Url} caption={d.photo2Caption}
+            onUrl={v=>set("photo2Url",v)} onCaption={v=>set("photo2Caption",v)} onToast={onToast}/></div>
+      </div>
+
+      <div className="sec">附件（簽到表 / 教材 / 掃描檔）</div>
+      <div className="field">
+        <div className="row" style={{justifyContent:"flex-end"}}>
+          <div className="row">
+            <label className="btn sec sm" style={{display:"inline-block"}}>
+              {busy?<span className="spin"/>:"上傳附件"}
+              <input type="file" style={{display:"none"}} onChange={addAttach} disabled={busy}/>
+            </label>
+            <button className="btn ghost sm" onClick={addLinkAttach}>＋ 連結</button>
+          </div>
+        </div>
+        <div style={{marginTop:8}}>
+          {(d.attachments||[]).length===0 && <div className="muted" style={{fontSize:12.5}}>尚未加入附件</div>}
+          {(d.attachments||[]).map((a,i)=>(
+            <div className="att" key={a.id||i}>
+              <select style={{width:100}} value={a.type||"其他"} onChange={e=>updAtt(i,"type",e.target.value)}>
+                {ATTACH_TYPES.map(t=><option key={t}>{t}</option>)}</select>
+              <input type="text" className="grow" placeholder="檔名" value={a.fileName||""} onChange={e=>updAtt(i,"fileName",e.target.value)}/>
+              <input type="text" className="grow" placeholder="連結 URL" value={a.fileUrl||""} onChange={e=>updAtt(i,"fileUrl",e.target.value)}/>
+              {a.fileSize? <span className="muted" style={{fontSize:11}}>{fmtSize(a.fileSize)}</span>:null}
+              <button className="btn danger sm" onClick={()=>delAtt(i)}>✕</button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="sec">備註</div>
+      <div className="field">
+        <textarea value={d.remarks} onChange={e=>set("remarks",e.target.value)} placeholder="選填"/></div>
+
+      <div className="form-foot">
+        <button className="btn sec" onClick={onCancel}>取消</button>
+        <button className="btn" onClick={save} disabled={busy}>{busy?<span className="spin"/>:"儲存"}</button>
+      </div>
+    </div>
+  </div>);
+}
+
+function Detail({rec,includeAtt,onClose,onEdit}){
+  return (
+  <div className="modalbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
+    <div className="card modal-card" style={{width:700}}>
+      <div className="modal-head">
+        <h2>{rec.company} <span className="muted" style={{fontWeight:600,fontSize:14}}>· {rec.trainingDate}</span></h2>
+        <button className="x" onClick={onClose} aria-label="關閉">✕</button>
+      </div>
+      <div className="row" style={{gap:10,marginBottom:6}}>
+        {[["講師",rec.instructor],["時間",`${rec.startTime}~${rec.endTime}`],
+          ["時數",rec.durationHours+" 小時"],["人數",rec.participantCount+" 人"],
+          ["主題",rec.category||"環保教育訓練"]].map(([k,v])=>(
+          <div className="stat" key={k}><div className="lbl">{k}</div><div className="val">{v}</div></div>
+        ))}
+      </div>
+      {(rec.contractors||[]).length>0 && <div>
+        <div className="sec">包商 / 人數（共 {rec.participantCount} 人）</div>
+        <div className="row" style={{gap:6}}>{rec.contractors.map((c,i)=>
+          <span className="chip" key={i}>{c.name} · {c.count}人</span>)}</div></div>}
+      {(rec.traineeRoster||[]).length>0 && <div>
+        <div className="sec">受訓名冊（{rec.traineeRoster.length} 人）</div>
+        <div className="row" style={{gap:6}}>{rec.traineeRoster.map((p,i)=>
+          <span className="chip" key={i}>{p.name}{p.unit?`/${p.unit}`:""}</span>)}</div></div>}
+      <div className="sec">教育訓練照片</div>
+      <div className="row">
+        {[1,2].map(n=>{const u=rec["photo"+n+"Url"],c=rec["photo"+n+"Caption"];return(
+          <div className="grow" key={n}>
+            <div className="photoBox" style={{height:180}}>
+              {u? <img src={driveThumb(u,800)} alt=""/> : <span className="muted">無照片</span>}</div>
+            <div className="muted" style={{fontSize:12,marginTop:5,textAlign:"center"}}>{c||""}</div>
+          </div>);})}
+      </div>
+      {(rec.attachments||[]).length>0 && <div>
+        <div className="sec">附件（{rec.attachments.length}）</div>
+          {rec.attachments.map((a,i)=>(
+            <div className="att" key={i}>
+              <span className="pill">{a.type||"其他"}</span>
+              <span className="nm grow">{a.fileName||a.fileUrl}</span>
+              {a.fileUrl && <a href={a.fileUrl} target="_blank" rel="noreferrer" className="btn sec sm">開啟</a>}
+            </div>))}</div>}
+      <div className="form-foot">
+        <button className="btn sec" onClick={()=>exportPdf(rec,{includeAttachments:includeAtt})}>匯出 PDF{includeAtt?"（含附件）":""}</button>
+        <button className="btn" onClick={()=>onEdit(rec)}>編輯</button>
+      </div>
+      <div className="muted" style={{fontSize:11,marginTop:12}}>
+        建立：{rec.createdBy} {String(rec.createdAt||"").slice(0,16).replace("T"," ")}　
+        最後修改：{rec.updatedBy} {String(rec.updatedAt||"").slice(0,16).replace("T"," ")}</div>
+    </div>
+  </div>);
+}
+
+function LoadModal({snapshots,currentId,loading,onLoad,onRefresh,onClose}){
+  const lbl=s=>{ const m=(s.name||"").match(/_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})/);
+    return m? `${m[1]}/${m[2]}/${m[3]}  ${m[4]}:${m[5]}:${m[6]}` : s.name; };
+  return (
+  <div className="modalbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
+    <div className="card modal-card" style={{width:520}}>
+      <div className="modal-head">
+        <h2>讀取版本</h2>
+        <button className="x" onClick={onClose} aria-label="關閉">✕</button>
+      </div>
+      <div className="row" style={{justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span className="muted" style={{fontSize:12.5}}>共 {snapshots.length} 個版本（由新到舊）</span>
+        <button className="btn sec sm" onClick={onRefresh}>{loading?<span className="spin"/>:"↻ 重新整理清單"}</button>
+      </div>
+      <div style={{maxHeight:"56vh",overflow:"auto"}}>
+        {snapshots.length===0 &&
+          <div className="muted" style={{padding:24,textAlign:"center"}}>尚無任何版本，先新增一筆並儲存。</div>}
+        {snapshots.map((s,i)=>(
+          <div className="att" key={s.id} style={{justifyContent:"space-between"}}>
+            <div>
+              <div style={{fontWeight:700,fontSize:13.5,display:"flex",alignItems:"center",gap:6}}>
+                {i===0 && <span className="chip ok">最新</span>}
+                <span>{lbl(s)}</span>
+                {s.id===currentId && <span className="pill">目前</span>}
+              </div>
+              <div className="muted" style={{fontSize:11,marginTop:2,wordBreak:"break-all"}}>{s.name}</div>
+            </div>
+            <button className="btn sm" onClick={()=>onLoad(s.id)} disabled={s.id===currentId}>
+              {s.id===currentId?"使用中":"載入"}</button>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>);
+}
+
+/*==================== App ====================*/
+function App(){
+  const [records,setRecords]=useState(()=>{ try{return JSON.parse(localStorage.getItem("tr_records")||"[]").map(normRec);}catch(e){return [];} });
+  const [snapshots,setSnapshots]=useState([]);
+  const [currentSnap,setCurrentSnap]=useState(null);   // {id,name}
+  const [loading,setLoading]=useState(true);
+  const [saving,setSaving]=useState(false);
+  const [user,setUser]=useState(()=>localStorage.getItem("tr_user")||INSTRUCTORS[0]);
+  const [editing,setEditing]=useState(undefined);      // undefined=closed, null=new, obj=edit
+  const [viewing,setViewing]=useState(null);
+  const [showLoad,setShowLoad]=useState(false);
+  const [includeAtt,setIncludeAtt]=useState(false);
+  const [toast,setToast]=useState("");
+  const toastT=useRef();
+  const showToast=m=>{ setToast(m); clearTimeout(toastT.current); toastT.current=setTimeout(()=>setToast(""),2600); };
+  const cacheLocal=recs=>{ try{ localStorage.setItem("tr_records",JSON.stringify(recs)); }catch(e){} };
+
+  const refreshSnapshots=async()=>{
+    try{ const r=await gasGet({action:"snapshots"}); if(r.ok){ setSnapshots(r.snapshots||[]); return r.snapshots||[]; } }catch(e){}
+    return [];
+  };
+  const loadVersion=async id=>{
+    setLoading(true);
+    try{ const r=await gasGet({action:"load",id:id||"latest"});
+      if(r.ok){ const recs=(r.records||[]).map(normRec); setRecords(recs); cacheLocal(recs);
+        setCurrentSnap(r.id?{id:r.id,name:r.name}:null); }
+      else showToast("讀取失敗");
+    }catch(e){ showToast("讀取失敗，顯示本機快取"); }
+    setLoading(false);
+  };
+  useEffect(()=>{ (async()=>{
+    const s=await refreshSnapshots();
+    if(s.length) await loadVersion(s[0].id);
+    else setLoading(false);   // 無快照：保留本機快取（可能為空）
+  })(); },[]);
+
+  const persist=async next=>{
+    setRecords(next); cacheLocal(next); setSaving(true);
+    try{ const r=await gasPost({action:"save",records:next});
+      if(r.ok){ await refreshSnapshots(); setCurrentSnap({id:r.id,name:r.name}); setSaving(false); return true; }
+    }catch(e){}
+    setSaving(false); return false;
+  };
+
+  const onSaved=async rec=>{
+    rec=normRec(rec);
+    const i=records.findIndex(o=>o.id===rec.id);
+    const next = i>=0 ? records.map(o=>o.id===rec.id?rec:o) : [rec,...records];
+    const ok=await persist(next);
+    if(ok){ setEditing(undefined); showToast("已儲存（已寫入新版本）"); }
+    return ok;
+  };
+  const del=async r=>{
+    if(!confirm(`確定刪除「${r.company} ${r.trainingDate}」？\n（會寫入一個新版本快照）`)) return;
+    const ok=await persist(records.filter(o=>o.id!==r.id));
+    showToast(ok?"已刪除":"刪除失敗");
+  };
+  const knownContractors=useMemo(()=>loadKnownContractors(records),[records]);
+  const changeUser=u=>{ setUser(u); try{localStorage.setItem("tr_user",u);}catch(e){} };
+  const verLabel=s=>{ const m=(s&&s.name||"").match(/_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})/);
+    return m? `${m[2]}/${m[3]} ${m[4]}:${m[5]}` : ""; };
+  const currentLabel=currentSnap? verLabel(currentSnap) : "";
+  const saveNow=async()=>{ const ok=await persist(records); showToast(ok?"已儲存（已寫入新版本）":"儲存失敗，請重試"); };
+  const openLoad=async()=>{ await refreshSnapshots(); setShowLoad(true); };
+  const pickVersion=async id=>{ await loadVersion(id); setShowLoad(false); showToast("已載入該版本"); };
+
+  return (
+  <div>
+    <div className="topbar">
+      <div className="grow"><h1>教育訓練紀錄系統</h1>
+        <span className="sub">{PROJECT_NAME}</span></div>
+      <span className="muted" style={{fontSize:12,marginRight:4}}>操作人</span>
+      <select className="ver" style={{maxWidth:120}} value={user} onChange={e=>changeUser(e.target.value)} title="操作人">
+        {INSTRUCTORS.map(i=><option key={i}>{i}</option>)}
+      </select>
+    </div>
+    <Dashboard records={records} loading={loading||saving}
+      currentLabel={currentLabel} onSave={saveNow} onOpenLoad={openLoad} onRefresh={()=>loadVersion("latest")}
+      includeAtt={includeAtt} onToggleAtt={()=>setIncludeAtt(v=>!v)}
+      onNew={()=>setEditing(null)} onEdit={r=>{setViewing(null);setEditing(r);}}
+      onView={r=>setViewing(r)} onDelete={del}/>
+    {editing!==undefined &&
+      <RecordForm rec={editing} knownContractors={knownContractors} currentUser={user}
+        onSave={onSaved} onCancel={()=>setEditing(undefined)} onToast={showToast}/>}
+    {viewing &&
+      <Detail rec={viewing} includeAtt={includeAtt} onClose={()=>setViewing(null)} onEdit={r=>{setViewing(null);setEditing(r);}}/>}
+    {showLoad &&
+      <LoadModal snapshots={snapshots} currentId={currentSnap&&currentSnap.id} loading={loading}
+        onLoad={pickVersion} onRefresh={refreshSnapshots} onClose={()=>setShowLoad(false)}/>}
+    {saving ? <div className="toast">儲存中…</div> : (toast && <div className="toast">{toast}</div>)}
+  </div>);
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
