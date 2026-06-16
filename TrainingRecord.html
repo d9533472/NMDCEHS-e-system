@@ -467,6 +467,16 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
 
   const [sel,setSel]=useState(()=>new Set());
   const [exporting,setExporting]=useState(null);   // null 或 {cur,total}
+  const [showStats,setShowStats]=useState(false);
+  const contractorStats=useMemo(()=>{
+    const map=new Map();
+    filtered.forEach(r=>(r.contractors||[]).forEach(c=>{
+      if(!c.name) return;
+      const e=map.get(c.name)||{name:c.name,sessions:0,people:0};
+      e.sessions+=1; e.people+=Number(c.count)||0; map.set(c.name,e);
+    }));
+    return [...map.values()].sort((a,b)=>b.people-a.people);
+  },[filtered]);
   const visibleIds=filtered.map(r=>r.id);
   const allSelected=visibleIds.length>0 && visibleIds.every(id=>sel.has(id));
   const selectedRecs=filtered.filter(r=>sel.has(r.id));
@@ -493,10 +503,11 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
   },[records]);
 
   const csv=()=>{
-    const head=["訓練日期","公司","人數","講師","起","訖","時數","主題","附件數","照片數"];
+    const head=["訓練日期","公司","人數","講師","起","訖","時數","主題","附件數","照片數","簽到表","照片標記","備註"];
     const rows=filtered.map(r=>[r.trainingDate,r.company,r.participantCount,r.instructor,
       r.startTime,r.endTime,r.durationHours,r.category,
-      (r.attachments||[]).length,(r.photo1Url?1:0)+(r.photo2Url?1:0)]);
+      (r.attachments||[]).length,(r.photo1Url?1:0)+(r.photo2Url?1:0),
+      r.hasSignIn?"有":"無", r.hasPhoto?"有":"無", r.remarks||""]);
     const csvStr="\ufeff"+[head,...rows].map(a=>a.map(x=>`"${String(x??"").replace(/"/g,'""')}"`).join(",")).join("\n");
     const a=document.createElement("a");
     a.href=URL.createObjectURL(new Blob([csvStr],{type:"text/csv"}));
@@ -555,6 +566,7 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
           </label>
           <button className="btn sec sm" onClick={onSave}>{loading?<span className="spin"/>:"💾 儲存"}</button>
           <button className="btn sec sm" onClick={onOpenLoad}>📂 讀取</button>
+          <button className="btn sec sm" onClick={()=>setShowStats(true)}>📊 包商統計</button>
           <button className="btn sec sm" onClick={csv}>⬇ CSV</button>
           <button className="btn sm" onClick={onNew}>＋ 新增紀錄</button>
         </div>
@@ -572,10 +584,10 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
         <thead><tr>
           <th style={{width:34}}><input type="checkbox" checked={allSelected} onChange={toggleAll} title="全選"/></th>
           <th>訓練日期</th><th>廠商/公司</th><th>人數</th><th>講師</th>
-          <th className="hideSm">時數</th><th>附件</th><th>照片</th><th>標記</th><th style={{textAlign:"right"}}>操作</th>
+          <th className="hideSm">時數</th><th>附件</th><th>照片</th><th>標記</th><th>備註</th><th style={{textAlign:"right"}}>操作</th>
         </tr></thead>
         <tbody>
-        {filtered.length===0 && <tr><td colSpan="10" style={{textAlign:"center",padding:30}} className="muted">尚無資料</td></tr>}
+        {filtered.length===0 && <tr><td colSpan="11" style={{textAlign:"center",padding:30}} className="muted">尚無資料</td></tr>}
         {filtered.map(r=>{
           const nAtt=(r.attachments||[]).length, nPh=(r.photo1Url?1:0)+(r.photo2Url?1:0);
           return (
@@ -592,6 +604,8 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
               <span className={"tag "+(r.hasSignIn?"on":"")}>簽到表</span>
               <span className={"tag "+(r.hasPhoto?"on":"")}>照片</span>
             </td>
+            <td><div className="muted" title={r.remarks||""}
+              style={{maxWidth:200,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{r.remarks||"—"}</div></td>
             <td style={{textAlign:"right",whiteSpace:"nowrap"}}>
               <div className="act">
                 <button className="iconbtn" title="匯出 PDF" onClick={()=>exportPdf(r,{includeAttachments:includeAtt})}><Icon n="pdf"/></button>
@@ -605,10 +619,51 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
       </table>
       </div>
     </div>
+    {showStats && <StatsModal rows={contractorStats} onClose={()=>setShowStats(false)}/>}
   </div>);
 }
 
-/* 照片上傳 / 連結 元件 */
+function StatsModal({rows,onClose}){
+  const totalPeople=rows.reduce((s,r)=>s+r.people,0);
+  const totalSessions=rows.reduce((s,r)=>s+r.sessions,0);
+  const max=Math.max(1,...rows.map(r=>r.people));
+  const csv=()=>{
+    const lines=[["包商","場次","受訓人次"],...rows.map(r=>[r.name,r.sessions,r.people])];
+    const str="\ufeff"+lines.map(a=>a.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(",")).join("\n");
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([str],{type:"text/csv"})); a.download="包商受訓統計.csv"; a.click();
+  };
+  return (
+  <div className="modalbg" onClick={e=>e.target===e.currentTarget&&onClose()}>
+    <div className="card modal-card" style={{width:580}}>
+      <div className="modal-head"><h2>包商受訓統計</h2>
+        <button className="x" onClick={onClose} aria-label="關閉">✕</button></div>
+      <div className="row" style={{justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <span className="muted" style={{fontSize:12.5}}>共 {rows.length} 家包商 · {totalSessions} 場次 · 總受訓人次 <b style={{color:"var(--txt)"}}>{totalPeople}</b></span>
+        <button className="btn sec sm" onClick={csv} disabled={!rows.length}>⬇ CSV</button>
+      </div>
+      <div style={{maxHeight:"58vh",overflow:"auto"}}>
+        <table className="tbl">
+          <thead><tr><th>包商</th><th style={{textAlign:"right"}}>場次</th>
+            <th style={{textAlign:"right"}}>受訓人次</th><th style={{width:130}}></th></tr></thead>
+          <tbody>
+            {rows.length===0 && <tr><td colSpan="4" className="muted" style={{textAlign:"center",padding:26}}>目前篩選條件下無資料</td></tr>}
+            {rows.map(r=>(
+              <tr key={r.name}>
+                <td style={{fontWeight:600}}>{r.name}</td>
+                <td style={{textAlign:"right"}}>{r.sessions}</td>
+                <td style={{textAlign:"right",fontWeight:800}}>{r.people}</td>
+                <td><div style={{height:8,borderRadius:4,background:"var(--chip)"}}>
+                  <i style={{display:"block",height:"100%",borderRadius:4,width:(r.people/max*100)+"%",background:"var(--g3)"}}/></div></td>
+              </tr>))}
+          </tbody>
+        </table>
+      </div>
+      <div className="muted" style={{fontSize:11,marginTop:10}}>
+        ※ 依目前主頁篩選條件（日期 / 公司 / 講師 / 標記）統計。場次＝出現該包商的訓練筆數；受訓人次＝各場該包商人數加總。</div>
+    </div>
+  </div>);
+}
 function PhotoInput({label,url,caption,onUrl,onCaption,onToast}){
   const [busy,setBusy]=useState(false);
   const pick=async e=>{
