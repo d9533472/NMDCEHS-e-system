@@ -6,7 +6,7 @@
     <title>✨ ENV Weekly Report Tool v21 - Beautiful Edition 💖</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -27,11 +27,9 @@
             
             /* 基本分頁控制 */
             .break-inside-avoid { page-break-inside: avoid; }
+            .print-compact { break-inside: auto !important; page-break-inside: auto !important; }
             @media print {
                 .print-sections > section { margin-top: 10pt !important; margin-bottom: 0 !important; }
-                .print-sections > section + section { margin-top: 10pt !important; }
-                .print-compact { break-inside: auto !important; page-break-inside: auto !important; }
-                .print-compact .grid { gap: 8pt !important; }
             }
             .break-after-avoid { page-break-after: avoid; }
             
@@ -322,44 +320,225 @@
             border-radius: 16px !important;
         }
 
-            /* ── Edit Mode Tab Navigation ── */
-            .edit-tab-nav {
-                display: flex;
-                flex-wrap: wrap;
-                background: #1e293b;
-                border-radius: 12px 12px 0 0;
-                padding: 8px 8px 0 8px;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            /* ── Edit Mode Tabs ── */
+            .edit-tab-nav { display:flex; flex-wrap:wrap; background:#1e293b; border-radius:12px 12px 0 0; padding:8px 8px 0 8px; position:sticky; top:0; z-index:100; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+            .edit-tab-btn { padding:8px 14px; border:none; background:transparent; color:#94a3b8; font-size:12px; font-weight:600; cursor:pointer; border-radius:8px 8px 0 0; border-bottom:3px solid transparent; transition:all .15s; white-space:nowrap; }
+            .edit-tab-btn:hover { color:#e2e8f0; background:rgba(255,255,255,.08); }
+            .edit-tab-btn.active { color:#fff; background:rgba(59,130,246,.2); border-bottom-color:#3b82f6; }
+            .edit-tab-content { background:white; border:1px solid #e2e8f0; border-top:none; border-radius:0 0 12px 12px; padding:28px; min-height:400px; }
+
+            /* ══════════════════════════════════════════
+               SOLAR AMBER — Warm Professional Edition
+               ══════════════════════════════════════════ */
+            :root {
+                --sa-amber:  #f59e0b;
+                --sa-gold:   #d97706;
+                --sa-dark:   #1c1917;
+                --sa-mid:    #57534e;
+                --sa-muted:  #78716c;
+                --sa-light:  #a8a29e;
+                --sa-bg:     #fafaf9;
+                --sa-card:   #ffffff;
+                --sa-tint:   #fffbeb;
+                --sa-border: #fef3c7;
+                --sa-rule:   #e7e5e4;
             }
-            .edit-tab-btn {
-                padding: 8px 14px;
-                border: none;
-                background: transparent;
-                color: #94a3b8;
-                font-size: 12px;
-                font-weight: 600;
-                cursor: pointer;
-                border-radius: 8px 8px 0 0;
-                border-bottom: 3px solid transparent;
-                transition: all 0.15s ease;
-                white-space: nowrap;
+
+            /* ── Page ── */
+            .print-container { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+            /* ── Header override ── */
+            .print-container > header {
+                position: relative;
             }
-            .edit-tab-btn:hover { color: #e2e8f0; background: rgba(255,255,255,0.08); }
-            .edit-tab-btn.active {
-                color: #ffffff;
-                background: rgba(59,130,246,0.2);
-                border-bottom-color: #3b82f6;
+            .print-container > header .text-blue-300 {
+                color: var(--sa-gold) !important;
+                font-size: 9px !important;
+                font-weight: 700 !important;
+                letter-spacing: 1.5px !important;
+                text-transform: uppercase !important;
+                background: var(--sa-tint) !important;
+                border: 1px solid var(--sa-border) !important;
+                padding: 2px 8px !important;
+                border-radius: 3px !important;
+                display: inline-block !important;
             }
-            .edit-tab-content {
-                background: white;
-                border: 1px solid #e2e8f0;
-                border-top: none;
-                border-radius: 0 0 12px 12px;
-                padding: 28px;
-                min-height: 400px;
+            .print-container > header h1 {
+                color: var(--sa-dark) !important;
+                font-size: 22px !important;
+                font-weight: 800 !important;
+                text-transform: uppercase !important;
+                letter-spacing: -.3px !important;
+                line-height: 1.2 !important;
+                margin: 6px 0 !important;
+            }
+            .print-container > header span,
+            .print-container > header .opacity-90 { color: var(--sa-muted) !important; opacity: 1 !important; font-size: 11px !important; }
+            .print-container > header .text-blue-400,
+            .print-container > header .text-xl { color: var(--sa-dark) !important; font-weight: 800 !important; font-size: 13px !important; }
+            .print-container > header .bg-blue-600 {
+                background: var(--sa-amber) !important;
+                color: #fff !important;
+                font-size: 8px !important;
+                font-weight: 700 !important;
+                letter-spacing: 1.5px !important;
+                padding: 3px 8px !important;
+                border-radius: 2px !important;
+            }
+            .print-container > header .leading-relaxed {
+                border-left: 3px solid var(--sa-amber) !important;
+                background: var(--sa-tint) !important;
+                color: var(--sa-mid) !important;
+                padding: 7px 12px !important;
+                border-radius: 0 4px 4px 0 !important;
+                font-size: 12px !important;
+                line-height: 1.7 !important;
+                white-space: pre-wrap !important;
+                margin-top: 8px !important;
+            }
+
+            /* ── Section cards ── */
+            .print-container section {
+                background: var(--sa-card) !important;
+                border: 1px solid var(--sa-rule) !important;
+                border-radius: 8px !important;
+                padding: 14px 16px !important;
+                margin-bottom: 8px !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+            }
+
+            /* ── Section headers ── */
+            .print-container section > h3 {
+                font-size: 10px !important;
+                font-weight: 700 !important;
+                text-transform: uppercase !important;
+                letter-spacing: 1.8px !important;
+                color: var(--sa-dark) !important;
+                border-bottom: 2px solid var(--sa-amber) !important;
+                padding-bottom: 9px !important;
+                margin-bottom: 14px !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                break-after: avoid !important;
+                page-break-after: avoid !important;
+            }
+            .print-container section > h3 span:first-child {
+                display: inline-flex !important;
+                width: 24px !important;
+                height: 24px !important;
+                background: var(--sa-tint) !important;
+                border: 1px solid var(--sa-border) !important;
+                border-radius: 5px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-size: 13px !important;
+                flex-shrink: 0 !important;
+                margin-right: 2px !important;
+            }
+            /* ::before removed — using icon spans instead */
+            .print-container section > h3 .ml-2 {
+                color: var(--sa-light) !important;
+                font-size: 8px !important;
+                font-weight: 400 !important;
+                letter-spacing: 0 !important;
+            }
+
+            /* ── Summary ── */
+            .print-container .font-bold.mr-2.text-blue-800 {
+                color: var(--sa-gold) !important;
+                font-size: 9px !important;
+                background: var(--sa-tint) !important;
+                border: 1px solid var(--sa-border) !important;
+                padding: 1px 5px !important;
+                border-radius: 2px !important;
+            }
+            .print-container .whitespace-pre-wrap { color: var(--sa-mid) !important; font-size: 10px !important; }
+            .print-container .flex.items-start {
+                border-bottom: 1px solid var(--sa-rule) !important;
+                padding: 6px 0 !important;
+            }
+
+            /* Issue cards now handled by inline JSX styles */
+
+            /* ── Tables ── */
+            .print-container .overflow-hidden.border,
+            .print-container .rp-table-wrap {
+                border: 1px solid var(--sa-rule) !important;
+                border-radius: 6px !important;
+                overflow: hidden !important;
+            }
+            .print-container table thead tr,
+            .print-container .rp-table thead tr {
+                background: var(--sa-dark) !important;
+            }
+            .print-container table thead th,
+            .print-container .rp-table th {
+                color: #fff !important;
+                font-size: 8px !important;
+                text-transform: uppercase !important;
+                letter-spacing: .8px !important;
+                padding: 7px 10px !important;
+                font-weight: 600 !important;
+            }
+            .print-container table tbody td,
+            .print-container .rp-table td {
+                color: var(--sa-mid) !important;
+                border-bottom: 1px solid var(--sa-rule) !important;
+                padding: 7px 10px !important;
+                font-size: 10px !important;
+            }
+            .print-container table tbody tr:nth-child(even) td { background: var(--sa-tint) !important; }
+            .print-container table tbody tr:last-child td { border-bottom: none !important; }
+            .print-container table tbody td b,
+            .print-container table td[style*="font-weight:700"],
+            .print-container table td[style*="font-weight:600"] { color: var(--sa-dark) !important; }
+
+            /* ── Status badges ── */
+            .rp-status.executed  { background: #dcfce7 !important; color: #15803d !important; border: none !important; }
+            .rp-status.completed { background: #dbeafe !important; color: #1d4ed8 !important; border: none !important; }
+            .rp-status.plan      { background: var(--sa-tint) !important; color: var(--sa-gold) !important; border: 1px solid var(--sa-border) !important; }
+            .rp-status.cancelled { background: #fee2e2 !important; color: #b91c1c !important; border: none !important; }
+            .rp-yes  { background: var(--sa-tint) !important; color: var(--sa-gold) !important; border: 1px solid var(--sa-border) !important; }
+            .rp-no   { background: #f5f5f4 !important; color: var(--sa-light) !important; }
+            .rp-stop { background: #fee2e2 !important; color: #b91c1c !important; }
+
+            /* ── Photos ── */
+            .rp-photo-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+            .rp-photo-card {
+                background: #fff !important;
+                border: 1px solid var(--sa-rule) !important;
+                border-radius: 6px !important;
+                break-inside: avoid !important;
+                page-break-inside: avoid !important;
+                overflow: hidden !important;
+            }
+            .rp-photo-title { color: var(--sa-dark) !important; }
+            .rp-photo-desc  { color: var(--sa-mid) !important; }
+            .rp-photo-date  { color: var(--sa-light) !important; }
+            .rp-photo-img   {
+                background: var(--sa-tint) !important;
+                height: 150px !important;
+                overflow: hidden !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+            .rp-photo-img img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+
+            /* ── Footer ── */
+            .print-container .absolute.bottom-0 { display: flex !important; justify-content: space-between !important; }
+            .print-container .absolute.bottom-0 .text-gray-400 { color: var(--sa-light) !important; font-size: 8px !important; }
+
+            /* ── Section spacing ── */
+            .p-8.space-y-6.pb-20.print-sections > * + * { margin-top: 0 !important; }
+
+            /* ══ PRINT ══ */
+            @media print {
+                .print-container,
+                .print-container section { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-container table thead tr { background: var(--sa-dark) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             }
     </style>
 </head>
@@ -603,16 +782,15 @@
                         if (!data.archivedProgress) data.archivedProgress = [];
                         if (!data.archivedNCR) data.archivedNCR = [];
                         if (!data.mmoRecords) data.mmoRecords = [];
-                        // Migrate old obsDate+obsStartTime/obsEndTime → obsStart/obsEnd
+                        if (!data.sectionTitles.mmo) data.sectionTitles.mmo = "7. MMO Operation";
+                        if (!data.sectionOrder) data.sectionOrder = ["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"];
+                        if (!data.sectionOrder.includes("mmo")) data.sectionOrder.push("mmo");
                         data.mmoRecords = data.mmoRecords.map(r => {
                             if (r.obsDate && r.obsStartTime && !r.obsStart) r.obsStart = r.obsDate + "T" + r.obsStartTime;
                             if (r.obsDate && r.obsEndTime && !r.obsEnd) r.obsEnd = r.obsDate + "T" + r.obsEndTime;
                             if (r.sightingTime && !r.sightingDateTime) r.sightingDateTime = (r.obsDate||"") + "T" + r.sightingTime;
                             return r;
                         });
-                        if (!data.sectionTitles.mmo) data.sectionTitles.mmo = "7. MMO Operation";
-                        if (!data.sectionOrder) data.sectionOrder = ["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"];
-                        if (!data.sectionOrder.includes("mmo")) data.sectionOrder.push("mmo");
                         
                         return data;
                     } catch (e) {
@@ -1166,17 +1344,14 @@
                     <div className="print-container max-w-[210mm] mx-auto">
                         <div className="edit-tab-nav">
                             {editTabs.map(tab => (
-                                <button
-                                    key={tab.id}
+                                <button key={tab.id}
                                     className={"edit-tab-btn" + (activeEditTab === tab.id ? " active" : "")}
-                                    onClick={() => setActiveEditTab(tab.id)}
-                                >
+                                    onClick={() => setActiveEditTab(tab.id)}>
                                     {tab.label}
                                 </button>
                             ))}
                         </div>
                         <div className="edit-tab-content">
-
                             {activeEditTab === 'project' && (
                                 <div className="space-y-4">
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
@@ -1271,6 +1446,8 @@
                             </div>
                         </div>
                     </div>
+
+                                    {/* Personnel whitespace-pre-wrap fix applied via CSS */}
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                         <h3 className="font-bold text-gray-800 mb-1">📝 章節標題 / Section Titles</h3>
                         <p className="text-xs text-gray-500 mb-3">可編輯標題，並用 ▲▼ 調整預覽中的章節順序</p>
@@ -1313,10 +1490,8 @@
                             })}
                         </div>
                     </div>
-
                                 </div>
                             )}
-
                             {activeEditTab === 'summary' && (
                     <div className="border-l-4 border-blue-500 pl-4">
                         <div className="flex justify-between items-center mb-3">
@@ -1373,7 +1548,6 @@
                     </div>
 
                             )}
-
                             {activeEditTab === 'issues' && (
                                 <div className="space-y-4">
                     <div className="border-l-4 border-red-500 pl-4">
@@ -1573,7 +1747,6 @@
 
                                 </div>
                             )}
-
                             {activeEditTab === 'progress' && (
                                 <div className="space-y-4">
                     <div className="border-l-4 border-blue-500 pl-4">
@@ -1707,7 +1880,6 @@
 
                                 </div>
                             )}
-
                             {activeEditTab === 'kpi' && (
                     <div className="border-l-4 border-indigo-500 pl-4">
                         <h3 className="font-bold text-indigo-800 mb-4">{reportData.sectionTitles.kpi}</h3>
@@ -1718,7 +1890,6 @@
 
 
                             )}
-
                             {activeEditTab === 'ncr' && (
                     <div className="border-l-4 border-purple-500 pl-4">
                         <h3 className="font-bold text-purple-800 mb-3">{reportData.sectionTitles.ncr}</h3>
@@ -1842,7 +2013,6 @@
 
 
                             )}
-
                             {activeEditTab === 'monitoring' && (
                     <div className="border-l-4 border-teal-500 pl-4">
                         <div className="flex justify-between items-center mb-3">
@@ -1949,43 +2119,20 @@
                                     placeholder="Date"
                                 />
                                 {(() => {
-                                    const MON_CATS = [
-                                        "Marine Ecology",
-                                        "Cetacean Ecology (along pipeline)",
-                                        "Cetacean Ecology (CHW habitat area)",
-                                        "Terrestrial Ecology (Animals)",
-                                        "Terrestrial Ecology (Plants)",
-                                        "Marine water quality",
-                                        "Underwater noise",
-                                        "Other"
-                                    ];
+                                    const MON_CATS = ["Marine Ecology","Cetacean Ecology (along pipeline)","Cetacean Ecology (CHW habitat area)","Terrestrial Ecology (Animals)","Terrestrial Ecology (Plants)","Marine water quality","Underwater noise","Other"];
                                     const isOther = item.category !== "" && !MON_CATS.slice(0,-1).includes(item.category);
-                                    const selectVal = isOther ? "Other" : (item.category || "");
                                     const updateCat = (val) => {
-                                        const newItems = reportData.monitoringItems.items.map((itm, idx) =>
-                                            idx === i ? { ...itm, category: val } : itm
-                                        );
+                                        const newItems = reportData.monitoringItems.items.map((itm, idx) => idx === i ? { ...itm, category: val } : itm);
                                         setReportData(prev => ({ ...prev, monitoringItems: { ...prev.monitoringItems, items: newItems } }));
                                     };
                                     return (
                                         <div className="flex-1">
                                             {isOther
                                                 ? <div className="flex gap-1 items-center">
-                                                    <input
-                                                        type="text"
-                                                        value={item.category}
-                                                        onChange={(e) => updateCat(e.target.value)}
-                                                        className="flex-1 p-2 border rounded text-sm"
-                                                        placeholder="Specify category..."
-                                                        autoFocus
-                                                    />
+                                                    <input type="text" value={item.category} onChange={(e) => updateCat(e.target.value)} className="flex-1 p-2 border rounded text-sm" placeholder="Specify category..." autoFocus />
                                                     <button onClick={() => updateCat("")} className="text-gray-400 hover:text-gray-600 text-xs px-1" title="Back to list">↩</button>
                                                   </div>
-                                                : <select
-                                                    value={item.category}
-                                                    onChange={(e) => updateCat(e.target.value === "Other" ? " " : e.target.value)}
-                                                    className="p-2 border rounded text-sm w-full"
-                                                  >
+                                                : <select value={item.category} onChange={(e) => updateCat(e.target.value === "Other" ? " " : e.target.value)} className="p-2 border rounded text-sm w-full">
                                                     <option value="">— Select category —</option>
                                                     {MON_CATS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                                                   </select>
@@ -2029,7 +2176,6 @@
 
 
                             )}
-
                             {activeEditTab === 'photos' && (
                     <div className="border-l-4 border-blue-500 pl-4">
                         <div className="flex justify-between items-center mb-3">
@@ -2109,39 +2255,27 @@
 
 
                             )}
-
                             {activeEditTab === 'mmo' && (
                                 <div>
-                                    {/* Location options manager */}
                                     <div className="bg-cyan-50 border border-cyan-200 rounded-lg px-3 py-2 mb-3 flex items-center gap-2 flex-wrap">
                                         <span className="text-xs font-semibold text-cyan-700 shrink-0">Location Options:</span>
                                         {mmoLocOpts.map((loc, li) => (
                                             <span key={li} className="flex items-center gap-1 bg-white border border-cyan-300 rounded px-2 py-0.5 text-xs">
                                                 {loc}
-                                                <button onClick={() => saveLocs(mmoLocOpts.filter((_,idx)=>idx!==li))} className="text-red-400 hover:text-red-600 ml-1 font-bold">×</button>
+                                                <button onClick={() => saveLocs(mmoLocOpts.filter((_,idx)=>idx!==li))} className="text-red-400 hover:text-red-600 ml-1 font-bold">x</button>
                                             </span>
                                         ))}
-                                        <input
-                                            type="text"
-                                            placeholder="+ Add option"
-                                            className="border border-dashed border-cyan-400 rounded px-2 py-0.5 text-xs w-28 focus:outline-none focus:border-cyan-600"
-                                            onKeyDown={e => { if((e.key==='Enter'||e.key===',')&&e.target.value.trim()){saveLocs([...mmoLocOpts,e.target.value.trim()]);e.target.value='';e.preventDefault();}}}
-                                        />
+                                        <input type="text" placeholder="+ Add option" className="border border-dashed border-cyan-400 rounded px-2 py-0.5 text-xs w-28 focus:outline-none"
+                                            onKeyDown={e => { if((e.key==='Enter'||e.key===',')&&e.target.value.trim()){saveLocs([...mmoLocOpts,e.target.value.trim()]);e.target.value='';e.preventDefault();}}} />
                                         <span className="text-xs text-gray-400">Enter to add</span>
                                     </div>
                                     <div className="flex justify-between items-center mb-4">
                                         <div>
-                                            <h3 className="font-bold text-cyan-800 text-base">🐬 MMO Operation Log</h3>
+                                            <h3 className="font-bold text-cyan-800 text-base">MMO Operation Log</h3>
                                             <p className="text-xs text-gray-500 mt-0.5">Marine Mammal Observer — Observation Log</p>
                                         </div>
-                                        <button
-                                            onClick={() => {
-                                                const newRec = { id:Date.now(), obsStart:"", obsEnd:"", vessel:"", location:"", cetaceanSeen:false, sightingDateTime:"", species:"", count:"", workStopped:false, remarks:"" };
-                                                setReportData(prev => ({ ...prev, mmoRecords: [...prev.mmoRecords, newRec] }));
-                                                showToast("✅ New MMO record added");
-                                            }}
-                                            className="text-cyan-600 text-xs flex items-center bg-white px-3 py-1.5 rounded border border-cyan-300 hover:bg-cyan-50"
-                                        >
+                                        <button onClick={() => { const n={id:Date.now(),obsStart:"",obsEnd:"",vessel:"",location:"",cetaceanSeen:false,sightingDateTime:"",species:"",count:"",workStopped:false,remarks:""}; setReportData(prev=>({...prev,mmoRecords:[...prev.mmoRecords,n]})); showToast("New MMO record added"); }}
+                                            className="text-cyan-600 text-xs flex items-center bg-white px-3 py-1.5 rounded border border-cyan-300 hover:bg-cyan-50">
                                             <IconComp name="Plus" size={12} className="mr-1" /> Add Record
                                         </button>
                                     </div>
@@ -2171,13 +2305,11 @@
                                                         <td className="px-3 py-2 text-gray-400 font-mono">{i+1}</td>
                                                         <td className="px-2 py-1">
                                                             <div className="flex flex-col gap-1">
-                                                                <div className="flex items-center gap-1"><span className="text-gray-400 w-8 shrink-0 text-right">Start</span><input type="datetime-local" value={rec.obsStart||""} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],obsStart:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-40"/></div>
-                                                                <div className="flex items-center gap-1"><span className="text-gray-400 w-8 shrink-0 text-right">End</span><input type="datetime-local" value={rec.obsEnd||""} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],obsEnd:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-40"/></div>
+                                                                <div className="flex items-center gap-1"><span className="text-gray-400 w-8 shrink-0 text-right text-xs">Start</span><input type="datetime-local" value={rec.obsStart||""} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],obsStart:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-40"/></div>
+                                                                <div className="flex items-center gap-1"><span className="text-gray-400 w-8 shrink-0 text-right text-xs">End</span><input type="datetime-local" value={rec.obsEnd||""} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],obsEnd:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-40"/></div>
                                                             </div>
                                                         </td>
-                                                        <td className="px-2 py-1">
-                                                            <input type="text" value={rec.vessel} placeholder="Vessel" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],vessel:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-28"/>
-                                                        </td>
+                                                        <td className="px-2 py-1"><input type="text" value={rec.vessel||""} placeholder="Vessel" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],vessel:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-24"/></td>
                                                         <td className="px-2 py-1">
                                                             <input list={"loc-opts-"+i} type="text" value={rec.location||""} placeholder="Location" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],location:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-28"/>
                                                             <datalist id={"loc-opts-"+i}>{mmoLocOpts.map((o,oi)=><option key={oi} value={o}/>)}</datalist>
@@ -2185,32 +2317,20 @@
                                                         <td className="px-2 py-1 text-center">
                                                             <select value={rec.cetaceanSeen?"yes":"no"} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],cetaceanSeen:e.target.value==="yes"};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs font-bold "+(rec.cetaceanSeen?"bg-orange-100 text-orange-700 border-orange-300":"bg-green-50 text-green-700")}>
                                                                 <option value="no">No</option>
-                                                                <option value="yes">Yes ⚠️</option>
+                                                                <option value="yes">Yes</option>
                                                             </select>
                                                         </td>
-                                                        <td className="px-2 py-1">
-                                                            <input type="datetime-local" value={rec.sightingDateTime||""} disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],sightingDateTime:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-40 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/>
-                                                        </td>
-                                                        <td className="px-2 py-1">
-                                                            <input type="text" value={rec.species} placeholder="Species" disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],species:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-24 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/>
-                                                        </td>
-                                                        <td className="px-2 py-1">
-                                                            <input type="text" value={rec.count} placeholder="Count" disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],count:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-16 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/>
-                                                        </td>
+                                                        <td className="px-2 py-1"><input type="datetime-local" value={rec.sightingDateTime||""} disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],sightingDateTime:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-40 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/></td>
+                                                        <td className="px-2 py-1"><input type="text" value={rec.species||""} placeholder="Species" disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],species:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-24 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/></td>
+                                                        <td className="px-2 py-1"><input type="text" value={rec.count||""} placeholder="Count" disabled={!rec.cetaceanSeen} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],count:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs w-16 "+(!rec.cetaceanSeen?"bg-gray-100 text-gray-300":"")}/></td>
                                                         <td className="px-2 py-1 text-center">
                                                             <select value={rec.workStopped?"yes":"no"} onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],workStopped:e.target.value==="yes"};setReportData(p=>({...p,mmoRecords:r}));}} className={"p-1 border rounded text-xs font-bold "+(rec.workStopped?"bg-red-100 text-red-700 border-red-300":"bg-gray-50 text-gray-600")}>
                                                                 <option value="no">No</option>
-                                                                <option value="yes">Yes 🛑</option>
+                                                                <option value="yes">Yes</option>
                                                             </select>
                                                         </td>
-                                                        <td className="px-2 py-1">
-                                                            <input type="text" value={rec.remarks} placeholder="Remarks" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],remarks:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-32"/>
-                                                        </td>
-                                                        <td className="px-2 py-1">
-                                                            <button onClick={()=>{const r=reportData.mmoRecords.filter((_,idx)=>idx!==i);setReportData(p=>({...p,mmoRecords:r}));}} className="text-red-400 hover:text-red-600 p-1">
-                                                                <IconComp name="Trash" size={13}/>
-                                                            </button>
-                                                        </td>
+                                                        <td className="px-2 py-1"><input type="text" value={rec.remarks||""} placeholder="Remarks" onChange={e=>{const r=[...reportData.mmoRecords];r[i]={...r[i],remarks:e.target.value};setReportData(p=>({...p,mmoRecords:r}));}} className="p-1 border rounded text-xs w-28"/></td>
+                                                        <td className="px-2 py-1"><button onClick={()=>{const r=reportData.mmoRecords.filter((_,idx)=>idx!==i);setReportData(p=>({...p,mmoRecords:r}));}} className="text-red-400 hover:text-red-600 p-1"><IconComp name="Trash" size={13}/></button></td>
                                                     </tr>
                                                 ))}
                                             </tbody>
@@ -2218,190 +2338,16 @@
                                     </div>
                                 </div>
                             )}
-
                         </div>
                     </div>
                 );
             };
 
 
-            const renderSectionPreview = (sectionId) => {
-                const d = reportData;
-                switch(sectionId) {
-                    case 'summary': return (
-                        <section key="summary">
-                            <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">📜</span> {d.sectionTitles.summary}
-                            </h3>
-                            <ul className="list-none ml-0 space-y-2 text-gray-700 text-sm">
-                                {d.summaryItems.map((item,i)=>(
-                                    <li key={i} className="flex items-start">
-                                        <span className="font-bold mr-2 text-blue-800 shrink-0">[{item.date}]</span>
-                                        <span className="whitespace-pre-wrap">{item.text}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                        </section>
-                    );
-                    case 'issues': return (
-                        <section key="issues" className="issues-section">
-                            <h3 className="flex items-center text-red-700 font-bold text-lg border-b border-gray-200 pb-2 mb-4 section-header">
-                                <span className="mr-2 text-2xl">✅</span> {d.sectionTitles.issues}
-                            </h3>
-                            <div className="space-y-3">
-                                {d.issuesItems.map((issue,i)=>{
-                                    const pColors={'High':{bg:'#fee2e2',border:'#ef4444',badge:'bg-red-200 text-red-800',title:'text-red-900'},'Medium':{bg:'#fef3c7',border:'#f59e0b',badge:'bg-yellow-200 text-yellow-800',title:'text-yellow-900'},'Low':{bg:'#dcfce7',border:'#10b981',badge:'bg-green-200 text-green-800',title:'text-green-900'}};
-                                    const c=pColors[issue.priority]||pColors['Medium'];
-                                    return(<div key={issue.id} className="issue-item border-l-4 p-4 rounded-r-md" style={{backgroundColor:c.bg,borderColor:c.border}}>
-                                        <div className="flex justify-between items-start mb-1">
-                                            <h4 className={"font-bold text-sm "+c.title}>{i+1}. {issue.title}</h4>
-                                            <span className={"text-xs px-2 py-1 rounded font-bold uppercase "+c.badge}>{issue.priority}</span>
-                                        </div>
-                                        <p className="text-xs text-gray-700 mb-2 whitespace-pre-wrap">{issue.description}</p>
-                                        {issue.actions.length>0&&<div className="mt-2 space-y-1">{issue.actions.map((a,ai)=><div key={ai} className="flex items-start text-xs font-medium text-gray-600"><span className="mr-2 text-gray-400 font-bold">&gt;</span><span>{a}</span></div>)}</div>}
-                                    </div>);
-                                })}
-                            </div>
-                        </section>
-                    );
-                    case 'progress': return d.progressItems.length>0?(
-                        <section key="progress">
-                            <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">🗓️</span> {d.sectionTitles.progress}
-                            </h3>
-                            <div className="overflow-hidden border border-gray-200 rounded-lg progress-table">
-                                <table className="min-w-full text-sm">
-                                    <thead className="bg-gray-100 text-gray-700"><tr>
-                                        <th className="px-4 py-2 text-left w-24">Date</th>
-                                        <th className="px-4 py-2 text-left">Category</th>
-                                        <th className="px-4 py-2 text-left">Item</th>
-                                        <th className="px-4 py-2 text-left">Updates</th>
-                                        <th className="px-4 py-2 text-center">Status</th>
-                                    </tr></thead>
-                                    <tbody className="divide-y divide-gray-200">
-                                        {d.progressItems.map((row,i)=>(
-                                            <tr key={i} className="bg-white progress-row">
-                                                <td className="px-4 py-3 text-gray-600 font-bold text-xs whitespace-nowrap">{row.date}</td>
-                                                <td className="px-4 py-3 text-gray-500 font-medium">{row.category}</td>
-                                                <td className="px-4 py-3 text-gray-800 font-bold">{row.item}</td>
-                                                <td className="px-4 py-3 text-gray-600 text-xs">{row.note}</td>
-                                                <td className="px-4 py-3 text-center"><span className="inline-block px-2 py-1 rounded text-xs font-semibold" style={{backgroundColor:row.statusColor||'#dbeafe',color:getContrastYIQ(row.statusColor||'#dbeafe')}}>{row.status}</span></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    ):null;
-                    case 'kpi': return (
-                        <section key="kpi" className="kpi-dashboard-section" style={{pageBreakBefore:'auto'}}>
-                            <h3 className="flex items-center text-indigo-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">📊</span> {d.sectionTitles.kpi}
-                            </h3>
-                            <KPIDashboard reportData={reportData} setReportData={setReportData} isEditing={isEditing} />
-                        </section>
-                    );
-                    case 'ncr': return (
-                        <section key="ncr" className="break-inside-avoid">
-                            <h3 className="flex items-center text-purple-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">🌎</span> {d.sectionTitles.ncr}
-                            </h3>
-                            <NCRDashboard reportData={reportData} chartRefs={chartRefs} />
-                        </section>
-                    );
-                    case 'monitoring': return (d.monitoringItems?.items?.length>0)?(
-                        <section key="monitoring">
-                            <h3 className="flex items-center text-teal-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">🔍</span> {d.sectionTitles.monitoring}
-                                <span className="ml-2 text-sm text-gray-500 font-normal">({d.monitoringItems?.year||'2026'} {d.monitoringItems?.quarter||'Q1'})</span>
-                            </h3>
-                            <div className="overflow-hidden border border-gray-200 rounded-lg monitoring-table">
-                                <table className="min-w-full text-sm">
-                                    <thead className="bg-gray-100 text-gray-700"><tr>
-                                        <th className="px-4 py-2 text-left w-32">Date</th>
-                                        <th className="px-4 py-2 text-left">Category</th>
-                                        <th className="px-4 py-2 text-center w-32">Status</th>
-                                    </tr></thead>
-                                    <tbody className="divide-y divide-gray-200">
-                                        {(d.monitoringItems?.items||[]).map((row,i)=>(
-                                            <tr key={i} className="bg-white hover:bg-gray-50 monitoring-row">
-                                                <td className="px-4 py-3 text-gray-600 font-bold text-xs">{row.date}</td>
-                                                <td className="px-4 py-3 text-gray-800 font-medium">{row.category}</td>
-                                                <td className="px-4 py-3 text-center"><span className={"inline-block px-3 py-1 rounded text-xs font-bold "+(row.status==='Executed'?'bg-green-100 text-green-700':row.status==='Completed'?'bg-blue-100 text-blue-700':row.status==='Cancelled'?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700')}>{row.status}</span></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    ):null;
-                    case 'mmo': return d.mmoRecords.length>0?(
-                        <section key="mmo" className="print-compact">
-                            <h3 className="flex items-center text-cyan-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">🐬</span> {d.sectionTitles.mmo||"MMO Operation"}
-                            </h3>
-                            <div className="overflow-hidden border border-gray-200 rounded-lg">
-                                <table className="min-w-full text-xs">
-                                    <thead className="bg-slate-800 text-white"><tr>
-                                        <th className="px-3 py-2 text-left">#</th>
-                                        <th className="px-3 py-2 text-left">Obs. Period</th>
-                                        <th className="px-3 py-2 text-left">Vessel</th>
-                                        <th className="px-3 py-2 text-left">Location</th>
-                                        <th className="px-3 py-2 text-center">Sighting?</th>
-                                        <th className="px-3 py-2 text-left">Sighting Details</th>
-                                        <th className="px-3 py-2 text-center">Work Stopped?</th>
-                                        <th className="px-3 py-2 text-left">Remarks</th>
-                                    </tr></thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {d.mmoRecords.map((rec,i)=>(
-                                            <tr key={rec.id} className={i%2===0?"bg-white":"bg-cyan-50"}>
-                                                <td className="px-3 py-2 text-gray-400 font-mono">{i+1}</td>
-                                                <td className="px-3 py-2 font-mono text-gray-700 text-xs">
-                                                    <div>{rec.obsStart ? rec.obsStart.replace("T"," ") : "—"}</div>
-                                                    <div className="text-gray-400">→ {rec.obsEnd ? rec.obsEnd.replace("T"," ") : "—"}</div>
-                                                </td>
-                                                <td className="px-3 py-2">{rec.vessel}</td>
-                                                <td className="px-3 py-2 text-gray-600">{rec.location}</td>
-                                                <td className="px-3 py-2 text-center">{rec.cetaceanSeen?<span className="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 rounded font-bold">Yes ⚠️</span>:<span className="inline-block px-2 py-0.5 bg-green-50 text-green-700 rounded">No</span>}</td>
-                                                <td className="px-3 py-2 text-gray-600">{rec.cetaceanSeen?<span>{rec.sightingDateTime&&<b>{rec.sightingDateTime.replace("T"," ")}</b>}{rec.species&&" / "+rec.species}{rec.count&&" / ~"+rec.count+" ind."}</span>:<span className="text-gray-300">—</span>}</td>
-                                                <td className="px-3 py-2 text-center">{rec.workStopped?<span className="inline-block px-2 py-0.5 bg-red-100 text-red-700 rounded font-bold">Yes 🛑</span>:<span className="inline-block px-2 py-0.5 bg-gray-50 text-gray-500 rounded">No</span>}</td>
-                                                <td className="px-3 py-2 text-gray-600">{rec.remarks}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </section>
-                    ):null;
-                    case 'photos': return d.photos.length>0?(
-                        <section key="photos" className="break-inside-avoid print-compact">
-                            <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
-                                <span className="mr-2 text-2xl">📸</span> {d.sectionTitles.photos}
-                            </h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                {d.photos.map((photo,i)=>(
-                                    <div key={photo.id} className="border border-gray-200 rounded-lg overflow-hidden shadow-sm break-inside-avoid bg-white">
-                                        <div className="aspect-video w-full bg-gray-100 flex items-center justify-center overflow-hidden">
-                                            {photo.imageData?<img src={photo.imageData} alt={photo.title} className="w-full h-full object-cover"/>:<div className="text-gray-400 text-xs">No Image</div>}
-                                        </div>
-                                        <div className="p-3">
-                                            <h5 className="font-bold text-gray-800 text-sm break-words">{photo.title}</h5>
-                                            <p className="text-xs text-gray-600 mt-1 line-clamp-2">{photo.description}</p>
-                                            <div className="mt-2 text-[10px] text-gray-400 text-right">{photo.date}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    ):null;
-                    default: return null;
-                }
-            };
-
             const renderPreviewMode = () => (
-                <div className="print-container max-w-[210mm] min-h-[297mm] mx-auto bg-white shadow-2xl overflow-hidden relative print:shadow-none print:w-full">
+                <div className="print-container max-w-[210mm] min-h-[297mm] mx-auto shadow-2xl overflow-hidden relative print:shadow-none print:w-full" style={{background:"#ffffff"}}>
                     {/* Header */}
-                    <header className="bg-slate-800 text-white p-8 border-b-4 border-blue-500 print:bg-slate-800 print:text-white">
+                    <header className="p-8" style={{background:"#ffffff",borderTop:"4px solid #f59e0b",borderBottom:"1px solid #fef3c7",color:"#1c1917"}}>
                         <div className="flex justify-between items-start">
                             <div>
                                 <div className="text-blue-300 text-xs font-bold tracking-wider mb-1">
@@ -2449,18 +2395,186 @@
                     </header>
 
                     {/* Content */}
-                    <div className="p-8 space-y-6 pb-20 print-sections">
-                        {(reportData.sectionOrder||["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"]).map(sid=>renderSectionPreview(sid))}
+                    <div className="p-8 space-y-6 pb-20 print-sections" style={{background:"#fafaf9"}}>
+                        {(reportData.sectionOrder||["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"]).map(sid => {
+                            const d = reportData;
+                            switch(sid) {
+                                case 'summary': return d.summaryItems.length > 0 ? (
+                                    <section key="summary">
+                                        <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">📋</span> {d.sectionTitles.summary}
+                                        </h3>
+                                        <ul className="list-none ml-0 space-y-2 text-gray-700 text-sm">
+                                            {d.summaryItems.map((item,i)=>(
+                                                <li key={i} className="flex items-start">
+                                                    <span className="font-bold mr-2 text-blue-800 shrink-0">[{item.date}]</span>
+                                                    <span className="whitespace-pre-wrap">{item.text}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </section>
+                                ) : null;
+                                case 'issues': return (
+                                    <section key="issues">
+                                        <h3 className="flex items-center text-red-700 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">⚠️</span> {d.sectionTitles.issues}
+                                        </h3>
+                                        <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+                                            {d.issuesItems.map((issue,i)=>{
+                                                const sig=issue.priority==='High'?'#ef4444':issue.priority==='Low'?'#22c55e':'#f59e0b';
+                                                const pillBg=issue.priority==='High'?'#fee2e2':issue.priority==='Low'?'#dcfce7':'#fef3c7';
+                                                const pillColor=issue.priority==='High'?'#b91c1c':issue.priority==='Low'?'#15803d':'#92400e';
+                                                return(
+                                                    <div key={issue.id} style={{display:'flex',borderRadius:'6px',overflow:'hidden',border:'1px solid #e7e5e4',background:'#ffffff',breakInside:'avoid'}}>
+                                                        <div style={{width:'5px',flexShrink:0,background:sig}}></div>
+                                                        <div style={{flex:1,padding:'10px 14px'}}>
+                                                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'5px',gap:'8px'}}>
+                                                                <span style={{fontWeight:700,fontSize:'11px',color:'#1c1917',lineHeight:1.4}}>{i+1}. {issue.title}</span>
+                                                                <span style={{flexShrink:0,fontSize:'8px',fontWeight:700,letterSpacing:'1px',textTransform:'uppercase',padding:'2px 7px',borderRadius:'20px',background:pillBg,color:pillColor}}>{issue.priority}</span>
+                                                            </div>
+                                                            {issue.description&&<p style={{fontSize:'10px',color:'#57534e',margin:'0 0 6px',lineHeight:1.6,whiteSpace:'pre-wrap'}}>{issue.description}</p>}
+                                                            {issue.actions.length>0&&(
+                                                                <div style={{borderTop:'1px dashed #fef3c7',paddingTop:'6px',marginTop:'4px',display:'flex',flexDirection:'column',gap:'3px'}}>
+                                                                    {issue.actions.map((a,ai)=>(
+                                                                        <div key={ai} style={{display:'flex',gap:'5px',fontSize:'10px',color:'#78716c'}}>
+                                                                            <span style={{color:'#f59e0b',fontWeight:700,flexShrink:0}}>›</span>
+                                                                            <span>{a}</span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </section>
+                                );
+                                case 'progress': return d.progressItems.length>0 ? (
+                                    <section key="progress">
+                                        <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">📅</span> {d.sectionTitles.progress}
+                                        </h3>
+                                        <div className="rp-table-wrap">
+                                            <table className="rp-table">
+                                                <thead><tr><th>Date</th><th>Category</th><th>Item</th><th>Updates</th><th>Status</th></tr></thead>
+                                                <tbody>{d.progressItems.map((row,i)=>(
+                                                    <tr key={i}>
+                                                        <td style={{fontWeight:700,whiteSpace:'nowrap'}}>{row.date}</td>
+                                                        <td style={{color:'#475569'}}>{row.category}</td>
+                                                        <td style={{fontWeight:600}}>{row.item}</td>
+                                                        <td style={{color:'#475569'}}>{row.note}</td>
+                                                        <td><span className="inline-block px-2 py-1 rounded text-xs font-semibold" style={{backgroundColor:row.statusColor||'#dbeafe',color:getContrastYIQ(row.statusColor||'#dbeafe')}}>{row.status}</span></td>
+                                                    </tr>
+                                                ))}</tbody>
+                                            </table>
+                                        </div>
+                                    </section>
+                                ) : null;
+                                case 'kpi': return (
+                                    <section key="kpi">
+                                        <h3 className="flex items-center text-indigo-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">📈</span> {d.sectionTitles.kpi}
+                                        </h3>
+                                        <KPIDashboard reportData={reportData} setReportData={setReportData} isEditing={isEditing} />
+                                    </section>
+                                );
+                                case 'ncr': return (
+                                    <section key="ncr">
+                                        <h3 className="flex items-center text-purple-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">🔧</span> {d.sectionTitles.ncr}
+                                        </h3>
+                                        <NCRDashboard reportData={reportData} chartRefs={chartRefs} />
+                                    </section>
+                                );
+                                case 'monitoring': return (d.monitoringItems?.items?.length>0) ? (
+                                    <section key="monitoring">
+                                        <h3 className="flex items-center text-teal-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">🌿</span> {d.sectionTitles.monitoring}
+                                            <span className="ml-2 text-sm text-gray-500 font-normal">({d.monitoringItems?.year||'2026'} {d.monitoringItems?.quarter||'Q1'})</span>
+                                        </h3>
+                                        <div className="rp-table-wrap">
+                                            <table className="rp-table" style={{textAlign:'center'}}>
+                                                <thead><tr>
+                                                    <th style={{textAlign:'center'}}>Date</th>
+                                                    <th style={{textAlign:'center'}}>Category</th>
+                                                    <th style={{textAlign:'center'}}>Status</th>
+                                                </tr></thead>
+                                                <tbody>{(d.monitoringItems?.items||[]).map((row,i)=>(
+                                                    <tr key={i}>
+                                                        <td style={{fontWeight:700,whiteSpace:'nowrap',textAlign:'center'}}>{row.date}</td>
+                                                        <td style={{textAlign:'center'}}>{row.category}</td>
+                                                        <td style={{textAlign:'center'}}><span className={"rp-status "+(row.status==='Executed'?'executed':row.status==='Completed'?'completed':row.status==='Cancelled'?'cancelled':'plan')}>{row.status}</span></td>
+                                                    </tr>
+                                                ))}</tbody>
+                                            </table>
+                                        </div>
+                                    </section>
+                                ) : null;
+                    case 'mmo': return reportData.mmoRecords.length > 0 ? (
+                        <section key="mmo">
+                            <h3 className="flex items-center text-cyan-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                <span className="mr-2 text-2xl">🐬</span> {d.sectionTitles.mmo||"MMO Operation"}
+                            </h3>
+                            <div className="rp-table-wrap">
+                                <table className="rp-table">
+                                    <thead><tr>
+                                        <th>#</th><th>Obs. Period</th><th>Vessel</th><th>Location</th>
+                                        <th>Sighting?</th><th>Sighting Details</th><th>Work Stopped?</th><th>Remarks</th>
+                                    </tr></thead>
+                                    <tbody>
+                                        {d.mmoRecords.map((rec,i) => (
+                                            <tr key={rec.id}>
+                                                <td style={{color:'#94a3b8',fontFamily:'monospace'}}>{i+1}</td>
+                                                <td style={{fontFamily:'monospace',fontSize:'9px'}}>
+                                                    <div>{rec.obsStart ? rec.obsStart.replace("T"," ") : "—"}</div>
+                                                    <div style={{color:'#94a3b8'}}>to {rec.obsEnd ? rec.obsEnd.replace("T"," ") : "—"}</div>
+                                                </td>
+                                                <td style={{fontWeight:600}}>{rec.vessel}</td>
+                                                <td>{rec.location}</td>
+                                                <td>{rec.cetaceanSeen ? <span className="rp-yes">Yes</span> : <span className="rp-no">No</span>}</td>
+                                                <td style={{fontSize:'9px'}}>{rec.cetaceanSeen ? <span>{rec.sightingDateTime&&<b>{rec.sightingDateTime.replace("T"," ")}</b>}{rec.species&&" · "+rec.species}{rec.count&&" · ~"+rec.count+" ind."}</span> : <span style={{color:'#e2e8f0'}}>—</span>}</td>
+                                                <td>{rec.workStopped ? <span className="rp-stop">Yes</span> : <span className="rp-no">No</span>}</td>
+                                                <td style={{color:'#475569',fontSize:'9px'}}>{rec.remarks}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    ) : null;
+                                case 'photos': return d.photos.length>0 ? (
+                                    <section key="photos">
+                                        <h3 className="flex items-center text-blue-800 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
+                                            <span className="mr-2 text-2xl">📷</span> {d.sectionTitles.photos}
+                                        </h3>
+                                        <div className="rp-photo-grid">
+                                            {d.photos.map((photo,i)=>(
+                                                <div key={photo.id} className="rp-photo-card">
+                                                    <div className="rp-photo-img">{photo.imageData?<img src={photo.imageData} alt={photo.title}/>:<span style={{color:'#94a3b8',fontSize:'10px'}}>No Image</span>}</div>
+                                                    <div className="rp-photo-meta">
+                                                        <div className="rp-photo-title">{photo.title}</div>
+                                                        <div className="rp-photo-desc">{photo.description}</div>
+                                                        <div className="rp-photo-date">{photo.date}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                ) : null;
+                                default: return null;
+                            }
+                        })}
 
                         {reportData.archivedIssues&&reportData.archivedIssues.length>0&&(
-                            <section className="break-inside-avoid mt-8 opacity-75">
+                            <section className="print-compact" style={{opacity:0.8}}>
                                 <h3 className="flex items-center text-gray-700 font-bold text-lg border-b border-gray-200 pb-2 mb-4">
                                     <span className="mr-2 text-2xl">📦</span> {reportData.sectionTitles.archivedIssues}
                                 </h3>
                                 <div className="space-y-3">
                                     {reportData.archivedIssues.map((issue,i)=>{
-                                        const bg=issue.priority==='High'?'bg-red-50 border-red-200':issue.priority==='Medium'?'bg-yellow-50 border-yellow-200':issue.priority==='Low'?'bg-green-50 border-green-200':'bg-gray-50 border-gray-200';
-                                        const pc=issue.priority==='High'?'text-red-700 bg-red-100':issue.priority==='Medium'?'text-yellow-700 bg-yellow-100':issue.priority==='Low'?'text-green-700 bg-green-100':'text-gray-700 bg-gray-100';
+                                        const bg=issue.priority==='High'?'bg-red-50 border-red-200':issue.priority==='Medium'?'bg-yellow-50 border-yellow-200':'bg-green-50 border-green-200';
+                                        const pc=issue.priority==='High'?'text-red-700 bg-red-100':issue.priority==='Medium'?'text-yellow-700 bg-yellow-100':'text-green-700 bg-green-100';
                                         return(<div key={i} className={"p-4 rounded-lg border-2 "+bg}>
                                             <div className="flex justify-between items-start mb-2">
                                                 <h4 className="font-bold text-gray-800 text-base">{issue.title}</h4>
@@ -2469,8 +2583,8 @@
                                                     <span className="text-xs text-gray-500 italic">Archived: {issue.archivedDate}</span>
                                                 </div>
                                             </div>
-                                            {issue.description&&<p className="text-sm text-gray-700 mb-3 leading-relaxed">{issue.description}</p>}
-                                            {issue.actions&&issue.actions.length>0&&<div className="mt-3 pt-3 border-t border-gray-300"><div className="text-xs font-bold text-gray-600 mb-2">Actions Taken:</div><ul className="space-y-1">{issue.actions.map((a,ai)=><li key={ai} className="flex items-start text-sm text-gray-600"><span className="mr-2 text-gray-400">•</span><span>{a}</span></li>)}</ul></div>}
+                                            {issue.description&&<p className="text-sm text-gray-700 mb-3">{issue.description}</p>}
+                                            {issue.actions&&issue.actions.length>0&&<div className="mt-3 pt-3 border-t border-gray-300"><div className="text-xs font-bold text-gray-600 mb-2">Actions:</div><ul>{issue.actions.map((a,ai)=><li key={ai} className="flex items-start text-sm text-gray-600"><span className="mr-2">•</span><span>{a}</span></li>)}</ul></div>}
                                         </div>);
                                     })}
                                 </div>
@@ -2479,14 +2593,14 @@
                     </div>
 
                     {/* Footer */}
-                    <div className="absolute bottom-0 w-full p-4 bg-gray-50 border-t border-gray-200 text-center text-xs text-gray-400">
+                    <div className="absolute bottom-0 w-full px-8 py-3 text-xs flex justify-between" style={{background:"#fffbeb",borderTop:"2px solid #f59e0b",color:"#78716c"}}>
                         Generated by ENV Team • NMDC Project 2913
                     </div>
                 </div>
-            );;
+            );
 
             return (
-                <div className="min-h-screen p-4 md:p-8">
+                <div className="min-h-screen p-4 md:p-8" style={{background:"#fafaf9"}}>
                     {renderControlBar()}
                     {isEditing ? renderEditMode() : renderPreviewMode()}
                     {toast && (
