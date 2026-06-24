@@ -15,6 +15,8 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.16.6/babel.min.js"></script>
+  <!-- xlsx-js-style: enables Excel export with bold headers, colors, frozen panes, autofilter -->
+  <script src="https://unpkg.com/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
   <style>
     :root{
@@ -81,6 +83,37 @@
 
     /* Buttons — modern flat, no chunky offset */
     .btn-chunk{ background:var(--wave); color:#fff; border:none; border-radius:999px; box-shadow:0 4px 12px rgba(30,111,171,0.25); font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; letter-spacing:0.01em; transition:background .15s ease, box-shadow .15s ease, transform .1s ease; }
+
+    /* Recipients modal — overlay used for copy-emails workflow */
+    .modal-overlay{
+      position:fixed; inset:0; background:rgba(22,54,84,0.55);
+      display:flex; align-items:center; justify-content:center;
+      z-index:9500; padding:16px;
+      animation: modal-fade .2s ease-out;
+    }
+    .modal-content{
+      background:white; border:2.5px solid var(--ink); border-radius:16px;
+      box-shadow:6px 6px 0 var(--ink);
+      max-width:620px; width:100%; max-height:85vh;
+      display:flex; flex-direction:column;
+      padding:18px 20px;
+    }
+    @keyframes modal-fade{ from{opacity:0; transform:translateY(-8px);} to{opacity:1; transform:translateY(0);} }
+    .modal-close{
+      background:none; border:none; cursor:pointer;
+      font-size:28px; line-height:1; color:var(--ink-soft);
+      padding:0 4px; transition:color .12s ease;
+    }
+    .modal-close:hover{ color:var(--ink); }
+    .modal-textarea{
+      flex:1; width:100%; padding:12px 14px;
+      border:2px solid var(--ink); border-radius:10px;
+      font-family:'Menlo','Monaco','Courier New',monospace;
+      font-size:12px; line-height:1.6; color:var(--ink);
+      background:var(--cream); resize:vertical;
+      min-height:180px;
+    }
+    .modal-textarea:focus{ outline:none; border-color:var(--wave); }
     .btn-chunk:hover{ background:var(--wave-deep); box-shadow:0 6px 16px rgba(30,111,171,0.35); transform:translateY(-1px); }
     .btn-chunk:active{ transform:translateY(0); box-shadow:0 2px 6px rgba(30,111,171,0.25); }
     .btn-chunk:disabled{ background:#A8BCCD; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
@@ -2752,6 +2785,133 @@ Phone: {{phone}}</p>
     }
 
     // ---- Tab 3: Registrations ----
+    // ============ Recipients modal ============
+    // Pops up when admin clicks "📧 收件者". Aggregates unique emails from the *filtered*
+    // registration list (respects unit / language / search filters above), lets the admin
+    // pick a separator (; for Outlook, , for Gmail), and copies to clipboard.
+    function RecipientsModal({ filtered, totalCount, onClose }){
+      const [sep, setSep] = useState(";");      // ; for Outlook, , for Gmail
+      const [copied, setCopied] = useState(false);
+
+      // Dedup emails (case-insensitive). Sort for consistency.
+      const uniqueEmails = useMemo(() => {
+        const seen = new Set();
+        const out = [];
+        filtered.forEach(r => {
+          const e = String(r.email || "").trim().toLowerCase();
+          if(!e) return;
+          if(seen.has(e)) return;
+          seen.add(e); out.push(e);
+        });
+        out.sort();
+        return out;
+      }, [filtered]);
+
+      // Lang breakdown of registrants whose emails are included (not unique-deduped — by record).
+      const langCount = useMemo(() => {
+        const acc = { zh: 0, en: 0 };
+        filtered.forEach(r => {
+          if(!r.email) return;
+          const k = r.lang === "en" ? "en" : "zh";
+          acc[k]++;
+        });
+        return acc;
+      }, [filtered]);
+
+      const joined = uniqueEmails.join(sep === ";" ? "; " : ", ");
+      const isFiltered = filtered.length < totalCount;
+
+      async function doCopy(){
+        if(uniqueEmails.length === 0) return;
+        try{
+          await navigator.clipboard.writeText(joined);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        } catch(e){
+          // Fallback for older browsers / non-secure contexts
+          const ta = document.getElementById("recipients-textarea");
+          if(ta){
+            ta.select();
+            try{ document.execCommand("copy"); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+            catch(_){ alert("自動複製失敗，請手動選取下方文字後 Ctrl+C / Cmd+C"); }
+          }
+        }
+      }
+
+      // Close on ESC
+      useEffect(() => {
+        function onKey(e){ if(e.key === "Escape") onClose(); }
+        window.addEventListener("keydown", onKey);
+        return () => window.removeEventListener("keydown", onKey);
+      }, [onClose]);
+
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="font-display text-xl text-[color:var(--ink)]">📧 彙整收件者</div>
+              <button onClick={onClose} className="modal-close" aria-label="關閉">×</button>
+            </div>
+
+            {/* Count + lang breakdown */}
+            <div className="mb-3 pb-3 border-b border-[color:var(--line)]">
+              <div className="text-sm font-bold">
+                共 <span className="text-[color:var(--wave-deep)] text-lg font-num">{uniqueEmails.length}</span> 個 unique email
+                {isFiltered && (
+                  <span className="ml-2 text-[10px] font-bold tracking-widest text-[color:var(--coral)] uppercase">已篩選 · Filtered</span>
+                )}
+              </div>
+              <div className="text-xs text-[color:var(--ink-soft)] mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+                <span>🇹🇼 中文 <span className="font-bold text-[color:var(--ink)]">{langCount.zh}</span></span>
+                <span>🇬🇧 English <span className="font-bold text-[color:var(--ink)]">{langCount.en}</span></span>
+                {isFiltered && <span className="text-[color:var(--ink-soft)]">（自 {totalCount} 筆總名單中）</span>}
+              </div>
+            </div>
+
+            {/* Separator selector */}
+            <div className="flex items-center gap-3 mb-2 text-xs">
+              <span className="font-bold text-[color:var(--ink-soft)] tracking-wider uppercase">分隔符</span>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" name="sep" checked={sep === ";"} onChange={() => setSep(";")} />
+                <span><strong>;</strong> Outlook</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer">
+                <input type="radio" name="sep" checked={sep === ","} onChange={() => setSep(",")} />
+                <span><strong>,</strong> Gmail</span>
+              </label>
+            </div>
+
+            {/* Textarea */}
+            {uniqueEmails.length === 0 ? (
+              <div className="modal-textarea flex items-center justify-center text-[color:var(--ink-soft)] italic">
+                — 篩選後沒有可彙整的 email —
+              </div>
+            ) : (
+              <textarea
+                id="recipients-textarea"
+                readOnly
+                value={joined}
+                className="modal-textarea"
+              />
+            )}
+
+            {/* Actions */}
+            <div className="flex gap-2 mt-3 justify-end">
+              <button onClick={onClose} className="btn-outline px-4 py-2 text-sm">關閉</button>
+              <button
+                onClick={doCopy}
+                disabled={uniqueEmails.length === 0}
+                className="btn-chunk px-5 py-2 text-sm"
+                style={{ background: copied ? "var(--nmdc-green)" : "var(--wave)" }}>
+                {copied ? "✅ 已複製到剪貼簿！" : "📋 複製到剪貼簿"}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     function RegTab({ editPassword, registered, onDataChanged }){
       const [list, setList] = useState(null);
       const [loading, setLoading] = useState(false);
@@ -2760,6 +2920,7 @@ Phone: {{phone}}</p>
       const [langFilter, setLangFilter] = useState("all");  // "all" | "zh" | "en"
       const [unitFilter, setUnitFilter] = useState("all");  // "all" | "NMDC" | "TPC" | "POE" | "BST" | "Other"
       const [resetting, setResetting] = useState(false);
+      const [showRecipients, setShowRecipients] = useState(false);
 
       async function load(){
         setLoading(true); setErr("");
@@ -2852,6 +3013,166 @@ Phone: {{phone}}</p>
         a.download = `nmdc-registrations-${new Date().toISOString().slice(0,10)}.csv`;
         a.click(); URL.revokeObjectURL(url);
       }
+
+      // ============ Pretty Excel export — uses xlsx-js-style for styles ============
+      // Differences from CSV: form-style Chinese headers, bold blue header row, alternating row colors,
+      // frozen header, autofilter, auto column widths, friendly translations for transport/lang/unit.
+      function exportXlsx(){
+        if(!list || list.length === 0) return;
+        if(typeof XLSX === "undefined" || !XLSX.utils){
+          alert("Excel 模組尚未載入完成，請稍候 1-2 秒再試 🙏");
+          return;
+        }
+
+        // === Friendly translations ===
+        const pad = n => String(n).padStart(2, "0");
+        function fmtTime(iso){
+          if(!iso) return "";
+          const d = new Date(iso);
+          if(isNaN(d.getTime())) return String(iso);
+          return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+        function fmtTransport(t){
+          if(t === "self") return "🚗 自行開車";
+          if(t === "shuttle") return "🚌 搭公司接駁車";
+          return "—";
+        }
+        function fmtLang(l){ return l === "en" ? "🇬🇧 English" : "🇹🇼 中文"; }
+        function fmtUnit(u){
+          const map = { NMDC:"NMDC", TPC:"TPC", POE:"POE", BST:"白沙屯", Other:"其他" };
+          return map[u] || u || "其他";
+        }
+        function fmtCompanions(comps){
+          if(!comps || !comps.length) return "";
+          return comps.map((c, i) => {
+            const detail = [c.blood, c.diet].filter(Boolean).join("/");
+            return `${i+1}. ${c.name || "—"}${detail ? ` (${detail})` : ""}`;
+          }).join("\n");
+        }
+
+        // === Headers (form-style Chinese, matching the registration form labels) ===
+        const headers = [
+          "報名序號", "報名時間", "單位", "姓名", "公司", "職稱",
+          "手機", "Email", "血型", "飲食習慣", "交通方式",
+          "緊急聯絡人", "緊急聯絡人電話",
+          "總席次", "攜眷人數", "攜眷明細",
+          "報名語言", "信件狀態"
+        ];
+
+        // === Data rows (one per registration) ===
+        const rows = list.map(r => [
+          r.serial || "",
+          fmtTime(r.timestamp),
+          fmtUnit(r.unit),
+          r.name || "",
+          r.company || "",
+          r.title || "",
+          r.phone || "",
+          r.email || "",
+          r.blood || "",
+          r.diet || "",
+          fmtTransport(r.transport),
+          r.emName || "",
+          r.emPhone || "",
+          1 + (r.companionCount || 0),
+          r.companionCount || 0,
+          fmtCompanions(r.companions),
+          fmtLang(r.lang),
+          r.emailStatus || ""
+        ]);
+
+        const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+
+        // === Column widths (tuned per content type) ===
+        ws["!cols"] = [
+          { wch: 12 },  // 序號
+          { wch: 18 },  // 時間
+          { wch: 10 },  // 單位
+          { wch: 14 },  // 姓名
+          { wch: 18 },  // 公司
+          { wch: 18 },  // 職稱
+          { wch: 14 },  // 手機
+          { wch: 28 },  // Email
+          { wch: 6 },   // 血型
+          { wch: 14 },  // 飲食
+          { wch: 18 },  // 交通方式
+          { wch: 14 },  // 緊急聯絡人
+          { wch: 14 },  // 緊急電話
+          { wch: 8 },   // 席次
+          { wch: 8 },   // 攜眷數
+          { wch: 38 },  // 攜眷明細
+          { wch: 12 },  // 語言
+          { wch: 14 }   // 信件狀態
+        ];
+
+        // Freeze header row + autofilter
+        ws["!freeze"]     = { xSplit: 0, ySplit: 1 };
+        ws["!autofilter"] = { ref: ws["!ref"] };
+
+        // Header row height (taller to fit centred text)
+        ws["!rows"] = [{ hpx: 32 }];
+
+        // === Header row style: bold white text on wave-blue, with deep borders ===
+        const headerStyle = {
+          font:      { name: "Calibri", sz: 12, bold: true, color: { rgb: "FFFFFF" } },
+          fill:      { patternType: "solid", fgColor: { rgb: "1E6FAB" } },
+          alignment: { horizontal: "center", vertical: "center", wrapText: true },
+          border: {
+            top:    { style: "thin", color: { rgb: "163654" } },
+            bottom: { style: "medium", color: { rgb: "163654" } },
+            left:   { style: "thin", color: { rgb: "163654" } },
+            right:  { style: "thin", color: { rgb: "163654" } }
+          }
+        };
+        for(let c = 0; c < headers.length; c++){
+          const addr = XLSX.utils.encode_cell({ r: 0, c });
+          if(!ws[addr]) ws[addr] = { t:"s", v: headers[c] };
+          ws[addr].s = headerStyle;
+        }
+
+        // === Data row styles: alternating cream/white, ink text, soft borders ===
+        // Cells in number columns (serial, seats, companions) get centred alignment.
+        const CENTRED_COLS = new Set([0, 2, 8, 13, 14, 16]);   // serial, unit, blood, seats, comp count, lang
+        for(let r = 1; r <= rows.length; r++){
+          const isAlt  = r % 2 === 0;
+          const bgFill = isAlt ? "F8F2E5" : "FFFFFF";    // cream-warm | white
+          for(let c = 0; c < headers.length; c++){
+            const addr = XLSX.utils.encode_cell({ r, c });
+            if(!ws[addr]) ws[addr] = { t:"s", v: "" };
+            ws[addr].s = {
+              font:      { name: "Calibri", sz: 11, color: { rgb: "163654" } },
+              fill:      { patternType: "solid", fgColor: { rgb: bgFill } },
+              alignment: {
+                horizontal: CENTRED_COLS.has(c) ? "center" : "left",
+                vertical:   "center",
+                wrapText:   true
+              },
+              border: {
+                top:    { style: "thin", color: { rgb: "E5DDC9" } },
+                bottom: { style: "thin", color: { rgb: "E5DDC9" } },
+                left:   { style: "thin", color: { rgb: "E5DDC9" } },
+                right:  { style: "thin", color: { rgb: "E5DDC9" } }
+              }
+            };
+          }
+        }
+
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "報名名單");
+
+        // Workbook properties (shows up in Excel's File > Info pane)
+        wb.Props = {
+          Title:    "NMDC 淨灘活動報名名單",
+          Subject:  "2026 NMDC 團隊淨灘 · 報名資料",
+          Author:   "NMDC EHS",
+          Company:  "NMDC Energy",
+          CreatedDate: new Date()
+        };
+
+        const today    = new Date().toISOString().slice(0, 10);
+        const filename = `NMDC淨灘報名名單_${today}.xlsx`;
+        XLSX.writeFile(wb, filename);
+      }
       const filtered = useMemo(() => {
         if(!list) return [];
         let arr = list;
@@ -2923,22 +3244,23 @@ Phone: {{phone}}</p>
       }, [list]);
 
       // Transport breakdown — NMDC employees only (transport field is NMDC-only).
-      // Counts each NMDC registration's transport choice. Also counts companions
-      // (they presumably travel together with the main registrant in the same way).
+      // Returns both totals AND the full registration records per category so we can
+      // render a detailed name table (useful for telling the shuttle driver who's on board).
       const transportCounts = useMemo(() => {
         if(!list) return null;
+        const selfList = [], shuttleList = [], unsetList = [];
         let self = 0, shuttle = 0, unset = 0;
         list.forEach(r => {
           if(r.unit !== "NMDC") return;
           // Each registration = main person + companions, all travel together
           const seats = 1 + (r.companionCount || 0);
-          if(r.transport === "self")         self    += seats;
-          else if(r.transport === "shuttle") shuttle += seats;
-          else                               unset   += seats;
+          if(r.transport === "self")         { self    += seats; selfList.push(r);    }
+          else if(r.transport === "shuttle") { shuttle += seats; shuttleList.push(r); }
+          else                               { unset   += seats; unsetList.push(r);   }
         });
         const totalNmdc = self + shuttle + unset;
         if(totalNmdc === 0) return null;   // no NMDC registrations → don't render
-        return { self, shuttle, unset, totalNmdc };
+        return { self, shuttle, unset, totalNmdc, selfList, shuttleList, unsetList };
       }, [list]);
 
       return (
@@ -2948,9 +3270,11 @@ Phone: {{phone}}</p>
               <div className="font-display text-xl">👥 {list ? list.length : "—"} 筆 / 共 {totalSeats} 席</div>
               <div className="text-xs text-[color:var(--ink-soft)]">Registrations · Total seats incl. companions</div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button onClick={load} disabled={loading} className="btn-outline px-3 py-1 text-xs">{loading ? "…" : "🔄 更新"}</button>
-              <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs">📥 CSV</button>
+              <button onClick={() => setShowRecipients(true)} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs" title="彙整全部收件者 email，複製後可貼到郵件 BCC">📧 收件者</button>
+              <button onClick={exportXlsx} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs" title="匯出格式化 Excel 名單">📊 Excel</button>
+              <button onClick={exportCsv} disabled={!list || list.length === 0} className="btn-outline px-3 py-1 text-xs" title="匯出原始 CSV (含展開的攜眷列)">📥 CSV</button>
             </div>
           </div>
 
@@ -2970,29 +3294,83 @@ Phone: {{phone}}</p>
             </div>
           )}
 
-          {/* Transport breakdown — NMDC only */}
+          {/* Transport breakdown — NMDC only — detailed name table */}
           {transportCounts && (
-            <div className="mb-3 p-2.5 rounded-lg bg-[color:var(--wave-soft)] border border-[color:var(--line)]">
-              <div className="text-[10px] font-bold tracking-widest text-[color:var(--ink-soft)] uppercase mb-1.5">🚐 NMDC 交通統計 Transport (NMDC only) · {transportCounts.totalNmdc} 人</div>
-              <div className="flex flex-wrap gap-1.5">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink)]">
-                  <span>🚗</span>
-                  <span>自行開車</span>
-                  <span className="font-num text-[color:var(--wave-deep)] ml-0.5">{transportCounts.self}</span>
-                </span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink)]">
-                  <span>🚌</span>
-                  <span>接駁車</span>
-                  <span className="font-num text-[color:var(--wave-deep)] ml-0.5">{transportCounts.shuttle}</span>
-                </span>
-                {transportCounts.unset > 0 && (
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-[color:var(--line)] text-xs font-bold text-[color:var(--ink-soft)]" title="這些人是在「交通方式」欄位推出前報名的">
-                    <span>❓</span>
-                    <span>未設定</span>
-                    <span className="font-num ml-0.5">{transportCounts.unset}</span>
-                  </span>
-                )}
+            <div className="mb-3 p-3 rounded-lg bg-white border-2 border-[color:var(--wave)]" style={{boxShadow:"3px 3px 0 var(--wave-deep)"}}>
+              <div className="font-display text-base mb-2 flex items-center flex-wrap gap-x-2 gap-y-1">
+                🚐 <span>NMDC 交通名單</span>
+                <span className="text-[10px] font-bold tracking-widest text-[color:var(--ink-soft)] uppercase">NMDC TRANSPORT</span>
+                <span className="ml-auto text-xs font-bold text-[color:var(--ink-soft)]">共 {transportCounts.totalNmdc} 人</span>
               </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Shuttle list (left — most operationally important) */}
+                <div>
+                  <div className="text-sm font-bold text-[color:var(--wave-deep)] mb-1.5 pb-1.5 border-b-2 border-[color:var(--wave)] flex items-center gap-1.5">
+                    🚌 <span>接駁車</span>
+                    <span className="ml-auto text-xs font-num">
+                      {transportCounts.shuttleList.length} 組 · <span className="text-[color:var(--wave-deep)]">{transportCounts.shuttle}</span> 人
+                    </span>
+                  </div>
+                  {transportCounts.shuttleList.length === 0 ? (
+                    <div className="text-xs text-[color:var(--ink-soft)] italic py-1">— 暫無 —</div>
+                  ) : (
+                    <table className="w-full text-xs">
+                      <tbody>
+                        {transportCounts.shuttleList.map((r, i) => (
+                          <tr key={r.serial} className="border-b border-[color:var(--cream-warm)] last:border-b-0">
+                            <td className="py-1 pr-1 font-num text-[10px] text-[color:var(--ink-soft)] w-5 text-right">{i+1}.</td>
+                            <td className="py-1 pr-2 font-num text-[10px] text-[color:var(--ink-soft)] whitespace-nowrap">{r.serial}</td>
+                            <td className="py-1 pr-2 font-bold break-all">{r.name}</td>
+                            <td className="py-1 text-right font-num text-[color:var(--wave-deep)] font-bold whitespace-nowrap">
+                              {1 + (r.companionCount || 0)} 席
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+
+                {/* Self-drive list (right) */}
+                <div>
+                  <div className="text-sm font-bold text-[color:var(--ink)] mb-1.5 pb-1.5 border-b-2 border-[color:var(--sun)] flex items-center gap-1.5">
+                    🚗 <span>自行開車</span>
+                    <span className="ml-auto text-xs font-num">
+                      {transportCounts.selfList.length} 組 · <span className="text-[color:var(--wave-deep)]">{transportCounts.self}</span> 人
+                    </span>
+                  </div>
+                  {transportCounts.selfList.length === 0 ? (
+                    <div className="text-xs text-[color:var(--ink-soft)] italic py-1">— 暫無 —</div>
+                  ) : (
+                    <table className="w-full text-xs">
+                      <tbody>
+                        {transportCounts.selfList.map((r, i) => (
+                          <tr key={r.serial} className="border-b border-[color:var(--cream-warm)] last:border-b-0">
+                            <td className="py-1 pr-1 font-num text-[10px] text-[color:var(--ink-soft)] w-5 text-right">{i+1}.</td>
+                            <td className="py-1 pr-2 font-num text-[10px] text-[color:var(--ink-soft)] whitespace-nowrap">{r.serial}</td>
+                            <td className="py-1 pr-2 font-bold break-all">{r.name}</td>
+                            <td className="py-1 text-right font-num text-[color:var(--wave-deep)] font-bold whitespace-nowrap">
+                              {1 + (r.companionCount || 0)} 席
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+              </div>
+
+              {/* Unset warning — legacy registrations from before transport field was added */}
+              {transportCounts.unsetList.length > 0 && (
+                <div className="mt-2 pt-2 border-t border-dashed border-[color:var(--ink-soft)] text-[11px] text-[color:var(--ink-soft)]">
+                  ❓ <strong className="text-[color:var(--coral)]">未設定交通方式</strong> · {transportCounts.unsetList.length} 組 · {transportCounts.unset} 人：
+                  <span className="ml-1">
+                    {transportCounts.unsetList.map(r => r.name + (r.companionCount > 0 ? `(+${r.companionCount})` : "")).join("、")}
+                  </span>
+                  <div className="mt-0.5 text-[10px] opacity-75">這些是在「交通方式」欄位推出前報名的，建議直接聯絡確認</div>
+                </div>
+              )}
             </div>
           )}
 
@@ -3122,6 +3500,15 @@ Phone: {{phone}}</p>
                 </button>
               </div>
             </div>
+          )}
+
+          {/* === Recipients modal === */}
+          {showRecipients && (
+            <RecipientsModal
+              filtered={filtered}
+              totalCount={list ? list.length : 0}
+              onClose={() => setShowRecipients(false)}
+            />
           )}
         </div>
       );
