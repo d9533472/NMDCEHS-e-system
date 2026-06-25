@@ -114,6 +114,50 @@
       min-height:180px;
     }
     .modal-textarea:focus{ outline:none; border-color:var(--wave); }
+
+    /* === Groups tab: household cards + group boxes === */
+    .hh-card{
+      display:inline-flex; align-items:center; gap:5px;
+      padding:5px 9px; border-radius:8px; cursor:pointer;
+      background:white; border:1.5px solid var(--line);
+      font-size:11.5px; line-height:1.3; user-select:none;
+      transition:background .12s, border-color .12s, transform .08s;
+      box-shadow:1px 1px 0 var(--line);
+    }
+    .hh-card:hover{ background:var(--cream-warm); border-color:var(--ink-soft); }
+    .hh-card:active{ transform:translateY(1px); }
+    .hh-card[data-selected="true"]{
+      background:var(--wave); color:white;
+      border-color:var(--wave-deep);
+      box-shadow:2px 2px 0 var(--wave-deep);
+    }
+    .hh-serial{ font-family:'Menlo','Monaco',monospace; font-size:10px; opacity:0.7; font-weight:700; }
+    .hh-card[data-selected="true"] .hh-serial{ opacity:0.85; }
+    .hh-name{ font-weight:700; }
+    .hh-comp{
+      display:inline-block; padding:1px 5px; border-radius:6px;
+      background:var(--sun); color:var(--ink); font-size:9.5px;
+      font-weight:800; line-height:1.2; letter-spacing:.02em;
+    }
+    .hh-card[data-selected="true"] .hh-comp{ background:white; color:var(--ink); }
+    .group-box{
+      position:relative;
+      background:white; border:2px solid var(--ink); border-radius:10px;
+      padding:8px 8px 10px; min-height:120px;
+      transition:background .12s, border-color .12s, box-shadow .12s;
+    }
+    .group-box[data-empty="true"]{ background:#FAFAFA; }
+    .group-box[data-over="true"]{
+      background:#E8F8EE; border-color:var(--nmdc-green);
+      box-shadow:0 0 0 3px rgba(42,157,92,0.15);
+    }
+    .group-box[data-full="true"]{
+      background:#EFE9DA;
+      border-color:var(--ink-soft);
+      opacity:0.72;
+      cursor:not-allowed;
+    }
+    .group-box[data-full="true"] .hh-card{ cursor:pointer; }
     .btn-chunk:hover{ background:var(--wave-deep); box-shadow:0 6px 16px rgba(30,111,171,0.35); transform:translateY(-1px); }
     .btn-chunk:active{ transform:translateY(0); box-shadow:0 2px 6px rgba(30,111,171,0.25); }
     .btn-chunk:disabled{ background:#A8BCCD; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
@@ -1644,12 +1688,14 @@ Phone: {{phone}}</p>
               <div className={"edit-tab " + (tab === "text" ? "active" : "")} onClick={() => setTab("text")}>📝 文字</div>
               <div className={"edit-tab " + (tab === "email" ? "active" : "")} onClick={() => setTab("email")}>✉️ 確認信</div>
               <div className={"edit-tab " + (tab === "reg" ? "active" : "")} onClick={() => setTab("reg")}>👥 名單</div>
+              <div className={"edit-tab " + (tab === "groups" ? "active" : "")} onClick={() => setTab("groups")}>🏷 分組</div>
               <div className={"edit-tab " + (tab === "blast" ? "active" : "")} onClick={() => setTab("blast")}>📢 群發</div>
             </div>
 
             {tab === "text" && <TextTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent} registered={registered}/>}
             {tab === "email" && <EmailTab lang={lang} setLang={setLang} edits={edits} setEdits={setEdits} serverContent={serverContent}/>}
             {tab === "reg" && <RegTab editPassword={editPassword} registered={registered} onDataChanged={onDataChanged}/>}
+            {tab === "groups" && <GroupsTab editPassword={editPassword} serverContent={serverContent} onContentChange={onDataChanged}/>}
             {tab === "blast" && <BlastTab editPassword={editPassword} registered={registered} serverContent={serverContent} edits={edits}/>}
 
             {(tab === "text" || tab === "email") && (
@@ -2910,6 +2956,767 @@ Phone: {{phone}}</p>
           </div>
         </div>
       );
+    }
+
+    // ===========================================================================
+    // GroupsTab — assign registrations to 20 groups × 10 seats for the event day.
+    // Households (main registrant + companions) are atomic: they always stay together.
+    // Multi-select via click → drag any selected card → all selected move together.
+    // Full groups (10/10) are visually locked and reject drops.
+    // Persistence: assignments saved to Content sheet under key "groups.assignments".
+    // ===========================================================================
+    const TOTAL_GROUPS    = 20;
+    const SEATS_PER_GROUP = 10;
+
+    function HouseholdCard({ household, selected, onToggleSelect, onDragStart, inGroup }){
+      const h = household;
+      return (
+        <div
+          draggable
+          onDragStart={onDragStart}
+          onClick={onToggleSelect}
+          className="hh-card"
+          data-selected={selected}
+          data-ingroup={inGroup}
+          title={`${h.serial} · ${h.name}${h.companionCount > 0 ? ` (+${h.companionCount} 攜眷)` : ""} · ${h.unit}`}>
+          <span className="hh-serial">{h.serial}</span>
+          <span className="hh-name">{h.name}</span>
+          {h.companionCount > 0 && <span className="hh-comp">+{h.companionCount}</span>}
+        </div>
+      );
+    }
+
+    function GroupsTab({ editPassword, serverContent, onContentChange }){
+      const [list, setList]               = useState(null);
+      const [loading, setLoading]         = useState(false);
+      const [err, setErr]                 = useState("");
+      const [assignments, setAssignments] = useState({});  // { serial: groupId }
+      const [selected, setSelected]       = useState(new Set());
+      const [dragOverGroup, setDragOver]  = useState(null);
+      const [draggingUnassigned, setDraggingUnassigned] = useState(false);
+      const [dirty, setDirty]             = useState(false);
+      const [saving, setSaving]           = useState(false);
+      const [toast, setToast]             = useState("");
+
+      // ===== Load registrations on mount =====
+      async function loadData(){
+        setLoading(true); setErr("");
+        try{
+          const res = await xhrPost(GAS_URL, { action:"listRegistrations", password:editPassword });
+          if(res && res.success){ setList(res.registrations || []); }
+          else { setErr(res && res.error ? res.error : "讀取失敗"); }
+        } catch(e){ setErr("網路錯誤：" + e.message); }
+        setLoading(false);
+      }
+      useEffect(() => { loadData(); }, []);   // eslint-disable-line
+
+      // ===== Restore saved assignments from Content sheet =====
+      useEffect(() => {
+        if(!serverContent) return;
+        const raw = serverContent["groups.assignments"];
+        if(!raw) return;
+        try{
+          const parsed = JSON.parse(raw);
+          if(parsed && typeof parsed === "object") setAssignments(parsed);
+        } catch(_){ /* ignore corrupted JSON */ }
+      }, [serverContent]);
+
+      // ===== Households (atomic units for grouping) =====
+      const households = useMemo(() => {
+        if(!list) return [];
+        return list.map(r => ({
+          serial:         r.serial,
+          name:           r.name,
+          unit:           r.unit || "Other",
+          company:        r.company,
+          seats:          1 + (r.companionCount || 0),
+          companionCount: r.companionCount || 0,
+          companions:     r.companions || [],
+          lang:           r.lang,
+          transport:      r.transport
+        }));
+      }, [list]);
+
+      // ===== Group buckets (computed from assignments) =====
+      const { groups, unassigned } = useMemo(() => {
+        const g = {};
+        for(let i = 1; i <= TOTAL_GROUPS; i++) g[i] = { households: [], seats: 0 };
+        const u = [];
+        households.forEach(h => {
+          const gid = assignments[h.serial];
+          if(gid && g[gid]){ g[gid].households.push(h); g[gid].seats += h.seats; }
+          else u.push(h);
+        });
+        return { groups: g, unassigned: u };
+      }, [households, assignments]);
+
+      const totalAssignedSeats = TOTAL_GROUPS * SEATS_PER_GROUP - Object.keys(groups).reduce((sum, gid) => sum + (SEATS_PER_GROUP - groups[gid].seats), 0);
+
+      // ===== Selection =====
+      function toggleSelect(serial, e){
+        if(e) e.stopPropagation();
+        setSelected(prev => {
+          const next = new Set(prev);
+          if(next.has(serial)) next.delete(serial); else next.add(serial);
+          return next;
+        });
+      }
+      function clearSelection(){ setSelected(new Set()); }
+      function selectAllUnassigned(){ setSelected(new Set(unassigned.map(h => h.serial))); }
+
+      // ===== Drag handlers =====
+      function onCardDragStart(e, serial){
+        let toMove;
+        if(selected.has(serial) && selected.size > 1){
+          toMove = Array.from(selected);              // drag all selected
+        } else {
+          toMove = [serial];                            // drag just this one
+          setSelected(new Set([serial]));
+        }
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("application/json", JSON.stringify(toMove));
+        setDraggingUnassigned(toMove.some(s => !assignments[s]));
+      }
+
+      function onGroupDragOver(e, gid){
+        const target = groups[gid];
+        if(target && target.seats >= SEATS_PER_GROUP) return;   // full — don't accept
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+        if(dragOverGroup !== gid) setDragOver(gid);
+      }
+
+      function onGroupDrop(e, gid){
+        e.preventDefault();
+        setDragOver(null);
+        let serials;
+        try{ serials = JSON.parse(e.dataTransfer.getData("application/json")); }
+        catch(_){ return; }
+
+        // Calculate seats this drop will ADD to the group (skip serials already in this group)
+        const toMove = serials.filter(s => assignments[s] !== gid);
+        if(toMove.length === 0) return;
+
+        const seatsToAdd = toMove.reduce((sum, s) => {
+          const h = households.find(x => x.serial === s);
+          return sum + (h ? h.seats : 0);
+        }, 0);
+        const currentSeats = groups[gid].seats;
+
+        if(currentSeats + seatsToAdd > SEATS_PER_GROUP){
+          flashToast(`❗ 第 ${gid} 組剩 ${SEATS_PER_GROUP - currentSeats} 席，無法放入 ${seatsToAdd} 席。請拆開或挑別組。`);
+          return;
+        }
+
+        setAssignments(prev => {
+          const next = { ...prev };
+          toMove.forEach(s => { next[s] = gid; });
+          return next;
+        });
+        setSelected(new Set());
+        setDirty(true);
+      }
+
+      function onUnassignedDrop(e){
+        e.preventDefault();
+        setDragOver(null);
+        let serials;
+        try{ serials = JSON.parse(e.dataTransfer.getData("application/json")); }
+        catch(_){ return; }
+        const toMove = serials.filter(s => assignments[s] != null);
+        if(toMove.length === 0) return;
+
+        setAssignments(prev => {
+          const next = { ...prev };
+          toMove.forEach(s => { delete next[s]; });
+          return next;
+        });
+        setSelected(new Set());
+        setDirty(true);
+      }
+
+      function flashToast(msg){
+        setToast(msg);
+        setTimeout(() => setToast(""), 4000);
+      }
+
+      // ===== Save / clear =====
+      async function save(){
+        if(saving) return;
+        setSaving(true); setErr("");
+        try{
+          const res = await xhrPost(GAS_URL, {
+            action: "saveContent",
+            password: editPassword,
+            content: { "groups.assignments": JSON.stringify(assignments) }
+          });
+          if(res && res.success){
+            setDirty(false);
+            flashToast("✅ 分組已儲存");
+            if(onContentChange) onContentChange();
+          } else {
+            setErr("儲存失敗：" + (res && res.error ? res.error : "未知錯誤"));
+          }
+        } catch(e){ setErr("網路錯誤：" + e.message); }
+        setSaving(false);
+      }
+
+      function resetAll(){
+        if(!window.confirm("確定要清除所有分組指派？\n（這只清空指派、不刪除報名資料。記得再按「儲存」才會永久生效）")) return;
+        setAssignments({});
+        setSelected(new Set());
+        setDirty(true);
+      }
+
+      // ===== Export PDF (print-ready HTML in new tab) =====
+      function exportPdf(){
+        const html = buildSignInPrintHtml(groups);
+        const w = window.open("", "_blank");
+        if(!w){ alert("瀏覽器擋了 popup，請允許後再試"); return; }
+        w.document.open(); w.document.write(html); w.document.close();
+      }
+
+      // ===== Export Excel (one tab per group, formatted) =====
+      function exportExcel(){
+        if(typeof XLSX === "undefined" || !XLSX.utils){
+          alert("Excel 模組尚未載入完成，請稍候 1-2 秒再試 🙏");
+          return;
+        }
+        buildSignInWorkbook(groups);
+      }
+
+      // ===== Render =====
+      const unassignedSeats = unassigned.reduce((s, h) => s + h.seats, 0);
+      const dropZoneClass = "min-h-[60px] p-2 rounded-md transition-colors";
+
+      return (
+        <div>
+          {/* === Top action bar === */}
+          <div className="flex flex-wrap gap-2 mb-2">
+            <button onClick={save} disabled={saving || !dirty} className="btn-chunk px-4 py-2 text-sm">
+              {saving ? "儲存中…" : (dirty ? "💾 儲存分組" : "✅ 已儲存")}
+            </button>
+            <button onClick={exportPdf} disabled={!list || list.length === 0} className="btn-outline px-3 py-2 text-sm">📄 PDF 簽到表</button>
+            <button onClick={exportExcel} disabled={!list || list.length === 0} className="btn-outline px-3 py-2 text-sm">📊 Excel 簽到表</button>
+            <button onClick={loadData} disabled={loading} className="btn-outline px-3 py-2 text-sm">{loading ? "…" : "🔄 重新載入"}</button>
+            <button onClick={resetAll} disabled={Object.keys(assignments).length === 0} className="btn-outline px-3 py-2 text-sm text-[color:var(--coral)]">⚠️ 全部清空</button>
+          </div>
+
+          {err && <div className="mb-2 p-2 rounded bg-red-50 border border-red-300 text-xs text-red-700">{err}</div>}
+          {toast && <div className="mb-2 p-2 rounded bg-[color:var(--sun-soft)] border border-[color:var(--sun)] text-sm font-bold">{toast}</div>}
+
+          {/* === Selection toolbar === */}
+          <div className="flex flex-wrap items-center gap-3 mb-3 p-2 px-3 rounded-md bg-[color:var(--cream-warm)] border border-[color:var(--line)] text-xs">
+            <span className="font-bold">已選 <span className="text-[color:var(--wave-deep)] font-num text-base">{selected.size}</span> 戶</span>
+            {selected.size > 0 && (
+              <button onClick={clearSelection} className="text-[color:var(--coral)] hover:underline font-bold">✕ 取消選擇</button>
+            )}
+            <button onClick={selectAllUnassigned} disabled={unassigned.length === 0} className="hover:underline ml-auto font-bold">☑ 全選未分組 ({unassigned.length})</button>
+            <span className="text-[color:var(--ink-soft)]">點卡片選 → 拖到組（多選一起拖）</span>
+          </div>
+
+          {/* === Unassigned pool === */}
+          <div className="mb-4">
+            <div className="text-xs font-bold tracking-widest text-[color:var(--ink-soft)] uppercase mb-1.5">
+              📋 未分組 · <span className="text-[color:var(--ink)] font-num">{unassigned.length}</span> 戶 · <span className="text-[color:var(--ink)] font-num">{unassignedSeats}</span> 席
+            </div>
+            <div
+              className={dropZoneClass + " border-2 border-dashed border-[color:var(--ink-soft)] bg-[color:#FAFAFA]"}
+              onDragOver={e => { e.preventDefault(); }}
+              onDrop={onUnassignedDrop}>
+              {unassigned.length === 0 ? (
+                <div className="text-xs text-[color:var(--ink-soft)] italic text-center py-4">✨ 全部都已分組</div>
+              ) : (
+                <div className="flex flex-wrap gap-1.5">
+                  {unassigned.map(h => (
+                    <HouseholdCard
+                      key={h.serial}
+                      household={h}
+                      selected={selected.has(h.serial)}
+                      onToggleSelect={() => toggleSelect(h.serial)}
+                      onDragStart={e => onCardDragStart(e, h.serial)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* === 20 group boxes === */}
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+            {Array.from({ length: TOTAL_GROUPS }, (_, i) => i + 1).map(gid => {
+              const group = groups[gid];
+              const isFull   = group.seats >= SEATS_PER_GROUP;
+              const isOver   = group.seats >  SEATS_PER_GROUP;   // shouldn't happen but defend
+              const isActive = dragOverGroup === gid;
+              return (
+                <div
+                  key={gid}
+                  className="group-box"
+                  data-full={isFull}
+                  data-over={isActive}
+                  data-empty={group.seats === 0}
+                  onDragOver={e => onGroupDragOver(e, gid)}
+                  onDragLeave={() => setDragOver(null)}
+                  onDrop={e => onGroupDrop(e, gid)}>
+                  <div className="flex items-baseline justify-between mb-1.5">
+                    <div className="font-bold text-sm">第 {gid} 組</div>
+                    <div className={"text-[11px] font-num font-bold " + (isFull ? "text-[color:var(--coral)]" : isOver ? "text-red-600" : "text-[color:var(--ink-soft)]")}>
+                      {group.seats}/{SEATS_PER_GROUP}{isFull ? " ✓" : ""}
+                    </div>
+                  </div>
+                  {group.households.length === 0 ? (
+                    <div className="text-[10px] text-[color:var(--ink-soft)] italic text-center py-3">— 空 —</div>
+                  ) : (
+                    <div className="space-y-1">
+                      {group.households.map(h => (
+                        <HouseholdCard
+                          key={h.serial}
+                          household={h}
+                          selected={selected.has(h.serial)}
+                          onToggleSelect={() => toggleSelect(h.serial)}
+                          onDragStart={e => onCardDragStart(e, h.serial)}
+                          inGroup
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 text-xs text-[color:var(--ink-soft)]">
+            💡 提示：選好的卡片拖出組箱子（拖到上方「未分組」區）就會移回未分組。
+          </div>
+        </div>
+      );
+    }
+
+    // ============ Sign-in sheet — print-ready HTML (PDF via browser print) ============
+    // ============ Sign-in sheet — print-ready HTML (PDF via browser print) ============
+    // Simple, clean, energetic. One color scheme (NMDC blue + yellow accent + unit chips).
+    // A4 portrait, no decorative top bands or bottom waves — focus on readability.
+    function buildSignInPrintHtml(groupsMap){
+      function esc(s){ return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,"0")}/${String(today.getDate()).padStart(2,"0")}`;
+
+      // Unit colors — only functional color use (lets eyes instantly see who's from where)
+      const UNIT_COLORS = {
+        NMDC:  { bg:"#2A9D5C", text:"#FFFFFF" },
+        TPC:   { bg:"#155989", text:"#FFFFFF" },
+        POE:   { bg:"#E5685A", text:"#FFFFFF" },
+        BST:   { bg:"#1E6FAB", text:"#FFFFFF" },
+        Other: { bg:"#F5C24A", text:"#163654" }
+      };
+
+      let pages = "";
+      let groupCount = 0;
+      for(let gid = 1; gid <= TOTAL_GROUPS; gid++){
+        const g = groupsMap[gid];
+        if(!g || g.households.length === 0) continue;
+        groupCount++;
+
+        let bodyRows = "";
+        let rowIdx = 1;
+        g.households.forEach(h => {
+          const U = UNIT_COLORS[h.unit] || UNIT_COLORS.Other;
+          bodyRows += `<tr>
+            <td class="idx">${rowIdx++}</td>
+            <td class="serial">${esc(h.serial)}</td>
+            <td class="name">${esc(h.name)}</td>
+            <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
+            <td class="sig"></td>
+          </tr>`;
+          h.companions.forEach((c, i) => {
+            bodyRows += `<tr>
+              <td class="idx">${rowIdx++}</td>
+              <td class="serial">${esc(h.serial)}-${i+1}</td>
+              <td class="name">${esc(c.name || "（攜眷）")} <span class="tag">攜眷</span></td>
+              <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
+              <td class="sig"></td>
+            </tr>`;
+          });
+        });
+
+        pages += `<div class="page">
+  <div class="hdr">
+    <div class="hdr-title">🌊 2026 NMDC 一起淨一夏</div>
+    <div class="hdr-sub">海灘大掃除 · BEACH CLEANUP · 簽到表</div>
+  </div>
+
+  <div class="strip">
+    <div class="strip-left">
+      <span class="strip-badge">${gid}</span>
+      <span class="strip-label">第 ${gid} 組</span>
+    </div>
+    <div class="strip-right">${g.seats}<span class="strip-unit">人</span></div>
+  </div>
+
+  <table>
+    <thead><tr>
+      <th>#</th><th>報名序號</th><th>姓名</th><th>單位</th><th>簽名</th>
+    </tr></thead>
+    <tbody>${bodyRows}</tbody>
+  </table>
+
+  <div class="footer">
+    <div>📅 <strong>日期</strong> ${dateStr}</div>
+    <div>👤 <strong>組長簽名</strong> <span class="ft-line"></span></div>
+    <div class="ft-page">第 <strong>${gid}</strong> / ${TOTAL_GROUPS} 組</div>
+  </div>
+</div>`;
+      }
+
+      if(groupCount === 0){
+        pages = `<div class="page-empty"><h1>尚未指派任何分組</h1><p>回到分組頁面拖拉指派後再試</p></div>`;
+      }
+
+      return `<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>NMDC 一起淨一夏 · 簽到表</title>
+<style>
+  @page { size: A4 portrait; margin: 0; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    color:#163654; background:#EEF2F5;
+    font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif;
+  }
+
+  .toolbar{
+    position:sticky; top:0; z-index:50;
+    background:#163654; color:white;
+    padding:12px 22px;
+    display:flex; align-items:center; gap:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+  .toolbar button{
+    background:#1E6FAB; color:white; border:none;
+    padding:9px 22px; border-radius:6px;
+    font-size:14px; font-weight:700; cursor:pointer;
+    letter-spacing:0.04em;
+  }
+  .toolbar button:hover{ background:#155989; }
+  .toolbar .hint{ font-size:12px; opacity:0.88; }
+
+  .pages{ max-width:210mm; margin:0 auto; }
+  .page{
+    background:white; width:210mm; min-height:297mm;
+    padding:18mm 16mm 14mm;
+    page-break-after:always;
+    margin:14px auto;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+  }
+  .page:last-child{ page-break-after:avoid; }
+  .page-empty{ padding:60mm 20mm; text-align:center; color:#888; background:white; }
+
+  /* Header */
+  .hdr{ text-align:center; margin-bottom:7mm; }
+  .hdr-title{
+    font-size:22pt; font-weight:800;
+    letter-spacing:0.04em; color:#163654;
+  }
+  .hdr-sub{
+    font-size:10pt; font-weight:700;
+    letter-spacing:0.22em; color:#5C7187;
+    margin-top:3pt; text-transform:uppercase;
+  }
+
+  /* Group strip — NMDC blue + yellow number badge */
+  .strip{
+    background:#1E6FAB; color:white;
+    padding:5mm 7mm; border-radius:8pt;
+    margin-bottom:6mm;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .strip-left{ display:flex; align-items:center; gap:8pt; }
+  .strip-badge{
+    display:inline-block; min-width:30pt;
+    background:#F5C24A; color:#163654;
+    padding:3pt 12pt; border-radius:999pt;
+    font-size:18pt; font-weight:800;
+    text-align:center; line-height:1.1;
+  }
+  .strip-label{ font-size:18pt; font-weight:800; letter-spacing:0.04em; }
+  .strip-right{ font-size:22pt; font-weight:800; line-height:1; }
+  .strip-unit{ font-size:11pt; font-weight:700; opacity:0.85; margin-left:3pt; letter-spacing:0.06em; }
+
+  /* Table */
+  table{
+    width:100%; border-collapse:collapse;
+    border:1.5pt solid #155989;
+  }
+  thead th{
+    background:#1E6FAB; color:white;
+    padding:8pt; font-size:11.5pt; font-weight:700;
+    letter-spacing:0.04em; text-align:center;
+    border:1pt solid #155989;
+  }
+  tbody td{
+    padding:6pt 8pt; height:34pt;
+    vertical-align:middle; font-size:11pt;
+    border:1pt solid #D8D2C0;
+  }
+  tbody tr:nth-child(even) td{ background:#FBF7EE; }
+  td.idx{
+    width:7%; text-align:center;
+    font-weight:800; font-size:13pt;
+    color:#1E6FAB;
+  }
+  td.serial{
+    width:18%; text-align:center;
+    font-family:'Menlo','Monaco','Courier New',monospace;
+    font-size:9.5pt; color:#5C7187;
+    letter-spacing:0.04em;
+  }
+  td.name{ width:23%; font-weight:700; font-size:12pt; color:#163654; }
+  td.unit{ width:13%; text-align:center; }
+  td.sig{ width:39%; }
+
+  /* Unit chip + companion tag */
+  .chip{
+    display:inline-block; padding:2.5pt 9pt;
+    border-radius:999pt; font-size:9pt;
+    font-weight:800; letter-spacing:0.04em;
+    line-height:1.2;
+  }
+  .tag{
+    display:inline-block; padding:1pt 5pt;
+    border-radius:3pt; background:#FCEFC9;
+    color:#85650A; font-size:8.5pt; font-weight:800;
+    letter-spacing:0.03em; margin-left:4pt;
+  }
+
+  /* Footer */
+  .footer{
+    margin-top:6mm; padding-top:4mm;
+    border-top:1pt dashed #5C7187;
+    display:flex; justify-content:space-between;
+    align-items:center; font-size:10pt; color:#5C7187;
+    flex-wrap:wrap; gap:4mm;
+  }
+  .footer strong{ color:#163654; margin-right:4pt; }
+  .ft-line{
+    display:inline-block; width:30mm;
+    border-bottom:1pt solid #5C7187;
+    margin-left:4pt; vertical-align:bottom;
+  }
+  .ft-page{ font-weight:700; color:#1E6FAB; }
+
+  @media print{
+    .toolbar{ display:none; }
+    body{ background:white; }
+    .pages{ margin:0; max-width:none; }
+    .page{
+      margin:0; box-shadow:none;
+      page-break-after:always;
+      width:auto; min-height:auto;
+    }
+    .page:last-child{ page-break-after:avoid; }
+  }
+</style>
+</head>
+<body>
+  <div class="toolbar">
+    <button onclick="window.print()">🖨 列印 / 存為 PDF</button>
+    <span class="hint">按上方按鈕 → 目的地選「另存為 PDF」即可</span>
+    <span class="hint" style="margin-left:auto;">共 ${groupCount} 組 · A4 直式</span>
+  </div>
+  <div class="pages">${pages}</div>
+</body>
+</html>`;
+    }
+
+
+    // ============ Sign-in sheet — Excel workbook (one tab per group, styled, vibrant) ============
+    // ============ Sign-in sheet — Excel workbook (one tab per group, clean style) ============
+    // Same simple aesthetic as PDF: NMDC blue header + yellow group badge + unit-coloured chips.
+    function buildSignInWorkbook(groupsMap){
+      const wb = XLSX.utils.book_new();
+      let appendedSheets = 0;
+
+      // Unit colors (consistent across all sheets)
+      const UNIT_COLORS = {
+        NMDC:  { bg:"2A9D5C", text:"FFFFFF" },
+        TPC:   { bg:"155989", text:"FFFFFF" },
+        POE:   { bg:"E5685A", text:"FFFFFF" },
+        BST:   { bg:"1E6FAB", text:"FFFFFF" },
+        Other: { bg:"F5C24A", text:"163654" }
+      };
+
+      for(let gid = 1; gid <= TOTAL_GROUPS; gid++){
+        const g = groupsMap[gid];
+        if(!g || g.households.length === 0) continue;
+
+        // Build sheet rows
+        const rows = [
+          ["🌊  2026 NMDC 一起淨一夏", "", "", "", ""],
+          ["海灘大掃除 · BEACH CLEANUP · 簽到表", "", "", "", ""],
+          ["", "", "", "", ""],
+          [`第 ${gid} 組`, "", "", `${g.seats} 人`, ""],
+          ["", "", "", "", ""],
+          ["#", "報名序號", "姓名", "單位", "簽名"]
+        ];
+        const unitRows = [];   // track row index → unit, for unit cell coloring
+        let idx = 1;
+        g.households.forEach(h => {
+          rows.push([idx++, h.serial, h.name, h.unit, ""]);
+          unitRows.push({ r: rows.length - 1, unit: h.unit });
+          h.companions.forEach((c, i) => {
+            rows.push([idx++, `${h.serial}-${i+1}`, `${c.name || "（攜眷）"}  ‹攜眷›`, h.unit, ""]);
+            unitRows.push({ r: rows.length - 1, unit: h.unit });
+          });
+        });
+        // Trailing footer with date / leader signature space
+        rows.push(["", "", "", "", ""]);
+        rows.push(["📅 日期：__________________", "", "", "👤 組長簽名：__________________", ""]);
+
+        const ws = XLSX.utils.aoa_to_sheet(rows);
+
+        // Column widths
+        ws["!cols"] = [{ wch:5 }, { wch:14 }, { wch:24 }, { wch:11 }, { wch:28 }];
+        // Row heights
+        ws["!rows"] = [
+          { hpx: 30 },  // 0 title
+          { hpx: 18 },  // 1 subtitle
+          { hpx: 6 },   // 2 spacer
+          { hpx: 28 },  // 3 group strip
+          { hpx: 6 },   // 4 spacer
+          { hpx: 26 }   // 5 header
+        ];
+        const dataStart = 6;
+        const dataEnd   = rows.length - 3;
+        for(let r = dataStart; r <= dataEnd; r++) ws["!rows"].push({ hpx: 30 });
+        ws["!rows"].push({ hpx: 8  });   // spacer
+        ws["!rows"].push({ hpx: 22 });   // footer
+
+        // Merges — title + subtitle span all cols, group strip splits left/right
+        ws["!merges"] = [
+          { s:{r:0,c:0}, e:{r:0,c:4} },
+          { s:{r:1,c:0}, e:{r:1,c:4} },
+          { s:{r:3,c:0}, e:{r:3,c:2} },   // group strip left
+          { s:{r:3,c:3}, e:{r:3,c:4} }    // group strip right (count)
+        ];
+
+        // === Styles ===
+        const TITLE_STYLE = {
+          font:{ name:"Calibri", sz:16, bold:true, color:{ rgb:"163654" } },
+          alignment:{ horizontal:"center", vertical:"center" }
+        };
+        const SUBTI_STYLE = {
+          font:{ name:"Calibri", sz:10, bold:true, color:{ rgb:"5C7187" } },
+          alignment:{ horizontal:"center", vertical:"center" }
+        };
+        const STRIP_LEFT_STYLE = {
+          font:{ name:"Calibri", sz:14, bold:true, color:{ rgb:"FFFFFF" } },
+          fill:{ patternType:"solid", fgColor:{ rgb:"1E6FAB" } },
+          alignment:{ horizontal:"center", vertical:"center" }
+        };
+        const STRIP_RIGHT_STYLE = {
+          font:{ name:"Calibri", sz:16, bold:true, color:{ rgb:"FFFFFF" } },
+          fill:{ patternType:"solid", fgColor:{ rgb:"1E6FAB" } },
+          alignment:{ horizontal:"center", vertical:"center" }
+        };
+        const HEADER_STYLE = {
+          font:{ name:"Calibri", sz:12, bold:true, color:{ rgb:"FFFFFF" } },
+          fill:{ patternType:"solid", fgColor:{ rgb:"1E6FAB" } },
+          alignment:{ horizontal:"center", vertical:"center" },
+          border:{
+            top:{style:"thin",color:{rgb:"155989"}}, bottom:{style:"medium",color:{rgb:"155989"}},
+            left:{style:"thin",color:{rgb:"155989"}}, right:{style:"thin",color:{rgb:"155989"}}
+          }
+        };
+        const FOOTER_STYLE = {
+          font:{ name:"Calibri", sz:10, color:{ rgb:"5C7187" } },
+          alignment:{ horizontal:"left", vertical:"center" },
+          border:{ top:{ style:"dashed", color:{ rgb:"5C7187" } } }
+        };
+        function dataStyle(altRow, col){
+          const bg = altRow ? "FBF7EE" : "FFFFFF";
+          const base = {
+            font:{ name:"Calibri", sz:11, color:{ rgb:"163654" } },
+            fill:{ patternType:"solid", fgColor:{ rgb:bg } },
+            alignment:{ vertical:"center", wrapText:true },
+            border:{
+              top:{style:"thin",color:{rgb:"D8D2C0"}},
+              bottom:{style:"thin",color:{rgb:"D8D2C0"}},
+              left:{style:"thin",color:{rgb:"D8D2C0"}},
+              right:{style:"thin",color:{rgb:"D8D2C0"}}
+            }
+          };
+          if(col === 0){ base.alignment.horizontal = "center"; base.font = { ...base.font, bold:true, color:{ rgb:"1E6FAB" }, sz:13 }; }
+          else if(col === 1){ base.alignment.horizontal = "center"; base.font = { ...base.font, name:"Consolas", sz:10, color:{ rgb:"5C7187" } }; }
+          else if(col === 2){ base.alignment.horizontal = "left"; base.font = { ...base.font, bold:true }; }
+          else if(col === 3){ base.alignment.horizontal = "center"; }
+          else if(col === 4){ base.alignment.horizontal = "center"; }
+          return base;
+        }
+        function unitCellStyle(unit){
+          const U = UNIT_COLORS[unit] || UNIT_COLORS.Other;
+          return {
+            font:{ name:"Calibri", sz:10, bold:true, color:{ rgb:U.text } },
+            fill:{ patternType:"solid", fgColor:{ rgb:U.bg } },
+            alignment:{ horizontal:"center", vertical:"center" },
+            border:{
+              top:{style:"thin",color:{rgb:"D8D2C0"}},
+              bottom:{style:"thin",color:{rgb:"D8D2C0"}},
+              left:{style:"thin",color:{rgb:"D8D2C0"}},
+              right:{style:"thin",color:{rgb:"D8D2C0"}}
+            }
+          };
+        }
+
+        const setStyle = (r, c, s) => {
+          const a = XLSX.utils.encode_cell({ r, c });
+          if(!ws[a]) ws[a] = { t:"s", v:"" };
+          ws[a].s = s;
+        };
+        setStyle(0, 0, TITLE_STYLE);
+        setStyle(1, 0, SUBTI_STYLE);
+        setStyle(3, 0, STRIP_LEFT_STYLE);
+        setStyle(3, 3, STRIP_RIGHT_STYLE);
+        for(let c = 0; c < 5; c++) setStyle(5, c, HEADER_STYLE);
+        for(let r = dataStart; r <= dataEnd; r++){
+          const altRow = (r - dataStart) % 2 === 1;
+          for(let c = 0; c < 5; c++){
+            if(c === 3){
+              const u = unitRows.find(x => x.r === r);
+              setStyle(r, c, unitCellStyle(u ? u.unit : "Other"));
+            } else {
+              setStyle(r, c, dataStyle(altRow, c));
+            }
+          }
+        }
+        const footerRow = rows.length - 1;
+        for(let c = 0; c < 5; c++){
+          const a = XLSX.utils.encode_cell({ r: footerRow, c });
+          if(!ws[a]) ws[a] = { t:"s", v:"" };
+          ws[a].s = FOOTER_STYLE;
+        }
+
+        XLSX.utils.book_append_sheet(wb, ws, `第${gid}組`);
+        appendedSheets++;
+      }
+
+      if(appendedSheets === 0){
+        alert("尚未指派任何分組，請先在頁面上拖拉指派");
+        return;
+      }
+
+      wb.Props = {
+        Title:    "NMDC 一起淨一夏 簽到表",
+        Subject:  "2026 NMDC 團隊淨灘 · 分組簽到",
+        Author:   "NMDC EHS",
+        Company:  "NMDC Energy"
+      };
+
+      const today    = new Date().toISOString().slice(0, 10);
+      const filename = `NMDC淨灘簽到表_${today}.xlsx`;
+      XLSX.writeFile(wb, filename);
     }
 
     function RegTab({ editPassword, registered, onDataChanged }){
