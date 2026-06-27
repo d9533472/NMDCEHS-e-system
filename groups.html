@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🏷 分組管理 · NMDC 一起淨一夏</title>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.16.6/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+
+<style>
+  :root{
+    --cream:#FBF7EE; --cream-warm:#F5EFE0;
+    --ink:#163654; --ink-soft:#5C7187;
+    --wave:#1E6FAB; --wave-deep:#155989;
+    --sun:#F5C24A; --sun-soft:#FDF1D2;
+    --coral:#E5685A; --nmdc-green:#2A9D5C;
+    --line:#D8D2C0;
+  }
+  html,body{ margin:0; background:var(--cream); }
+  body{
+    font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif;
+    color:var(--ink);
+    overflow:hidden;  /* full-app layout — only panes scroll */
+  }
+  .font-num{ font-family:'Plus Jakarta Sans','SF Pro Display',Calibri,sans-serif; }
+
+  /* ===== App shell (full viewport) ===== */
+  .app{
+    height:100vh; height:100dvh;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+  }
+  .app-main{
+    flex:1 1 0; min-height:0; overflow:hidden;
+  }
+  .app-grid{
+    height:100%;
+    display:grid; grid-template-columns:1fr; gap:10px;
+    padding:10px; overflow-y:auto;
+  }
+  @media (min-width:1024px){
+    .app-grid{
+      grid-template-columns:2fr 3fr;
+      overflow:hidden;
+    }
+    .pane{ overflow-y:auto; height:100%; }
+    body{ overflow:hidden; }
+  }
+  .pane{
+    background:white; border:1px solid var(--line);
+    border-radius:8px; padding:12px;
+  }
+  .pane::-webkit-scrollbar{ width:8px; }
+  .pane::-webkit-scrollbar-track{ background:transparent; }
+  .pane::-webkit-scrollbar-thumb{ background:#B0B8BF; border-radius:4px; }
+  .pane::-webkit-scrollbar-thumb:hover{ background:var(--ink-soft); }
+
+  /* ===== Household card (draggable, selectable) ===== */
+  .hh-card{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:4px 8px; border:1.5px solid var(--ink);
+    background:white; border-radius:6px;
+    font-size:11px; cursor:grab; line-height:1.4;
+    box-shadow:1px 1px 0 var(--ink);
+    user-select:none; transition:transform .08s, box-shadow .08s, background .12s;
+  }
+  .hh-card:hover{ transform:translate(-1px,-1px); box-shadow:2px 2px 0 var(--ink); }
+  .hh-card:active{ cursor:grabbing; }
+  .hh-card[data-selected="true"]{
+    background:var(--wave); color:white; border-color:var(--wave-deep);
+    box-shadow:2px 2px 0 var(--wave-deep);
+  }
+  .hh-card[data-leader="true"]{
+    background:var(--sun-soft); border-color:var(--sun);
+    box-shadow:1px 1px 0 var(--sun);
+  }
+  .hh-card[data-leader="true"][data-selected="true"]{
+    background:var(--wave); border-color:var(--sun);
+    box-shadow:2px 2px 0 var(--sun);
+  }
+  .hh-serial{
+    font-family:'Menlo','Monaco',monospace;
+    font-size:9.5px; opacity:0.7;
+    letter-spacing:.02em;
+  }
+  .hh-name{ font-weight:700; }
+  .hh-comp{
+    display:inline-block; padding:1px 5px; border-radius:6px;
+    background:var(--sun); color:var(--ink); font-size:9.5px;
+    font-weight:800; line-height:1.2;
+  }
+  .hh-card[data-selected="true"] .hh-comp{ background:white; color:var(--ink); }
+  .hh-leader-btn{
+    border:none; background:transparent; cursor:pointer;
+    padding:0 2px; font-size:14px; line-height:1;
+    color:var(--ink-soft);
+    transition:transform .1s, color .12s;
+  }
+  .hh-leader-btn:hover{ transform:scale(1.2); color:var(--sun); }
+  .hh-leader-btn[data-active="true"]{ color:var(--sun); }
+  .hh-card[data-selected="true"] .hh-leader-btn{ color:white; }
+  .hh-card[data-selected="true"] .hh-leader-btn[data-active="true"]{ color:var(--sun); }
+
+  /* ===== Group box ===== */
+  .group-box{
+    position:relative;
+    background:white; border:2px solid var(--ink); border-radius:10px;
+    padding:10px 10px 12px; min-height:140px;
+    transition:background .15s, border-color .15s, box-shadow .15s;
+  }
+  .group-box[data-empty="true"]{
+    background:var(--cream-warm);
+    border-style:dashed; border-color:var(--ink-soft);
+  }
+  .group-box[data-full="true"]{
+    background:#F0F0F0; border-color:#999999;
+    opacity:0.92;
+  }
+  .group-box[data-full="true"] .group-title{ color:#666; }
+  .group-box[data-over="true"]{
+    background:var(--sun-soft); border-color:var(--sun);
+    box-shadow:0 0 0 3px var(--sun-soft), 2px 2px 0 var(--sun);
+  }
+
+  /* ===== Pill buttons (filter) ===== */
+  .pill{
+    padding:5px 12px; border-radius:999px; border:2px solid var(--ink-soft);
+    background:white; color:var(--ink); font-size:11px;
+    font-weight:700; cursor:pointer; transition:all .12s;
+    line-height:1.2; white-space:nowrap;
+  }
+  .pill:hover:not(:disabled){ background:var(--cream-warm); }
+  .pill[data-active="true"]{
+    background:var(--wave); color:white; border-color:var(--wave-deep);
+  }
+  .pill:disabled{ opacity:0.35; cursor:not-allowed; }
+
+  /* ===== Top action buttons ===== */
+  .btn{
+    padding:6px 14px; border-radius:6px; border:none;
+    font-size:12px; font-weight:700; cursor:pointer;
+    transition:opacity .12s, transform .08s;
+    letter-spacing:.02em;
+  }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+  .btn:not(:disabled):hover{ transform:translateY(-1px); }
+  .btn-save{ background:var(--coral); color:white; }
+  .btn-save[data-dirty="false"]{ background:#999; cursor:default; }
+  .btn-secondary{ background:white; color:var(--ink); border:1.5px solid var(--ink); }
+  .btn-primary{ background:var(--wave); color:white; }
+  .btn-danger{ background:#fff; color:var(--coral); border:1.5px solid var(--coral); }
+
+  /* ===== Toast ===== */
+  .toast{
+    position:fixed; top:14px; left:50%; transform:translateX(-50%);
+    background:var(--sun-soft); border:2px solid var(--sun);
+    padding:8px 18px; border-radius:8px; font-weight:700;
+    z-index:1000; font-size:13px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.12);
+  }
+
+  /* ===== Drop zone ===== */
+  .dropzone{
+    min-height:60px; padding:8px; border-radius:8px;
+    transition:background .12s, border-color .12s;
+  }
+
+  /* Number font on counts */
+  .num{ font-family:'Plus Jakarta Sans','SF Pro Display',Calibri,sans-serif; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+  const { useState, useEffect, useMemo, useCallback, useRef } = React;
+
+  // ===== Config =====
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
+  const TOTAL_GROUPS = 20;
+  const SEATS_PER_GROUP = 10;
+  // Internal tool — admin password hardcoded (same as ADMIN_PASSWORD in code.gs).
+  // The URL itself is the access control; only admins know it.
+  const ADMIN_PWD = "123";
+
+  // Classify company string into unit code (fallback for older GAS versions that don't return unit)
+  function classifyCompanyClient(company){
+    const c = String(company || "");
+    const cLower = c.toLowerCase();
+    if(c.indexOf("白沙屯") >= 0) return "BST";
+    if(cLower.indexOf("poe") >= 0 || c.indexOf("香港商海油") >= 0) return "POE";
+    if(cLower.indexOf("tpc") >= 0 || c.indexOf("台灣電力公司") >= 0 || c.indexOf("台電") >= 0) return "TPC";
+    if(cLower.indexOf("nmdc") >= 0) return "NMDC";
+    return "Other";
+  }
+
+  // ===== Helpers =====
+  function xhrPost(url, data){
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState !== 4) return;
+        if(xhr.status >= 200 && xhr.status < 300){
+          try{ resolve(JSON.parse(xhr.responseText)); }
+          catch(e){ reject(new Error("Invalid JSON response: " + xhr.responseText.substring(0, 200))); }
+        } else {
+          reject(new Error("HTTP " + xhr.status));
+        }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send(JSON.stringify(data));
+    });
+  }
+  function xhrGet(url){
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState !== 4) return;
+        if(xhr.status >= 200 && xhr.status < 300){
+          try{ resolve(JSON.parse(xhr.responseText)); }
+          catch(e){ reject(new Error("Invalid JSON: " + xhr.responseText.substring(0, 200))); }
+        } else { reject(new Error("HTTP " + xhr.status)); }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send();
+    });
+  }
+
+  // ===== Sign-in sheet generators (PDF + Excel) — same as index_fun.html =====
+  function buildSignInPrintHtml(groupsMap, leadersMap){
+    function esc(s){ return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+    const leaders = leadersMap || {};
+    const today = new Date();
+    const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,"0")}/${String(today.getDate()).padStart(2,"0")}`;
+
+    const UNIT_COLORS = {
+      NMDC:{bg:"#2A9D5C",text:"#FFFFFF"}, TPC:{bg:"#155989",text:"#FFFFFF"},
+      POE:{bg:"#E5685A",text:"#FFFFFF"},  BST:{bg:"#1E6FAB",text:"#FFFFFF"},
+      Other:{bg:"#F5C24A",text:"#163654"}
+    };
+
+    let pages = ""; let groupCount = 0;
+    for(let gid = 1; gid <= TOTAL_GROUPS; gid++){
+      const g = groupsMap[gid];
+      if(!g || g.households.length === 0) continue;
+      groupCount++;
+      const leaderSerial = leaders[gid];
+
+      let bodyRows = ""; let rowIdx = 1;
+      g.households.forEach(h => {
+        const U = UNIT_COLORS[h.unit] || UNIT_COLORS.Other;
+        const isLeader = leaderSerial === h.serial;
+        const leaderTag = isLeader ? ` <span class="leader-tag">★ 組長</span>` : "";
+        bodyRows += `<tr${isLeader ? ' class="leader-row"' : ''}>
+          <td class="idx">${rowIdx++}</td>
+          <td class="serial">${esc(h.serial)}</td>
+          <td class="name">${esc(h.name)}${leaderTag}</td>
+          <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
+          <td class="sig"></td>
+        </tr>`;
+        h.companions.forEach((c, i) => {
+          bodyRows += `<tr>
+            <td class="idx">${rowIdx++}</td>
+            <td class="serial">${esc(h.serial)}-${i+1}</td>
+            <td class="name">${esc(c.name || "（攜眷）")} <span class="tag">攜眷</span></td>
+            <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
+            <td class="sig"></td>
+          </tr>`;
+        });
+      });
+
+      let leaderName = "";
+      if(leaderSerial){
+        const leaderH = g.households.find(h => h.serial === leaderSerial);
+        if(leaderH) leaderName = leaderH.name;
+      }
+
+      pages += `<div class="page">
+<div class="hdr">
+  <div class="hdr-title">🌊 2026 NMDC 一起淨一夏</div>
+  <div class="hdr-sub">海灘大掃除 · BEACH CLEANUP · 簽到表</div>
+</div>
+<div class="strip">
+  <div class="strip-left">
+    <span class="strip-badge">${gid}</span>
+    <span class="strip-label">第 ${gid} 組</span>
+  </div>
+  <div class="strip-right">${g.seats}<span class="strip-unit">人</span></div>
+</div>
+<table>
+  <thead><tr><th>#</th><th>報名序號</th><th>姓名</th><th>單位</th><th>簽名</th></tr></thead>
+  <tbody>${bodyRows}</tbody>
+</table>
+<div class="footer">
+  <div>📅 <strong>日期</strong> ${dateStr}</div>
+  <div>👤 <strong>組長</strong> ${leaderName ? `<span class="leader-name">★ ${esc(leaderName)}</span>` : `<span class="ft-line"></span>`}</div>
+  <div class="ft-page">第 <strong>${gid}</strong> / ${TOTAL_GROUPS} 組</div>
+</div>
+</div>`;
+    }
+
+    if(groupCount === 0){
+      pages = `<div class="page-empty"><h1>尚未指派任何分組</h1><p>回到分組頁面拖拉指派後再試</p></div>`;
+    }
+
+    return `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><title>NMDC 一起淨一夏 · 簽到表</title>
+<style>
+@page{size:A4 portrait;margin:0;}
+*{box-sizing:border-box;} html,body{margin:0;padding:0;}
+body{color:#163654;background:#EEF2F5;font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif;}
+.toolbar{position:sticky;top:0;z-index:50;background:#163654;color:white;padding:12px 22px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+.toolbar button{background:#1E6FAB;color:white;border:none;padding:9px 22px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;}
+.toolbar button:hover{background:#155989;}
+.toolbar .hint{font-size:12px;opacity:0.88;}
+.pages{max-width:210mm;margin:0 auto;}
+.page{background:white;width:210mm;min-height:297mm;padding:18mm 16mm 14mm;page-break-after:always;margin:14px auto;box-shadow:0 4px 20px rgba(0,0,0,0.08);}
+.page:last-child{page-break-after:avoid;}
+.page-empty{padding:60mm 20mm;text-align:center;color:#888;background:white;}
+.hdr{text-align:center;margin-bottom:7mm;}
+.hdr-title{font-size:22pt;font-weight:800;letter-spacing:0.04em;color:#163654;}
+.hdr-sub{font-size:10pt;font-weight:700;letter-spacing:0.22em;color:#5C7187;margin-top:3pt;text-transform:uppercase;}
+.strip{background:#1E6FAB;color:white;padding:5mm 7mm;border-radius:8pt;margin-bottom:6mm;display:flex;align-items:center;justify-content:space-between;}
+.strip-left{display:flex;align-items:center;gap:8pt;}
+.strip-badge{display:inline-block;min-width:30pt;background:#F5C24A;color:#163654;padding:3pt 12pt;border-radius:999pt;font-size:18pt;font-weight:800;text-align:center;line-height:1.1;}
+.strip-label{font-size:18pt;font-weight:800;letter-spacing:0.04em;}
+.strip-right{font-size:22pt;font-weight:800;line-height:1;}
+.strip-unit{font-size:11pt;font-weight:700;opacity:0.85;margin-left:3pt;letter-spacing:0.06em;}
+table{width:100%;border-collapse:collapse;border:1.5pt solid #155989;}
+thead th{background:#1E6FAB;color:white;padding:8pt;font-size:11.5pt;font-weight:700;letter-spacing:0.04em;text-align:center;border:1pt solid #155989;}
+tbody td{padding:6pt 8pt;height:34pt;vertical-align:middle;font-size:11pt;border:1pt solid #D8D2C0;}
+tbody tr:nth-child(even) td{background:#FBF7EE;}
+td.idx{width:7%;text-align:center;font-weight:800;font-size:13pt;color:#1E6FAB;}
+td.serial{width:18%;text-align:center;font-family:'Menlo','Monaco',monospace;font-size:9.5pt;color:#5C7187;letter-spacing:0.04em;}
+td.name{width:23%;font-weight:700;font-size:12pt;color:#163654;}
+td.unit{width:13%;text-align:center;}
+td.sig{width:39%;}
+.chip{display:inline-block;padding:2.5pt 9pt;border-radius:999pt;font-size:9pt;font-weight:800;letter-spacing:0.04em;line-height:1.2;}
+.tag{display:inline-block;padding:1pt 5pt;border-radius:3pt;background:#FCEFC9;color:#85650A;font-size:8.5pt;font-weight:800;letter-spacing:0.03em;margin-left:4pt;}
+.leader-tag{display:inline-block;padding:1pt 6pt;border-radius:3pt;background:#F5C24A;color:#163654;font-size:8.5pt;font-weight:800;letter-spacing:0.03em;margin-left:4pt;}
+tbody tr.leader-row td{background:#FDF1D2 !important;}
+tbody tr.leader-row td.name{font-weight:800;}
+.leader-name{display:inline-block;padding:2pt 8pt;background:#F5C24A;color:#163654;border-radius:4pt;font-weight:800;margin-left:4pt;font-size:11pt;}
+.footer{margin-top:6mm;padding-top:4mm;border-top:1pt dashed #5C7187;display:flex;justify-content:space-between;align-items:center;font-size:10pt;color:#5C7187;flex-wrap:wrap;gap:4mm;}
+.footer strong{color:#163654;margin-right:4pt;}
+.ft-line{display:inline-block;width:30mm;border-bottom:1pt solid #5C7187;margin-left:4pt;vertical-align:bottom;}
+.ft-page{font-weight:700;color:#1E6FAB;}
+@media print{.toolbar{display:none;}body{background:white;}.pages{margin:0;max-width:none;}.page{margin:0;box-shadow:none;page-break-after:always;width:auto;min-height:auto;}.page:last-child{page-break-after:avoid;}}
+</style></head><body>
+<div class="toolbar">
+  <button onclick="window.print()">🖨 列印 / 存為 PDF</button>
+  <span class="hint">按上方按鈕 → 目的地選「另存為 PDF」即可</span>
+  <span class="hint" style="margin-left:auto;">共 ${groupCount} 組 · A4 直式</span>
+</div>
+<div class="pages">${pages}</div>
+</body></html>`;
+  }
+
+  function buildSignInWorkbook(groupsMap, leadersMap){
+    const wb = XLSX.utils.book_new();
+    let appendedSheets = 0;
+    const leaders = leadersMap || {};
+    const UNIT_COLORS = {
+      NMDC:{bg:"2A9D5C",text:"FFFFFF"}, TPC:{bg:"155989",text:"FFFFFF"},
+      POE:{bg:"E5685A",text:"FFFFFF"},  BST:{bg:"1E6FAB",text:"FFFFFF"},
+      Other:{bg:"F5C24A",text:"163654"}
+    };
+
+    for(let gid = 1; gid <= TOTAL_GROUPS; gid++){
+      const g = groupsMap[gid];
+      if(!g || g.households.length === 0) continue;
+      const leaderSerial = leaders[gid];
+
+      const rows = [
+        ["🌊  2026 NMDC 一起淨一夏","","","",""],
+        ["海灘大掃除 · BEACH CLEANUP · 簽到表","","","",""],
+        ["","","","",""],
+        [`第 ${gid} 組`,"","",`${g.seats} 人`,""],
+        ["","","","",""],
+        ["#","報名序號","姓名","單位","簽名"]
+      ];
+      const unitRows = []; const leaderRows = new Set();
+      let idx = 1;
+      g.households.forEach(h => {
+        const isLeader = h.serial === leaderSerial;
+        const nameCell = isLeader ? `${h.name}  ★ 組長` : h.name;
+        rows.push([idx++, h.serial, nameCell, h.unit, ""]);
+        if(isLeader) leaderRows.add(rows.length - 1);
+        unitRows.push({ r: rows.length - 1, unit: h.unit });
+        h.companions.forEach((c, i) => {
+          rows.push([idx++, `${h.serial}-${i+1}`, `${c.name || "（攜眷）"}  ‹攜眷›`, h.unit, ""]);
+          unitRows.push({ r: rows.length - 1, unit: h.unit });
+        });
+      });
+      let leaderName = "";
+      if(leaderSerial){
+        const leaderH = g.households.find(h => h.serial === leaderSerial);
+        if(leaderH) leaderName = leaderH.name;
+      }
+      rows.push(["","","","",""]);
+      rows.push(["📅 日期：__________________","","",leaderName ? `👤 組長：★ ${leaderName}` : "👤 組長簽名：__________________",""]);
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws["!cols"] = [{wch:5},{wch:14},{wch:26},{wch:11},{wch:28}];
+      ws["!rows"] = [{hpx:30},{hpx:18},{hpx:6},{hpx:28},{hpx:6},{hpx:26}];
+      const dataStart = 6; const dataEnd = rows.length - 3;
+      for(let r = dataStart; r <= dataEnd; r++) ws["!rows"].push({hpx:30});
+      ws["!rows"].push({hpx:8}); ws["!rows"].push({hpx:22});
+      ws["!merges"] = [
+        {s:{r:0,c:0},e:{r:0,c:4}},
+        {s:{r:1,c:0},e:{r:1,c:4}},
+        {s:{r:3,c:0},e:{r:3,c:2}},
+        {s:{r:3,c:3},e:{r:3,c:4}},
+        {s:{r:rows.length-1,c:3},e:{r:rows.length-1,c:4}}
+      ];
+
+      const TITLE_STYLE = { font:{name:"Calibri",sz:16,bold:true,color:{rgb:"163654"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const SUBTI_STYLE = { font:{name:"Calibri",sz:10,bold:true,color:{rgb:"5C7187"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const STRIP_L = { font:{name:"Calibri",sz:14,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const STRIP_R = { font:{name:"Calibri",sz:16,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const HEADER_STYLE = { font:{name:"Calibri",sz:12,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"}, border:{top:{style:"thin",color:{rgb:"155989"}},bottom:{style:"medium",color:{rgb:"155989"}},left:{style:"thin",color:{rgb:"155989"}},right:{style:"thin",color:{rgb:"155989"}}} };
+      const FOOTER_STYLE = { font:{name:"Calibri",sz:10,color:{rgb:"5C7187"}}, alignment:{horizontal:"left",vertical:"center"}, border:{top:{style:"dashed",color:{rgb:"5C7187"}}} };
+      const FOOTER_LEAD = { font:{name:"Calibri",sz:10,bold:true,color:{rgb:"163654"}}, fill:{patternType:"solid",fgColor:{rgb:"FDF1D2"}}, alignment:{horizontal:"left",vertical:"center"}, border:{top:{style:"dashed",color:{rgb:"5C7187"}}} };
+      function dataStyle(altRow, col, isLeader){
+        const bg = isLeader ? "FDF1D2" : (altRow ? "FBF7EE" : "FFFFFF");
+        const base = { font:{name:"Calibri",sz:11,color:{rgb:"163654"}}, fill:{patternType:"solid",fgColor:{rgb:bg}}, alignment:{vertical:"center",wrapText:true}, border:{top:{style:"thin",color:{rgb:"D8D2C0"}},bottom:{style:"thin",color:{rgb:"D8D2C0"}},left:{style:"thin",color:{rgb:"D8D2C0"}},right:{style:"thin",color:{rgb:"D8D2C0"}}} };
+        if(col===0){ base.alignment.horizontal="center"; base.font={...base.font,bold:true,color:{rgb:"1E6FAB"},sz:13}; }
+        else if(col===1){ base.alignment.horizontal="center"; base.font={...base.font,name:"Consolas",sz:10,color:{rgb:"5C7187"}}; }
+        else if(col===2){ base.alignment.horizontal="left"; base.font={...base.font,bold:true}; }
+        else if(col===3){ base.alignment.horizontal="center"; }
+        else if(col===4){ base.alignment.horizontal="center"; }
+        return base;
+      }
+      function unitStyle(unit, isLeader){
+        const U = UNIT_COLORS[unit] || UNIT_COLORS.Other;
+        return { font:{name:"Calibri",sz:10,bold:true,color:{rgb:U.text}}, fill:{patternType:"solid",fgColor:{rgb:U.bg}}, alignment:{horizontal:"center",vertical:"center"}, border:{top:{style:isLeader?"medium":"thin",color:{rgb:isLeader?"F5C24A":"D8D2C0"}},bottom:{style:isLeader?"medium":"thin",color:{rgb:isLeader?"F5C24A":"D8D2C0"}},left:{style:"thin",color:{rgb:"D8D2C0"}},right:{style:"thin",color:{rgb:"D8D2C0"}}} };
+      }
+      const setStyle = (r,c,s) => { const a = XLSX.utils.encode_cell({r,c}); if(!ws[a]) ws[a] = {t:"s",v:""}; ws[a].s = s; };
+      setStyle(0,0,TITLE_STYLE); setStyle(1,0,SUBTI_STYLE);
+      setStyle(3,0,STRIP_L);     setStyle(3,3,STRIP_R);
+      for(let c=0;c<5;c++) setStyle(5,c,HEADER_STYLE);
+      for(let r=dataStart; r<=dataEnd; r++){
+        const altRow = (r-dataStart)%2 === 1; const isLeader = leaderRows.has(r);
+        for(let c=0;c<5;c++){
+          if(c===3){ const u = unitRows.find(x => x.r===r); setStyle(r,c, unitStyle(u?u.unit:"Other", isLeader)); }
+          else { setStyle(r,c, dataStyle(altRow, c, isLeader)); }
+        }
+      }
+      const footerRow = rows.length - 1;
+      for(let c=0;c<5;c++){ const a = XLSX.utils.encode_cell({r:footerRow,c}); if(!ws[a]) ws[a] = {t:"s",v:""}; ws[a].s = (leaderName && c===3) ? FOOTER_LEAD : FOOTER_STYLE; }
+
+      XLSX.utils.book_append_sheet(wb, ws, `第${gid}組`);
+      appendedSheets++;
+    }
+    if(appendedSheets === 0){ alert("尚未指派任何分組"); return; }
+    wb.Props = { Title:"NMDC 一起淨一夏 簽到表", Subject:"2026 NMDC 團隊淨灘 · 分組簽到", Author:"NMDC EHS", Company:"NMDC Energy" };
+    const today = new Date().toISOString().slice(0,10);
+    XLSX.writeFile(wb, `NMDC淨灘簽到表_${today}.xlsx`);
+  }
+
+  // ===== Household card =====
+  function HouseholdCard({ household, selected, onToggleSelect, onDragStart, inGroup, isLeader, onToggleLeader }){
+    const h = household;
+    return (
+      <div
+        draggable
+        onDragStart={onDragStart}
+        onClick={onToggleSelect}
+        className="hh-card"
+        data-selected={selected}
+        data-ingroup={inGroup}
+        data-leader={isLeader || undefined}
+        title={`${h.serial} · ${h.name}${h.companionCount > 0 ? ` (+${h.companionCount} 攜眷)` : ""} · ${h.unit}${isLeader ? " · ★ 組長" : ""}`}>
+        {inGroup && onToggleLeader && (
+          <button
+            type="button" onClick={onToggleLeader}
+            className="hh-leader-btn" data-active={isLeader || undefined}
+            title={isLeader ? "取消組長" : "設為組長"}>
+            {isLeader ? "★" : "☆"}
+          </button>
+        )}
+        <span className="hh-serial">{h.serial}</span>
+        <span className="hh-name">{h.name}</span>
+        {h.companionCount > 0 && <span className="hh-comp">+{h.companionCount}</span>}
+      </div>
+    );
+  }
+
+  // ===== Main groups app =====
+  function GroupsApp({ registrations: initRegs }){
+    const [registrations, setRegistrations] = useState(initRegs);
+    const [assignments, setAssignments]     = useState({});
+    const [leaders, setLeaders]             = useState({});
+    const [selected, setSelected]           = useState(new Set());
+    const [companyFilter, setCompanyFilter] = useState("all");
+    const [dragOverGroup, setDragOver]      = useState(null);
+    const [dirty, setDirty]                 = useState(false);
+    const [saving, setSaving]               = useState(false);
+    const [loading, setLoading]             = useState(true);
+    const [err, setErr]                     = useState("");
+    const [toast, setToast]                 = useState("");
+
+    function showToast(msg){
+      setToast(msg);
+      setTimeout(() => setToast(""), 2000);
+    }
+
+    // Load assignments + leaders from server on mount
+    useEffect(() => {
+      async function loadContent(){
+        try{
+          const status = await xhrGet(GAS_URL);
+          const content = (status && status.content) || {};
+          const rawA = content["groups.assignments"];
+          if(rawA){
+            try{ const p = JSON.parse(rawA); if(p && typeof p === "object") setAssignments(p); }catch(_){}
+          }
+          const rawL = content["groups.leaders"];
+          if(rawL){
+            try{ const p = JSON.parse(rawL); if(p && typeof p === "object") setLeaders(p); }catch(_){}
+          }
+        } catch(e){ setErr("讀取既有分組失敗：" + e.message); }
+        setLoading(false);
+      }
+      loadContent();
+    }, []);
+
+    // Rebuild households from registrations
+    const households = useMemo(() => {
+      if(!registrations) return [];
+      return registrations.map(r => {
+        const companions = Array.isArray(r.companions) ? r.companions : [];
+        return {
+          serial: r.serial,
+          name:   r.name,
+          unit:   r.unit || "Other",
+          companions,
+          companionCount: companions.length,
+          seats:  1 + companions.length
+        };
+      });
+    }, [registrations]);
+
+    // Group buckets
+    const { groups, unassigned } = useMemo(() => {
+      const g = {};
+      for(let i = 1; i <= TOTAL_GROUPS; i++) g[i] = { households:[], seats:0 };
+      const u = [];
+      households.forEach(h => {
+        const gid = assignments[h.serial];
+        if(gid && g[gid]){ g[gid].households.push(h); g[gid].seats += h.seats; }
+        else u.push(h);
+      });
+      return { groups: g, unassigned: u };
+    }, [households, assignments]);
+
+    // Effective leaders (auto-cleans dangling refs)
+    const effectiveLeaders = useMemo(() => {
+      const out = {};
+      Object.keys(leaders).forEach(gid => {
+        const s = leaders[gid];
+        if(s && assignments[s] === Number(gid)) out[gid] = s;
+      });
+      return out;
+    }, [leaders, assignments]);
+
+    const filteredUnassigned = useMemo(() => {
+      if(companyFilter === "all") return unassigned;
+      return unassigned.filter(h => (h.unit || "Other") === companyFilter);
+    }, [unassigned, companyFilter]);
+
+    const unitCounts = useMemo(() => {
+      const c = { all:unassigned.length, NMDC:0, TPC:0, POE:0, BST:0, Other:0 };
+      unassigned.forEach(h => {
+        const u = h.unit || "Other";
+        if(c[u] !== undefined) c[u]++; else c.Other++;
+      });
+      return c;
+    }, [unassigned]);
+
+    const totalAssigned = useMemo(() =>
+      Object.values(groups).reduce((s, g) => s + g.seats, 0)
+    , [groups]);
+
+    const totalSeats = useMemo(() =>
+      households.reduce((s, h) => s + h.seats, 0)
+    , [households]);
+
+    // === Selection ===
+    function toggleSelect(serial){
+      setSelected(prev => {
+        const next = new Set(prev);
+        if(next.has(serial)) next.delete(serial); else next.add(serial);
+        return next;
+      });
+    }
+    function clearSelection(){ setSelected(new Set()); }
+
+    // === Drag-drop ===
+    function onCardDragStart(e, serial){
+      const dragSet = selected.has(serial) ? Array.from(selected) : [serial];
+      e.dataTransfer.setData("text/plain", JSON.stringify(dragSet));
+      e.dataTransfer.effectAllowed = "move";
+    }
+    function onGroupDragOver(e, gid){
+      e.preventDefault(); setDragOver(gid);
+    }
+    function onGroupDrop(e, gid){
+      e.preventDefault();
+      const dragSet = JSON.parse(e.dataTransfer.getData("text/plain") || "[]");
+      if(dragSet.length === 0){ setDragOver(null); return; }
+      const targetGroup = groups[gid];
+      const currentSeats = targetGroup.seats;
+      const movingSeats = dragSet.reduce((s, serial) => {
+        const h = households.find(x => x.serial === serial);
+        // If already in this group, no change; else count as new
+        return s + (assignments[serial] === gid ? 0 : (h ? h.seats : 1));
+      }, 0);
+      if(currentSeats + movingSeats > SEATS_PER_GROUP){
+        showToast(`第 ${gid} 組容量不足！(目前 ${currentSeats}，欲加入 ${movingSeats}，上限 ${SEATS_PER_GROUP})`);
+        setDragOver(null); return;
+      }
+      setAssignments(prev => {
+        const next = { ...prev };
+        dragSet.forEach(s => { next[s] = gid; });
+        return next;
+      });
+      setSelected(new Set());
+      setDragOver(null);
+      setDirty(true);
+    }
+    function onUnassignedDrop(e){
+      e.preventDefault();
+      const dragSet = JSON.parse(e.dataTransfer.getData("text/plain") || "[]");
+      if(dragSet.length === 0) return;
+      setAssignments(prev => {
+        const next = { ...prev };
+        dragSet.forEach(s => { delete next[s]; });
+        return next;
+      });
+      setSelected(new Set());
+      setDirty(true);
+    }
+
+    // === Leader ===
+    function toggleLeader(gid, serial, e){
+      if(e){ e.stopPropagation(); }
+      setLeaders(prev => {
+        const next = { ...prev };
+        if(String(next[gid]) === String(serial)){ delete next[gid]; }
+        else { next[gid] = serial; }
+        return next;
+      });
+      setDirty(true);
+    }
+
+    // === Actions ===
+    async function save(){
+      setSaving(true); setErr("");
+      try{
+        const res = await xhrPost(GAS_URL, {
+          action: "saveContent",
+          password: ADMIN_PWD,
+          content: {
+            "groups.assignments": JSON.stringify(assignments),
+            "groups.leaders":     JSON.stringify(effectiveLeaders)
+          }
+        });
+        if(res && res.success){
+          setDirty(false);
+          showToast("✅ 已儲存");
+        } else {
+          setErr((res && res.error) || "儲存失敗");
+        }
+      } catch(e){ setErr("儲存失敗：" + e.message); }
+      setSaving(false);
+    }
+
+    async function reload(){
+      if(dirty && !window.confirm("有未儲存變更，重新載入會覆蓋。確定？")) return;
+      setLoading(true); setErr("");
+      try{
+        const [regsRes, statusRes] = await Promise.all([
+          xhrPost(GAS_URL, { action: "listRegistrations", password: ADMIN_PWD }),
+          xhrGet(GAS_URL)
+        ]);
+        if(regsRes && regsRes.success){
+          const raw = regsRes.list || regsRes.registrations || [];
+          // Normalize same as initial load
+          const norm = raw.map(r => {
+            let comps = r.companions;
+            if(typeof comps === "string"){
+              try{ const p = JSON.parse(comps); comps = Array.isArray(p) ? p : []; }
+              catch(_){ comps = []; }
+            }
+            if(!Array.isArray(comps)) comps = [];
+            return { ...r, companions: comps, unit: r.unit || classifyCompanyClient(r.company) };
+          });
+          setRegistrations(norm);
+        }
+        const content = (statusRes && statusRes.content) || {};
+        const rawA = content["groups.assignments"];
+        setAssignments(rawA ? (JSON.parse(rawA) || {}) : {});
+        const rawL = content["groups.leaders"];
+        setLeaders(rawL ? (JSON.parse(rawL) || {}) : {});
+        setSelected(new Set());
+        setDirty(false);
+        showToast("已重新載入");
+      } catch(e){ setErr("讀取失敗：" + e.message); }
+      setLoading(false);
+    }
+
+    function resetAll(){
+      if(!window.confirm("確定要清除所有分組指派與組長？\n（只清空指派、不刪除報名資料。記得按「儲存」才會生效）")) return;
+      setAssignments({}); setLeaders({});
+      setSelected(new Set()); setDirty(true);
+    }
+
+    function exportPdf(){
+      const html = buildSignInPrintHtml(groups, effectiveLeaders);
+      const w = window.open("", "_blank");
+      if(!w){ alert("瀏覽器擋了 popup，請允許後再試"); return; }
+      w.document.open(); w.document.write(html); w.document.close();
+    }
+    function exportExcel(){
+      if(typeof XLSX === "undefined" || !XLSX.utils){
+        alert("Excel 模組尚未載入完成，請稍候再試"); return;
+      }
+      buildSignInWorkbook(groups, effectiveLeaders);
+    }
+
+    const totalLeaders = Object.keys(effectiveLeaders).length;
+    const totalActiveGroups = Object.values(groups).filter(g => g.households.length > 0).length;
+
+    return (
+      <div className="app">
+        {toast && <div className="toast">{toast}</div>}
+
+        {/* === Top header === */}
+        <header className="flex items-center gap-3 px-4 py-2.5 bg-white border-b border-[color:var(--line)] shadow-sm">
+          <div className="flex items-baseline gap-2">
+            <h1 className="text-base font-extrabold">🏷 分組管理</h1>
+            <span className="text-[10px] text-[color:var(--ink-soft)] tracking-widest hidden md:inline">2026 NMDC 一起淨一夏</span>
+          </div>
+          <div className="text-xs text-[color:var(--ink-soft)] ml-2">
+            <span className="font-num font-bold text-[color:var(--ink)]">{totalAssigned}</span>/<span className="font-num">{totalSeats}</span> 席 ·
+            <span className="font-num font-bold text-[color:var(--ink)] ml-1">{totalActiveGroups}</span> 組已開 ·
+            <span className="font-num font-bold text-[color:var(--sun)] ml-1">★ {totalLeaders}</span> 組長
+          </div>
+          <div className="ml-auto flex items-center gap-1.5">
+            <button onClick={save} disabled={!dirty || saving} data-dirty={dirty} className="btn btn-save">
+              {saving ? "儲存中…" : dirty ? "💾 儲存" : "✅ 已儲存"}
+            </button>
+            <button onClick={reload} disabled={loading || saving} className="btn btn-secondary">🔄 重新載入</button>
+            <button onClick={exportPdf} className="btn btn-primary">📄 PDF</button>
+            <button onClick={exportExcel} className="btn btn-primary">📊 Excel</button>
+            <button onClick={resetAll} className="btn btn-danger">⚠️ 清空</button>
+            <a href="./" className="btn btn-secondary no-underline" style={{textDecoration:"none"}}>← 主頁</a>
+          </div>
+        </header>
+
+        {/* === Selection toolbar === */}
+        <div className="flex flex-wrap items-center gap-3 px-4 py-1.5 bg-[color:var(--cream-warm)] border-b border-[color:var(--line)] text-xs">
+          <span className="font-bold">已選 <span className="text-[color:var(--wave-deep)] font-num text-sm">{selected.size}</span> 戶</span>
+          {selected.size > 0 && (
+            <button onClick={clearSelection} className="text-[color:var(--coral)] hover:underline font-bold">✕ 取消選擇</button>
+          )}
+          <span className="text-[color:var(--ink-soft)] ml-auto hidden md:inline">點卡片選 → 拖到組（多選可一起拖）｜組內點 ☆ 設組長</span>
+        </div>
+
+        {/* === Error banner === */}
+        {err && <div className="px-4 py-2 bg-red-50 border-b border-red-300 text-xs text-red-700">{err}</div>}
+
+        {/* === Main content (two panes) === */}
+        {loading ? (
+          <div className="app-main flex items-center justify-center">
+            <div className="text-[color:var(--ink-soft)] text-sm">載入中…</div>
+          </div>
+        ) : (
+          <main className="app-main">
+            <div className="app-grid">
+
+              {/* ===== LEFT pane: people pool ===== */}
+              <div className="pane">
+                <div className="text-xs font-bold tracking-widest text-[color:var(--ink-soft)] uppercase mb-2">
+                  📋 未分組 · <span className="text-[color:var(--ink)] font-num">{filteredUnassigned.length}</span> / <span className="font-num">{unassigned.length}</span> 戶
+                </div>
+
+                {/* Filter pills */}
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {[
+                    { key:"all",   label:"🌐 全部" },
+                    { key:"NMDC",  label:"NMDC" },
+                    { key:"TPC",   label:"TPC" },
+                    { key:"POE",   label:"POE" },
+                    { key:"BST",   label:"🌊 白沙屯" },
+                    { key:"Other", label:"✨ 其他" }
+                  ].map(pill => {
+                    const cnt = unitCounts[pill.key] || 0;
+                    return (
+                      <button
+                        key={pill.key}
+                        onClick={() => setCompanyFilter(pill.key)}
+                        disabled={pill.key !== "all" && cnt === 0}
+                        className="pill"
+                        data-active={companyFilter === pill.key || undefined}>
+                        {pill.label} <span className="font-num opacity-80">{cnt}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {filteredUnassigned.length > 0 && (
+                  <div className="text-[11px] mb-2">
+                    <button onClick={() => setSelected(new Set(filteredUnassigned.map(h => h.serial)))} className="text-[color:var(--wave-deep)] hover:underline font-bold">
+                      ☑ 選此頁全部 ({filteredUnassigned.length})
+                    </button>
+                  </div>
+                )}
+
+                <div
+                  className="dropzone border-2 border-dashed border-[color:var(--ink-soft)] bg-[color:#FAFAFA]"
+                  onDragOver={e => { e.preventDefault(); }}
+                  onDrop={onUnassignedDrop}>
+                  {filteredUnassigned.length === 0 ? (
+                    <div className="text-xs text-[color:var(--ink-soft)] italic text-center py-6">
+                      {unassigned.length === 0 ? "✨ 全部都已分組" : "— 此公司無未分組人員 —"}
+                    </div>
+                  ) : (
+                    <div className="flex flex-wrap gap-1.5">
+                      {filteredUnassigned.map(h => (
+                        <HouseholdCard
+                          key={h.serial}
+                          household={h}
+                          selected={selected.has(h.serial)}
+                          onToggleSelect={() => toggleSelect(h.serial)}
+                          onDragStart={e => onCardDragStart(e, h.serial)}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* ===== RIGHT pane: 20 group boxes, 2 per row ===== */}
+              <div className="pane">
+                <div className="text-xs font-bold tracking-widest text-[color:var(--ink-soft)] uppercase mb-2">
+                  🏷 分組 · <span className="font-num text-[color:var(--ink)]">{Object.keys(assignments).length}</span> 戶已指派
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {Array.from({ length: TOTAL_GROUPS }, (_, i) => i + 1).map(gid => {
+                    const group = groups[gid];
+                    const isFull   = group.seats >= SEATS_PER_GROUP;
+                    const isOver   = group.seats >  SEATS_PER_GROUP;
+                    const isActive = dragOverGroup === gid;
+                    const leaderSerial = effectiveLeaders[gid];
+                    return (
+                      <div
+                        key={gid}
+                        className="group-box"
+                        data-full={isFull}
+                        data-over={isActive}
+                        data-empty={group.seats === 0}
+                        onDragOver={e => onGroupDragOver(e, gid)}
+                        onDragLeave={() => setDragOver(null)}
+                        onDrop={e => onGroupDrop(e, gid)}>
+                        <div className="flex items-baseline justify-between mb-1.5">
+                          <div className="group-title font-bold text-sm">
+                            第 {gid} 組
+                            {leaderSerial && <span className="ml-1.5 text-[color:var(--sun)] text-xs">★</span>}
+                          </div>
+                          <div className={"text-[11px] font-num font-bold " + (isFull ? "text-[color:var(--coral)]" : isOver ? "text-red-600" : "text-[color:var(--ink-soft)]")}>
+                            {group.seats}/{SEATS_PER_GROUP}{isFull ? " ✓" : ""}
+                          </div>
+                        </div>
+                        {group.households.length === 0 ? (
+                          <div className="text-[10px] text-[color:var(--ink-soft)] italic text-center py-3">— 空 —</div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {group.households.map(h => (
+                              <HouseholdCard
+                                key={h.serial}
+                                household={h}
+                                selected={selected.has(h.serial)}
+                                onToggleSelect={() => toggleSelect(h.serial)}
+                                onDragStart={e => onCardDragStart(e, h.serial)}
+                                inGroup
+                                isLeader={leaderSerial === h.serial}
+                                onToggleLeader={e => toggleLeader(gid, h.serial, e)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+          </main>
+        )}
+      </div>
+    );
+  }
+
+  // ===== Root app — no password gate, loads data immediately =====
+  function App(){
+    const [registrations, setRegistrations] = useState(null);
+    const [loadError, setLoadError] = useState("");
+
+    // Normalize a raw registration row (parse companions string, backfill unit)
+    function normalize(r){
+      let comps = r.companions;
+      if(typeof comps === "string"){
+        try{ const p = JSON.parse(comps); comps = Array.isArray(p) ? p : []; }
+        catch(_){ comps = []; }
+      }
+      if(!Array.isArray(comps)) comps = [];
+      const unit = r.unit || classifyCompanyClient(r.company);
+      return { ...r, companions: comps, unit };
+    }
+
+    useEffect(() => {
+      xhrPost(GAS_URL, { action: "listRegistrations", password: ADMIN_PWD })
+        .then(res => {
+          if(res && res.success){
+            const raw = res.list || res.registrations || [];
+            setRegistrations(raw.map(normalize));
+          } else {
+            setLoadError((res && res.error) || "讀取報名資料失敗");
+            setRegistrations([]);
+          }
+        })
+        .catch(e => {
+          setLoadError("連線失敗：" + e.message);
+          setRegistrations([]);
+        });
+    }, []);
+
+    if(registrations === null){
+      return (
+        <div className="min-h-screen flex items-center justify-center" style={{background:"linear-gradient(135deg, var(--cream), var(--cream-warm))"}}>
+          <div className="text-center">
+            <div className="text-5xl mb-3 animate-pulse">🏷</div>
+            <div className="text-sm text-[color:var(--ink-soft)] tracking-widest">載入中…</div>
+            {loadError && <div className="text-xs text-[color:var(--coral)] mt-3 max-w-xs">⚠ {loadError}</div>}
+          </div>
+        </div>
+      );
+    }
+    return <GroupsApp registrations={registrations} />;
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
