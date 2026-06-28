@@ -726,19 +726,24 @@ tbody tr.leader-row td.name{font-weight:800;}
       setSaving(true); setErr("");
       const aCount = Object.keys(assignments).length;
       const lCount = Object.keys(effectiveLeaders).length;
-      console.log(`[groups.html] Saving ${aCount} assignments, ${lCount} leaders`, { assignments, effectiveLeaders });
+      const edits = {
+        "groups.assignments": JSON.stringify(assignments),
+        "groups.leaders":     JSON.stringify(effectiveLeaders)
+      };
+      console.log(`[groups.html] Saving ${aCount} assignments, ${lCount} leaders`, { assignments, effectiveLeaders, edits });
       try{
+        // NOTE: GAS saveContent action expects `edits` field (not `content`).
+        // Sending under `content` silently no-ops while returning success:true.
         const res = await xhrPost(GAS_URL, {
-          action: "saveContent",
+          action:   "saveContent",
           password: ADMIN_PWD,
-          content: {
-            "groups.assignments": JSON.stringify(assignments),
-            "groups.leaders":     JSON.stringify(effectiveLeaders)
-          }
+          edits:    edits
         });
+        console.log("[groups.html] Save response:", res);
         if(res && res.success){
           setDirty(false);
-          showToast(`✅ 已儲存 · ${aCount} 戶 · ★ ${lCount} 組長`);
+          const savedCount = res.saved != null ? res.saved : (aCount + lCount);
+          showToast(`✅ 已儲存 ${savedCount} 筆 · ${aCount} 戶 · ★ ${lCount} 組長`);
         } else {
           setErr((res && res.error) || "儲存失敗");
         }
