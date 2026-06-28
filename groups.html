@@ -96,11 +96,14 @@
   .hh-card[data-selected="true"] .hh-comp{ background:white; color:var(--ink); }
   .hh-leader-btn{
     border:none; background:transparent; cursor:pointer;
-    padding:0 2px; font-size:14px; line-height:1;
-    color:var(--ink-soft);
-    transition:transform .1s, color .12s;
+    padding:3px 6px; font-size:16px; line-height:1;
+    color:var(--ink-soft); border-radius:4px;
+    transition:transform .1s, color .12s, background .12s;
   }
-  .hh-leader-btn:hover{ transform:scale(1.2); color:var(--sun); }
+  .hh-leader-btn:hover{
+    transform:scale(1.25); color:var(--sun);
+    background:var(--sun-soft);
+  }
   .hh-leader-btn[data-active="true"]{ color:var(--sun); }
   .hh-card[data-selected="true"] .hh-leader-btn{ color:white; }
   .hh-card[data-selected="true"] .hh-leader-btn[data-active="true"]{ color:var(--sun); }
@@ -479,8 +482,12 @@ tbody tr.leader-row td.name{font-weight:800;}
         title={`${h.serial} · ${h.name}${h.companionCount > 0 ? ` (+${h.companionCount} 攜眷)` : ""} · ${h.unit}${isLeader ? " · ★ 組長" : ""}`}>
         {inGroup && onToggleLeader && (
           <button
-            type="button" onClick={onToggleLeader}
-            className="hh-leader-btn" data-active={isLeader || undefined}
+            type="button"
+            onClick={onToggleLeader}
+            onMouseDown={e => e.stopPropagation()}
+            draggable={false}
+            className="hh-leader-btn"
+            data-active={isLeader || undefined}
             title={isLeader ? "取消組長" : "設為組長"}>
             {isLeader ? "★" : "☆"}
           </button>
@@ -515,16 +522,40 @@ tbody tr.leader-row td.name{font-weight:800;}
     useEffect(() => {
       async function loadContent(){
         try{
-          const status = await xhrGet(GAS_URL);
+          const status = await xhrGet(GAS_URL + "?team=nmdc");
           const content = (status && status.content) || {};
           const rawA = content["groups.assignments"];
+          let loadedA = 0, loadedL = 0;
           if(rawA){
-            try{ const p = JSON.parse(rawA); if(p && typeof p === "object") setAssignments(p); }catch(_){}
+            try{
+              const p = JSON.parse(rawA);
+              if(p && typeof p === "object"){
+                // Normalize: trim serial keys + force numeric gid values
+                const normalized = {};
+                Object.keys(p).forEach(k => {
+                  normalized[String(k).trim()] = Number(p[k]);
+                });
+                setAssignments(normalized);
+                loadedA = Object.keys(normalized).length;
+              }
+            }catch(_){}
           }
           const rawL = content["groups.leaders"];
           if(rawL){
-            try{ const p = JSON.parse(rawL); if(p && typeof p === "object") setLeaders(p); }catch(_){}
+            try{
+              const p = JSON.parse(rawL);
+              if(p && typeof p === "object"){
+                // Normalize: trim leader serial values
+                const normalized = {};
+                Object.keys(p).forEach(k => {
+                  if(p[k]) normalized[String(k).trim()] = String(p[k]).trim();
+                });
+                setLeaders(normalized);
+                loadedL = Object.keys(normalized).length;
+              }
+            }catch(_){}
           }
+          console.log(`[groups.html] Loaded ${loadedA} assignments, ${loadedL} leaders from server`);
         } catch(e){ setErr("讀取既有分組失敗：" + e.message); }
         setLoading(false);
       }
@@ -537,7 +568,7 @@ tbody tr.leader-row td.name{font-weight:800;}
       return registrations.map(r => {
         const companions = Array.isArray(r.companions) ? r.companions : [];
         return {
-          serial: r.serial,
+          serial: String(r.serial || "").trim(),    // trim serial — defense against Sheets whitespace
           name:   r.name,
           unit:   r.unit || "Other",
           companions,
@@ -561,12 +592,35 @@ tbody tr.leader-row td.name{font-weight:800;}
     }, [households, assignments]);
 
     // Effective leaders (auto-cleans dangling refs)
+    // CRITICAL: use Number() coercion on BOTH sides because:
+    //   - assignments values may be number (from drop loop) OR string (from JSON round-trip via Sheets cell)
+    //   - Object.keys() always returns strings
+    // Without coercion, "1" === 1 is false → all leaders get filtered out → bug.
     const effectiveLeaders = useMemo(() => {
       const out = {};
+      const dropped = [];
       Object.keys(leaders).forEach(gid => {
         const s = leaders[gid];
-        if(s && assignments[s] === Number(gid)) out[gid] = s;
+        if(!s){ dropped.push({ gid, reason: "leader serial empty" }); return; }
+        const assignedGid = assignments[s];
+        if(assignedGid == null){
+          dropped.push({ gid, serial: s, reason: "serial not found in assignments", assignmentKeys: Object.keys(assignments).slice(0,5) });
+          return;
+        }
+        if(Number(assignedGid) === Number(gid)){
+          out[gid] = s;
+        } else {
+          dropped.push({ gid, serial: s, reason: "wrong group", assignedGid, expected: gid, numA: Number(assignedGid), numG: Number(gid) });
+        }
       });
+      const inputCount = Object.keys(leaders).length;
+      const outputCount = Object.keys(out).length;
+      if(inputCount > 0 && dropped.length > 0){
+        console.warn(`[effectiveLeaders] DROPPED ${dropped.length}/${inputCount} leader(s):`);
+        dropped.forEach((d, i) => console.warn(`  [${i+1}]`, d));
+        console.warn("  Full leaders state:", JSON.stringify(leaders));
+        console.warn("  Full assignments state:", JSON.stringify(assignments));
+      }
       return out;
     }, [leaders, assignments]);
 
@@ -619,8 +673,8 @@ tbody tr.leader-row td.name{font-weight:800;}
       const currentSeats = targetGroup.seats;
       const movingSeats = dragSet.reduce((s, serial) => {
         const h = households.find(x => x.serial === serial);
-        // If already in this group, no change; else count as new
-        return s + (assignments[serial] === gid ? 0 : (h ? h.seats : 1));
+        // Number() coercion — assignments value may be string after JSON round-trip
+        return s + (Number(assignments[serial]) === Number(gid) ? 0 : (h ? h.seats : 1));
       }, 0);
       if(currentSeats + movingSeats > SEATS_PER_GROUP){
         showToast(`第 ${gid} 組容量不足！(目前 ${currentSeats}，欲加入 ${movingSeats}，上限 ${SEATS_PER_GROUP})`);
@@ -650,11 +704,18 @@ tbody tr.leader-row td.name{font-weight:800;}
 
     // === Leader ===
     function toggleLeader(gid, serial, e){
+      console.log(`[toggleLeader] CLICK gid=${gid} serial="${serial}"`);
       if(e){ e.stopPropagation(); }
       setLeaders(prev => {
         const next = { ...prev };
-        if(String(next[gid]) === String(serial)){ delete next[gid]; }
-        else { next[gid] = serial; }
+        if(String(next[gid]) === String(serial)){
+          console.log(`  → REMOVING leader of group ${gid}`);
+          delete next[gid];
+        } else {
+          console.log(`  → SETTING ${serial} as leader of group ${gid}`);
+          next[gid] = serial;
+        }
+        console.log(`  → leaders state:`, JSON.stringify(next));
         return next;
       });
       setDirty(true);
@@ -663,6 +724,9 @@ tbody tr.leader-row td.name{font-weight:800;}
     // === Actions ===
     async function save(){
       setSaving(true); setErr("");
+      const aCount = Object.keys(assignments).length;
+      const lCount = Object.keys(effectiveLeaders).length;
+      console.log(`[groups.html] Saving ${aCount} assignments, ${lCount} leaders`, { assignments, effectiveLeaders });
       try{
         const res = await xhrPost(GAS_URL, {
           action: "saveContent",
@@ -674,7 +738,7 @@ tbody tr.leader-row td.name{font-weight:800;}
         });
         if(res && res.success){
           setDirty(false);
-          showToast("✅ 已儲存");
+          showToast(`✅ 已儲存 · ${aCount} 戶 · ★ ${lCount} 組長`);
         } else {
           setErr((res && res.error) || "儲存失敗");
         }
@@ -688,7 +752,7 @@ tbody tr.leader-row td.name{font-weight:800;}
       try{
         const [regsRes, statusRes] = await Promise.all([
           xhrPost(GAS_URL, { action: "listRegistrations", password: ADMIN_PWD }),
-          xhrGet(GAS_URL)
+          xhrGet(GAS_URL + "?team=nmdc")
         ]);
         if(regsRes && regsRes.success){
           const raw = regsRes.list || regsRes.registrations || [];
@@ -706,7 +770,14 @@ tbody tr.leader-row td.name{font-weight:800;}
         }
         const content = (statusRes && statusRes.content) || {};
         const rawA = content["groups.assignments"];
-        setAssignments(rawA ? (JSON.parse(rawA) || {}) : {});
+        if(rawA){
+          const p = JSON.parse(rawA) || {};
+          const normalized = {};
+          Object.keys(p).forEach(k => { normalized[k] = Number(p[k]); });
+          setAssignments(normalized);
+        } else {
+          setAssignments({});
+        }
         const rawL = content["groups.leaders"];
         setLeaders(rawL ? (JSON.parse(rawL) || {}) : {});
         setSelected(new Set());
