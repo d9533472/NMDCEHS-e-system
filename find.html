@@ -197,6 +197,29 @@
     padding:2px 7px; border-radius:5px; font-size:11px; font-weight:800;
     margin-left:4px;
   }
+  .companion-sub-row{
+    display:flex; align-items:center; gap:8px;
+    padding:7px 4px 7px 36px;
+    border-bottom:1px dashed var(--line);
+    background:rgba(253, 241, 210, 0.35);
+  }
+  .companion-sub-row:last-child{ border-bottom:none; }
+  .branch-icon{
+    color:var(--ink-soft); font-size:13px;
+    font-family:'Menlo','Monaco',monospace; flex-shrink:0;
+  }
+  .companion-name{
+    flex:1; font-size:15px; font-weight:700;
+    color:var(--ink); letter-spacing:0.01em;
+  }
+  .companion-tag{
+    display:inline-block; background:white; color:#85650A;
+    padding:1px 7px; border-radius:4px; font-size:10px; font-weight:800;
+    letter-spacing:0.03em; border:1px solid var(--sun);
+  }
+  .companion-serial{
+    font-family:'Menlo','Monaco',monospace; font-size:10px; color:var(--ink-soft);
+  }
 
   /* ===== Group grid (By Group tab) ===== */
   .group-grid{
@@ -580,15 +603,25 @@
               <div className="unit-group-members">
                 {members.map(p => {
                   const leader = isLeader(gid, p.serial, content);
-                  const cn = (p.companions && p.companions.length) || 0;
+                  const comps = Array.isArray(p.companions) ? p.companions : [];
                   return (
-                    <div key={p.serial} className="member-row">
-                      <span className="member-leader-icon">{leader ? "★" : " "}</span>
-                      <span className="member-name">{p.name}</span>
-                      <UnitChip unit={p.unit} />
-                      {cn > 0 && <span className="member-companions">+{cn}</span>}
-                      <span className="member-serial">{p.serial}</span>
-                    </div>
+                    <React.Fragment key={p.serial}>
+                      <div className="member-row">
+                        <span className="member-leader-icon">{leader ? "★" : " "}</span>
+                        <span className="member-name">{p.name}</span>
+                        <UnitChip unit={p.unit} />
+                        {comps.length > 0 && <span className="member-companions">+{comps.length}</span>}
+                        <span className="member-serial">{p.serial}</span>
+                      </div>
+                      {comps.map((c, i) => (
+                        <div key={p.serial + "-c" + i} className="companion-sub-row">
+                          <span className="branch-icon">└</span>
+                          <span className="companion-name">{c.name || "（攜眷）"}</span>
+                          <span className="companion-tag">攜眷 FAMILY</span>
+                          <span className="companion-serial">{p.serial}-{i+1}</span>
+                        </div>
+                      ))}
+                    </React.Fragment>
                   );
                 })}
               </div>
@@ -675,14 +708,24 @@
                 <div className="unit-group-members">
                   {grouped[gid].map(p => {
                     const leader = isLeader(gid, p.serial, content);
-                    const cn = (p.companions && p.companions.length) || 0;
+                    const comps = Array.isArray(p.companions) ? p.companions : [];
                     return (
-                      <div key={p.serial} className="member-row">
-                        <span className="member-leader-icon">{leader ? "★" : " "}</span>
-                        <span className="member-name">{p.name}</span>
-                        {cn > 0 && <span className="member-companions">+{cn}</span>}
-                        <span className="member-serial">{p.serial}</span>
-                      </div>
+                      <React.Fragment key={p.serial}>
+                        <div className="member-row">
+                          <span className="member-leader-icon">{leader ? "★" : " "}</span>
+                          <span className="member-name">{p.name}</span>
+                          {comps.length > 0 && <span className="member-companions">+{comps.length}</span>}
+                          <span className="member-serial">{p.serial}</span>
+                        </div>
+                        {comps.map((c, i) => (
+                          <div key={p.serial + "-c" + i} className="companion-sub-row">
+                            <span className="branch-icon">└</span>
+                            <span className="companion-name">{c.name || "（攜眷）"}</span>
+                            <span className="companion-tag">攜眷 FAMILY</span>
+                            <span className="companion-serial">{p.serial}-{i+1}</span>
+                          </div>
+                        ))}
+                      </React.Fragment>
                     );
                   })}
                 </div>
@@ -700,14 +743,24 @@
                 </div>
                 <div className="unit-group-members">
                   {grouped.unassigned.map(p => {
-                    const cn = (p.companions && p.companions.length) || 0;
+                    const comps = Array.isArray(p.companions) ? p.companions : [];
                     return (
-                      <div key={p.serial} className="member-row">
-                        <span className="member-leader-icon"> </span>
-                        <span className="member-name">{p.name}</span>
-                        {cn > 0 && <span className="member-companions">+{cn}</span>}
-                        <span className="member-serial">{p.serial}</span>
-                      </div>
+                      <React.Fragment key={p.serial}>
+                        <div className="member-row">
+                          <span className="member-leader-icon"> </span>
+                          <span className="member-name">{p.name}</span>
+                          {comps.length > 0 && <span className="member-companions">+{comps.length}</span>}
+                          <span className="member-serial">{p.serial}</span>
+                        </div>
+                        {comps.map((c, i) => (
+                          <div key={p.serial + "-c" + i} className="companion-sub-row">
+                            <span className="branch-icon">└</span>
+                            <span className="companion-name">{c.name || "（攜眷）"}</span>
+                            <span className="companion-tag">攜眷 FAMILY</span>
+                            <span className="companion-serial">{p.serial}-{i+1}</span>
+                          </div>
+                        ))}
+                      </React.Fragment>
                     );
                   })}
                 </div>
@@ -737,12 +790,25 @@
 
     // Normalize a raw registration row (parse companions, classify unit, trim serial)
     function normalize(r){
+      // Step 1: parse companions to array
       let comps = r.companions;
       if(typeof comps === "string"){
-        try{ const p = JSON.parse(comps); comps = Array.isArray(p) ? p : []; }
+        try{ const p = JSON.parse(comps); comps = p; }
         catch(_){ comps = []; }
       }
+      // Object-with-numeric-keys → array
+      if(comps && typeof comps === "object" && !Array.isArray(comps)){
+        comps = Object.values(comps);
+      }
       if(!Array.isArray(comps)) comps = [];
+
+      // Step 2: normalize each companion to {name}
+      const normalizedComps = comps.map(c => {
+        if(typeof c === "string") return { name: String(c).trim() };
+        if(c && typeof c === "object") return { name: String(c.name || c.Name || c.fullName || "").trim() };
+        return { name: "" };
+      });
+
       const unit = r.unit || classifyCompany(r.company);
       return {
         serial:         String(r.serial || "").trim(),
@@ -750,9 +816,9 @@
         company:        r.company || "",
         title:          r.title || "",
         unit:           unit,
-        companions:     comps.map(c => ({ name: (c && c.name) || "" })),
-        companionCount: comps.length,
-        totalSeats:     1 + comps.length
+        companions:     normalizedComps,
+        companionCount: normalizedComps.length,
+        totalSeats:     1 + normalizedComps.length
       };
     }
 
@@ -788,6 +854,21 @@
         // Parse registrations
         if(regRes && (regRes.success || regRes.ok)){
           const raw = regRes.list || regRes.registrations || [];
+          // Debug: log first row to verify shape (esp. companions field)
+          if(raw.length > 0){
+            console.log("[find.html] Sample RAW registration:", raw[0]);
+            console.log("[find.html] Sample NORMALIZED:", normalize(raw[0]));
+            const withComps = raw.find(r => {
+              let c = r.companions;
+              if(typeof c === "string"){ try{ c = JSON.parse(c); }catch(_){} }
+              return Array.isArray(c) && c.length > 0;
+            });
+            if(withComps){
+              console.log("[find.html] Found registrant WITH companions:", withComps);
+            } else {
+              console.log("[find.html] ⚠ No registration in list has any companions in 'companions' field");
+            }
+          }
           setAllRegs(raw.map(normalize));
         } else {
           setLoadErr("無法載入報名資料 · Cannot load registrations: " + (regRes && regRes.error || "unknown error"));
