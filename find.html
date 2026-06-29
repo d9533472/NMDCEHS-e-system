@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>🔍 查詢分組 · NMDC 一起淨一夏</title>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.16.6/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root{
+    --cream:#FBF7EE; --cream-warm:#F5EFE0;
+    --ink:#163654; --ink-soft:#5C7187;
+    --wave:#1E6FAB; --wave-deep:#155989;
+    --sun:#F5C24A; --sun-soft:#FDF1D2;
+    --coral:#E5685A; --nmdc-green:#2A9D5C;
+    --line:#D8D2C0;
+  }
+  html, body{ margin:0; padding:0; background:var(--cream); }
+  body{
+    font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif;
+    color:var(--ink); min-height:100vh;
+  }
+  .font-num{ font-family:'Plus Jakarta Sans','SF Pro Display',Calibri,sans-serif; }
+
+  /* ===== Header ===== */
+  .hero{
+    background:linear-gradient(135deg, var(--wave) 0%, var(--wave-deep) 100%);
+    color:white; padding:32px 20px 40px;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .hero::before{
+    content:""; position:absolute; bottom:0; left:0; right:0; height:14px;
+    background:repeating-linear-gradient(135deg, var(--sun) 0 14px, var(--cream) 14px 28px);
+  }
+  .hero-emoji{ font-size:32px; letter-spacing:18px; margin-bottom:8px; padding-left:18px; }
+  .hero-title{ font-size:28px; font-weight:900; letter-spacing:0.05em; line-height:1.15; margin:0; }
+  .hero-title-en{ font-size:12px; font-weight:700; letter-spacing:0.36em; opacity:0.85; margin-top:6px; text-transform:uppercase; }
+  .hero-sub{ font-size:13px; font-weight:600; letter-spacing:0.12em; opacity:0.9; margin-top:6px; }
+
+  /* ===== Container ===== */
+  .container{ max-width:680px; margin:0 auto; padding:20px 16px 60px; }
+
+  /* ===== Tabs ===== */
+  .tabs{
+    display:flex; gap:6px; background:white;
+    border-radius:12px; padding:6px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    margin-top:12px; position:relative; z-index:10;
+    border:1px solid var(--line);
+  }
+  .tab{
+    flex:1; padding:11px 8px; border:none; background:transparent;
+    border-radius:8px; font-weight:800; font-size:13.5px; cursor:pointer;
+    color:var(--ink-soft); transition:all .15s; letter-spacing:.01em;
+  }
+  .tab[data-active="true"]{
+    background:var(--wave); color:white;
+    box-shadow:0 2px 6px rgba(30,111,171,0.25);
+  }
+  .tab-en{ display:block; font-size:9px; font-weight:600; letter-spacing:0.18em; opacity:0.75; margin-top:2px; }
+
+  /* ===== Search bar ===== */
+  .search-card{
+    background:white; border-radius:12px; padding:18px;
+    margin-top:14px; box-shadow:0 2px 8px rgba(0,0,0,0.05);
+    border:1px solid var(--line);
+  }
+  .search-label{
+    font-size:11px; font-weight:800; color:var(--ink-soft);
+    letter-spacing:0.22em; text-transform:uppercase; margin-bottom:8px;
+  }
+  .search-row{ display:flex; gap:8px; }
+  .search-input{
+    flex:1; padding:12px 14px; border:2px solid var(--ink-soft);
+    border-radius:8px; font-size:16px; font-family:inherit;
+    background:white; outline:none; transition:border-color .15s;
+  }
+  .search-input:focus{ border-color:var(--wave); }
+  .search-btn{
+    background:var(--wave); color:white; border:none;
+    padding:0 18px; border-radius:8px; font-weight:800; font-size:14px;
+    cursor:pointer; transition:background .15s;
+    display:flex; align-items:center; gap:5px;
+    letter-spacing:0.05em; white-space:nowrap;
+  }
+  .search-btn:hover:not(:disabled){ background:var(--wave-deep); }
+  .search-btn:disabled{ opacity:0.5; cursor:wait; }
+  .search-hint{ font-size:11px; color:var(--ink-soft); margin-top:6px; }
+
+  /* ===== Unit pills ===== */
+  .unit-pills{
+    display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;
+  }
+  .unit-pill{
+    padding:9px 14px; border-radius:999px; border:2px solid var(--ink-soft);
+    background:white; color:var(--ink); font-size:13px; font-weight:800;
+    cursor:pointer; transition:all .12s; letter-spacing:0.02em;
+  }
+  .unit-pill:hover{ background:var(--cream-warm); }
+  .unit-pill[data-active="true"]{
+    background:var(--wave); color:white; border-color:var(--wave-deep);
+  }
+  .unit-pill-en{ font-size:9px; opacity:0.75; margin-left:3px; letter-spacing:0.1em; }
+
+  /* ===== Result cards ===== */
+  .results{ margin-top:18px; display:flex; flex-direction:column; gap:12px; }
+  .result-card{
+    background:white; border-radius:14px; overflow:hidden;
+    box-shadow:0 3px 12px rgba(0,0,0,0.07);
+    border:1px solid var(--line);
+  }
+  .result-head{
+    padding:14px 16px; background:linear-gradient(135deg, var(--cream-warm), white);
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  .result-name{ font-size:26px; font-weight:900; letter-spacing:0.02em; line-height:1.15; }
+  .result-serial{ font-family:'Menlo','Monaco',monospace; font-size:11px; color:var(--ink-soft); margin-top:4px; }
+  .result-body{ padding:18px 16px; text-align:center; }
+  .result-group-num{
+    font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+    font-size:54px; font-weight:900; color:var(--wave-deep);
+    line-height:1; letter-spacing:0.02em;
+  }
+  .result-group-label{
+    font-size:14px; font-weight:800; color:var(--wave-deep);
+    letter-spacing:0.04em; margin-top:4px;
+  }
+  .result-group-en{
+    font-size:10px; font-weight:700; letter-spacing:0.32em;
+    color:var(--ink-soft); margin-top:2px; text-transform:uppercase;
+  }
+  .leader-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:5px 12px; border-radius:999px;
+    background:var(--sun); color:var(--ink);
+    font-weight:900; font-size:13px; margin-top:10px;
+    letter-spacing:0.04em;
+    box-shadow:0 2px 6px rgba(245,194,74,0.35);
+  }
+  .result-footer{
+    padding:10px 16px; background:#FAFAFA;
+    border-top:1px solid var(--line);
+    font-size:12px; color:var(--ink-soft);
+  }
+  .companion-list{
+    margin-top:6px; display:flex; flex-wrap:wrap; gap:6px;
+  }
+  .companion{
+    padding:3px 8px; background:var(--cream-warm); border-radius:5px;
+    font-size:12px; color:var(--ink); font-weight:600;
+  }
+
+  /* ===== Unit chips ===== */
+  .chip{
+    display:inline-block; padding:3px 11px; border-radius:999px;
+    font-size:11px; font-weight:800; letter-spacing:0.05em; line-height:1.3;
+  }
+  .chip-NMDC{ background:var(--nmdc-green); color:white; }
+  .chip-TPC{ background:var(--wave-deep); color:white; }
+  .chip-POE{ background:var(--coral); color:white; }
+  .chip-BST{ background:var(--wave); color:white; }
+  .chip-Other{ background:var(--sun); color:var(--ink); }
+
+  /* ===== Unit browse — grouped list ===== */
+  .unit-group-block{
+    background:white; border-radius:12px; overflow:hidden;
+    border:1px solid var(--line); margin-bottom:10px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.04);
+  }
+  .unit-group-header{
+    padding:10px 14px; background:var(--wave); color:white;
+    font-weight:800; font-size:14px; letter-spacing:0.02em;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .unit-group-header[data-unassigned="true"]{ background:var(--coral); }
+  .unit-group-num{ font-family:'Plus Jakarta Sans',Calibri,sans-serif; font-weight:900; font-size:18px; }
+  .unit-group-en{ font-size:9px; opacity:0.8; letter-spacing:0.22em; margin-left:5px; }
+  .unit-group-count{ font-size:12px; opacity:0.9; }
+  .unit-group-members{
+    padding:8px 12px;
+  }
+  .member-row{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 4px; border-bottom:1px dashed var(--line);
+  }
+  .member-row:last-child{ border-bottom:none; }
+  .member-leader-icon{ color:var(--sun); font-size:18px; width:18px; text-align:center; }
+  .member-name{ font-weight:800; flex:1; font-size:17px; letter-spacing:0.01em; line-height:1.2; }
+  .member-serial{ font-family:'Menlo','Monaco',monospace; font-size:10px; color:var(--ink-soft); }
+  .member-companions{
+    display:inline-block; background:var(--sun-soft); color:var(--ink);
+    padding:2px 7px; border-radius:5px; font-size:11px; font-weight:800;
+    margin-left:4px;
+  }
+
+  /* ===== Group grid (By Group tab) ===== */
+  .group-grid{
+    display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-top:4px;
+  }
+  .group-pill{
+    padding:10px 4px; border-radius:10px; border:2px solid var(--ink-soft);
+    background:white; cursor:pointer; font-family:inherit;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    transition:all .12s;
+  }
+  .group-pill:hover:not(:disabled){ background:var(--cream-warm); }
+  .group-pill[data-active="true"]{
+    background:var(--wave); border-color:var(--wave-deep);
+    box-shadow:0 3px 8px rgba(30,111,171,0.3);
+  }
+  .group-pill:disabled{ opacity:0.3; cursor:not-allowed; border-style:dashed; }
+  .gp-num{
+    font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+    font-size:22px; font-weight:900; color:var(--wave-deep); line-height:1;
+  }
+  .group-pill[data-active="true"] .gp-num{ color:white; }
+  .gp-count{ font-size:10px; font-weight:700; color:var(--ink-soft); letter-spacing:0.04em; }
+  .group-pill[data-active="true"] .gp-count{ color:rgba(255,255,255,0.9); }
+  @media (max-width:380px){
+    .group-grid{ grid-template-columns:repeat(4, 1fr); }
+  }
+
+  /* ===== States ===== */
+  .empty, .loading-state, .error-state{
+    text-align:center; padding:36px 18px;
+    color:var(--ink-soft); font-size:14px;
+    background:white; border-radius:12px; border:1px dashed var(--line);
+    margin-top:14px;
+  }
+  .empty-emoji{ font-size:42px; margin-bottom:10px; opacity:0.5; }
+  .error-state{ color:var(--coral); border-color:var(--coral); background:#FFF6F4; }
+  .loading-state{ opacity:0.7; }
+  .spinner{
+    display:inline-block; width:18px; height:18px;
+    border:2.5px solid var(--ink-soft); border-top-color:transparent;
+    border-radius:50%; animation:spin 0.8s linear infinite;
+    vertical-align:middle; margin-right:6px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ===== Steps card (how-to) ===== */
+  .steps-card{
+    background:var(--sun-soft); border:1.5px dashed var(--sun);
+    border-radius:12px; padding:14px 16px;
+    margin-top:-22px; position:relative; z-index:10;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  }
+  .steps-header{
+    font-size:11.5px; font-weight:800; color:var(--ink);
+    letter-spacing:0.18em; text-transform:uppercase;
+    margin-bottom:10px; display:flex; align-items:center; gap:6px;
+  }
+  .steps-list{ display:flex; flex-direction:column; gap:8px; }
+  .step{ display:flex; align-items:flex-start; gap:10px; }
+  .step-num{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--wave); color:white;
+    font-weight:900; font-size:12px;
+    font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0; line-height:1;
+  }
+  .step-body{ font-size:13.5px; color:var(--ink); line-height:1.45; }
+  .step-body strong{ font-weight:800; color:var(--wave-deep); }
+
+  /* ===== Contact card (help) ===== */
+  .contact-card{
+    background:linear-gradient(135deg, var(--coral) 0%, #C84A3F 100%);
+    color:white; border-radius:14px;
+    padding:20px 18px 22px; margin-top:28px;
+    text-align:center;
+    box-shadow:0 4px 16px rgba(229,104,90,0.32);
+  }
+  .contact-title{
+    font-size:13px; font-weight:800;
+    letter-spacing:0.22em; text-transform:uppercase;
+    opacity:0.95; margin-bottom:6px;
+  }
+  .contact-subtitle{
+    font-size:18px; font-weight:800;
+    margin-bottom:14px; letter-spacing:0.02em;
+  }
+  .contact-line{
+    font-size:15px; margin-bottom:14px; opacity:0.95;
+    line-height:1.5;
+  }
+  .contact-line strong{
+    font-weight:900; font-size:19px; letter-spacing:0.04em;
+  }
+  .contact-phone{
+    display:inline-flex; align-items:center; gap:8px;
+    background:white; color:var(--coral);
+    font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+    font-size:24px; font-weight:900;
+    padding:12px 26px; border-radius:999px;
+    text-decoration:none; letter-spacing:0.06em;
+    box-shadow:0 3px 10px rgba(0,0,0,0.18);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .contact-phone:hover, .contact-phone:focus{
+    transform:translateY(-1px);
+    box-shadow:0 6px 16px rgba(0,0,0,0.25);
+  }
+
+  /* ===== Footer (mini) ===== */
+  .page-footer{
+    text-align:center; padding:18px 16px 8px;
+    font-size:11px; color:var(--ink-soft);
+    letter-spacing:0.05em;
+  }
+  .page-footer a{ color:var(--wave); text-decoration:none; }
+
+  /* ===== Mobile tweaks ===== */
+  @media (max-width:480px){
+    .hero{ padding:24px 16px 32px; }
+    .hero-title{ font-size:22px; }
+    .hero-emoji{ font-size:24px; letter-spacing:14px; }
+    .container{ padding:16px 12px 40px; }
+    .search-input{ font-size:15px; padding:10px 12px; }
+    .result-group-num{ font-size:46px; }
+    .result-name{ font-size:17px; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+  const { useState, useEffect, useMemo, useRef } = React;
+
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
+  // Internal tool — same admin password as groups.html. Public access; only sanitized fields shown.
+  const ADMIN_PWD = "123";
+
+  // ===== Helpers =====
+  function xhrPost(url, data){
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState !== 4) return;
+        if(xhr.status >= 200 && xhr.status < 300){
+          try{ resolve(JSON.parse(xhr.responseText)); }
+          catch(e){ reject(new Error("Invalid JSON")); }
+        } else { reject(new Error("HTTP " + xhr.status)); }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send(JSON.stringify(data));
+    });
+  }
+  function xhrGet(url){
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("GET", url, true);
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState !== 4) return;
+        if(xhr.status >= 200 && xhr.status < 300){
+          try{ resolve(JSON.parse(xhr.responseText)); }
+          catch(e){ reject(new Error("Invalid JSON")); }
+        } else { reject(new Error("HTTP " + xhr.status)); }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send();
+    });
+  }
+  function classifyCompany(company){
+    const c = String(company || "");
+    const cLower = c.toLowerCase();
+    if(c.indexOf("白沙屯") >= 0) return "BST";
+    if(cLower.indexOf("poe") >= 0 || c.indexOf("香港商海油") >= 0) return "POE";
+    if(cLower.indexOf("tpc") >= 0 || c.indexOf("台灣電力公司") >= 0 || c.indexOf("台電") >= 0) return "TPC";
+    if(cLower.indexOf("nmdc") >= 0) return "NMDC";
+    return "Other";
+  }
+
+  function UnitChip({ unit }){
+    const u = unit || "Other";
+    return <span className={"chip chip-" + u}>{u}</span>;
+  }
+
+  // ===== Group lookup helpers (using assignments + leaders from server) =====
+  function lookupGroup(serial, content){
+    const gid = content.assignments[serial];
+    if(!gid) return null;
+    const numGid = Number(gid);
+    if(isNaN(numGid)) return null;
+    return numGid;
+  }
+  function isLeader(gid, serial, content){
+    if(!gid) return false;
+    const leaderSerial = content.leaders[gid] || content.leaders[String(gid)];
+    return leaderSerial === serial;
+  }
+
+  // ===== Result card (single registration) =====
+  function ResultCard({ reg, content }){
+    const gid = lookupGroup(reg.serial, content);
+    const leader = gid && isLeader(gid, reg.serial, content);
+    const companions = Array.isArray(reg.companions) ? reg.companions : [];
+    return (
+      <div className="result-card">
+        <div className="result-head">
+          <div>
+            <div className="result-name">{reg.name}</div>
+            <div className="result-serial">{reg.serial}</div>
+          </div>
+          <UnitChip unit={reg.unit || classifyCompany(reg.company)} />
+        </div>
+        <div className="result-body">
+          {gid ? (
+            <>
+              <div className="result-group-num">{gid}</div>
+              <div className="result-group-label">第 {gid} 組</div>
+              <div className="result-group-en">GROUP {gid}</div>
+              {leader && <div className="leader-badge">★ 組長 LEADER</div>}
+            </>
+          ) : (
+            <>
+              <div style={{fontSize:"38px", marginBottom:"4px"}}>⏳</div>
+              <div style={{fontSize:"15px", fontWeight:800, color:"var(--ink-soft)"}}>尚未分組</div>
+              <div style={{fontSize:"10px", letterSpacing:"0.32em", color:"var(--ink-soft)", marginTop:"4px"}}>NOT YET ASSIGNED</div>
+              <div style={{fontSize:"11px", color:"var(--ink-soft)", marginTop:"8px"}}>請耐心等待 · Please wait</div>
+            </>
+          )}
+        </div>
+        {companions.length > 0 && (
+          <div className="result-footer">
+            <strong>攜眷 {companions.length} 人 · Family ({companions.length}):</strong>
+            <div className="companion-list">
+              {companions.map((c, i) => <span key={i} className="companion">{c.name || "（無名）"}</span>)}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ===== By Name tab (client-side filter on full list) =====
+  function ByNameTab({ content, allRegs, initialQuery }){
+    const [query, setQuery] = useState(initialQuery || "");
+    const [results, setResults] = useState(null);
+    const [err, setErr] = useState("");
+
+    function doSearch(){
+      const q = query.trim();
+      if(!q){ setErr("請輸入姓名 · Please enter a name"); setResults(null); return; }
+      setErr("");
+      const qLower = q.toLowerCase();
+      const matches = allRegs.filter(r => {
+        // Match main name (case-insensitive substring)
+        if(String(r.name || "").toLowerCase().includes(qLower)) return true;
+        // Match companion names
+        const comps = Array.isArray(r.companions) ? r.companions : [];
+        return comps.some(c => String(c.name || "").toLowerCase().includes(qLower));
+      });
+      setResults(matches);
+      if(matches.length === 0) setErr(`找不到「${q}」的報名紀錄 · No match for "${q}"`);
+    }
+
+    // Auto-search if URL had ?name=
+    useEffect(() => {
+      if(initialQuery && initialQuery.trim()){ doSearch(); }
+      // eslint-disable-next-line
+    }, []);
+
+    return (
+      <>
+        <div className="search-card">
+          <div className="search-label">姓名 · NAME</div>
+          <div className="search-row">
+            <input
+              type="text"
+              className="search-input"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && doSearch()}
+              placeholder="輸入您的姓名 / Enter your name"
+              autoFocus />
+            <button className="search-btn" onClick={doSearch}>
+              🔍 查詢
+            </button>
+          </div>
+          <div className="search-hint">支援部分姓名搜尋（例：「童」會找到所有姓童的人）<br/>Partial match works · 不分大小寫</div>
+        </div>
+
+        {err && <div className="error-state">⚠ {err}</div>}
+
+        {results && results.length > 0 && (
+          <div className="results">
+            <div style={{fontSize:"11px", fontWeight:800, color:"var(--ink-soft)", letterSpacing:"0.22em", textTransform:"uppercase"}}>
+              共 {results.length} 筆 · {results.length} {results.length === 1 ? "MATCH" : "MATCHES"}
+            </div>
+            {results.map(reg => <ResultCard key={reg.serial} reg={reg} content={content} />)}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // ===== By Group tab (pick a group number, see all its members) =====
+  function ByGroupTab({ content, allRegs }){
+    const [gid, setGid] = useState(null);
+
+    // Build map of gid → members (sorted leader-first then by serial)
+    const groupMembers = useMemo(() => {
+      const map = {};
+      for(let g = 1; g <= 20; g++) map[g] = [];
+      allRegs.forEach(r => {
+        const g = lookupGroup(r.serial, content);
+        if(g && map[g]) map[g].push(r);
+      });
+      // Sort: leader first, then by serial
+      Object.keys(map).forEach(g => {
+        const leaderSerial = content.leaders[g] || content.leaders[String(g)];
+        map[g].sort((a, b) => {
+          if(a.serial === leaderSerial) return -1;
+          if(b.serial === leaderSerial) return 1;
+          return a.serial.localeCompare(b.serial);
+        });
+      });
+      return map;
+    }, [allRegs, content]);
+
+    const members = gid ? groupMembers[gid] : null;
+    const totalAssigned = useMemo(() => {
+      let s = 0; for(let g = 1; g <= 20; g++) s += groupMembers[g].length; return s;
+    }, [groupMembers]);
+
+    return (
+      <>
+        <div className="search-card">
+          <div className="search-label">選擇組別 · CHOOSE GROUP</div>
+          <div className="group-grid">
+            {Array.from({length:20}, (_, i) => {
+              const g = i + 1;
+              const count = groupMembers[g].length;
+              return (
+                <button
+                  key={g}
+                  className="group-pill"
+                  data-active={gid === g || undefined}
+                  disabled={count === 0}
+                  onClick={() => setGid(g)}
+                  title={count === 0 ? `第 ${g} 組（無成員）` : `第 ${g} 組 · ${count} 人`}>
+                  <span className="gp-num">{g}</span>
+                  <span className="gp-count">{count} 人</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="search-hint" style={{marginTop:"10px"}}>
+            已分組 {totalAssigned} 人 · {totalAssigned} assigned · 灰色 = 該組還沒有成員
+          </div>
+        </div>
+
+        {gid && members && members.length === 0 && (
+          <div className="empty">
+            <div className="empty-emoji">🪑</div>
+            <div>第 {gid} 組目前沒有成員</div>
+            <div style={{fontSize:"11px", marginTop:"4px"}}>Group {gid} is empty</div>
+          </div>
+        )}
+
+        {gid && members && members.length > 0 && (
+          <div className="results">
+            <div className="unit-group-block">
+              <div className="unit-group-header">
+                <div>
+                  <span className="unit-group-num">第 {gid} 組</span>
+                  <span className="unit-group-en">GROUP {gid}</span>
+                </div>
+                <div className="unit-group-count">{members.length} 人 / PEOPLE</div>
+              </div>
+              <div className="unit-group-members">
+                {members.map(p => {
+                  const leader = isLeader(gid, p.serial, content);
+                  const cn = (p.companions && p.companions.length) || 0;
+                  return (
+                    <div key={p.serial} className="member-row">
+                      <span className="member-leader-icon">{leader ? "★" : " "}</span>
+                      <span className="member-name">{p.name}</span>
+                      <UnitChip unit={p.unit} />
+                      {cn > 0 && <span className="member-companions">+{cn}</span>}
+                      <span className="member-serial">{p.serial}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // ===== By Unit tab (client-side filter on full list) =====
+  function ByUnitTab({ content, allRegs }){
+    const [unit, setUnit] = useState(null);
+
+    const people = useMemo(() => {
+      if(!unit) return null;
+      return allRegs.filter(r => (r.unit || "Other") === unit);
+    }, [allRegs, unit]);
+
+    // Group people by their group ID
+    const grouped = useMemo(() => {
+      if(!people) return null;
+      const buckets = { unassigned: [] };
+      people.forEach(p => {
+        const gid = lookupGroup(p.serial, content);
+        if(gid){
+          if(!buckets[gid]) buckets[gid] = [];
+          buckets[gid].push(p);
+        } else {
+          buckets.unassigned.push(p);
+        }
+      });
+      return buckets;
+    }, [people, content]);
+
+    const groupIds = grouped ? Object.keys(grouped).filter(k => k !== "unassigned").map(Number).sort((a,b) => a - b) : [];
+
+    return (
+      <>
+        <div className="search-card">
+          <div className="search-label">選擇單位 · CHOOSE UNIT</div>
+          <div className="unit-pills">
+            {[
+              { key:"NMDC",  label:"NMDC" },
+              { key:"TPC",   label:"TPC" },
+              { key:"POE",   label:"POE" },
+              { key:"BST",   label:"🌊 白沙屯", en:"BST" },
+              { key:"Other", label:"✨ 其他", en:"OTHER" }
+            ].map(p => (
+              <button
+                key={p.key}
+                className="unit-pill"
+                data-active={unit === p.key || undefined}
+                onClick={() => setUnit(p.key)}>
+                {p.label}{p.en && <span className="unit-pill-en">{p.en}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {grouped && people && people.length === 0 && (
+          <div className="empty">
+            <div className="empty-emoji">📭</div>
+            <div>{unit} 沒有報名紀錄</div>
+            <div style={{fontSize:"11px", marginTop:"4px"}}>No registrations for {unit}</div>
+          </div>
+        )}
+
+        {grouped && people && people.length > 0 && (
+          <div className="results">
+            <div style={{fontSize:"12px", fontWeight:800, color:"var(--ink-soft)", letterSpacing:"0.14em"}}>
+              <UnitChip unit={unit} /> · {people.length} 人 / PEOPLE
+            </div>
+
+            {groupIds.map(gid => (
+              <div key={gid} className="unit-group-block">
+                <div className="unit-group-header">
+                  <div>
+                    <span className="unit-group-num">第 {gid} 組</span>
+                    <span className="unit-group-en">GROUP {gid}</span>
+                  </div>
+                  <div className="unit-group-count">{grouped[gid].length} 人</div>
+                </div>
+                <div className="unit-group-members">
+                  {grouped[gid].map(p => {
+                    const leader = isLeader(gid, p.serial, content);
+                    const cn = (p.companions && p.companions.length) || 0;
+                    return (
+                      <div key={p.serial} className="member-row">
+                        <span className="member-leader-icon">{leader ? "★" : " "}</span>
+                        <span className="member-name">{p.name}</span>
+                        {cn > 0 && <span className="member-companions">+{cn}</span>}
+                        <span className="member-serial">{p.serial}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {grouped.unassigned.length > 0 && (
+              <div className="unit-group-block">
+                <div className="unit-group-header" data-unassigned="true">
+                  <div>
+                    <span className="unit-group-num">尚未分組</span>
+                    <span className="unit-group-en">NOT ASSIGNED</span>
+                  </div>
+                  <div className="unit-group-count">{grouped.unassigned.length} 人</div>
+                </div>
+                <div className="unit-group-members">
+                  {grouped.unassigned.map(p => {
+                    const cn = (p.companions && p.companions.length) || 0;
+                    return (
+                      <div key={p.serial} className="member-row">
+                        <span className="member-leader-icon"> </span>
+                        <span className="member-name">{p.name}</span>
+                        {cn > 0 && <span className="member-companions">+{cn}</span>}
+                        <span className="member-serial">{p.serial}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // ===== Root App =====
+  function App(){
+    const [tab, setTab] = useState("name");
+    const [content, setContent] = useState({ assignments: {}, leaders: {} });
+    const [allRegs, setAllRegs] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [loadErr, setLoadErr] = useState("");
+
+    // Read ?name=... from URL for prefill
+    const initialQuery = useMemo(() => {
+      try{
+        const p = new URLSearchParams(window.location.search);
+        return p.get("name") || "";
+      } catch(_){ return ""; }
+    }, []);
+
+    // Normalize a raw registration row (parse companions, classify unit, trim serial)
+    function normalize(r){
+      let comps = r.companions;
+      if(typeof comps === "string"){
+        try{ const p = JSON.parse(comps); comps = Array.isArray(p) ? p : []; }
+        catch(_){ comps = []; }
+      }
+      if(!Array.isArray(comps)) comps = [];
+      const unit = r.unit || classifyCompany(r.company);
+      return {
+        serial:         String(r.serial || "").trim(),
+        name:           String(r.name || "").trim(),
+        company:        r.company || "",
+        title:          r.title || "",
+        unit:           unit,
+        companions:     comps.map(c => ({ name: (c && c.name) || "" })),
+        companionCount: comps.length,
+        totalSeats:     1 + comps.length
+      };
+    }
+
+    useEffect(() => {
+      // Fetch both in parallel: content (assignments + leaders) AND full registrations list.
+      // Using listRegistrations + ADMIN_PWD avoids needing any GAS changes.
+      // Privacy: only sanitized fields are rendered in the UI (no email/phone/blood/etc.).
+      Promise.all([
+        xhrGet(GAS_URL + "?team=nmdc"),
+        xhrPost(GAS_URL, { action: "listRegistrations", password: ADMIN_PWD })
+      ]).then(([statusRes, regRes]) => {
+        // Parse content (assignments + leaders)
+        const c = (statusRes && statusRes.content) || {};
+        let assignments = {}, leaders = {};
+        if(c["groups.assignments"]){
+          try{
+            const p = JSON.parse(c["groups.assignments"]);
+            if(p && typeof p === "object"){
+              Object.keys(p).forEach(k => { assignments[String(k).trim()] = Number(p[k]); });
+            }
+          } catch(_){}
+        }
+        if(c["groups.leaders"]){
+          try{
+            const p = JSON.parse(c["groups.leaders"]);
+            if(p && typeof p === "object"){
+              Object.keys(p).forEach(k => { if(p[k]) leaders[k] = String(p[k]).trim(); });
+            }
+          } catch(_){}
+        }
+        setContent({ assignments, leaders });
+
+        // Parse registrations
+        if(regRes && (regRes.success || regRes.ok)){
+          const raw = regRes.list || regRes.registrations || [];
+          setAllRegs(raw.map(normalize));
+        } else {
+          setLoadErr("無法載入報名資料 · Cannot load registrations: " + (regRes && regRes.error || "unknown error"));
+          setAllRegs([]);
+        }
+        setLoading(false);
+      }).catch(e => {
+        setLoadErr("無法連線到伺服器 · Cannot reach server: " + e.message);
+        setLoading(false);
+      });
+    }, []);
+
+    return (
+      <div>
+        <div className="hero">
+          <div className="hero-emoji">🌊 🔍 ☀️</div>
+          <h1 className="hero-title">查詢分組</h1>
+          <div className="hero-title-en">FIND YOUR GROUP</div>
+          <div className="hero-sub">2026 NMDC 一起淨一夏 · BEACH CLEANUP</div>
+        </div>
+
+        <div className="container">
+          <div className="steps-card">
+            <div className="steps-header">💡 怎麼查詢 · HOW TO USE</div>
+            <div className="steps-list">
+              <div className="step">
+                <div className="step-num">1</div>
+                <div className="step-body">
+                  先用 <strong>🔍 查姓名</strong> 輸入關鍵字找到自己<br/>
+                  Search by name to find yourself
+                </div>
+              </div>
+              <div className="step">
+                <div className="step-num">2</div>
+                <div className="step-body">
+                  再用 <strong>🎯 依組別</strong> 點你的組號查看同組組員<br/>
+                  Then tap your group to see teammates
+                </div>
+              </div>
+              <div className="step">
+                <div className="step-num">3</div>
+                <div className="step-body">
+                  想看同單位同事分到哪些組？用 <strong>📋 瀏覽單位</strong><br/>
+                  See colleagues from your unit grouped by team
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="tabs">
+            <button className="tab" data-active={tab === "name" || undefined} onClick={() => setTab("name")}>
+              🔍 查姓名
+              <span className="tab-en">BY NAME</span>
+            </button>
+            <button className="tab" data-active={tab === "group" || undefined} onClick={() => setTab("group")}>
+              🎯 依組別
+              <span className="tab-en">BY GROUP</span>
+            </button>
+            <button className="tab" data-active={tab === "unit" || undefined} onClick={() => setTab("unit")}>
+              📋 瀏覽單位
+              <span className="tab-en">BY UNIT</span>
+            </button>
+          </div>
+
+          {loading && <div className="loading-state"><span className="spinner"></span>載入中 · Loading {allRegs ? "" : "registrations"}...</div>}
+          {loadErr && !loading && <div className="error-state">⚠ {loadErr}</div>}
+
+          {!loading && !loadErr && allRegs && (
+            <>
+              {tab === "name" && <ByNameTab content={content} allRegs={allRegs} initialQuery={initialQuery} />}
+              {tab === "group" && <ByGroupTab content={content} allRegs={allRegs} />}
+              {tab === "unit" && <ByUnitTab content={content} allRegs={allRegs} />}
+            </>
+          )}
+
+          <div className="contact-card">
+            <div className="contact-title">⚠ 注意事項 · NOTICE</div>
+            <div className="contact-subtitle">如果找不到人請聯絡</div>
+            <div className="contact-line">
+              <strong>NMDC Paul</strong><br/>
+              <span style={{fontSize:"13px",opacity:0.85,letterSpacing:"0.12em"}}>童保舜 · Environmental Lead</span>
+            </div>
+            <a href="tel:0981181202" className="contact-phone">📞 0981-181-202</a>
+          </div>
+
+          <div className="page-footer">
+            2026 NMDC 一起淨一夏 · <a href="./">回主頁 Home</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
