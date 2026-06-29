@@ -107,6 +107,19 @@
   .hh-leader-btn[data-active="true"]{ color:var(--sun); }
   .hh-card[data-selected="true"] .hh-leader-btn{ color:white; }
   .hh-card[data-selected="true"] .hh-leader-btn[data-active="true"]{ color:var(--sun); }
+  /* ↔ Reorder buttons */
+  .hh-move-btns{ display:inline-flex; gap:1px; margin-left:3px; }
+  .hh-move-btn{
+    border:none; background:transparent; cursor:pointer;
+    padding:1px 5px; font-size:14px; font-weight:700; line-height:1;
+    color:var(--ink-soft); border-radius:3px;
+    transition:background .12s, color .12s;
+  }
+  .hh-move-btn:hover:not(:disabled){ background:#e3e3e3; color:var(--wave-deep); }
+  .hh-move-btn:disabled{ opacity:0.25; cursor:not-allowed; }
+  .hh-card[data-selected="true"] .hh-move-btn{ color:rgba(255,255,255,0.85); }
+  .hh-card[data-selected="true"] .hh-move-btn:hover:not(:disabled){ background:rgba(255,255,255,0.2); color:white; }
+  .hh-card[data-selected="true"] .hh-move-btn:disabled{ color:rgba(255,255,255,0.3); }
 
   /* ===== Group box ===== */
   .group-box{
@@ -260,7 +273,7 @@
       g.households.forEach(h => {
         const U = UNIT_COLORS[h.unit] || UNIT_COLORS.Other;
         const isLeader = leaderSerial === h.serial;
-        const leaderTag = isLeader ? ` <span class="leader-tag">★ 組長</span>` : "";
+        const leaderTag = isLeader ? ` <span class="leader-tag">★ 組長 LEADER</span>` : "";
         bodyRows += `<tr${isLeader ? ' class="leader-row"' : ''}>
           <td class="idx">${rowIdx++}</td>
           <td class="serial">${esc(h.serial)}</td>
@@ -272,7 +285,7 @@
           bodyRows += `<tr>
             <td class="idx">${rowIdx++}</td>
             <td class="serial">${esc(h.serial)}-${i+1}</td>
-            <td class="name">${esc(c.name || "（攜眷）")} <span class="tag">攜眷</span></td>
+            <td class="name">${esc(c.name || "（攜眷）")} <span class="tag">攜眷 FAMILY</span></td>
             <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
             <td class="sig"></td>
           </tr>`;
@@ -287,30 +300,44 @@
 
       pages += `<div class="page">
 <div class="hdr">
-  <div class="hdr-title">🌊 2026 NMDC 一起淨一夏</div>
-  <div class="hdr-sub">海灘大掃除 · BEACH CLEANUP · 簽到表</div>
+  <div class="hdr-emoji">🌊 ☀️ 🏖️</div>
+  <div class="hdr-title">2026 NMDC 一起淨一夏</div>
+  <div class="hdr-title-en">NMDC ENERGY · SUMMER CLEAN UP · 2026</div>
+  <div class="hdr-sub">海灘大掃除 簽到表 · BEACH CLEANUP SIGN-IN SHEET</div>
 </div>
 <div class="strip">
   <div class="strip-left">
     <span class="strip-badge">${gid}</span>
-    <span class="strip-label">第 ${gid} 組</span>
+    <span class="strip-label">
+      <span class="strip-label-zh">第 ${gid} 組</span>
+      <span class="strip-label-en">GROUP ${gid}</span>
+    </span>
   </div>
-  <div class="strip-right">${g.seats}<span class="strip-unit">人</span></div>
+  <div class="strip-right">
+    <span class="strip-count">${g.seats}</span>
+    <span class="strip-unit">人<br/>PEOPLE</span>
+  </div>
 </div>
 <table>
-  <thead><tr><th>#</th><th>報名序號</th><th>姓名</th><th>單位</th><th>簽名</th></tr></thead>
+  <thead><tr>
+    <th>#</th>
+    <th>報名序號<br/><span class="th-en">SERIAL</span></th>
+    <th>姓名<br/><span class="th-en">NAME</span></th>
+    <th>單位<br/><span class="th-en">UNIT</span></th>
+    <th>簽名<br/><span class="th-en">SIGNATURE</span></th>
+  </tr></thead>
   <tbody>${bodyRows}</tbody>
 </table>
 <div class="footer">
-  <div>📅 <strong>日期</strong> ${dateStr}</div>
-  <div>👤 <strong>組長</strong> ${leaderName ? `<span class="leader-name">★ ${esc(leaderName)}</span>` : `<span class="ft-line"></span>`}</div>
-  <div class="ft-page">第 <strong>${gid}</strong> / ${TOTAL_GROUPS} 組</div>
+  <div>📅 <strong>日期 / Date</strong> ${dateStr}</div>
+  <div>👤 <strong>組長 / Leader</strong> ${leaderName ? `<span class="leader-name">★ ${esc(leaderName)}</span>` : `<span class="ft-line"></span>`}</div>
+  <div class="ft-page">第 <strong>${gid}</strong> / ${TOTAL_GROUPS} 組 · <span style="opacity:0.7">Group ${gid} of ${TOTAL_GROUPS}</span></div>
 </div>
 </div>`;
     }
 
     if(groupCount === 0){
-      pages = `<div class="page-empty"><h1>尚未指派任何分組</h1><p>回到分組頁面拖拉指派後再試</p></div>`;
+      pages = `<div class="page-empty"><h1>尚未指派任何分組 · No Groups Assigned</h1><p>回到分組頁面拖拉指派後再試<br/>Please assign groups first</p></div>`;
     }
 
     return `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><title>NMDC 一起淨一夏 · 簽到表</title>
@@ -327,16 +354,22 @@ body{color:#163654;background:#EEF2F5;font-family:'Microsoft JhengHei','PingFang
 .page:last-child{page-break-after:avoid;}
 .page-empty{padding:60mm 20mm;text-align:center;color:#888;background:white;}
 .hdr{text-align:center;margin-bottom:7mm;}
-.hdr-title{font-size:22pt;font-weight:800;letter-spacing:0.04em;color:#163654;}
-.hdr-sub{font-size:10pt;font-weight:700;letter-spacing:0.22em;color:#5C7187;margin-top:3pt;text-transform:uppercase;}
+.hdr-emoji{font-size:18pt;letter-spacing:14pt;margin-bottom:5pt;padding-left:14pt;}
+.hdr-title{font-size:32pt;font-weight:900;letter-spacing:0.05em;color:#163654;line-height:1.1;}
+.hdr-title-en{font-size:11pt;font-weight:700;letter-spacing:0.32em;color:#1E6FAB;margin-top:6pt;text-transform:uppercase;}
+.hdr-sub{font-size:12pt;font-weight:700;letter-spacing:0.18em;color:#5C7187;margin-top:5pt;padding-top:4pt;border-top:1.5pt solid #D8D2C0;}
 .strip{background:#1E6FAB;color:white;padding:5mm 7mm;border-radius:8pt;margin-bottom:6mm;display:flex;align-items:center;justify-content:space-between;}
 .strip-left{display:flex;align-items:center;gap:8pt;}
 .strip-badge{display:inline-block;min-width:30pt;background:#F5C24A;color:#163654;padding:3pt 12pt;border-radius:999pt;font-size:18pt;font-weight:800;text-align:center;line-height:1.1;}
-.strip-label{font-size:18pt;font-weight:800;letter-spacing:0.04em;}
-.strip-right{font-size:22pt;font-weight:800;line-height:1;}
-.strip-unit{font-size:11pt;font-weight:700;opacity:0.85;margin-left:3pt;letter-spacing:0.06em;}
+.strip-label{display:inline-flex;flex-direction:column;line-height:1.1;}
+.strip-label-zh{font-size:18pt;font-weight:800;letter-spacing:0.04em;}
+.strip-label-en{font-size:8pt;font-weight:700;letter-spacing:0.22em;opacity:0.85;margin-top:1pt;}
+.strip-right{display:flex;align-items:center;gap:5pt;}
+.strip-count{font-size:30pt;font-weight:900;line-height:1;}
+.strip-unit{font-size:9pt;font-weight:700;opacity:0.85;letter-spacing:0.08em;line-height:1.1;text-align:left;}
 table{width:100%;border-collapse:collapse;border:1.5pt solid #155989;}
-thead th{background:#1E6FAB;color:white;padding:8pt;font-size:11.5pt;font-weight:700;letter-spacing:0.04em;text-align:center;border:1pt solid #155989;}
+thead th{background:#1E6FAB;color:white;padding:6pt 8pt;font-size:11.5pt;font-weight:800;letter-spacing:0.04em;text-align:center;border:1pt solid #155989;line-height:1.25;}
+.th-en{font-size:7.5pt;font-weight:600;opacity:0.78;letter-spacing:0.18em;display:block;margin-top:1pt;}
 tbody td{padding:6pt 8pt;height:34pt;vertical-align:middle;font-size:11pt;border:1pt solid #D8D2C0;}
 tbody tr:nth-child(even) td{background:#FBF7EE;}
 td.idx{width:7%;text-align:center;font-weight:800;font-size:13pt;color:#1E6FAB;}
@@ -345,12 +378,12 @@ td.name{width:23%;font-weight:700;font-size:12pt;color:#163654;}
 td.unit{width:13%;text-align:center;}
 td.sig{width:39%;}
 .chip{display:inline-block;padding:2.5pt 9pt;border-radius:999pt;font-size:9pt;font-weight:800;letter-spacing:0.04em;line-height:1.2;}
-.tag{display:inline-block;padding:1pt 5pt;border-radius:3pt;background:#FCEFC9;color:#85650A;font-size:8.5pt;font-weight:800;letter-spacing:0.03em;margin-left:4pt;}
-.leader-tag{display:inline-block;padding:1pt 6pt;border-radius:3pt;background:#F5C24A;color:#163654;font-size:8.5pt;font-weight:800;letter-spacing:0.03em;margin-left:4pt;}
+.tag{display:inline-block;padding:1pt 5pt;border-radius:3pt;background:#FCEFC9;color:#85650A;font-size:7.5pt;font-weight:800;letter-spacing:0.03em;margin-left:4pt;}
+.leader-tag{display:inline-block;padding:1pt 6pt;border-radius:3pt;background:#F5C24A;color:#163654;font-size:7.5pt;font-weight:800;letter-spacing:0.04em;margin-left:4pt;}
 tbody tr.leader-row td{background:#FDF1D2 !important;}
 tbody tr.leader-row td.name{font-weight:800;}
 .leader-name{display:inline-block;padding:2pt 8pt;background:#F5C24A;color:#163654;border-radius:4pt;font-weight:800;margin-left:4pt;font-size:11pt;}
-.footer{margin-top:6mm;padding-top:4mm;border-top:1pt dashed #5C7187;display:flex;justify-content:space-between;align-items:center;font-size:10pt;color:#5C7187;flex-wrap:wrap;gap:4mm;}
+.footer{margin-top:6mm;padding-top:4mm;border-top:1pt dashed #5C7187;display:flex;justify-content:space-between;align-items:center;font-size:9.5pt;color:#5C7187;flex-wrap:wrap;gap:4mm;}
 .footer strong{color:#163654;margin-right:4pt;}
 .ft-line{display:inline-block;width:30mm;border-bottom:1pt solid #5C7187;margin-left:4pt;vertical-align:bottom;}
 .ft-page{font-weight:700;color:#1E6FAB;}
@@ -381,23 +414,24 @@ tbody tr.leader-row td.name{font-weight:800;}
       const leaderSerial = leaders[gid];
 
       const rows = [
-        ["🌊  2026 NMDC 一起淨一夏","","","",""],
-        ["海灘大掃除 · BEACH CLEANUP · 簽到表","","","",""],
+        ["🌊  2026 NMDC 一起淨一夏  🌊","","","",""],
+        ["NMDC ENERGY · SUMMER CLEAN UP · 2026","","","",""],
+        ["海灘大掃除 簽到表 · BEACH CLEANUP SIGN-IN SHEET","","","",""],
         ["","","","",""],
-        [`第 ${gid} 組`,"","",`${g.seats} 人`,""],
+        [`第 ${gid} 組  /  GROUP ${gid}`,"","",`${g.seats} 人 / PEOPLE`,""],
         ["","","","",""],
-        ["#","報名序號","姓名","單位","簽名"]
+        ["#","報名序號\nSERIAL","姓名\nNAME","單位\nUNIT","簽名\nSIGNATURE"]
       ];
       const unitRows = []; const leaderRows = new Set();
       let idx = 1;
       g.households.forEach(h => {
         const isLeader = h.serial === leaderSerial;
-        const nameCell = isLeader ? `${h.name}  ★ 組長` : h.name;
+        const nameCell = isLeader ? `${h.name}  ★ 組長 LEADER` : h.name;
         rows.push([idx++, h.serial, nameCell, h.unit, ""]);
         if(isLeader) leaderRows.add(rows.length - 1);
         unitRows.push({ r: rows.length - 1, unit: h.unit });
         h.companions.forEach((c, i) => {
-          rows.push([idx++, `${h.serial}-${i+1}`, `${c.name || "（攜眷）"}  ‹攜眷›`, h.unit, ""]);
+          rows.push([idx++, `${h.serial}-${i+1}`, `${c.name || "（攜眷）"}  ‹攜眷 FAMILY›`, h.unit, ""]);
           unitRows.push({ r: rows.length - 1, unit: h.unit });
         });
       });
@@ -407,27 +441,35 @@ tbody tr.leader-row td.name{font-weight:800;}
         if(leaderH) leaderName = leaderH.name;
       }
       rows.push(["","","","",""]);
-      rows.push(["📅 日期：__________________","","",leaderName ? `👤 組長：★ ${leaderName}` : "👤 組長簽名：__________________",""]);
+      rows.push([
+        "📅 日期 / Date：__________________",
+        "","",
+        leaderName ? `👤 組長 / Leader：★ ${leaderName}` : "👤 組長 / Leader：__________________",
+        ""
+      ]);
 
       const ws = XLSX.utils.aoa_to_sheet(rows);
-      ws["!cols"] = [{wch:5},{wch:14},{wch:26},{wch:11},{wch:28}];
-      ws["!rows"] = [{hpx:30},{hpx:18},{hpx:6},{hpx:28},{hpx:6},{hpx:26}];
-      const dataStart = 6; const dataEnd = rows.length - 3;
+      ws["!cols"] = [{wch:5},{wch:14},{wch:30},{wch:11},{wch:32}];
+      // Row heights: bigger title row + extra row for English subtitle
+      ws["!rows"] = [{hpx:38},{hpx:16},{hpx:18},{hpx:6},{hpx:32},{hpx:6},{hpx:32}];
+      const dataStart = 7; const dataEnd = rows.length - 3;
       for(let r = dataStart; r <= dataEnd; r++) ws["!rows"].push({hpx:30});
-      ws["!rows"].push({hpx:8}); ws["!rows"].push({hpx:22});
+      ws["!rows"].push({hpx:8}); ws["!rows"].push({hpx:24});
       ws["!merges"] = [
-        {s:{r:0,c:0},e:{r:0,c:4}},
-        {s:{r:1,c:0},e:{r:1,c:4}},
-        {s:{r:3,c:0},e:{r:3,c:2}},
-        {s:{r:3,c:3},e:{r:3,c:4}},
+        {s:{r:0,c:0},e:{r:0,c:4}},   // big title
+        {s:{r:1,c:0},e:{r:1,c:4}},   // english title
+        {s:{r:2,c:0},e:{r:2,c:4}},   // subtitle
+        {s:{r:4,c:0},e:{r:4,c:2}},   // group strip left
+        {s:{r:4,c:3},e:{r:4,c:4}},   // group strip right
         {s:{r:rows.length-1,c:3},e:{r:rows.length-1,c:4}}
       ];
 
-      const TITLE_STYLE = { font:{name:"Calibri",sz:16,bold:true,color:{rgb:"163654"}}, alignment:{horizontal:"center",vertical:"center"} };
-      const SUBTI_STYLE = { font:{name:"Calibri",sz:10,bold:true,color:{rgb:"5C7187"}}, alignment:{horizontal:"center",vertical:"center"} };
-      const STRIP_L = { font:{name:"Calibri",sz:14,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const TITLE_STYLE   = { font:{name:"Calibri",sz:22,bold:true,color:{rgb:"163654"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const TITLE_EN_STYLE= { font:{name:"Calibri",sz:10,bold:true,color:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"} };
+      const SUBTI_STYLE   = { font:{name:"Calibri",sz:11,bold:true,color:{rgb:"5C7187"}}, alignment:{horizontal:"center",vertical:"center"}, border:{top:{style:"thin",color:{rgb:"D8D2C0"}}} };
+      const STRIP_L = { font:{name:"Calibri",sz:16,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"} };
       const STRIP_R = { font:{name:"Calibri",sz:16,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"} };
-      const HEADER_STYLE = { font:{name:"Calibri",sz:12,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center"}, border:{top:{style:"thin",color:{rgb:"155989"}},bottom:{style:"medium",color:{rgb:"155989"}},left:{style:"thin",color:{rgb:"155989"}},right:{style:"thin",color:{rgb:"155989"}}} };
+      const HEADER_STYLE = { font:{name:"Calibri",sz:11,bold:true,color:{rgb:"FFFFFF"}}, fill:{patternType:"solid",fgColor:{rgb:"1E6FAB"}}, alignment:{horizontal:"center",vertical:"center",wrapText:true}, border:{top:{style:"thin",color:{rgb:"155989"}},bottom:{style:"medium",color:{rgb:"155989"}},left:{style:"thin",color:{rgb:"155989"}},right:{style:"thin",color:{rgb:"155989"}}} };
       const FOOTER_STYLE = { font:{name:"Calibri",sz:10,color:{rgb:"5C7187"}}, alignment:{horizontal:"left",vertical:"center"}, border:{top:{style:"dashed",color:{rgb:"5C7187"}}} };
       const FOOTER_LEAD = { font:{name:"Calibri",sz:10,bold:true,color:{rgb:"163654"}}, fill:{patternType:"solid",fgColor:{rgb:"FDF1D2"}}, alignment:{horizontal:"left",vertical:"center"}, border:{top:{style:"dashed",color:{rgb:"5C7187"}}} };
       function dataStyle(altRow, col, isLeader){
@@ -445,9 +487,11 @@ tbody tr.leader-row td.name{font-weight:800;}
         return { font:{name:"Calibri",sz:10,bold:true,color:{rgb:U.text}}, fill:{patternType:"solid",fgColor:{rgb:U.bg}}, alignment:{horizontal:"center",vertical:"center"}, border:{top:{style:isLeader?"medium":"thin",color:{rgb:isLeader?"F5C24A":"D8D2C0"}},bottom:{style:isLeader?"medium":"thin",color:{rgb:isLeader?"F5C24A":"D8D2C0"}},left:{style:"thin",color:{rgb:"D8D2C0"}},right:{style:"thin",color:{rgb:"D8D2C0"}}} };
       }
       const setStyle = (r,c,s) => { const a = XLSX.utils.encode_cell({r,c}); if(!ws[a]) ws[a] = {t:"s",v:""}; ws[a].s = s; };
-      setStyle(0,0,TITLE_STYLE); setStyle(1,0,SUBTI_STYLE);
-      setStyle(3,0,STRIP_L);     setStyle(3,3,STRIP_R);
-      for(let c=0;c<5;c++) setStyle(5,c,HEADER_STYLE);
+      setStyle(0,0,TITLE_STYLE);
+      setStyle(1,0,TITLE_EN_STYLE);
+      setStyle(2,0,SUBTI_STYLE);
+      setStyle(4,0,STRIP_L);     setStyle(4,3,STRIP_R);
+      for(let c=0;c<5;c++) setStyle(6,c,HEADER_STYLE);
       for(let r=dataStart; r<=dataEnd; r++){
         const altRow = (r-dataStart)%2 === 1; const isLeader = leaderRows.has(r);
         for(let c=0;c<5;c++){
@@ -458,17 +502,17 @@ tbody tr.leader-row td.name{font-weight:800;}
       const footerRow = rows.length - 1;
       for(let c=0;c<5;c++){ const a = XLSX.utils.encode_cell({r:footerRow,c}); if(!ws[a]) ws[a] = {t:"s",v:""}; ws[a].s = (leaderName && c===3) ? FOOTER_LEAD : FOOTER_STYLE; }
 
-      XLSX.utils.book_append_sheet(wb, ws, `第${gid}組`);
+      XLSX.utils.book_append_sheet(wb, ws, `第${gid}組 Group ${gid}`);
       appendedSheets++;
     }
-    if(appendedSheets === 0){ alert("尚未指派任何分組"); return; }
-    wb.Props = { Title:"NMDC 一起淨一夏 簽到表", Subject:"2026 NMDC 團隊淨灘 · 分組簽到", Author:"NMDC EHS", Company:"NMDC Energy" };
+    if(appendedSheets === 0){ alert("尚未指派任何分組 / No Groups Assigned"); return; }
+    wb.Props = { Title:"NMDC Summer Clean Up Sign-in Sheet", Subject:"2026 NMDC 一起淨一夏 · 分組簽到", Author:"NMDC EHS", Company:"NMDC Energy" };
     const today = new Date().toISOString().slice(0,10);
     XLSX.writeFile(wb, `NMDC淨灘簽到表_${today}.xlsx`);
   }
 
   // ===== Household card =====
-  function HouseholdCard({ household, selected, onToggleSelect, onDragStart, inGroup, isLeader, onToggleLeader }){
+  function HouseholdCard({ household, selected, onToggleSelect, onDragStart, inGroup, isLeader, onToggleLeader, onMoveLeft, onMoveRight, canMoveLeft, canMoveRight }){
     const h = household;
     return (
       <div
@@ -495,6 +539,26 @@ tbody tr.leader-row td.name{font-weight:800;}
         <span className="hh-serial">{h.serial}</span>
         <span className="hh-name">{h.name}</span>
         {h.companionCount > 0 && <span className="hh-comp">+{h.companionCount}</span>}
+        {inGroup && onMoveLeft && (
+          <span className="hh-move-btns">
+            <button
+              type="button"
+              onClick={onMoveLeft}
+              onMouseDown={e => e.stopPropagation()}
+              draggable={false}
+              disabled={!canMoveLeft}
+              className="hh-move-btn"
+              title="往前移">‹</button>
+            <button
+              type="button"
+              onClick={onMoveRight}
+              onMouseDown={e => e.stopPropagation()}
+              draggable={false}
+              disabled={!canMoveRight}
+              className="hh-move-btn"
+              title="往後移">›</button>
+          </span>
+        )}
       </div>
     );
   }
@@ -504,6 +568,7 @@ tbody tr.leader-row td.name{font-weight:800;}
     const [registrations, setRegistrations] = useState(initRegs);
     const [assignments, setAssignments]     = useState({});
     const [leaders, setLeaders]             = useState({});
+    const [groupOrder, setGroupOrder]       = useState({});   // {gid: [serial,serial,...]} — per-group display order
     const [selected, setSelected]           = useState(new Set());
     const [companyFilter, setCompanyFilter] = useState("all");
     const [dragOverGroup, setDragOver]      = useState(null);
@@ -555,6 +620,22 @@ tbody tr.leader-row td.name{font-weight:800;}
               }
             }catch(_){}
           }
+          const rawO = content["groups.order"];
+          if(rawO){
+            try{
+              const p = JSON.parse(rawO);
+              if(p && typeof p === "object"){
+                // Normalize: trim serials in each group's array
+                const normalized = {};
+                Object.keys(p).forEach(k => {
+                  if(Array.isArray(p[k])){
+                    normalized[k] = p[k].map(s => String(s).trim()).filter(Boolean);
+                  }
+                });
+                setGroupOrder(normalized);
+              }
+            }catch(_){}
+          }
           console.log(`[groups.html] Loaded ${loadedA} assignments, ${loadedL} leaders from server`);
         } catch(e){ setErr("讀取既有分組失敗：" + e.message); }
         setLoading(false);
@@ -578,18 +659,37 @@ tbody tr.leader-row td.name{font-weight:800;}
       });
     }, [registrations]);
 
-    // Group buckets
+    // Group buckets — respect groupOrder for display sequence (drives PDF/Excel output too)
     const { groups, unassigned } = useMemo(() => {
       const g = {};
       for(let i = 1; i <= TOTAL_GROUPS; i++) g[i] = { households:[], seats:0 };
-      const u = [];
-      households.forEach(h => {
-        const gid = assignments[h.serial];
-        if(gid && g[gid]){ g[gid].households.push(h); g[gid].seats += h.seats; }
-        else u.push(h);
-      });
+      // serial → household lookup
+      const hMap = {};
+      households.forEach(h => { hMap[h.serial] = h; });
+      // For each group, first add households in saved order, then append any new ones
+      for(let gid = 1; gid <= TOTAL_GROUPS; gid++){
+        const orderArr = groupOrder[gid] || [];
+        const seen = new Set();
+        // Saved order first (only those still actually in this group)
+        orderArr.forEach(s => {
+          if(Number(assignments[s]) === gid && hMap[s] && !seen.has(s)){
+            g[gid].households.push(hMap[s]);
+            g[gid].seats += hMap[s].seats;
+            seen.add(s);
+          }
+        });
+        // Then append any in this group not yet ordered (newly dropped people)
+        households.forEach(h => {
+          if(Number(assignments[h.serial]) === gid && !seen.has(h.serial)){
+            g[gid].households.push(h);
+            g[gid].seats += h.seats;
+            seen.add(h.serial);
+          }
+        });
+      }
+      const u = households.filter(h => !assignments[h.serial]);
       return { groups: g, unassigned: u };
-    }, [households, assignments]);
+    }, [households, assignments, groupOrder]);
 
     // Effective leaders (auto-cleans dangling refs)
     // CRITICAL: use Number() coercion on BOTH sides because:
@@ -721,16 +821,53 @@ tbody tr.leader-row td.name{font-weight:800;}
       setDirty(true);
     }
 
+    // === Reorder within group (← / →) ===
+    function moveCard(gid, serial, direction, e){
+      if(e){ e.stopPropagation(); }
+      setGroupOrder(prev => {
+        const next = { ...prev };
+        let arr = (next[gid] || []).slice();
+        // Materialize current display order so move works regardless of save state
+        const inGroupSerials = households
+          .filter(h => Number(assignments[h.serial]) === gid)
+          .map(h => h.serial);
+        const existingFiltered = arr.filter(s => inGroupSerials.includes(s));
+        const newOnes = inGroupSerials.filter(s => !existingFiltered.includes(s));
+        arr = [...existingFiltered, ...newOnes];
+        const idx = arr.indexOf(serial);
+        if(idx === -1) return prev;
+        const newIdx = idx + direction;
+        if(newIdx < 0 || newIdx >= arr.length) return prev;
+        [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+        next[gid] = arr;
+        return next;
+      });
+      setDirty(true);
+    }
+
+    // Clean order for save — strip serials that no longer match assignments
+    const effectiveGroupOrder = useMemo(() => {
+      const out = {};
+      Object.keys(groupOrder).forEach(gid => {
+        const arr = groupOrder[gid] || [];
+        const filtered = arr.filter(s => Number(assignments[s]) === Number(gid));
+        if(filtered.length > 0) out[gid] = filtered;
+      });
+      return out;
+    }, [groupOrder, assignments]);
+
     // === Actions ===
     async function save(){
       setSaving(true); setErr("");
       const aCount = Object.keys(assignments).length;
       const lCount = Object.keys(effectiveLeaders).length;
+      const oCount = Object.keys(effectiveGroupOrder).length;
       const edits = {
         "groups.assignments": JSON.stringify(assignments),
-        "groups.leaders":     JSON.stringify(effectiveLeaders)
+        "groups.leaders":     JSON.stringify(effectiveLeaders),
+        "groups.order":       JSON.stringify(effectiveGroupOrder)
       };
-      console.log(`[groups.html] Saving ${aCount} assignments, ${lCount} leaders`, { assignments, effectiveLeaders, edits });
+      console.log(`[groups.html] Saving ${aCount} assignments, ${lCount} leaders, ${oCount} ordered groups`, { assignments, effectiveLeaders, effectiveGroupOrder });
       try{
         // NOTE: GAS saveContent action expects `edits` field (not `content`).
         // Sending under `content` silently no-ops while returning success:true.
@@ -785,6 +922,8 @@ tbody tr.leader-row td.name{font-weight:800;}
         }
         const rawL = content["groups.leaders"];
         setLeaders(rawL ? (JSON.parse(rawL) || {}) : {});
+        const rawO = content["groups.order"];
+        setGroupOrder(rawO ? (JSON.parse(rawO) || {}) : {});
         setSelected(new Set());
         setDirty(false);
         showToast("已重新載入");
@@ -794,7 +933,7 @@ tbody tr.leader-row td.name{font-weight:800;}
 
     function resetAll(){
       if(!window.confirm("確定要清除所有分組指派與組長？\n（只清空指派、不刪除報名資料。記得按「儲存」才會生效）")) return;
-      setAssignments({}); setLeaders({});
+      setAssignments({}); setLeaders({}); setGroupOrder({});
       setSelected(new Set()); setDirty(true);
     }
 
@@ -847,7 +986,7 @@ tbody tr.leader-row td.name{font-weight:800;}
           {selected.size > 0 && (
             <button onClick={clearSelection} className="text-[color:var(--coral)] hover:underline font-bold">✕ 取消選擇</button>
           )}
-          <span className="text-[color:var(--ink-soft)] ml-auto hidden md:inline">點卡片選 → 拖到組（多選可一起拖）｜組內點 ☆ 設組長</span>
+          <span className="text-[color:var(--ink-soft)] ml-auto hidden md:inline">點卡片選 → 拖到組（多選可一起拖）｜組內點 ☆ 設組長｜點 ‹ › 調順序</span>
         </div>
 
         {/* === Error banner === */}
@@ -959,7 +1098,7 @@ tbody tr.leader-row td.name{font-weight:800;}
                           <div className="text-[10px] text-[color:var(--ink-soft)] italic text-center py-3">— 空 —</div>
                         ) : (
                           <div className="flex flex-wrap gap-1">
-                            {group.households.map(h => (
+                            {group.households.map((h, idx) => (
                               <HouseholdCard
                                 key={h.serial}
                                 household={h}
@@ -969,6 +1108,10 @@ tbody tr.leader-row td.name{font-weight:800;}
                                 inGroup
                                 isLeader={leaderSerial === h.serial}
                                 onToggleLeader={e => toggleLeader(gid, h.serial, e)}
+                                onMoveLeft={e => moveCard(gid, h.serial, -1, e)}
+                                onMoveRight={e => moveCard(gid, h.serial, +1, e)}
+                                canMoveLeft={idx > 0}
+                                canMoveRight={idx < group.households.length - 1}
                               />
                             ))}
                           </div>
