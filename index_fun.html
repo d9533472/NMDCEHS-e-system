@@ -2869,17 +2869,57 @@ Phone: {{phone}}</p>
     // ---- Tab 3: Registrations ----
     // ============ Recipients modal ============
     // Pops up when admin clicks "📧 收件者". Aggregates unique emails from the *filtered*
-    // registration list (respects unit / language / search filters above), lets the admin
-    // pick a separator (; for Outlook, , for Gmail), and copies to clipboard.
+    // registration list (respects unit / language / search filters above). Also provides
+    // its OWN secondary filter chips (unit + language) so admin can quickly slice without
+    // going back to the RegTab toolbar. Copies to clipboard with chosen separator.
     function RecipientsModal({ filtered, totalCount, onClose }){
-      const [sep, setSep] = useState(";");      // ; for Outlook, , for Gmail
+      const [sep, setSep] = useState(";");          // ; for Outlook, , for Gmail
       const [copied, setCopied] = useState(false);
+      const [unitSel, setUnitSel] = useState("ALL"); // ALL / NMDC / TPC / POE / BST / Other
+      const [langSel, setLangSel] = useState("ALL"); // ALL / zh / en
 
-      // Dedup emails (case-insensitive). Sort for consistency.
+      // Stage 1: respect parent filtered list (RegTab toolbar)
+      // Stage 2: apply modal's own chips
+      const sliced = useMemo(() => {
+        return filtered.filter(r => {
+          if(unitSel !== "ALL"){
+            const u = r.unit || "Other";
+            if(u !== unitSel) return false;
+          }
+          if(langSel !== "ALL"){
+            const l = r.lang === "en" ? "en" : "zh";
+            if(l !== langSel) return false;
+          }
+          return true;
+        });
+      }, [filtered, unitSel, langSel]);
+
+      // Per-unit / per-lang counts on the parent-filtered list (so chip badges stay accurate
+      // regardless of which chips are currently selected)
+      const unitCounts = useMemo(() => {
+        const acc = { ALL: 0, NMDC: 0, TPC: 0, POE: 0, BST: 0, Other: 0 };
+        filtered.forEach(r => {
+          if(!r.email) return;
+          const u = r.unit || "Other";
+          acc.ALL++; if(acc[u] !== undefined) acc[u]++;
+        });
+        return acc;
+      }, [filtered]);
+      const langCounts = useMemo(() => {
+        const acc = { ALL: 0, zh: 0, en: 0 };
+        filtered.forEach(r => {
+          if(!r.email) return;
+          const l = r.lang === "en" ? "en" : "zh";
+          acc.ALL++; acc[l]++;
+        });
+        return acc;
+      }, [filtered]);
+
+      // Dedup emails from the sliced (modal-filtered) list. Case-insensitive. Sorted.
       const uniqueEmails = useMemo(() => {
         const seen = new Set();
         const out = [];
-        filtered.forEach(r => {
+        sliced.forEach(r => {
           const e = String(r.email || "").trim().toLowerCase();
           if(!e) return;
           if(seen.has(e)) return;
@@ -2887,21 +2927,11 @@ Phone: {{phone}}</p>
         });
         out.sort();
         return out;
-      }, [filtered]);
-
-      // Lang breakdown of registrants whose emails are included (not unique-deduped — by record).
-      const langCount = useMemo(() => {
-        const acc = { zh: 0, en: 0 };
-        filtered.forEach(r => {
-          if(!r.email) return;
-          const k = r.lang === "en" ? "en" : "zh";
-          acc[k]++;
-        });
-        return acc;
-      }, [filtered]);
+      }, [sliced]);
 
       const joined = uniqueEmails.join(sep === ";" ? "; " : ", ");
-      const isFiltered = filtered.length < totalCount;
+      const isParentFiltered = filtered.length < totalCount;
+      const isModalFiltered = unitSel !== "ALL" || langSel !== "ALL";
 
       async function doCopy(){
         if(uniqueEmails.length === 0) return;
@@ -2920,6 +2950,39 @@ Phone: {{phone}}</p>
         }
       }
 
+      function downloadCsv(){
+        if(sliced.length === 0) return;
+        // CSV with name, email, company, unit, lang  — UTF-8 BOM so Excel reads CJK
+        const rows = [["Serial","Name","Email","Company","Unit","Language"]];
+        sliced.forEach(r => {
+          if(!r.email) return;
+          const esc = v => {
+            const s = String(v == null ? "" : v);
+            return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+          };
+          rows.push([
+            esc(r.serial || ""),
+            esc(r.name || ""),
+            esc(String(r.email).trim()),
+            esc(r.company || ""),
+            esc(r.unit || ""),
+            esc(r.lang === "en" ? "English" : "中文")
+          ]);
+        });
+        const csv = "\uFEFF" + rows.map(row => row.join(",")).join("\r\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        const parts = [];
+        if(unitSel !== "ALL") parts.push(unitSel);
+        if(langSel !== "ALL") parts.push(langSel === "en" ? "EN" : "ZH");
+        const suffix = parts.length ? "_" + parts.join("-") : "";
+        a.download = `NMDC_recipients${suffix}_${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+      }
+
       // Close on ESC
       useEffect(() => {
         function onKey(e){ if(e.key === "Escape") onClose(); }
@@ -2927,27 +2990,110 @@ Phone: {{phone}}</p>
         return () => window.removeEventListener("keydown", onKey);
       }, [onClose]);
 
+      // Chip palette
+      const UNIT_LABEL = { ALL:"全部 All", NMDC:"NMDC", TPC:"TPC", POE:"POE", BST:"🌊 白沙屯 BST", Other:"✨ 其他 Other" };
+      const LANG_LABEL = { ALL:"全部 All", zh:"🇹🇼 中文 ZH", en:"🇬🇧 English EN" };
+
+      function Chip({ active, label, count, onClick, disabled }){
+        return (
+          <button
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className="rcp-chip"
+            data-active={active || undefined}
+            data-disabled={disabled || undefined}>
+            <span>{label}</span>
+            <span className="rcp-chip-num">{count}</span>
+          </button>
+        );
+      }
+
       return (
         <div className="modal-overlay" onClick={onClose}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth:"640px"}}>
+            <style>{`
+              .rcp-chip{
+                display:inline-flex; align-items:center; gap:6px;
+                padding:5px 10px; border-radius:999px;
+                border:1.5px solid var(--ink-soft); background:white;
+                color:var(--ink); font-size:12px; font-weight:700;
+                cursor:pointer; transition:all .12s; line-height:1.3;
+              }
+              .rcp-chip:hover:not([data-disabled="true"]){ background:var(--cream-warm); }
+              .rcp-chip[data-active="true"]{
+                background:var(--wave); color:white; border-color:var(--wave-deep);
+              }
+              .rcp-chip[data-disabled="true"]{ opacity:0.35; cursor:not-allowed; }
+              .rcp-chip-num{
+                font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+                font-weight:800; font-size:11px;
+                background:rgba(0,0,0,0.08); padding:1px 6px; border-radius:999px;
+                min-width:18px; text-align:center;
+              }
+              .rcp-chip[data-active="true"] .rcp-chip-num{ background:rgba(255,255,255,0.25); }
+              .rcp-filter-row{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+              .rcp-filter-label{
+                font-size:10px; font-weight:800; color:var(--ink-soft);
+                letter-spacing:0.18em; text-transform:uppercase;
+                min-width:48px;
+              }
+            `}</style>
+
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="font-display text-xl text-[color:var(--ink)]">📧 彙整收件者</div>
               <button onClick={onClose} className="modal-close" aria-label="關閉">×</button>
             </div>
 
-            {/* Count + lang breakdown */}
-            <div className="mb-3 pb-3 border-b border-[color:var(--line)]">
+            {/* Filter chips */}
+            <div className="mb-3 pb-3 border-b border-[color:var(--line)] space-y-2">
+              <div className="rcp-filter-row">
+                <span className="rcp-filter-label">公司</span>
+                {["ALL","NMDC","TPC","POE","BST","Other"].map(u => (
+                  <Chip
+                    key={u}
+                    active={unitSel === u}
+                    label={UNIT_LABEL[u]}
+                    count={unitCounts[u] || 0}
+                    onClick={() => setUnitSel(u)}
+                    disabled={u !== "ALL" && (unitCounts[u] || 0) === 0}
+                  />
+                ))}
+              </div>
+              <div className="rcp-filter-row">
+                <span className="rcp-filter-label">語言</span>
+                {["ALL","zh","en"].map(l => (
+                  <Chip
+                    key={l}
+                    active={langSel === l}
+                    label={LANG_LABEL[l]}
+                    count={langCounts[l] || 0}
+                    onClick={() => setLangSel(l)}
+                    disabled={l !== "ALL" && (langCounts[l] || 0) === 0}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Count + breakdown */}
+            <div className="mb-3">
               <div className="text-sm font-bold">
                 共 <span className="text-[color:var(--wave-deep)] text-lg font-num">{uniqueEmails.length}</span> 個 unique email
-                {isFiltered && (
+                {(isParentFiltered || isModalFiltered) && (
                   <span className="ml-2 text-[10px] font-bold tracking-widest text-[color:var(--coral)] uppercase">已篩選 · Filtered</span>
                 )}
               </div>
-              <div className="text-xs text-[color:var(--ink-soft)] mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
-                <span>🇹🇼 中文 <span className="font-bold text-[color:var(--ink)]">{langCount.zh}</span></span>
-                <span>🇬🇧 English <span className="font-bold text-[color:var(--ink)]">{langCount.en}</span></span>
-                {isFiltered && <span className="text-[color:var(--ink-soft)]">（自 {totalCount} 筆總名單中）</span>}
+              <div className="text-xs text-[color:var(--ink-soft)] mt-1">
+                {isModalFiltered && (
+                  <>篩選條件：
+                    {unitSel !== "ALL" && <span className="font-bold text-[color:var(--ink)] mx-1">{UNIT_LABEL[unitSel]}</span>}
+                    {unitSel !== "ALL" && langSel !== "ALL" && <span> × </span>}
+                    {langSel !== "ALL" && <span className="font-bold text-[color:var(--ink)] mx-1">{LANG_LABEL[langSel]}</span>}
+                    {" · "}
+                  </>
+                )}
+                自 {filtered.length} 筆{isParentFiltered ? `（總名單 ${totalCount}）` : " 中"}彙整
               </div>
             </div>
 
@@ -2979,14 +3125,21 @@ Phone: {{phone}}</p>
             )}
 
             {/* Actions */}
-            <div className="flex gap-2 mt-3 justify-end">
+            <div className="flex gap-2 mt-3 justify-end flex-wrap">
               <button onClick={onClose} className="btn-outline px-4 py-2 text-sm">關閉</button>
+              <button
+                onClick={downloadCsv}
+                disabled={uniqueEmails.length === 0}
+                className="btn-outline px-4 py-2 text-sm"
+                title="下載含姓名、信箱、單位、語言的 CSV (Excel 可開)">
+                📥 下載 CSV
+              </button>
               <button
                 onClick={doCopy}
                 disabled={uniqueEmails.length === 0}
                 className="btn-chunk px-5 py-2 text-sm"
                 style={{ background: copied ? "var(--nmdc-green)" : "var(--wave)" }}>
-                {copied ? "✅ 已複製到剪貼簿！" : "📋 複製到剪貼簿"}
+                {copied ? "✅ 已複製！" : "📋 複製到剪貼簿"}
               </button>
             </div>
           </div>

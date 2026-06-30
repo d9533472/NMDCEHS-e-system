@@ -511,6 +511,181 @@ tbody tr.leader-row td.name{font-weight:800;}
     XLSX.writeFile(wb, `NMDC淨灘簽到表_${today}.xlsx`);
   }
 
+  // ============================================================
+  // ===== Emergency Contacts Sheet (PDF, A4 Landscape) =========
+  // ============================================================
+  function buildContactsPrintHtml(groupsMap, leadersMap){
+    const leaders = leadersMap || {};
+    const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const dateStr = new Date().toLocaleDateString("zh-TW", { year: "numeric", month: "2-digit", day: "2-digit" });
+    const UNIT_COLORS = {
+      NMDC:{bg:"#2A9D5C",text:"#FFFFFF"}, TPC:{bg:"#155989",text:"#FFFFFF"},
+      POE:{bg:"#E5685A",text:"#FFFFFF"},  BST:{bg:"#1E6FAB",text:"#FFFFFF"},
+      Other:{bg:"#F5C24A",text:"#163654"}
+    };
+    let pages = "";
+    let groupCount = 0;
+
+    for(let gid = 1; gid <= TOTAL_GROUPS; gid++){
+      const g = groupsMap[gid];
+      if(!g || g.households.length === 0) continue;
+      groupCount++;
+
+      const leaderSerial = leaders[gid];
+      let leaderInfo = "";
+      if(leaderSerial){
+        const leaderH = g.households.find(h => h.serial === leaderSerial);
+        if(leaderH){
+          leaderInfo = `<span class="leader-name">★ ${esc(leaderH.name)}${leaderH.phone ? ` <span class="leader-phone">${esc(leaderH.phone)}</span>` : ""}</span>`;
+        }
+      }
+
+      let bodyRows = ""; let rowIdx = 1;
+      g.households.forEach(h => {
+        const U = UNIT_COLORS[h.unit] || UNIT_COLORS.Other;
+        const isLeader = leaderSerial === h.serial;
+        const leaderTag = isLeader ? ` <span class="leader-tag">★ 組長</span>` : "";
+        bodyRows += `<tr${isLeader ? ' class="leader-row"' : ''}>
+          <td class="idx">${rowIdx++}</td>
+          <td class="serial">${esc(h.serial)}</td>
+          <td class="name">${esc(h.name)}${leaderTag}</td>
+          <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
+          <td class="title">${esc(h.title) || '<span class="dash">—</span>'}</td>
+          <td class="blood">${h.blood ? esc(h.blood) : '<span class="dash">—</span>'}</td>
+          <td class="em-name">${esc(h.emName) || '<span class="dash">—</span>'}</td>
+          <td class="em-phone">${esc(h.emPhone) || '<span class="dash">—</span>'}</td>
+        </tr>`;
+        h.companions.forEach((c, i) => {
+          bodyRows += `<tr class="companion-row">
+            <td class="idx">${rowIdx++}</td>
+            <td class="serial">${esc(h.serial)}-${i+1}</td>
+            <td class="name">${esc(c.name || "（攜眷）")} <span class="tag">攜眷</span></td>
+            <td class="unit"><span class="chip" style="background:${U.bg};color:${U.text};">${esc(h.unit)}</span></td>
+            <td class="title"><span class="dash">—</span></td>
+            <td class="blood"><span class="dash">—</span></td>
+            <td class="em-name">${esc(h.name)} <span class="sub-tag">同行 WITH</span></td>
+            <td class="em-phone">${esc(h.phone) || '<span class="dash">—</span>'}</td>
+          </tr>`;
+        });
+      });
+
+      pages += `<div class="page">
+<div class="hdr">
+  <div class="hdr-emoji">📞 🆘 🏥</div>
+  <div class="hdr-title">緊急聯絡資訊</div>
+  <div class="hdr-title-en">EMERGENCY CONTACTS</div>
+  <div class="hdr-sub">2026 NMDC 一起淨一夏 · BEACH CLEANUP</div>
+  <div class="confidential">⚠ 機密：僅供活動主辦人緊急情況使用 · CONFIDENTIAL — FOR EVENT COORDINATOR EMERGENCY USE ONLY</div>
+</div>
+<div class="strip">
+  <div class="strip-left">
+    <span class="strip-badge">${gid}</span>
+    <span class="strip-label">
+      <span class="strip-label-zh">第 ${gid} 組</span>
+      <span class="strip-label-en">GROUP ${gid}</span>
+    </span>
+  </div>
+  <div class="strip-right">
+    <span class="strip-count">${g.seats}</span>
+    <span class="strip-unit">人<br/>PEOPLE</span>
+  </div>
+</div>
+<table>
+  <thead><tr>
+    <th class="col-idx">#</th>
+    <th class="col-serial">序號<br/><span class="th-en">SERIAL</span></th>
+    <th class="col-name">姓名<br/><span class="th-en">NAME</span></th>
+    <th class="col-unit">單位<br/><span class="th-en">UNIT</span></th>
+    <th class="col-title">職稱<br/><span class="th-en">TITLE</span></th>
+    <th class="col-blood">血型<br/><span class="th-en">BLOOD</span></th>
+    <th class="col-em-name">緊急聯絡人<br/><span class="th-en">EMERGENCY CONTACT</span></th>
+    <th class="col-em-phone">電話<br/><span class="th-en">PHONE</span></th>
+  </tr></thead>
+  <tbody>${bodyRows}</tbody>
+</table>
+<div class="footer">
+  <div>📅 <strong>日期 / Date</strong> ${dateStr}</div>
+  <div>👤 <strong>組長 / Leader</strong> ${leaderInfo || '<span class="ft-line"></span>'}</div>
+  <div class="ft-page">第 <strong>${gid}</strong> / ${TOTAL_GROUPS} 組 · <span style="opacity:0.7">Group ${gid} of ${TOTAL_GROUPS}</span></div>
+</div>
+</div>`;
+    }
+
+    if(groupCount === 0){
+      pages = `<div class="page-empty"><h1>尚未指派任何分組 · No Groups Assigned</h1><p>回到分組頁面拖拉指派後再試<br/>Please assign groups first</p></div>`;
+    }
+
+    return `<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="UTF-8"><title>NMDC 一起淨一夏 · 緊急聯絡資訊</title>
+<style>
+@page{size:A4 landscape; margin:10mm;}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif; color:#163654; background:#FBF7EE;}
+.page{page-break-after:always; padding:0; min-height:190mm;}
+.page:last-child{page-break-after:auto;}
+.page-empty{padding:60mm 20mm; text-align:center;}
+.page-empty h1{font-size:22pt; color:#5C7187;}
+.page-empty p{font-size:11pt; color:#5C7187; margin-top:8pt;}
+
+.hdr{text-align:center; margin-bottom:4mm;}
+.hdr-emoji{font-size:14pt; letter-spacing:14pt; margin-bottom:3pt; padding-left:14pt;}
+.hdr-title{font-size:24pt; font-weight:900; letter-spacing:0.05em; color:#C84A3F; line-height:1.05;}
+.hdr-title-en{font-size:9pt; font-weight:700; letter-spacing:0.32em; color:#E5685A; margin-top:3pt; text-transform:uppercase;}
+.hdr-sub{font-size:9.5pt; font-weight:700; letter-spacing:0.16em; color:#5C7187; margin-top:3pt; padding-top:2pt; border-top:1pt solid #D8D2C0;}
+.confidential{display:inline-block; margin-top:4pt; padding:2pt 8pt; background:#FDF1D2; color:#85650A; border:1pt solid #F5C24A; border-radius:3pt; font-size:7.5pt; font-weight:800; letter-spacing:0.06em;}
+
+.strip{background:#1E6FAB; color:white; padding:3mm 6mm; border-radius:7pt; margin-bottom:4mm; display:flex; align-items:center; justify-content:space-between;}
+.strip-left{display:flex; align-items:center; gap:8pt;}
+.strip-badge{display:inline-block; min-width:28pt; background:#F5C24A; color:#163654; padding:2.5pt 11pt; border-radius:999pt; font-size:16pt; font-weight:800; text-align:center; line-height:1.1;}
+.strip-label{display:inline-flex; flex-direction:column; line-height:1.1;}
+.strip-label-zh{font-size:16pt; font-weight:800; letter-spacing:0.04em;}
+.strip-label-en{font-size:7pt; font-weight:700; letter-spacing:0.22em; opacity:0.85; margin-top:1pt;}
+.strip-right{display:flex; align-items:center; gap:5pt;}
+.strip-count{font-size:24pt; font-weight:900; line-height:1;}
+.strip-unit{font-size:8pt; font-weight:700; opacity:0.85; letter-spacing:0.08em; line-height:1.1; text-align:left;}
+
+table{width:100%; border-collapse:collapse; border:1.5pt solid #155989; table-layout:fixed;}
+thead th{background:#1E6FAB; color:white; padding:5pt 5pt; font-size:10.5pt; font-weight:800; letter-spacing:0.04em; text-align:center; border:1pt solid #155989; line-height:1.25;}
+.th-en{font-size:6.5pt; font-weight:600; opacity:0.78; letter-spacing:0.14em; display:block; margin-top:1pt;}
+.col-idx{width:4%;} .col-serial{width:11%;} .col-name{width:13%;} .col-unit{width:9%;}
+.col-title{width:16%;} .col-blood{width:7%;} .col-em-name{width:15%;} .col-em-phone{width:25%;}
+tbody td{padding:5pt 7pt; height:24pt; vertical-align:middle; font-size:10pt; border:1pt solid #D8D2C0; line-height:1.25;}
+tbody tr:nth-child(even) td{background:#FBF7EE;}
+td.idx{text-align:center; font-weight:800; font-size:12pt; color:#1E6FAB;}
+td.serial{text-align:center; font-family:'Menlo','Monaco',monospace; font-size:9pt; color:#5C7187; letter-spacing:0.02em; word-break:break-all;}
+td.name{font-weight:800; font-size:11.5pt; color:#163654; word-break:break-word;}
+td.unit{text-align:center;}
+td.title{font-size:10pt; color:#163654; word-break:break-word;}
+td.blood{text-align:center; font-weight:800; font-size:12pt; color:#C84A3F;}
+td.em-name{font-weight:700; font-size:10.5pt; color:#163654; word-break:break-word;}
+td.em-phone{text-align:center; font-family:'Menlo','Monaco',monospace; font-size:11pt; font-weight:800; color:#163654; letter-spacing:0.03em;}
+.chip{display:inline-block; padding:2pt 8pt; border-radius:999pt; font-size:8.5pt; font-weight:800; letter-spacing:0.04em; line-height:1.2;}
+.tag{display:inline-block; padding:1pt 5pt; border-radius:3pt; background:#FCEFC9; color:#85650A; font-size:7pt; font-weight:800; letter-spacing:0.03em; margin-left:3pt;}
+.leader-tag{display:inline-block; padding:1pt 5pt; border-radius:3pt; background:#F5C24A; color:#163654; font-size:7pt; font-weight:800; letter-spacing:0.04em; margin-left:3pt;}
+.sub-tag{display:inline-block; padding:1pt 4pt; border-radius:3pt; background:#E8F1F8; color:#155989; font-size:6.5pt; font-weight:800; letter-spacing:0.04em; margin-left:3pt;}
+.dash{color:#B5B0A0; font-weight:400;}
+tbody tr.leader-row td{background:#FDF1D2 !important;}
+tbody tr.leader-row td.name{font-weight:800;}
+tbody tr.companion-row td{background:#FAF6E8;}
+tbody tr.companion-row td.idx{color:#5C7187;}
+.leader-name{display:inline-block; padding:2pt 7pt; background:#F5C24A; color:#163654; border-radius:4pt; font-weight:800; margin-left:3pt; font-size:10pt;}
+.leader-phone{font-family:'Menlo','Monaco',monospace; font-weight:800; margin-left:4pt;}
+
+.footer{margin-top:4mm; padding-top:3mm; border-top:1pt dashed #5C7187; display:flex; justify-content:space-between; align-items:center; font-size:9pt; color:#5C7187; flex-wrap:wrap; gap:4mm;}
+.footer strong{color:#163654; margin-right:3pt;}
+.ft-line{display:inline-block; width:30mm; border-bottom:1pt solid #5C7187; margin-left:3pt; vertical-align:bottom;}
+.ft-page{font-weight:700; color:#1E6FAB;}
+
+@media print{ body{background:white;} }
+@media screen{
+  body{padding:14px;}
+  .page{background:white; box-shadow:0 4px 24px rgba(0,0,0,0.1); border-radius:6px; padding:12mm; margin:0 auto 20px; width:297mm; max-width:100%; min-height:210mm;}
+}
+</style>
+</head><body onload="setTimeout(()=>window.print(), 400)">
+${pages}
+</body></html>`;
+  }
+
   // ===== Household card =====
   function HouseholdCard({ household, selected, onToggleSelect, onDragStart, inGroup, isLeader, onToggleLeader, onMoveLeft, onMoveRight, canMoveLeft, canMoveRight }){
     const h = household;
@@ -649,12 +824,17 @@ tbody tr.leader-row td.name{font-weight:800;}
       return registrations.map(r => {
         const companions = Array.isArray(r.companions) ? r.companions : [];
         return {
-          serial: String(r.serial || "").trim(),    // trim serial — defense against Sheets whitespace
-          name:   r.name,
-          unit:   r.unit || "Other",
+          serial:  String(r.serial || "").trim(),    // trim serial — defense against Sheets whitespace
+          name:    r.name,
+          unit:    r.unit || "Other",
+          title:   r.title || "",
+          phone:   r.phone || "",
+          blood:   r.blood || "",
+          emName:  r.emName || "",
+          emPhone: r.emPhone || "",
           companions,
           companionCount: companions.length,
-          seats:  1 + companions.length
+          seats:   1 + companions.length
         };
       });
     }, [registrations]);
@@ -949,6 +1129,27 @@ tbody tr.leader-row td.name{font-weight:800;}
       }
       buildSignInWorkbook(groups, effectiveLeaders);
     }
+    function exportContacts(){
+      console.log("[groups.html] 📞 exportContacts clicked");
+      try {
+        if(typeof buildContactsPrintHtml !== "function"){
+          alert("buildContactsPrintHtml 沒定義 — 表示這版 groups.html 是舊的，請重新下載 / 上傳");
+          console.error("[groups.html] buildContactsPrintHtml is", typeof buildContactsPrintHtml);
+          return;
+        }
+        console.log("[groups.html] groups:", groups);
+        console.log("[groups.html] effectiveLeaders:", effectiveLeaders);
+        const html = buildContactsPrintHtml(groups, effectiveLeaders);
+        console.log("[groups.html] HTML length:", html ? html.length : "(null)");
+        const w = window.open("", "_blank");
+        if(!w){ alert("瀏覽器擋了 popup，請允許後再試"); return; }
+        w.document.open(); w.document.write(html); w.document.close();
+        console.log("[groups.html] popup written ✅");
+      } catch(e) {
+        console.error("[groups.html] exportContacts error:", e);
+        alert("產生緊急聯絡單失敗：\n" + (e && e.message ? e.message : e));
+      }
+    }
 
     const totalLeaders = Object.keys(effectiveLeaders).length;
     const totalActiveGroups = Object.values(groups).filter(g => g.households.length > 0).length;
@@ -975,6 +1176,7 @@ tbody tr.leader-row td.name{font-weight:800;}
             <button onClick={reload} disabled={loading || saving} className="btn btn-secondary">🔄 重新載入</button>
             <button onClick={exportPdf} className="btn btn-primary">📄 PDF</button>
             <button onClick={exportExcel} className="btn btn-primary">📊 Excel</button>
+            <button onClick={exportContacts} className="btn" style={{background:"var(--coral)", color:"white"}} title="A4 橫向 · 緊急聯絡資訊 (機密)">📞 緊急聯絡</button>
             <button onClick={resetAll} className="btn btn-danger">⚠️ 清空</button>
             <a href="./" className="btn btn-secondary no-underline" style={{textDecoration:"none"}}>← 主頁</a>
           </div>
