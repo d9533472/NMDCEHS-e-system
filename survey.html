@@ -270,9 +270,19 @@
 <script type="text/babel" data-presets="react">
   const { useState, useEffect, useMemo } = React;
 
+  // ============================================================
+  // 🔧 CONFIG — 只需要改這一行 !!
+  // ============================================================
+  // 把 REPLACE_ME 改成你的 email，回饋會直接寄到這裡。
+  // 第一次會收到 FormSubmit 的「Activate Form」驗證信，點連結後就啟用。
+  // 之後每份回饋會自動寄到你信箱。
+  // 免費額度：每月 50 份（活動應該夠用）
+  const OWNER_EMAIL = "Paul.tong@nmdc-group.com";
+  // ============================================================
+
   const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
 
-  // ===== XHR helper =====
+  // ===== XHR helper (kept for compatibility, but we use fetch for FormSubmit) =====
   function xhrPost(url, data){
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -401,39 +411,79 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
     }
 
+    // Helper: turn rating number into star display for email
+    function starsText(n){
+      if(!n) return "(未評 / Not rated)";
+      return "★".repeat(n) + "☆".repeat(5-n) + `  (${n}/5)`;
+    }
+
     async function doSubmit(){
       setErr("");
       if(!unit){ setErr("請先選擇您的單位 · Please select your unit"); window.scrollTo({top:0, behavior:"smooth"}); return; }
       if(!isValidEmail(email.trim())){ setErr("Email 格式不正確 · Invalid email format"); return; }
 
+      if(OWNER_EMAIL.indexOf("REPLACE_ME") >= 0){
+        setErr("⚠ 主辦人 email 尚未設定。\n請聯絡活動主辦人：NMDC Paul 0981-181-202");
+        return;
+      }
+
       setSubmitting(true);
+
+      // Payload for FormSubmit — flat structure = nicer email display
       const payload = {
-        action:     "submitSurvey",
-        unit:       unit,
-        ratings:    ratings,
-        enjoyed:    enjoyed.trim(),
-        suggestions:suggestions.trim(),
-        email:      email.trim(),
-        timestamp:  new Date().toISOString(),
-        userAgent:  navigator.userAgent.substring(0, 200)
+        _subject:  `[NMDC 淨灘意見] ${unit}${email.trim() ? " · " + email.trim() : " · 匿名"}`,
+        _template: "table",         // renders nicely as HTML table in the email
+        _captcha:  "false",         // required for AJAX submissions
+
+        "🕓 送出時間":            new Date().toLocaleString("zh-TW"),
+        "👥 單位 Unit":           unit,
+
+        "🎯 整體 Overall":        starsText(ratings.overall),
+        "📝 報名 Registration":   starsText(ratings.registration),
+        "📢 資訊 Communication":  starsText(ratings.communication),
+        "🚌 接駁 Shuttle":        starsText(ratings.shuttle),
+        "🏖️ 場地 Venue":          starsText(ratings.venue),
+        "🧤 物資 Materials":      starsText(ratings.materials),
+        "🍱 餐飲 Meals":          starsText(ratings.meals),
+        "⛑️ 安全 Safety":         starsText(ratings.safety),
+        "🙋 工作人員 Staff":      starsText(ratings.staff),
+
+        "🎉 印象最深刻 Enjoyed":  enjoyed.trim() || "(未填 / Blank)",
+        "💡 建議 Suggestions":    suggestions.trim() || "(未填 / Blank)",
+
+        "📧 回覆 Email":          email.trim() || "(匿名 / Anonymous)",
+        "📱 User Agent":          navigator.userAgent.substring(0, 200)
       };
+
       try{
-        console.log("[survey.html] submitting:", payload);
-        const res = await xhrPost(GAS_URL, payload);
-        console.log("[survey.html] response:", res);
-        if(res && (res.success || res.ok)){
+        console.log("[survey.html] Submitting to FormSubmit:", payload);
+        const res = await fetch(
+          "https://formsubmit.co/ajax/" + encodeURIComponent(OWNER_EMAIL),
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Accept":       "application/json"
+            },
+            body: JSON.stringify(payload)
+          }
+        );
+        const data = await res.json();
+        console.log("[survey.html] FormSubmit response:", data);
+
+        // FormSubmit returns { success: "true", message: "..." } on success
+        // or { success: "false", message: "..." } on error
+        if(data && (data.success === true || data.success === "true")){
           setSubmitted(true);
           window.scrollTo({top:0, behavior:"smooth"});
+        } else if(data && data.message && /activate|verify|confirm/i.test(data.message)){
+          // First submission — activation required
+          setErr("⚠ 這是第一次送出 — FormSubmit 剛剛寄了驗證信到 " + OWNER_EMAIL + "。\n請主辦人先開信箱點擊「Activate Form」連結後，再重新送出一次即可。");
         } else {
-          const msg = (res && res.error) || "提交失敗，請稍後再試";
-          if(/unknown action|invalid action|submitSurvey|MISSING_FIELD/i.test(msg)){
-            setErr("GAS 尚未新增 submitSurvey 這個 action。\n請把 submitSurvey_snippet.gs 貼進 code.gs 並重新部署新版本。\n\n伺服器回應：" + msg);
-          } else {
-            setErr("提交失敗：" + msg);
-          }
+          setErr("提交失敗 · " + ((data && data.message) || "Unknown error"));
         }
       } catch(e){
-        setErr("連線失敗 · Network error: " + e.message);
+        setErr("連線失敗 · Network error: " + e.message + "\n\n可能是網路問題，請重試。");
       }
       setSubmitting(false);
     }
