@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>💬 活動意見調查 · NMDC 一起淨一夏</title>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.16.6/babel.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+  :root{
+    --cream:#FBF7EE; --cream-warm:#F5EFE0;
+    --ink:#163654; --ink-soft:#5C7187;
+    --wave:#1E6FAB; --wave-deep:#155989;
+    --sun:#F5C24A; --sun-soft:#FDF1D2;
+    --coral:#E5685A; --nmdc-green:#2A9D5C; --nmdc-green-deep:#1B7A44;
+    --line:#D8D2C0;
+  }
+  html, body{ margin:0; padding:0; background:var(--cream); }
+  body{
+    font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',system-ui,sans-serif;
+    color:var(--ink); min-height:100vh;
+  }
+  .font-num{ font-family:'Plus Jakarta Sans','SF Pro Display',Calibri,sans-serif; }
+
+  /* ===== Hero ===== */
+  .hero{
+    background:linear-gradient(135deg, var(--wave) 0%, var(--wave-deep) 60%, var(--nmdc-green-deep) 100%);
+    color:white; padding:34px 20px 42px;
+    text-align:center; position:relative; overflow:hidden;
+  }
+  .hero::before{
+    content:""; position:absolute; bottom:0; left:0; right:0; height:14px;
+    background:repeating-linear-gradient(135deg, var(--sun) 0 14px, var(--cream) 14px 28px);
+  }
+  .hero-emoji{ font-size:32px; letter-spacing:18px; margin-bottom:8px; padding-left:18px; }
+  .hero-title{ font-size:28px; font-weight:900; letter-spacing:0.05em; line-height:1.15; margin:0; }
+  .hero-title-en{ font-size:12px; font-weight:700; letter-spacing:0.36em; opacity:0.85; margin-top:6px; text-transform:uppercase; }
+  .hero-sub{ font-size:13px; font-weight:600; letter-spacing:0.12em; opacity:0.9; margin-top:6px; }
+
+  /* ===== Container ===== */
+  .container{ max-width:720px; margin:0 auto; padding:20px 16px 60px; }
+  .card{
+    background:white; border-radius:14px; padding:18px 18px;
+    margin-top:14px; border:1px solid var(--line);
+    box-shadow:0 2px 8px rgba(0,0,0,0.05);
+  }
+  .card-top{ margin-top:-22px; position:relative; z-index:10; }
+
+  /* ===== Section labels ===== */
+  .section-label{
+    font-size:11px; font-weight:800; color:var(--ink-soft);
+    letter-spacing:0.22em; text-transform:uppercase; margin-bottom:8px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .required-mark{
+    display:inline-block; padding:1px 6px; border-radius:4px;
+    background:var(--coral); color:white; font-size:9px; font-weight:900;
+    letter-spacing:0.06em; margin-left:4px;
+  }
+
+  /* ===== Unit pills ===== */
+  .unit-pills{ display:flex; gap:6px; flex-wrap:wrap; margin-top:4px; }
+  .unit-pill{
+    padding:9px 15px; border-radius:999px; border:2px solid var(--ink-soft);
+    background:white; color:var(--ink); font-size:14px; font-weight:800;
+    cursor:pointer; transition:all .12s; letter-spacing:0.02em; font-family:inherit;
+  }
+  .unit-pill:hover{ background:var(--cream-warm); }
+  .unit-pill[data-active="true"]{
+    background:var(--nmdc-green); color:white; border-color:var(--nmdc-green-deep);
+    box-shadow:0 2px 6px rgba(42,157,92,0.35);
+  }
+
+  /* ===== Rating row ===== */
+  .rating-row{
+    padding:14px 4px; border-bottom:1px dashed var(--line);
+  }
+  .rating-row:last-child{ border-bottom:none; }
+  .rating-title{
+    display:flex; align-items:baseline; gap:10px; margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .rating-icon{
+    font-size:22px; flex-shrink:0; width:28px; text-align:center;
+  }
+  .rating-num{
+    font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+    font-weight:900; color:var(--wave-deep); font-size:15px;
+    background:var(--sun-soft); padding:2px 8px; border-radius:6px;
+    min-width:26px; text-align:center;
+  }
+  .rating-name{ font-size:16px; font-weight:800; color:var(--ink); }
+  .rating-name-en{
+    font-size:10px; font-weight:700; letter-spacing:0.22em;
+    color:var(--ink-soft); text-transform:uppercase; margin-left:2px;
+  }
+  .stars-row{
+    display:flex; align-items:center; gap:2px;
+    margin-left:38px;
+  }
+  .star-btn{
+    background:transparent; border:none; cursor:pointer;
+    font-size:34px; line-height:1; padding:4px 3px;
+    color:#D8D2C0; transition:transform .1s, color .12s;
+    font-family:inherit; user-select:none;
+  }
+  .star-btn:hover{ transform:scale(1.15); }
+  .star-btn.filled{ color:var(--sun); }
+  .star-btn:focus{ outline:none; }
+  .star-clear{
+    margin-left:12px; background:transparent; border:none;
+    color:var(--ink-soft); font-size:11px; cursor:pointer;
+    padding:4px 8px; border-radius:4px; font-family:inherit;
+    letter-spacing:0.06em;
+  }
+  .star-clear:hover{ background:var(--cream-warm); color:var(--coral); }
+  .star-label{
+    margin-left:38px; margin-top:2px;
+    font-size:12px; font-weight:700; color:var(--ink-soft);
+    letter-spacing:0.04em; min-height:16px;
+  }
+  .star-label.rated{ color:var(--nmdc-green-deep); }
+
+  /* ===== Text feedback ===== */
+  .fb-block{ margin-top:14px; }
+  .fb-header{
+    display:flex; align-items:baseline; gap:8px; margin-bottom:6px;
+  }
+  .fb-icon{ font-size:18px; }
+  .fb-title{ font-size:15px; font-weight:800; color:var(--ink); }
+  .fb-title-en{
+    font-size:10px; font-weight:700; letter-spacing:0.2em;
+    color:var(--ink-soft); text-transform:uppercase;
+  }
+  .fb-hint{ font-size:11px; color:var(--ink-soft); margin-bottom:6px; }
+  .fb-textarea{
+    width:100%; padding:12px 14px; border:2px solid var(--line);
+    border-radius:8px; font-size:15px; font-family:inherit;
+    background:white; outline:none; transition:border-color .15s;
+    resize:vertical; min-height:90px; line-height:1.5;
+    color:var(--ink);
+  }
+  .fb-textarea:focus{ border-color:var(--nmdc-green); }
+
+  /* ===== Email ===== */
+  .email-input{
+    width:100%; padding:11px 14px; border:2px solid var(--line);
+    border-radius:8px; font-size:15px; font-family:inherit;
+    background:white; outline:none; transition:border-color .15s;
+    color:var(--ink);
+  }
+  .email-input:focus{ border-color:var(--nmdc-green); }
+
+  /* ===== Submit ===== */
+  .submit-block{ margin-top:22px; text-align:center; }
+  .btn-submit{
+    background:var(--nmdc-green); color:white; border:none;
+    padding:14px 36px; border-radius:999px;
+    font-size:16px; font-weight:900; letter-spacing:0.06em;
+    cursor:pointer; font-family:inherit;
+    box-shadow:0 4px 14px rgba(42,157,92,0.35);
+    transition:transform .12s, box-shadow .12s, background .12s;
+  }
+  .btn-submit:hover:not(:disabled){
+    background:var(--nmdc-green-deep); transform:translateY(-1px);
+    box-shadow:0 6px 18px rgba(42,157,92,0.45);
+  }
+  .btn-submit:disabled{ opacity:0.4; cursor:not-allowed; box-shadow:none; }
+  .submit-hint{
+    font-size:11px; color:var(--ink-soft); margin-top:8px;
+    letter-spacing:0.04em;
+  }
+
+  /* ===== Error / status ===== */
+  .error-banner{
+    background:#FFF6F4; border:1.5px solid var(--coral); color:var(--coral);
+    padding:12px 14px; border-radius:8px; margin-top:14px;
+    font-size:13px; font-weight:700; text-align:center;
+    white-space:pre-line;
+  }
+
+  /* ===== Success screen ===== */
+  .success-card{
+    background:white; border-radius:16px; padding:36px 24px;
+    margin-top:14px; text-align:center;
+    border:2px solid var(--nmdc-green); position:relative; z-index:10;
+    box-shadow:0 6px 24px rgba(42,157,92,0.2);
+  }
+  .success-emoji{ font-size:52px; letter-spacing:12px; margin-bottom:14px; padding-left:12px; }
+  .success-title{
+    font-size:24px; font-weight:900; color:var(--nmdc-green-deep);
+    letter-spacing:0.04em; margin-bottom:6px;
+  }
+  .success-title-en{
+    font-size:11px; font-weight:800; letter-spacing:0.32em;
+    color:var(--nmdc-green); text-transform:uppercase; margin-bottom:16px;
+  }
+  .success-msg{
+    font-size:14px; color:var(--ink); line-height:1.6;
+    margin-bottom:24px;
+  }
+  .btn-reset{
+    background:white; color:var(--nmdc-green-deep);
+    border:2px solid var(--nmdc-green);
+    padding:10px 24px; border-radius:999px;
+    font-size:13px; font-weight:800; letter-spacing:0.05em;
+    cursor:pointer; font-family:inherit;
+    transition:all .12s;
+  }
+  .btn-reset:hover{ background:var(--nmdc-green); color:white; }
+
+  /* ===== Footer contact card ===== */
+  .contact-card{
+    background:linear-gradient(135deg, var(--wave) 0%, var(--wave-deep) 100%);
+    color:white; border-radius:12px;
+    padding:16px 18px; margin-top:24px; text-align:center;
+    box-shadow:0 3px 12px rgba(30,111,171,0.25);
+  }
+  .contact-title{
+    font-size:11px; font-weight:800; letter-spacing:0.22em;
+    text-transform:uppercase; opacity:0.9; margin-bottom:6px;
+  }
+  .contact-line{ font-size:14px; opacity:0.95; margin-bottom:8px; }
+  .contact-phone{
+    display:inline-flex; align-items:center; gap:6px;
+    background:white; color:var(--wave-deep);
+    font-family:'Plus Jakarta Sans',Calibri,sans-serif;
+    font-size:16px; font-weight:900;
+    padding:6px 16px; border-radius:999px;
+    text-decoration:none; letter-spacing:0.05em;
+  }
+
+  .page-footer{
+    text-align:center; padding:18px 16px 8px;
+    font-size:11px; color:var(--ink-soft); letter-spacing:0.05em;
+  }
+  .page-footer a{ color:var(--wave); text-decoration:none; }
+
+  /* ===== Loading state ===== */
+  .spinner{
+    display:inline-block; width:16px; height:16px;
+    border:2.5px solid currentColor; border-top-color:transparent;
+    border-radius:50%; animation:spin 0.8s linear infinite;
+    vertical-align:middle; margin-right:6px;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+
+  /* ===== Mobile ===== */
+  @media (max-width:480px){
+    .hero{ padding:26px 16px 34px; }
+    .hero-title{ font-size:22px; }
+    .hero-emoji{ font-size:24px; letter-spacing:14px; }
+    .container{ padding:16px 12px 40px; }
+    .star-btn{ font-size:30px; padding:3px 2px; }
+    .stars-row{ margin-left:34px; }
+    .star-label{ margin-left:34px; }
+    .rating-name{ font-size:15px; }
+    .card{ padding:16px 14px; }
+    .btn-submit{ padding:12px 28px; font-size:15px; }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+  const { useState, useEffect, useMemo } = React;
+
+  const GAS_URL = "https://script.google.com/macros/s/AKfycbxzZ9Ft0orOCkRChGR7jmAa4_adVbqHwnSUGfJez7-CaLnVZTe3kX4rHqxypSP93vvbMg/exec";
+
+  // ===== XHR helper =====
+  function xhrPost(url, data){
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", url, true);
+      xhr.setRequestHeader("Content-Type", "text/plain;charset=utf-8");
+      xhr.onreadystatechange = () => {
+        if(xhr.readyState !== 4) return;
+        if(xhr.status >= 200 && xhr.status < 300){
+          try{ resolve(JSON.parse(xhr.responseText)); }
+          catch(e){ reject(new Error("Invalid JSON")); }
+        } else { reject(new Error("HTTP " + xhr.status)); }
+      };
+      xhr.onerror = () => reject(new Error("Network error"));
+      xhr.send(JSON.stringify(data));
+    });
+  }
+
+  // ===== The 9 rating dimensions =====
+  const RATING_ITEMS = [
+    { key:"overall",       icon:"🎯", zh:"活動整體滿意度",  en:"Overall Satisfaction" },
+    { key:"registration",  icon:"📝", zh:"報名流程",       en:"Registration Process" },
+    { key:"communication", icon:"📢", zh:"事前資訊傳達",   en:"Pre-event Communication" },
+    { key:"shuttle",       icon:"🚌", zh:"接駁車服務",     en:"Shuttle Bus Service" },
+    { key:"venue",         icon:"🏖️", zh:"場地與交通",     en:"Venue & Access" },
+    { key:"materials",     icon:"🧤", zh:"物資與裝備",     en:"Materials & Equipment" },
+    { key:"meals",         icon:"🍱", zh:"餐飲與補給",     en:"Refreshments" },
+    { key:"safety",        icon:"⛑️", zh:"現場安全管理",   en:"Safety Management" },
+    { key:"staff",         icon:"🙋", zh:"工作人員服務",   en:"Staff Service" }
+  ];
+
+  const STAR_LABELS = [
+    "非常不滿意 · Very Poor",
+    "不滿意 · Poor",
+    "普通 · Fair",
+    "滿意 · Good",
+    "非常滿意 · Excellent"
+  ];
+
+  // ===== StarRating =====
+  function StarRating({ value, onChange }){
+    const [hover, setHover] = useState(0);
+    const display = hover || value;
+    return (
+      <>
+        <div className="stars-row">
+          {[1,2,3,4,5].map(n => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => onChange(value === n ? 0 : n)}
+              onMouseEnter={() => setHover(n)}
+              onMouseLeave={() => setHover(0)}
+              className={"star-btn " + (n <= display ? "filled" : "empty")}
+              aria-label={`${n} star${n>1?"s":""}`}>
+              {n <= display ? "★" : "☆"}
+            </button>
+          ))}
+          {value > 0 && (
+            <button type="button" className="star-clear" onClick={() => onChange(0)}>
+              清除 Clear
+            </button>
+          )}
+        </div>
+        <div className={"star-label " + (display > 0 ? "rated" : "")}>
+          {display > 0 ? STAR_LABELS[display - 1] : "\u00A0"}
+        </div>
+      </>
+    );
+  }
+
+  // ===== Rating Row =====
+  function RatingRow({ index, item, value, onChange }){
+    return (
+      <div className="rating-row">
+        <div className="rating-title">
+          <span className="rating-num">{index}</span>
+          <span className="rating-icon">{item.icon}</span>
+          <span className="rating-name">{item.zh}</span>
+          <span className="rating-name-en">{item.en}</span>
+        </div>
+        <StarRating value={value} onChange={onChange} />
+      </div>
+    );
+  }
+
+  // ===== Success Screen =====
+  function SuccessScreen({ onReset }){
+    return (
+      <>
+        <div className="success-card">
+          <div className="success-emoji">🙏 💚 ✨</div>
+          <div className="success-title">感謝您的回饋！</div>
+          <div className="success-title-en">THANK YOU FOR YOUR FEEDBACK</div>
+          <div className="success-msg">
+            您的意見已成功送出，對我們規劃未來活動非常寶貴。<br/>
+            Your feedback has been received and will help us improve future events.
+          </div>
+          <button className="btn-reset" onClick={onReset}>
+            📝 再填一份 Submit Another
+          </button>
+        </div>
+      </>
+    );
+  }
+
+  // ===== Root App =====
+  function App(){
+    const [unit, setUnit] = useState(null);
+    const [ratings, setRatings] = useState({});   // { overall: 5, ... }
+    const [enjoyed, setEnjoyed] = useState("");
+    const [suggestions, setSuggestions] = useState("");
+    const [email, setEmail] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [err, setErr] = useState("");
+
+    function updateRating(key, val){
+      setRatings(prev => ({ ...prev, [key]: val }));
+    }
+
+    const canSubmit = !!unit && !submitting;
+
+    // Basic email regex (permissive)
+    function isValidEmail(e){
+      if(!e) return true;
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+    }
+
+    async function doSubmit(){
+      setErr("");
+      if(!unit){ setErr("請先選擇您的單位 · Please select your unit"); window.scrollTo({top:0, behavior:"smooth"}); return; }
+      if(!isValidEmail(email.trim())){ setErr("Email 格式不正確 · Invalid email format"); return; }
+
+      setSubmitting(true);
+      const payload = {
+        action:     "submitSurvey",
+        unit:       unit,
+        ratings:    ratings,
+        enjoyed:    enjoyed.trim(),
+        suggestions:suggestions.trim(),
+        email:      email.trim(),
+        timestamp:  new Date().toISOString(),
+        userAgent:  navigator.userAgent.substring(0, 200)
+      };
+      try{
+        console.log("[survey.html] submitting:", payload);
+        const res = await xhrPost(GAS_URL, payload);
+        console.log("[survey.html] response:", res);
+        if(res && (res.success || res.ok)){
+          setSubmitted(true);
+          window.scrollTo({top:0, behavior:"smooth"});
+        } else {
+          const msg = (res && res.error) || "提交失敗，請稍後再試";
+          if(/unknown action|invalid action|submitSurvey|MISSING_FIELD/i.test(msg)){
+            setErr("GAS 尚未新增 submitSurvey 這個 action。\n請把 submitSurvey_snippet.gs 貼進 code.gs 並重新部署新版本。\n\n伺服器回應：" + msg);
+          } else {
+            setErr("提交失敗：" + msg);
+          }
+        }
+      } catch(e){
+        setErr("連線失敗 · Network error: " + e.message);
+      }
+      setSubmitting(false);
+    }
+
+    function reset(){
+      setUnit(null); setRatings({}); setEnjoyed(""); setSuggestions(""); setEmail("");
+      setSubmitted(false); setErr("");
+      window.scrollTo({top:0, behavior:"smooth"});
+    }
+
+    return (
+      <div>
+        <div className="hero">
+          <div className="hero-emoji">🌊 💬 ✨</div>
+          <h1 className="hero-title">您的意見很重要</h1>
+          <div className="hero-title-en">YOUR VOICE MATTERS</div>
+          <div className="hero-sub">2026 NMDC 一起淨一夏 · POST-EVENT SURVEY</div>
+        </div>
+
+        <div className="container">
+          {submitted ? (
+            <SuccessScreen onReset={reset} />
+          ) : (
+            <>
+              {/* Unit selector */}
+              <div className="card card-top">
+                <div className="section-label">
+                  您的單位 · YOUR UNIT
+                  <span className="required-mark">必填 REQUIRED</span>
+                </div>
+                <div className="unit-pills">
+                  {[
+                    { key:"NMDC",  label:"NMDC" },
+                    { key:"TPC",   label:"TPC" },
+                    { key:"POE",   label:"POE" },
+                    { key:"BST",   label:"🌊 白沙屯 BST" },
+                    { key:"Other", label:"✨ 其他 Other" }
+                  ].map(p => (
+                    <button
+                      key={p.key}
+                      className="unit-pill"
+                      data-active={unit === p.key || undefined}
+                      onClick={() => setUnit(p.key)}>
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="text-[11px] text-[color:var(--ink-soft)] mt-3 leading-relaxed">
+                  🔒 本問卷完全匿名，不會記錄您的姓名。<br/>
+                  This survey is anonymous — no name required.
+                </div>
+              </div>
+
+              {/* Ratings */}
+              <div className="card">
+                <div className="section-label">
+                  ⭐ 滿意度評分 · SATISFACTION RATINGS
+                </div>
+                <div className="text-[11px] text-[color:var(--ink-soft)] mb-2">
+                  每項 1-5 星，可跳過不評 · Rate 1-5 stars each, skip any that don't apply
+                </div>
+                <div>
+                  {RATING_ITEMS.map((item, i) => (
+                    <RatingRow
+                      key={item.key}
+                      index={i + 1}
+                      item={item}
+                      value={ratings[item.key] || 0}
+                      onChange={val => updateRating(item.key, val)}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Text feedback */}
+              <div className="card">
+                <div className="section-label">
+                  💬 開放式回饋 · OPEN FEEDBACK
+                </div>
+
+                <div className="fb-block">
+                  <div className="fb-header">
+                    <span className="fb-icon">🎉</span>
+                    <span className="fb-title">印象最深刻 / 最喜歡的部分</span>
+                    <span className="fb-title-en">What did you enjoy most?</span>
+                  </div>
+                  <div className="fb-hint">哪個環節最讓您印象深刻？例如某個活動、風景、互動…</div>
+                  <textarea
+                    className="fb-textarea"
+                    value={enjoyed}
+                    onChange={e => setEnjoyed(e.target.value)}
+                    placeholder="例：淨灘完看到海灘變乾淨的成就感、跟同事一起流汗超熱血 …"
+                    maxLength={2000}
+                  />
+                </div>
+
+                <div className="fb-block">
+                  <div className="fb-header">
+                    <span className="fb-icon">💡</span>
+                    <span className="fb-title">給主辦單位的建議</span>
+                    <span className="fb-title-en">Suggestions for organizer</span>
+                  </div>
+                  <div className="fb-hint">任何改進建議、未來想看到的活動內容…都非常歡迎！</div>
+                  <textarea
+                    className="fb-textarea"
+                    value={suggestions}
+                    onChange={e => setSuggestions(e.target.value)}
+                    placeholder="例：希望下次可以增加解說時間、接駁車班次多一點 …"
+                    maxLength={2000}
+                  />
+                </div>
+              </div>
+
+              {/* Email (optional) */}
+              <div className="card">
+                <div className="section-label">
+                  📧 Email（選填）· OPTIONAL
+                </div>
+                <div className="text-[11px] text-[color:var(--ink-soft)] mb-3">
+                  若您希望主辦單位針對意見回覆您，可留下 Email。不留即完全匿名。<br/>
+                  Leave email if you'd like a personal reply. Not required.
+                </div>
+                <input
+                  type="email"
+                  className="email-input"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  maxLength={200}
+                />
+              </div>
+
+              {err && <div className="error-banner">⚠ {err}</div>}
+
+              <div className="submit-block">
+                <button
+                  className="btn-submit"
+                  onClick={doSubmit}
+                  disabled={!canSubmit}>
+                  {submitting ? <><span className="spinner"></span>送出中 · Submitting...</> : "✅ 送出回饋 Submit Feedback"}
+                </button>
+                <div className="submit-hint">
+                  {!unit ? "請先選擇單位 · Please select your unit" : "感謝您花時間填寫 · Thank you for your time"}
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="contact-card">
+            <div className="contact-title">⚠ 有其他問題？· NEED HELP?</div>
+            <div className="contact-line">請聯絡 NMDC <strong>Paul</strong> 童保舜</div>
+            <a href="tel:0981181202" className="contact-phone">📞 0981-181-202</a>
+          </div>
+
+          <div className="page-footer">
+            2026 NMDC 一起淨一夏 · <a href="./">回主頁 Home</a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
