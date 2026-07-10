@@ -1309,10 +1309,173 @@ function PhotoBtn({ record }) {
   </>);
 }
 
-// ─── RECORDS TAB ──────────────────────────────────────────────
+// ─── STATS TAB ───────────────────────────────────────────────
+function StatsTab({ records, onFilterClick }) {
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo,   setDateTo]   = useState('');
+  const [sortKey,  setSortKey]  = useState('total');
+  const [sortDir,  setSortDir]  = useState(-1);
+
+  const today = () => new Date().toISOString().slice(0,10);
+  const localFmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+  const applyQuick = (period) => {
+    const now = new Date();
+    if (period==='all') { setDateFrom(''); setDateTo(''); return; }
+    if (period==='thisweek') {
+      const dw=now.getDay(), diff=dw===0?-6:1-dw;
+      const mon=new Date(now); mon.setDate(now.getDate()+diff);
+      const sun=new Date(mon); sun.setDate(mon.getDate()+6);
+      setDateFrom(localFmt(mon)); setDateTo(localFmt(sun)); return;
+    }
+    if (period==='thismonth') {
+      setDateFrom(localFmt(new Date(now.getFullYear(), now.getMonth(), 1)));
+      setDateTo(localFmt(new Date(now.getFullYear(), now.getMonth()+1, 0))); return;
+    }
+    if (period==='lastmonth') {
+      setDateFrom(localFmt(new Date(now.getFullYear(), now.getMonth()-1, 1)));
+      setDateTo(localFmt(new Date(now.getFullYear(), now.getMonth(), 0))); return;
+    }
+    if (period==='last30') {
+      const d=new Date(now); d.setDate(now.getDate()-30);
+      setDateFrom(localFmt(d)); setDateTo(localFmt(now)); return;
+    }
+  };
+
+  // 篩選紀錄
+  const filtered = records.filter(r =>
+    (!dateFrom || r.date >= dateFrom) &&
+    (!dateTo   || r.date <= dateTo)
+  );
+
+  // 統計：以開單人分組
+  const statsMap = {};
+  filtered.forEach(r => {
+    const issuer = r.issuer || '（未填）';
+    if (!statsMap[issuer]) statsMap[issuer] = { issuer, total: 0, defects: 0, dates: [] };
+    statsMap[issuer].total++;
+    statsMap[issuer].defects += (r.defects && r.defects.length > 0) ? r.defects.length : 1;
+    if (r.date) statsMap[issuer].dates.push(r.date);
+  });
+
+  const rows = Object.values(statsMap).sort((a,b) => {
+    const va = a[sortKey], vb = b[sortKey];
+    return typeof va === 'number' ? (va-vb)*sortDir : (String(va)>String(vb)?1:-1)*sortDir;
+  });
+
+  const toggleSort = k => { if(sortKey===k) setSortDir(d=>d*-1); else { setSortKey(k); setSortDir(-1); } };
+  const SortIcon = ({k}) => <span style={{fontSize:10,opacity:.6}}>{sortKey===k?(sortDir>0?'▲':'▼'):'↕'}</span>;
+
+  const totalRecs = rows.reduce((s,r)=>s+r.total, 0);
+  const totalDefs = rows.reduce((s,r)=>s+r.defects, 0);
+
+  return (
+    <div>
+      <div className="page-header">
+        <div>
+          <div className="page-title">📈 開單統計</div>
+          <div className="page-sub">依開單人彙整開單張數與缺失件數</div>
+        </div>
+      </div>
+
+      {/* 日期篩選 */}
+      <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px',marginBottom:20,display:'flex',flexWrap:'wrap',gap:10,alignItems:'center'}}>
+        <span style={{fontSize:12,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.5px'}}>篩選期間</span>
+        {[
+          {id:'all',label:'全部'},
+          {id:'thisweek',label:'本週'},
+          {id:'thismonth',label:'本月'},
+          {id:'lastmonth',label:'上月'},
+          {id:'last30',label:'近30天'},
+        ].map(p=>(
+          <button key={p.id} onClick={()=>applyQuick(p.id)}
+            style={{padding:'5px 14px',borderRadius:20,fontSize:12,fontWeight:700,cursor:'pointer',border:'1.5px solid',
+              borderColor:(!dateFrom&&!dateTo&&p.id==='all')||(dateFrom&&p.id!=='all')?'var(--accent-blue)':'var(--border)',
+              background:(!dateFrom&&!dateTo&&p.id==='all')?'var(--accent-blue)':'var(--bg-input)',
+              color:(!dateFrom&&!dateTo&&p.id==='all')?'#fff':'var(--text-secondary)'}}>
+            {p.label}
+          </button>
+        ))}
+        <span style={{fontSize:12,color:'var(--text-muted)'}}>自訂</span>
+        <input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)}
+          style={{background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'5px 10px',fontSize:12,fontFamily:'inherit'}} />
+        <span style={{fontSize:12,color:'var(--text-muted)'}}>～</span>
+        <input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)}
+          style={{background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'5px 10px',fontSize:12,fontFamily:'inherit'}} />
+        {(dateFrom||dateTo) && <span style={{fontSize:12,color:'var(--accent-blue)',fontWeight:700}}>共 {filtered.length} 筆</span>}
+      </div>
+
+      {/* 合計列 */}
+      <div style={{display:'flex',gap:12,marginBottom:16}}>
+        {[
+          {label:'統計人數',value:rows.length,color:'var(--accent-blue)'},
+          {label:'總開單數',value:totalRecs,color:'var(--accent-orange)'},
+          {label:'總缺失件數',value:totalDefs,color:'var(--accent-red)'},
+        ].map(k=>(
+          <div key={k.label} style={{flex:1,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',marginBottom:6}}>{k.label}</div>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:k.color}}>{k.value}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* 統計表 */}
+      <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',overflow:'hidden'}}>
+        {/* 表頭 */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 110px 110px 1fr',background:'#e4ecf4',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
+          {[['issuer','開單人'],['total','開單單數'],['defects','開單件數'],['dates','開單日期範圍']].map(([k,l])=>(
+            <div key={k} onClick={()=>toggleSort(k)}
+              style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.5px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',gap:4}}>
+              {l} <SortIcon k={k} />
+            </div>
+          ))}
+        </div>
+        {/* 資料列 */}
+        {rows.length === 0 ? (
+          <div style={{padding:'40px',textAlign:'center',color:'var(--text-muted)'}}>📋 無資料</div>
+        ) : rows.map((r,i) => {
+          const dates = r.dates.sort();
+          const dateRange = dates.length > 0
+            ? dates.length === 1
+              ? dates[0]
+              : `${dates[0]} ～ ${dates[dates.length-1]}`
+            : '—';
+          return (
+            <div key={r.issuer}
+              onClick={()=>onFilterClick({issuer: r.issuer})}
+              title={`點擊查看 ${r.issuer} 的所有紀錄`}
+              style={{display:'grid',gridTemplateColumns:'1fr 110px 110px 1fr',padding:'12px 16px',gap:8,borderBottom:'1px solid var(--border)',background:i%2===0?'transparent':'rgba(0,0,0,.015)',alignItems:'center',cursor:'pointer',transition:'background .12s'}}
+              onMouseEnter={e=>e.currentTarget.style.background='var(--bg-card-hover)'}
+              onMouseLeave={e=>e.currentTarget.style.background=i%2===0?'transparent':'rgba(0,0,0,.015)'}
+            >
+              <div style={{fontWeight:700,fontSize:13,color:'var(--accent-blue)',display:'flex',alignItems:'center',gap:6}}>
+                {r.issuer}
+                <span style={{fontSize:10,opacity:.5}}>↗</span>
+              </div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-orange)'}}>{r.total}</div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)'}}>{r.defects}</div>
+              <div style={{fontSize:12,color:'var(--text-secondary)'}}>{dateRange}</div>
+            </div>
+          );
+        })}
+        {/* 合計列 */}
+        {rows.length > 0 && (
+          <div style={{display:'grid',gridTemplateColumns:'1fr 110px 110px 1fr',padding:'12px 16px',gap:8,borderTop:'2px solid var(--border)',background:'#e4ecf4',alignItems:'center'}}>
+            <div style={{fontWeight:800,fontSize:12,color:'var(--text-muted)',textTransform:'uppercase'}}>合計</div>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-orange)'}}>{totalRecs}</div>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)'}}>{totalDefs}</div>
+            <div></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
 function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, saving, gasUrl, connected, activeFilter }) {
   const { itemOptions, areaOptions, unitOptions } = config;
-  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', search:'', _overdue:false, _neardue:false, _thisweek:false });
+  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', issuer:'', search:'', _overdue:false, _neardue:false, _thisweek:false });
   const [sort, setSort] = useState({ key:'date', dir:'desc' });
   const [showModal, setShowModal] = useState(false);
   const [editRec, setEditRec] = useState(null);
@@ -1328,9 +1491,10 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
       }
       setFilters(f => ({
         ...f,
-        type: activeFilter.type || f.type,
-        status: activeFilter.status || f.status,
-        item: activeFilter.item || f.item,
+        type: activeFilter.type || '',
+        status: activeFilter.status || '',
+        item: activeFilter.item || '',
+        issuer: activeFilter.issuer || '',
         _overdue: activeFilter._overdue || false,
         _neardue: activeFilter._neardue || false,
         _thisweek: activeFilter._thisweek || false,
@@ -1342,6 +1506,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
     (!filters.type || r.type===filters.type) &&
     (!filters.area || r.area===filters.area) &&
     (!filters.unit || r.unit===filters.unit) &&
+    (!filters.issuer || r.issuer===filters.issuer) &&
     (!filters.status || r.status===filters.status) &&
     (!filters.item || (r.defects&&r.defects.length>0 ? r.defects.some(d=>String(d.item)===filters.item) : String(r.item)===filters.item)) &&
     (!filters._overdue || (r.status==='Open' && r.deadline && r.deadline!=='-' && r.deadline < today())) &&
@@ -1373,6 +1538,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
             {filters._overdue && <span style={{marginLeft:10,fontSize:13,background:'rgba(239,68,68,.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⚠️ 逾期未結</span>}
             {filters._neardue && <span style={{marginLeft:10,fontSize:13,background:'rgba(245,158,11,.1)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⏰ 即將到期</span>}
             {filters._thisweek && <span style={{marginLeft:10,fontSize:13,background:'rgba(139,92,246,.1)',color:'var(--accent-purple)',border:'1px solid rgba(139,92,246,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>📅 本週新增</span>}
+            {filters.issuer && <span style={{marginLeft:10,fontSize:13,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',border:'1px solid rgba(14,165,233,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>👤 {filters.issuer}</span>}
           </div>
           <div className="page-sub">共 {filtered.length} 筆 | Open: {openCnt} | Closed: {filtered.length - openCnt}</div>
         </div>
@@ -1832,6 +1998,7 @@ function App() {
         {[
           {id:'dashboard', label:'📊 儀表板'},
           {id:'records', label:'📋 紀錄管理', badge: openCnt>0 ? openCnt : null},
+          {id:'stats', label:'📈 開單統計'},
           {id:'settings', label:'⚙️ 設定'},
         ].map(n=>(
           <button key={n.id} className={`nav-btn${tab===n.id?' active':''}`} onClick={()=>setTab(n.id)}>
@@ -2025,6 +2192,7 @@ function App() {
             document.head.appendChild(s);
           }
         }} />}
+        {tab==='stats' && <StatsTab records={records} onFilterClick={filter=>{ setActiveFilter({...filter, _ts:Date.now()}); setTab('records'); }} />}
         {tab==='records' && (
           <RecordsTab
             records={records} config={config} saving={saving} gasUrl={gasUrl} connected={connected}
