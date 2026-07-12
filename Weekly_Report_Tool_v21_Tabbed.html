@@ -328,57 +328,74 @@
             .edit-tab-content { background:white; border:1px solid #e2e8f0; border-top:none; border-radius:0 0 12px 12px; padding:28px; min-height:400px; }
 
             /* ══════════════════════════════════════════
-               SOLAR AMBER — Warm Professional Edition
+               MARINE BLUEPRINT — Deep Navy Edition
                ══════════════════════════════════════════ */
             :root {
-                --sa-amber:  #f59e0b;
-                --sa-gold:   #d97706;
-                --sa-dark:   #1c1917;
-                --sa-mid:    #57534e;
-                --sa-muted:  #78716c;
-                --sa-light:  #a8a29e;
-                --sa-bg:     #fafaf9;
-                --sa-card:   #ffffff;
-                --sa-tint:   #fffbeb;
-                --sa-border: #fef3c7;
-                --sa-rule:   #e7e5e4;
+                --mb-navy:    #1a3a6e;
+                --mb-blue:    #1a7fff;
+                --mb-mid:     #4a6490;
+                --mb-light:   #7a9bc0;
+                --mb-bg:      #e8f0fb;
+                --mb-card:    #ffffff;
+                --mb-tint:    #f0f5ff;
+                --mb-border:  #c8d8f8;
+                --mb-rule:    #dce8f8;
+                --mb-ink:     #0f2040;
+                --mb-stripe:  #4da3ff;
             }
 
-            /* ── Page ── */
-            .print-container { font-family: 'Segoe UI', system-ui, sans-serif; }
-
-            /* ── Header override ── */
-            .print-container > header {
-                position: relative;
+            /* ── Font ── */
+            .print-container {
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                color: var(--mb-ink);
             }
+
+            /* ── Header: no border ── */
+
+            /* ── Header text overrides ── */
             .print-container > header .text-blue-300 {
-                color: var(--sa-gold) !important;
-                font-size: 9px !important;
+                display: inline-block !important;
+                background: rgba(255,255,255,0.12) !important;
+                border: 1px solid rgba(255,255,255,0.22) !important;
+                color: rgba(255,255,255,0.9) !important;
+                font-size: 8px !important;
                 font-weight: 700 !important;
                 letter-spacing: 1.5px !important;
                 text-transform: uppercase !important;
-                background: var(--sa-tint) !important;
-                border: 1px solid var(--sa-border) !important;
                 padding: 2px 8px !important;
-                border-radius: 3px !important;
-                display: inline-block !important;
+                border-radius: 2px !important;
+                margin-bottom: 6px !important;
             }
             .print-container > header h1 {
-                color: var(--sa-dark) !important;
-                font-size: 22px !important;
+                color: #ffffff !important;
+                font-size: 20px !important;
                 font-weight: 800 !important;
                 text-transform: uppercase !important;
-                letter-spacing: -.3px !important;
+                letter-spacing: -.2px !important;
                 line-height: 1.2 !important;
-                margin: 6px 0 !important;
+                margin: 5px 0 !important;
             }
             .print-container > header span,
-            .print-container > header .opacity-90 { color: var(--sa-muted) !important; opacity: 1 !important; font-size: 11px !important; }
+            .print-container > header .opacity-90 {
+                color: rgba(255,255,255,0.6) !important;
+                opacity: 1 !important;
+                font-size: 11px !important;
+            }
             .print-container > header .text-blue-400,
-            .print-container > header .text-xl { color: var(--sa-dark) !important; font-weight: 800 !important; font-size: 13px !important; }
+            .print-container > header .text-xl {
+                color: #ffffff !important;
+                font-weight: 800 !important;
+                font-size: 13px !important;
+            }
+            .print-container > header .text-sm.opacity-75 {
+                color: rgba(255,255,255,0.5) !important;
+                opacity: 1 !important;
+                font-size: 9px !important;
+            }
             .print-container > header .bg-blue-600 {
-                background: var(--sa-amber) !important;
-                color: #fff !important;
+                background: rgba(255,255,255,0.15) !important;
+                border: 1px solid rgba(255,255,255,0.25) !important;
+                color: #ffffff !important;
                 font-size: 8px !important;
                 font-weight: 700 !important;
                 letter-spacing: 1.5px !important;
@@ -386,9 +403,9 @@
                 border-radius: 2px !important;
             }
             .print-container > header .leading-relaxed {
-                border-left: 3px solid var(--sa-amber) !important;
-                background: var(--sa-tint) !important;
-                color: var(--sa-mid) !important;
+                border-left: 3px solid rgba(255,255,255,0.35) !important;
+                background: rgba(255,255,255,0.08) !important;
+                color: rgba(255,255,255,0.75) !important;
                 padding: 7px 12px !important;
                 border-radius: 0 4px 4px 0 !important;
                 font-size: 12px !important;
@@ -397,11 +414,17 @@
                 margin-top: 8px !important;
             }
 
+            /* ── Content background ── */
+            .p-8.space-y-6.pb-20.print-sections {
+                background: var(--mb-bg) !important;
+            }
+
             /* ── Section cards ── */
             .print-container section {
-                background: var(--sa-card) !important;
-                border: 1px solid var(--sa-rule) !important;
-                border-radius: 8px !important;
+                background: var(--mb-card) !important;
+                border: 1px solid var(--mb-border) !important;
+                border-top: 2px solid var(--mb-blue) !important;
+                border-radius: 6px !important;
                 padding: 14px 16px !important;
                 margin-bottom: 8px !important;
                 break-inside: avoid !important;
@@ -414,8 +437,8 @@
                 font-weight: 700 !important;
                 text-transform: uppercase !important;
                 letter-spacing: 1.8px !important;
-                color: var(--sa-dark) !important;
-                border-bottom: 2px solid var(--sa-amber) !important;
+                color: var(--mb-navy) !important;
+                border-bottom: 1px solid var(--mb-rule) !important;
                 padding-bottom: 9px !important;
                 margin-bottom: 14px !important;
                 display: flex !important;
@@ -428,117 +451,179 @@
                 display: inline-flex !important;
                 width: 24px !important;
                 height: 24px !important;
-                background: var(--sa-tint) !important;
-                border: 1px solid var(--sa-border) !important;
-                border-radius: 5px !important;
+                background: var(--mb-tint) !important;
+                border: 1px solid var(--mb-border) !important;
+                border-radius: 4px !important;
                 align-items: center !important;
                 justify-content: center !important;
                 font-size: 13px !important;
                 flex-shrink: 0 !important;
-                margin-right: 2px !important;
             }
-            /* ::before removed — using icon spans instead */
             .print-container section > h3 .ml-2 {
-                color: var(--sa-light) !important;
+                color: var(--mb-light) !important;
                 font-size: 8px !important;
                 font-weight: 400 !important;
                 letter-spacing: 0 !important;
             }
 
-            /* ── Summary ── */
+            /* ── Summary list ── */
+            .print-container section .flex.items-start {
+                border-bottom: 1px solid var(--mb-rule) !important;
+                padding: 6px 0 !important;
+            }
             .print-container .font-bold.mr-2.text-blue-800 {
-                color: var(--sa-gold) !important;
+                color: var(--mb-blue) !important;
                 font-size: 9px !important;
-                background: var(--sa-tint) !important;
-                border: 1px solid var(--sa-border) !important;
+                background: var(--mb-tint) !important;
+                border: 1px solid var(--mb-border) !important;
                 padding: 1px 5px !important;
                 border-radius: 2px !important;
             }
-            .print-container .whitespace-pre-wrap { color: var(--sa-mid) !important; font-size: 10px !important; }
-            .print-container .flex.items-start {
-                border-bottom: 1px solid var(--sa-rule) !important;
-                padding: 6px 0 !important;
+            .print-container .whitespace-pre-wrap {
+                color: var(--mb-mid) !important;
+                font-size: 10px !important;
             }
 
-            /* Issue cards now handled by inline JSX styles */
+            /* ── Issue cards (override inline JSX) ── */
+            /* Signal color set by inline JS — just ensure body styling */
 
             /* ── Tables ── */
             .print-container .overflow-hidden.border,
             .print-container .rp-table-wrap {
-                border: 1px solid var(--sa-rule) !important;
-                border-radius: 6px !important;
+                border: 1px solid var(--mb-border) !important;
+                border-radius: 5px !important;
                 overflow: hidden !important;
             }
             .print-container table thead tr,
             .print-container .rp-table thead tr {
-                background: var(--sa-dark) !important;
+                background: var(--mb-navy) !important;
             }
             .print-container table thead th,
             .print-container .rp-table th {
-                color: #fff !important;
+                color: rgba(255,255,255,0.85) !important;
                 font-size: 8px !important;
                 text-transform: uppercase !important;
-                letter-spacing: .8px !important;
+                letter-spacing: 0.8px !important;
                 padding: 7px 10px !important;
                 font-weight: 600 !important;
             }
             .print-container table tbody td,
             .print-container .rp-table td {
-                color: var(--sa-mid) !important;
-                border-bottom: 1px solid var(--sa-rule) !important;
+                color: var(--mb-mid) !important;
+                border-bottom: 1px solid var(--mb-rule) !important;
                 padding: 7px 10px !important;
                 font-size: 10px !important;
             }
-            .print-container table tbody tr:nth-child(even) td { background: var(--sa-tint) !important; }
+            .print-container table tbody tr:nth-child(even) td {
+                background: var(--mb-tint) !important;
+            }
             .print-container table tbody tr:last-child td { border-bottom: none !important; }
             .print-container table tbody td b,
             .print-container table td[style*="font-weight:700"],
-            .print-container table td[style*="font-weight:600"] { color: var(--sa-dark) !important; }
+            .print-container table td[style*="font-weight:600"] {
+                color: var(--mb-navy) !important;
+            }
 
             /* ── Status badges ── */
-            .rp-status.executed  { background: #dcfce7 !important; color: #15803d !important; border: none !important; }
-            .rp-status.completed { background: #dbeafe !important; color: #1d4ed8 !important; border: none !important; }
-            .rp-status.plan      { background: var(--sa-tint) !important; color: var(--sa-gold) !important; border: 1px solid var(--sa-border) !important; }
-            .rp-status.cancelled { background: #fee2e2 !important; color: #b91c1c !important; border: none !important; }
-            .rp-yes  { background: var(--sa-tint) !important; color: var(--sa-gold) !important; border: 1px solid var(--sa-border) !important; }
-            .rp-no   { background: #f5f5f4 !important; color: var(--sa-light) !important; }
-            .rp-stop { background: #fee2e2 !important; color: #b91c1c !important; }
+            .rp-status.executed  { background:#dcfce7 !important; color:#15803d !important; border:none !important; }
+            .rp-status.completed { background:#dbeafe !important; color:#1d4ed8 !important; border:none !important; }
+            .rp-status.plan      { background:#fef3c7 !important; color:#92400e !important; border:none !important; }
+            .rp-status.cancelled { background:#fee2e2 !important; color:#b91c1c !important; border:none !important; }
+            .rp-yes  { background:var(--mb-tint) !important; color:var(--mb-blue) !important; border:1px solid var(--mb-border) !important; }
+            .rp-no   { background:#f5f5f4 !important; color:#94a3b8 !important; }
+            .rp-stop { background:#fee2e2 !important; color:#b91c1c !important; }
 
             /* ── Photos ── */
-            .rp-photo-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+            /* ── Photo grid: 2 cols, 4 rows ── */
+            .rp-photo-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                grid-auto-rows: 160px !important;
+                gap: 8px !important;
+            }
             .rp-photo-card {
                 background: #fff !important;
-                border: 1px solid var(--sa-rule) !important;
-                border-radius: 6px !important;
+                border: 1px solid var(--mb-border) !important;
+                border-top: 2px solid var(--mb-blue) !important;
+                border-radius: 5px !important;
                 break-inside: avoid !important;
                 page-break-inside: avoid !important;
                 overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
+                height: 160px !important;
             }
-            .rp-photo-title { color: var(--sa-dark) !important; }
-            .rp-photo-desc  { color: var(--sa-mid) !important; }
-            .rp-photo-date  { color: var(--sa-light) !important; }
-            .rp-photo-img   {
-                background: var(--sa-tint) !important;
-                height: 150px !important;
+            .rp-photo-img {
+                background: var(--mb-tint) !important;
                 overflow: hidden !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
+                height: 115px !important;
+                flex-shrink: 0 !important;
             }
-            .rp-photo-img img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+            .rp-photo-img img {
+                max-width: 100% !important;
+                max-height: 115px !important;
+                width: auto !important;
+                height: auto !important;
+                object-fit: contain !important;
+                display: block !important;
+            }
+            .rp-photo-meta {
+                flex: 1 !important;
+                overflow: hidden !important;
+                padding: 5px 8px !important;
+            }
+            @media print {
+                .rp-photo-grid {
+                    grid-template-columns: 1fr 1fr !important;
+                    grid-auto-rows: 52mm !important;
+                    gap: 4mm !important;
+                }
+                .rp-photo-card {
+                    height: 52mm !important;
+                    border-radius: 2px !important;
+                }
+                .rp-photo-img {
+                    height: 38mm !important;
+                }
+                .rp-photo-img img {
+                    max-height: 38mm !important;
+                }
+                .rp-photo-meta {
+                    padding: 3px 6px !important;
+                }
+                .rp-photo-title { font-size: 8px !important; }
+                .rp-photo-desc  { font-size: 7px !important; }
+                .rp-photo-date  { font-size: 6px !important; }
+            }
+            .rp-photo-title { color:var(--mb-navy) !important; font-size:10px !important; font-weight:700 !important; }
+            .rp-photo-desc  { color:var(--mb-mid) !important; font-size:9px !important; }
+            .rp-photo-date  { color:var(--mb-light) !important; font-size:8px !important; }
+            .rp-photo-meta  { padding:8px 10px !important; }
 
-            /* ── Footer ── */
-            .print-container .absolute.bottom-0 { display: flex !important; justify-content: space-between !important; }
-            .print-container .absolute.bottom-0 .text-gray-400 { color: var(--sa-light) !important; font-size: 8px !important; }
+            /* ── Footer text ── */
+            .print-container .absolute.bottom-0 {
+                display:flex !important;
+                justify-content:space-between !important;
+            }
+            .print-container .absolute.bottom-0 .text-gray-400 {
+                color:rgba(255,255,255,0.45) !important;
+                font-size:8px !important;
+            }
 
-            /* ── Section spacing ── */
+            /* ── Spacing ── */
             .p-8.space-y-6.pb-20.print-sections > * + * { margin-top: 0 !important; }
 
             /* ══ PRINT ══ */
             @media print {
-                .print-container,
-                .print-container section { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .print-container table thead tr { background: var(--sa-dark) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .print-container { background:#fff !important; }
+                .print-container > header { background:var(--mb-navy) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+                .print-container section { background:#fff !important; border-top:2px solid var(--mb-blue) !important; }
+                .print-container table thead tr { background:var(--mb-navy) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+                .p-8.space-y-6.pb-20.print-sections { background:#f0f5ff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+                .print-container .absolute.bottom-0 { background:var(--mb-navy) !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
             }
     </style>
 </head>
@@ -2345,9 +2430,9 @@
 
 
             const renderPreviewMode = () => (
-                <div className="print-container max-w-[210mm] min-h-[297mm] mx-auto shadow-2xl overflow-hidden relative print:shadow-none print:w-full" style={{background:"#ffffff"}}>
+                <div className="print-container max-w-[210mm] min-h-[297mm] mx-auto shadow-2xl overflow-hidden relative print:shadow-none print:w-full" style={{background:"#ffffff",boxShadow:"0 4px 32px rgba(26,58,110,0.10)"}}>
                     {/* Header */}
-                    <header className="p-8" style={{background:"#ffffff",borderTop:"4px solid #f59e0b",borderBottom:"1px solid #fef3c7",color:"#1c1917"}}>
+                    <header className="p-8" style={{background:"#1a3a6e",color:"#ffffff"}}>
                         <div className="flex justify-between items-start">
                             <div>
                                 <div className="text-blue-300 text-xs font-bold tracking-wider mb-1">
@@ -2395,7 +2480,7 @@
                     </header>
 
                     {/* Content */}
-                    <div className="p-8 space-y-6 pb-20 print-sections" style={{background:"#fafaf9"}}>
+                    <div className="p-8 space-y-6 pb-20 print-sections" style={{background:"#e8f0fb"}}>
                         {(reportData.sectionOrder||["summary","issues","progress","kpi","ncr","monitoring","mmo","photos"]).map(sid => {
                             const d = reportData;
                             switch(sid) {
@@ -2425,7 +2510,7 @@
                                                 const pillBg=issue.priority==='High'?'#fee2e2':issue.priority==='Low'?'#dcfce7':'#fef3c7';
                                                 const pillColor=issue.priority==='High'?'#b91c1c':issue.priority==='Low'?'#15803d':'#92400e';
                                                 return(
-                                                    <div key={issue.id} style={{display:'flex',borderRadius:'6px',overflow:'hidden',border:'1px solid #e7e5e4',background:'#ffffff',breakInside:'avoid'}}>
+                                                    <div key={issue.id} style={{display:'flex',borderRadius:'5px',overflow:'hidden',border:'1px solid #c8d8f8',background:'#ffffff',breakInside:'avoid'}}>
                                                         <div style={{width:'5px',flexShrink:0,background:sig}}></div>
                                                         <div style={{flex:1,padding:'10px 14px'}}>
                                                             <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'5px',gap:'8px'}}>
@@ -2593,14 +2678,14 @@
                     </div>
 
                     {/* Footer */}
-                    <div className="absolute bottom-0 w-full px-8 py-3 text-xs flex justify-between" style={{background:"#fffbeb",borderTop:"2px solid #f59e0b",color:"#78716c"}}>
+                    <div className="absolute bottom-0 w-full px-8 py-3 text-xs flex justify-between" style={{background:"#1a3a6e",borderTop:"none",color:"rgba(255,255,255,0.55)"}}>
                         Generated by ENV Team • NMDC Project 2913
                     </div>
                 </div>
             );
 
             return (
-                <div className="min-h-screen p-4 md:p-8" style={{background:"#fafaf9"}}>
+                <div className="min-h-screen p-4 md:p-8" style={{background:"#e8f0fb"}}>
                     {renderControlBar()}
                     {isEditing ? renderEditMode() : renderPreviewMode()}
                     {toast && (
