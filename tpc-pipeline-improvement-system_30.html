@@ -1310,11 +1310,37 @@ function PhotoBtn({ record }) {
 }
 
 // ─── STATS TAB ───────────────────────────────────────────────
-function StatsTab({ records, onFilterClick }) {
+function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles }) {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo,   setDateTo]   = useState('');
   const [sortKey,  setSortKey]  = useState('total');
   const [sortDir,  setSortDir]  = useState(-1);
+  const [roles, setRoles] = useState(issuerRoles || {});
+  const [dirty, setDirty] = useState(false);
+  const [savingRoles, setSavingRoles] = useState(false);
+
+  const ROLES = {
+    A: { label:'A 經辦員', color:'#0ea5e9', bg:'rgba(14,165,233,.1)', border:'rgba(14,165,233,.3)' },
+    B: { label:'B 主管',   color:'#d97706', bg:'rgba(217,119,6,.1)',  border:'rgba(217,119,6,.3)' },
+    C: { label:'C 核定工及以上', color:'#7c3aed', bg:'rgba(124,58,237,.1)', border:'rgba(124,58,237,.3)' },
+  };
+
+  // 同步外部傳入的 issuerRoles
+  React.useEffect(() => { setRoles(issuerRoles || {}); setDirty(false); }, [issuerRoles]);
+
+  const setRole = (issuer, role) => {
+    const newRoles = { ...roles };
+    if (newRoles[issuer] === role) delete newRoles[issuer];
+    else newRoles[issuer] = role;
+    setRoles(newRoles);
+    setDirty(true); // 標記未儲存
+  };
+
+  const handleSaveRoles = async () => {
+    setSavingRoles(true);
+    try { await onSaveRoles(roles); setDirty(false); }
+    finally { setSavingRoles(false); }
+  };
 
   const today = () => new Date().toISOString().slice(0,10);
   const localFmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
@@ -1376,6 +1402,12 @@ function StatsTab({ records, onFilterClick }) {
           <div className="page-title">📈 開單統計</div>
           <div className="page-sub">依開單人彙整開單張數與缺失件數</div>
         </div>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          {dirty && <span style={{fontSize:12,color:'var(--accent-orange)',fontWeight:600}}>⚠️ 角色設定未儲存</span>}
+          <button className="btn btn-primary" onClick={handleSaveRoles} disabled={!dirty||savingRoles}>
+            {savingRoles ? '⏳ 儲存中...' : '☁️ 儲存角色設定'}
+          </button>
+        </div>
       </div>
 
       {/* 日期篩選 */}
@@ -1405,25 +1437,58 @@ function StatsTab({ records, onFilterClick }) {
         {(dateFrom||dateTo) && <span style={{fontSize:12,color:'var(--accent-blue)',fontWeight:700}}>共 {filtered.length} 筆</span>}
       </div>
 
-      {/* 合計列 */}
-      <div style={{display:'flex',gap:12,marginBottom:16}}>
-        {[
-          {label:'統計人數',value:rows.length,color:'var(--accent-blue)'},
-          {label:'總開單數',value:totalRecs,color:'var(--accent-orange)'},
-          {label:'總缺失件數',value:totalDefs,color:'var(--accent-red)'},
-        ].map(k=>(
-          <div key={k.label} style={{flex:1,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
-            <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',marginBottom:6}}>{k.label}</div>
-            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:k.color}}>{k.value}</div>
+      {/* 合計列 + U值 */}
+      {(() => {
+        const roleStats = {};
+        rows.forEach(r => {
+          const rk = roles[r.issuer];
+          if (!rk) return;
+          if (!roleStats[rk]) roleStats[rk] = { total:0, defects:0 };
+          roleStats[rk].total += r.total;
+          roleStats[rk].defects += r.defects;
+        });
+        const uParts = ['A','B','C'].map(k => roleStats[k] && roleStats[k].total > 0 ? roleStats[k].defects / roleStats[k].total : null);
+        const validU = uParts.filter(v => v !== null);
+        const uVal = validU.length > 0 ? (validU.reduce((s,v)=>s+v,0)/3).toFixed(2) : null;
+        return (<>
+          <div style={{display:'flex',gap:12,marginBottom:12,flexWrap:'wrap'}}>
+            <div style={{flex:1,minWidth:120,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',marginBottom:6}}>統計人數</div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:'var(--accent-blue)'}}>{rows.length}</div>
+            </div>
+            <div style={{flex:1,minWidth:120,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',marginBottom:6}}>總開單數</div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:'var(--accent-orange)'}}>{totalRecs}</div>
+            </div>
+            <div style={{flex:1,minWidth:120,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',marginBottom:6}}>總缺失件數</div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:32,fontWeight:900,color:'var(--accent-red)'}}>{totalDefs}</div>
+            </div>
+            {Object.entries(ROLES).map(([k,v])=>(
+              <div key={k} style={{flex:1,minWidth:140,background:v.bg,border:`1.5px solid ${v.border}`,borderRadius:'var(--radius)',padding:'14px 18px'}}>
+                <div style={{fontSize:11,fontWeight:700,color:v.color,textTransform:'uppercase',marginBottom:4}}>{v.label}</div>
+                <div style={{display:'flex',gap:12,alignItems:'baseline'}}>
+                  <div><div style={{fontSize:9,color:v.color,opacity:.7,marginBottom:2}}>次數</div><div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:22,fontWeight:900,color:v.color}}>{roleStats[k]?.total||0}</div></div>
+                  <div><div style={{fontSize:9,color:v.color,opacity:.7,marginBottom:2}}>件數</div><div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:22,fontWeight:900,color:v.color}}>{roleStats[k]?.defects||0}</div></div>
+                </div>
+              </div>
+            ))}
+            {uVal && (
+              <div style={{flex:1,minWidth:160,background:'linear-gradient(135deg,rgba(124,58,237,.12),rgba(14,165,233,.08))',border:'2px solid rgba(124,58,237,.3)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
+                <div style={{fontSize:11,fontWeight:700,color:'#7c3aed',textTransform:'uppercase',marginBottom:4}}>U 值</div>
+                <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:36,fontWeight:900,color:'#7c3aed'}}>{uVal}</div>
+                <div style={{fontSize:9,color:'var(--text-muted)',marginTop:4}}>= (A件/A次 + B件/B次 + C件/C次) / 3</div>
+              </div>
+            )}
           </div>
-        ))}
-      </div>
+        </>);
+      })()}
 
       {/* 統計表 */}
       <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',overflow:'hidden'}}>
         {/* 表頭 */}
-        <div style={{display:'grid',gridTemplateColumns:'1fr 110px 110px 1fr',background:'#e4ecf4',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
-          {[['issuer','開單人'],['total','開單單數'],['defects','開單件數'],['dates','開單日期範圍']].map(([k,l])=>(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 80px 80px 80px 1fr',background:'#e4ecf4',borderBottom:'2px solid var(--border)',padding:'10px 16px',gap:8}}>
+          {[['issuer','開單人'],['total','開單單數'],['defects','開單件數'],['role','角色'],['dates','開單日期範圍']].map(([k,l])=>(
             <div key={k} onClick={()=>toggleSort(k)}
               style={{fontSize:11,fontWeight:700,color:'var(--text-muted)',textTransform:'uppercase',letterSpacing:'.5px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',gap:4}}>
               {l} <SortIcon k={k} />
@@ -1440,31 +1505,44 @@ function StatsTab({ records, onFilterClick }) {
               ? dates[0]
               : `${dates[0]} ～ ${dates[dates.length-1]}`
             : '—';
+          const roleKey = roles[r.issuer];
+          const roleInfo = roleKey ? ROLES[roleKey] : null;
           return (
-            <div key={r.issuer}
-              onClick={()=>onFilterClick({issuer: r.issuer})}
-              title={`點擊查看 ${r.issuer} 的所有紀錄`}
-              style={{display:'grid',gridTemplateColumns:'1fr 110px 110px 1fr',padding:'12px 16px',gap:8,borderBottom:'1px solid var(--border)',background:i%2===0?'transparent':'rgba(0,0,0,.015)',alignItems:'center',cursor:'pointer',transition:'background .12s'}}
-              onMouseEnter={e=>e.currentTarget.style.background='var(--bg-card-hover)'}
-              onMouseLeave={e=>e.currentTarget.style.background=i%2===0?'transparent':'rgba(0,0,0,.015)'}
-            >
-              <div style={{fontWeight:700,fontSize:13,color:'var(--accent-blue)',display:'flex',alignItems:'center',gap:6}}>
-                {r.issuer}
-                <span style={{fontSize:10,opacity:.5}}>↗</span>
+            <div key={r.issuer} style={{display:'grid',gridTemplateColumns:'1fr 80px 80px 80px 1fr',padding:'10px 16px',gap:8,borderBottom:'1px solid var(--border)',background:i%2===0?'transparent':'rgba(0,0,0,.015)',alignItems:'center'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                <span onClick={()=>onFilterClick({issuer: r.issuer})} title={`點擊查看 ${r.issuer} 的紀錄`}
+                  style={{fontWeight:700,fontSize:13,color:'var(--accent-blue)',cursor:'pointer',display:'flex',alignItems:'center',gap:4}}>
+                  {r.issuer}<span style={{fontSize:10,opacity:.4}}>↗</span>
+                </span>
+                <div style={{display:'flex',gap:4}}>
+                  {Object.entries(ROLES).map(([k,v])=>(
+                    <button key={k} onClick={()=>setRole(r.issuer, k)}
+                      style={{padding:'2px 8px',borderRadius:12,fontSize:11,fontWeight:700,cursor:'pointer',border:`1.5px solid`,
+                        borderColor: roleKey===k ? v.color : 'var(--border)',
+                        background: roleKey===k ? v.bg : 'transparent',
+                        color: roleKey===k ? v.color : 'var(--text-muted)',
+                        transition:'all .12s'}}>
+                      {k}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-orange)'}}>{r.total}</div>
-              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)'}}>{r.defects}</div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-orange)',textAlign:'center'}}>{r.total}</div>
+              <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)',textAlign:'center'}}>{r.defects}</div>
+              <div style={{textAlign:'center'}}>
+                {roleInfo ? <span style={{fontSize:11,fontWeight:700,borderRadius:20,padding:'2px 10px',background:roleInfo.bg,color:roleInfo.color,border:`1px solid ${roleInfo.border}`}}>{roleInfo.label}</span> : <span style={{fontSize:11,color:'var(--text-muted)'}}>—</span>}
+              </div>
               <div style={{fontSize:12,color:'var(--text-secondary)'}}>{dateRange}</div>
             </div>
           );
         })}
         {/* 合計列 */}
         {rows.length > 0 && (
-          <div style={{display:'grid',gridTemplateColumns:'1fr 110px 110px 1fr',padding:'12px 16px',gap:8,borderTop:'2px solid var(--border)',background:'#e4ecf4',alignItems:'center'}}>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 80px 80px 80px 1fr',padding:'12px 16px',gap:8,borderTop:'2px solid var(--border)',background:'#e4ecf4',alignItems:'center'}}>
             <div style={{fontWeight:800,fontSize:12,color:'var(--text-muted)',textTransform:'uppercase'}}>合計</div>
-            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-orange)'}}>{totalRecs}</div>
-            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)'}}>{totalDefs}</div>
-            <div></div>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-orange)',textAlign:'center'}}>{totalRecs}</div>
+            <div style={{fontFamily:"'JetBrains Mono',monospace",fontSize:18,fontWeight:900,color:'var(--accent-red)',textAlign:'center'}}>{totalDefs}</div>
+            <div></div><div></div>
           </div>
         )}
       </div>
@@ -1538,7 +1616,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
             {filters._overdue && <span style={{marginLeft:10,fontSize:13,background:'rgba(239,68,68,.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⚠️ 逾期未結</span>}
             {filters._neardue && <span style={{marginLeft:10,fontSize:13,background:'rgba(245,158,11,.1)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⏰ 即將到期</span>}
             {filters._thisweek && <span style={{marginLeft:10,fontSize:13,background:'rgba(139,92,246,.1)',color:'var(--accent-purple)',border:'1px solid rgba(139,92,246,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>📅 本週新增</span>}
-            {filters.issuer && <span style={{marginLeft:10,fontSize:13,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',border:'1px solid rgba(14,165,233,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>👤 {filters.issuer}</span>}
+            {filters.issuer && <span onClick={()=>setF('issuer','')} title="點擊清除篩選" style={{marginLeft:10,fontSize:13,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',border:'1px solid rgba(14,165,233,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600,cursor:'pointer'}}>👤 {filters.issuer} ✕</span>}
           </div>
           <div className="page-sub">共 {filtered.length} 筆 | Open: {openCnt} | Closed: {filtered.length - openCnt}</div>
         </div>
@@ -1573,6 +1651,11 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
         <div className="filter-group"><span className="filter-label">項目</span>
           <select value={filters.item} onChange={e=>setF('item',e.target.value)}>
             <option value="">全部</option>{Object.entries(itemOptions).map(([k,v])=><option key={k} value={k}>{k}. {v}</option>)}
+          </select>
+        </div>
+        <div className="filter-group"><span className="filter-label">開單人</span>
+          <select value={filters.issuer} onChange={e=>setF('issuer',e.target.value)}>
+            <option value="">全部</option>{(config.peopleOptions||[]).map(p=><option key={p}>{p}</option>)}
           </select>
         </div>
         <div className="filter-spacer"></div>
@@ -2192,7 +2275,12 @@ function App() {
             document.head.appendChild(s);
           }
         }} />}
-        {tab==='stats' && <StatsTab records={records} onFilterClick={filter=>{ setActiveFilter({...filter, _ts:Date.now()}); setTab('records'); }} />}
+        {tab==='stats' && <StatsTab records={records} onFilterClick={filter=>{ setActiveFilter({...filter, _ts:Date.now()}); setTab('records'); }}
+          issuerRoles={config.issuerRoles||{}}
+          onSaveRoles={async (newRoles)=>{
+            const newConfig = {...config, issuerRoles: newRoles};
+            await saveConfig(newConfig);
+          }} />}
         {tab==='records' && (
           <RecordsTab
             records={records} config={config} saving={saving} gasUrl={gasUrl} connected={connected}
