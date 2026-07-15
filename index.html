@@ -1658,41 +1658,45 @@ function toggleHideTab(key){
 function insertBulImage(){$('bulImgInput').click();}
 async function handleBulImage(input){
   const file=input.files[0];if(!file)return;
+  // 記住游標位置
+  window._bulImgRange=null;
+  const sel=window.getSelection();
+  if(sel.rangeCount>0)window._bulImgRange=sel.getRangeAt(0).cloneRange();
+
   showToast('⏳ 壓縮並上傳圖片…');
   try{
     // 1. 壓縮到最大 600px 寬
     const compressed=await compressImage(file,600,0.75);
 
-    // 2. 用 XHR 上傳到 GAS Drive (能讀取回應)
-    const uploadResult=await uploadImageToDrive(compressed);
-    if(uploadResult&&uploadResult.ok&&uploadResult.url){
-      $('rteBody').focus();
-      document.execCommand('insertHTML',false,`<img src="${uploadResult.url}" style="max-width:400px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt="">`);
-      showToast('✅ 圖片已上傳並插入');
-    } else {
-      throw new Error(uploadResult?.error||'上傳失敗');
+    // 2. no-cors POST 上傳（不讀回應）
+    await fetch(GAS_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'uploadImage',fileName:'bul-'+Date.now()+'.jpg',dataUrl:compressed})
+    });
+
+    // 3. 等待 GAS 處理完
+    await new Promise(r=>setTimeout(r,2500));
+
+    // 4. GET 拿最新一張圖的 URL
+    const r=await fetch(GAS_URL+'?action=lastImage');
+    if(!r.ok)throw new Error('無法拿到圖片 URL');
+    const d=await r.json();
+    if(!d||!d.ok||!d.url)throw new Error(d?.error||'無 URL');
+
+    // 5. 插入圖片
+    $('rteBody').focus();
+    if(window._bulImgRange){
+      sel.removeAllRanges();
+      sel.addRange(window._bulImgRange);
     }
+    document.execCommand('insertHTML',false,`<img src="${d.url}" style="max-width:400px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt="">`);
+    showToast('✅ 圖片已插入');
   }catch(e){
     console.error('image upload:',e);
     showToast('⚠️ 上傳失敗：'+e.message,'err');
   }
   input.value='';
-}
-
-function uploadImageToDrive(dataUrl){
-  return new Promise((resolve)=>{
-    const xhr=new XMLHttpRequest();
-    xhr.open('POST',GAS_URL,true);
-    xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');
-    xhr.onload=function(){
-      try{resolve(JSON.parse(xhr.responseText));}
-      catch(e){resolve({ok:false,error:'parse error'});}
-    };
-    xhr.onerror=function(){resolve({ok:false,error:'network error'});};
-    xhr.timeout=30000;
-    xhr.ontimeout=function(){resolve({ok:false,error:'timeout'});};
-    xhr.send(JSON.stringify({action:'uploadImage',fileName:'bul-'+Date.now()+'.jpg',dataUrl:dataUrl}));
-  });
 }
 
 function compressImage(file,maxWidth,quality){
