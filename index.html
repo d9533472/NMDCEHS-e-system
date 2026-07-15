@@ -1658,41 +1658,21 @@ function toggleHideTab(key){
 function insertBulImage(){$('bulImgInput').click();}
 async function handleBulImage(input){
   const file=input.files[0];if(!file)return;
-  const sel=window.getSelection();
-  const range=sel.rangeCount>0?sel.getRangeAt(0).cloneRange():null;
-
-  showToast('⏳ 壓縮並上傳圖片…');
+  showToast('⏳ 壓縮圖片中…');
   try{
-    // 1. 壓縮
-    const compressed=await compressImage(file,800,0.75);
+    // 壓縮到 500px 寬, 品質 0.6
+    const compressed=await compressImage(file,500,0.6);
+    const kb=Math.round(compressed.length*0.75/1024);
+    console.log('Compressed image size:',kb,'KB');
 
-    // 2. 產生唯一檔名
-    const fileName='bul-'+Date.now()+'-'+Math.floor(Math.random()*10000)+'.jpg';
-
-    // 3. no-cors POST 上傳
-    fetch(GAS_URL,{
-      method:'POST',mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'uploadImage',fileName:fileName,dataUrl:compressed})
-    });
-
-    // 4. 等待 3 秒讓 GAS 處理
-    await new Promise(r=>setTimeout(r,3000));
-
-    // 5. GET 根據檔名查 URL
-    const r=await fetch(GAS_URL+'?action=findImage&name='+encodeURIComponent(fileName));
-    if(!r.ok)throw new Error('查詢失敗');
-    const d=await r.json();
-    if(!d||!d.ok||!d.url)throw new Error(d?.error||'圖片還沒好，請稍後再試');
-
-    // 6. 插入
-    $('rteBody').focus();
-    if(range){sel.removeAllRanges();sel.addRange(range);}
-    document.execCommand('insertHTML',false,`<img src="${d.url}" style="max-width:400px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt="">`);
-    showToast('✅ 圖片已插入');
+    // 直接 append 到 RTE
+    const rte=$('rteBody');
+    const imgHtml=`<img src="${compressed}" style="max-width:400px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt=""><br>`;
+    rte.innerHTML+=imgHtml;
+    showToast(`✅ 圖片已插入 (${kb} KB)`);
   }catch(e){
-    console.error('image upload:',e);
-    showToast('⚠️ '+e.message,'err');
+    console.error('image insert:',e);
+    showToast('⚠️ 圖片處理失敗：'+e.message,'err');
   }
   input.value='';
 }
