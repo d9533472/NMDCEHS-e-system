@@ -1654,20 +1654,63 @@ function toggleHideTab(key){
   save();renderTabs();
 }
 
-// ══ Bulletin Image Insert ══
+// ══ Bulletin Image Insert (upload to Drive via GAS) ══
 function insertBulImage(){$('bulImgInput').click();}
-function handleBulImage(input){
+async function handleBulImage(input){
   const file=input.files[0];if(!file)return;
-  if(file.size>2*1024*1024){showToast('⚠️ 圖片超過 2MB，請壓縮後再上傳','err');input.value='';return;}
-  const reader=new FileReader();
-  reader.onload=e=>{
-    const dataUrl=e.target.result;
-    // Insert at cursor position
-    $('rteBody').focus();
-    document.execCommand('insertHTML',false,`<img src="${dataUrl}" style="max-width:100%;height:auto;border-radius:8px;margin:6px 0" alt="">`);
-    input.value='';
-  };
-  reader.readAsDataURL(file);
+  showToast('⏳ 壓縮並上傳圖片…');
+  try{
+    // 1. 壓縮到最大 600px 寬
+    const compressed=await compressImage(file,600,0.75);
+
+    // 2. 用 XHR 上傳到 GAS Drive (能讀取回應)
+    const uploadResult=await uploadImageToDrive(compressed);
+    if(uploadResult&&uploadResult.ok&&uploadResult.url){
+      $('rteBody').focus();
+      document.execCommand('insertHTML',false,`<img src="${uploadResult.url}" style="max-width:400px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt="">`);
+      showToast('✅ 圖片已上傳並插入');
+    } else {
+      throw new Error(uploadResult?.error||'上傳失敗');
+    }
+  }catch(e){
+    console.error('image upload:',e);
+    showToast('⚠️ 上傳失敗：'+e.message,'err');
+  }
+  input.value='';
+}
+
+function uploadImageToDrive(dataUrl){
+  return new Promise((resolve)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST',GAS_URL,true);
+    xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');
+    xhr.onload=function(){
+      try{resolve(JSON.parse(xhr.responseText));}
+      catch(e){resolve({ok:false,error:'parse error'});}
+    };
+    xhr.onerror=function(){resolve({ok:false,error:'network error'});};
+    xhr.timeout=30000;
+    xhr.ontimeout=function(){resolve({ok:false,error:'timeout'});};
+    xhr.send(JSON.stringify({action:'uploadImage',fileName:'bul-'+Date.now()+'.jpg',dataUrl:dataUrl}));
+  });
+}
+
+function compressImage(file,maxWidth,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxWidth){h=h*(maxWidth/w);w=maxWidth;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror=reject;
+    const reader=new FileReader();
+    reader.onload=e=>{img.src=e.target.result;};
+    reader.readAsDataURL(file);
+  });
 }
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
