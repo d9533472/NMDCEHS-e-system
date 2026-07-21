@@ -145,7 +145,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
 
 /* ── ItemDetail ── */
 function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
-  const recs=ins.filter(i=>i.budget_item_id===it.id).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date)));
+  const recs=ins.filter(i=>i.budget_item_id===it.id).sort((a,b)=>String(b.id).localeCompare(String(a.id)));
   return<div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:18,fontSize:12.5}}><div>類別: <strong>{it.category}</strong></div><div>單位: <strong>{it.unit}</strong></div><div>編碼: <span className="mono" style={{fontSize:11}}>{it.code}</span></div></div>
     <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fmt(it.budget_qty)} a="var(--muted)" i="📦"/><Kpi l="已核准" v={fmt(it.inspected_qty)} s={fN(it.inspected_amt)} a="var(--green)" i="✅"/>{(it.pending_qty||0)>0&&<Kpi l="待核准" v={fmt(it.pending_qty)} s={fN(it.pending_amt)} a="#f59e0b" i="⏳"/>}<Kpi l="未查驗" v={fmt(it.remaining_qty)} s={fN(it.remaining_amt)} a="var(--amber)" i="📋"/><Kpi l="核准比例" v={fP(it.ratio)} a="var(--accent)" i="📊"/></div>
@@ -200,7 +200,7 @@ function App(){
   const catD=useMemo(()=>{const m={};sm.forEach(s=>{if(!m[s.category])m[s.category]={name:s.category,budget:0,inspected:0};m[s.category].budget+=s.budget_total;m[s.category].inspected+=s.inspected_amt});return Object.values(m).sort((a,b)=>b.budget-a.budget)},[sm]);
   const topR=useMemo(()=>[...sm].filter(s=>s.remaining_amt>0).sort((a,b)=>b.remaining_amt-a.remaining_amt).slice(0,8),[sm]);
   const fSm=useMemo(()=>sm.filter(s=>{if(fC&&s.category!==fC)return false;if(fS){const q=fS.toLowerCase();return s.item_no.toLowerCase().includes(q)||s.item_name_cn.toLowerCase().includes(q)||(s.item_name_en||'').toLowerCase().includes(q)}return true}),[sm,fC,fS]);
-  const fIn=useMemo(()=>ins.filter(i=>{if(fC){const b=sm.find(x=>x.id===i.budget_item_id);if(b?.category!==fC)return false}if(fS){const q=fS.toLowerCase();if(!(i.id||'').toLowerCase().includes(q)&&!(i.item_name_snapshot||'').toLowerCase().includes(q)&&!(i.note||'').toLowerCase().includes(q))return false}if(fD1&&String(i.inspection_date)<fD1)return false;if(fD2&&String(i.inspection_date)>fD2)return false;return true}).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date))),[ins,sm,fC,fS,fD1,fD2]);
+  const fIn=useMemo(()=>ins.filter(i=>{if(fC){const b=sm.find(x=>x.id===i.budget_item_id);if(b?.category!==fC)return false}if(fS){const q=fS.toLowerCase();if(!(i.id||'').toLowerCase().includes(q)&&!(i.item_name_snapshot||'').toLowerCase().includes(q)&&!(i.note||'').toLowerCase().includes(q))return false}if(fD1&&String(i.inspection_date)<fD1)return false;if(fD2&&String(i.inspection_date)>fD2)return false;return true}).sort((a,b)=>String(b.id).localeCompare(String(a.id))),[ins,sm,fC,fS,fD1,fD2]);
   const clr=()=>{sFC('');sFS('');sFD1('');sFD2('')};
   const chP=p=>{sPg(p);clr();if(p==='log'&&!logs)ldLogs()};
 
