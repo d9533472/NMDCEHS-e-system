@@ -113,6 +113,9 @@ td.calc{background:var(--yellow)}
 .hl-en{font-weight:700;color:#8a5a05}
 
 /* ── 強調按鈕 ── */
+.btn.share{background:#0d7a3e;box-shadow:0 2px 6px rgba(13,122,62,.3)}
+.btn.share:hover{background:#0a6132;opacity:1}
+.btn:disabled{opacity:.6;cursor:progress}
 .btn.add{background:#0d7a3e;color:#fff;border:0;padding:9px 20px;font-size:14px;font-weight:700;border-radius:6px;box-shadow:0 2px 5px rgba(13,122,62,.28);letter-spacing:.3px}
 .btn.add:hover{background:#0a6132;opacity:1;transform:translateY(-1px)}
 .btn.add:active{transform:translateY(0)}
@@ -141,12 +144,13 @@ td.calc{background:var(--yellow)}
 .figwrap{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
 .figbox{flex:1.25;min-width:330px;position:relative;line-height:0;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:#fff}
 .figbox img{width:100%;display:block}
-.hot{position:absolute;border:2.5px solid rgba(192,38,31,.85);border-radius:4px;background:rgba(255,224,126,.22);cursor:pointer;transition:all .18s}
-.hot:hover,.hot.sel{background:rgba(255,196,0,.42);border-color:#c0261f;box-shadow:0 0 0 3px rgba(192,38,31,.22)}
-.hot .bdg{position:absolute;top:-11px;left:-11px;width:21px;height:21px;border-radius:50%;background:#c0261f;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.hot{position:absolute;border:1.5px solid rgba(192,38,31,.72);border-radius:3px;background:rgba(255,224,126,.10);cursor:pointer;transition:all .18s}
+.hot:hover,.hot.sel{background:rgba(255,196,0,.36);border-color:#c0261f;border-width:2px;box-shadow:0 0 0 3px rgba(192,38,31,.2)}
+.hot.sel .bdg{opacity:1;transform:scale(1.3)}
+.hot .bdg{position:absolute;top:-7px;left:-7px;width:14px;height:14px;border-radius:50%;background:#c0261f;color:#fff;font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.4);opacity:.9}
 .hot.sel .bdg{background:#0f2740}
-.hot.bl .bdg{top:auto;bottom:-11px}
-.hot.br .bdg{top:auto;bottom:-11px;left:auto;right:-11px}
+.hot.bl .bdg{top:auto;bottom:-7px}
+.hot.br .bdg{top:auto;bottom:-7px;left:auto;right:-7px}
 .figside{flex:1;min-width:305px}
 .figside .pick{background:#f8fafc;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:12.8px;line-height:1.6;min-height:150px}
 .figside .pick h5{margin:0 0 5px;font-size:13.5px;color:var(--navy);display:flex;gap:7px;align-items:center}
@@ -215,6 +219,32 @@ table.chart tr.hitrow th,table.chart th.hitcol{background:#dceaf7;color:var(--na
 .remind .rbar{padding:8px 13px;background:#fafcfe;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
 
 @media (max-width:760px){
+  /* 基本資料：標籤在上、輸入框在下 */
+  table.stackm,table.stackm tbody,table.stackm tr,table.stackm td{display:block;width:100%}
+  table.stackm{border:0}
+  table.stackm tr{border:0;margin:0}
+  table.stackm td{border:0;padding:0 0 10px}
+  table.stackm td.lbl{background:transparent;white-space:normal;padding:0 0 4px;font-weight:700;
+                      color:var(--navy);font-size:13.5px;width:auto}
+  table.stackm td.lbl .en{display:inline;margin-left:5px;font-size:11.5px}
+  table.stackm input{padding:9px 10px;font-size:15px}
+  /* Step 4：A/B/C/D/E 逐項堆疊 */
+  table.stack4{border:0}
+  table.stack4>tbody>tr{display:block;border:1px solid var(--line);border-radius:7px;margin-bottom:9px;padding:9px 10px;background:#fff}
+  table.stack4>tbody>tr>td{display:block;width:100%!important;border:0;padding:2px 0}
+  table.stack4>tbody>tr>td.lbl.center{display:inline-block;width:auto!important;background:var(--navy);color:#fff;
+        border-radius:4px;padding:2px 11px;margin-bottom:6px;font-size:13px}
+  table.stack4>tbody>tr>td.lbl.center b{color:#fff}
+  table.stack4>tbody>tr>td.lbl:not(.center){display:inline-block;width:auto!important;background:transparent;
+        color:var(--muted);font-size:12px;padding:3px 0 0}
+  table.stack4>tbody>tr>td input{padding:9px 10px;font-size:16px}
+  table.stack4 .dhdr{display:none}
+  table.stack4 .dinputs,table.stack4 .dinputs td{display:block;width:100%!important}
+  table.stack4 .dinputs td{border:0!important;padding:0 0 9px}
+  table.stack4 .dinputs td:before{content:attr(data-l);display:block;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:3px}
+  table.stack4 .howtobar{padding:4px 0!important;background:transparent!important}
+  .btn.howto{width:100%;padding:12px 10px;font-size:13.5px;white-space:normal}
+  .sumbar .stat{min-width:calc(50% - 5px)}
   .wrap{padding:4px}
   main{padding:12px 8px 16px}
   header.doc{flex-wrap:wrap;gap:8px}
@@ -300,7 +330,6 @@ body.preview #printdoc .pg{width:210mm;min-height:297mm;padding:10mm 10mm 15mm;m
     <h1>吊掛計算書 <span style="font-weight:400;font-size:14px">Lifting Calculation Sheet</span></h1>
     <div class="sub">通霄電廠二期更新改建計畫 輸氣海管統包工程 · Tongxiao Phase II Subsea Gas Pipeline EPC</div>
   </div>
-  <div class="docno">Form No. ________<br>Rev. ___</div>
 </header>
 
 <nav class="tabs" id="tabs"></nav>
@@ -311,7 +340,7 @@ body.preview #printdoc .pg{width:210mm;min-height:297mm;padding:10mm 10mm 15mm;m
 <section class="panel" id="p0">
   <h2>基本資料 <span class="en">General Information</span></h2>
   <p class="lead">填寫作業基本資訊。完成後按「下一步」進入關鍵吊掛判定。</p>
-  <table>
+  <table class="stackm">
     <tr>
       <td class="lbl">廠商名稱<span class="en">Contractor</span></td><td><input type="text" id="g_contractor" oninput="calc()"></td>
       <td class="lbl">吊掛日期<span class="en">Date</span></td><td><input type="date" id="g_date" oninput="calc()"></td>
@@ -461,7 +490,7 @@ body.preview #printdoc .pg{width:210mm;min-height:297mm;padding:10mm 10mm 15mm;m
 <section class="panel" id="p4">
   <h2>Step 4　計算安全工作載重 <span class="en">SWL calculation</span></h2>
   <p class="lead">A 由 Step 2 自動帶入（唯讀）；B、D 請填寫，D 請查吊車荷重表。</p>
-  <table>
+  <table class="stack4">
     <tr>
       <td class="lbl center" style="width:34px"><b>A</b></td>
       <td>最重之吊掛物重量（乾重計算，以噸為單位）<span class="en">The heaviest load weight (dry weight in tons)</span>
@@ -484,15 +513,39 @@ body.preview #printdoc .pg{width:210mm;min-height:297mm;padding:10mm 10mm 15mm;m
       <td colspan="3" style="padding:0">
         <table style="border:0;margin:0">
           <tr><td colspan="3" style="border:0;border-bottom:1px solid var(--line)">安全工作載重計算：預估吊臂長度及作業半徑，參考<b class="hl-term" onclick="jumpGuide()" title="點此查看吊車荷重表查詢說明">吊車荷重表</b>找出安全工作載重<span class="en">Estimate boom length and working radius; refer to the <b class="hl-en">crane lifting capacity table</b> to find SWL</span></td></tr>
-          <tr>
+          <tr class="dhdr">
+            <th class="center" style="border-left:0">配重塊重量 Counterweight<span class="en">噸 Ton</span></th>
+            <th class="center">外撐支座伸出 Outrigger<span class="en">伸出百分比 Extension</span></th>
+            <th class="center" style="border-right:0">吊掛方向／迴轉範圍<span class="en">Lifting direction</span></th>
+          </tr>
+          <tr class="dinputs">
+            <td style="border-left:0" data-l="配重塊重量 Counterweight（噸 Ton）"><input type="number" step="0.1" min="0" id="cwt" class="num" oninput="calc()" placeholder="例 37"></td>
+            <td data-l="外撐支座伸出 Outrigger extension">
+              <select id="ogx" onchange="calc()">
+                <option value=""></option>
+                <option>100% 全伸 Full</option>
+                <option>50% 半伸 Mid</option>
+                <option>0% 未伸出（輪胎上）On tyres</option>
+                <option>其他 Other</option>
+              </select></td>
+            <td style="border-right:0" data-l="吊掛方向／迴轉範圍 Lifting direction">
+              <select id="ldir" onchange="calc()">
+                <option value=""></option>
+                <option>360° 全迴轉 Full slew</option>
+                <option>後方 Over rear</option>
+                <option>側方 Over side</option>
+                <option>前方 Over front</option>
+              </select></td>
+          </tr>
+          <tr class="dhdr">
             <th class="center" style="border-left:0">吊臂長度 Boom length<span class="en">公尺 m</span></th>
             <th class="center">作業半徑 Working radius<span class="en">公尺 m</span></th>
             <th class="center" style="border-right:0">安全工作載重 SWL<span class="en">噸 Ton</span></th>
           </tr>
-          <tr>
-            <td style="border-left:0"><input type="number" step="0.1" id="boom" class="num" oninput="calc()"></td>
-            <td><input type="number" step="0.1" id="radius" class="num" oninput="calc()"></td>
-            <td style="border-right:0" class="calc"><input type="number" step="0.001" id="D" class="num" oninput="calc()"></td>
+          <tr class="dinputs">
+            <td style="border-left:0" data-l="吊臂長度 Boom length（公尺 m）"><input type="number" step="0.1" id="boom" class="num" oninput="calc()"></td>
+            <td data-l="作業半徑 Working radius（公尺 m）"><input type="number" step="0.1" id="radius" class="num" oninput="calc()"></td>
+            <td style="border-right:0" class="calc" data-l="安全工作載重 SWL（噸 Ton）"><input type="number" step="0.001" id="D" class="num" oninput="calc()"></td>
           </tr>
           <tr class="noprint">
             <td colspan="3" class="howtobar" style="border-left:0;border-right:0">
@@ -761,10 +814,12 @@ body.preview #printdoc .pg{width:210mm;min-height:297mm;padding:10mm 10mm 15mm;m
   </table>
 
   <div class="toolbar" style="margin-top:16px">
-    <button class="btn big" onclick="doPrint()">🖨 輸出 PDF / 列印（原表格式）</button>
-    <button class="btn ghost" onclick="togglePreview()">👁 預覽列印版面 Preview</button>
+    <button class="btn big share" id="sharePdfBtn" onclick="sharePDF()">📤 產生 PDF 並分享</button>
+    <button class="btn big" onclick="doPrint()">🖨 列印 / 另存 PDF</button>
+    <button class="btn ghost" onclick="togglePreview()">👁 預覽列印版面</button>
   </div>
-  <div class="note">列印對話框中選擇「另存為 PDF」即可產生與原紙本相同版面之 PDF。<span class="en">In the print dialog choose "Save as PDF" to produce a PDF identical to the original paper form.</span></div>
+  <div class="note" id="shareNote">「產生 PDF 並分享」會直接產生 PDF 並叫出手機/電腦的分享選單（LINE、Email、雲端硬碟…）；若裝置不支援分享，會自動改為下載檔案。
+    <span class="en">Generates the PDF and opens the system share sheet; falls back to a direct download if sharing is unavailable.</span></div>
 </section>
 
 <div class="navbtns noprint">
@@ -773,7 +828,7 @@ body.preview #printdoc .pg{width:210mm;min-height:297mm;padding:10mm 10mm 15mm;m
 </div>
 
 </main>
-<div class="note center" style="margin-top:10px">NMDC Energy — 通霄二期輸氣海管統包工程 ｜ 吊掛計算書電子表單 v4.0 ｜ 本表計算結果僅供現場核算，不取代吊車原廠荷重表與吊具製造商證明文件。</div>
+<div class="note center" style="margin-top:10px">NMDC Energy — 通霄二期輸氣海管統包工程 ｜ 吊掛計算書電子表單 v4.3 ｜ 本表計算結果僅供現場核算，不取代吊車原廠荷重表與吊具製造商證明文件。</div>
 </div>
 </div>
 
@@ -964,6 +1019,9 @@ function calc(){
   if(D===null)todo.push('Step 4：D 安全工作載重（查吊車荷重表）未填');
   if(!num(el('boom').value))todo.push('Step 4：吊臂長度未填');
   if(!num(el('radius').value))todo.push('Step 4：作業半徑未填');
+  if(num(el('cwt').value)===null)todo.push('Step 4：配重塊重量未填（須與所查荷重表一致）');
+  if(!el('ogx').value)todo.push('Step 4：外撐支座伸出百分比未選');
+  if(!el('ldir').value)todo.push('Step 4：吊掛方向／迴轉範圍未選');
   if(k2===null)todo.push('Step 5：第 2 項「吊掛物資訊是否正確」未確認');
   if(k6===null)todo.push('Step 5：第 6 項「輔助吊具證明文件」未確認');
 
@@ -1110,6 +1168,8 @@ function buildPrint(){
      '<td class="right yellowc"><b>'+(S.C===null?'&nbsp;':fx(S.C))+'</b></td><td>噸Ton</td></tr>';
   h+='<tr><th class="center">D</th><td colspan="3" style="padding:0"><table style="border:0">'+
      '<tr><td colspan="3" style="border:0;border-bottom:1px solid #9fb0c1">安全工作載重計算：預估吊臂長度及作業半徑，參考<b style="background:#fff2b8;padding:0 2px">吊車荷重表</b>找出安全工作載重<span class="en">Estimate boom length and working radius / Refer to the <b>crane lifting capacity table</b> to find SWL</span></td></tr>'+
+     '<tr><th class="center" style="border-left:0">配重塊重量 Counterweight<span class="en">噸 Ton</span></th><th class="center">外撐支座伸出 Outrigger<span class="en">Extension</span></th><th class="center" style="border-right:0">吊掛方向／迴轉範圍<span class="en">Lifting direction</span></th></tr>'+
+     '<tr><td class="center yellowc" style="border-left:0"><b>'+mk(g('cwt'))+'</b></td><td class="center">'+mk(g('ogx'))+'</td><td class="center" style="border-right:0">'+mk(g('ldir'))+'</td></tr>'+
      '<tr><th class="center" style="border-left:0">吊臂長度 Boom length<span class="en">公尺 m</span></th><th class="center">作業半徑 Working radius<span class="en">公尺 m</span></th><th class="center" style="border-right:0">安全工作載重 SWL<span class="en">噸 Ton</span></th></tr>'+
      '<tr><td class="center" style="border-left:0">'+mk(g('boom'))+'</td><td class="center">'+mk(g('radius'))+'</td>'+
      '<td class="center yellowc" style="border-right:0"><b>'+(S.D===null?'&nbsp;':fx(S.D))+'</b></td></tr>'+
@@ -1174,7 +1234,7 @@ function hdrHtml(){
   return '<div class="phdr"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQsAAAC9CAMAAACTb6i8AAAA4VBMVEX///8MJjgHoVIAGzAAABwBIjVqcnokN0YAEysAAB4AABi1ubwAACAADCcAAAAAABL29/eXnKEAABaDipAAnEYAGC4MHDfm6OkACSaprrK128IEIzYNdUrw8fIbLz/O0NORl5xbZW7DxsnY2ttRXGZkbXUAmDx7gokxQE5HU17W2NqwtLjq6+wAAA5ZY2w+TFhft4EMEzbR6NmYzqwAkyxJsHKGxp7v9/I0qmZyvo8fpVur17sgM0Pa7eAAk0W1w74KgUwLWEIJk1AMLjoMRj8MGDYLYEQMNTw1g18AAC4AZzMz3jxwAAAHQklEQVR4nO2ba3uaSBiGIYACDiIoFUJFPEWNSWzTbXpKd7vd8/7/H7TDeUAQSUq2zfXcH3qZYQTm9p2ZdwbKcQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L0zGS+uJk90LX9QW6W3eOC5b8/Tj12Xz/A2y47RG9d+fz7cqCIhiqjyK+OhN9GAFZnWVXH6zoNO/eanzMW95DJIgiDbityZH/n2Yi3alhTbcwVZcf2246Nj6X5NFUcjN81PPHg7GjFxIfEHuAKxq8JyMjOFYnVZX9cH8WPoCLy9Py7c0XhLuGx43tvR2VmNi7B9olF6yQMTIRbZNbyNRlAXvECOBWvggnf10nuu5O7i7BQXFHtz+EvMSFVtZdnoNpoRuOBddX2kSuCC3vP29AB9955GxYkueEEujqIbubKy3mvWvEZ0omCUu1eVVSIXvGAfjR6G8yAoTnbBS1be8sbKHaZjbabi1Ft4ELELXlIrjccueNccnnTKD7GKU13wwp79+oyNCsFWha6g2sITqEhd0K7YqaiSuOB5raRvF3n3cXR21IVFiGiKRGbsEGbSdpixQjI78zBmpp1gMG1ZBeOCt7zy9CdzwUtiXX/9lARFlQs5HIQnl8a9nXUDLa04UDIV8j67oaut1rYK1gUv6aVJFeOC58Wq6Il4xag45iJgR9KBwE7nSj/rIVr+Up02h83oCrmJvDSpcmy2ilwRPQGfz0Znp7vgFmkMSNukzE79CG1On6XkXZQmVWMvN8dJZlVK/oYNCsrPv6SHSl0wEWfGU8k0Gy1Iu0lmCQUXNKnySyqpuTpkVnYmmnTnVXwhWVSXu+BSF8mqKOsi1mmT1rek6KI8qZqTXDVBOoye21FBxa+v7VoX6dW1ONZm6XXIEyxMCxy6KE2qJvvcoHGYkt8V+sfX317wWq0LJwkD2Y8KNmk98Zs3tZYSF+VJla+zWxCF6ImT7oyXr2ntehe9pJMkPeI+q9dKc49S5qI8qbqUcrmxYGcbH+eFoDj7/Y/wLPUukmhLXGRxQdpqcTXlLsqTqpXCVsmi50NBxRchOmm9i51WKF1maXD1AqktKlyUJ1U7NbesiKKHSboj/nydHK91kU4byTC7TmNPe9hm2mNgXHgkNyKUJVVXGzYH5SWll0u6g/zq618v0ubUutgnxWJ8rbTT8JLXcssPyVxY/tTOBYnUL1mJDc2cMPJ3Pigu7v7Jjte6GCd5iyvFJQM9+7bfasNLYFwMucEyt6FU2mWnMivsxctcUJx9njBjSq2LbVKaTKl0TMrOXthF6LW9NMu7CDYamRGhfPjKCcu5uHhFf+oGLjppkqmnETjOAoNXfeayhqnX7tg/koILbtzNFh9KxW6Fo6ctY11cfOKauOh56TgpM/nMmln8aN3kDPMNHUjMllPRogt6M+mIUOWCWa1lLkbv34WH6lwIK8dxjOFStNMiiWdP7jGRKdnKcugPb0hY2RXblXHoIhsRxOpdrLXq5l1c3EUHal3wgkyxmAa7am7CuspPZ4JlWck9uqT+YdsjKHHBDW5InYtktRa7GI1u4/J6F0UktbDQW5DKypLWpowyF3RECJMq8dgOQrRai1yM3qY1G7uQ+YPmjfPZPovV5jKl3EWUVB11QUd2uloLXVy8yQobuhD00iczM8Utq+2SBg9pmlPhgiZVulvjgltIFnUx+viZKWviwpXNm4rRcC7ZB9+QNKvdLc9KF9xU6Nf+CCvx5cWHXMmJLlzB0kTeP9L7HU9hHxtIsuK1vUKZXYsx1wfRekJA7v49zxeM+2JKP3sSLKgigyp6y2HtCxiX/t4ktkaxibn3mz7dbs5gMgiYUL5NVxwwZKWTHKefbTzv7Xa9eatTKQAAAAAAeKYMA9aL4N3edbBk6a1pfj1Yh6U0V50Hn+L0fd7Z78PXg9frYLfTX7f+QsoTQ9enut6nLZzqVrDrO+zTFk6uZZ2WUheGQvrXxA1qrkxV15U+1eBcS9TMtVZ37h8Nj0wXi8tJ8OaJZN1QF8Hu/0TtjmkpPWyIBjfZKjQyHEWgxpxwfbolBsebrT8XeGq8ZGNkKq426jx1ER82VNr4jkL/4ZkXkq9Ma0iOvyz2I+K5atQbpmpnqkqxC1HS9aAjcIbW3Xa1/hU3MFX656Z7H+4mOHarG3z/E56w3W43oYsVNyOGH7ngaWnw7pyheZKwDTa8QhcWsaJw2JDnNnBSPDX+ELiYqPKMFPrIbqKHT5a9sI+MzcjFqrhh/hygTZxOg/2ZwAVn2JIduri/pKWTaLzokPCJpij3BgOHPGMXUjin0sZO+8EbgV3NDFz0wzmVBoLRp/PIdT/Yy1rrdGQh4ir82qz/DF0YfgBt9XgYTJcL36eDw2AYlo6D/2ZG84mdH86k0/VymeRXzhBbfQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPhu+Q9JtoNF66GeJAAAAABJRU5ErkJggg=="><div style="flex:1">'+
     '<h1 class="pt">吊掛計算書　Lifting Calculation Sheet</h1>'+
     '<div class="psub">NMDC Energy ｜ 通霄電廠二期更新改建計畫 輸氣海管統包工程　Tongxiao Phase II Subsea Gas Pipeline EPC</div>'+
-    '</div><div class="psub" style="text-align:right">Form No. ________<br>Rev. ___</div></div>';
+    '</div></div>';
 }
 function ftrHtml(i,n){
   var c=el('g_contractor').value, d=el('g_date').value, w=el('g_ptw').value;
@@ -1240,6 +1300,93 @@ function remPrint(){
   return h+'</div>';
 }
 function doPrint(){window.print()}
+
+/* ══════════ 產生 PDF 並分享（無需外部函式庫） ══════════ */
+function s2u(str){var u=new Uint8Array(str.length);for(var i=0;i<str.length;i++)u[i]=str.charCodeAt(i)&0xff;return u}
+function b64u8(b64){var b=atob(b64),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u}
+
+function makePDF(imgs){
+  var W=595.28,H=841.89,m=28.35,iw=W-2*m,ih=H-2*m;
+  var chunks=[],pos=0,off=[],N=imgs.length,objN=2+3*N;
+  function put(x){var u=(typeof x==='string')?s2u(x):x;chunks.push(u);pos+=u.length}
+  function so(n){off[n]=pos;put(n+' 0 obj\n')}
+  function eo(){put('endobj\n')}
+  put('%PDF-1.4\n');
+  so(1);put('<< /Type /Catalog /Pages 2 0 R >>\n');eo();
+  var kids=[];for(var i=0;i<N;i++)kids.push((3+3*i)+' 0 R');
+  so(2);put('<< /Type /Pages /Kids ['+kids.join(' ')+'] /Count '+N+' >>\n');eo();
+  for(var i=0;i<N;i++){
+    var pO=3+3*i,cO=4+3*i,xO=5+3*i;
+    so(pO);put('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 '+W.toFixed(2)+' '+H.toFixed(2)+
+       '] /Resources << /XObject << /Im0 '+xO+' 0 R >> >> /Contents '+cO+' 0 R >>\n');eo();
+    var cs='q '+iw.toFixed(2)+' 0 0 '+ih.toFixed(2)+' '+m.toFixed(2)+' '+m.toFixed(2)+' cm /Im0 Do Q\n';
+    so(cO);put('<< /Length '+cs.length+' >>\nstream\n'+cs+'endstream\n');eo();
+    var by=b64u8(imgs[i].d.split(',')[1]);
+    so(xO);put('<< /Type /XObject /Subtype /Image /Width '+imgs[i].w+' /Height '+imgs[i].h+
+       ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length '+by.length+' >>\nstream\n');
+    put(by);put('\nendstream\n');eo();
+  }
+  var xp=pos,xr='xref\n0 '+(objN+1)+'\n0000000000 65535 f \n';
+  for(var n=1;n<=objN;n++)xr+=('0000000000'+off[n]).slice(-10)+' 00000 n \n';
+  put(xr);
+  put('trailer\n<< /Size '+(objN+1)+' /Root 1 0 R >>\nstartxref\n'+xp+'\n%%EOF\n');
+  var t=0;chunks.forEach(function(c){t+=c.length});
+  var out=new Uint8Array(t),o=0;chunks.forEach(function(c){out.set(c,o);o+=c.length});
+  return out;
+}
+
+function pdfName(){
+  var d=el('g_date').value||'', w=el('g_ptw').value||'';
+  return ['吊掛計算書',d,w].filter(Boolean).join('_').replace(/[\\/:*?"<>|]/g,'-')+'.pdf';
+}
+
+async function sharePDF(){
+  var btn=el('sharePdfBtn'),old=btn.innerHTML;
+  btn.disabled=true;btn.innerHTML='⏳ 產生 PDF 中…';
+  try{
+    buildPrint();
+    var pages=[].slice.call(document.querySelectorAll('#pd .pg'));
+    if(!pages.length)throw new Error('no page');
+    var css=document.querySelector('style').textContent;
+    var PW=718,PH=1047,SC=2,ser=new XMLSerializer(),imgs=[];
+    for(var i=0;i<pages.length;i++){
+      btn.innerHTML='⏳ 產生 PDF 中… '+(i+1)+'/'+pages.length;
+      var xml=ser.serializeToString(pages[i]);
+      var svg='<svg xmlns="http://www.w3.org/2000/svg" width="'+PW+'" height="'+PH+'">'+
+        '<foreignObject x="0" y="0" width="'+PW+'" height="'+PH+'">'+
+        '<div xmlns="http://www.w3.org/1999/xhtml"><style type="text/css"><![CDATA['+css+']]></style>'+
+        '<div id="printdoc" style="display:block;background:#fff;width:'+PW+'px">'+xml+'</div></div>'+
+        '</foreignObject></svg>';
+      var im=new Image();
+      im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);
+      await (im.decode?im.decode():new Promise(function(r,j){im.onload=r;im.onerror=j}));
+      var cv=document.createElement('canvas');cv.width=PW*SC;cv.height=PH*SC;
+      var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);
+      cx.drawImage(im,0,0,cv.width,cv.height);
+      imgs.push({d:cv.toDataURL('image/jpeg',0.9),w:cv.width,h:cv.height});
+    }
+    var bytes=makePDF(imgs);
+    var blob=new Blob([bytes],{type:'application/pdf'});
+    var name=pdfName();
+    var file=(window.File)?new File([blob],name,{type:'application/pdf'}):null;
+    if(file&&navigator.canShare&&navigator.canShare({files:[file]})){
+      btn.innerHTML='📤 開啟分享…';
+      await navigator.share({files:[file],title:'吊掛計算書 Lifting Calculation Sheet'});
+      el('shareNote').innerHTML='✔ 已開啟分享選單。';
+    }else{
+      var a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},4000);
+      el('shareNote').innerHTML='✔ 此裝置不支援直接分享，已改為<b>下載 PDF</b>（'+esc(name)+'），可再從檔案 App 分享出去。';
+    }
+  }catch(e){
+    if(e&&e.name==='AbortError'){el('shareNote').innerHTML='已取消分享。';}
+    else{
+      el('shareNote').innerHTML='<b style="color:var(--red)">PDF 產生失敗</b>（'+esc(String(e&&e.message||e))+
+        '），請改用「🖨 列印 / 另存 PDF」。';
+    }
+  }finally{ btn.disabled=false;btn.innerHTML=old; }
+}
 function togglePreview(){document.body.classList.toggle('preview');window.scrollTo(0,0)}
 
 /* ══════════ 實例圖解：TADANO ATF 160G-5 ══════════ */
@@ -1565,6 +1712,7 @@ function loadDemo(){
   addAcc({t:'纖維索 Sling',d:'0.10',q:2,s:5,f:5,a:60});
   addAcc({t:'馬鞍環 Shackle',d:'0.032',q:2,s:6.5,f:5,a:90});
   el('B').value=1.2;el('boom').value=24;el('radius').value=9;el('D').value=12.5;
+  el('cwt').value=37;el('ogx').value='100% 全伸 Full';el('ldir').value='360° 全迴轉 Full slew';
   ['c2','c3'].forEach(function(n){document.querySelector('input[name='+n+'][value=N]').checked=true});
   ['k2','k6'].forEach(function(n){document.querySelector('input[name='+n+'][value=Y]').checked=true});
   el('sg0').value='李小華';el('sg1').value='陳志明';el('sg2').value='林承翰';el('sg3').value='王大明';el('sg4').value='張建國';
