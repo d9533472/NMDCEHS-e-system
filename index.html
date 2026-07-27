@@ -258,7 +258,14 @@ const DEFAULT_DOCS=[
   {num:'12',name:'化學穩定劑噴灑紀錄',tc:'O',ts:'O',of:'NA',proj:'NA',person:'Raymond',complete:'yes',note:''},
   {num:'13',name:'油品購買紀錄',tc:'O',ts:'O',of:'NA',proj:'NA',person:'Jacqueline',complete:'yes',note:''},
 ];
-function makeDefault(){return{hiddenTabs:[],
+const DEFAULT_EVENT_TYPES=[
+  {key:'audit',label:'查核',color:'#dc2626',bg:'#fef2f2'},
+  {key:'campaign',label:'Campaign',color:'#7c3aed',bg:'#ede9fe'},
+  {key:'meeting',label:'會議',color:'#0369a1',bg:'#e0f2fe'},
+  {key:'other',label:'其他',color:'#374151',bg:'#f3f4f6'},
+];
+const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
+function makeDefault(){return{hiddenTabs:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
   parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'}],
   bulletins:[{id:gid(),text:'<b>歡迎使用 Environmental E-System！</b><br>本系統用於管理環保相關工具連結、追蹤事項及公告。',date:todayS()}],
   tasks:[],documents:DEFAULT_DOCS.map(d=>({...d,id:gid()})),docLastUpdated:'',docNotes:'',
@@ -327,7 +334,7 @@ function fixData(){
   if(!D.schedule)D.schedule=[];
   if(!D.scheduleData)D.scheduleData={};
   if(!D.schMonths)D.schMonths=[];
-  if(!D.hiddenTabs)D.hiddenTabs=[];
+  if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.eventTypes||!D.eventTypes.length)D.eventTypes=JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES));
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
   if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
@@ -1542,74 +1549,294 @@ function exportSchImg(){
 }
 
 // ══ Events Tab ══
-const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
-let eEventId=null,evFilterPerson='All',evFilterArea='All',evFilterDateFrom='',evFilterDateTo='';
+let eEventId=null,evFilterPerson='All',evFilterArea='All',evFilterType='All',evFilterDateFrom='',evFilterDateTo='';
+let evViewMode='month'; // 'month' | 'week' | 'list'
+let evViewDate=new Date();evViewDate.setDate(1); // Anchor date for calendar navigation
 
 function renderEventsHTML(){
   const events=D.events||[];
+  const types=D.eventTypes||DEFAULT_EVENT_TYPES;
 
-  // ── Filter bar ──
   let h='<div class="card">';
-  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">';
-  // Person filter
-  h+='<div class="trk-tabs" style="margin:0">';
-  ['All',...PLIST].forEach(p=>{
-    const cnt=p==='All'?events.length:events.filter(ev=>(ev.person||'').includes(p)).length;
-    h+=`<button class="trk-tab ${evFilterPerson===p?'active':''}" onclick="evFilterPerson='${p}';renderTab()">${p==='All'?'全部':p}<span class="tab-count">${cnt}</span></button>`;
-  });
-  h+='</div>';
-  if(isEditor)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px;margin-left:auto" onclick="openEventM()">＋ 新增</button>`;
-  h+='</div>';
-  // Row 2: area + date
+
+  // ── View mode switcher ──
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
-  // Area filter
   h+='<div class="trk-tabs" style="margin:0">';
-  ['All','台中','通霄','專案','離岸','其他'].forEach(a=>{
-    const cnt=a==='All'?events.length:events.filter(ev=>ev.area===a).length;
-    h+=`<button class="trk-tab ${evFilterArea===a?'active':''}" onclick="evFilterArea='${a}';renderTab()">${a==='All'?'全部工區':a}<span class="tab-count">${cnt}</span></button>`;
+  [['month','📅 月曆'],['week','📆 週曆'],['list','📋 列表']].forEach(([k,label])=>{
+    h+=`<button class="trk-tab ${evViewMode===k?'active':''}" onclick="evViewMode='${k}';renderTab()">${label}</button>`;
   });
-  h+='</div>';
-  h+=`<input type="date" value="${evFilterDateFrom}" onchange="evFilterDateFrom=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="起始日期">`;
-  h+=`<span style="color:var(--muted);font-size:12px">～</span>`;
-  h+=`<input type="date" value="${evFilterDateTo}" onchange="evFilterDateTo=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="結束日期">`;
-  const hasFilter=evFilterDateFrom||evFilterDateTo||evFilterPerson!=='All'||evFilterArea!=='All';
-  if(hasFilter)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="evFilterPerson='All';evFilterArea='All';evFilterDateFrom='';evFilterDateTo='';renderTab()">✕ 清除篩選</button>`;
   h+='</div>';
 
-  // ── Filter & sort ──
+  // Calendar navigation (month/week only)
+  if(evViewMode==='month'||evViewMode==='week'){
+    h+='<div style="display:flex;align-items:center;gap:6px;margin-left:8px">';
+    h+='<button class="icon-btn" onclick="evNav(-1)" style="padding:6px 10px">‹</button>';
+    const label=evViewMode==='month'?
+      `${evViewDate.getFullYear()}年 ${evViewDate.getMonth()+1}月`:
+      getWeekLabel(evViewDate);
+    h+=`<span style="font-size:14px;font-weight:600;color:var(--text);min-width:130px;text-align:center">${label}</span>`;
+    h+='<button class="icon-btn" onclick="evNav(1)" style="padding:6px 10px">›</button>';
+    h+='<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="evNav(0)">今天</button>';
+    h+='</div>';
+  }
+
+  if(isEditor)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px;margin-left:auto" onclick="openEventM()">＋ 新增</button>`;
+  if(isEditor)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="openTypeM()">🏷️ 管理類型</button>`;
+  h+='</div>';
+
+  // ── Filters ──
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+
+  // Type filter (all modes)
+  h+='<div class="trk-tabs" style="margin:0">';
+  h+=`<button class="trk-tab ${evFilterType==='All'?'active':''}" onclick="evFilterType='All';renderTab()">全部類型</button>`;
+  types.forEach(t=>{
+    h+=`<button class="trk-tab ${evFilterType===t.key?'active':''}" onclick="evFilterType='${t.key}';renderTab()">${esc(t.label)}</button>`;
+  });
+  h+='</div>';
+
+  // Area filter (all modes)
+  h+='<div class="trk-tabs" style="margin:0">';
+  h+=`<button class="trk-tab ${evFilterArea==='All'?'active':''}" onclick="evFilterArea='All';renderTab()">全部工區</button>`;
+  ['台中','通霄','專案','離岸','其他'].forEach(a=>{
+    h+=`<button class="trk-tab ${evFilterArea===a?'active':''}" onclick="evFilterArea='${a}';renderTab()">${a}</button>`;
+  });
+  h+='</div>';
+
+  // Additional filters (list mode only)
+  if(evViewMode==='list'){
+    h+='<div class="trk-tabs" style="margin:0">';
+    ['All',...PLIST].forEach(p=>{
+      h+=`<button class="trk-tab ${evFilterPerson===p?'active':''}" onclick="evFilterPerson='${p}';renderTab()">${p==='All'?'全部人員':p}</button>`;
+    });
+    h+='</div>';
+    h+=`<input type="date" value="${evFilterDateFrom}" onchange="evFilterDateFrom=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)">`;
+    h+=`<span style="color:var(--muted);font-size:12px">～</span>`;
+    h+=`<input type="date" value="${evFilterDateTo}" onchange="evFilterDateTo=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)">`;
+  }
+  const hasFilter=evFilterType!=='All'||evFilterArea!=='All'||(evViewMode==='list'&&(evFilterPerson!=='All'||evFilterDateFrom||evFilterDateTo));
+  if(hasFilter)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="clearEvFilters()">✕ 清除</button>`;
+  h+='</div>';
+
+  // Apply filters
   let filtered=[...events];
-  if(evFilterPerson!=='All')filtered=filtered.filter(ev=>(ev.person||'').includes(evFilterPerson));
+  if(evFilterType!=='All')filtered=filtered.filter(ev=>ev.typeKey===evFilterType||(!ev.typeKey&&evFilterType==='other'));
   if(evFilterArea!=='All')filtered=filtered.filter(ev=>ev.area===evFilterArea);
-  if(evFilterDateFrom)filtered=filtered.filter(ev=>ev.date>=evFilterDateFrom);
-  if(evFilterDateTo)filtered=filtered.filter(ev=>ev.date<=evFilterDateTo);
+  if(evViewMode==='list'){
+    if(evFilterPerson!=='All')filtered=filtered.filter(ev=>(ev.person||'').includes(evFilterPerson));
+    if(evFilterDateFrom)filtered=filtered.filter(ev=>ev.date>=evFilterDateFrom);
+    if(evFilterDateTo)filtered=filtered.filter(ev=>ev.date<=evFilterDateTo);
+  }
   filtered.sort((a,b)=>b.date.localeCompare(a.date));
 
-  if(!filtered.length){h+='<div class="bulletin-empty">無符合條件的活動</div>';}
-  else{
-    // ── Table layout ──
-    h+='<table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px">';
-    h+='<thead><tr>';
-    [['日期','90px'],['⭐','36px'],['工區','70px'],['活動內容',''],['Conduct By','120px'],['','60px']].forEach(([th,w])=>{
-      h+=`<th style="text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-bottom:2px solid var(--border);white-space:nowrap${w?';width:'+w:''}">${th}</th>`;
-    });
-    h+='</tr></thead><tbody>';
-    filtered.forEach((ev,i)=>{
-      const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join(' ');
-      const starCell=ev.starred?'<span style="color:#f59e0b;font-size:15px">⭐</span>':'';
-      const areaColor=ev.area==='台中'?'color:#0369a1;background:#e0f2fe':ev.area==='通霄'?'color:#6d28d9;background:#ede9fe':ev.area==='專案'?'color:#b45309;background:#fef3c7':ev.area==='離岸'?'color:#0e7490;background:#cffafe':'color:#374151;background:#f3f4f6';
-      h+=`<tr style="border-left:3px solid ${ev.starred?'#f59e0b':'var(--accent)'}">`;
-      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${ev.date}</td>`;
-      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);text-align:center">${starCell}</td>`;
-      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"><span style="padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;${areaColor}">${esc(ev.area)}</span></td>`;
-      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--text)">${esc(ev.title)}${ev.note?`<div class="doc-note" style="margin-top:2px;max-width:none;white-space:normal">${renderHtml(ev.note)}</div>`:''}</td>`;
-      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)">${persons}</td>`;
-      if(isEditor)h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap"><button class="icon-btn" onclick="openEventM('${ev.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delEvent('${ev.id}')">${SV.trash}</button></td>`;
-      else h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"></td>`;
-      h+='</tr>';
-    });
-    h+='</tbody></table>';
-  }
+  // ── Render mode ──
+  if(evViewMode==='month')h+=renderEventMonth(filtered,types);
+  else if(evViewMode==='week')h+=renderEventWeek(filtered,types);
+  else h+=renderEventList(filtered,types);
+
   return h+'</div>';
+}
+
+function evNav(delta){
+  if(delta===0){evViewDate=new Date();if(evViewMode==='month')evViewDate.setDate(1);}
+  else if(evViewMode==='month'){evViewDate.setMonth(evViewDate.getMonth()+delta);evViewDate.setDate(1);}
+  else if(evViewMode==='week'){evViewDate.setDate(evViewDate.getDate()+delta*7);}
+  renderTab();
+}
+function clearEvFilters(){evFilterType='All';evFilterArea='All';evFilterPerson='All';evFilterDateFrom='';evFilterDateTo='';renderTab();}
+
+function getWeekLabel(d){
+  const day=d.getDay(),diffToMon=day===0?-6:1-day;
+  const mon=new Date(d);mon.setDate(d.getDate()+diffToMon);
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const fmt=x=>`${x.getMonth()+1}/${x.getDate()}`;
+  return `${mon.getFullYear()}年 ${fmt(mon)}～${fmt(sun)}`;
+}
+
+function getTypeInfo(key){
+  const types=D.eventTypes||DEFAULT_EVENT_TYPES;
+  return types.find(t=>t.key===key)||types.find(t=>t.key==='other')||types[types.length-1];
+}
+
+function renderEventBadge(ev){
+  const t=getTypeInfo(ev.typeKey);
+  return `<span style="display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;background:${t.bg};color:${t.color};border:1px solid ${t.color}33">${esc(t.label)}</span>`;
+}
+
+function renderEventMonth(events,types){
+  const y=evViewDate.getFullYear(),m=evViewDate.getMonth();
+  const first=new Date(y,m,1),last=new Date(y,m+1,0);
+  const firstDay=first.getDay(); // 0=Sun ... 6=Sat
+  // Monday start: shift so Mon=0
+  const offset=firstDay===0?6:firstDay-1;
+  const startDate=new Date(y,m,1-offset);
+
+  // Group events by date
+  const byDate={};
+  events.forEach(ev=>{if(!byDate[ev.date])byDate[ev.date]=[];byDate[ev.date].push(ev);});
+
+  const today=todayS();
+  let h='<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">';
+  // Weekday headers
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr);background:var(--bg2)">';
+  ['一','二','三','四','五','六','日'].forEach((d,i)=>{
+    const isWeekend=i>=5;
+    h+=`<div style="padding:8px;text-align:center;font-size:12px;font-weight:600;color:${isWeekend?'#dc2626':'var(--text2)'};border-right:1px solid var(--border)">${d}</div>`;
+  });
+  h+='</div>';
+  // Days grid
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr)">';
+  for(let i=0;i<42;i++){
+    const cur=new Date(startDate);cur.setDate(startDate.getDate()+i);
+    const dateStr=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+    const inMonth=cur.getMonth()===m;
+    const isToday=dateStr===today;
+    const dayEvs=byDate[dateStr]||[];
+    const dayOfWeek=cur.getDay();
+    const isWeekend=dayOfWeek===0||dayOfWeek===6;
+    const bg=isToday?'#fef9c3':(isWeekend?'#fafafa':'transparent');
+    const numColor=isToday?'#a16207':(inMonth?(isWeekend?'#dc2626':'var(--text)'):'var(--border2)');
+    h+=`<div style="min-height:130px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:${bg};position:relative;overflow:hidden;vertical-align:top">`;
+    h+=`<div style="font-size:12px;font-weight:600;color:${numColor};margin-bottom:4px">${cur.getDate()}${isToday?' <span style="font-size:9px;background:#ca8a04;color:#fff;padding:1px 5px;border-radius:3px;font-weight:700">今天</span>':''}</div>`;
+    // Show up to 3 events with full info
+    const maxShow=3;
+    dayEvs.slice(0,maxShow).forEach(ev=>{
+      const t=getTypeInfo(ev.typeKey);
+      const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
+      const noteText=(ev.note||'').replace(/<[^>]+>/g,'').trim();
+      h+=`<div style="background:${t.bg};border-left:3px solid ${t.color};border-radius:4px;padding:4px 6px;margin-bottom:3px;font-size:10px;line-height:1.35;cursor:pointer" onclick="${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}">`;
+      h+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:3px;margin-bottom:2px">`;
+      h+=`<span style="background:#fff;color:${t.color};padding:0 4px;border-radius:2px;font-size:9px;font-weight:700;border:1px solid ${t.color}44">${esc(t.label)}</span>`;
+      if(ev.starred)h+='<span style="font-size:9px">⭐</span>';
+      h+='</div>';
+      h+=`<div style="font-weight:700;color:${t.color};word-break:break-word;white-space:normal">${esc(ev.title)}</div>`;
+      if(persons)h+=`<div style="color:var(--text2);font-size:9px;margin-top:1px;white-space:normal;word-break:break-word">👤 ${esc(persons)}</div>`;
+      if(ev.area)h+=`<div style="color:var(--muted);font-size:9px;white-space:normal">📍 ${esc(ev.area)}</div>`;
+      if(noteText){
+        const shortNote=noteText.length>40?noteText.slice(0,40)+'…':noteText;
+        h+=`<div style="color:var(--muted);font-size:9px;margin-top:2px;line-height:1.3;white-space:normal;word-break:break-word">${esc(shortNote)}</div>`;
+      }
+      h+='</div>';
+    });
+    if(dayEvs.length>maxShow){
+      h+=`<div style="font-size:10px;color:var(--muted);cursor:pointer;padding:2px 4px;font-weight:600" onclick="showDayEvents('${dateStr}')">+${dayEvs.length-maxShow} more</div>`;
+    }
+    h+='</div>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+function renderEventWeek(events,types){
+  const day=evViewDate.getDay(),diffToMon=day===0?-6:1-day;
+  const mon=new Date(evViewDate);mon.setDate(evViewDate.getDate()+diffToMon);
+
+  const byDate={};
+  events.forEach(ev=>{if(!byDate[ev.date])byDate[ev.date]=[];byDate[ev.date].push(ev);});
+
+  const today=todayS();
+  let h='<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">';
+  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr)">';
+  const daysOfWeek=['週一','週二','週三','週四','週五','週六','週日'];
+  for(let i=0;i<7;i++){
+    const cur=new Date(mon);cur.setDate(mon.getDate()+i);
+    const dateStr=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+    const isToday=dateStr===today;
+    const dayEvs=byDate[dateStr]||[];
+    const isWeekend=i>=5;
+    h+='<div style="border-right:1px solid var(--border);min-height:400px">';
+    h+=`<div style="padding:10px;text-align:center;background:${isToday?'#fef9c3':(isWeekend?'#fafafa':'var(--bg2)')};border-bottom:2px solid var(--border)">`;
+    h+=`<div style="font-size:11px;color:${isWeekend?'#dc2626':'var(--text2)'};font-weight:600">${daysOfWeek[i]}</div>`;
+    h+=`<div style="font-size:18px;font-weight:700;color:${isToday?'#a16207':(isWeekend?'#dc2626':'var(--text)')};margin-top:2px">${cur.getDate()}</div>`;
+    h+=`<div style="font-size:10px;color:var(--muted)">${cur.getMonth()+1}月</div>`;
+    h+='</div>';
+    // Events
+    h+='<div style="padding:6px">';
+    dayEvs.forEach(ev=>{
+      const t=getTypeInfo(ev.typeKey);
+      const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
+      const noteText=(ev.note||'').replace(/<[^>]+>/g,'').trim();
+      h+=`<div style="background:${t.bg};border-left:3px solid ${t.color};border-radius:6px;padding:6px 8px;margin-bottom:4px;font-size:11px;cursor:pointer" onclick="${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}">`;
+      h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">`;
+      h+=renderEventBadge(ev);
+      if(ev.starred)h+='<span style="font-size:11px">⭐</span>';
+      h+='</div>';
+      h+=`<div style="font-weight:700;color:${t.color};margin-bottom:2px">${esc(ev.title)}</div>`;
+      if(persons)h+=`<div style="color:var(--text2);font-size:10px">👤 ${esc(persons)}</div>`;
+      if(ev.area)h+=`<div style="color:var(--muted);font-size:10px">📍 ${esc(ev.area)}</div>`;
+      if(noteText)h+=`<div style="color:var(--muted);font-size:10px;margin-top:3px;line-height:1.3">${esc(noteText.slice(0,50))}${noteText.length>50?'…':''}</div>`;
+      h+='</div>';
+    });
+    h+='</div></div>';
+  }
+  h+='</div></div>';
+  return h;
+}
+
+function renderEventList(events,types){
+  if(!events.length)return '<div class="bulletin-empty">無符合條件的活動</div>';
+  let h='<table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px">';
+  h+='<thead><tr>';
+  [['日期','90px'],['⭐','36px'],['類型','80px'],['工區','70px'],['活動內容',''],['Conduct By','120px'],['','60px']].forEach(([th,w])=>{
+    h+=`<th style="text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-bottom:2px solid var(--border);white-space:nowrap${w?';width:'+w:''}">${th}</th>`;
+  });
+  h+='</tr></thead><tbody>';
+  events.forEach(ev=>{
+    const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join(' ');
+    const starCell=ev.starred?'<span style="color:#f59e0b;font-size:15px">⭐</span>':'';
+    const areaColor=ev.area==='台中'?'color:#0369a1;background:#e0f2fe':ev.area==='通霄'?'color:#6d28d9;background:#ede9fe':ev.area==='專案'?'color:#b45309;background:#fef3c7':ev.area==='離岸'?'color:#0e7490;background:#cffafe':'color:#374151;background:#f3f4f6';
+    h+=`<tr style="border-left:3px solid ${ev.starred?'#f59e0b':'var(--accent)'}">`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${ev.date}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);text-align:center">${starCell}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)">${renderEventBadge(ev)}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"><span style="padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;${areaColor}">${esc(ev.area)}</span></td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--text)">${esc(ev.title)}${ev.note?`<div class="doc-note" style="margin-top:2px;max-width:none;white-space:normal">${renderHtml(ev.note)}</div>`:''}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)">${persons}</td>`;
+    if(isEditor)h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap"><button class="icon-btn" onclick="openEventM('${ev.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delEvent('${ev.id}')">${SV.trash}</button></td>`;
+    else h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"></td>`;
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+  return h;
+}
+
+function showEventDetail(id){
+  const ev=(D.events||[]).find(x=>x.id===id);if(!ev)return;
+  const t=getTypeInfo(ev.typeKey);
+  const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
+  const noteText=ev.note?renderHtml(ev.note):'';
+  const html=`
+    <div style="padding:8px 0">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">${renderEventBadge(ev)}${ev.starred?'<span>⭐ 重點</span>':''}</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">${esc(ev.title)}</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📅 ${ev.date}</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📍 ${esc(ev.area)}</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">👤 ${esc(persons)}</div>
+      ${noteText?`<div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:8px;font-size:13px">${noteText}</div>`:''}
+    </div>`;
+  alertHtml(html,'活動詳情');
+}
+function alertHtml(html,title){
+  const m=document.createElement('div');
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center';
+  m.onclick=e=>{if(e.target===m)m.remove();};
+  m.innerHTML=`<div style="background:var(--card);border-radius:14px;padding:20px 24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><b style="font-size:15px;color:var(--text)">${title}</b><button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)">✕</button></div>${html}</div>`;
+  document.body.appendChild(m);
+}
+function showDayEvents(dateStr){
+  const evs=(D.events||[]).filter(e=>e.date===dateStr);
+  if(!evs.length)return;
+  let html='';
+  evs.forEach(ev=>{
+    const t=getTypeInfo(ev.typeKey);
+    const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
+    html+=`<div onclick="document.querySelector('div[style*=fixed]').remove();${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}" style="padding:10px;background:${t.bg};border-left:3px solid ${t.color};border-radius:6px;margin-bottom:6px;cursor:pointer">`;
+    html+=`<div>${renderEventBadge(ev)} ${ev.starred?'⭐':''}</div>`;
+    html+=`<div style="font-weight:700;margin-top:4px">${esc(ev.title)}</div>`;
+    html+=`<div style="font-size:11px;color:var(--muted);margin-top:2px">📍 ${esc(ev.area)} · 👤 ${esc(persons)}</div>`;
+    html+='</div>';
+  });
+  alertHtml(html,`${dateStr} 的活動`);
 }
 
 function openEventM(id){
@@ -1621,12 +1848,19 @@ function openEventM(id){
   $('inEvTitle').value=ev?ev.title:'';
   $('inEvNote').innerHTML=ev?ev.note||'':'';
   $('inEvStarred').checked=ev?!!ev.starred:false;
-  // area
   const area=ev?ev.area:'台中';
   const isOther=!EVENT_AREAS.slice(0,-1).includes(area);
   $('inEvArea').value=isOther?'其他':area;
   $('inEvAreaOther').value=isOther?area:'';
   $('evAreaOtherWrap').style.display=isOther?'block':'none';
+  // Populate type dropdown
+  const typeSel=$('inEvType');
+  typeSel.innerHTML='';
+  (D.eventTypes||DEFAULT_EVENT_TYPES).forEach(t=>{
+    const o=document.createElement('option');o.value=t.key;o.textContent=t.label;
+    typeSel.appendChild(o);
+  });
+  typeSel.value=ev?(ev.typeKey||'other'):'other';
   renderPersonCks('evPCks',ev?ev.person:'');
   $('mEv').classList.remove('hidden');
   setTimeout(()=>$('inEvTitle').focus(),50);
@@ -1642,13 +1876,14 @@ function saveEvent(){
   const starred=$('inEvStarred').checked;
   let note=$('inEvNote').innerHTML.trim();if(note==='<br>')note='';
   if(!D.events)D.events=[];
-  if(eEventId){const ev=D.events.find(x=>x.id===eEventId);if(ev){ev.title=title;ev.date=date;ev.person=person;ev.area=area;ev.starred=starred;ev.note=note;}}
-  else D.events.unshift({id:gid(),title,date,person,area,starred,note});
+  const typeKey=$('inEvType').value||'other';
+  if(eEventId){const ev=D.events.find(x=>x.id===eEventId);if(ev){ev.title=title;ev.date=date;ev.person=person;ev.area=area;ev.starred=starred;ev.note=note;ev.typeKey=typeKey;}}
+  else D.events.unshift({id:gid(),title,date,person,area,starred,note,typeKey});
   save();renderTab();closeEventM();
 }
 function delEvent(id){if(!confirm('刪除？'))return;D.events=D.events.filter(x=>x.id!==id);save();renderTab();}
 function toggleHideTab(key){
-  if(!D.hiddenTabs)D.hiddenTabs=[];
+  if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.eventTypes||!D.eventTypes.length)D.eventTypes=JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES));
   if(D.hiddenTabs.includes(key))D.hiddenTabs=D.hiddenTabs.filter(k=>k!==key);
   else D.hiddenTabs.push(key);
   save();renderTabs();
@@ -1693,6 +1928,44 @@ function compressImage(file,maxWidth,quality){
     reader.onload=e=>{img.src=e.target.result;};
     reader.readAsDataURL(file);
   });
+}
+
+// ══ Event Type Management ══
+function openTypeM(){renderTypeList();$('mEvType').classList.remove('hidden');}
+function closeTypeM(){$('mEvType').classList.add('hidden');}
+function renderTypeList(){
+  const list=$('typeList');list.innerHTML='';
+  (D.eventTypes||DEFAULT_EVENT_TYPES).forEach((t,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px';
+    row.innerHTML=`<span style="background:${t.bg};color:${t.color};padding:3px 10px;border-radius:5px;font-size:12px;font-weight:700;border:1px solid ${t.color}33">${esc(t.label)}</span><span style="flex:1;font-size:11px;color:var(--muted)">key: ${t.key}</span><input type="color" value="${t.color}" onchange="updateTypeColor(${i},this.value)" style="width:32px;height:28px;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:1px"><button class="icon-btn danger" onclick="removeType(${i})">${SV.trash}</button>`;
+    list.appendChild(row);
+  });
+}
+function addType(){
+  const label=$('inNewTypeLabel').value.trim();if(!label)return;
+  const color=$('inNewTypeColor').value;
+  const bg=hexToLightBg(color);
+  const key='type_'+Date.now();
+  if(!D.eventTypes)D.eventTypes=[];
+  D.eventTypes.push({key,label,color,bg});
+  $('inNewTypeLabel').value='';
+  save();renderTypeList();
+}
+function hexToLightBg(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgb(${Math.round(r*.15+255*.85)},${Math.round(g*.15+255*.85)},${Math.round(b*.15+255*.85)})`;
+}
+function updateTypeColor(i,color){
+  D.eventTypes[i].color=color;
+  D.eventTypes[i].bg=hexToLightBg(color);
+  save();renderTypeList();
+}
+function removeType(i){
+  const t=D.eventTypes[i];
+  if(!confirm(`刪除類型「${t.label}」？\n（使用此類型的活動會改為「其他」）`))return;
+  D.eventTypes.splice(i,1);
+  save();renderTypeList();renderTab();
 }
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
@@ -1839,8 +2112,11 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
 <div class="modal-overlay hidden" id="mEv" onclick="closeEventM()"><div class="modal-box" onclick="event.stopPropagation()">
   <div class="modal-title" id="mEvT">新增重點活動</div>
   <div class="modal-form">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
       <div><label class="form-label">日期</label><input class="form-input" type="date" id="inEvD"></div>
+      <div><label class="form-label">類型</label>
+        <select class="form-select" id="inEvType"></select>
+      </div>
       <div><label class="form-label">工區</label>
         <select class="form-select" id="inEvArea" onchange="evAreaChg()">
           <option>台中</option><option>通霄</option><option>專案</option><option>離岸</option><option>其他</option>
@@ -1858,6 +2134,21 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
       <label for="inEvStarred" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text2)">⭐ 標記為重點項目</label>
     </div>
     <div class="modal-actions"><button class="btn-secondary" onclick="closeEventM()">取消</button><button class="btn-primary" onclick="saveEvent()" id="bEv">新增</button></div>
+  </div>
+</div></div>
+
+<div class="modal-overlay hidden" id="mEvType" onclick="closeTypeM()"><div class="modal-box" onclick="event.stopPropagation()">
+  <div class="modal-title">🏷️ 管理活動類型</div>
+  <div class="modal-form">
+    <div id="typeList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <input class="form-input" id="inNewTypeLabel" placeholder="類型名稱（例：教育訓練）" style="flex:1;min-width:150px">
+      <input type="color" id="inNewTypeColor" value="#374151" style="width:40px;height:36px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px">
+      <button class="btn-primary" onclick="addType()" style="padding:8px 14px">＋ 新增</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeTypeM()">完成</button>
+    </div>
   </div>
 </div></div>
 </body>
