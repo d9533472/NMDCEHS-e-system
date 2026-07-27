@@ -432,6 +432,72 @@ async function exportPdfBatch(recs, opts={}, onProgress){
   downloadBytes(bytes, `環保教育訓練記錄照片_批次${recs.length}筆_${ts}.pdf`);
 }
 
+// 固定 A4 高度的頁面 → canvas（頁尾可貼底）
+async function nodeToCanvasA4(inner){
+  const node=document.createElement("div");
+  node.style.cssText="position:fixed;left:-9999px;top:0;width:794px;background:#fff;color:#111;"
+    +"font-family:'Microsoft JhengHei','Noto Sans TC',sans-serif";
+  node.innerHTML=`<div style="min-height:1123px;display:flex;flex-direction:column;padding:40px 44px">${inner}</div>`;
+  document.body.appendChild(node);
+  try{ return await html2canvas(node,{scale:2,backgroundColor:"#ffffff",useCORS:true}); }
+  finally{ document.body.removeChild(node); }
+}
+function summaryPageHtml(periodLabel, rowsHtml, pageNo, totalPages){
+  const c="border:1px solid #333;padding:5px 6px;text-align:center";
+  const l="border:1px solid #333;padding:5px 6px";
+  return PDF_HEADER
+    + `<div style="text-align:center;margin-bottom:6px">
+         <div style="font-size:20px;font-weight:800;letter-spacing:1px">教育訓練總表</div>
+         <div style="font-size:13px;margin-top:2px">Environmental Training Summary</div></div>`
+    + `<div style="font-size:12.5px;color:#333;margin-bottom:12px">${periodLabel}</div>`
+    + `<table style="width:100%;border-collapse:collapse;font-size:11.5px;table-layout:fixed">
+         <thead><tr style="background:#eef3f8;font-weight:700">
+           <th style="${c};width:38px">編號</th>
+           <th style="${c};width:76px">日期</th>
+           <th style="${c};width:84px">時間</th>
+           <th style="${l}">包商</th>
+           <th style="${c};width:54px">講師</th>
+           <th style="${l}">包商 &amp; 人數</th>
+           <th style="${c};width:52px">總人數</th></tr></thead>
+         <tbody>${rowsHtml}</tbody></table>`
+    + `<div style="margin-top:auto;padding-top:14px;display:flex;justify-content:space-between;font-size:11px;color:#555">
+         <span>通霄電廠二期更新改建計畫海底輸氣管線統包工程</span>
+         <span>第 ${pageNo} 頁 / 共 ${totalPages} 頁</span></div>`;
+}
+async function exportSummary(recs, period, onProgress){
+  const { PDFDocument } = PDFLib;
+  const out = await PDFDocument.create();
+  const perPage = 20;
+  const chunks = [];
+  for(let i=0;i<recs.length;i+=perPage) chunks.push(recs.slice(i,i+perPage));
+  if(!chunks.length) chunks.push([]);
+  const total = chunks.length;
+  const periodLabel = (period.from||period.to)
+    ? `統計期間：${period.from||"（起始不限）"} ~ ${period.to||"（結束不限）"}　|　共 ${recs.length} 筆`
+    : `統計期間：全部　|　共 ${recs.length} 筆`;
+  const cC="border:1px solid #333;padding:5px 6px;text-align:center;word-break:break-all";
+  const cL="border:1px solid #333;padding:5px 6px;word-break:break-all";
+  for(let p=0;p<total;p++){
+    if(onProgress) onProgress(p+1,total);
+    const rowsHtml = chunks[p].map((r,idx)=>{
+      const names=(r.contractors||[]).map(c=>c.name).join("、");
+      const detail=(r.contractors||[]).map(c=>`${c.name} ${c.count}人`).join("、");
+      return `<tr>
+        <td style="${cC}">${p*perPage+idx+1}</td>
+        <td style="${cC}">${r.trainingDate||""}</td>
+        <td style="${cC}">${(r.startTime||"")}~${(r.endTime||"")}</td>
+        <td style="${cL}">${names||""}</td>
+        <td style="${cC}">${r.instructor||""}</td>
+        <td style="${cL}">${detail||""}</td>
+        <td style="${cC}">${r.participantCount||0}</td></tr>`;
+    }).join("");
+    await addImagePage(out, await nodeToCanvasA4(summaryPageHtml(periodLabel, rowsHtml, p+1, total)));
+  }
+  const bytes = await out.save();
+  const tag = (period.from||period.to) ? `${period.from||""}_${period.to||""}` : "全部";
+  downloadBytes(bytes, `教育訓練總表_${tag}.pdf`);
+}
+
 /*==================== 元件 ====================*/
 function Icon({n,size=16}){
   const p={width:size,height:size,viewBox:"0 0 24 24",fill:"none",stroke:"currentColor",
@@ -468,6 +534,7 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
   const [sel,setSel]=useState(()=>new Set());
   const [exporting,setExporting]=useState(null);   // null 或 {cur,total}
   const [showStats,setShowStats]=useState(false);
+  const [showSummary,setShowSummary]=useState(false);
   const contractorStats=useMemo(()=>{
     const map=new Map();
     filtered.forEach(r=>(r.contractors||[]).forEach(c=>{
@@ -567,6 +634,7 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
           <button className="btn sec sm" onClick={onSave}>{loading?<span className="spin"/>:"💾 儲存"}</button>
           <button className="btn sec sm" onClick={onOpenLoad}>📂 讀取</button>
           <button className="btn sec sm" onClick={()=>setShowStats(true)}>📊 包商統計</button>
+          <button className="btn sec sm" onClick={()=>setShowSummary(true)}>🧾 製作總表</button>
           <button className="btn sec sm" onClick={csv}>⬇ CSV</button>
           <button className="btn sm" onClick={onNew}>＋ 新增紀錄</button>
         </div>
@@ -620,6 +688,7 @@ function Dashboard({records,onNew,onEdit,onView,onDelete,onRefresh,onSave,onOpen
       </div>
     </div>
     {showStats && <StatsModal rows={contractorStats} onClose={()=>setShowStats(false)}/>}
+    {showSummary && <SummaryModal selectedRecs={selectedRecs} defFrom={f.from} defTo={f.to} onClose={()=>setShowSummary(false)}/>}
   </div>);
 }
 
@@ -661,6 +730,48 @@ function StatsModal({rows,onClose}){
       </div>
       <div className="muted" style={{fontSize:11,marginTop:10}}>
         ※ 依目前主頁篩選條件（日期 / 公司 / 講師 / 標記）統計。場次＝出現該包商的訓練筆數；受訓人次＝各場該包商人數加總。</div>
+    </div>
+  </div>);
+}
+
+function SummaryModal({selectedRecs,defFrom,defTo,onClose}){
+  const [from,setFrom]=useState(defFrom||"");
+  const [to,setTo]=useState(defTo||"");
+  const [prog,setProg]=useState(null);   // null 或 {cur,total}
+  const inc=selectedRecs
+    .filter(r=>{ if(from&&r.trainingDate<from)return false; if(to&&r.trainingDate>to)return false; return true; })
+    .sort((a,b)=>String(a.trainingDate).localeCompare(String(b.trainingDate)));
+  const totalPeople=inc.reduce((s,r)=>s+(Number(r.participantCount)||0),0);
+  const run=async()=>{
+    if(!inc.length) return;
+    setProg({cur:0,total:1});
+    try{ await exportSummary(inc,{from,to},(c,t)=>setProg({cur:c,total:t})); onClose(); }
+    catch(e){ alert("總表匯出失敗："+e); }
+    finally{ setProg(null); }
+  };
+  return (
+  <div className="modalbg" onClick={e=>e.target===e.currentTarget&&!prog&&onClose()}>
+    <div className="card modal-card" style={{width:520}}>
+      <div className="modal-head"><h2>製作教育訓練總表</h2>
+        <button className="x" onClick={onClose} aria-label="關閉">✕</button></div>
+      <div className="row">
+        <div className="grow"><div className="field"><label>輸出期間 — 起始</label>
+          <input type="date" value={from} onChange={e=>setFrom(e.target.value)}/></div></div>
+        <div className="grow"><div className="field"><label>輸出期間 — 結束</label>
+          <input type="date" value={to} onChange={e=>setTo(e.target.value)}/></div></div>
+      </div>
+      <div className="selbar" style={{marginTop:2}}>
+        {selectedRecs.length===0
+          ? <span style={{color:"var(--bad)",fontWeight:600}}>請先在列表勾選要納入總表的紀錄</span>
+          : <span>已勾選 {selectedRecs.length} 筆，符合期間 <b>{inc.length}</b> 筆　·　總人數 <b>{totalPeople}</b></span>}
+      </div>
+      <div className="muted" style={{fontSize:11.5,margin:"2px 2px 0"}}>
+        總表只納入「已勾選」且落在期間內的紀錄；期間留白＝不限。欄位：編號 / 日期 / 時間 / 包商 / 講師 / 包商&人數 / 總人數，頁尾含頁碼。</div>
+      <div className="form-foot">
+        <button className="btn sec" onClick={onClose} disabled={!!prog}>取消</button>
+        <button className="btn" onClick={run} disabled={!inc.length||!!prog}>
+          {prog? `產生中 ${prog.cur}/${prog.total}…` : `匯出總表 PDF（${inc.length} 筆）`}</button>
+      </div>
     </div>
   </div>);
 }
