@@ -68,10 +68,15 @@ input[type=text],input[type=number],input[type=date],select{width:100%;border:1p
 input:focus,select:focus{outline:2px solid #9dc3e6;outline-offset:-1px}
 input[readonly]{background:#f0f4f8;color:var(--navy);font-weight:700}
 td.calc{background:var(--yellow)}
-td.swlcell{background:var(--red)}
+td.swlcell{background:#f5b400} /* 未填／尚無法判定 → 黃色 */
+td.swlcell.swl-no{background:var(--red)} /* 判定不合格 → 紅色 */
+td.swlcell.swl-ok{background:var(--ok)} /* 判定合格 → 綠色 */
 td.swlcell input{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.55);color:#fff;font-weight:800;font-size:19px;letter-spacing:.5px;padding:7px 9px}
 td.swlcell input::placeholder{color:rgba(255,255,255,.7)}
 td.swlcell input:focus{outline:2px solid #fff;background:rgba(255,255,255,.2)}
+td.swlcell:not(.swl-ok):not(.swl-no) input{background:rgba(255,255,255,.65);border:1px solid rgba(122,76,0,.5);color:#6b4400}
+td.swlcell:not(.swl-ok):not(.swl-no) input::placeholder{color:rgba(107,68,0,.55)}
+td.swlcell:not(.swl-ok):not(.swl-no) input:focus{outline:2px solid #6b4400;background:rgba(255,255,255,.85)}
 .center{text-align:center}.right{text-align:right}
 .num{text-align:right;font-variant-numeric:tabular-nums}
 
@@ -96,6 +101,8 @@ td.swlcell input:focus{outline:2px solid #fff;background:rgba(255,255,255,.2)}
 .yn.danger label:has(input[value=Y]:checked){background:var(--red);border-color:var(--red)}
 
 .pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700}
+#Epill{font-size:19px;padding:7px 24px;letter-spacing:1px}
+#Etext{font-size:15px}
 .pill.p-ok{background:var(--okbg);color:var(--ok);border:1px solid #a8dcbf}
 .pill.p-no{background:var(--redbg);color:var(--red);border:1px solid #f0b3ae}
 .pill.p-na{background:#eef1f4;color:var(--muted);border:1px solid #dbe1e7}
@@ -190,6 +197,14 @@ tr.badrow input:placeholder-shown,tr.badrow select:invalid{background:#fff6f5}
 .gonote li{margin:6px 0;font-size:13px;color:#7d1a15;line-height:1.6}
 .gonote li b{color:#a01a13}
 .gonote .en{color:#a86a64}
+.gonote li.li3{list-style:none;margin:12px 0 2px -22px;padding:0;background:#fff;border:2px solid var(--red);border-radius:10px;overflow:hidden;box-shadow:0 3px 10px rgba(192,38,31,.18)}
+.gonote li.li3 .li3bar{display:flex;align-items:center;gap:9px;background:var(--red);color:#fff;padding:7px 14px;font-size:13.5px;font-weight:800;letter-spacing:.8px}
+.gonote li.li3 .li3bar .wicon{flex:none;font-size:15px}
+.gonote li.li3 .li3bar .en{display:inline;font-size:11px;color:rgba(255,255,255,.88);font-weight:700;letter-spacing:.3px}
+.gonote li.li3 .li3bar .zh{margin-right:10px}
+.gonote li.li3 .li3txt{padding:10px 14px 11px;font-size:15px;font-weight:700;color:#7d1a15;line-height:1.75}
+.gonote li.li3 .li3txt b{color:var(--red)}
+.gonote li.li3 .li3txt .en{display:block;font-size:12.5px;font-weight:600;color:#a86a64;margin-top:4px}
 
 /* ── 強調按鈕 ── */
 .btn.share{background:#0d7a3e;box-shadow:0 2px 6px rgba(13,122,62,.3)}
@@ -378,6 +393,9 @@ body.preview .app{display:none}
 #printdoc .gonp ol{margin:3px 0 0 16px;padding:0}
 #printdoc .gonp li{font-size:9.2px;color:#7d1a15;line-height:1.4;margin:1px 0}
 #printdoc .gonp .en{font-size:8px;color:#a86a64}
+#printdoc .gonp li.li3{list-style:none;font-size:11px;font-weight:700;color:#a01a13;background:#fdecea;border:1.5px solid #c0261f;border-radius:4px;padding:4px 7px;margin:3px 0 1px -16px}
+#printdoc .gonp li.li3 .en{font-size:9px;color:#a01a13}
+#printdoc .gonp li.li3 .t3{display:block;background:#c0261f;color:#fff;font-size:9.5px;letter-spacing:1px;border-radius:3px;padding:1px 6px;margin:-4px -7px 3px;font-weight:800}
 #printdoc .remp li .box{font-size:14px;font-family:monospace;margin-right:3px}
 #printdoc .remp li{padding:1.5px 0;border-bottom:1px dotted #dfe5ea}
 #printdoc .remp li:last-child{border-bottom:0}
@@ -626,7 +644,7 @@ body.preview #printdoc .wm{inset:10mm}
         <table style="border:0;margin:0">
           <tr><td colspan="3" style="border:0;border-bottom:1px solid var(--line)">安全工作載重計算：預估吊臂長度及作業半徑，參考<b class="hl-term" onclick="jumpGuide()" title="點此查看吊車荷重表查詢說明">吊車荷重表</b>找出安全工作載重<span class="en">Estimate boom length and working radius; refer to the <b class="hl-en">crane lifting capacity table</b> to find SWL</span></td></tr>
           <tr class="dhdr">
-            <th class="center" style="border-left:0"><span class="zh">配重塊重量</span><span class="en">Counterweight</span><span class="unit"><span class="zh">噸 </span>Ton</span></th>
+            <th class="center" style="border-left:0"><span class="zh">配重塊重量</span><span class="en">Counterweight</span><span class="unit"><span class="zh">噸 </span>Ton</span><span class="unit" style="color:var(--red);font-weight:700"><span class="zh">（如為吊卡請填 0）</span><span class="en">(Boom truck / truck crane: enter 0)</span></span></th>
             <th class="center"><span class="zh">外撐支座伸出</span><span class="en">Outrigger</span><span class="unit"><span class="zh">伸出百分比 </span>Extension %</span></th>
             <th class="center" style="border-right:0"><span class="zh">吊掛方向／迴轉範圍</span><span class="en">Lifting direction</span><span class="unit">360° / rear / side / front</span></th>
           </tr>
@@ -901,8 +919,10 @@ body.preview #printdoc .wm{inset:10mm}
     <thead><tr>
       <th class="center">承商工地主任<span class="en">Subcontractor Site Manager</span></th>
       <th class="center">承商職安衛人員<span class="en">Subcontractor EHS</span></th>
-      <th class="center">操作手<span class="en">Operator</span></th>
-      <th class="center">吊掛手<span class="en">Rigger</span></th>
+      <th class="center">操作手<span class="en">Operator</span>
+        <span class="note" style="display:block;font-weight:400;padding:2px 0 0;white-space:normal" data-en="May be left blank — signed on site later.">可先留空，現場再補簽</span></th>
+      <th class="center">吊掛手<span class="en">Rigger</span>
+        <span class="note" style="display:block;font-weight:400;padding:2px 0 0;white-space:normal" data-en="May be left blank — signed on site later.">可先留空，現場再補簽</span></th>
     </tr></thead>
     <tbody><tr>
       <td><input type="text" id="sg1" placeholder="姓名 Name" oninput="calc()"></td>
@@ -918,6 +938,13 @@ body.preview #printdoc .wm{inset:10mm}
 <section class="panel" id="p6">
   <h2><span class="zh">判定結果</span> <span class="en">Final Determination</span></h2>
   <p class="lead" data-en="Overall determination based on all conditions from Steps 1 to 5.">系統依 Step 1–5 全部條件綜合判定。</p>
+  <div class="toolbar" style="margin:0 0 6px">
+    <button class="btn big share" id="sharePdfBtn" onclick="sharePDF()" data-en="📤 Generate &amp; Share PDF to APP<small style='display:block;font-size:11px;font-weight:400;letter-spacing:0'>(for mobile)</small>">📤 產生 PDF 並分享至 APP<small style="display:block;font-size:11px;font-weight:400;letter-spacing:0">（手機版用）</small></button>
+    <button class="btn big" onclick="doPrint()" data-en="🖨 Print / Save as PDF">🖨 列印 / 另存 PDF</button>
+    <button class="btn ghost" onclick="togglePreview()" data-en="👁 Preview print layout">👁 預覽列印版面</button>
+  </div>
+  <div class="note" id="shareNote" style="padding-bottom:10px">「產生 PDF 並分享至 APP」（手機版用）會直接產生 PDF 並叫出手機/電腦的分享選單（LINE、Email、雲端硬碟…）；若裝置不支援分享，會自動改為下載檔案。
+    <span class="en">"Generate &amp; Share PDF to APP" (for mobile) generates the PDF and opens the system share sheet; falls back to a direct download if sharing is unavailable.</span></div>
   <div class="verdict inc" id="verdict">
     <div class="big" id="vBig">⚠ 資料尚未填寫完整</div>
     <div class="en2" id="vEn">Form incomplete</div>
@@ -936,7 +963,10 @@ body.preview #printdoc .wm{inset:10mm}
     <ol>
       <li data-en="<b>Print this calculation sheet and attach it to the Permit to Work (PTW)</b> as a supporting document; work may not commence without it."><b>請將本吊掛計算書列印出來，作為工作許可證（PTW）之附件</b>，未檢附者不得開工。</li>
       <li data-en="<b>Attach the three mandatory certificates &mdash; rigger, crane operator and crane inspection certificate &mdash; and confirm all are within their validity period.</b> Expired documents void this permit."><b>務必檢附有效期限內之「一機三證」</b>（吊掛手、操作手合格證照及吊車檢查合格證），逾期者視同未檢附。</li>
-      <li data-en="<b>The checklist below is completed on site.</b> Every working day, before any lifting begins, the site team ticks each item and the contractor&rsquo;s engineer verifies and signs it. Lifting may only start after that verification."><b>下方檢核表為現場逐項確認之用</b>：每日作業前由現場人員逐項勾選完成後，<b>須經承商工程師確認簽認</b>，始得開始當日吊掛作業。</li>
+      <li class="li3">
+        <div class="li3bar"><span class="wicon">⚠</span><span><span class="zh">每日必辦｜開始當日吊掛作業前</span><span class="en">DAILY MANDATORY — BEFORE LIFTING STARTS EACH DAY</span></span></div>
+        <div class="li3txt"><span class="zh">下方檢核表為現場逐項確認之用：每日吊掛作業前，須由<b>承商現場工程師</b>逐項確認完成並<b>簽認</b>後，始得施作當日吊掛作業。</span><span class="en">The checklist below is completed on site: every day, before any lifting begins, the <b>contractor's site engineer</b> must verify each item one by one and <b>sign off</b> — only then may the day's lifting commence.</span></div>
+      </li>
     </ol>
   </div>
 
@@ -961,13 +991,6 @@ body.preview #printdoc .wm{inset:10mm}
     </tbody>
   </table>
 
-  <div class="toolbar" style="margin-top:16px">
-    <button class="btn big share" id="sharePdfBtn" onclick="sharePDF()" data-en="📤 Generate &amp; Share PDF">📤 產生 PDF 並分享</button>
-    <button class="btn big" onclick="doPrint()" data-en="🖨 Print / Save as PDF">🖨 列印 / 另存 PDF</button>
-    <button class="btn ghost" onclick="togglePreview()" data-en="👁 Preview print layout">👁 預覽列印版面</button>
-  </div>
-  <div class="note" id="shareNote">「產生 PDF 並分享」會直接產生 PDF 並叫出手機/電腦的分享選單（LINE、Email、雲端硬碟…）；若裝置不支援分享，會自動改為下載檔案。
-    <span class="en">Generates the PDF and opens the system share sheet; falls back to a direct download if sharing is unavailable.</span></div>
 </section>
 
 <div class="navbtns noprint">
@@ -1302,6 +1325,12 @@ function calc(){
   var Eok=(d75!==null&&C!==null)?(d75>C):null;
   el('Etext').textContent=(d75===null||C===null)?'D × 75% ___ > C ___':('D × 75% = '+fx(d75,3)+L(' 噸',' t')+'　vs　C = '+fx(C,3)+L(' 噸',' t'));
   setPill('Epill',Eok,L('合格 O','PASS'),L('不合格 X','FAIL'));
+  /* D 欄安全工作載重底色：未填＝黃色，判定不合格＝紅色，判定合格＝綠色 */
+  var swlTd=document.querySelector('td.swlcell');
+  if(swlTd){
+    swlTd.classList.toggle('swl-ok',Eok===true);
+    swlTd.classList.toggle('swl-no',Eok===false);
+  }
 
   /* Step 1 */
   var c1=rv('c1'),c2=rv('c2'),c3=rv('c3');
@@ -1355,7 +1384,7 @@ function calc(){
   if(!el('g_date').value)todo.push(L('基本資料：吊掛日期','General: date of lift'));
   if(!el('g_operator').value.trim())todo.push(L('基本資料：起重機操作員','General: crane operator'));
   if(!el('g_crane').value.trim())todo.push(L('基本資料：起重機編號或型號（噸數）','General: crane S/N or model'));
-  if(!el('g_ptw').value.trim())todo.push(L('基本資料：工作許可編號 PTW（可日後補填）','General: PTW number (may be filled in later)'));
+  /* 工作許可編號 PTW 可留空，日後補填，不列入未完成欄位 */
   if(!answered)todo.push(L('Step 1：三項關鍵吊掛判斷準則未全部勾選','Step 1: all three critical-lifting criteria must be answered'));
   if(heavy===null)todo.push(L('Step 2：尚未輸入任何吊掛物重量','Step 2: no object weight entered'));
   if(mn===null)todo.push(L('Step 3：尚未輸入吊具數量與安全工作荷重','Step 3: accessory quantity and SWL not entered'));
@@ -1659,7 +1688,7 @@ function remPrint(){
   var h='<div class="gonp"><b>⚠ 執行前必辦事項　Before you proceed</b><ol>'+
     '<li>請將本吊掛計算書列印出來，作為工作許可證（PTW）之附件，未檢附者不得開工。<span class="en">Print this sheet and attach it to the Permit to Work; work may not commence without it.</span></li>'+
     '<li>務必檢附有效期限內之「一機三證」（吊掛手、操作手合格證照及吊車檢查合格證），逾期者視同未檢附。<span class="en">Attach the three mandatory certificates — rigger, crane operator and crane inspection certificate — all within validity.</span></li>'+
-    '<li>下方檢核表為現場逐項確認之用：每日作業前由現場人員逐項勾選完成後，須經承商工程師確認簽認，始得開始當日吊掛作業。<span class="en">The checklist below is ticked on site each working day and verified by the contractor\'s engineer before lifting starts.</span></li>'+
+    '<li class="li3"><span class="t3">⚠ 每日必辦｜開始當日吊掛作業前　DAILY MANDATORY — BEFORE LIFTING STARTS EACH DAY</span>下方檢核表為現場逐項確認之用：每日吊掛作業前，須由承商現場工程師逐項確認完成並簽認後，始得施作當日吊掛作業。<span class="en">The checklist below is completed on site: every day, before any lifting begins, the contractor\'s site engineer must verify each item one by one and sign off — only then may the day\'s lifting commence.</span></li>'+
     '</ol></div>';
   h+='<div class="remp"><div class="rh">✅ 施工前提醒事項　Pre-lift reminders　（請於施工前由現場逐項確認並打勾）</div>';
   REM.forEach(function(g,gi){
