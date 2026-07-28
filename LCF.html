@@ -352,6 +352,9 @@ table.chart tr.hitrow th,table.chart th.hitcol{background:#dceaf7;color:var(--na
   table.resp tr{border:1px solid var(--line);border-radius:6px;margin-bottom:8px;padding:4px}
   table.resp td{border:0;border-bottom:1px dashed #e5eaf0}
   table.resp td:before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);margin-bottom:2px}
+  /* 同吊欄：僅在「多樣物件一起吊掛＝是」時顯示（修正手機版永遠顯示的問題） */
+  table.resp td.mcol{display:none}
+  body.multi table.resp td.mcol{display:block}
   .verdict .big{font-size:23px}
 }
 
