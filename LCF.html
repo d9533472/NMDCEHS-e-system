@@ -370,7 +370,11 @@ body.preview .app{display:none}
 #printdoc .en{font-size:9px}
 #printdoc .box{font-family:monospace;font-size:12px}
 #printdoc .yellowc{background:#fff8d6}
-#printdoc .swlp{background:#c0261f!important;color:#fff!important;font-weight:800;font-size:15px;letter-spacing:.5px}
+#printdoc .swlp{background:#f5b400!important;color:#6b4400!important;font-weight:800;font-size:15px;letter-spacing:.5px} /* 未填／尚無法判定 → 黃 */
+#printdoc .swlp.swlp-no{background:#c0261f!important;color:#fff!important} /* 判定不合格 → 紅 */
+#printdoc .swlp.swlp-ok{background:#0d7a3e!important;color:#fff!important} /* 判定合格 → 綠 */
+#printdoc .eokp{color:#0d7a3e}
+#printdoc .enop{color:#c0261f}
 #printdoc .verdictp{border:2px solid;padding:7px 10px;margin-top:8px;font-size:12px;font-weight:700}
 #printdoc .verdictp.go{border-color:#0d7a3e;color:#0b5d31;background:#f2fbf6}
 #printdoc .verdictp.stop{border-color:#c0261f;color:#7d1a15;background:#fdf3f2}
@@ -1558,7 +1562,7 @@ function buildPrint(){
      '<tr><td class="center" style="border-left:0">'+mk(g('cwt'))+'</td><td class="center">'+mk(g('ogx'))+'</td><td class="center" style="border-right:0">'+mk(g('ldir'))+'</td></tr>'+
      '<tr><th class="center" style="border-left:0">吊臂長度 Boom length<span class="en">公尺 m</span></th><th class="center">作業半徑 Working radius<span class="en">公尺 m</span></th><th class="center" style="border-right:0">安全工作載重 SWL<span class="en">噸 Ton</span></th></tr>'+
      '<tr><td class="center" style="border-left:0">'+mk(g('boom'))+'</td><td class="center">'+mk(g('radius'))+'</td>'+
-     '<td class="center swlp" style="border-right:0">'+(S.D===null?'&nbsp;':fx(S.D))+'</td></tr>'+
+     '<td class="center swlp'+(S.Eok===true?' swlp-ok':(S.Eok===false?' swlp-no':''))+'" style="border-right:0">'+(S.D===null?'&nbsp;':fx(S.D))+'</td></tr>'+
      '<tr><td colspan="3" style="border:0;border-top:1px solid #9fb0c1;font-size:9px;line-height:1.4">'+
      '<b>查表重點</b>：① 外撐支座伸出% ② 配重塊組態 ③ 吊掛方向(over rear/over side/360°) 三者須與所查荷重表一致；'+
      '半徑為迴轉中心至吊鉤鉛垂線之水平距離；落在兩格之間取較保守者，不得內插放大；表值為總荷重(gross)，'+
@@ -1567,7 +1571,7 @@ function buildPrint(){
      '</td></tr></table></td></tr>';
   h+='<tr><th class="center">E</th><td>若 D*75% &gt; C 則合格<span class="en">IF D*75% > C is qualified lifting</span></td>'+
      '<td colspan="2" class="yellowc">D×75% = <b>'+(S.d75===null?'__':fx(S.d75))+'</b> ＞ C = <b>'+(S.C===null?'__':fx(S.C))+'</b>　→　'+
-     '<b style="white-space:nowrap">'+(S.Eok===null?'合格 O ／ 不合格 X':(S.Eok?'合格 O':'不合格 X'))+'</b>'+
+     '<b style="white-space:nowrap" class="'+(S.Eok===null?'':(S.Eok?'eokp':'enop'))+'">'+(S.Eok===null?'合格 O ／ 不合格 X':(S.Eok?'合格 O':'不合格 X'))+'</b>'+
      (S.ratio===null?'':'<span class="en">負荷率 Load ratio = '+S.ratio.toFixed(1)+'%　餘裕 Margin = '+fx(S.margin,3)+' 噸</span>')+
      '</td></tr></table></div>';
 
