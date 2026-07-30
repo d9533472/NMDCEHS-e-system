@@ -99,7 +99,22 @@
 
         .header-bottom {
             display: grid;
-            grid-template-columns: 80mm 1fr 70mm 70mm 50mm;
+            grid-template-columns: 2fr 2fr 1.3fr 1fr;
+        }
+
+        .project-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 3px 8px;
+            border-bottom: 2px solid #000;
+        }
+
+        .project-name {
+            font-weight: bold;
+            font-size: 10px;
+            line-height: 1.3;
+            flex: 1;
         }
 
         .header-field {
@@ -512,22 +527,117 @@
             .signature-section {
                 margin: 0;
             }
-        }
 
-        @media screen and (max-width: 1400px) {
+            /* ===== 壓縮頁首，避免第一頁跨頁 ===== */
+            .header-container { margin-bottom: 0.5mm; }
+            .logo-section img { max-height: 32px !important; }
+            .main-title { font-size: 15px; }
+            .sub-title { font-size: 12px; }
+            .sub-title-zh { font-size: 10px; }
+            .header-top { padding: 0; }
+            .logo-section, .team-members, .title-section { padding: 2px 4px; }
+            .project-row { padding: 1px 6px; }
+            .project-name { font-size: 8px; line-height: 1.15; }
+            .header-field { padding: 1px 6px; }
+            .doc-info { padding: 1px 6px; }
+
+            /* ===== 壓縮檢查表，讓 16 大項塞進第一頁 ===== */
+            .category-header { padding: 2px 5px; font-size: 8px; }
+            .category-header-zh { font-size: 7px; }
+            .category-header button { display: none !important; }
+            .checkbox-table td { padding: 1px 4px; font-size: 7.5px; line-height: 1.1; }
+            .item-zh { font-size: 6.5px; margin-top: 0; }
+            .checkbox-header { font-size: 6.5px; }
+            .checkbox-input { width: 9px; height: 9px; }
+            .checkbox-cell { width: 15px; }
+
+            /* 確保每頁正確分頁 */
             .page {
-                transform: scale(0.75);
-                transform-origin: top center;
-                margin-bottom: -75mm;
+                min-height: auto;
             }
         }
 
-        @media screen and (max-width: 1100px) {
-            .page {
-                transform: scale(0.55);
-                transform-origin: top center;
-                margin-bottom: -135mm;
+        /* ===== 螢幕檢視：大字、上下單欄排列，方便閱讀填寫 ===== */
+        @media screen {
+            body {
+                padding: 15px;
             }
+
+            .page {
+                width: 100%;
+                max-width: 900px;
+                min-height: auto;
+                max-height: none;
+                overflow: visible;
+                padding: 20px;
+                margin: 0 auto 25px;
+                transform: none;
+            }
+
+            /* 頁首放大 */
+            .logo-section img { max-height: 55px !important; }
+            .main-title { font-size: 24px; }
+            .sub-title { font-size: 19px; }
+            .sub-title-zh { font-size: 16px; }
+            .team-members-label { font-size: 13px; }
+            .field-label { font-size: 13px; }
+            .field-label-zh { font-size: 11px; }
+            .field-input { font-size: 14px; padding: 4px; }
+            .doc-number { font-size: 12px; }
+            .header-field { padding: 6px 10px; }
+            .header-top { grid-template-columns: 100px 1fr 260px; }
+            .project-row { padding: 6px 10px; }
+            .project-name { font-size: 15px; }
+
+            /* 檢查表：單欄垂直排列 */
+            .checklist-grid {
+                grid-template-columns: 1fr;
+                border: 2px solid #000;
+            }
+
+            .checklist-column {
+                border-right: none !important;
+                border-bottom: 3px solid #000 !important;
+            }
+            .checklist-column:last-child {
+                border-bottom: none !important;
+            }
+
+            /* 大項標題放大 */
+            .category-header { font-size: 17px; padding: 10px 12px; }
+            .category-header-zh { font-size: 15px; }
+            .category-header button { font-size: 12px !important; padding: 5px 10px !important; }
+
+            /* 檢查項目字體放大 */
+            .checkbox-table td { font-size: 15px; padding: 8px 12px; line-height: 1.4; }
+            .item-zh { font-size: 13px; margin-top: 2px; }
+            .checkbox-header { font-size: 13px; }
+            .checkbox-header td { padding: 8px 12px; }
+
+            /* 勾選框放大 */
+            .checkbox-cell { width: 65px; }
+            .checkbox-input { width: 22px; height: 22px; }
+
+            /* Others 大項的輸入框放大 */
+            .checklist-column input[type="text"] { font-size: 14px !important; padding: 4px; }
+
+            /* 第二頁 Observations 表格字體放大 */
+            .observations-table th { font-size: 14px; padding: 10px 6px; }
+            .observations-table td { font-size: 13px; padding: 6px; }
+            .observations-table input,
+            .observations-table textarea,
+            .observations-table select { font-size: 13px; padding: 4px; }
+            .observations-table textarea { min-height: 60px; }
+            .photo-col { width: 110px; }
+            .photo-preview { width: 95px; height: 70px; }
+            .photo-upload-btn { font-size: 10px; padding: 4px 8px; }
+
+            /* 簽名區放大 */
+            .signature-label { font-size: 13px; }
+            .signature-label-zh { font-size: 12px; }
+            .signature-name-input { font-size: 13px; }
+            .signature-input { font-size: 13px; }
+            .distribution-textarea { font-size: 13px; height: 90px; }
         }
     </style>
 </head>
@@ -550,19 +660,17 @@
                         <div class="sub-title-zh">環境檢查清單 - MFY</div>
                     </div>
                 </div>
+                <div class="project-row">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="field-label">PROJECT</span>
+                        <span class="field-label-zh">專案</span>
+                    </div>
+                    <span class="project-name">TAIWAN POWER COMPANY TUNG-HSIAO POWER PLANT 2ND STAGE RENEWAL PROJECT TURN-KEY CONTRACT OF SUBSEA GAS PIPELINE</span>
+                </div>
                 <div class="header-bottom">
                     <div class="doc-info">
                         <span class="doc-number">DOCUMENT NO: HSE-106-IC-13</span>
                         <span class="doc-number">REV. 01</span>
-                    </div>
-                    <div class="header-field">
-                        <div style="display: flex; flex-direction: column;">
-                            <span class="field-label">PROJECT</span>
-                            <span class="field-label-zh">專案</span>
-                        </div>
-                        <div style="flex: 1; font-size: 7px; line-height: 1.2; padding: 2px;">
-                            TAIWAN POWER COMPANY TUNG-HSIAO POWER PLANT 2ND STAGE RENEWAL PROJECT TURN-KEY CONTRACT OF SUBSEA GAS PIPELINE
-                        </div>
                     </div>
                     <div class="header-field">
                         <div style="display: flex; flex-direction: column;">
@@ -1467,19 +1575,17 @@
                         <div class="sub-title-zh">環境檢查清單 - MFY</div>
                     </div>
                 </div>
+                <div class="project-row">
+                    <div style="display: flex; flex-direction: column;">
+                        <span class="field-label">PROJECT</span>
+                        <span class="field-label-zh">專案</span>
+                    </div>
+                    <span class="project-name">TAIWAN POWER COMPANY TUNG-HSIAO POWER PLANT 2ND STAGE RENEWAL PROJECT TURN-KEY CONTRACT OF SUBSEA GAS PIPELINE</span>
+                </div>
                 <div class="header-bottom">
                     <div class="doc-info">
                         <span class="doc-number">DOCUMENT NO: HSE-106-IC-13</span>
                         <span class="doc-number">REV. 01</span>
-                    </div>
-                    <div class="header-field">
-                        <div style="display: flex; flex-direction: column;">
-                            <span class="field-label">PROJECT</span>
-                            <span class="field-label-zh">專案</span>
-                        </div>
-                        <div style="flex: 1; font-size: 7px; line-height: 1.2; padding: 2px;">
-                            TAIWAN POWER COMPANY TUNG-HSIAO POWER PLANT 2ND STAGE RENEWAL PROJECT TURN-KEY CONTRACT OF SUBSEA GAS PIPELINE
-                        </div>
                     </div>
                     <div class="header-field">
                         <div style="display: flex; flex-direction: column;">
