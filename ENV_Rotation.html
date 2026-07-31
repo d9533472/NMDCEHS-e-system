@@ -1522,16 +1522,24 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 <script>
 (function(){
   function q(id){return document.getElementById(id);}
-  function url(){return localStorage.getItem('roster_ehs_url_v1')||'https://script.google.com/macros/s/AKfycbyWTuJEQc1jMVcl9kCuPlCfvfSgIg2piyw8ODr013JcJrwC2hm7dvkX2_n1eJ9K4WPn/exec';}
+  function url(){
+    var v=localStorage.getItem('roster_ehs_url_v1');
+    if(v){
+      // Strip quotes if stored as JSON string
+      try{ var p=JSON.parse(v); if(typeof p==='string') v=p; }catch(e){}
+      if(v&&v.length>10) return v;
+    }
+    return 'https://script.google.com/macros/s/AKfycbyWTuJEQc1jMVcl9kCuPlCfvfSgIg2piyw8ODr013JcJrwC2hm7dvkX2_n1eJ9K4WPn/exec';
+  }
   function tok(){try{return JSON.parse(localStorage.getItem('roster_ehs_token_v1')||'""');}catch(e){return '';}}
   function collect(){var st={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('roster_')===0)st[k]=localStorage.getItem(k);}return st;}
   function msg(t,c){var m=q('cloudMsg');if(m){m.textContent=t;m.style.color=c||'#475569';}}
   function post(body,ok,err){
     var u=url(); if(!u){msg('尚未設定 GAS 網址：請到「同步到 E-System」面板填入','#be123c');return;}
-    var xhr=new XMLHttpRequest();xhr.open('POST',u,true);xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');xhr.timeout=20000;
-    xhr.onreadystatechange=function(){if(xhr.readyState===4){if(xhr.status>=200&&xhr.status<300)ok(xhr.responseText);else err('HTTP '+xhr.status);}};
-    xhr.ontimeout=function(){err('逾時');};xhr.onerror=function(){err('連線失敗');};
-    xhr.send(body);
+    // Use fetch no-cors: browser blocks reading response but data IS sent to GAS
+    fetch(u,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:body})
+      .then(function(){ok('{"ok":true}');})
+      .catch(function(e){err(String(e));});
   }
   q('cloudSave').onclick=function(){
     msg('儲存中…');
