@@ -1467,7 +1467,7 @@ function exportSchImg(){
   html+='</tr></thead><tbody>';
 
   PLIST.forEach(p=>{
-    html+=`<tr><td style="${CELL}background:#f0f7f2;font-weight:600;text-align:left;padding-left:8px;color:#2d5a3e">${p}</td>`;
+    html+=`<tr><td style="${CELL}background:#f0f7f2;font-weight:600;text-align:left;padding:4px 8px;color:#2d5a3e;line-height:1.2"><div>${p}</div><div style="font-size:9px;color:#5e8a6e;font-weight:500">${PLIST_ZH[p]||""}</div></td>`;
     let d=1;
     while(d<=days){
       const mg=sd.merges?.find(x=>x.person===p&&x.start===d);
