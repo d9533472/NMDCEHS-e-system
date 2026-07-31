@@ -131,8 +131,11 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     </div>
     <div style={{marginBottom:18}}>
       <label className="fl">附件 → Google Drive</label>
-      <input type="file" ref={fr} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{const r=new FileReader();r.onload=()=>sFiles(p=>[...p,{filename:file.name,mimeType:file.type,size:file.size,content:r.result.split(',')[1]}]);r.readAsDataURL(file)});e.target.value=''}} style={{display:'none'}} accept="image/*,.pdf,.xlsx,.xls,.doc,.docx"/>
-      <button className="bg" onClick={()=>fr.current?.click()} style={{marginBottom:6}}>📎 選擇檔案</button>
+      <input type="file" ref={fr} multiple onChange={e=>{Array.from(e.target.files).forEach(file=>{
+        if(file.size>10*1024*1024){alert('檔案「'+file.name+'」超過 10MB 限制，請壓縮後再上傳');return}
+        const r=new FileReader();r.onload=()=>sFiles(p=>[...p,{filename:file.name,mimeType:file.type,size:file.size,content:r.result.split(',')[1]}]);r.readAsDataURL(file)});e.target.value=''}} style={{display:'none'}} accept="image/*,.pdf,.xlsx,.xls,.doc,.docx"/>
+      <button className="bg" onClick={()=>fr.current?.click()} style={{marginBottom:6}}>📎 選擇檔案 <span style={{fontSize:10,color:'var(--muted)'}}>(每檔 ≤10MB)</span></button>
+      {files.length>0&&<div style={{fontSize:10,color:files.reduce((s,f)=>s+f.size,0)>8*1024*1024?'var(--red)':'var(--muted)',marginBottom:4}}>共 {files.length} 檔 · {(files.reduce((s,f)=>s+f.size,0)/1024/1024).toFixed(1)} MB {files.reduce((s,f)=>s+f.size,0)>8*1024*1024&&'⚠ 總量偏大，建議分次上傳'}</div>}
       {files.map((x,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,background:'var(--bg)',padding:'5px 10px',borderRadius:4,border:'1px solid var(--border)',marginBottom:3}}>📄 {x.filename} <span style={{color:'var(--muted)'}}>({(x.size/1024).toFixed(1)}KB)</span><button onClick={()=>sFiles(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--red)',cursor:'pointer',marginLeft:'auto'}}>✕</button></div>)}
     </div>
     {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'var(--bg)',padding:'4px 10px',borderRadius:4,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
@@ -164,6 +167,14 @@ function App(){
   const[auth,sAuth]=useState(false);
   const doLogin=()=>{sAuth(true);toast('已登入，可進行新增/編輯/刪除')};  const[data,sData]=useState(null);const[ss,sSs]=useState('idle');const[ls,sLs]=useState(null);
   const[pg,sPg]=useState('dash');const[ml,sMl]=useState(null);const[ts,sTs]=useState([]);
+  /* ── 備註 ── */
+  const NOTES_KEY='nmdc_insp_notes';
+  const[notes,sNotes]=useState(()=>{try{return JSON.parse(localStorage.getItem(NOTES_KEY))||[]}catch{return[]}});
+  const saveNotes=ns=>{sNotes(ns);localStorage.setItem(NOTES_KEY,JSON.stringify(ns))};
+  const addNote=()=>{const n={id:Date.now(),date:td(),text:'',pinned:false,created:new Date().toISOString()};saveNotes([n,...notes])};
+  const updNote=(id,upd)=>saveNotes(notes.map(n=>n.id===id?{...n,...upd}:n));
+  const delNote=id=>{if(confirm('刪除此備註？'))saveNotes(notes.filter(n=>n.id!==id))};
+  const sortedNotes=useMemo(()=>[...notes].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||b.id-a.id),[notes]);
   const[sub,sSub]=useState(false);const[logs,sLogs]=useState(null);
   const[fC,sFC]=useState('');const[fS,sFS]=useState('');const[fD1,sFD1]=useState('');const[fD2,sFD2]=useState('');
   const api=useRef(null);
@@ -182,7 +193,24 @@ function App(){
 
   const doLogout=()=>{sAuth(false);toast('已登出')};
 
-  const addI=async d=>{sSub(true);try{const r=await api.current.post('addInspection',d);toast('☁ '+r.inspection_id+' '+r.message);sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
+  const addI=async d=>{sSub(true);try{
+    /* 分離附件：先建紀錄（不帶附件），再逐一上傳 */
+    const files=d.attachments||[];
+    const payload={...d,attachments:[]};/* 先不帶附件 */
+    const r=await api.current.post('addInspection',payload);
+    toast('☁ '+r.inspection_id+' 紀錄已建立');
+    /* 逐一上傳附件到子資料夾 */
+    if(files.length>0&&r.folder_id){
+      for(let i=0;i<files.length;i++){
+        try{
+          toast('上傳附件 '+(i+1)+'/'+files.length+'...');
+          await api.current.post('uploadToFolder',{folder_id:r.folder_id,inspection_id:r.inspection_id,...files[i]});
+        }catch(e){toast('附件'+(i+1)+'上傳失敗: '+e.message,'err')}
+      }
+      toast('☁ '+files.length+' 個附件已上傳');
+    }
+    sMl(null);await sync()
+  }catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const updI=async(id,d)=>{sSub(true);try{await api.current.post('updateInspection',{inspection_id:id,inspection_no:d.inspection_no,inspection_date:d.inspection_date,submit_date:d.submit_date,approve_date:d.approve_date,inspected_qty:d.inspected_qty,note:d.note,stage:d.stage,new_attachments:d.attachments});toast('☁ 已更新至雲端');sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const updStage=async(id,stage)=>{try{await api.current.post('updateInspection',{inspection_id:id,stage});toast('☁ 階段已更新');await sync()}catch(e){toast(e.message,'err')}};
   const delI=async id=>{if(!confirm('確定刪除？'))return;try{await api.current.post('deleteInspection',{inspection_id:id});toast('☁ 已從雲端刪除');await sync()}catch(e){toast(e.message,'err')}};
@@ -211,7 +239,7 @@ function App(){
 
   if(!data&&ss==='error')return<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>{TL}<div style={{textAlign:'center'}}><div style={{fontSize:40,marginBottom:12}}>⚠️</div><div style={{fontSize:14,fontWeight:600}}>無法連線至 Google Sheets</div><button className="bp" onClick={sync} style={{marginTop:16}}>重試</button></div></div>;
 
-  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗總表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'}];
+  const nav=[{k:'notes',i:'📒',l:'備註'},{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗總表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'}];
   const SyncBtn=<button className="bg" disabled={ss==='syncing'} onClick={sync} title="從 Google Sheets 讀取最新資料">{ss==='syncing'?<span className="spinner"/>:'☁↓'} 從雲端同步</button>;
 
   return<div style={{display:'flex',minHeight:'100vh'}}>
@@ -244,6 +272,30 @@ function App(){
     </div>
 
     <main className="main-area" style={{flex:1,padding:'24px 28px',overflowY:'auto',maxHeight:'100vh',paddingBottom:80}}>
+
+    {/* ═══ NOTES ═══ */}
+    {pg==='notes'&&<div className="fi">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
+        <h1 style={{fontSize:24,fontWeight:800}}>📒 備註</h1>
+        <button className="bp" onClick={addNote}>＋ 新增備註</button>
+      </div>
+      {sortedNotes.length===0?<div style={{textAlign:'center',padding:60,color:'var(--muted)'}}>
+        <div style={{fontSize:40,marginBottom:12}}>📒</div>
+        <div style={{fontSize:14}}>還沒有備註，點右上角新增</div>
+      </div>
+      :<div style={{display:'flex',flexDirection:'column',gap:12}}>
+        {sortedNotes.map(n=><div key={n.id} style={{background:'#fff',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:18,boxShadow:'var(--shadow)',borderLeft:n.pinned?'4px solid var(--accent)':'4px solid transparent'}}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10,gap:8}}>
+            <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
+              <button onClick={()=>updNote(n.id,{pinned:!n.pinned})} style={{background:'none',border:'none',cursor:'pointer',fontSize:16,padding:0}} title={n.pinned?'取消置頂':'置頂'}>{n.pinned?'📌':'📍'}</button>
+              <input type="date" value={n.date||''} onChange={e=>updNote(n.id,{date:e.target.value})} style={{border:'1px solid var(--border)',borderRadius:4,padding:'4px 8px',fontSize:12,fontFamily:"'JetBrains Mono'",width:140,fontWeight:600}}/>
+            </div>
+            <button onClick={()=>delNote(n.id)} style={{background:'none',border:'none',cursor:'pointer',fontSize:14,color:'var(--red)',padding:'2px 6px'}} title="刪除">🗑</button>
+          </div>
+          <textarea value={n.text} onChange={e=>updNote(n.id,{text:e.target.value})} placeholder="寫點什麼..." rows={3} style={{width:'100%',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'10px 12px',fontSize:13,resize:'vertical',lineHeight:1.6,background:'var(--bg)'}}/>
+        </div>)}
+      </div>}
+    </div>}
 
     {/* ═══ DASHBOARD ═══ */}
     {pg==='dash'&&<div className="fi">
