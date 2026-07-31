@@ -124,7 +124,7 @@ footer{margin-top:48px;padding:20px 0;border-top:1px solid var(--border);text-al
 .sch-table thead th{border-bottom:2px solid var(--border2)}
 .sch-table tbody tr:first-child td{border-top:2px solid var(--border2)}
 .sch-table tbody td:first-child,.sch-table thead th:first-child{border-right:2px solid var(--border2)}
-.sch-name{position:sticky;left:0;background:var(--card);z-index:2;font-weight:600;min-width:85px;text-align:left;padding-left:8px!important}
+.sch-name{position:sticky;left:0;background:var(--card);z-index:2;font-weight:600;min-width:95px;text-align:left;padding:6px 8px!important;vertical-align:middle}
 /* 假日/週末欄 header */
 .sch-hol{background:#fef9c3!important}
 /* 一般工作值 */
@@ -240,6 +240,7 @@ const todayS=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMont
 const tmrS=()=>{const d=new Date();d.setDate(d.getDate()+1);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
 const PEOPLE=['All','Paul','Raymond','Sean','Jacqueline'];
 const PLIST=['Paul','Raymond','Sean','Jacqueline'];
+const PLIST_ZH={Paul:'童保舜',Raymond:'黃郁翔',Sean:'朱修成',Jacqueline:'彭肖瑛'};
 const ICONS={'📋 常用':['📄','📋','📊','📈','📉','📁','📂','📝','📌','🔗','🌐','💻','🖥️','📱','🔍','📎'],'🛡️ EHS':['🛡️','⚠️','🔒','🔓','🧯','🦺','🪖','⛑️','🚧','🚨','🔥','💧','🌊','☢️','☣️','♻️'],'🌿 環境':['🌿','🌱','🐋','🐬','🐢','🌊','🌤️','🌡️','💨','🏭','🔬','🧪','🦠','🌎','🏔️','🐟'],'🚢 船舶':['🚢','⛴️','🚤','⚓','🛟','🧭','📡','🗺️','🔱','⛽','🏗️','🔧','🛠️','⛏️','📐','🔩'],'📑 報告':['📑','📃','📜','🗂️','🗃️','📦','📤','📥','✅','❌','⭐','🏷️','📆','📅','🕐','🔔'],'👥 人員':['👥','👷','👤','🧑‍💼','👨‍🔬','👩‍⚕️','🤝','📞','📧','💬','🎓','📚','🏢','🏠','✈️','🚗']};
 const SV={folder:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7.5V19a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2h-7.93a2 2 0 01-1.66-.9l-.82-1.2A2 2 0 007.93 4H4a2 2 0 00-2 2v1.5z"/></svg>`,chev:`<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4l4 4-4 4"/></svg>`,edit:`<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 1.5l3 3L5 14H2v-3L11.5 1.5z"/></svg>`,trash:`<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12"/><path d="M5 4V2.5A.5.5 0 015.5 2h5a.5.5 0 01.5.5V4"/><path d="M12.5 4v9.5a1 1 0 01-1 1h-7a1 1 0 01-1-1V4"/></svg>`,plus:`<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/></svg>`,check:`<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>`,x:`<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="4" y1="4" x2="12" y2="12"/><line x1="12" y1="4" x2="4" y2="12"/></svg>`};
 
@@ -719,7 +720,7 @@ function renderOneMonth(mo){
   h+=`</tr></thead><tbody>`;
 
   PLIST.forEach(p=>{
-    h+=`<tr><td class="sch-name">${p}</td>`;
+    h+=`<tr><td class="sch-name"><div style="font-weight:700;line-height:1.15">${p}</div><div style="font-size:10px;color:var(--muted);font-weight:500;line-height:1.15">${PLIST_ZH[p]||''}</div></td>`;
     let d=1;
     while(d<=days){
       const mg=sd.merges?.find(x=>x.person===p&&x.start===d);
