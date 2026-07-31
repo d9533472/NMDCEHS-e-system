@@ -1495,7 +1495,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.c
 <script>
 (function(){
   function q(id){return document.getElementById(id);}
-  function url(){return localStorage.getItem('roster_ehs_url_v1')||'';}
+  function url(){ var v=localStorage.getItem('roster_ehs_url_v1'); if(!v) return ''; try{ return JSON.parse(v); }catch(e){ return v; } }
   function tok(){try{return JSON.parse(localStorage.getItem('roster_ehs_token_v1')||'""');}catch(e){return '';}}
   function collect(){var st={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('roster_')===0)st[k]=localStorage.getItem(k);}return st;}
   function msg(t,c){var m=q('cloudMsg');if(m){m.textContent=t;m.style.color=c||'#475569';}}
