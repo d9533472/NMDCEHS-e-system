@@ -173,6 +173,14 @@
     .hgrid .nh{background:#e2e8f0;color:#000}
     .cell{border:1px solid #ccc}
   }
+  #cloudbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;gap:8px;align-items:center;justify-content:center;
+    padding:8px 10px;background:rgba(255,255,255,.97);border-top:1px solid #e2e8f0;box-shadow:0 -2px 10px rgba(15,39,64,.08);flex-wrap:wrap}
+  #cloudbar button{border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}
+  #cloudbar #cloudSave{background:#0f2740;color:#fff}
+  #cloudbar #cloudLoad{background:#2dd4bf;color:#06302b}
+  #cloudbar button:active{transform:scale(.97)}
+  #cloudbar #cloudMsg{font-size:12px;font-weight:600;flex-basis:100%;text-align:center;min-height:14px;color:#475569}
+  @media print{#cloudbar{display:none}}
 </style>
 </head>
 <body>
@@ -1478,6 +1486,43 @@ function DaySheet({
   }, "\u95DC\u9589")));
 }
 ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
+</script>
+<div id="cloudbar">
+  <button id="cloudSave">☁️ 儲存到雲端</button>
+  <button id="cloudLoad">☁️ 從雲端載入</button>
+  <span id="cloudMsg"></span>
+</div>
+<script>
+(function(){
+  function q(id){return document.getElementById(id);}
+  function url(){return localStorage.getItem('roster_ehs_url_v1')||'';}
+  function tok(){try{return JSON.parse(localStorage.getItem('roster_ehs_token_v1')||'""');}catch(e){return '';}}
+  function collect(){var st={};for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k&&k.indexOf('roster_')===0)st[k]=localStorage.getItem(k);}return st;}
+  function msg(t,c){var m=q('cloudMsg');if(m){m.textContent=t;m.style.color=c||'#475569';}}
+  function post(body,ok,err){
+    var u=url(); if(!u){msg('尚未設定 GAS 網址：請到「同步到 E-System」面板填入','#be123c');return;}
+    var xhr=new XMLHttpRequest();xhr.open('POST',u,true);xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');xhr.timeout=20000;
+    xhr.onreadystatechange=function(){if(xhr.readyState===4){if(xhr.status>=200&&xhr.status<300)ok(xhr.responseText);else err('HTTP '+xhr.status);}};
+    xhr.ontimeout=function(){err('逾時');};xhr.onerror=function(){err('連線失敗');};
+    xhr.send(body);
+  }
+  q('cloudSave').onclick=function(){
+    msg('儲存中…');
+    post(JSON.stringify({action:'saveRosterState',token:tok(),state:collect(),savedAt:new Date().toISOString()}),
+      function(t){var ok=true;try{ok=JSON.parse(t).ok!==false;}catch(e){}msg(ok?'✓ 已儲存到雲端（其他裝置按「從雲端載入」即可同步）':'儲存失敗',ok?'#166534':'#be123c');},
+      function(e){msg('儲存失敗：'+e,'#be123c');});
+  };
+  q('cloudLoad').onclick=function(){
+    if(!confirm('從雲端載入會覆蓋本機目前設定並重新整理頁面，確定？'))return;
+    msg('載入中…');
+    post(JSON.stringify({action:'loadRosterState',token:tok()}),
+      function(t){try{var r=JSON.parse(t);if(r.ok===false){msg('載入失敗：'+(r.msg||''),'#be123c');return;}if(!r.state){msg('雲端尚無已儲存的設定','#be123c');return;}
+        Object.keys(r.state).forEach(function(k){if(k.indexOf('roster_')===0)localStorage.setItem(k,r.state[k]);});
+        msg('✓ 已載入，重新整理中…','#166534');setTimeout(function(){location.reload();},700);
+      }catch(e){msg('載入失敗：回應格式錯誤','#be123c');}},
+      function(e){msg('載入失敗：'+e,'#be123c');});
+  };
+})();
 </script>
 </body>
 </html>
