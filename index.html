@@ -279,6 +279,10 @@ let eBulId=null,eTrkId=null,eDocId=null,eSecId=null,eLSId=null,eLId=null,selIc='
 let activeTab='bulletin',trkFilter='All',docFilter='All',editingTabKey=null,showDone=false;
 let showArchive=false;
 let schViewMonth=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
+let schSubView='schedule'; // 'schedule' | 'roster'
+let rosterY=new Date().getFullYear()<2026?2026:new Date().getFullYear();
+let rosterM=new Date().getFullYear()<2026?1:new Date().getMonth()+1;
+let rosterSel=null,rosterDaySel=null;
 let schDraft=false; // true = 班表有未發布草稿
 
 // Taiwan holidays (可自行增減)
@@ -336,6 +340,7 @@ function fixData(){
   if(!D.scheduleData)D.scheduleData={};
   if(!D.schMonths)D.schMonths=[];
   if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.eventTypes||!D.eventTypes.length)D.eventTypes=JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES));
+  if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
   if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
@@ -659,6 +664,26 @@ function renderSchHTML(){
   if(!D.schMonths.includes(schViewMonth))schViewMonth=D.schMonths[D.schMonths.length-1]||todayS().slice(0,7);
   let h='<div class="card">';
 
+  // ── Sub-view switcher (only editor sees roster tab) ──
+  if(isEditor){
+    h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">';
+    h+='<div class="trk-tabs" style="margin:0">';
+    h+=`<button class="trk-tab ${schSubView==='schedule'?'active':''}" onclick="schSubView='schedule';renderTab()">📅 班表檢視</button>`;
+    h+=`<button class="trk-tab ${schSubView==='roster'?'active':''}" onclick="schSubView='roster';renderTab()">🎯 排班系統</button>`;
+    h+='</div>';
+    h+='</div>';
+  }
+
+  // ── ROSTER VIEW (editor only) — iframe embed of ENV_Rotation.html ──
+  if(isEditor&&schSubView==='roster'){
+    h+='<div style="padding:10px 14px;background:#fffbeb;border-left:3px solid #eab308;border-radius:8px;font-size:12px;color:#78350f;margin-bottom:10px">🎯 <b>排班系統</b>：使用完整版排班工具，資料自動同步至 EHS 主系統。「一鍵帶入班表」按鈕會把排班結果寫入班表頁。</div>';
+    h+='<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#eef1f5">';
+    h+='<iframe id="rosterFrame" src="ENV_Rotation.html" style="width:100%;height:900px;border:0;display:block" onload="initRosterFrame()"></iframe>';
+    h+='</div>';
+    return h+'</div>';
+  }
+
+  // ── SCHEDULE VIEW (default) ──
   if(isEditor){
     // ── Row 1: 月份下拉 + 工具按鈕 ──
     h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">`;
@@ -1885,6 +1910,7 @@ function saveEvent(){
 function delEvent(id){if(!confirm('刪除？'))return;D.events=D.events.filter(x=>x.id!==id);save();renderTab();}
 function toggleHideTab(key){
   if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.eventTypes||!D.eventTypes.length)D.eventTypes=JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES));
+  if(!D.rosterData)D.rosterData={};
   if(D.hiddenTabs.includes(key))D.hiddenTabs=D.hiddenTabs.filter(k=>k!==key);
   else D.hiddenTabs.push(key);
   save();renderTabs();
@@ -1968,6 +1994,411 @@ function removeType(i){
   D.eventTypes.splice(i,1);
   save();renderTypeList();renderTab();
 }
+
+// ══════════════════════════════════════════
+// ROSTER MODULE (排班系統)
+// ══════════════════════════════════════════
+const HOLIDAYS_2026={
+  '2026-01-01':'元旦','2026-02-16':'春節除夕','2026-02-17':'春節初一','2026-02-18':'春節初二','2026-02-19':'春節初三','2026-02-20':'春節初四',
+  '2026-02-27':'和平紀念(補)','2026-04-03':'兒童節(補)','2026-04-06':'清明(補)',
+  '2026-05-01':'勞動節','2026-06-19':'端午節','2026-09-25':'中秋節','2026-09-28':'教師節',
+  '2026-10-09':'國慶(補)','2026-10-26':'光復(補)','2026-12-25':'行憲紀念'
+};
+const WKDN=['日','一','二','三','四','五','六'];
+const RSTR_PPL=[
+  {id:'paul',name:'Paul',zh:'童保舜',weekday:['R','R','R','R','R'],tc:true,tx:true,single:'R',backup:false},
+  {id:'raymond',name:'Raymond',zh:'黃郁翔',weekday:['霄','霄','霄','霄','霄'],tc:false,tx:true,single:'霄',backup:false},
+  {id:'sean',name:'Sean',zh:'朱修成',weekday:['中','中','中','中','中'],tc:true,tx:false,single:'中',backup:false},
+  {id:'jacqueline',name:'Jacqueline',zh:'彭肖瑛',weekday:['R','中','中','霄','R'],tc:true,tx:true,single:'中',backup:false},
+];
+function rstrPad(n){return String(n).padStart(2,'0');}
+function rstrDstr(y,m,d){return y+'-'+rstrPad(m)+'-'+rstrPad(d);}
+function rstrFromStr(s){const a=s.split('-').map(Number);return new Date(a[0],a[1]-1,a[2]);}
+function rstrToStr(dt){return rstrDstr(dt.getFullYear(),dt.getMonth()+1,dt.getDate());}
+function rstrAddDays(s,n){const dt=rstrFromStr(s);dt.setDate(dt.getDate()+n);return rstrToStr(dt);}
+function rstrDow(s){return rstrFromStr(s).getDay();}
+function rstrHoliday(s){return !!HOLIDAYS_2026[s];}
+function rstrWeekend(s){const d=rstrDow(s);return d===0||d===6;}
+function rstrNonWork(s){return rstrWeekend(s)||rstrHoliday(s);}
+function rstrAutoType(s){
+  if(!rstrNonWork(s))return 'WORK';
+  let start=s;while(rstrNonWork(rstrAddDays(start,-1)))start=rstrAddDays(start,-1);
+  let len=0,cur=start;while(rstrNonWork(cur)){len++;cur=rstrAddDays(cur,1);}
+  let pos=0,p=start;while(p!==s){pos++;p=rstrAddDays(p,1);}
+  if(len===1)return 'DUTY1';
+  if(len===2)return pos===0?'DUTY2':'DUTY1';
+  return pos<=1?'DUTY2':'DUTY1';
+}
+function rstrDayType(s,ov){if(ov&&ov[s])return ov[s];return rstrAutoType(s);}
+function rstrMonthDays(y,m){const n=new Date(y,m,0).getDate(),a=[];for(let d=1;d<=n;d++)a.push(rstrDstr(y,m,d));return a;}
+function rstrIsWork(st){return st==='中'||st==='霄'||st==='R';}
+function rstrResolve(s,p,manual,auto,ov){
+  const mv=manual[s]&&manual[s][p.id];if(mv!==undefined)return mv;
+  const av=auto[s]&&auto[s][p.id];if(av!==undefined)return av;
+  if(rstrDayType(s,ov)==='WORK'){const d=rstrDow(s);if(d>=1&&d<=5)return p.weekday[d-1];return 'OFF';}
+  return 'OFF';
+}
+function rstrGenerate(y,m,people,manual,ov,carry){
+  carry=carry||{};
+  const days=rstrMonthDays(y,m),auto={},load={};
+  people.forEach(p=>load[p.id]=0);
+  const setA=(s,id,v)=>{(auto[s]||(auto[s]={}))[id]=v;};
+  const fixed=(s,id)=>manual[s]&&manual[s][id]!==undefined;
+  const tcOrder=['sean','jacqueline','paul'],txOrder=['raymond','jacqueline','paul'];
+  function runBefore(s,p){
+    let count=0,cur=rstrAddDays(s,-1);const mk=s.slice(0,7);
+    while(cur.slice(0,7)===mk){if(rstrIsWork(rstrResolve(cur,p,manual,auto,ov)))count++;else return count;cur=rstrAddDays(cur,-1);}
+    return count+Math.max(0,Math.min(6,(carry[p.id])|0));
+  }
+  const wouldStreak=(s,p)=>runBefore(s,p)>=6;
+  function pick(s,cap,order,exclude){
+    const c=people.filter(p=>p[cap]&&p.id!==exclude&&!fixed(s,p.id)&&!(auto[s]&&auto[s][p.id]!==undefined));
+    if(!c.length)return null;
+    const rescuing=c.some(p=>wouldStreak(s,p));
+    c.sort((a,b)=>{
+      const aw=wouldStreak(s,a)?1:0,bw=wouldStreak(s,b)?1:0;if(aw!==bw)return aw-bw;
+      if(rescuing){const ap=a.id==='paul'?0:1,bp=b.id==='paul'?0:1;if(ap!==bp)return ap-bp;}
+      const ab=a.backup?1:0,bb=b.backup?1:0;if(ab!==bb)return ab-bb;
+      return load[a.id]!==load[b.id]?load[a.id]-load[b.id]:order.indexOf(a.id)-order.indexOf(b.id);
+    });
+    return c[0];
+  }
+  for(const s of days){
+    const t=rstrDayType(s,ov);if(t==='WORK')continue;
+    let h中=false,h霄=false,any=false;
+    for(const p of people){const st=rstrResolve(s,p,manual,auto,ov);if(rstrIsWork(st)){any=true;if(st==='中')h中=true;if(st==='霄')h霄=true;}}
+    if(t==='DUTY2'){
+      let first=null;
+      if(!h中){const p=pick(s,'tc',tcOrder,null);if(p){setA(s,p.id,'中');load[p.id]++;first=p.id;}}
+      if(!h霄){const p=pick(s,'tx',txOrder,first);if(p){setA(s,p.id,'霄');load[p.id]++;}}
+    }else{
+      if(!any){
+        const c=people.filter(p=>!fixed(s,p.id));
+        const rescuing=c.some(p=>wouldStreak(s,p));
+        c.sort((a,b)=>{
+          const aw=wouldStreak(s,a)?1:0,bw=wouldStreak(s,b)?1:0;if(aw!==bw)return aw-bw;
+          if(rescuing){const ap=a.id==='paul'?0:1,bp=b.id==='paul'?0:1;if(ap!==bp)return ap-bp;}
+          const ab=a.backup?1:0,bb=b.backup?1:0;if(ab!==bb)return ab-bb;
+          return load[a.id]-load[b.id]||people.indexOf(a)-people.indexOf(b);
+        });
+        if(c[0]){setA(s,c[0].id,'R');load[c[0].id]++;}
+      }
+    }
+  }
+  // Weekday cover: Paul covers when Sean/Ray on leave
+  const byId=Object.fromEntries(people.map(p=>[p.id,p]));
+  const paul=byId['paul'],sean=byId['sean'],ray=byId['raymond'],jac=byId['jacqueline'];
+  if(paul){
+    for(const s of days){
+      if(rstrDayType(s,ov)!=='WORK')continue;
+      if(manual[s]&&manual[s]['paul']!==undefined)continue;
+      const seanOff=sean&&rstrResolve(s,sean,manual,auto,ov)==='H';
+      const rayOff=ray&&rstrResolve(s,ray,manual,auto,ov)==='H';
+      if(!seanOff&&!rayOff)continue;
+      let post;
+      if(seanOff&&rayOff){const jp=jac?rstrResolve(s,jac,manual,auto,ov):null;post=jp==='中'?'霄':jp==='霄'?'中':'霄';}
+      else post=seanOff?'中':'霄';
+      setA(s,'paul',post);
+    }
+  }
+  return auto;
+}
+function rstrDetectStreaks(y,m,people,manual,auto,ov,carry){
+  carry=carry||{};
+  const days=rstrMonthDays(y,m),bad=new Set();
+  for(const p of people){
+    const c=Math.max(0,Math.min(6,carry[p.id]|0));
+    const ext=new Array(c).fill(true).concat(days.map(s=>rstrIsWork(rstrResolve(s,p,manual,auto,ov))));
+    let i=0;
+    while(i<ext.length){
+      if(ext[i]){let j=i;while(j<ext.length&&ext[j])j++;
+        if(j-i>=7){for(let k=i;k<j;k++){const mi=k-c;if(mi>=0)bad.add(days[mi]+'|'+p.id);}}
+        i=j;
+      }else i++;
+    }
+  }
+  return bad;
+}
+function rstrCoverWarn(s,people,manual,auto,ov){
+  const t=rstrDayType(s,ov);if(t==='WORK')return null;
+  let h中=false,h霄=false,any=false;
+  for(const p of people){const st=rstrResolve(s,p,manual,auto,ov);if(rstrIsWork(st)){any=true;if(st==='中')h中=true;if(st==='霄')h霄=true;}}
+  if(t==='DUTY2'){if(!h中&&!h霄)return '缺中/霄';if(!h中)return '缺台中';if(!h霄)return '缺通霄';return null;}
+  return any?null:'缺值班';
+}
+function rstrDeriveCarry(prevY,prevM,people){
+  // Get last month's data from D.rosterData
+  const key=prevY+'-'+rstrPad(prevM);
+  const data=(D.rosterData||{})[key];
+  if(!data)return null;
+  const carry={};
+  const days=rstrMonthDays(prevY,prevM);
+  for(const p of people){
+    let count=0;
+    for(let i=days.length-1;i>=0;i--){
+      if(rstrIsWork(rstrResolve(days[i],p,data.manual||{},data.auto||{},data.ov||{})))count++;
+      else break;
+    }
+    carry[p.id]=count;
+  }
+  return carry;
+}
+
+function getRosterMonthData(){
+  const key=rosterY+'-'+rstrPad(rosterM);
+  if(!D.rosterData)D.rosterData={};
+  if(!D.rosterData[key])D.rosterData[key]={manual:{},ov:{}};
+  return D.rosterData[key];
+}
+function setRosterManual(date,pid,val){
+  const data=getRosterMonthData();
+  if(!data.manual)data.manual={};
+  if(val===null){
+    if(data.manual[date]){delete data.manual[date][pid];if(!Object.keys(data.manual[date]).length)delete data.manual[date];}
+  }else{
+    if(!data.manual[date])data.manual[date]={};
+    data.manual[date][pid]=val;
+  }
+  save();renderTab();
+}
+function setRosterOverride(date,val){
+  const data=getRosterMonthData();
+  if(!data.ov)data.ov={};
+  if(val===null){delete data.ov[date];}else data.ov[date]=val;
+  save();renderTab();
+}
+
+function renderRosterUI(){
+  const people=RSTR_PPL;
+  const data=getRosterMonthData();
+  const manual=data.manual||{},ov=data.ov||{};
+  const prevY=rosterM===1?rosterY-1:rosterY,prevM=rosterM===1?12:rosterM-1;
+  const autoCarry=rstrDeriveCarry(prevY,prevM,people);
+  const carry=data.carry?data.carry:(autoCarry||Object.fromEntries(people.map(p=>[p.id,0])));
+  const auto=rstrGenerate(rosterY,rosterM,people,manual,ov,carry);
+  const bad=rstrDetectStreaks(rosterY,rosterM,people,manual,auto,ov,carry);
+  const days=rstrMonthDays(rosterY,rosterM);
+  const today=todayS();
+
+  let h='';
+  // ── Header: month nav + actions ──
+  h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">';
+  h+=`<button class="icon-btn" onclick="rosterNavM(-1)" style="padding:8px 12px">‹</button>`;
+  h+=`<div style="font-size:16px;font-weight:700;color:var(--text);min-width:120px;text-align:center">${rosterY}年 ${rosterM}月</div>`;
+  h+=`<button class="icon-btn" onclick="rosterNavM(1)" style="padding:8px 12px">›</button>`;
+  h+=`<button class="btn-add-row" style="margin:0" onclick="rosterGoToday()">今天</button>`;
+  h+='<div style="flex:1"></div>';
+  h+=`<button onclick="rosterApplyToSchedule()" style="padding:8px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;box-shadow:0 2px 10px rgba(22,163,74,.2)">📥 一鍵帶入班表</button>`;
+  h+='</div>';
+
+  // ── Legend ──
+  h+='<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;font-size:11px">';
+  [['中','#0369a1','#e0f2fe','台中'],['霄','#6d28d9','#ede9fe','通霄'],['R','#1d4ed8','#eff6ff','待命'],['H','#9ca3af','#f3f4f6','休']].forEach(([k,color,bg,label])=>{
+    h+=`<span style="padding:2px 8px;border-radius:5px;background:${bg};color:${color};font-weight:700;border:1px solid ${color}33">${k} ${label}</span>`;
+  });
+  h+='<span style="padding:2px 8px;border-radius:5px;background:#fef2f2;color:#dc2626;font-weight:700;border:1px solid #fecaca">🚨 連 7 天工作</span>';
+  h+='</div>';
+
+  // ── Table ──
+  h+='<div style="overflow-x:auto;border:1px solid var(--border);border-radius:10px">';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:12px;background:var(--card)">';
+  h+='<thead><tr>';
+  h+='<th style="position:sticky;left:0;background:#f0f7f2;padding:8px;text-align:left;border-right:1px solid var(--border);border-bottom:2px solid var(--border);min-width:70px;z-index:2">日期</th>';
+  h+='<th style="background:#f0f7f2;padding:8px;border-bottom:2px solid var(--border);white-space:nowrap">狀態</th>';
+  people.forEach(p=>{
+    h+=`<th style="background:#f0f7f2;padding:8px;border-bottom:2px solid var(--border);min-width:70px">${p.name}<div style="font-size:9px;color:var(--muted);font-weight:500">${p.zh}</div></th>`;
+  });
+  h+='<th style="background:#f0f7f2;padding:8px;border-bottom:2px solid var(--border);min-width:70px;white-space:nowrap">覆蓋</th>';
+  h+='</tr></thead><tbody>';
+
+  const typeLabels={WORK:'平日',DUTY1:'1人值班',DUTY2:'2人值班'};
+
+  days.forEach(s=>{
+    const t=rstrDayType(s,ov);
+    const dow=rstrDow(s);
+    const hn=HOLIDAYS_2026[s];
+    const isToday=s===today;
+    const bg=isToday?'#fef9c3':(dow===0||dow===6?'#fafafa':'transparent');
+    const [_,mm,dd]=s.split('-');
+    h+=`<tr style="background:${bg}">`;
+    // Date column
+    h+=`<td style="position:sticky;left:0;background:${bg};padding:6px 8px;border-right:1px solid var(--border);border-bottom:1px solid var(--bg2);white-space:nowrap;font-weight:600;z-index:1">`;
+    h+=`<div style="color:${dow===0||dow===6?'#dc2626':'var(--text)'}">${parseInt(mm)}/${parseInt(dd)} <span style="font-size:10px;color:var(--muted)">週${WKDN[dow]}</span></div>`;
+    if(hn)h+=`<div style="font-size:9px;color:#dc2626">${hn}</div>`;
+    h+='</td>';
+    // Type column
+    const typeBg=t==='DUTY2'?'#fef3c7':t==='DUTY1'?'#e0f2fe':'transparent';
+    const typeColor=t==='DUTY2'?'#b45309':t==='DUTY1'?'#0369a1':'var(--muted)';
+    h+=`<td style="padding:6px 8px;border-bottom:1px solid var(--bg2);text-align:center;font-size:10px">`;
+    h+=`<span style="padding:2px 6px;border-radius:4px;background:${typeBg};color:${typeColor};font-weight:600;cursor:pointer" onclick="rosterCycleType('${s}')" title="點擊切換值班類型">${typeLabels[t]}</span>`;
+    h+='</td>';
+    // Person columns
+    people.forEach(p=>{
+      const st=rstrResolve(s,p,manual,auto,ov);
+      const isManual=manual[s]&&manual[s][p.id]!==undefined;
+      const isBad=bad.has(s+'|'+p.id);
+      const colors={
+        '中':{c:'#0369a1',bg:'#e0f2fe'},
+        '霄':{c:'#6d28d9',bg:'#ede9fe'},
+        'R':{c:'#1d4ed8',bg:'#eff6ff'},
+        'H':{c:'#9ca3af',bg:'#f3f4f6'},
+        'OFF':{c:'#d1d5db',bg:'transparent'},
+      };
+      const col=colors[st]||colors['OFF'];
+      const display=st==='OFF'?'·':(st==='H'?'休':st);
+      const border=isBad?'2px solid #dc2626':(isManual?'2px solid #eab308':'1px solid var(--border)');
+      h+=`<td style="padding:0;border-bottom:1px solid var(--bg2);text-align:center">`;
+      h+=`<button onclick="rosterCycleCell('${s}','${p.id}')" style="width:100%;min-height:36px;background:${col.bg};color:${col.c};font-weight:700;font-size:13px;border:${border};border-radius:0;cursor:pointer;font-family:inherit" title="${isManual?'手動':'自動'} · 點擊切換">${display}</button>`;
+      h+='</td>';
+    });
+    // Coverage warning
+    const warn=rstrCoverWarn(s,people,manual,auto,ov);
+    h+=`<td style="padding:6px 8px;border-bottom:1px solid var(--bg2);text-align:center;font-size:10px">`;
+    if(warn)h+=`<span style="color:#dc2626;font-weight:700">⚠️ ${warn}</span>`;
+    else if(t!=='WORK')h+='<span style="color:#16a34a">✓</span>';
+    h+='</td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+
+  // ── Summary ──
+  h+='<div style="margin-top:14px;padding:12px;background:var(--card2);border-radius:10px">';
+  h+='<div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">📊 工作量統計</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px">';
+  people.forEach(p=>{
+    let workCnt=0,restCnt=0,holCnt=0,tcCnt=0,txCnt=0;
+    days.forEach(s=>{
+      const st=rstrResolve(s,p,manual,auto,ov);
+      if(st==='中'){workCnt++;tcCnt++;}
+      else if(st==='霄'){workCnt++;txCnt++;}
+      else if(st==='R'){workCnt++;}
+      else if(st==='H')holCnt++;
+    });
+    h+=`<div style="padding:8px 10px;background:var(--card);border-radius:8px;border:1px solid var(--border)">`;
+    h+=`<div style="font-weight:700;font-size:13px;color:var(--text)">${p.name} <span style="font-size:10px;color:var(--muted);font-weight:500">${p.zh}</span></div>`;
+    h+=`<div style="font-size:11px;color:var(--muted);margin-top:3px">工作 ${workCnt} · 休 ${holCnt}</div>`;
+    h+=`<div style="font-size:11px;color:var(--muted)">台中 ${tcCnt} · 通霄 ${txCnt}</div>`;
+    h+='</div>';
+  });
+  h+='</div></div>';
+
+  // ── Help ──
+  h+='<div style="margin-top:12px;padding:10px 14px;background:#fffbeb;border-left:3px solid #eab308;border-radius:8px;font-size:12px;color:#78350f;line-height:1.6">';
+  h+='<b>使用說明：</b>點擊任一格切換狀態（中→霄→R→H→自動）。黃色框= 手動指定，紅色框 = 連 7 天工作警告。「一鍵帶入班表」把整月排班寫入 EHS 班表。';
+  h+='</div>';
+
+  return h;
+}
+
+function rosterNavM(delta){
+  rosterM+=delta;
+  if(rosterM>12){rosterM=1;rosterY++;}
+  if(rosterM<1){rosterM=12;rosterY--;}
+  renderTab();
+}
+function rosterGoToday(){
+  const now=new Date();
+  rosterY=now.getFullYear();rosterM=now.getMonth()+1;
+  renderTab();
+}
+function rosterCycleCell(date,pid){
+  const data=getRosterMonthData();
+  const manual=data.manual||{};
+  const cur=manual[date]&&manual[date][pid];
+  // Cycle: undefined(auto) → 中 → 霄 → R → H → undefined
+  const cycle={undefined:'中','中':'霄','霄':'R','R':'H','H':null};
+  setRosterManual(date,pid,cycle[cur]);
+}
+function rosterCycleType(date){
+  const data=getRosterMonthData();
+  const ov=data.ov||{};
+  const cur=ov[date];
+  const cycle={undefined:'WORK','WORK':'DUTY1','DUTY1':'DUTY2','DUTY2':null};
+  setRosterOverride(date,cycle[cur]);
+}
+function rosterApplyToSchedule(){
+  const people=RSTR_PPL;
+  const data=getRosterMonthData();
+  const manual=data.manual||{},ov=data.ov||{};
+  const prevY=rosterM===1?rosterY-1:rosterY,prevM=rosterM===1?12:rosterM-1;
+  const autoCarry=rstrDeriveCarry(prevY,prevM,people);
+  const carry=data.carry||autoCarry||Object.fromEntries(people.map(p=>[p.id,0]));
+  const auto=rstrGenerate(rosterY,rosterM,people,manual,ov,carry);
+  const days=rstrMonthDays(rosterY,rosterM);
+  const monthKey=rosterY+'-'+rstrPad(rosterM);
+
+  if(!confirm(`確定要將 ${rosterY}年${rosterM}月 排班結果帶入 EHS 班表？\n\n這會覆蓋該月份現有的 R/中/霄/H 標記！`))return;
+
+  // Build cells structure: cells[person_name][day_number] = 'R'/'中'/'霄'/'H'
+  if(!D.scheduleData)D.scheduleData={};
+  if(!D.scheduleData[monthKey])D.scheduleData[monthKey]={cells:{},merges:[],normalDays:0};
+
+  const sched=D.scheduleData[monthKey];
+  if(!sched.cells)sched.cells={};
+
+  days.forEach((s,idx)=>{
+    const day=idx+1;
+    people.forEach(p=>{
+      const st=rstrResolve(s,p,manual,auto,ov);
+      const val=st==='OFF'?'R':st; // OFF → R
+      if(!sched.cells[p.name])sched.cells[p.name]={};
+      sched.cells[p.name][day]=val;
+    });
+  });
+
+  // Update normalDays (weekdays that are WORK type, minus holidays)
+  let normalDays=0;
+  days.forEach(s=>{
+    if(rstrDayType(s,ov)==='WORK')normalDays++;
+  });
+  sched.normalDays=normalDays;
+
+  // Also add to schMonths if not there
+  if(!D.schMonths)D.schMonths=[];
+  if(!D.schMonths.includes(monthKey))D.schMonths.push(monthKey);
+  D.schMonths.sort();
+
+  save();
+  schViewMonth=monthKey;
+  schSubView='schedule';
+  renderTab();
+  showToast(`✅ ${rosterY}年${rosterM}月 排班已帶入班表`);
+}
+
+
+// ══ Roster iframe communication (postMessage) ══
+// Parent (this page) holds D.rosterData; iframe sends its saves here.
+window.addEventListener('message', function(evt){
+  var msg = evt.data;
+  if (!msg || typeof msg !== 'object') return;
+  // Iframe ready → send current data
+  if (msg.type === 'roster-ready') {
+    sendRosterDataToFrame();
+  }
+  // Iframe saved a key → persist to D.rosterData
+  else if (msg.type === 'roster-save' && msg.key) {
+    if (!D.rosterData) D.rosterData = {};
+    D.rosterData[msg.key] = msg.value;
+    save(); // debounced sync
+  }
+});
+
+function sendRosterDataToFrame(){
+  var frame = document.getElementById('rosterFrame');
+  if (!frame || !frame.contentWindow) return;
+  try {
+    frame.contentWindow.postMessage({
+      type: 'ehs-roster-init',
+      data: D.rosterData || {}
+    }, '*');
+  } catch(e) { console.warn('rosterFrame postMessage:', e); }
+}
+
+function initRosterFrame(){
+  // Send initial data after iframe loads
+  setTimeout(sendRosterDataToFrame, 100);
+}
+
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
 function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fade-out');setTimeout(()=>s.classList.add('hidden'),500);}
