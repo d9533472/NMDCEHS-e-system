@@ -411,7 +411,7 @@ footer{margin-top:48px;padding:20px 0;border-top:1px solid var(--border);text-al
 
 <script>
 const $=id=>document.getElementById(id);
-const AK='env-es-auth',CRED={user:'123',pass:'123'};
+const AK='env-es-auth',CRED={pass:'1234'};
 const gid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -562,7 +562,13 @@ function showToast(msg,type){const d=document.createElement('div');d.style.cssTe
 
 // ═══ Auth ═══
 function doLogout(){isEditor=false;sessionStorage.removeItem(AK);renderAll();}
-function showLogin(){isEditor=true;sessionStorage.setItem(AK,'1');renderAll();showToast('✏️ 已進入編輯模式');}
+function showLogin(){
+  const p=prompt('請輸入密碼：');
+  if(p===null)return;
+  if(p!==CRED.pass){showToast('❌ 密碼錯誤','err');return;}
+  isEditor=true;sessionStorage.setItem(AK,'1');renderAll();
+  showToast('✏️ 已進入編輯模式');
+}
 function renderAuth(){$('authBar').innerHTML=isEditor?`<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="showNcrUrlM()">🔗 改善單URL</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:'';}
 
 function exportData(){
