@@ -2829,7 +2829,7 @@ function App() {
         if (dayType(s, ov) === 'WORK') normalDays++;
         people.forEach(function(p) {
           var st = resolve(s, p, manual, auto, ov);
-          var val = (st === 'OFF' || !st) ? 'R' : st;
+          var val = (st === 'OFF' || !st) ? 'H' : st;
           if (!sched.cells[p.name]) sched.cells[p.name] = {};
           sched.cells[p.name][d] = val;
         });
