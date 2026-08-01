@@ -858,18 +858,10 @@ function renderSchHTML(){
   // ── ROSTER VIEW (editor only) — React app inline ──
   if(isEditor&&schSubView==='roster'){
     h+='<div style="padding:10px 14px;background:#fffbeb;border-left:3px solid #eab308;border-radius:8px;font-size:12px;color:#78350f;margin-bottom:10px">🎯 <b>排班系統</b>：完整排班工具，資料自動同步至 EHS 主系統。「發布到 EHS」按鈕會把排班結果寫入班表頁。</div>';
-    // Container for React app + cloud bar
-    h+='<div class="roster-scope" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#eef1f5;padding-bottom:60px;position:relative">';
-    h+='<div id="roster-app-root"></div>';
-    // Cloud save bar (rendered as inline instead of fixed)
-    h+='<div id="cloudbar" style="position:relative;margin-top:14px">';
-    h+='<button id="cloudSave">☁️ 儲存到雲端</button>';
-    h+='<button id="cloudLoad">☁️ 從雲端載入</button>';
-    h+='<span id="cloudMsg"></span>';
-    h+='</div>';
-    h+='</div>';
-    // Mount React after render
-    setTimeout(()=>{ if(window.__mountRosterApp)window.__mountRosterApp(); if(window.__initRosterCloudBar)window.__initRosterCloudBar(); },0);
+    // Placeholder — React root will be persistently created/re-attached in mount fn
+    h+='<div class="roster-scope" id="roster-scope-container" style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#eef1f5"></div>';
+    // Mount React after render (idempotent - keeps state across tab switches)
+    setTimeout(()=>{ if(window.__mountRosterApp)window.__mountRosterApp(); },0);
     return h+'</div>';
   }
 
@@ -2820,37 +2812,41 @@ function App() {
     };
   }
   function publish() {
-    if (!ehsUrl) {
-      setPub({
-        state: 'err',
-        msg: '尚未設定發布網址 — 請展開下方「EHS e-system 發布設定」貼上 GAS /exec 網址'
+    // NEW: Write directly to D.scheduleData (main system's schedule) — no GAS call needed
+    if (!confirm(monthLabel + ' 班表將帶入 EHS 班表檢視 (' + y + '-' + pad(m) + ')，確定？\n\n這會覆蓋該月份現有的班表資料！')) return;
+    setPub({ state: 'sending', msg: '寫入班表中…' });
+    try {
+      if (!window.D) throw new Error('主系統資料未載入');
+      if (!window.D.scheduleData) window.D.scheduleData = {};
+      var monthKey = y + '-' + pad(m);
+      var sched = window.D.scheduleData[monthKey] = window.D.scheduleData[monthKey] || { cells: {}, merges: [], normalDays: 0 };
+      if (!sched.cells) sched.cells = {};
+      // Build cells: sched.cells[personName][dayNumber] = 'R'/'中'/'霄'/'H'
+      var dayStrs = monthDays(y, m);
+      var normalDays = 0;
+      dayStrs.forEach(function(s, idx) {
+        var d = idx + 1;
+        if (dayType(s, ov) === 'WORK') normalDays++;
+        people.forEach(function(p) {
+          var st = resolve(s, p, manual, auto, ov);
+          var val = (st === 'OFF' || !st) ? 'R' : st;
+          if (!sched.cells[p.name]) sched.cells[p.name] = {};
+          sched.cells[p.name][d] = val;
+        });
       });
-      return;
+      sched.normalDays = normalDays;
+      // Add month to schMonths if not present
+      if (!window.D.schMonths) window.D.schMonths = [];
+      if (window.D.schMonths.indexOf(monthKey) === -1) {
+        window.D.schMonths.push(monthKey);
+        window.D.schMonths.sort();
+      }
+      // Trigger main system save to sync to Google Sheet
+      if (typeof window.save === 'function') window.save();
+      setPub({ state: 'ok', msg: '✓ 已寫入班表 → ' + monthKey + '（切到「📅 班表檢視」查看）' });
+    } catch(err) {
+      setPub({ state: 'err', msg: '寫入失敗：' + err.message });
     }
-    if (!confirm(monthLabel + ' 班表將發布到 EHS e-system（寫入分頁「排班表_' + y + pad(m) + '」），確定？')) return;
-    setPub({
-      state: 'sending',
-      msg: '發布中…'
-    });
-    postRoster(ehsUrl, JSON.stringify(buildPayload()), 2, txt => {
-      let ok = true,
-        extra = '';
-      try {
-        const r = JSON.parse(txt);
-        ok = r.ok !== false;
-        extra = r.tab ? '→ ' + r.tab : r.msg || r.error || '';
-      } catch (e) {}
-      setPub(ok ? {
-        state: 'ok',
-        msg: '✓ 發布成功 ' + extra
-      } : {
-        state: 'err',
-        msg: '回應錯誤：' + extra
-      });
-    }, err => setPub({
-      state: 'err',
-      msg: '發布失敗：' + err
-    }));
   }
   function onBackupFile(file) {
     const r = new FileReader();
@@ -3684,12 +3680,20 @@ function DaySheet({
   }, "\u95DC\u9589")));
 }
 window.__mountRosterApp = function(){
+  var container = document.getElementById('roster-scope-container');
+  if (!container) return;
   var el = document.getElementById('roster-app-root');
-  if (!el) return;
-  if (!window.__rosterRoot) {
+  if (!el) {
+    // First time: create persistent React root DIV
+    el = document.createElement('div');
+    el.id = 'roster-app-root';
+    container.appendChild(el);
     window.__rosterRoot = ReactDOM.createRoot(el);
+    window.__rosterRoot.render(React.createElement(App, null));
+  } else if (el.parentElement !== container) {
+    // Subsequent renders: re-attach existing DOM (preserves React state)
+    container.appendChild(el);
   }
-  window.__rosterRoot.render(React.createElement(App, null));
 };
 })();
 
