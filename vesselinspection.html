@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>環境船檢系統 | Environmental Vessel Inspection</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<style>
+  :root{
+    --navy:#12283f; --navy2:#1d3d5c; --accent:#2e9e5b; --accent2:#e8f5ec;
+    --red:#d64545; --gray:#8a94a0; --bg:#f2f5f8; --line:#dde4ea; --card:#ffffff;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:#22303d;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    font-size:15px;}
+  input,select,textarea,button{font-family:inherit; font-size:inherit;}
+  input,select,textarea{border:1px solid var(--line); border-radius:8px; padding:9px 10px; background:#fff; width:100%;}
+  input:focus,select:focus,textarea:focus{outline:2px solid rgba(46,158,91,.35); border-color:var(--accent);}
+  button{cursor:pointer; border:none; border-radius:8px;}
+
+  .topbar{background:var(--navy); color:#fff; padding:10px 14px; position:sticky; top:0; z-index:50;
+    display:flex; align-items:center; gap:10px;}
+  .topbar .logo{font-weight:800; letter-spacing:.5px; font-size:16px; white-space:nowrap;}
+  .topbar .logo span{color:#6fd08c;}
+  .topbar .sub{font-size:11px; opacity:.75; line-height:1.3;}
+  .topbar .grow{flex:1; min-width:0;}
+  .langbtn{background:rgba(255,255,255,.14); color:#fff; padding:7px 12px; border-radius:20px; font-size:13px; font-weight:600;}
+  .langbtn:active{background:rgba(255,255,255,.3);}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:14px 12px 90px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px;}
+  .card h3{margin:0 0 10px; font-size:15px; color:var(--navy);}
+
+  .banner{background:#fff7e0; border:1px solid #eedc9a; color:#7a5c00; border-radius:10px;
+    padding:8px 12px; font-size:13px; margin-bottom:12px;}
+
+  .statrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .chip{background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px;}
+  .chip b{font-size:17px; color:var(--navy); margin-right:4px;}
+
+  table.list{width:100%; border-collapse:collapse; background:#fff; font-size:13.5px; min-width:760px;}
+  table.list th{background:var(--navy2); color:#fff; padding:9px 8px; text-align:left; font-weight:600; white-space:nowrap;}
+  table.list td{padding:9px 8px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  table.list tr:hover td{background:#f7fafc;}
+  .tblscroll{overflow-x:auto; border:1px solid var(--line); border-radius:12px;}
+
+  .badge{display:inline-block; padding:3px 9px; border-radius:12px; font-size:12px; font-weight:600; white-space:nowrap;}
+  .b-done{background:var(--accent2); color:#1c7a42; border:1px solid #bfe3cc;}
+  .b-wait{background:#f0f2f5; color:#78828d; border:1px solid var(--line);}
+  .b-mid{background:#e7f0fb; color:#2563a8; border:1px solid #c4daf2;}
+  .datesub{font-size:11px; color:#78828d;}
+
+  .btn{padding:10px 16px; border-radius:9px; font-weight:600; font-size:14px;}
+  .btn-p{background:var(--accent); color:#fff;}
+  .btn-p:active{background:#25824a;}
+  .btn-navy{background:var(--navy); color:#fff;}
+  .btn-o{background:#fff; border:1px solid var(--line); color:#3a4753;}
+  .btn-r{background:#fdecec; color:var(--red); border:1px solid #f3c6c6;}
+  .btn-sm{padding:6px 11px; font-size:13px;}
+  .btn[disabled]{opacity:.45; cursor:not-allowed;}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;}
+  .field label{display:block; font-size:12.5px; font-weight:600; color:#54626f; margin-bottom:4px;}
+  .req{color:var(--red);}
+
+  .secnav{position:sticky; top:56px; z-index:40; display:flex; gap:6px; overflow-x:auto;
+    padding:8px 2px; background:var(--bg); margin:0 -2px;}
+  .secnav button{background:#fff; border:1px solid var(--line); border-radius:18px; padding:7px 13px;
+    font-size:13px; font-weight:600; color:#3a4753; white-space:nowrap;}
+  .secnav button.on{background:var(--navy); color:#fff; border-color:var(--navy);}
+  .secnav .cnt{font-size:11px; opacity:.7; margin-left:3px;}
+
+  .sechead{background:var(--navy2); color:#fff; border-radius:10px 10px 0 0; padding:10px 14px;
+    font-weight:700; font-size:14.5px; display:flex; justify-content:space-between; align-items:center;}
+  .secbody{border:1px solid var(--line); border-top:none; border-radius:0 0 10px 10px; background:#fff; margin-bottom:16px;}
+
+  .item{padding:13px 14px; border-bottom:1px solid #eef2f5;}
+  .item:last-child{border-bottom:none;}
+  .item .no{display:inline-block; background:#eef3f7; color:var(--navy); font-weight:700; font-size:12px;
+    border-radius:6px; padding:2px 8px; margin-right:8px;}
+  .item .txt{font-size:14px; line-height:1.5;}
+  .item .row2{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:flex-start;}
+  .seg{display:flex; gap:6px;}
+  .seg button{padding:8px 16px; border-radius:8px; border:1.5px solid var(--line); background:#fff;
+    font-weight:700; font-size:13px; color:#6a7682; min-width:56px;}
+  .seg button.yes.on{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .seg button.no.on{background:var(--red); border-color:var(--red); color:#fff;}
+  .seg button.na.on{background:var(--gray); border-color:var(--gray); color:#fff;}
+  .remark{flex:1; min-width:200px;}
+  .remark input{padding:8px 10px; font-size:13.5px;}
+
+  .attrow{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
+  .attbtn{background:#f0f4f8; border:1px dashed #b8c4cf; color:#4a5764; border-radius:8px;
+    padding:6px 12px; font-size:12.5px; font-weight:600;}
+  .attchip{display:inline-flex; align-items:center; gap:6px; background:#eef6ff; border:1px solid #cfe3f7;
+    color:#1e5c8; border-radius:8px; padding:5px 9px; font-size:12.5px; max-width:280px;}
+  .attchip a{color:#1e5c8; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#1e5ca8;}
+  .attchip .x{cursor:pointer; color:#8194a8; font-weight:700; padding:0 2px;}
+  .attchip .x:hover{color:var(--red);}
+  .uploading{background:#fffbe8; border-color:#eadfa2; color:#8a7514;}
+
+  .signgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px;}
+  .signbox{border:1px solid var(--line); border-radius:10px; padding:12px;}
+  .signbox .role{font-weight:700; font-size:13.5px; color:var(--navy); margin-bottom:2px;}
+  .signbox .rolesub{font-size:11.5px; color:#78828d; margin-bottom:8px;}
+  .signbox input{margin-bottom:8px;}
+
+  .footbar{position:fixed; left:0; right:0; bottom:0; z-index:60; background:#fff;
+    border-top:1px solid var(--line); padding:10px 12px; display:flex; gap:8px; align-items:center;
+    box-shadow:0 -4px 14px rgba(0,0,0,.06);}
+  .footbar .grow{flex:1; min-width:0; font-size:12px; color:#67737f;}
+
+  .toast{position:fixed; bottom:78px; left:50%; transform:translateX(-50%); z-index:100;
+    background:var(--navy); color:#fff; padding:10px 18px; border-radius:22px; font-size:13.5px;
+    box-shadow:0 6px 18px rgba(0,0,0,.25); animation:fadein .2s; max-width:90vw;}
+  .toast.err{background:var(--red);}
+  @keyframes fadein{from{opacity:0; transform:translate(-50%,8px);} to{opacity:1; transform:translate(-50%,0);}}
+
+  .modalbg{position:fixed; inset:0; background:rgba(15,28,42,.45); z-index:90;
+    display:flex; align-items:center; justify-content:center; padding:20px;}
+  .modal{background:#fff; border-radius:14px; padding:20px; max-width:400px; width:100%;}
+  .modal h4{margin:0 0 8px; color:var(--navy);}
+  .modal p{margin:0 0 16px; font-size:14px; color:#4a5764; line-height:1.5;}
+  .modal .btns{display:flex; gap:8px; justify-content:flex-end;}
+
+  .pbar{height:6px; background:#e7ecf1; border-radius:3px; overflow:hidden; min-width:70px;}
+  .pbar i{display:block; height:100%; background:var(--accent); border-radius:3px;}
+
+  @media(max-width:640px){
+    .topbar .sub{display:none;}
+    .btn{padding:10px 12px; font-size:13px;}
+    .wrap{padding:10px 8px 100px;}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="env,react">
+/* ================================================================
+ *  設定:貼上 GAS Web App URL(留空 = 本機測試模式,存 localStorage)
+ * ================================================================ */
+const SCRIPT_URL = '';
+
+const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
+const DOC_REV = 'Rev. 03';
+
+/* ---------------- i18n ---------------- */
+const T = {
+  en: {
+    appTitle:'Environmental Inspection Checklist for Marine Vessels',
+    dash:'Dashboard', newInsp:'+ New Inspection',
+    stTotal:'Total', stSelf:'Self-Check Done', stNmdc:'NMDC Done',
+    colVessel:'Vessel', colIds:'MMSI / IMO', colDate:'Inspection Date', colProg:'Progress',
+    colSelf:'Contractor Self-Check', colNmdc:'NMDC Inspection', colAct:'Actions',
+    open:'Open', del:'Delete', empty:'No inspection records yet. Click "+ New Inspection" to start.',
+    statusDraft:'In Progress', statusSelf:'Self-Check Done', statusNmdc:'NMDC Done', pending:'Pending',
+    vesselInfo:'Vessel Information',
+    vNameZh:'Vessel Name (Chinese)', vNameEn:'Vessel Name (English)', mmsi:'MMSI', imo:'IMO No.',
+    tonnage:'Gross Tonnage', vClass:'Class Society (CR, ABS...)', projectNo:'Project No.',
+    location:'Location', inspectDate:'Inspection Date',
+    legend:'Yes = Up to standard (adequate); No = below standard (action required); NA = Not Applicable',
+    remark:'Remarks / Additional information', addFile:'+ Attachment', uploading:'Uploading...',
+    signTitle:'Name & Sign-off',
+    signInsp:'Inspected By', signInspSub:'(HSEO)',
+    signVer:'Verified By', signVerSub:'(HSEE)',
+    signEnd:'Endorsed By', signEndSub:'(Barge Superintendent / Vessel Captain)',
+    name:'Name', date:'Date',
+    save:'Save', back:'← Back', saved:'Saved ✓',
+    markSelf:'Contractor Self-Check Complete', markNmdc:'NMDC Inspection Complete',
+    revert:'Revert to previous stage',
+    confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
+    confirmSelfT:'Confirm Contractor Self-Check complete?', confirmSelfP:'The completion date will be recorded on the dashboard.',
+    confirmNmdcT:'Confirm NMDC Inspection complete?', confirmNmdcP:'The NMDC inspection date will be recorded on the dashboard.',
+    cancel:'Cancel', confirm:'Confirm',
+    localMode:'⚠ Local test mode (SCRIPT_URL not set) — data is saved in this browser only.',
+    needSave:'Record will be saved first before uploading.',
+    fileTooBig:'File too large (max 15 MB per file; 2 MB in local mode).',
+    unanswered:'items unanswered', allAnswered:'All items answered',
+    answered:'answered', loadFail:'Load failed', saveFail:'Save failed', netErr:'Network error',
+  },
+  zh: {
+    appTitle:'船舶環境檢查表 Environmental Inspection Checklist',
+    dash:'總表', newInsp:'+ 新增檢查',
+    stTotal:'總筆數', stSelf:'廠商自檢完成', stNmdc:'NMDC 檢查完成',
+    colVessel:'船名', colIds:'MMSI / IMO', colDate:'檢查日期', colProg:'進度',
+    colSelf:'廠商自檢', colNmdc:'NMDC 檢查', colAct:'操作',
+    open:'開啟', del:'刪除', empty:'尚無檢查紀錄,點「+ 新增檢查」開始。',
+    statusDraft:'進行中', statusSelf:'廠商自檢完成', statusNmdc:'NMDC 檢查完成', pending:'未完成',
+    vesselInfo:'船舶基本資料',
+    vNameZh:'船舶中文名稱', vNameEn:'船舶英文名稱', mmsi:'MMSI', imo:'IMO 編號',
+    tonnage:'總噸位', vClass:'船級協會 (CR、ABS...)', projectNo:'專案編號',
+    location:'地點', inspectDate:'檢查日期',
+    legend:'Yes = 符合標準;No = 未達標準(須改善);NA = 不適用',
+    remark:'備註 / 補充說明', addFile:'+ 附件', uploading:'上傳中...',
+    signTitle:'簽核 Name & Sign-off',
+    signInsp:'檢查人 Inspected By', signInspSub:'(HSEO 環安衛主任)',
+    signVer:'覆核人 Verified By', signVerSub:'(HSEE 環安衛工程師)',
+    signEnd:'核可人 Endorsed By', signEndSub:'(駁船總監 / 船長)',
+    name:'姓名', date:'日期',
+    save:'儲存', back:'← 返回', saved:'已儲存 ✓',
+    markSelf:'廠商自檢完成', markNmdc:'NMDC 檢查完成',
+    revert:'退回上一階段',
+    confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
+    confirmSelfT:'確認「廠商自檢完成」?', confirmSelfP:'完成日期將記錄並顯示於總表。',
+    confirmNmdcT:'確認「NMDC 檢查完成」?', confirmNmdcP:'NMDC 檢查日期將記錄並顯示於總表。',
+    cancel:'取消', confirm:'確認',
+    localMode:'⚠ 本機測試模式(尚未設定 SCRIPT_URL)— 資料僅儲存於此瀏覽器。',
+    needSave:'上傳前將先自動儲存紀錄。',
+    fileTooBig:'檔案過大(單檔上限 15 MB;本機模式 2 MB)。',
+    unanswered:'項尚未勾選', allAnswered:'全部項目已勾選',
+    answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗', netErr:'網路錯誤',
+  }
+};
+
+/* ---------------- Checklist (bilingual) ----------------
+ * 依 ENY-HSE-PG-PLN-17-FRM-02 Rev.03;原表 D 節缺 8、E 節重複 5,已正規化連號 */
+const CHECKLIST = [
+ {code:'A', en:'Air Quality', zh:'空氣品質', items:[
+  {n:1, en:'Manual cleaning, vacuum cleaning, or other methods is used for fugitive dust suppression.',
+        zh:'使用人工清掃、真空吸塵或其他方式抑制逸散性粉塵。'},
+  {n:2, en:'Dry material transfer, storage, and handling operations are done efficiently to minimize the generation of visible particulate emissions.',
+        zh:'乾料之轉運、儲存及裝卸作業以有效率之方式進行,將可見粒狀污染物排放降至最低。'},
+  {n:3, en:'Air pollutant emissions to the atmosphere is minimized during construction activities and equipment usage through preventive maintenance.',
+        zh:'施工活動及設備使用期間,透過預防性保養將空氣污染物排放降至最低。'},
+  {n:4, en:'No equipment, machinery or vessel is emitting black smoke.',
+        zh:'無任何設備、機具或船舶排放黑煙。'},
+  {n:5, en:'Blasting area properly enclosed or isolated to prevent dust and debris dispersion.',
+        zh:'噴砂作業區妥善圍封或隔離,防止粉塵及碎屑飛散。'},
+  {n:6, en:'Blasting materials stored in approved, secure, and labeled storage areas.',
+        zh:'噴砂材料儲存於經核准、安全且有標示之儲存區。'},
+  {n:7, en:'No-idling policy is observed by plant, equipment and vessels.',
+        zh:'廠場、設備及船舶均遵守禁止怠速(No-idling)政策。'},
+ ]},
+ {code:'B', en:'Waste Management', zh:'廢棄物管理', items:[
+  {n:1, en:'Waste is disposed at the designated bins and at designated area.',
+        zh:'廢棄物棄置於指定垃圾桶及指定區域。'},
+  {n:2, en:'Adequate number of skips is available at site for waste segregation.',
+        zh:'現場備有足夠數量之垃圾箱(skip)供廢棄物分類。'},
+  {n:3, en:'Waste skips/bins are properly labelled and following the correct color codes.',
+        zh:'垃圾箱/桶標示清楚並符合正確顏色分類。'},
+  {n:4, en:'No housekeeping or material management issues identified.',
+        zh:'無環境整理(housekeeping)或物料管理之缺失。'},
+  {n:5, en:'Secondary containment is provided for Hazardous waste storage.',
+        zh:'有害廢棄物儲存區設有二次圍堵(secondary containment)。'},
+  {n:6, en:'Closed containers are provided for storing Hazardous waste.',
+        zh:'有害廢棄物以密閉容器儲存。'},
+  {n:7, en:'Provision of spill kits and fire extinguishers where there is risk of spill and fire, respectively (e.g., at the hazardous waste storage area).',
+        zh:'於有洩漏及火災風險處(如有害廢棄物儲存區)分別備有洩漏應變包(spill kit)及滅火器。'},
+  {n:8, en:'No overflow of the waste bin / over accumulation of waste on site.',
+        zh:'現場無垃圾桶溢滿或廢棄物過度堆積情形。'},
+  {n:9, en:'No foul odour at the waste storage areas.',
+        zh:'廢棄物儲存區無惡臭。'},
+  {n:10, en:'Closed containers provided for storing Food waste.',
+        zh:'廚餘以密閉容器儲存。'},
+  {n:11, en:'No leaking of the sewage tanks.',
+        zh:'污水櫃(sewage tank)無洩漏情形。'},
+  {n:12, en:'No poor odour at the septic tanks / portable toilet areas.',
+        zh:'化糞池/流動廁所區域無異味。'},
+ ]},
+ {code:'C', en:'HazMat Store', zh:'危害物質儲存', items:[
+  {n:1, en:'SDS (Safety Data Sheet) is available for all hazardous material stored on site.',
+        zh:'現場儲存之所有危害物質均備有安全資料表(SDS)。'},
+  {n:2, en:'Copy of SDS is available on site in a location that is readily accessible by the workers.',
+        zh:'SDS 副本置於現場人員易於取得之處。'},
+  {n:3, en:'Personnel awareness and training on chemical handling and emergency response.',
+        zh:'人員已接受化學品操作及緊急應變之認知與訓練。'},
+  {n:4, en:'Appropriate PPE availability and use (gloves, goggles, respirators, etc.)',
+        zh:'備有並正確使用適當之個人防護具(手套、護目鏡、呼吸防護具等)。'},
+  {n:5, en:'All containers properly labelled (contents, hazards, date)',
+        zh:'所有容器均妥善標示(內容物、危害性、日期)。'},
+  {n:6, en:'Spillage control measures available (spill kits, absorbents)',
+        zh:'備有洩漏控制措施(洩漏應變包、吸附材)。'},
+  {n:7, en:'Unattended drums/cans properly sealed and stored',
+        zh:'無人看管之桶罐均妥善密封並儲存。'},
+  {n:8, en:'Adequate ventilation is provided in HazMat storage area in compliance with the applicable air pollutant emissions source conditions.',
+        zh:'危害物質儲存區通風良好,並符合適用之空氣污染物排放源規定。'},
+  {n:9, en:'Hazardous liquids are stored or used have appropriate containment system to prevent any spilled liquids from flowing into the marine environment.',
+        zh:'儲存或使用之危害性液體設有適當圍堵系統,防止洩漏液體流入海洋環境。'},
+  {n:10, en:'Warning signs indicating the type of hazards for the materials is displayed in HazMat storage area.',
+        zh:'危害物質儲存區張貼標示危害種類之警告標誌。'},
+  {n:11, en:'Access to hazardous materials storage areas is limited to authorized personnel only.',
+        zh:'危害物質儲存區僅限經授權人員進入。'},
+  {n:12, en:'Chemicals and other raw materials used, and products made at the vessel is segregated, organized, and stored separately from waste materials.',
+        zh:'船上使用之化學品、原物料及產品,與廢棄物分類、分區並分開儲存。'},
+  {n:13, en:'The HazMat storage drum or container is closed during transfer and when stored at the vessel.',
+        zh:'危害物質儲存桶/容器於轉運及船上儲存期間保持密閉。'},
+  {n:14, en:'Material containers and packaging is stacked appropriately.',
+        zh:'物料容器及包裝以適當方式堆疊。'},
+  {n:15, en:'Container containing hazardous materials or fuel is stored in an upright position and not in aisles, walls, escape routes, or fire exits.',
+        zh:'裝有危害物質或燃油之容器直立儲存,且未置於通道、牆邊、逃生路線或消防出口。'},
+ ]},
+ {code:'D', en:'Discharge to the Environment', zh:'排放至環境', items:[
+  {n:1, en:'Bilgewater is collected in designated tanks and treated prior to discharge in accordance with MARPOL Annex I, using an approved oil filtering system to ensure the effluent oil content does not exceed 15 ppm.',
+        zh:'艙底水收集於指定艙櫃,並依 MARPOL 附則 I 於排放前處理;使用經認可之濾油設備,確保排出水含油量不超過 15 ppm。'},
+  {n:2, en:'Sewage is collected and treated using an approved STP and discharged in accordance with MARPOL Annex IV: treated sewage at ≥3 nm and untreated sewage at ≥12 nm from the nearest land.',
+        zh:'生活污水以經認可之污水處理裝置(STP)收集處理,並依 MARPOL 附則 IV 排放:處理後污水於距最近陸地 ≥3 浬、未處理污水於 ≥12 浬始得排放。'},
+  {n:3, en:'Effluent quality is monitored at the required frequency.',
+        zh:'依規定頻率監測放流水水質。'},
+  {n:4, en:'Effluent analytical results meet applicable discharge limits.',
+        zh:'放流水檢測結果符合適用之排放標準。'},
+  {n:5, en:'No visible oil, grease, foam, discoloration, or unusual odor observed at discharge points.',
+        zh:'排放點未觀察到可見油污、油脂、泡沫、變色或異常氣味。'},
+  {n:6, en:'All garbage and non-biodegradable waste are managed and disposed of in accordance with MARPOL Annex V, ensuring no discharge into the sea except as permitted under the Annex.',
+        zh:'所有垃圾及不可生物分解廢棄物均依 MARPOL 附則 V 管理及處置,除附則允許者外不得排入海洋。'},
+  {n:7, en:'Food waste is macerated to <25 mm and discharged ≥12 nm from the nearest land, or in compliance with MARPOL V Special Area requirements.',
+        zh:'廚餘經絞碎至 <25 mm 後,於距最近陸地 ≥12 浬排放,或符合 MARPOL 附則 V 特別海域之規定。'},
+  {n:8, en:'Waste and other materials are covered or protected to prevent windblown dust and spillage.',
+        zh:'廢棄物及其他物料加以覆蓋或防護,防止風吹揚塵及溢散。'},
+ ]},
+ {code:'E', en:'Recordkeeping & Environmental Management', zh:'紀錄保存與環境管理', items:[
+  {n:1, en:'Records for waste oil generation, storage, and disposal are properly maintained and regularly updated in Oil Record Book (MARPOL Annex I).',
+        zh:'廢油產生、儲存及處置紀錄妥善維護,並定期更新於油類紀錄簿(MARPOL 附則 I)。'},
+  {n:2, en:'Sewage discharge is accurately recorded and updated in the Sewage Discharge Record Book (MARPOL Annex IV).',
+        zh:'污水排放正確記錄並更新於污水排放紀錄簿(MARPOL 附則 IV)。'},
+  {n:3, en:'Disposal of recyclable, general, food, and hazardous waste is documented with Waybills, Waste Delivery Receipt, Chain of Custody (COC), and a fully signed Garbage Record Book (MARPOL Annex V).',
+        zh:'資源回收、一般、廚餘及有害廢棄物之處置,均以聯單(Waybill)、廢棄物遞交收據、監管鏈(COC)及完整簽署之垃圾紀錄簿(MARPOL 附則 V)佐證。'},
+  {n:4, en:'Adherence to Medical waste storage and disposal procedures (Mention how many disposals in the month).',
+        zh:'遵守醫療廢棄物儲存及處置程序(請註明當月處置次數)。'},
+  {n:5, en:'Fuel and water consumption reports are available and maintained (Indicate monthly consumption in USG).',
+        zh:'燃油及用水量報表齊備並持續維護(請註明每月用量,單位 USG)。'},
+  {n:6, en:'Noise measurement is conducted and report available (Provide date of last survey, Frequency, No. of monitoring locations).',
+        zh:'已執行噪音量測並備有報告(請提供最近一次量測日期、頻率及監測點數量)。'},
+  {n:7, en:'Emergency spill drills are conducted (Provide date of last drill conducted).',
+        zh:'已執行緊急洩漏應變演練(請提供最近一次演練日期)。'},
+  {n:8, en:'Conducted Environmental Awareness or HIP talks covering Environmental Elements (Mention the topics discussed).',
+        zh:'已辦理涵蓋環境要項之環境認知或 HIP 宣導(請註明討論主題)。'},
+  {n:9, en:'Environmental awareness posters and signages are displayed at appropriate locations and maintained in good condition.',
+        zh:'環境宣導海報及標語張貼於適當位置,並維持良好狀態。'},
+  {n:10, en:'Environmental Campaigns are conducted (Provide details of theme, Date conducted, and No. of participants).',
+        zh:'已辦理環境宣導活動(請提供主題、辦理日期及參加人數)。'},
+  {n:11, en:'Record of Environmental Incident (Provide brief information and date of incident).',
+        zh:'環境事故紀錄(請提供簡要資訊及事故日期)。'},
+ ]},
+];
+const TOTAL_ITEMS = CHECKLIST.reduce((s, sec) => s + sec.items.length, 0);
+const CLASS_OPTIONS = ['CR','ABS','BV','DNV','LR','NK (ClassNK)','KR','RINA','CCS'];
+
+/* ---------------- API (XHR text/plain,行動 Safari 相容) ---------------- */
+const LOCAL = !SCRIPT_URL;
+const LS_KEY = 'evis_data_v1';
+
+function api(action, payload) {
+  if (LOCAL) return localApi(action, payload || {});
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', SCRIPT_URL, true);
+    xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+    xhr.onload = () => {
+      try {
+        const res = JSON.parse(xhr.responseText);
+        res.ok ? resolve(res) : reject(new Error(res.error || 'Server error'));
+      } catch (e) { reject(new Error('Bad response')); }
+    };
+    xhr.onerror = () => reject(new Error('NETWORK'));
+    xhr.send(JSON.stringify(Object.assign({ action }, payload)));
+  });
+}
+
+/* 本機測試模式:localStorage 模擬後端 */
+function lsRead(){ try { return JSON.parse(localStorage.getItem(LS_KEY)) || {items:{}}; } catch(e){ return {items:{}}; } }
+function lsWrite(d){ localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function nowStr(){ return todayStr()+' '+new Date().toTimeString().slice(0,8); }
+
+function localApi(action, p) {
+  const db = lsRead();
+  const done = (o) => Promise.resolve(Object.assign({ ok: true }, o));
+  if (action === 'list') {
+    const items = Object.values(db.items).map(it => { const c = Object.assign({}, it); delete c.data; delete c.attachments; return c; })
+      .sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    return done({ items });
+  }
+  if (action === 'get') return done({ item: db.items[p.id] });
+  if (action === 'save') {
+    const item = Object.assign({}, p.item);
+    if (!item.id) item.id = 'INS-' + Date.now();
+    item.updatedAt = nowStr();
+    if (item.status === 'self_done' && !item.selfDate) item.selfDate = todayStr();
+    if (item.status === 'nmdc_done') { if(!item.selfDate) item.selfDate = todayStr(); if(!item.nmdcDate) item.nmdcDate = todayStr(); }
+    if (item.status === 'draft') { item.selfDate=''; item.nmdcDate=''; }
+    if (item.status === 'self_done') item.nmdcDate='';
+    item.attachments = (db.items[item.id] && db.items[item.id].attachments) || [];
+    db.items[item.id] = item; lsWrite(db);
+    return done({ item });
+  }
+  if (action === 'delete') { delete db.items[p.id]; lsWrite(db); return done({}); }
+  if (action === 'upload') {
+    const it = db.items[p.inspId]; if (!it) return Promise.reject(new Error('not saved'));
+    const att = { fileId:'local-'+Date.now(), inspId:p.inspId, itemCode:p.itemCode,
+      name:p.itemCode+' & '+p.name, url:'data:'+(p.mimeType||'application/octet-stream')+';base64,'+p.base64,
+      uploadedAt:nowStr(), size:Math.round(p.base64.length*0.75) };
+    it.attachments = it.attachments || []; it.attachments.push(att); lsWrite(db);
+    return done({ attachment: att });
+  }
+  if (action === 'deleteFile') {
+    Object.values(db.items).forEach(it => { if (it.attachments) it.attachments = it.attachments.filter(a=>a.fileId!==p.fileId); });
+    lsWrite(db); return done({});
+  }
+  return Promise.reject(new Error('unknown'));
+}
+
+/* ---------------- helpers ---------------- */
+function blankItem() {
+  return { id:'', vesselZh:'', vesselEn:'', mmsi:'', imo:'', tonnage:'', vesselClass:'',
+    projectNo:'', location:'', inspectDate:todayStr(), status:'draft', selfDate:'', nmdcDate:'',
+    progress:'0/'+TOTAL_ITEMS,
+    data:{ answers:{}, signoff:{inspName:'',inspDate:'',verName:'',verDate:'',endName:'',endDate:''} },
+    attachments:[] };
+}
+function countAnswered(item){
+  const a = (item.data && item.data.answers) || {};
+  return Object.values(a).filter(x => x && x.v).length;
+}
+function fmtSize(n){ if(!n) return ''; return n>1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB'; }
+
+/* ---------------- UI 元件 ---------------- */
+const { useState, useEffect, useRef, useCallback } = React;
+
+function Toast({ msg }) {
+  if (!msg) return null;
+  return <div className={'toast' + (msg.err ? ' err' : '')}>{msg.text}</div>;
+}
+
+function Modal({ m, t }) {
+  if (!m) return null;
+  return (
+    <div className="modalbg" onClick={m.onCancel}>
+      <div className="modal" onClick={e=>e.stopPropagation()}>
+        <h4>{m.title}</h4><p>{m.body}</p>
+        <div className="btns">
+          <button className="btn btn-o btn-sm" onClick={m.onCancel}>{t.cancel}</button>
+          <button className={'btn btn-sm ' + (m.danger ? 'btn-r' : 'btn-p')} onClick={m.onOk}>{t.confirm}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function StatusBadge({ status, stage, dateSelf, dateNmdc, t }) {
+  // stage: 'self' or 'nmdc' — 顯示該階段狀態
+  if (stage === 'self') {
+    if (status === 'self_done' || status === 'nmdc_done')
+      return <span><span className="badge b-done">✓ {t.statusSelf}</span><div className="datesub">{dateSelf}</div></span>;
+    return <span className="badge b-wait">{t.pending}</span>;
+  }
+  if (status === 'nmdc_done')
+    return <span><span className="badge b-done">✓ {t.statusNmdc}</span><div className="datesub">{dateNmdc}</div></span>;
+  return <span className="badge b-wait">{t.pending}</span>;
+}
+
+/* ---------------- 總表 Dashboard ---------------- */
+function Dashboard({ t, list, loading, onOpen, onNew, onDelete }) {
+  const nSelf = list.filter(i=>i.status==='self_done'||i.status==='nmdc_done').length;
+  const nNmdc = list.filter(i=>i.status==='nmdc_done').length;
+  return (
+    <div>
+      <div className="statrow">
+        <div className="chip"><b>{list.length}</b>{t.stTotal}</div>
+        <div className="chip"><b>{nSelf}</b>{t.stSelf}</div>
+        <div className="chip"><b>{nNmdc}</b>{t.stNmdc}</div>
+        <div style={{flex:1}}></div>
+        <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>
+      </div>
+      <div className="tblscroll">
+        <table className="list">
+          <thead><tr>
+            <th>{t.colVessel}</th><th>{t.colIds}</th><th>{t.colDate}</th><th>{t.colProg}</th>
+            <th>{t.colSelf}</th><th>{t.colNmdc}</th><th>{t.colAct}</th>
+          </tr></thead>
+          <tbody>
+            {list.length === 0 && (
+              <tr><td colSpan="7" style={{textAlign:'center', color:'#8a94a0', padding:'28px 10px'}}>
+                {loading ? '...' : t.empty}</td></tr>
+            )}
+            {list.map(it => {
+              const prog = it.progress || '0/' + TOTAL_ITEMS;
+              const pct = Math.round((parseInt(prog) || 0) / TOTAL_ITEMS * 100);
+              return (
+                <tr key={it.id}>
+                  <td>
+                    <div style={{fontWeight:700}}>{it.vesselZh || it.vesselEn || '—'}</div>
+                    <div className="datesub">{it.vesselZh ? it.vesselEn : ''}{it.vesselClass ? ' · ' + it.vesselClass : ''}</div>
+                  </td>
+                  <td><div>{it.mmsi || '—'}</div><div className="datesub">IMO {it.imo || '—'}</div></td>
+                  <td>{it.inspectDate || '—'}</td>
+                  <td>
+                    <div className="datesub" style={{marginBottom:3}}>{prog}</div>
+                    <div className="pbar"><i style={{width:pct+'%'}}></i></div>
+                  </td>
+                  <td><StatusBadge status={it.status} stage="self" dateSelf={it.selfDate} t={t} /></td>
+                  <td><StatusBadge status={it.status} stage="nmdc" dateNmdc={it.nmdcDate} t={t} /></td>
+                  <td style={{whiteSpace:'nowrap'}}>
+                    <button className="btn btn-navy btn-sm" onClick={()=>onOpen(it.id)}>{t.open}</button>{' '}
+                    <button className="btn btn-r btn-sm" onClick={()=>onDelete(it.id)}>{t.del}</button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- 檢查表單 Form ---------------- */
+function FormView({ t, lang, item, setItem, onSave, onBack, saving, uploadFile, deleteAtt, uploadingCodes, askConfirm }) {
+  const answers = item.data.answers || {};
+  const sign = item.data.signoff || {};
+  const [activeSec, setActiveSec] = useState('A');
+  const fileRefs = useRef({});
+
+  const setField = (k, v) => setItem(p => Object.assign({}, p, {[k]: v}));
+  const setAns = (code, patch) => setItem(p => {
+    const a = Object.assign({}, p.data.answers);
+    a[code] = Object.assign({ v:'', remark:'' }, a[code], patch);
+    return Object.assign({}, p, { data: Object.assign({}, p.data, { answers: a }) });
+  });
+  const setSign = (k, v) => setItem(p =>
+    Object.assign({}, p, { data: Object.assign({}, p.data, { signoff: Object.assign({}, p.data.signoff, {[k]: v}) }) }));
+
+  const answered = countAnswered(item);
+  const secCount = sec => sec.items.filter(i => { const a = answers[sec.code+'-'+i.n]; return a && a.v; }).length;
+
+  const jump = code => {
+    setActiveSec(code);
+    const el = document.getElementById('sec-' + code);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+
+  const attsFor = code => (item.attachments || []).filter(a => a.itemCode === code);
+
+  return (
+    <div>
+      {/* 船舶基本資料 */}
+      <div className="card">
+        <h3>🚢 {t.vesselInfo}</h3>
+        <div className="grid">
+          <div className="field"><label>{t.vNameZh}</label>
+            <input value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} placeholder="例:大地" /></div>
+          <div className="field"><label>{t.vNameEn} <span className="req">*</span></label>
+            <input value={item.vesselEn} onChange={e=>setField('vesselEn', e.target.value)} placeholder="e.g. Normand Tonjer" /></div>
+          <div className="field"><label>MMSI</label>
+            <input value={item.mmsi} inputMode="numeric" onChange={e=>setField('mmsi', e.target.value)} placeholder="9 digits" /></div>
+          <div className="field"><label>{t.imo}</label>
+            <input value={item.imo} inputMode="numeric" onChange={e=>setField('imo', e.target.value)} placeholder="7 digits" /></div>
+          <div className="field"><label>{t.tonnage}</label>
+            <input value={item.tonnage} onChange={e=>setField('tonnage', e.target.value)} placeholder="GT" /></div>
+          <div className="field"><label>{t.vClass}</label>
+            <input list="classList" value={item.vesselClass} onChange={e=>setField('vesselClass', e.target.value)} placeholder="CR / ABS / DNV ..." />
+            <datalist id="classList">{CLASS_OPTIONS.map(c=><option key={c} value={c} />)}</datalist></div>
+          <div className="field"><label>{t.projectNo}</label>
+            <input value={item.projectNo} onChange={e=>setField('projectNo', e.target.value)} /></div>
+          <div className="field"><label>{t.location}</label>
+            <input value={item.location} onChange={e=>setField('location', e.target.value)} placeholder="e.g. Taichung Anchorage" /></div>
+          <div className="field"><label>{t.inspectDate}</label>
+            <input type="date" value={item.inspectDate} onChange={e=>setField('inspectDate', e.target.value)} /></div>
+        </div>
+      </div>
+
+      <div className="banner" style={{background:'#eef6ff', borderColor:'#cfe3f7', color:'#1e5ca8'}}>{t.legend}</div>
+
+      {/* 節次導覽 */}
+      <div className="secnav">
+        {CHECKLIST.map(sec => (
+          <button key={sec.code} className={activeSec===sec.code ? 'on' : ''} onClick={()=>jump(sec.code)}>
+            {sec.code}. {lang==='zh' ? sec.zh : sec.en}
+            <span className="cnt">{secCount(sec)}/{sec.items.length}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* 檢查項目 */}
+      {CHECKLIST.map(sec => (
+        <div key={sec.code} id={'sec-'+sec.code}>
+          <div className="sechead">
+            <span>{sec.code}. {lang==='zh' ? sec.zh : sec.en}</span>
+            <span style={{fontSize:12, opacity:.85}}>{secCount(sec)}/{sec.items.length}</span>
+          </div>
+          <div className="secbody">
+            {sec.items.map(it => {
+              const code = sec.code + '-' + it.n;
+              const a = answers[code] || { v:'', remark:'' };
+              const atts = attsFor(code);
+              const isUploading = uploadingCodes.includes(code);
+              return (
+                <div className="item" key={code}>
+                  <div className="txt"><span className="no">{code}</span>{lang==='zh' ? it.zh : it.en}</div>
+                  <div className="row2">
+                    <div className="seg">
+                      {['yes','no','na'].map(v => (
+                        <button key={v} className={v + (a.v===v ? ' on' : '')}
+                          onClick={()=>setAns(code, { v: a.v===v ? '' : v })}>
+                          {v==='yes'?'Yes':v==='no'?'No':'N/A'}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="remark">
+                      <input value={a.remark || ''} placeholder={t.remark}
+                        onChange={e=>setAns(code, { remark: e.target.value })} />
+                    </div>
+                  </div>
+                  <div className="attrow">
+                    <button className="attbtn" onClick={()=>fileRefs.current[code] && fileRefs.current[code].click()}>
+                      📎 {t.addFile}
+                    </button>
+                    <input type="file" multiple style={{display:'none'}}
+                      ref={el=>fileRefs.current[code]=el}
+                      onChange={e=>{ uploadFile(code, e.target.files); e.target.value=''; }} />
+                    {isUploading && <span className="attchip uploading">⏳ {t.uploading}</span>}
+                    {atts.map(f => (
+                      <span className="attchip" key={f.fileId} title={f.name}>
+                        <a href={f.url} target="_blank" rel="noopener">{f.name}</a>
+                        <span className="datesub">{fmtSize(f.size)}</span>
+                        <span className="x" onClick={()=>deleteAtt(f)}>✕</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      {/* 簽核 */}
+      <div className="card">
+        <h3>✍️ {t.signTitle}</h3>
+        <div className="signgrid">
+          {[
+            { role:t.signInsp, sub:t.signInspSub, nk:'inspName', dk:'inspDate' },
+            { role:t.signVer,  sub:t.signVerSub,  nk:'verName',  dk:'verDate' },
+            { role:t.signEnd,  sub:t.signEndSub,  nk:'endName',  dk:'endDate' },
+          ].map(s => (
+            <div className="signbox" key={s.nk}>
+              <div className="role">{s.role}</div>
+              <div className="rolesub">{s.sub}</div>
+              <input placeholder={t.name} value={sign[s.nk]||''} onChange={e=>setSign(s.nk, e.target.value)} />
+              <input type="date" value={sign[s.dk]||''} onChange={e=>setSign(s.dk, e.target.value)} />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 底部動作列 */}
+      <div className="footbar">
+        <button className="btn btn-o" onClick={onBack}>{t.back}</button>
+        <div className="grow">
+          {answered}/{TOTAL_ITEMS} {t.answered}
+          {answered < TOTAL_ITEMS ? ' · ' + (TOTAL_ITEMS-answered) + ' ' + t.unanswered : ' · ' + t.allAnswered}
+          {item.status !== 'draft' &&
+            <a style={{marginLeft:8, color:'#1e5ca8', cursor:'pointer'}}
+               onClick={()=>{
+                 const prev = item.status === 'nmdc_done' ? 'self_done' : 'draft';
+                 setItem(p=>Object.assign({}, p, {status:prev}));
+               }}>{t.revert}</a>}
+        </div>
+        <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>
+        {item.status === 'draft' &&
+          <button className="btn btn-p" disabled={saving}
+            onClick={()=>askConfirm(t.confirmSelfT, t.confirmSelfP, ()=>onSave('self_done'))}>✓ {t.markSelf}</button>}
+        {item.status === 'self_done' &&
+          <button className="btn btn-navy" disabled={saving}
+            onClick={()=>askConfirm(t.confirmNmdcT, t.confirmNmdcP, ()=>onSave('nmdc_done'))}>✓✓ {t.markNmdc}</button>}
+        {item.status === 'nmdc_done' && <span className="badge b-done">✓✓ {t.statusNmdc} {item.nmdcDate}</span>}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- App ---------------- */
+function App() {
+  const [lang, setLang] = useState(localStorage.getItem('evis_lang') || 'en');
+  const t = T[lang];
+  const [view, setView] = useState('dash');
+  const [list, setList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [item, setItem] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [uploadingCodes, setUploadingCodes] = useState([]);
+  const itemRef = useRef(null);
+  itemRef.current = item;
+
+  const showToast = (text, err) => {
+    setToast({ text, err });
+    setTimeout(()=>setToast(null), 2600);
+  };
+  const askConfirm = (title, body, onOk, danger) =>
+    setModal({ title, body, danger, onCancel:()=>setModal(null), onOk:()=>{ setModal(null); onOk(); } });
+
+  const refresh = useCallback(() => {
+    setLoading(true);
+    api('list').then(r => { setList(r.items || []); setLoading(false); })
+      .catch(() => { setLoading(false); showToast(t.loadFail, true); });
+  }, [lang]);
+
+  useEffect(() => { refresh(); }, []);
+
+  const openItem = id => {
+    api('get', { id }).then(r => {
+      const it = r.item;
+      it.data = it.data || {};
+      it.data.answers = it.data.answers || {};
+      it.data.signoff = it.data.signoff || {};
+      it.attachments = it.attachments || [];
+      setItem(it); setView('form'); window.scrollTo(0,0);
+    }).catch(e => showToast(t.loadFail + ': ' + e.message, true));
+  };
+
+  const newItem = () => { setItem(blankItem()); setView('form'); window.scrollTo(0,0); };
+
+  const doSave = (newStatus) => {
+    const cur = Object.assign({}, itemRef.current);
+    if (newStatus) cur.status = newStatus;
+    cur.progress = countAnswered(cur) + '/' + TOTAL_ITEMS;
+    setSaving(true);
+    return api('save', { item: cur }).then(r => {
+      const saved = r.item;
+      saved.data = saved.data || cur.data;
+      saved.attachments = saved.attachments || cur.attachments || [];
+      setItem(saved); setSaving(false); showToast(t.saved);
+      api('list').then(x=>setList(x.items||[])).catch(()=>{});
+      return saved;
+    }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); throw e; });
+  };
+
+  const uploadFile = (code, files) => {
+    if (!files || !files.length) return;
+    const maxSize = LOCAL ? 2*1024*1024 : 15*1024*1024;
+    const arr = Array.from(files);
+    const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
+      (showToast(t.needSave), doSave());
+    ensureSaved.then(saved => {
+      arr.forEach(f => {
+        if (f.size > maxSize) { showToast(t.fileTooBig, true); return; }
+        setUploadingCodes(p=>[...p, code]);
+        const reader = new FileReader();
+        reader.onload = () => {
+          const base64 = String(reader.result).split(',')[1];
+          api('upload', { inspId: saved.id, itemCode: code, name: f.name, mimeType: f.type, base64 })
+            .then(r => {
+              setItem(p => Object.assign({}, p, { attachments: [...(p.attachments||[]), r.attachment] }));
+              setUploadingCodes(p => { const i=p.indexOf(code); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
+            })
+            .catch(e => {
+              setUploadingCodes(p => { const i=p.indexOf(code); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
+              showToast('Upload failed: ' + e.message, true);
+            });
+        };
+        reader.readAsDataURL(f);
+      });
+    }).catch(()=>{});
+  };
+
+  const deleteAtt = (f) => askConfirm(t.confirmDelT, f.name, () => {
+    api('deleteFile', { fileId: f.fileId }).then(() => {
+      setItem(p => Object.assign({}, p, { attachments: (p.attachments||[]).filter(a=>a.fileId!==f.fileId) }));
+    }).catch(e => showToast(e.message, true));
+  }, true);
+
+  const deleteInsp = (id) => askConfirm(t.confirmDelT, t.confirmDelP, () => {
+    api('delete', { id }).then(refresh).catch(e => showToast(e.message, true));
+  }, true);
+
+  const toggleLang = () => {
+    const nl = lang === 'en' ? 'zh' : 'en';
+    setLang(nl); localStorage.setItem('evis_lang', nl);
+  };
+
+  return (
+    <div>
+      <div className="topbar">
+        <div>
+          <div className="logo">NMDC <span>ENERGY</span></div>
+        </div>
+        <div className="grow">
+          <div style={{fontWeight:700, fontSize:13.5}}>{t.appTitle}</div>
+          <div className="sub">{DOC_NO} · {DOC_REV}</div>
+        </div>
+        {view === 'form' &&
+          <button className="langbtn" onClick={()=>{ setView('dash'); refresh(); }}>{t.dash}</button>}
+        <button className="langbtn" onClick={toggleLang}>{lang === 'en' ? '中文' : 'EN'}</button>
+      </div>
+
+      <div className="wrap">
+        {LOCAL && <div className="banner">{t.localMode}</div>}
+        {view === 'dash' &&
+          <Dashboard t={t} list={list} loading={loading} onOpen={openItem} onNew={newItem} onDelete={deleteInsp} />}
+        {view === 'form' && item &&
+          <FormView t={t} lang={lang} item={item} setItem={setItem} onSave={doSave} saving={saving}
+            onBack={()=>{ setView('dash'); refresh(); window.scrollTo(0,0); }}
+            uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingCodes={uploadingCodes} askConfirm={askConfirm} />}
+      </div>
+
+      <Toast msg={toast} />
+      <Modal m={modal} t={t} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
