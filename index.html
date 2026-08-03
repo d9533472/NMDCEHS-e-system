@@ -448,7 +448,7 @@ const DEFAULT_EVENT_TYPES=[
 ];
 const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
 function makeDefault(){return{hiddenTabs:[],vessels:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
-  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'},{key:'vessels',icon:'⚓',title:'船舶檢查'}],
+  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'}],
   bulletins:[{id:gid(),text:'<b>歡迎使用 Environmental E-System！</b><br>本系統用於管理環保相關工具連結、追蹤事項及公告。',date:todayS()}],
   tasks:[],documents:DEFAULT_DOCS.map(d=>({...d,id:gid()})),docLastUpdated:'',docNotes:'',
   sections:[],schedule:[{url:'',label:'班表 1'},{url:'',label:'班表 2'}],scheduleData:{},schMonths:['2026-03','2026-04']
@@ -524,7 +524,7 @@ function fixData(){
   if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
-  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.parts.find(p=>p.key==='vessels'))D.parts.push({key:'vessels',icon:'⚓',title:'船舶檢查'});if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -619,7 +619,7 @@ function cfmTabEdit(){const inp=$('tabEditIn');if(inp?.value.trim()){const p=D.p
 function canTabEdit(){editingTabKey=null;renderTabs();}
 function switchTab(k){activeTab=k;renderTabs();renderTab();}
 function renderTab(){let h='';
-  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();else if(activeTab==='vessels')h=renderVesselsHTML();
+  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
   $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});}
 
 // ═══ 1 BULLETIN ═══
@@ -1764,6 +1764,7 @@ function exportSchImg(){
 
 // ══ Events Tab ══
 let eEventId=null,evFilterPerson='All',evFilterArea='All',evFilterType='All',evFilterDateFrom='',evFilterDateTo='';
+let evSubView='events'; // 'events' | 'vessels'
 let evViewMode='month'; // 'month' | 'week' | 'list'
 let evViewDate=new Date();evViewDate.setDate(1); // Anchor date for calendar navigation
 
@@ -1773,6 +1774,20 @@ function renderEventsHTML(){
 
   let h='<div class="card">';
 
+  // ── Sub-tab switcher: 重點活動 / 船舶檢查 ──
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">';
+  h+='<div class="trk-tabs" style="margin:0">';
+  h+=`<button class="trk-tab ${evSubView==='events'?'active':''}" onclick="evSubView='events';renderTab()">⭐ 重點活動</button>`;
+  h+=`<button class="trk-tab ${evSubView==='vessels'?'active':''}" onclick="evSubView='vessels';renderTab()">⚓ 船舶檢查</button>`;
+  h+='</div>';
+  h+='</div>';
+
+  // ── VESSEL SUB-VIEW ──
+  if(evSubView==='vessels'){
+    return h+renderVesselsInner()+'</div>';
+  }
+
+  // ── EVENTS SUB-VIEW (default) ──
   // ── View mode switcher ──
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
   h+='<div class="trk-tabs" style="margin:0">';
@@ -2199,9 +2214,9 @@ let vFilterStatus='All',vFilterVessel='',vFilterDateFrom='',vFilterDateTo='',eVe
 
 function getVStatus(key){return VESSEL_STATUS.find(s=>s.key===key)||VESSEL_STATUS[0];}
 
-function renderVesselsHTML(){
+function renderVesselsInner(){
   const vessels=(D.vessels||[]);
-  let h='<div class="card">';
+  let h='';
 
   // ── Header ──
   h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">';
@@ -2234,7 +2249,7 @@ function renderVesselsHTML(){
   if(vFilterDateTo)filtered=filtered.filter(v=>(v.date||'')<=vFilterDateTo);
   filtered.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
 
-  if(!filtered.length){h+='<div class="bulletin-empty">'+(vessels.length?'無符合條件的紀錄':'尚無船舶檢查紀錄')+(isEditor?'，點右上「＋ 新增」開始':'')+'</div>';return h+'</div>';}
+  if(!filtered.length){h+='<div class="bulletin-empty">'+(vessels.length?'無符合條件的紀錄':'尚無船舶檢查紀錄')+(isEditor?'，點右上「＋ 新增」開始':'')+'</div>';return h;}
 
   // ── Table ──
   h+='<table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px">';
@@ -2274,7 +2289,7 @@ function renderVesselsHTML(){
   });
   h+='</tbody></table>';
 
-  return h+'</div>';
+  return h;
 }
 
 function openVesselM(id){
