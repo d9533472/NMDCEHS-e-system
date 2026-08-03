@@ -2211,6 +2211,7 @@ const VESSEL_STATUS=[
   {key:'report_filed',label:'報告提交存檔完成',color:'#7c3aed',bg:'#ede9fe'},
 ];
 let vFilterStatus='All',vFilterVessel='',vFilterDateFrom='',vFilterDateTo='',eVesselId=null;
+let vExpanded={}; // { vesselId: true } for expanded rows
 
 function getVStatus(key){return VESSEL_STATUS.find(s=>s.key===key)||VESSEL_STATUS[0];}
 
@@ -2282,10 +2283,27 @@ function renderVesselsInner(){
     h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);color:var(--text2)">${esc(v.location||'—')}</td>`;
     h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"><span style="display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;background:${st.bg};color:${st.color};border:1px solid ${st.color}33">${esc(st.label)}</span></td>`;
     h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);color:var(--text2);font-size:12px">${noteText||'—'}</td>`;
+    const histCount=(v.history||[]).length;
+    const attCount=(v.attachments||[]).length;
+    const totalMeta=histCount+attCount;
+    const isOpen=!!vExpanded[v.id];
     if(isEditor){
-      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap"><button class="icon-btn" onclick="openVesselM('${v.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delVessel('${v.id}')">${SV.trash}</button></td>`;
-    }else h+='<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"></td>';
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap">`;
+      h+=`<button class="icon-btn" onclick="toggleVesselExpand('${v.id}')" title="歷史與附件">${isOpen?'▼':'▶'}${totalMeta?` <span style="font-size:10px;color:var(--muted)">${totalMeta}</span>`:''}</button>`;
+      h+=`<button class="icon-btn" onclick="openVesselM('${v.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delVessel('${v.id}')">${SV.trash}</button>`;
+      h+='</td>';
+    }else{
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap">`;
+      h+=`<button class="icon-btn" onclick="toggleVesselExpand('${v.id}')" title="歷史與附件">${isOpen?'▼':'▶'}${totalMeta?` <span style="font-size:10px;color:var(--muted)">${totalMeta}</span>`:''}</button>`;
+      h+='</td>';
+    }
     h+='</tr>';
+    // Expanded row: history + attachments
+    if(isOpen){
+      h+=`<tr style="background:#f8fafc"><td colspan="7" style="padding:12px 20px;border-bottom:1px solid var(--bg2)">`;
+      h+=renderVesselDetail(v);
+      h+='</td></tr>';
+    }
   });
   h+='</tbody></table>';
 
@@ -2331,9 +2349,24 @@ function saveVessel(){
   if(!D.vessels)D.vessels=[];
   if(eVesselId){
     const v=D.vessels.find(x=>x.id===eVesselId);
-    if(v){v.nameZh=nameZh;v.nameEn=nameEn;v.imo=imo;v.mmsi=mmsi;v.date=date;v.scope=scope;v.location=location;v.status=status;v.note=note;delete v.name;}
+    if(v){
+      // Record history if date OR status changed
+      const oldDate=v.date||'',oldStatus=v.status||'';
+      const changed=(oldDate!==date)||(oldStatus!==status);
+      if(changed){
+        if(!v.history)v.history=[];
+        v.history.push({
+          from:{date:oldDate,status:oldStatus},
+          to:{date:date,status:status},
+          at:new Date().toISOString()
+        });
+      }
+      v.nameZh=nameZh;v.nameEn=nameEn;v.imo=imo;v.mmsi=mmsi;
+      v.date=date;v.scope=scope;v.location=location;v.status=status;v.note=note;
+      delete v.name;
+    }
   }else{
-    D.vessels.unshift({id:gid(),nameZh,nameEn,imo,mmsi,date,scope,location,status,note});
+    D.vessels.unshift({id:gid(),nameZh,nameEn,imo,mmsi,date,scope,location,status,note,history:[],attachments:[]});
   }
   closeVesselM();save();renderTab();showToast('✅ 已'+(eVesselId?'更新':'新增'));
 }
@@ -2341,6 +2374,141 @@ function delVessel(id){
   if(!confirm('確定刪除這筆船舶檢查紀錄？'))return;
   D.vessels=(D.vessels||[]).filter(v=>v.id!==id);
   save();renderTab();showToast('🗑️ 已刪除');
+}
+
+
+
+// ══ Vessel expand / attachments ══
+function toggleVesselExpand(id){vExpanded[id]=!vExpanded[id];renderTab();}
+
+function renderVesselDetail(v){
+  let h='';
+  // History section
+  const hist=v.history||[];
+  h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">';
+  // History column
+  h+='<div>';
+  h+='<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px;letter-spacing:.04em">📋 狀態變更歷史</div>';
+  if(hist.length){
+    h+='<div style="display:flex;flex-direction:column;gap:6px">';
+    // Show newest first
+    [...hist].reverse().forEach(rec=>{
+      const fromS=getVStatus(rec.from.status||'');
+      const toS=getVStatus(rec.to.status||'');
+      const at=rec.at?new Date(rec.at).toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+      h+=`<div style="font-size:12px;padding:6px 10px;background:var(--card);border-radius:6px;border-left:3px solid var(--accent)">`;
+      h+=`<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">`;
+      h+=`<span style="color:var(--muted)">${esc(rec.from.date||'—')}</span>`;
+      h+=`<span style="padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${fromS.bg};color:${fromS.color}">${esc(fromS.label)}</span>`;
+      h+=`<span style="color:var(--muted)">→</span>`;
+      h+=`<span style="font-weight:600;color:var(--text)">${esc(rec.to.date||'—')}</span>`;
+      h+=`<span style="padding:1px 6px;border-radius:4px;font-size:10px;font-weight:600;background:${toS.bg};color:${toS.color}">${esc(toS.label)}</span>`;
+      h+='</div>';
+      if(at)h+=`<div style="font-size:10px;color:var(--muted);margin-top:2px">🕐 ${at}</div>`;
+      h+='</div>';
+    });
+    h+='</div>';
+  }else{
+    h+='<div style="font-size:12px;color:var(--muted);font-style:italic">尚無變更歷史</div>';
+  }
+  h+='</div>';
+
+  // Attachments column
+  h+='<div>';
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">';
+  h+='<div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em">📎 附件</div>';
+  if(isEditor){
+    const enName=v.nameEn||v.nameZh||'unnamed';
+    const mmsi=v.mmsi||'no-mmsi';
+    h+=`<button class="btn-add-row" style="margin:0;padding:3px 10px;font-size:11px" onclick="triggerVesselFileUpload('${v.id}')">＋ 上傳</button>`;
+    h+=`<input type="file" id="vesUpFile_${v.id}" style="display:none" onchange="handleVesselFile(this,'${v.id}')">`;
+  }
+  h+='</div>';
+  const atts=v.attachments||[];
+  if(atts.length){
+    h+='<div style="display:flex;flex-direction:column;gap:4px">';
+    atts.forEach((a,i)=>{
+      const icon=(a.name||'').match(/\.(jpe?g|png|gif|webp)$/i)?'🖼️':(a.name||'').match(/\.pdf$/i)?'📄':(a.name||'').match(/\.(xlsx?|csv)$/i)?'📊':(a.name||'').match(/\.docx?$/i)?'📝':'📎';
+      h+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--card);border-radius:6px;font-size:12px">`;
+      h+=`<span>${icon}</span>`;
+      h+=`<a href="${esc(a.url)}" target="_blank" style="flex:1;color:var(--accent);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.name||'附件')}</a>`;
+      if(a.size)h+=`<span style="color:var(--muted);font-size:10px">${(a.size/1024).toFixed(0)} KB</span>`;
+      if(isEditor)h+=`<button class="icon-btn danger" style="padding:2px 6px" onclick="delVesselAttach('${v.id}',${i})" title="刪除">✕</button>`;
+      h+='</div>';
+    });
+    h+='</div>';
+  }else{
+    h+='<div style="font-size:12px;color:var(--muted);font-style:italic">尚無附件</div>';
+  }
+  h+='</div>';
+  h+='</div>';
+  return h;
+}
+
+function triggerVesselFileUpload(vId){$('vesUpFile_'+vId).click();}
+
+async function handleVesselFile(input,vId){
+  const file=input.files[0];if(!file)return;
+  if(file.size>20*1024*1024){showToast('⚠️ 檔案超過 20MB','err');input.value='';return;}
+  const v=(D.vessels||[]).find(x=>x.id===vId);if(!v){input.value='';return;}
+  const enName=(v.nameEn||v.nameZh||'unnamed').replace(/[^A-Za-z0-9_-]/g,'_');
+  const mmsi=(v.mmsi||'no-mmsi').replace(/[^0-9]/g,'')||'no-mmsi';
+  const folderName=enName+'_'+mmsi;
+  const uniqueName=Date.now()+'-'+file.name;
+
+  showToast('⏳ 上傳中… ('+(file.size/1024/1024).toFixed(1)+' MB)');
+  try{
+    // Read file as base64
+    const dataUrl=await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=e=>res(e.target.result);
+      r.onerror=rej;
+      r.readAsDataURL(file);
+    });
+
+    // no-cors POST
+    fetch(GAS_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'uploadVesselFile',folderName:folderName,fileName:uniqueName,dataUrl:dataUrl})
+    });
+
+    // Wait for processing (large files need more time)
+    const waitMs=Math.min(15000,3000+Math.floor(file.size/1024/1024)*1500);
+    await new Promise(r=>setTimeout(r,waitMs));
+
+    // Look up the URL
+    const r=await fetch(GAS_URL+'?action=findVesselFile&folder='+encodeURIComponent(folderName)+'&name='+encodeURIComponent(uniqueName));
+    if(!r.ok)throw new Error('查詢失敗');
+    const d=await r.json();
+    if(!d||!d.ok||!d.url)throw new Error(d?.error||'上傳後找不到檔案');
+
+    // Add to vessel record
+    if(!v.attachments)v.attachments=[];
+    v.attachments.push({
+      name:file.name,
+      url:d.url,
+      folder:folderName,
+      storedName:uniqueName,
+      size:file.size,
+      uploadedAt:new Date().toISOString()
+    });
+    vExpanded[vId]=true; // keep expanded
+    save();renderTab();
+    showToast('✅ 附件已上傳');
+  }catch(e){
+    console.error('vessel upload:',e);
+    showToast('⚠️ 上傳失敗：'+e.message,'err');
+  }
+  input.value='';
+}
+
+function delVesselAttach(vId,idx){
+  if(!confirm('刪除這個附件？（僅從清單移除，Drive 檔案不會自動刪除）'))return;
+  const v=(D.vessels||[]).find(x=>x.id===vId);
+  if(!v||!v.attachments)return;
+  v.attachments.splice(idx,1);
+  save();renderTab();showToast('🗑️ 已移除');
 }
 
 // ═══ INIT ═══
