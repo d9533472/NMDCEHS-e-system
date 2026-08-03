@@ -233,6 +233,10 @@ const T = {
     confirmNmdcT:'Confirm NMDC Inspection complete?', confirmNmdcP:'The record will be locked and the NMDC inspection date recorded. Export the PDF afterwards for filing.',
     cancel:'Cancel', confirm:'Confirm',
     localMode:'⚠ Local test mode (SCRIPT_URL not set) — data is saved in this browser only.',
+    testBanner:'🧪 TEST MODE — practice freely: data stays in this browser only, nothing is written to the production database. Editing is enabled without the key.',
+    clearTest:'Clear test data', testOn:'Test mode ON 🧪', testOff:'Test mode OFF — back to production data',
+    confirmClearT:'Clear all test data?', confirmClearP:'All test records in this browser will be removed.',
+    colNo:'Insp. No.', autoNo:'(auto-numbered on save)',
     viewMode:'👁 View mode — tap the 🔑 key (top right) to enter edit mode.',
     unlockT:'Enter Edit Mode', unlockP:'Enter the edit password.', wrongCode:'Wrong password', lockedMsg:'Switched to view mode',
     needSave:'Record will be saved first before uploading.',
@@ -281,6 +285,10 @@ const T = {
     confirmNmdcT:'確認「NMDC 檢查完成」?', confirmNmdcP:'紀錄將鎖定並記錄 NMDC 檢查日期,完成後請匯出 PDF 留底。',
     cancel:'取消', confirm:'確認',
     localMode:'⚠ 本機測試模式(尚未設定 SCRIPT_URL)— 資料僅儲存於此瀏覽器。',
+    testBanner:'🧪 測試模式 — 可放心練習:資料僅存於此瀏覽器,不會寫入正式資料庫;不需鑰匙即可編輯。',
+    clearTest:'清除測試資料', testOn:'已開啟測試模式 🧪', testOff:'已關閉測試模式 — 回到正式資料',
+    confirmClearT:'清除所有測試資料?', confirmClearP:'此瀏覽器內的測試紀錄將全部刪除。',
+    colNo:'船檢編號', autoNo:'(儲存後自動編號)',
     viewMode:'👁 目前為檢視模式 — 點右上角 🔑 輸入密碼進入編輯模式。',
     unlockT:'進入編輯模式', unlockP:'請輸入編輯密碼。', wrongCode:'密碼錯誤', lockedMsg:'已切換為檢視模式',
     needSave:'上傳前將先自動儲存紀錄。',
@@ -419,9 +427,11 @@ const CLASS_OPTIONS = ['CR','ABS','BV','DNV','LR','NK (ClassNK)','KR','RINA','CC
 /* ---------------- API (XHR text/plain,行動 Safari 相容) ---------------- */
 const LOCAL = !SCRIPT_URL;
 const LS_KEY = 'evis_data_v1';
+const TEST_KEY = 'evis_data_test';
+let TESTMODE = localStorage.getItem('evis_test') === '1';   // 🧪 測試模式:資料只存瀏覽器
 
 function api(action, payload) {
-  if (LOCAL) return localApi(action, payload || {});
+  if (LOCAL || TESTMODE) return localApi(action, payload || {});
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', SCRIPT_URL, true);
@@ -437,9 +447,10 @@ function api(action, payload) {
   });
 }
 
-/* 本機測試模式:localStorage 模擬後端 */
-function lsRead(){ try { return JSON.parse(localStorage.getItem(LS_KEY)) || {items:{}}; } catch(e){ return {items:{}}; } }
-function lsWrite(d){ localStorage.setItem(LS_KEY, JSON.stringify(d)); }
+/* 本機/測試模式:localStorage 模擬後端 */
+function lsKey(){ return TESTMODE ? TEST_KEY : LS_KEY; }
+function lsRead(){ try { return JSON.parse(localStorage.getItem(lsKey())) || {items:{}}; } catch(e){ return {items:{}}; } }
+function lsWrite(d){ localStorage.setItem(lsKey(), JSON.stringify(d)); }
 function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function nowStr(){ return todayStr()+' '+new Date().toTimeString().slice(0,8); }
 
@@ -456,6 +467,18 @@ function localApi(action, p) {
     const item = Object.assign({}, p.item);
     if (!item.id) item.id = 'INS-' + Date.now();
     item.updatedAt = nowStr();
+    const pfx = 'EVI-' + String(item.inspectDate||'').replace(/-/g,'') + '-';
+    if (!item.inspNo || String(item.inspNo).indexOf(pfx) !== 0) {
+      const d8 = String(item.inspectDate||todayStr()).replace(/-/g,'');
+      const pre = 'EVI-'+d8+'-'; let max = 0;
+      Object.values(db.items).forEach(x => {
+        if (x.id !== item.id && x.inspNo && String(x.inspNo).indexOf(pre) === 0) {
+          const n = parseInt(String(x.inspNo).slice(pre.length), 10);
+          if (n > max) max = n;
+        }
+      });
+      item.inspNo = pre + String(max+1).padStart(2,'0');
+    }
     if (item.status === 'self_done' && !item.selfDate) item.selfDate = todayStr();
     if (item.status === 'nmdc_done') { if(!item.selfDate) item.selfDate = todayStr(); if(!item.nmdcDate) item.nmdcDate = todayStr(); }
     if (item.status === 'draft') { item.selfDate=''; item.nmdcDate=''; }
@@ -484,7 +507,7 @@ function localApi(action, p) {
 function blankItem() {
   return { id:'', vesselZh:'', vesselEn:'', mmsi:'', imo:'', tonnage:'', vesselClass:'',
     projectNo:'', location:'', inspectDate:todayStr(), status:'draft', selfDate:'', nmdcDate:'',
-    progress:'0/'+TOTAL_ITEMS, nmdcProgress:'0/'+TOTAL_ITEMS, verdict:'', verdictDeadline:'',
+    progress:'0/'+TOTAL_ITEMS, nmdcProgress:'0/'+TOTAL_ITEMS, verdict:'', verdictDeadline:'', inspNo:'',
     data:{ answers:{}, nmdcAnswers:{}, signoff:{inspName:'',inspDate:'',verName:'',verDate:'',endName:'',endDate:''} },
     attachments:[] };
 }
@@ -551,12 +574,12 @@ function buildReportHtml(o) {
   if (!appendix) appendix = '<div style="color:#777">(無附件 No attachments)</div>';
 
   const info = [
+    ['船檢編號 Inspection No.', o.inspNo], ['檢查日期 Inspection Date', o.inspectDate],
     ['船舶中文名稱 Vessel Name (ZH)', o.vesselZh], ['船舶英文名稱 Vessel Name (EN)', o.vesselEn],
     ['MMSI', o.mmsi], ['IMO No.', o.imo],
     ['總噸位 Gross Tonnage', o.tonnage], ['船級 Class Society', o.vesselClass],
     ['專案編號 Project No.', o.projectNo], ['地點 Location', o.location],
-    ['檢查日期 Inspection Date', o.inspectDate], ['廠商自檢完成日 Self-Check Date', o.selfDate],
-    ['NMDC 檢查完成日 NMDC Date', o.nmdcDate], ['紀錄編號 Record ID', o.id],
+    ['廠商自檢完成日 Self-Check Date', o.selfDate], ['NMDC 檢查完成日 NMDC Date', o.nmdcDate],
   ];
   let infoRows = '';
   for (let i = 0; i < info.length; i += 2) {
@@ -662,18 +685,22 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf }
       <div className="tblscroll">
         <table className="list">
           <thead><tr>
-            <th>{t.colVessel}</th><th>{t.colIds}</th><th>{t.colDate}</th><th>{t.colProg}</th>
+            <th>{t.colNo}</th><th>{t.colVessel}</th><th>{t.colIds}</th><th>{t.colDate}</th><th>{t.colProg}</th>
             <th>{t.colSelf}</th><th>{t.colNmdc}</th><th>{t.colAct}</th>
           </tr></thead>
           <tbody>
             {list.length === 0 && (
-              <tr><td colSpan="7" style={{textAlign:'center', color:'#8a94a0', padding:'28px 10px'}}>
+              <tr><td colSpan="8" style={{textAlign:'center', color:'#8a94a0', padding:'28px 10px'}}>
                 {loading ? '...' : t.empty}</td></tr>
             )}
-            {list.map(it => {
+            {[...list].sort((a,b) =>
+              String(b.inspectDate||'').localeCompare(String(a.inspectDate||'')) ||
+              String(b.inspNo||'').localeCompare(String(a.inspNo||''))
+            ).map(it => {
               const p1 = parseInt(it.progress) || 0, p2 = parseInt(it.nmdcProgress) || 0;
               return (
                 <tr key={it.id}>
+                  <td style={{whiteSpace:'nowrap', fontWeight:700, color:'var(--navy)'}}>{it.inspNo || '—'}</td>
                   <td>
                     <div style={{fontWeight:700}}>{it.vesselZh || it.vesselEn || '—'}</div>
                     <div className="datesub">{it.vesselZh ? it.vesselEn : ''}{it.vesselClass ? ' · ' + it.vesselClass : ''}</div>
@@ -790,7 +817,9 @@ function ContractorForm({ t, lang, item, setItem, can, onSave, onBack, saving, u
   return (
     <div>
       <div className="card">
-        <h3>🚢 {t.vesselInfo}</h3>
+        <h3>🚢 {t.vesselInfo}
+          <span style={{float:'right', fontSize:12.5, color:'#1e5ca8', fontWeight:700}}>
+            {item.inspNo || t.autoNo}</span></h3>
         <div className="grid">
           <div className="field"><label>{t.vNameZh}</label>
             <input disabled={!can} value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} placeholder="例:大地" /></div>
@@ -916,7 +945,7 @@ function NmdcForm({ t, lang, item, setItem, can, editMode, onSave, onBack, savin
   };
 
   const infoPairs = [
-    [t.vNameZh, item.vesselZh], [t.vNameEn, item.vesselEn], ['MMSI', item.mmsi], [t.imo, item.imo],
+    [t.colNo, item.inspNo], [t.vNameZh, item.vesselZh], [t.vNameEn, item.vesselEn], ['MMSI', item.mmsi], [t.imo, item.imo],
     [t.tonnage, item.tonnage], [t.vClass, item.vesselClass], [t.projectNo, item.projectNo],
     [t.location, item.location], [t.inspectDate, item.inspectDate], [t.statusSelf, item.selfDate],
   ];
@@ -1038,6 +1067,7 @@ function App() {
   const [lang, setLang] = useState(localStorage.getItem('evis_lang') || 'en');
   const t = T[lang];
   const [editMode, setEditMode] = useState(localStorage.getItem('evis_unlocked') === '1');
+  const [testMode, setTestMode] = useState(TESTMODE);
   const [view, setView] = useState('dash');
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -1064,6 +1094,20 @@ function App() {
   }, [lang]);
 
   useEffect(() => { refresh(); }, []);
+
+  /* 🧪 測試模式切換 */
+  const toggleTest = () => {
+    TESTMODE = !TESTMODE;
+    if (TESTMODE) localStorage.setItem('evis_test','1'); else localStorage.removeItem('evis_test');
+    setTestMode(TESTMODE);
+    setItem(null); setView('dash'); setList([]);
+    showToast(TESTMODE ? t.testOn : t.testOff);
+    setTimeout(refresh, 50);
+  };
+  const clearTestData = () => askConfirm(t.confirmClearT, t.confirmClearP, () => {
+    localStorage.removeItem(TEST_KEY);
+    setItem(null); setView('dash'); refresh();
+  }, true);
 
   const normalize = (it) => {
     it.data = it.data || {};
@@ -1104,7 +1148,7 @@ function App() {
     if (!files || !files.length) return;
     const itemCode = stage==='nmdc' ? code+'#NMDC' : code;
     const label = stage==='nmdc' ? code+' (NMDC)' : code;
-    const maxSize = LOCAL ? 2*1024*1024 : 15*1024*1024;
+    const maxSize = (LOCAL || TESTMODE) ? 2*1024*1024 : 15*1024*1024;
     const arr = Array.from(files);
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
       (showToast(t.needSave), doSave());
@@ -1143,7 +1187,7 @@ function App() {
   /* PDF 匯出 */
   const exportRecord = (full) => {
     const html = buildReportHtml(full);
-    if (LOCAL) {
+    if (LOCAL || TESTMODE) {
       const w = window.open('', '_blank');
       w.document.write(html); w.document.close();
       showToast(t.pdfLocal);
@@ -1182,8 +1226,9 @@ function App() {
     setLang(nl); localStorage.setItem('evis_lang', nl);
   };
 
-  const canContractor = editMode && item && item.status === 'draft';
-  const canNmdc = editMode && item && item.status === 'self_done';
+  const effEdit = editMode || testMode;   // 測試模式免鑰匙即可編輯
+  const canContractor = effEdit && item && item.status === 'draft';
+  const canNmdc = effEdit && item && item.status === 'self_done';
 
   return (
     <div>
@@ -1196,15 +1241,21 @@ function App() {
         {view === 'form' &&
           <button className="langbtn" onClick={()=>{ setView('dash'); refresh(); }}>{t.dash}</button>}
         <button className="langbtn" onClick={toggleLang}>{lang === 'en' ? '中文' : 'EN'}</button>
+        <button className={'lockbtn'} style={testMode ? {background:'#b8860b'} : null} onClick={toggleTest}
+          title="Test mode">🧪</button>
         <button className={'lockbtn' + (editMode ? ' unlocked' : '')} onClick={toggleLock}
           title={editMode ? 'Lock' : 'Unlock'}>{editMode ? '🔓' : '🔑'}</button>
       </div>
 
       <div className="wrap">
-        {LOCAL && <div className="banner">{t.localMode}</div>}
-        {!editMode && <div className="banner gray">{t.viewMode}</div>}
+        {LOCAL && !testMode && <div className="banner">{t.localMode}</div>}
+        {testMode &&
+          <div className="banner">{t.testBanner}{' '}
+            <a style={{color:'#a06a08', fontWeight:700, cursor:'pointer', textDecoration:'underline'}}
+              onClick={clearTestData}>{t.clearTest}</a></div>}
+        {!effEdit && <div className="banner gray">{t.viewMode}</div>}
         {view === 'dash' &&
-          <Dashboard t={t} list={list} loading={loading} canEdit={editMode}
+          <Dashboard t={t} list={list} loading={loading} canEdit={effEdit}
             onOpen={openItem} onNew={newItem} onDelete={deleteInsp} onPdf={exportById} />}
         {view === 'form' && item && item.status === 'draft' &&
           <ContractorForm t={t} lang={lang} item={item} setItem={setItem} can={canContractor}
@@ -1213,7 +1264,7 @@ function App() {
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
             askConfirm={askConfirm} showToast={showToast} highlightMissing={highlightMissing} />}
         {view === 'form' && item && item.status !== 'draft' &&
-          <NmdcForm t={t} lang={lang} item={item} setItem={setItem} can={canNmdc} editMode={editMode}
+          <NmdcForm t={t} lang={lang} item={item} setItem={setItem} can={canNmdc} editMode={effEdit}
             onSave={doSave} saving={saving}
             onBack={()=>{ setView('dash'); refresh(); window.scrollTo(0,0); }}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
