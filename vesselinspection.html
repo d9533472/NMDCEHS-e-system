@@ -237,7 +237,8 @@ const T = {
     clearTest:'Clear test data', testOn:'Test mode ON 🧪', testOff:'Test mode OFF — back to production data',
     confirmClearT:'Clear all test data?', confirmClearP:'All test records in this browser will be removed.',
     colNo:'Insp. No.', autoNo:'(auto-numbered on save)',
-    viewMode:'👁 View mode — tap the 🔑 key (top right) to enter edit mode.',
+    seedDemo:'⚡ Create sample data', seedDone:'Sample records created ✓ (one Self-Check done, one NMDC done)',
+    viewMode:'👁 Anyone can create a new inspection and fill the contractor self-check. Editing existing records, NMDC review and delete require the 🔑 key (top right).',
     unlockT:'Enter Edit Mode', unlockP:'Enter the edit password.', wrongCode:'Wrong password', lockedMsg:'Switched to view mode',
     needSave:'Record will be saved first before uploading.',
     fileTooBig:'File too large (max 15 MB per file; 2 MB in local mode).',
@@ -289,7 +290,8 @@ const T = {
     clearTest:'清除測試資料', testOn:'已開啟測試模式 🧪', testOff:'已關閉測試模式 — 回到正式資料',
     confirmClearT:'清除所有測試資料?', confirmClearP:'此瀏覽器內的測試紀錄將全部刪除。',
     colNo:'船檢編號', autoNo:'(儲存後自動編號)',
-    viewMode:'👁 目前為檢視模式 — 點右上角 🔑 輸入密碼進入編輯模式。',
+    seedDemo:'⚡ 建立範例資料', seedDone:'範例資料已建立 ✓(自檢完成、NMDC 完成各一筆)',
+    viewMode:'👁 任何人都可以「新增檢查」並填寫廠商自檢;編輯既有紀錄、NMDC 覆核與刪除需點右上角 🔑 解鎖。',
     unlockT:'進入編輯模式', unlockP:'請輸入編輯密碼。', wrongCode:'密碼錯誤', lockedMsg:'已切換為檢視模式',
     needSave:'上傳前將先自動儲存紀錄。',
     fileTooBig:'檔案過大(單檔上限 15 MB;本機模式 2 MB)。',
@@ -517,6 +519,21 @@ function fmtSize(n){ if(!n) return ''; return n>1048576 ? (n/1048576).toFixed(1)
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function ansLabel(v){ return v==='yes'?'YES':v==='no'?'NO':v==='na'?'N/A':'—'; }
 
+/* ---------------- 測試模式:範例照片(canvas 產生) ---------------- */
+function demoPhotoB64(text, color) {
+  const c = document.createElement('canvas');
+  c.width = 480; c.height = 320;
+  const g = c.getContext('2d');
+  g.fillStyle = color; g.fillRect(0, 0, 480, 320);
+  g.fillStyle = 'rgba(255,255,255,.18)';
+  g.beginPath(); g.arc(390, 60, 90, 0, 7); g.fill();
+  g.fillRect(0, 250, 480, 70);
+  g.fillStyle = '#fff'; g.textAlign = 'center';
+  g.font = 'bold 30px sans-serif';  g.fillText(text, 240, 145);
+  g.font = '16px sans-serif';       g.fillText('測試模式範例照片 · Demo photo (test mode)', 240, 185);
+  return c.toDataURL('image/png').split(',')[1];
+}
+
 /* ---------------- PDF 報表 HTML(雙語留底) ---------------- */
 function buildReportHtml(o) {
   const a  = (o.data && o.data.answers) || {};
@@ -562,9 +579,9 @@ function buildReportHtml(o) {
       attsOf(code, stage).forEach(f => {
         appendix += '<div style="margin:0 0 6px; padding-top:8px; border-top:1px solid #bbb">' +
           '<b>['+code+']</b> ['+lbl+'] '+esc(f.name)+' <span style="color:#777; font-size:9px">'+esc(f.uploadedAt||'')+'</span></div>';
-        const isImgLocal = LOCAL && String(f.url).indexOf('data:image/') === 0;
-        if (LOCAL) {
-          appendix += isImgLocal ? '<img src="'+f.url+'" style="max-width:100%; max-height:860px">' : '';
+        if (LOCAL || TESTMODE) {
+          const isImg = String(f.url).indexOf('data:image/') === 0;
+          appendix += isImg ? '<img src="'+f.url+'" style="max-width:100%; max-height:860px">' : '';
         } else {
           appendix += '{{IMG:'+f.fileId+'}}';
         }
@@ -680,7 +697,7 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf }
         <div className="chip"><b>{nSelf}</b>{t.stSelf}</div>
         <div className="chip"><b>{nNmdc}</b>{t.stNmdc}</div>
         <div style={{flex:1}}></div>
-        {canEdit && <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>}
+        <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>
       </div>
       <div className="tblscroll">
         <table className="list">
@@ -1109,6 +1126,51 @@ function App() {
     setItem(null); setView('dash'); refresh();
   }, true);
 
+  /* ⚡ 測試模式:一鍵建立範例資料(自檢完成 1 筆 + NMDC 完成 1 筆) */
+  const seedDemo = () => {
+    if (!TESTMODE) return;
+    const mkAnswers = (noCode, noRemark) => {
+      const m = {};
+      ALL_CODES.forEach(c => {
+        m[c] = { v: c === noCode ? 'no' : 'yes',
+                 remark: c === noCode ? noRemark :
+                         c === 'E-5' ? 'Fuel 12,500 USG / Water 860 USG (last month)' : '' };
+      });
+      return m;
+    };
+    const plus14 = (() => { const d = new Date(); d.setDate(d.getDate() + 14);
+      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
+
+    const rec1 = Object.assign(blankItem(), {
+      vesselZh:'測試船 Alpha', vesselEn:'TEST VESSEL ALPHA', mmsi:'416000001', imo:'9000001',
+      tonnage:'3500', vesselClass:'CR', projectNo:'TXO-P2', location:'Taichung Anchorage',
+      status:'self_done', progress:TOTAL_ITEMS+'/'+TOTAL_ITEMS,
+      data:{ answers: mkAnswers('B-8','Waste bin near galley overflowing — cleared during inspection'),
+             nmdcAnswers:{}, signoff:{inspName:'', inspDate:'', verName:'', verDate:'', endName:'Capt. J. Hansen', endDate:todayStr()} }
+    });
+    const rec2 = Object.assign(blankItem(), {
+      vesselZh:'測試船 Beta', vesselEn:'TEST VESSEL BETA', mmsi:'416000002', imo:'9000002',
+      tonnage:'5200', vesselClass:'DNV', projectNo:'TXO-P2', location:'Taichung Anchorage',
+      status:'nmdc_done', verdict:'cond', verdictDeadline:plus14,
+      progress:TOTAL_ITEMS+'/'+TOTAL_ITEMS, nmdcProgress:TOTAL_ITEMS+'/'+TOTAL_ITEMS,
+      data:{ answers: mkAnswers('A-2','Visible dust observed during bulk material transfer'),
+             nmdcAnswers: mkAnswers('A-2','Confirmed — submit updated dust control method statement'),
+             signoff:{inspName:'HSEO 王環安', inspDate:todayStr(), verName:'HSEE 李工程', verDate:todayStr(),
+                      endName:'Capt. J. Hansen', endDate:todayStr()} }
+    });
+    const img1 = demoPhotoB64('A-2 DUST PHOTO', '#8a6d3b');
+    const img2 = demoPhotoB64('NMDC VERIFICATION', '#1d3d5c');
+    api('save', { item: rec1 })
+      .then(() => api('save', { item: rec2 }))
+      .then(r => {
+        const id = r.item.id;
+        return api('upload', { inspId:id, itemCode:'A-2', label:'A-2', name:'dust_photo.png', mimeType:'image/png', base64:img1 })
+          .then(() => api('upload', { inspId:id, itemCode:'A-2#NMDC', label:'A-2 (NMDC)', name:'verification_photo.png', mimeType:'image/png', base64:img2 }));
+      })
+      .then(() => { showToast(t.seedDone); refresh(); })
+      .catch(e => showToast(String(e.message||e), true));
+  };
+
   const normalize = (it) => {
     it.data = it.data || {};
     it.data.answers = it.data.answers || {};
@@ -1227,7 +1289,8 @@ function App() {
   };
 
   const effEdit = editMode || testMode;   // 測試模式免鑰匙即可編輯
-  const canContractor = effEdit && item && item.status === 'draft';
+  // 任何人都能新增並填寫廠商自檢(draft 階段);NMDC 覆核 / 刪除需解鎖
+  const canContractor = item && item.status === 'draft';
   const canNmdc = effEdit && item && item.status === 'self_done';
 
   return (
@@ -1251,6 +1314,8 @@ function App() {
         {LOCAL && !testMode && <div className="banner">{t.localMode}</div>}
         {testMode &&
           <div className="banner">{t.testBanner}{' '}
+            <a style={{color:'#1e5ca8', fontWeight:700, cursor:'pointer', textDecoration:'underline'}}
+              onClick={seedDemo}>{t.seedDemo}</a>{' · '}
             <a style={{color:'#a06a08', fontWeight:700, cursor:'pointer', textDecoration:'underline'}}
               onClick={clearTestData}>{t.clearTest}</a></div>}
         {!effEdit && <div className="banner gray">{t.viewMode}</div>}
