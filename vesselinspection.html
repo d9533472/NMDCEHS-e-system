@@ -10,7 +10,7 @@
 <style>
   :root{
     --navy:#12283f; --navy2:#1d3d5c; --accent:#2e9e5b; --accent2:#e8f5ec;
-    --red:#d64545; --gray:#8a94a0; --bg:#f2f5f8; --line:#dde4ea; --card:#ffffff;
+    --red:#d64545; --amber:#c77f0a; --gray:#8a94a0; --bg:#f2f5f8; --line:#dde4ea; --card:#ffffff;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   body{margin:0; background:var(--bg); color:#22303d;
@@ -18,6 +18,7 @@
     font-size:15px;}
   input,select,textarea,button{font-family:inherit; font-size:inherit;}
   input,select,textarea{border:1px solid var(--line); border-radius:8px; padding:9px 10px; background:#fff; width:100%;}
+  input:disabled{background:#f4f6f8; color:#55606c;}
   input:focus,select:focus,textarea:focus{outline:2px solid rgba(46,158,91,.35); border-color:var(--accent);}
   button{cursor:pointer; border:none; border-radius:8px;}
 
@@ -29,19 +30,23 @@
   .topbar .grow{flex:1; min-width:0;}
   .langbtn{background:rgba(255,255,255,.14); color:#fff; padding:7px 12px; border-radius:20px; font-size:13px; font-weight:600;}
   .langbtn:active{background:rgba(255,255,255,.3);}
+  .lockbtn{background:rgba(255,255,255,.14); color:#fff; padding:7px 11px; border-radius:20px; font-size:15px;}
+  .lockbtn.unlocked{background:#2e9e5b;}
 
-  .wrap{max-width:1080px; margin:0 auto; padding:14px 12px 90px;}
+  .wrap{max-width:1120px; margin:0 auto; padding:14px 12px 96px;}
   .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px;}
   .card h3{margin:0 0 10px; font-size:15px; color:var(--navy);}
 
   .banner{background:#fff7e0; border:1px solid #eedc9a; color:#7a5c00; border-radius:10px;
     padding:8px 12px; font-size:13px; margin-bottom:12px;}
+  .banner.blue{background:#eef6ff; border-color:#cfe3f7; color:#1e5ca8;}
+  .banner.gray{background:#f0f2f5; border-color:var(--line); color:#5a6673;}
 
-  .statrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;}
+  .statrow{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; align-items:center;}
   .chip{background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px 14px; font-size:13px;}
   .chip b{font-size:17px; color:var(--navy); margin-right:4px;}
 
-  table.list{width:100%; border-collapse:collapse; background:#fff; font-size:13.5px; min-width:760px;}
+  table.list{width:100%; border-collapse:collapse; background:#fff; font-size:13.5px; min-width:820px;}
   table.list th{background:var(--navy2); color:#fff; padding:9px 8px; text-align:left; font-weight:600; white-space:nowrap;}
   table.list td{padding:9px 8px; border-bottom:1px solid var(--line); vertical-align:middle;}
   table.list tr:hover td{background:#f7fafc;}
@@ -50,7 +55,8 @@
   .badge{display:inline-block; padding:3px 9px; border-radius:12px; font-size:12px; font-weight:600; white-space:nowrap;}
   .b-done{background:var(--accent2); color:#1c7a42; border:1px solid #bfe3cc;}
   .b-wait{background:#f0f2f5; color:#78828d; border:1px solid var(--line);}
-  .b-mid{background:#e7f0fb; color:#2563a8; border:1px solid #c4daf2;}
+  .b-fail{background:#fdecec; color:#b03030; border:1px solid #f3c6c6;}
+  .b-cond{background:#fdf3e0; color:#a06a08; border:1px solid #f0dcb0;}
   .datesub{font-size:11px; color:#78828d;}
 
   .btn{padding:10px 16px; border-radius:9px; font-weight:600; font-size:14px;}
@@ -59,12 +65,16 @@
   .btn-navy{background:var(--navy); color:#fff;}
   .btn-o{background:#fff; border:1px solid var(--line); color:#3a4753;}
   .btn-r{background:#fdecec; color:var(--red); border:1px solid #f3c6c6;}
+  .btn-amber{background:#b8860b; color:#fff;}
   .btn-sm{padding:6px 11px; font-size:13px;}
   .btn[disabled]{opacity:.45; cursor:not-allowed;}
 
   .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px;}
   .field label{display:block; font-size:12.5px; font-weight:600; color:#54626f; margin-bottom:4px;}
   .req{color:var(--red);}
+  .kv{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px 14px; font-size:13.5px;}
+  .kv .k{font-size:11.5px; color:#78828d;}
+  .kv .v{font-weight:600;}
 
   .secnav{position:sticky; top:56px; z-index:40; display:flex; gap:6px; overflow-x:auto;
     padding:8px 2px; background:var(--bg); margin:0 -2px;}
@@ -81,6 +91,8 @@
   .item:last-child{border-bottom:none;}
   .item .no{display:inline-block; background:#eef3f7; color:var(--navy); font-weight:700; font-size:12px;
     border-radius:6px; padding:2px 8px; margin-right:8px;}
+  .item.miss{background:#fff8f8;}
+  .item.miss .no{background:#fdecec; color:var(--red);}
   .item .txt{font-size:14px; line-height:1.5;}
   .item .row2{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:flex-start;}
   .seg{display:flex; gap:6px;}
@@ -89,18 +101,45 @@
   .seg button.yes.on{background:var(--accent); border-color:var(--accent); color:#fff;}
   .seg button.no.on{background:var(--red); border-color:var(--red); color:#fff;}
   .seg button.na.on{background:var(--gray); border-color:var(--gray); color:#fff;}
+  .seg button:disabled{cursor:default; opacity:.9;}
   .remark{flex:1; min-width:200px;}
   .remark input{padding:8px 10px; font-size:13.5px;}
+
+  .panelgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;}
+  @media(max-width:760px){ .panelgrid{grid-template-columns:1fr;} }
+  .panel{border:1px solid var(--line); border-radius:9px; padding:10px;}
+  .panel.ctr{background:#f8fafb;}
+  .panel .ph{font-size:11.5px; font-weight:700; color:#54626f; margin-bottom:7px; letter-spacing:.3px;}
+  .ansbadge{display:inline-block; padding:4px 14px; border-radius:8px; font-weight:800; font-size:13px;}
+  .ans-yes{background:var(--accent); color:#fff;}
+  .ans-no{background:var(--red); color:#fff;}
+  .ans-na{background:var(--gray); color:#fff;}
+  .ans-none{background:#eef1f4; color:#8a94a0;}
+  .ctr-remark{font-size:13px; color:#3a4753; margin-top:6px; white-space:pre-wrap;}
 
   .attrow{margin-top:9px; display:flex; flex-wrap:wrap; gap:6px; align-items:center;}
   .attbtn{background:#f0f4f8; border:1px dashed #b8c4cf; color:#4a5764; border-radius:8px;
     padding:6px 12px; font-size:12.5px; font-weight:600;}
   .attchip{display:inline-flex; align-items:center; gap:6px; background:#eef6ff; border:1px solid #cfe3f7;
-    color:#1e5c8; border-radius:8px; padding:5px 9px; font-size:12.5px; max-width:280px;}
-  .attchip a{color:#1e5c8; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#1e5ca8;}
+    border-radius:8px; padding:5px 9px; font-size:12.5px; max-width:280px;}
+  .attchip a{color:#1e5ca8; text-decoration:none; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .attchip .x{cursor:pointer; color:#8194a8; font-weight:700; padding:0 2px;}
   .attchip .x:hover{color:var(--red);}
   .uploading{background:#fffbe8; border-color:#eadfa2; color:#8a7514;}
+
+  .vopt{display:flex; align-items:flex-start; gap:10px; border:1.5px solid var(--line); border-radius:10px;
+    padding:11px 13px; margin-bottom:8px; cursor:pointer; font-size:14px; background:#fff;}
+  .vopt .dot{width:18px; height:18px; border-radius:50%; border:2px solid #b8c4cf; flex:none; margin-top:1px;}
+  .vopt.sel{border-color:var(--navy); background:#f4f8fc;}
+  .vopt.sel .dot{border-color:var(--navy); background:var(--navy); box-shadow:inset 0 0 0 3.5px #fff;}
+  .vopt.sel.fail{border-color:var(--red); background:#fdf6f6;}
+  .vopt.sel.fail .dot{border-color:var(--red); background:var(--red);}
+  .vopt.sel.cond{border-color:var(--amber); background:#fdfaf2;}
+  .vopt.sel.cond .dot{border-color:var(--amber); background:var(--amber);}
+  .vopt.sel.pass{border-color:var(--accent); background:#f4faf6;}
+  .vopt.sel.pass .dot{border-color:var(--accent); background:var(--accent);}
+  .vopt.ro{cursor:default; opacity:.95;}
+  .ddl{margin:4px 0 10px 28px; max-width:280px;}
 
   .signgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px;}
   .signbox{border:1px solid var(--line); border-radius:10px; padding:12px;}
@@ -110,10 +149,10 @@
 
   .footbar{position:fixed; left:0; right:0; bottom:0; z-index:60; background:#fff;
     border-top:1px solid var(--line); padding:10px 12px; display:flex; gap:8px; align-items:center;
-    box-shadow:0 -4px 14px rgba(0,0,0,.06);}
-  .footbar .grow{flex:1; min-width:0; font-size:12px; color:#67737f;}
+    box-shadow:0 -4px 14px rgba(0,0,0,.06); flex-wrap:wrap;}
+  .footbar .grow{flex:1; min-width:120px; font-size:12px; color:#67737f;}
 
-  .toast{position:fixed; bottom:78px; left:50%; transform:translateX(-50%); z-index:100;
+  .toast{position:fixed; bottom:84px; left:50%; transform:translateX(-50%); z-index:100;
     background:var(--navy); color:#fff; padding:10px 18px; border-radius:22px; font-size:13.5px;
     box-shadow:0 6px 18px rgba(0,0,0,.25); animation:fadein .2s; max-width:90vw;}
   .toast.err{background:var(--red);}
@@ -121,18 +160,20 @@
 
   .modalbg{position:fixed; inset:0; background:rgba(15,28,42,.45); z-index:90;
     display:flex; align-items:center; justify-content:center; padding:20px;}
-  .modal{background:#fff; border-radius:14px; padding:20px; max-width:400px; width:100%;}
+  .modal{background:#fff; border-radius:14px; padding:20px; max-width:420px; width:100%;}
   .modal h4{margin:0 0 8px; color:var(--navy);}
-  .modal p{margin:0 0 16px; font-size:14px; color:#4a5764; line-height:1.5;}
+  .modal p{margin:0 0 16px; font-size:14px; color:#4a5764; line-height:1.5; word-break:break-all;}
   .modal .btns{display:flex; gap:8px; justify-content:flex-end;}
+  .modal input{margin-bottom:14px;}
 
   .pbar{height:6px; background:#e7ecf1; border-radius:3px; overflow:hidden; min-width:70px;}
   .pbar i{display:block; height:100%; background:var(--accent); border-radius:3px;}
+  .pbar i.blue{background:#2563a8;}
 
   @media(max-width:640px){
     .topbar .sub{display:none;}
     .btn{padding:10px 12px; font-size:13px;}
-    .wrap{padding:10px 8px 100px;}
+    .wrap{padding:10px 8px 116px;}
   }
 </style>
 </head>
@@ -141,9 +182,12 @@
 
 <script type="text/babel" data-presets="env,react">
 /* ================================================================
- *  設定:貼上 GAS Web App URL(留空 = 本機測試模式,存 localStorage)
+ *  設定
+ *  SCRIPT_URL:GAS Web App URL(留空 = 本機測試模式,存 localStorage)
+ *  EDIT_CODE :編輯模式密碼(點右上角 🔑 輸入;改成你要的密碼)
  * ================================================================ */
-const SCRIPT_URL = '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLNoMax3Efsn0xNF8iXwlf2rvSZyehL809UMXIoF1-kifOsL1LbalQqlxUdAQa09ex/exec';
+const EDIT_CODE  = 'nmdc';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
@@ -156,14 +200,25 @@ const T = {
     stTotal:'Total', stSelf:'Self-Check Done', stNmdc:'NMDC Done',
     colVessel:'Vessel', colIds:'MMSI / IMO', colDate:'Inspection Date', colProg:'Progress',
     colSelf:'Contractor Self-Check', colNmdc:'NMDC Inspection', colAct:'Actions',
-    open:'Open', del:'Delete', empty:'No inspection records yet. Click "+ New Inspection" to start.',
+    open:'Open', del:'Delete', pdf:'PDF', empty:'No inspection records yet.',
     statusDraft:'In Progress', statusSelf:'Self-Check Done', statusNmdc:'NMDC Done', pending:'Pending',
+    progSelf:'Self', progNmdc:'NMDC',
     vesselInfo:'Vessel Information',
     vNameZh:'Vessel Name (Chinese)', vNameEn:'Vessel Name (English)', mmsi:'MMSI', imo:'IMO No.',
     tonnage:'Gross Tonnage', vClass:'Class Society (CR, ABS...)', projectNo:'Project No.',
     location:'Location', inspectDate:'Inspection Date',
     legend:'Yes = Up to standard (adequate); No = below standard (action required); NA = Not Applicable',
     remark:'Remarks / Additional information', addFile:'+ Attachment', uploading:'Uploading...',
+    ctrResult:'CONTRACTOR SELF-CHECK 廠商檢查結果', nmdcResult:'NMDC INSPECTION NMDC 檢查結果',
+    notAnswered:'Not answered',
+    nmdcStage:'NMDC Inspection — review each item against the contractor self-check results.',
+    doneStage:'NMDC inspection completed. This record is now locked — export the PDF for filing.',
+    verdictTitle:'Final Inspection Result 檢查結論',
+    vFail:'1. Inspection FAILED — re-inspection to be scheduled',
+    vCond:'2. CONDITIONAL PASS — submit improvement response by the deadline',
+    vPass:'3. Inspection PASSED — no further information required',
+    vDeadline:'Improvement response deadline',
+    sFail:'Failed', sCond:'Conditional pass', sPass:'Passed', sCondBy:'reply by',
     signTitle:'Name & Sign-off',
     signInsp:'Inspected By', signInspSub:'(HSEO)',
     signVer:'Verified By', signVerSub:'(HSEE)',
@@ -171,16 +226,21 @@ const T = {
     name:'Name', date:'Date',
     save:'Save', back:'← Back', saved:'Saved ✓',
     markSelf:'Contractor Self-Check Complete', markNmdc:'NMDC Inspection Complete',
-    revert:'Revert to previous stage',
+    revert:'Revert to previous stage', exportPdf:'📄 Export PDF', exporting:'Generating PDF...',
+    pdfDone:'PDF saved to Drive ✓', pdfOpen:'Open PDF', pdfLocal:'Use the print dialog → Save as PDF',
     confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
-    confirmSelfT:'Confirm Contractor Self-Check complete?', confirmSelfP:'The completion date will be recorded on the dashboard.',
-    confirmNmdcT:'Confirm NMDC Inspection complete?', confirmNmdcP:'The NMDC inspection date will be recorded on the dashboard.',
+    confirmSelfT:'Confirm Contractor Self-Check complete?', confirmSelfP:'All items are answered. The completion date will be recorded on the dashboard.',
+    confirmNmdcT:'Confirm NMDC Inspection complete?', confirmNmdcP:'The record will be locked and the NMDC inspection date recorded. Export the PDF afterwards for filing.',
     cancel:'Cancel', confirm:'Confirm',
     localMode:'⚠ Local test mode (SCRIPT_URL not set) — data is saved in this browser only.',
+    viewMode:'👁 View mode — tap the 🔑 key (top right) to enter edit mode.',
+    unlockT:'Enter Edit Mode', unlockP:'Enter the edit password.', wrongCode:'Wrong password', lockedMsg:'Switched to view mode',
     needSave:'Record will be saved first before uploading.',
     fileTooBig:'File too large (max 15 MB per file; 2 MB in local mode).',
-    unanswered:'items unanswered', allAnswered:'All items answered',
-    answered:'answered', loadFail:'Load failed', saveFail:'Save failed', netErr:'Network error',
+    errAllItems:(n)=>`${n} item(s) not answered yet — ALL ${TOTAL_ITEMS} items must be answered before completion.`,
+    errVerdict:'Please select the Final Inspection Result.',
+    errDeadline:'Please set the improvement response deadline.',
+    answered:'answered', loadFail:'Load failed', saveFail:'Save failed',
   },
   zh: {
     appTitle:'船舶環境檢查表 Environmental Inspection Checklist',
@@ -188,14 +248,25 @@ const T = {
     stTotal:'總筆數', stSelf:'廠商自檢完成', stNmdc:'NMDC 檢查完成',
     colVessel:'船名', colIds:'MMSI / IMO', colDate:'檢查日期', colProg:'進度',
     colSelf:'廠商自檢', colNmdc:'NMDC 檢查', colAct:'操作',
-    open:'開啟', del:'刪除', empty:'尚無檢查紀錄,點「+ 新增檢查」開始。',
+    open:'開啟', del:'刪除', pdf:'PDF', empty:'尚無檢查紀錄。',
     statusDraft:'進行中', statusSelf:'廠商自檢完成', statusNmdc:'NMDC 檢查完成', pending:'未完成',
+    progSelf:'自檢', progNmdc:'NMDC',
     vesselInfo:'船舶基本資料',
     vNameZh:'船舶中文名稱', vNameEn:'船舶英文名稱', mmsi:'MMSI', imo:'IMO 編號',
     tonnage:'總噸位', vClass:'船級協會 (CR、ABS...)', projectNo:'專案編號',
     location:'地點', inspectDate:'檢查日期',
     legend:'Yes = 符合標準;No = 未達標準(須改善);NA = 不適用',
     remark:'備註 / 補充說明', addFile:'+ 附件', uploading:'上傳中...',
+    ctrResult:'廠商檢查結果 CONTRACTOR SELF-CHECK', nmdcResult:'NMDC 檢查結果 NMDC INSPECTION',
+    notAnswered:'未填',
+    nmdcStage:'NMDC 檢查階段 — 請逐項對照廠商自檢結果進行覆核。',
+    doneStage:'NMDC 檢查已完成,此紀錄已鎖定 — 請匯出 PDF 留底。',
+    verdictTitle:'檢查結論 Final Inspection Result',
+    vFail:'1. 船檢未通過,擇日複檢',
+    vCond:'2. 船檢有條件通過,請於期限前補充改善回覆',
+    vPass:'3. 船檢通過,無須補充資料',
+    vDeadline:'補充改善回覆期限',
+    sFail:'未通過', sCond:'有條件通過', sPass:'通過', sCondBy:'限期',
     signTitle:'簽核 Name & Sign-off',
     signInsp:'檢查人 Inspected By', signInspSub:'(HSEO 環安衛主任)',
     signVer:'覆核人 Verified By', signVerSub:'(HSEE 環安衛工程師)',
@@ -203,16 +274,21 @@ const T = {
     name:'姓名', date:'日期',
     save:'儲存', back:'← 返回', saved:'已儲存 ✓',
     markSelf:'廠商自檢完成', markNmdc:'NMDC 檢查完成',
-    revert:'退回上一階段',
+    revert:'退回上一階段', exportPdf:'📄 匯出 PDF 留底', exporting:'PDF 產生中...',
+    pdfDone:'PDF 已存入 Drive ✓', pdfOpen:'開啟 PDF', pdfLocal:'請在列印視窗選「另存為 PDF」',
     confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
-    confirmSelfT:'確認「廠商自檢完成」?', confirmSelfP:'完成日期將記錄並顯示於總表。',
-    confirmNmdcT:'確認「NMDC 檢查完成」?', confirmNmdcP:'NMDC 檢查日期將記錄並顯示於總表。',
+    confirmSelfT:'確認「廠商自檢完成」?', confirmSelfP:'全部項目已勾選,完成日期將記錄並顯示於總表。',
+    confirmNmdcT:'確認「NMDC 檢查完成」?', confirmNmdcP:'紀錄將鎖定並記錄 NMDC 檢查日期,完成後請匯出 PDF 留底。',
     cancel:'取消', confirm:'確認',
     localMode:'⚠ 本機測試模式(尚未設定 SCRIPT_URL)— 資料僅儲存於此瀏覽器。',
+    viewMode:'👁 目前為檢視模式 — 點右上角 🔑 輸入密碼進入編輯模式。',
+    unlockT:'進入編輯模式', unlockP:'請輸入編輯密碼。', wrongCode:'密碼錯誤', lockedMsg:'已切換為檢視模式',
     needSave:'上傳前將先自動儲存紀錄。',
     fileTooBig:'檔案過大(單檔上限 15 MB;本機模式 2 MB)。',
-    unanswered:'項尚未勾選', allAnswered:'全部項目已勾選',
-    answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗', netErr:'網路錯誤',
+    errAllItems:(n)=>`尚有 ${n} 項未勾選 — 全部 ${TOTAL_ITEMS} 項勾選完成後才能送出。`,
+    errVerdict:'請先選擇「檢查結論」。',
+    errDeadline:'請填寫補充改善回覆期限。',
+    answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗',
   }
 };
 
@@ -337,6 +413,7 @@ const CHECKLIST = [
  ]},
 ];
 const TOTAL_ITEMS = CHECKLIST.reduce((s, sec) => s + sec.items.length, 0);
+const ALL_CODES = CHECKLIST.flatMap(sec => sec.items.map(it => sec.code + '-' + it.n));
 const CLASS_OPTIONS = ['CR','ABS','BV','DNV','LR','NK (ClassNK)','KR','RINA','CCS'];
 
 /* ---------------- API (XHR text/plain,行動 Safari 相容) ---------------- */
@@ -390,8 +467,8 @@ function localApi(action, p) {
   if (action === 'delete') { delete db.items[p.id]; lsWrite(db); return done({}); }
   if (action === 'upload') {
     const it = db.items[p.inspId]; if (!it) return Promise.reject(new Error('not saved'));
-    const att = { fileId:'local-'+Date.now(), inspId:p.inspId, itemCode:p.itemCode,
-      name:p.itemCode+' & '+p.name, url:'data:'+(p.mimeType||'application/octet-stream')+';base64,'+p.base64,
+    const att = { fileId:'local-'+Date.now()+Math.floor(Math.random()*99), inspId:p.inspId, itemCode:p.itemCode,
+      name:(p.label||p.itemCode)+' & '+p.name, url:'data:'+(p.mimeType||'application/octet-stream')+';base64,'+p.base64,
       uploadedAt:nowStr(), size:Math.round(p.base64.length*0.75) };
     it.attachments = it.attachments || []; it.attachments.push(att); lsWrite(db);
     return done({ attachment: att });
@@ -407,15 +484,121 @@ function localApi(action, p) {
 function blankItem() {
   return { id:'', vesselZh:'', vesselEn:'', mmsi:'', imo:'', tonnage:'', vesselClass:'',
     projectNo:'', location:'', inspectDate:todayStr(), status:'draft', selfDate:'', nmdcDate:'',
-    progress:'0/'+TOTAL_ITEMS,
-    data:{ answers:{}, signoff:{inspName:'',inspDate:'',verName:'',verDate:'',endName:'',endDate:''} },
+    progress:'0/'+TOTAL_ITEMS, nmdcProgress:'0/'+TOTAL_ITEMS, verdict:'', verdictDeadline:'',
+    data:{ answers:{}, nmdcAnswers:{}, signoff:{inspName:'',inspDate:'',verName:'',verDate:'',endName:'',endDate:''} },
     attachments:[] };
 }
-function countAnswered(item){
-  const a = (item.data && item.data.answers) || {};
-  return Object.values(a).filter(x => x && x.v).length;
-}
+function countMap(m){ return Object.values(m||{}).filter(x => x && x.v).length; }
+function missingCodes(m){ return ALL_CODES.filter(c => !(m && m[c] && m[c].v)); }
 function fmtSize(n){ if(!n) return ''; return n>1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB'; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ansLabel(v){ return v==='yes'?'YES':v==='no'?'NO':v==='na'?'N/A':'—'; }
+
+/* ---------------- PDF 報表 HTML(雙語留底) ---------------- */
+function buildReportHtml(o) {
+  const a  = (o.data && o.data.answers) || {};
+  const na = (o.data && o.data.nmdcAnswers) || {};
+  const sg = (o.data && o.data.signoff) || {};
+  const atts = o.attachments || [];
+  const attsOf = (code, stage) => atts.filter(x => x.itemCode === (stage==='nmdc' ? code+'#NMDC' : code));
+
+  const ansCell = (x, files) => {
+    const v = x && x.v;
+    const col = v==='yes' ? '#1c7a42' : v==='no' ? '#b03030' : v==='na' ? '#666' : '#999';
+    let h = '<b style="color:'+col+'">'+ansLabel(v)+'</b>';
+    if (x && x.remark) h += '<div style="color:#333">'+esc(x.remark)+'</div>';
+    if (files.length) h += files.map(f=>'<div style="color:#555">📎 '+esc(f.name)+'</div>').join('');
+    return h;
+  };
+
+  let rows = '';
+  CHECKLIST.forEach(sec => {
+    rows += '<tr><td colspan="4" style="background:#dfe7ee; font-weight:bold">'+sec.code+'. '+esc(sec.en)+' '+esc(sec.zh)+'</td></tr>';
+    sec.items.forEach(it => {
+      const code = sec.code+'-'+it.n;
+      rows += '<tr>' +
+        '<td style="text-align:center; white-space:nowrap"><b>'+code+'</b></td>' +
+        '<td>'+esc(it.en)+'<div style="color:#556; font-size:9px">'+esc(it.zh)+'</div></td>' +
+        '<td>'+ansCell(a[code], attsOf(code,'self'))+'</td>' +
+        '<td>'+ansCell(na[code], attsOf(code,'nmdc'))+'</td>' +
+        '</tr>';
+    });
+  });
+
+  const vMap = {
+    fail: { txt:'1. 船檢未通過,擇日複檢<br>Inspection FAILED — re-inspection to be scheduled.', col:'#b03030' },
+    cond: { txt:'2. 船檢有條件通過,請於 <b>'+esc(o.verdictDeadline||'____-__-__')+'</b> 前補充改善回覆<br>CONDITIONAL PASS — improvement response required before <b>'+esc(o.verdictDeadline||'')+'</b>.', col:'#a06a08' },
+    pass: { txt:'3. 船檢通過,無須補充資料<br>Inspection PASSED — no further information required.', col:'#1c7a42' },
+  };
+  const vd = vMap[o.verdict] || { txt:'—', col:'#666' };
+
+  // 附件頁:依項目排序,廠商在前 NMDC 在後;圖片以 {{IMG:fileId}} 佔位由後端內嵌
+  let appendix = '';
+  ALL_CODES.forEach(code => {
+    [['self','廠商 Contractor'], ['nmdc','NMDC']].forEach(([stage, lbl]) => {
+      attsOf(code, stage).forEach(f => {
+        appendix += '<div style="margin:0 0 6px; padding-top:8px; border-top:1px solid #bbb">' +
+          '<b>['+code+']</b> ['+lbl+'] '+esc(f.name)+' <span style="color:#777; font-size:9px">'+esc(f.uploadedAt||'')+'</span></div>';
+        const isImgLocal = LOCAL && String(f.url).indexOf('data:image/') === 0;
+        if (LOCAL) {
+          appendix += isImgLocal ? '<img src="'+f.url+'" style="max-width:100%; max-height:860px">' : '';
+        } else {
+          appendix += '{{IMG:'+f.fileId+'}}';
+        }
+      });
+    });
+  });
+  if (!appendix) appendix = '<div style="color:#777">(無附件 No attachments)</div>';
+
+  const info = [
+    ['船舶中文名稱 Vessel Name (ZH)', o.vesselZh], ['船舶英文名稱 Vessel Name (EN)', o.vesselEn],
+    ['MMSI', o.mmsi], ['IMO No.', o.imo],
+    ['總噸位 Gross Tonnage', o.tonnage], ['船級 Class Society', o.vesselClass],
+    ['專案編號 Project No.', o.projectNo], ['地點 Location', o.location],
+    ['檢查日期 Inspection Date', o.inspectDate], ['廠商自檢完成日 Self-Check Date', o.selfDate],
+    ['NMDC 檢查完成日 NMDC Date', o.nmdcDate], ['紀錄編號 Record ID', o.id],
+  ];
+  let infoRows = '';
+  for (let i = 0; i < info.length; i += 2) {
+    infoRows += '<tr><td style="background:#eef2f6; width:22%">'+info[i][0]+'</td><td style="width:28%">'+esc(info[i][1])+'</td>' +
+      '<td style="background:#eef2f6; width:22%">'+(info[i+1]?info[i+1][0]:'')+'</td><td>'+(info[i+1]?esc(info[i+1][1]):'')+'</td></tr>';
+  }
+
+  const signCell = (role, sub, nm, dt) =>
+    '<td style="width:33%"><b>'+role+'</b><div style="color:#666; font-size:9px">'+sub+'</div>' +
+    '<div style="margin-top:6px">姓名 Name: '+esc(nm||'')+'</div><div>日期 Date: '+esc(dt||'')+'</div>' +
+    '<div style="margin-top:18px; border-top:1px solid #999; color:#888; font-size:9px">簽名 Signature</div></td>';
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
+    'body{font-family:Arial,"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:10.5px; color:#111; margin:18px;}' +
+    'table{border-collapse:collapse; width:100%; margin-bottom:10px;} ' +
+    'td,th{border:1px solid #555; padding:4px 6px; vertical-align:top; font-size:10px;}' +
+    'th{background:#1d3d5c; color:#fff; text-align:left;}' +
+    'h1{font-size:15px; margin:0;} h2{font-size:13px; margin:14px 0 6px;} .pb{page-break-before:always;}' +
+    '</style></head><body>' +
+    '<table><tr>' +
+    '<td style="width:20%; text-align:center; vertical-align:middle"><b style="font-size:14px">NMDC ENERGY</b></td>' +
+    '<td style="text-align:center; vertical-align:middle"><h1>ENVIRONMENTAL INSPECTION CHECKLIST FOR MARINE VESSELS</h1>' +
+    '<div>船舶環境檢查表</div></td>' +
+    '<td style="width:22%; font-size:9.5px">Document No: '+DOC_NO+'<br>'+DOC_REV+'<br>列印 Printed: '+todayStr()+'</td>' +
+    '</tr></table>' +
+    '<h2>1. 船舶基本資料 Vessel Information</h2><table>'+infoRows+'</table>' +
+    '<h2>2. 檢查結論 Final Inspection Result</h2>' +
+    '<div style="border:2px solid '+vd.col+'; color:'+vd.col+'; padding:8px 12px; font-size:12px; font-weight:bold; margin-bottom:10px">'+vd.txt+'</div>' +
+    '<h2>3. 檢查項目 Inspection Items　<span style="font-weight:normal; font-size:9.5px">Yes = 符合標準 Up to standard;No = 未達標準 Below standard (action required);NA = 不適用 Not applicable</span></h2>' +
+    '<table><tr><th style="width:34px">SN</th><th>檢查項目 Items to be Inspected</th>' +
+    '<th style="width:19%">廠商自檢 Contractor Self-Check</th><th style="width:19%">NMDC 檢查 NMDC Inspection</th></tr>' +
+    rows + '</table>' +
+    '<h2>4. 簽核 Name &amp; Sign-off</h2>' +
+    '<table><tr>' +
+    signCell('檢查人 Inspected By','(HSEO)', sg.inspName, sg.inspDate) +
+    signCell('覆核人 Verified By','(HSEE)', sg.verName, sg.verDate) +
+    signCell('核可人 Endorsed By','(Barge Superintendent / Vessel Captain)', sg.endName, sg.endDate) +
+    '</tr></table>' +
+    '<div class="pb"></div><h2>5. 附件 Attachments</h2>' + appendix +
+    '<div style="margin-top:14px; color:#888; font-size:9px">'+DOC_NO+' · '+DOC_REV+' · Generated by 環境船檢系統</div>' +
+    '</body></html>';
+}
 
 /* ---------------- UI 元件 ---------------- */
 const { useState, useEffect, useRef, useCallback } = React;
@@ -426,34 +609,45 @@ function Toast({ msg }) {
 }
 
 function Modal({ m, t }) {
+  const [val, setVal] = useState('');
+  useEffect(()=>{ setVal(''); }, [m]);
   if (!m) return null;
+  const ok = () => m.input ? m.onOk(val) : m.onOk();
   return (
     <div className="modalbg" onClick={m.onCancel}>
       <div className="modal" onClick={e=>e.stopPropagation()}>
-        <h4>{m.title}</h4><p>{m.body}</p>
+        <h4>{m.title}</h4>
+        {m.body && <p>{m.body}</p>}
+        {m.link && <p><a href={m.link} target="_blank" rel="noopener" style={{color:'#1e5ca8', fontWeight:700}}>{m.linkLabel || m.link}</a></p>}
+        {m.input &&
+          <input type="password" autoFocus value={val} onChange={e=>setVal(e.target.value)}
+            onKeyDown={e=>{ if(e.key==='Enter') ok(); }} placeholder="••••" />}
         <div className="btns">
-          <button className="btn btn-o btn-sm" onClick={m.onCancel}>{t.cancel}</button>
-          <button className={'btn btn-sm ' + (m.danger ? 'btn-r' : 'btn-p')} onClick={m.onOk}>{t.confirm}</button>
+          <button className="btn btn-o btn-sm" onClick={m.onCancel}>{m.cancelLabel || t.cancel}</button>
+          {m.onOk && <button className={'btn btn-sm ' + (m.danger ? 'btn-r' : 'btn-p')} onClick={ok}>{m.okLabel || t.confirm}</button>}
         </div>
       </div>
     </div>
   );
 }
 
-function StatusBadge({ status, stage, dateSelf, dateNmdc, t }) {
-  // stage: 'self' or 'nmdc' — 顯示該階段狀態
+function StatusBadge({ status, stage, dateSelf, dateNmdc, verdict, verdictDeadline, t }) {
   if (stage === 'self') {
     if (status === 'self_done' || status === 'nmdc_done')
       return <span><span className="badge b-done">✓ {t.statusSelf}</span><div className="datesub">{dateSelf}</div></span>;
     return <span className="badge b-wait">{t.pending}</span>;
   }
-  if (status === 'nmdc_done')
-    return <span><span className="badge b-done">✓ {t.statusNmdc}</span><div className="datesub">{dateNmdc}</div></span>;
+  if (status === 'nmdc_done') {
+    const v = verdict==='fail' ? <span className="badge b-fail">✗ {t.sFail}</span>
+      : verdict==='cond' ? <span className="badge b-cond">⚠ {t.sCond} · {t.sCondBy} {verdictDeadline}</span>
+      : verdict==='pass' ? <span className="badge b-done">✓ {t.sPass}</span> : null;
+    return <span><span className="badge b-done">✓ {t.statusNmdc}</span><div className="datesub">{dateNmdc}</div>{v && <div style={{marginTop:3}}>{v}</div>}</span>;
+  }
   return <span className="badge b-wait">{t.pending}</span>;
 }
 
 /* ---------------- 總表 Dashboard ---------------- */
-function Dashboard({ t, list, loading, onOpen, onNew, onDelete }) {
+function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf }) {
   const nSelf = list.filter(i=>i.status==='self_done'||i.status==='nmdc_done').length;
   const nNmdc = list.filter(i=>i.status==='nmdc_done').length;
   return (
@@ -463,7 +657,7 @@ function Dashboard({ t, list, loading, onOpen, onNew, onDelete }) {
         <div className="chip"><b>{nSelf}</b>{t.stSelf}</div>
         <div className="chip"><b>{nNmdc}</b>{t.stNmdc}</div>
         <div style={{flex:1}}></div>
-        <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>
+        {canEdit && <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>}
       </div>
       <div className="tblscroll">
         <table className="list">
@@ -477,8 +671,7 @@ function Dashboard({ t, list, loading, onOpen, onNew, onDelete }) {
                 {loading ? '...' : t.empty}</td></tr>
             )}
             {list.map(it => {
-              const prog = it.progress || '0/' + TOTAL_ITEMS;
-              const pct = Math.round((parseInt(prog) || 0) / TOTAL_ITEMS * 100);
+              const p1 = parseInt(it.progress) || 0, p2 = parseInt(it.nmdcProgress) || 0;
               return (
                 <tr key={it.id}>
                   <td>
@@ -488,14 +681,21 @@ function Dashboard({ t, list, loading, onOpen, onNew, onDelete }) {
                   <td><div>{it.mmsi || '—'}</div><div className="datesub">IMO {it.imo || '—'}</div></td>
                   <td>{it.inspectDate || '—'}</td>
                   <td>
-                    <div className="datesub" style={{marginBottom:3}}>{prog}</div>
-                    <div className="pbar"><i style={{width:pct+'%'}}></i></div>
+                    <div className="datesub">{t.progSelf} {p1}/{TOTAL_ITEMS}</div>
+                    <div className="pbar"><i style={{width:Math.round(p1/TOTAL_ITEMS*100)+'%'}}></i></div>
+                    {it.status !== 'draft' && <div>
+                      <div className="datesub" style={{marginTop:3}}>{t.progNmdc} {p2}/{TOTAL_ITEMS}</div>
+                      <div className="pbar"><i className="blue" style={{width:Math.round(p2/TOTAL_ITEMS*100)+'%'}}></i></div>
+                    </div>}
                   </td>
                   <td><StatusBadge status={it.status} stage="self" dateSelf={it.selfDate} t={t} /></td>
-                  <td><StatusBadge status={it.status} stage="nmdc" dateNmdc={it.nmdcDate} t={t} /></td>
+                  <td><StatusBadge status={it.status} stage="nmdc" dateNmdc={it.nmdcDate}
+                        verdict={it.verdict} verdictDeadline={it.verdictDeadline} t={t} /></td>
                   <td style={{whiteSpace:'nowrap'}}>
                     <button className="btn btn-navy btn-sm" onClick={()=>onOpen(it.id)}>{t.open}</button>{' '}
-                    <button className="btn btn-r btn-sm" onClick={()=>onDelete(it.id)}>{t.del}</button>
+                    {it.status==='nmdc_done' &&
+                      <button className="btn btn-amber btn-sm" onClick={()=>onPdf(it.id)}>📄 {t.pdf}</button>}{' '}
+                    {canEdit && <button className="btn btn-r btn-sm" onClick={()=>onDelete(it.id)}>{t.del}</button>}
                   </td>
                 </tr>
               );
@@ -507,64 +707,115 @@ function Dashboard({ t, list, loading, onOpen, onNew, onDelete }) {
   );
 }
 
-/* ---------------- 檢查表單 Form ---------------- */
-function FormView({ t, lang, item, setItem, onSave, onBack, saving, uploadFile, deleteAtt, uploadingCodes, askConfirm }) {
+/* ---------------- 附件列 ---------------- */
+function AttRow({ t, code, stage, atts, can, uploading, onPick, onDelete, fileRefs }) {
+  const key = stage==='nmdc' ? code+'#NMDC' : code;
+  return (
+    <div className="attrow">
+      {can && <button className="attbtn" onClick={()=>fileRefs.current[key] && fileRefs.current[key].click()}>📎 {t.addFile}</button>}
+      {can && <input type="file" multiple style={{display:'none'}}
+        ref={el=>fileRefs.current[key]=el}
+        onChange={e=>{ onPick(code, e.target.files, stage); e.target.value=''; }} />}
+      {uploading && <span className="attchip uploading">⏳ {t.uploading}</span>}
+      {atts.map(f => (
+        <span className="attchip" key={f.fileId} title={f.name}>
+          <a href={f.url} target="_blank" rel="noopener">{f.name}</a>
+          <span className="datesub">{fmtSize(f.size)}</span>
+          {can && <span className="x" onClick={()=>onDelete(f)}>✕</span>}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/* ---------------- 簽核卡 ---------------- */
+function SignCard({ t, sign, setSign, can }) {
+  return (
+    <div className="card">
+      <h3>✍️ {t.signTitle}</h3>
+      <div className="signgrid">
+        {[
+          { role:t.signInsp, sub:t.signInspSub, nk:'inspName', dk:'inspDate' },
+          { role:t.signVer,  sub:t.signVerSub,  nk:'verName',  dk:'verDate' },
+          { role:t.signEnd,  sub:t.signEndSub,  nk:'endName',  dk:'endDate' },
+        ].map(s => (
+          <div className="signbox" key={s.nk}>
+            <div className="role">{s.role}</div>
+            <div className="rolesub">{s.sub}</div>
+            <input placeholder={t.name} disabled={!can} value={sign[s.nk]||''} onChange={e=>setSign(s.nk, e.target.value)} />
+            <input type="date" disabled={!can} value={sign[s.dk]||''} onChange={e=>setSign(s.dk, e.target.value)} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- 廠商自檢表單 ---------------- */
+function ContractorForm({ t, lang, item, setItem, can, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, highlightMissing }) {
   const answers = item.data.answers || {};
-  const sign = item.data.signoff || {};
   const [activeSec, setActiveSec] = useState('A');
   const fileRefs = useRef({});
 
-  const setField = (k, v) => setItem(p => Object.assign({}, p, {[k]: v}));
-  const setAns = (code, patch) => setItem(p => {
+  const setField = (k, v) => can && setItem(p => Object.assign({}, p, {[k]: v}));
+  const setAns = (code, patch) => can && setItem(p => {
     const a = Object.assign({}, p.data.answers);
     a[code] = Object.assign({ v:'', remark:'' }, a[code], patch);
     return Object.assign({}, p, { data: Object.assign({}, p.data, { answers: a }) });
   });
-  const setSign = (k, v) => setItem(p =>
+  const setSign = (k, v) => can && setItem(p =>
     Object.assign({}, p, { data: Object.assign({}, p.data, { signoff: Object.assign({}, p.data.signoff, {[k]: v}) }) }));
 
-  const answered = countAnswered(item);
+  const answered = countMap(answers);
   const secCount = sec => sec.items.filter(i => { const a = answers[sec.code+'-'+i.n]; return a && a.v; }).length;
-
   const jump = code => {
     setActiveSec(code);
     const el = document.getElementById('sec-' + code);
     if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
   };
-
   const attsFor = code => (item.attachments || []).filter(a => a.itemCode === code);
+
+  const trySubmit = () => {
+    const miss = missingCodes(answers);
+    if (miss.length) {
+      showToast(t.errAllItems(miss.length), true);
+      highlightMissing(miss);
+      const el = document.getElementById('item-' + miss[0]);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    askConfirm(t.confirmSelfT, t.confirmSelfP, ()=>onSave('self_done'));
+  };
 
   return (
     <div>
-      {/* 船舶基本資料 */}
       <div className="card">
         <h3>🚢 {t.vesselInfo}</h3>
         <div className="grid">
           <div className="field"><label>{t.vNameZh}</label>
-            <input value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} placeholder="例:大地" /></div>
+            <input disabled={!can} value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} placeholder="例:大地" /></div>
           <div className="field"><label>{t.vNameEn} <span className="req">*</span></label>
-            <input value={item.vesselEn} onChange={e=>setField('vesselEn', e.target.value)} placeholder="e.g. Normand Tonjer" /></div>
+            <input disabled={!can} value={item.vesselEn} onChange={e=>setField('vesselEn', e.target.value)} placeholder="e.g. Normand Tonjer" /></div>
           <div className="field"><label>MMSI</label>
-            <input value={item.mmsi} inputMode="numeric" onChange={e=>setField('mmsi', e.target.value)} placeholder="9 digits" /></div>
+            <input disabled={!can} value={item.mmsi} inputMode="numeric" onChange={e=>setField('mmsi', e.target.value)} placeholder="9 digits" /></div>
           <div className="field"><label>{t.imo}</label>
-            <input value={item.imo} inputMode="numeric" onChange={e=>setField('imo', e.target.value)} placeholder="7 digits" /></div>
+            <input disabled={!can} value={item.imo} inputMode="numeric" onChange={e=>setField('imo', e.target.value)} placeholder="7 digits" /></div>
           <div className="field"><label>{t.tonnage}</label>
-            <input value={item.tonnage} onChange={e=>setField('tonnage', e.target.value)} placeholder="GT" /></div>
+            <input disabled={!can} value={item.tonnage} onChange={e=>setField('tonnage', e.target.value)} placeholder="GT" /></div>
           <div className="field"><label>{t.vClass}</label>
-            <input list="classList" value={item.vesselClass} onChange={e=>setField('vesselClass', e.target.value)} placeholder="CR / ABS / DNV ..." />
+            <input disabled={!can} list="classList" value={item.vesselClass} onChange={e=>setField('vesselClass', e.target.value)} placeholder="CR / ABS / DNV ..." />
             <datalist id="classList">{CLASS_OPTIONS.map(c=><option key={c} value={c} />)}</datalist></div>
           <div className="field"><label>{t.projectNo}</label>
-            <input value={item.projectNo} onChange={e=>setField('projectNo', e.target.value)} /></div>
+            <input disabled={!can} value={item.projectNo} onChange={e=>setField('projectNo', e.target.value)} /></div>
           <div className="field"><label>{t.location}</label>
-            <input value={item.location} onChange={e=>setField('location', e.target.value)} placeholder="e.g. Taichung Anchorage" /></div>
+            <input disabled={!can} value={item.location} onChange={e=>setField('location', e.target.value)} placeholder="e.g. Taichung Anchorage" /></div>
           <div className="field"><label>{t.inspectDate}</label>
-            <input type="date" value={item.inspectDate} onChange={e=>setField('inspectDate', e.target.value)} /></div>
+            <input type="date" disabled={!can} value={item.inspectDate} onChange={e=>setField('inspectDate', e.target.value)} /></div>
         </div>
       </div>
 
-      <div className="banner" style={{background:'#eef6ff', borderColor:'#cfe3f7', color:'#1e5ca8'}}>{t.legend}</div>
+      <div className="banner blue">{t.legend}</div>
 
-      {/* 節次導覽 */}
       <div className="secnav">
         {CHECKLIST.map(sec => (
           <button key={sec.code} className={activeSec===sec.code ? 'on' : ''} onClick={()=>jump(sec.code)}>
@@ -574,7 +825,6 @@ function FormView({ t, lang, item, setItem, onSave, onBack, saving, uploadFile, 
         ))}
       </div>
 
-      {/* 檢查項目 */}
       {CHECKLIST.map(sec => (
         <div key={sec.code} id={'sec-'+sec.code}>
           <div className="sechead">
@@ -585,40 +835,156 @@ function FormView({ t, lang, item, setItem, onSave, onBack, saving, uploadFile, 
             {sec.items.map(it => {
               const code = sec.code + '-' + it.n;
               const a = answers[code] || { v:'', remark:'' };
-              const atts = attsFor(code);
-              const isUploading = uploadingCodes.includes(code);
+              const isMiss = item._miss && item._miss.includes(code);
               return (
-                <div className="item" key={code}>
+                <div className={'item' + (isMiss && !a.v ? ' miss' : '')} key={code} id={'item-'+code}>
                   <div className="txt"><span className="no">{code}</span>{lang==='zh' ? it.zh : it.en}</div>
                   <div className="row2">
                     <div className="seg">
                       {['yes','no','na'].map(v => (
-                        <button key={v} className={v + (a.v===v ? ' on' : '')}
+                        <button key={v} disabled={!can} className={v + (a.v===v ? ' on' : '')}
                           onClick={()=>setAns(code, { v: a.v===v ? '' : v })}>
                           {v==='yes'?'Yes':v==='no'?'No':'N/A'}
                         </button>
                       ))}
                     </div>
                     <div className="remark">
-                      <input value={a.remark || ''} placeholder={t.remark}
+                      <input disabled={!can} value={a.remark || ''} placeholder={t.remark}
                         onChange={e=>setAns(code, { remark: e.target.value })} />
                     </div>
                   </div>
-                  <div className="attrow">
-                    <button className="attbtn" onClick={()=>fileRefs.current[code] && fileRefs.current[code].click()}>
-                      📎 {t.addFile}
-                    </button>
-                    <input type="file" multiple style={{display:'none'}}
-                      ref={el=>fileRefs.current[code]=el}
-                      onChange={e=>{ uploadFile(code, e.target.files); e.target.value=''; }} />
-                    {isUploading && <span className="attchip uploading">⏳ {t.uploading}</span>}
-                    {atts.map(f => (
-                      <span className="attchip" key={f.fileId} title={f.name}>
-                        <a href={f.url} target="_blank" rel="noopener">{f.name}</a>
-                        <span className="datesub">{fmtSize(f.size)}</span>
-                        <span className="x" onClick={()=>deleteAtt(f)}>✕</span>
-                      </span>
-                    ))}
+                  <AttRow t={t} code={code} stage="self" atts={attsFor(code)} can={can}
+                    uploading={uploadingKeys.includes(code)} onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
+      <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} />
+
+      <div className="footbar">
+        <button className="btn btn-o" onClick={onBack}>{t.back}</button>
+        <div className="grow">{answered}/{TOTAL_ITEMS} {t.answered}</div>
+        {can && <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>}
+        {can && <button className="btn btn-p" disabled={saving} onClick={trySubmit}>✓ {t.markSelf}</button>}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- NMDC 覆核表單 ---------------- */
+function NmdcForm({ t, lang, item, setItem, can, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing }) {
+  const answers = item.data.answers || {};
+  const nAns = item.data.nmdcAnswers || {};
+  const [activeSec, setActiveSec] = useState('A');
+  const fileRefs = useRef({});
+  const done = item.status === 'nmdc_done';
+
+  const setAns = (code, patch) => can && setItem(p => {
+    const a = Object.assign({}, p.data.nmdcAnswers);
+    a[code] = Object.assign({ v:'', remark:'' }, a[code], patch);
+    return Object.assign({}, p, { data: Object.assign({}, p.data, { nmdcAnswers: a }) });
+  });
+  const setSign = (k, v) => can && setItem(p =>
+    Object.assign({}, p, { data: Object.assign({}, p.data, { signoff: Object.assign({}, p.data.signoff, {[k]: v}) }) }));
+  const setVerdict = (v) => can && setItem(p => Object.assign({}, p, { verdict: v }));
+  const setDeadline = (d) => can && setItem(p => Object.assign({}, p, { verdictDeadline: d }));
+
+  const answered = countMap(nAns);
+  const secCount = sec => sec.items.filter(i => { const a = nAns[sec.code+'-'+i.n]; return a && a.v; }).length;
+  const jump = code => {
+    setActiveSec(code);
+    const el = document.getElementById('sec-' + code);
+    if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+  };
+  const attsFor = (code, stage) => (item.attachments || []).filter(a => a.itemCode === (stage==='nmdc' ? code+'#NMDC' : code));
+
+  const trySubmit = () => {
+    const miss = missingCodes(nAns);
+    if (miss.length) {
+      showToast(t.errAllItems(miss.length), true);
+      highlightMissing(miss);
+      const el = document.getElementById('item-' + miss[0]);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+      return;
+    }
+    if (!item.verdict) { showToast(t.errVerdict, true); const el=document.getElementById('verdict-card'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    if (item.verdict === 'cond' && !item.verdictDeadline) { showToast(t.errDeadline, true); const el=document.getElementById('verdict-card'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    askConfirm(t.confirmNmdcT, t.confirmNmdcP, ()=>onSave('nmdc_done'));
+  };
+
+  const infoPairs = [
+    [t.vNameZh, item.vesselZh], [t.vNameEn, item.vesselEn], ['MMSI', item.mmsi], [t.imo, item.imo],
+    [t.tonnage, item.tonnage], [t.vClass, item.vesselClass], [t.projectNo, item.projectNo],
+    [t.location, item.location], [t.inspectDate, item.inspectDate], [t.statusSelf, item.selfDate],
+  ];
+
+  return (
+    <div>
+      <div className={'banner ' + (done ? 'gray' : 'blue')}>{done ? t.doneStage : t.nmdcStage}</div>
+
+      <div className="card">
+        <h3>🚢 {t.vesselInfo}</h3>
+        <div className="kv">
+          {infoPairs.map(([k,v]) => <div key={k}><div className="k">{k}</div><div className="v">{v || '—'}</div></div>)}
+        </div>
+      </div>
+
+      <div className="banner blue">{t.legend}</div>
+
+      <div className="secnav">
+        {CHECKLIST.map(sec => (
+          <button key={sec.code} className={activeSec===sec.code ? 'on' : ''} onClick={()=>jump(sec.code)}>
+            {sec.code}. {lang==='zh' ? sec.zh : sec.en}
+            <span className="cnt">{secCount(sec)}/{sec.items.length}</span>
+          </button>
+        ))}
+      </div>
+
+      {CHECKLIST.map(sec => (
+        <div key={sec.code} id={'sec-'+sec.code}>
+          <div className="sechead">
+            <span>{sec.code}. {lang==='zh' ? sec.zh : sec.en}</span>
+            <span style={{fontSize:12, opacity:.85}}>{secCount(sec)}/{sec.items.length}</span>
+          </div>
+          <div className="secbody">
+            {sec.items.map(it => {
+              const code = sec.code + '-' + it.n;
+              const ca = answers[code] || {};
+              const a = nAns[code] || { v:'', remark:'' };
+              const isMiss = item._miss && item._miss.includes(code);
+              return (
+                <div className={'item' + (isMiss && !a.v ? ' miss' : '')} key={code} id={'item-'+code}>
+                  <div className="txt"><span className="no">{code}</span>{lang==='zh' ? it.zh : it.en}</div>
+                  <div className="panelgrid">
+                    <div className="panel ctr">
+                      <div className="ph">{t.ctrResult}</div>
+                      <span className={'ansbadge ' + (ca.v ? 'ans-'+ca.v : 'ans-none')}>{ca.v ? ansLabel(ca.v) : t.notAnswered}</span>
+                      {ca.remark && <div className="ctr-remark">💬 {ca.remark}</div>}
+                      <AttRow t={t} code={code} stage="self" atts={attsFor(code,'self')} can={false}
+                        uploading={false} onPick={()=>{}} onDelete={()=>{}} fileRefs={fileRefs} />
+                    </div>
+                    <div className="panel">
+                      <div className="ph">{t.nmdcResult}</div>
+                      <div className="row2" style={{marginTop:0}}>
+                        <div className="seg">
+                          {['yes','no','na'].map(v => (
+                            <button key={v} disabled={!can} className={v + (a.v===v ? ' on' : '')}
+                              onClick={()=>setAns(code, { v: a.v===v ? '' : v })}>
+                              {v==='yes'?'Yes':v==='no'?'No':'N/A'}
+                            </button>
+                          ))}
+                        </div>
+                        <div className="remark">
+                          <input disabled={!can} value={a.remark || ''} placeholder={t.remark}
+                            onChange={e=>setAns(code, { remark: e.target.value })} />
+                        </div>
+                      </div>
+                      <AttRow t={t} code={code} stage="nmdc" atts={attsFor(code,'nmdc')} can={can}
+                        uploading={uploadingKeys.includes(code+'#NMDC')} onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
+                    </div>
                   </div>
                 </div>
               );
@@ -627,46 +993,41 @@ function FormView({ t, lang, item, setItem, onSave, onBack, saving, uploadFile, 
         </div>
       ))}
 
-      {/* 簽核 */}
-      <div className="card">
-        <h3>✍️ {t.signTitle}</h3>
-        <div className="signgrid">
-          {[
-            { role:t.signInsp, sub:t.signInspSub, nk:'inspName', dk:'inspDate' },
-            { role:t.signVer,  sub:t.signVerSub,  nk:'verName',  dk:'verDate' },
-            { role:t.signEnd,  sub:t.signEndSub,  nk:'endName',  dk:'endDate' },
-          ].map(s => (
-            <div className="signbox" key={s.nk}>
-              <div className="role">{s.role}</div>
-              <div className="rolesub">{s.sub}</div>
-              <input placeholder={t.name} value={sign[s.nk]||''} onChange={e=>setSign(s.nk, e.target.value)} />
-              <input type="date" value={sign[s.dk]||''} onChange={e=>setSign(s.dk, e.target.value)} />
+      {/* 檢查結論 */}
+      <div className="card" id="verdict-card">
+        <h3>⚖️ {t.verdictTitle}</h3>
+        {[['fail', t.vFail], ['cond', t.vCond], ['pass', t.vPass]].map(([v, label]) => (
+          <div key={v}>
+            <div className={'vopt' + (item.verdict===v ? ' sel ' + v : '') + (!can ? ' ro' : '')}
+              onClick={()=>can && setVerdict(v)}>
+              <div className="dot"></div>
+              <div>{label}</div>
             </div>
-          ))}
-        </div>
+            {v==='cond' && item.verdict==='cond' &&
+              <div className="ddl">
+                <label style={{fontSize:12.5, fontWeight:600, color:'#54626f'}}>{t.vDeadline} <span className="req">*</span></label>
+                <input type="date" disabled={!can} value={item.verdictDeadline||''} onChange={e=>setDeadline(e.target.value)} />
+              </div>}
+          </div>
+        ))}
       </div>
 
-      {/* 底部動作列 */}
+      <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} />
+
       <div className="footbar">
         <button className="btn btn-o" onClick={onBack}>{t.back}</button>
         <div className="grow">
-          {answered}/{TOTAL_ITEMS} {t.answered}
-          {answered < TOTAL_ITEMS ? ' · ' + (TOTAL_ITEMS-answered) + ' ' + t.unanswered : ' · ' + t.allAnswered}
-          {item.status !== 'draft' &&
+          NMDC {answered}/{TOTAL_ITEMS} {t.answered}
+          {editMode && !done &&
             <a style={{marginLeft:8, color:'#1e5ca8', cursor:'pointer'}}
-               onClick={()=>{
-                 const prev = item.status === 'nmdc_done' ? 'self_done' : 'draft';
-                 setItem(p=>Object.assign({}, p, {status:prev}));
-               }}>{t.revert}</a>}
+              onClick={()=>setItem(p=>Object.assign({}, p, {status:'draft'}))}>{t.revert}</a>}
+          {editMode && done &&
+            <a style={{marginLeft:8, color:'#1e5ca8', cursor:'pointer'}}
+              onClick={()=>setItem(p=>Object.assign({}, p, {status:'self_done'}))}>{t.revert}</a>}
         </div>
-        <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>
-        {item.status === 'draft' &&
-          <button className="btn btn-p" disabled={saving}
-            onClick={()=>askConfirm(t.confirmSelfT, t.confirmSelfP, ()=>onSave('self_done'))}>✓ {t.markSelf}</button>}
-        {item.status === 'self_done' &&
-          <button className="btn btn-navy" disabled={saving}
-            onClick={()=>askConfirm(t.confirmNmdcT, t.confirmNmdcP, ()=>onSave('nmdc_done'))}>✓✓ {t.markNmdc}</button>}
-        {item.status === 'nmdc_done' && <span className="badge b-done">✓✓ {t.statusNmdc} {item.nmdcDate}</span>}
+        {can && <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>}
+        {can && <button className="btn btn-navy" disabled={saving} onClick={trySubmit}>✓✓ {t.markNmdc}</button>}
+        {done && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
       </div>
     </div>
   );
@@ -676,20 +1037,22 @@ function FormView({ t, lang, item, setItem, onSave, onBack, saving, uploadFile, 
 function App() {
   const [lang, setLang] = useState(localStorage.getItem('evis_lang') || 'en');
   const t = T[lang];
+  const [editMode, setEditMode] = useState(localStorage.getItem('evis_unlocked') === '1');
   const [view, setView] = useState('dash');
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
-  const [uploadingCodes, setUploadingCodes] = useState([]);
+  const [uploadingKeys, setUploadingKeys] = useState([]);
   const itemRef = useRef(null);
   itemRef.current = item;
 
   const showToast = (text, err) => {
     setToast({ text, err });
-    setTimeout(()=>setToast(null), 2600);
+    setTimeout(()=>setToast(null), 3200);
   };
   const askConfirm = (title, body, onOk, danger) =>
     setModal({ title, body, danger, onCancel:()=>setModal(null), onOk:()=>{ setModal(null); onOk(); } });
@@ -702,36 +1065,45 @@ function App() {
 
   useEffect(() => { refresh(); }, []);
 
+  const normalize = (it) => {
+    it.data = it.data || {};
+    it.data.answers = it.data.answers || {};
+    it.data.nmdcAnswers = it.data.nmdcAnswers || {};
+    it.data.signoff = it.data.signoff || {};
+    it.attachments = it.attachments || [];
+    return it;
+  };
+
   const openItem = id => {
     api('get', { id }).then(r => {
-      const it = r.item;
-      it.data = it.data || {};
-      it.data.answers = it.data.answers || {};
-      it.data.signoff = it.data.signoff || {};
-      it.attachments = it.attachments || [];
-      setItem(it); setView('form'); window.scrollTo(0,0);
+      setItem(normalize(r.item)); setView('form'); window.scrollTo(0,0);
     }).catch(e => showToast(t.loadFail + ': ' + e.message, true));
   };
 
   const newItem = () => { setItem(blankItem()); setView('form'); window.scrollTo(0,0); };
 
+  const highlightMissing = (miss) => setItem(p => Object.assign({}, p, { _miss: miss }));
+
   const doSave = (newStatus) => {
     const cur = Object.assign({}, itemRef.current);
+    delete cur._miss;
     if (newStatus) cur.status = newStatus;
-    cur.progress = countAnswered(cur) + '/' + TOTAL_ITEMS;
+    cur.progress = countMap(cur.data.answers) + '/' + TOTAL_ITEMS;
+    cur.nmdcProgress = countMap(cur.data.nmdcAnswers) + '/' + TOTAL_ITEMS;
     setSaving(true);
     return api('save', { item: cur }).then(r => {
-      const saved = r.item;
-      saved.data = saved.data || cur.data;
-      saved.attachments = saved.attachments || cur.attachments || [];
+      const saved = normalize(r.item);
+      if (!saved.attachments.length && cur.attachments) saved.attachments = cur.attachments;
       setItem(saved); setSaving(false); showToast(t.saved);
       api('list').then(x=>setList(x.items||[])).catch(()=>{});
       return saved;
     }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); throw e; });
   };
 
-  const uploadFile = (code, files) => {
+  const uploadFile = (code, files, stage) => {
     if (!files || !files.length) return;
+    const itemCode = stage==='nmdc' ? code+'#NMDC' : code;
+    const label = stage==='nmdc' ? code+' (NMDC)' : code;
     const maxSize = LOCAL ? 2*1024*1024 : 15*1024*1024;
     const arr = Array.from(files);
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
@@ -739,17 +1111,17 @@ function App() {
     ensureSaved.then(saved => {
       arr.forEach(f => {
         if (f.size > maxSize) { showToast(t.fileTooBig, true); return; }
-        setUploadingCodes(p=>[...p, code]);
+        setUploadingKeys(p=>[...p, itemCode]);
         const reader = new FileReader();
         reader.onload = () => {
           const base64 = String(reader.result).split(',')[1];
-          api('upload', { inspId: saved.id, itemCode: code, name: f.name, mimeType: f.type, base64 })
+          api('upload', { inspId: saved.id, itemCode, label, name: f.name, mimeType: f.type, base64 })
             .then(r => {
               setItem(p => Object.assign({}, p, { attachments: [...(p.attachments||[]), r.attachment] }));
-              setUploadingCodes(p => { const i=p.indexOf(code); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
+              setUploadingKeys(p => { const i=p.indexOf(itemCode); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
             })
             .catch(e => {
-              setUploadingCodes(p => { const i=p.indexOf(code); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
+              setUploadingKeys(p => { const i=p.indexOf(itemCode); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
               showToast('Upload failed: ' + e.message, true);
             });
         };
@@ -768,17 +1140,55 @@ function App() {
     api('delete', { id }).then(refresh).catch(e => showToast(e.message, true));
   }, true);
 
+  /* PDF 匯出 */
+  const exportRecord = (full) => {
+    const html = buildReportHtml(full);
+    if (LOCAL) {
+      const w = window.open('', '_blank');
+      w.document.write(html); w.document.close();
+      showToast(t.pdfLocal);
+      setTimeout(()=>{ try{ w.print(); }catch(e){} }, 600);
+      return;
+    }
+    setExporting(true);
+    api('exportPdf', { id: full.id, html }).then(r => {
+      setExporting(false);
+      setModal({ title: t.pdfDone, body: r.name, link: r.url, linkLabel: '🔗 ' + t.pdfOpen,
+        onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
+    }).catch(e => { setExporting(false); showToast(e.message, true); });
+  };
+  const exportById = (id) => {
+    api('get', { id }).then(r => exportRecord(normalize(r.item)))
+      .catch(e => showToast(t.loadFail + ': ' + e.message, true));
+  };
+
+  /* 🔑 編輯模式 */
+  const toggleLock = () => {
+    if (editMode) {
+      setEditMode(false); localStorage.removeItem('evis_unlocked'); showToast(t.lockedMsg);
+      return;
+    }
+    if (!EDIT_CODE) { setEditMode(true); localStorage.setItem('evis_unlocked','1'); return; }
+    setModal({ title:'🔑 ' + t.unlockT, body:t.unlockP, input:true,
+      onCancel:()=>setModal(null),
+      onOk:(val)=>{
+        if (val === EDIT_CODE) { setEditMode(true); localStorage.setItem('evis_unlocked','1'); setModal(null); }
+        else showToast(t.wrongCode, true);
+      }});
+  };
+
   const toggleLang = () => {
     const nl = lang === 'en' ? 'zh' : 'en';
     setLang(nl); localStorage.setItem('evis_lang', nl);
   };
 
+  const canContractor = editMode && item && item.status === 'draft';
+  const canNmdc = editMode && item && item.status === 'self_done';
+
   return (
     <div>
       <div className="topbar">
-        <div>
-          <div className="logo">NMDC <span>ENERGY</span></div>
-        </div>
+        <div><div className="logo">NMDC <span>ENERGY</span></div></div>
         <div className="grow">
           <div style={{fontWeight:700, fontSize:13.5}}>{t.appTitle}</div>
           <div className="sub">{DOC_NO} · {DOC_REV}</div>
@@ -786,16 +1196,29 @@ function App() {
         {view === 'form' &&
           <button className="langbtn" onClick={()=>{ setView('dash'); refresh(); }}>{t.dash}</button>}
         <button className="langbtn" onClick={toggleLang}>{lang === 'en' ? '中文' : 'EN'}</button>
+        <button className={'lockbtn' + (editMode ? ' unlocked' : '')} onClick={toggleLock}
+          title={editMode ? 'Lock' : 'Unlock'}>{editMode ? '🔓' : '🔑'}</button>
       </div>
 
       <div className="wrap">
         {LOCAL && <div className="banner">{t.localMode}</div>}
+        {!editMode && <div className="banner gray">{t.viewMode}</div>}
         {view === 'dash' &&
-          <Dashboard t={t} list={list} loading={loading} onOpen={openItem} onNew={newItem} onDelete={deleteInsp} />}
-        {view === 'form' && item &&
-          <FormView t={t} lang={lang} item={item} setItem={setItem} onSave={doSave} saving={saving}
+          <Dashboard t={t} list={list} loading={loading} canEdit={editMode}
+            onOpen={openItem} onNew={newItem} onDelete={deleteInsp} onPdf={exportById} />}
+        {view === 'form' && item && item.status === 'draft' &&
+          <ContractorForm t={t} lang={lang} item={item} setItem={setItem} can={canContractor}
+            onSave={doSave} saving={saving}
             onBack={()=>{ setView('dash'); refresh(); window.scrollTo(0,0); }}
-            uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingCodes={uploadingCodes} askConfirm={askConfirm} />}
+            uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
+            askConfirm={askConfirm} showToast={showToast} highlightMissing={highlightMissing} />}
+        {view === 'form' && item && item.status !== 'draft' &&
+          <NmdcForm t={t} lang={lang} item={item} setItem={setItem} can={canNmdc} editMode={editMode}
+            onSave={doSave} saving={saving}
+            onBack={()=>{ setView('dash'); refresh(); window.scrollTo(0,0); }}
+            uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
+            askConfirm={askConfirm} showToast={showToast}
+            onExport={()=>exportRecord(itemRef.current)} exporting={exporting} highlightMissing={highlightMissing} />}
       </div>
 
       <Toast msg={toast} />
