@@ -737,22 +737,36 @@ function buildReportHtml(o, currentCl) {
   };
   const vd = vMap[o.verdict] || { txt:'—', col:'#666' };
 
-  let appendix = '';
+  /* 附件頁:一列兩張,小尺寸(圖片大小由報表 CSS img 規則控制) */
+  const attCells = [];
   codes.forEach(code => {
     [['self','廠商 Contractor'], ['nmdc','NMDC']].forEach(([stage, lbl]) => {
       attsOf(code, stage).forEach(f => {
-        appendix += '<div style="margin:0 0 6px; padding-top:8px; border-top:1px solid #bbb">' +
-          '<b>['+code+']</b> ['+lbl+'] '+esc(f.name)+' <span style="color:#777; font-size:9px">'+esc(f.uploadedAt||'')+'</span></div>';
+        let cell = '<div style="font-size:9px; margin-bottom:4px"><b>['+code+']</b> ['+lbl+'] '+esc(f.name)+
+                   ' <span style="color:#777">'+esc(f.uploadedAt||'')+'</span></div>';
         if (LOCAL || TESTMODE) {
           const isImg = String(f.url).indexOf('data:image/') === 0;
-          appendix += isImg ? '<img src="'+f.url+'" style="max-width:100%; max-height:860px">' : '';
+          cell += isImg ? '<img src="'+f.url+'">' : '';
         } else {
-          appendix += '{{IMG:'+f.fileId+'}}';
+          cell += '{{IMG:'+f.fileId+'}}';
         }
+        attCells.push(cell);
       });
     });
   });
-  if (!appendix) appendix = '<div style="color:#777">(無附件 No attachments)</div>';
+  let appendix = '';
+  if (!attCells.length) {
+    appendix = '<div style="color:#777">(無附件 No attachments)</div>';
+  } else {
+    appendix = '<table>';
+    for (let i = 0; i < attCells.length; i += 2) {
+      appendix += '<tr>' +
+        '<td style="width:50%; border:1px solid #999; padding:6px; text-align:center">'+attCells[i]+'</td>' +
+        '<td style="width:50%; border:1px solid #999; padding:6px; text-align:center">'+(attCells[i+1]||'')+'</td>' +
+        '</tr>';
+    }
+    appendix += '</table>';
+  }
 
   const info = [
     ['船檢編號 Inspection No.', o.inspNo], ['檢查日期 Inspection Date', o.inspectDate],
@@ -779,6 +793,7 @@ function buildReportHtml(o, currentCl) {
     'td,th{border:1px solid #555; padding:4px 6px; vertical-align:top; font-size:10px;}' +
     'th{background:#1d3d5c; color:#fff; text-align:left;}' +
     'h1{font-size:15px; margin:0;} h2{font-size:13px; margin:14px 0 6px;} .pb{page-break-before:always;}' +
+    'img{max-width:100%; max-height:270px;}' +
     '</style></head><body>' +
     '<table><tr>' +
     '<td style="width:20%; text-align:center; vertical-align:middle"><b style="font-size:14px">NMDC ENERGY</b></td>' +
