@@ -447,8 +447,8 @@ const DEFAULT_EVENT_TYPES=[
   {key:'other',label:'其他',color:'#374151',bg:'#f3f4f6'},
 ];
 const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
-function makeDefault(){return{hiddenTabs:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
-  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'}],
+function makeDefault(){return{hiddenTabs:[],vessels:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
+  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'},{key:'vessels',icon:'⚓',title:'船舶檢查'}],
   bulletins:[{id:gid(),text:'<b>歡迎使用 Environmental E-System！</b><br>本系統用於管理環保相關工具連結、追蹤事項及公告。',date:todayS()}],
   tasks:[],documents:DEFAULT_DOCS.map(d=>({...d,id:gid()})),docLastUpdated:'',docNotes:'',
   sections:[],schedule:[{url:'',label:'班表 1'},{url:'',label:'班表 2'}],scheduleData:{},schMonths:['2026-03','2026-04']
@@ -524,7 +524,7 @@ function fixData(){
   if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
-  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.parts.find(p=>p.key==='vessels'))D.parts.push({key:'vessels',icon:'⚓',title:'船舶檢查'});if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -619,7 +619,7 @@ function cfmTabEdit(){const inp=$('tabEditIn');if(inp?.value.trim()){const p=D.p
 function canTabEdit(){editingTabKey=null;renderTabs();}
 function switchTab(k){activeTab=k;renderTabs();renderTab();}
 function renderTab(){let h='';
-  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
+  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();else if(activeTab==='vessels')h=renderVesselsHTML();
   $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});}
 
 // ═══ 1 BULLETIN ═══
@@ -2185,6 +2185,149 @@ function removeType(i){
 
 
 
+
+// ═══════════════════════════════════════════
+// 🚢 VESSEL INSPECTIONS (船舶檢查)
+// ═══════════════════════════════════════════
+const VESSEL_STATUS=[
+  {key:'contractor_self',label:'廠商自檢',color:'#0369a1',bg:'#e0f2fe'},
+  {key:'nmdc_done',label:'NMDC 檢查完成',color:'#166534',bg:'#dcfce7'},
+  {key:'nmdc_pending',label:'NMDC 檢查待改善',color:'#b91c1c',bg:'#fee2e2'},
+  {key:'report_filed',label:'報告提交存檔完成',color:'#7c3aed',bg:'#ede9fe'},
+];
+let vFilterStatus='All',vFilterVessel='',vFilterDateFrom='',vFilterDateTo='',eVesselId=null;
+
+function getVStatus(key){return VESSEL_STATUS.find(s=>s.key===key)||VESSEL_STATUS[0];}
+
+function renderVesselsHTML(){
+  const vessels=(D.vessels||[]);
+  let h='<div class="card">';
+
+  // ── Header ──
+  h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">';
+  h+='<div style="display:flex;align-items:center;gap:10px"><span style="font-size:22px">⚓</span><span style="font-size:15px;font-weight:700;color:var(--text)">船舶檢查紀錄</span><span style="font-size:12px;color:var(--muted)">共 '+vessels.length+' 筆</span></div>';
+  if(isEditor)h+='<button class="btn-add-row" style="margin:0;padding:6px 12px" onclick="openVesselM()">＋ 新增檢查紀錄</button>';
+  h+='</div>';
+
+  // ── Filters ──
+  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">';
+  h+='<div class="trk-tabs" style="margin:0">';
+  h+=`<button class="trk-tab ${vFilterStatus==='All'?'active':''}" onclick="vFilterStatus='All';renderTab()">全部狀態<span class="tab-count">${vessels.length}</span></button>`;
+  VESSEL_STATUS.forEach(s=>{
+    const cnt=vessels.filter(v=>v.status===s.key).length;
+    h+=`<button class="trk-tab ${vFilterStatus===s.key?'active':''}" onclick="vFilterStatus='${s.key}';renderTab()">${s.label}<span class="tab-count">${cnt}</span></button>`;
+  });
+  h+='</div>';
+  h+=`<input class="form-input" style="max-width:200px;padding:5px 10px;font-size:13px" placeholder="🔍 搜尋船名/IMO/MMSI..." value="${esc(vFilterVessel)}" oninput="vFilterVessel=this.value;renderTab()">`;
+  h+=`<input type="date" value="${vFilterDateFrom}" onchange="vFilterDateFrom=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="起始日期">`;
+  h+=`<span style="color:var(--muted);font-size:12px">～</span>`;
+  h+=`<input type="date" value="${vFilterDateTo}" onchange="vFilterDateTo=this.value;renderTab()" style="padding:5px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--input-bg);color:var(--text)" title="結束日期">`;
+  const hasF=vFilterStatus!=='All'||vFilterVessel||vFilterDateFrom||vFilterDateTo;
+  if(hasF)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="vFilterStatus='All';vFilterVessel='';vFilterDateFrom='';vFilterDateTo='';renderTab()">✕ 清除</button>`;
+  h+='</div>';
+
+  // ── Filter records ──
+  let filtered=[...vessels];
+  if(vFilterStatus!=='All')filtered=filtered.filter(v=>v.status===vFilterStatus);
+  if(vFilterVessel){const q=vFilterVessel.toLowerCase();filtered=filtered.filter(v=>((v.nameZh||v.name||'')+' '+(v.nameEn||'')+' '+(v.imo||'')+' '+(v.mmsi||'')).toLowerCase().includes(q));}
+  if(vFilterDateFrom)filtered=filtered.filter(v=>(v.date||'')>=vFilterDateFrom);
+  if(vFilterDateTo)filtered=filtered.filter(v=>(v.date||'')<=vFilterDateTo);
+  filtered.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+
+  if(!filtered.length){h+='<div class="bulletin-empty">'+(vessels.length?'無符合條件的紀錄':'尚無船舶檢查紀錄')+(isEditor?'，點右上「＋ 新增」開始':'')+'</div>';return h+'</div>';}
+
+  // ── Table ──
+  h+='<table style="width:100%;border-collapse:separate;border-spacing:0;font-size:13px">';
+  h+='<thead><tr>';
+  [['日期','95px'],['船舶資訊','200px'],['施工 Scope',''],['檢查地點','120px'],['狀態','140px'],['備註',''],['','60px']].forEach(([th,w])=>{
+    h+=`<th style="text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:7px 10px;border-bottom:2px solid var(--border);white-space:nowrap${w?';width:'+w:''}">${th}</th>`;
+  });
+  h+='</tr></thead><tbody>';
+
+  filtered.forEach(v=>{
+    const st=getVStatus(v.status);
+    const noteText=v.note?renderHtml(v.note):'';
+    h+=`<tr style="border-left:3px solid ${st.color}">`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${esc(v.date||'—')}</td>`;
+    // Ship info cell: name(s) + IMO/MMSI
+    const zh=v.nameZh||v.name||'';
+    const en=v.nameEn||'';
+    let shipCell='<div style="font-weight:700;color:var(--text)">';
+    if(zh)shipCell+=esc(zh);
+    if(zh&&en)shipCell+=' <span style="font-size:11px;color:var(--muted);font-weight:500">/ '+esc(en)+'</span>';
+    else if(en)shipCell+=esc(en);
+    if(!zh&&!en)shipCell+='—';
+    shipCell+='</div>';
+    const ids=[];
+    if(v.imo)ids.push('IMO '+esc(v.imo));
+    if(v.mmsi)ids.push('MMSI '+esc(v.mmsi));
+    if(ids.length)shipCell+='<div style="font-size:10px;color:var(--muted);font-family:monospace;margin-top:2px">'+ids.join(' · ')+'</div>';
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)">${shipCell}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);color:var(--text2)">${esc(v.scope||'—')}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);color:var(--text2)">${esc(v.location||'—')}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"><span style="display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;background:${st.bg};color:${st.color};border:1px solid ${st.color}33">${esc(st.label)}</span></td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);color:var(--text2);font-size:12px">${noteText||'—'}</td>`;
+    if(isEditor){
+      h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);white-space:nowrap"><button class="icon-btn" onclick="openVesselM('${v.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delVessel('${v.id}')">${SV.trash}</button></td>`;
+    }else h+='<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table>';
+
+  return h+'</div>';
+}
+
+function openVesselM(id){
+  eVesselId=id||null;
+  const v=id?(D.vessels||[]).find(x=>x.id===id):null;
+  $('mVesT').textContent=id?'編輯船舶檢查':'新增船舶檢查';
+  $('bVes').textContent=id?'儲存':'新增';
+  $('inVesDate').value=v?v.date:todayS();
+  $('inVesNameZh').value=v?(v.nameZh||v.name||''):'';
+  $('inVesNameEn').value=v?(v.nameEn||''):'';
+  $('inVesImo').value=v?(v.imo||''):'';
+  $('inVesMmsi').value=v?(v.mmsi||''):'';
+  $('inVesScope').value=v?v.scope:'';
+  $('inVesLocation').value=v?v.location:'';
+  $('inVesNote').value=v?v.note||'':'';
+  // Populate status dropdown
+  const statusSel=$('inVesStatus');
+  statusSel.innerHTML='';
+  VESSEL_STATUS.forEach(s=>{
+    const o=document.createElement('option');o.value=s.key;o.textContent=s.label;
+    statusSel.appendChild(o);
+  });
+  statusSel.value=v?v.status:'contractor_self';
+  $('mVes').classList.remove('hidden');
+  setTimeout(()=>$('inVesNameZh').focus(),50);
+}
+function closeVesselM(){$('mVes').classList.add('hidden');}
+function saveVessel(){
+  const nameZh=$('inVesNameZh').value.trim();
+  const nameEn=$('inVesNameEn').value.trim();
+  if(!nameZh&&!nameEn){showToast('⚠️ 中文或英文船名擇一必填','err');return;}
+  const date=$('inVesDate').value;
+  const imo=$('inVesImo').value.trim();
+  const mmsi=$('inVesMmsi').value.trim();
+  const scope=$('inVesScope').value.trim();
+  const location=$('inVesLocation').value.trim();
+  const status=$('inVesStatus').value;
+  const note=$('inVesNote').value.trim();
+  if(!D.vessels)D.vessels=[];
+  if(eVesselId){
+    const v=D.vessels.find(x=>x.id===eVesselId);
+    if(v){v.nameZh=nameZh;v.nameEn=nameEn;v.imo=imo;v.mmsi=mmsi;v.date=date;v.scope=scope;v.location=location;v.status=status;v.note=note;delete v.name;}
+  }else{
+    D.vessels.unshift({id:gid(),nameZh,nameEn,imo,mmsi,date,scope,location,status,note});
+  }
+  closeVesselM();save();renderTab();showToast('✅ 已'+(eVesselId?'更新':'新增'));
+}
+function delVessel(id){
+  if(!confirm('確定刪除這筆船舶檢查紀錄？'))return;
+  D.vessels=(D.vessels||[]).filter(v=>v.id!==id);
+  save();renderTab();showToast('🗑️ 已刪除');
+}
+
 // ═══ INIT ═══
 function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
 function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fade-out');setTimeout(()=>s.classList.add('hidden'),500);}
@@ -3738,5 +3881,30 @@ window.__initRosterCloudBar = function() {
 };
 
 </script>
+
+<div class="modal-overlay hidden" id="mVes" onclick="closeVesselM()"><div class="modal-box" onclick="event.stopPropagation()">
+  <div class="modal-title" id="mVesT">新增船舶檢查</div>
+  <div class="modal-form">
+    <div><label class="form-label">檢查日期</label><input class="form-input" type="date" id="inVesDate"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="form-label">中文船名 <span style="color:#dc2626">*</span></label><input class="form-input" type="text" id="inVesNameZh" placeholder="例：亞舟利號"></div>
+      <div><label class="form-label">英文船名</label><input class="form-input" type="text" id="inVesNameEn" placeholder="例：Arzana"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="form-label">IMO 號碼</label><input class="form-input" type="text" id="inVesImo" placeholder="7 碼數字，例：9876543"></div>
+      <div><label class="form-label">MMSI 號碼</label><input class="form-input" type="text" id="inVesMmsi" placeholder="9 碼數字，例：525123456"></div>
+    </div>
+    <div><label class="form-label">施工 Scope</label><input class="form-input" type="text" id="inVesScope" placeholder="例：subsea pipeline installation"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="form-label">檢查地點</label><input class="form-input" type="text" id="inVesLocation" placeholder="例：通霄外海 / 台中港"></div>
+      <div><label class="form-label">檢查狀態</label><select class="form-select" id="inVesStatus"></select></div>
+    </div>
+    <div><label class="form-label">備註</label><textarea class="form-input" id="inVesNote" rows="3" placeholder="缺失、改善事項等..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeVesselM()">取消</button>
+      <button class="btn-primary" id="bVes" onclick="saveVessel()">新增</button>
+    </div>
+  </div>
+</div></div>
 </body>
 </html>
