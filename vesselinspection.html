@@ -1304,7 +1304,7 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
                     {canEdit && it.folderUrl &&
                       <a className="btn btn-o btn-sm" style={{textDecoration:'none', display:'inline-block'}}
                         href={it.folderUrl} target="_blank" rel="noopener" title={t.folderTip}>📁</a>}{' '}
-                    {it.status==='nmdc_done' &&
+                    {it.status==='nmdc_done' && canEdit &&
                       <button className="btn btn-amber btn-sm" onClick={()=>onPdf(it.id)}>📄 {t.pdf}</button>}{' '}
                     {canEdit && <button className="btn btn-r btn-sm" onClick={()=>onDelete(it.id)}>{t.del}</button>}
                   </td>
@@ -1711,7 +1711,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         </div>
         {can && <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>}
         {can && !done && <button className="btn btn-navy" disabled={saving} onClick={trySubmit}>✓✓ {t.markNmdc}</button>}
-        {done && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
+        {done && editMode && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
       </div>
     </div>
   );
