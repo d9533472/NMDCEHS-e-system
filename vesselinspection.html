@@ -4,6 +4,38 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>環境船檢系統 | Environmental Vessel Inspection</title>
+<script>
+/* ================================================================
+ *  設定(只需改這裡)
+ *  SCRIPT_URL:GAS Web App URL(留空 = 本機測試模式)
+ *  EDIT_CODE :編輯模式密碼(點右上角 🔑 輸入)
+ * ================================================================ */
+window.EVIS_CONFIG = {
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxLNoMax3Efsn0xNF8iXwlf2rvSZyehL809UMXIoF1-kifOsL1LbalQqlxUdAQa09ex/exec',
+  EDIT_CODE : 'nmdc'
+};
+
+/* 頁面一載入立刻預抓資料(與 React 載入平行進行),縮短首次開啟等待 */
+window.__earlyBoot = null;
+(function () {
+  var u = window.EVIS_CONFIG.SCRIPT_URL;
+  var isTest = false;
+  try { isTest = localStorage.getItem('evis_test') === '1'; } catch (e) {}
+  if (!u || isTest) return;
+  window.__earlyBoot = new Promise(function (res, rej) {
+    var x = new XMLHttpRequest();
+    x.open('POST', u, true);
+    x.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+    x.onload = function () {
+      try { var r = JSON.parse(x.responseText); r.ok ? res(r) : rej(new Error(r.error || 'Server error')); }
+      catch (e) { rej(new Error('Bad response')); }
+    };
+    x.onerror = function () { rej(new Error('NETWORK')); };
+    x.send(JSON.stringify({ action: 'bootstrap' }));
+  });
+  window.__earlyBoot.catch(function () {}); // 避免未處理的 rejection 警告
+})();
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
@@ -213,13 +245,9 @@
 <div id="root"></div>
 
 <script type="text/babel" data-presets="env,react">
-/* ================================================================
- *  設定
- *  SCRIPT_URL:GAS Web App URL(留空 = 本機測試模式,存 localStorage)
- *  EDIT_CODE :編輯模式密碼(點右上角 🔑 輸入;改成你要的密碼)
- * ================================================================ */
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLNoMax3Efsn0xNF8iXwlf2rvSZyehL809UMXIoF1-kifOsL1LbalQqlxUdAQa09ex/exec';
-const EDIT_CODE  = 'nmdc';
+/* 設定在檔案最上方的 window.EVIS_CONFIG */
+const SCRIPT_URL = (window.EVIS_CONFIG || {}).SCRIPT_URL || '';
+const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
@@ -287,7 +315,8 @@ const T = {
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
     answered:'answered', loadFail:'Load failed', saveFail:'Save failed',
-    loadingData:'Loading data...',
+    loadingData:'Loading data...', refreshing:'Refreshing…',
+    adminEditNote:'🔓 Admin edit mode — you can modify all data on this record (incl. vessel info, inspection no. and contractor answers). Remember to Save after changes.',
     /* 項目編輯器 */
     editChecklist:'📝 Edit Checklist', editorTitle:'Checklist Editor',
     editorNote:'✏️ Changes apply to NEW inspections only — existing records keep the checklist version they were created with. Item numbers are re-assigned automatically by position.',
@@ -361,7 +390,8 @@ const T = {
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
     answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗',
-    loadingData:'資料讀取中…',
+    loadingData:'資料讀取中…', refreshing:'更新中…',
+    adminEditNote:'🔓 管理者編輯模式 — 此紀錄的所有資料(含船舶基本資料、船檢編號、廠商勾選結果)皆可修改,改完請記得按「儲存」。',
     /* 項目編輯器 */
     editChecklist:'📝 編輯檢查項目', editorTitle:'檢查項目編輯器',
     editorNote:'✏️ 修改只影響「之後新增」的檢查 — 既有紀錄保留建立當時的項目版本。項目編號依排列位置自動重編。',
@@ -647,6 +677,12 @@ function localApi(action, p) {
     try { return done({ checklist: JSON.parse(localStorage.getItem(clKey())) || null }); }
     catch(e){ return done({ checklist: null }); }
   }
+  if (action === 'bootstrap') {
+    const items = Object.values(db.items).map(it => { const c = Object.assign({}, it); delete c.data; delete c.attachments; return c; })
+      .sort((a,b)=>String(b.updatedAt).localeCompare(String(a.updatedAt)));
+    let cl = null; try { cl = JSON.parse(localStorage.getItem(clKey())); } catch(e){}
+    return done({ items, checklist: cl });
+  }
   if (action === 'saveChecklist') {
     localStorage.setItem(clKey(), JSON.stringify(p.checklist));
     return done({});
@@ -917,6 +953,9 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
         <div className="chip"><b>{list.length}</b>{t.stTotal}</div>
         <div className="chip"><b>{nSelf}</b>{t.stSelf}</div>
         <div className="chip"><b>{nNmdc}</b>{t.stNmdc}</div>
+        {loading && list.length > 0 &&
+          <span className="chip" style={{color:'#78828d', display:'inline-flex', alignItems:'center', gap:6}}>
+            <span className="spinner" style={{width:14, height:14, borderWidth:2.5}}></span>{t.refreshing}</span>}
         <div style={{flex:1}}></div>
         {canEdit && <button className="btn btn-o" onClick={onEditor}>{t.editChecklist}</button>}
         <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>
@@ -1026,7 +1065,7 @@ function EvHint({ it, lang }) {
 }
 
 /* ---------------- 廠商自檢表單 ---------------- */
-function ContractorForm({ t, lang, cl, item, setItem, can, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, highlightMissing }) {
+function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, highlightMissing }) {
   const answers = item.data.answers || {};
   const TOTAL = totalOf(cl);
   const [activeSec, setActiveSec] = useState(cl.length ? cl[0].code : 'A');
@@ -1069,6 +1108,9 @@ function ContractorForm({ t, lang, cl, item, setItem, can, onSave, onBack, savin
           <span style={{float:'right', fontSize:12.5, color:'#1e5ca8', fontWeight:700}}>
             {item.inspNo || t.autoNo}</span></h3>
         <div className="grid">
+          {adminEdit &&
+            <div className="field"><label>{t.colNo} 🔓</label>
+              <input value={item.inspNo||''} onChange={e=>setField('inspNo', e.target.value)} placeholder="EVI-001" /></div>}
           <div className="field"><label>{t.vNameZh}</label>
             <input disabled={!can} value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} placeholder="例:大地" /></div>
           <div className="field"><label>{t.vNameEn} <span className="req">*</span></label>
@@ -1154,7 +1196,7 @@ function ContractorForm({ t, lang, cl, item, setItem, can, onSave, onBack, savin
 }
 
 /* ---------------- NMDC 覆核表單 ---------------- */
-function NmdcForm({ t, lang, cl, item, setItem, can, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing }) {
+function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing }) {
   const answers = item.data.answers || {};
   const nAns = item.data.nmdcAnswers || {};
   const TOTAL = totalOf(cl);
@@ -1167,6 +1209,13 @@ function NmdcForm({ t, lang, cl, item, setItem, can, editMode, onSave, onBack, s
     a[code] = Object.assign({ v:'', remark:'' }, a[code], patch);
     return Object.assign({}, p, { data: Object.assign({}, p.data, { nmdcAnswers: a }) });
   });
+  /* 🔓 管理者:可修改廠商勾選結果與基本資料 */
+  const setCtrAns = (code, patch) => adminEdit && setItem(p => {
+    const a = Object.assign({}, p.data.answers);
+    a[code] = Object.assign({ v:'', remark:'' }, a[code], patch);
+    return Object.assign({}, p, { data: Object.assign({}, p.data, { answers: a }) });
+  });
+  const setField = (k, v) => adminEdit && setItem(p => Object.assign({}, p, {[k]: v}));
   const setSign = (k, v) => can && setItem(p =>
     Object.assign({}, p, { data: Object.assign({}, p.data, { signoff: Object.assign({}, p.data.signoff, {[k]: v}) }) }));
   const setVerdict = (v) => can && setItem(p => Object.assign({}, p, { verdict: v }));
@@ -1204,12 +1253,39 @@ function NmdcForm({ t, lang, cl, item, setItem, can, editMode, onSave, onBack, s
   return (
     <div>
       <div className={'banner ' + (done ? 'gray' : 'blue')}>{done ? t.doneStage : t.nmdcStage}</div>
+      {adminEdit && <div className="banner">{t.adminEditNote}</div>}
 
       <div className="card">
         <h3>🚢 {t.vesselInfo}</h3>
-        <div className="kv">
-          {infoPairs.map(([k,v]) => <div key={k}><div className="k">{k}</div><div className="v">{v || '—'}</div></div>)}
-        </div>
+        {adminEdit ? (
+          <div className="grid">
+            <div className="field"><label>{t.colNo}</label>
+              <input value={item.inspNo||''} onChange={e=>setField('inspNo', e.target.value)} placeholder="EVI-001" /></div>
+            <div className="field"><label>{t.vNameZh}</label>
+              <input value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} /></div>
+            <div className="field"><label>{t.vNameEn}</label>
+              <input value={item.vesselEn} onChange={e=>setField('vesselEn', e.target.value)} /></div>
+            <div className="field"><label>MMSI</label>
+              <input value={item.mmsi} inputMode="numeric" onChange={e=>setField('mmsi', e.target.value)} /></div>
+            <div className="field"><label>{t.imo}</label>
+              <input value={item.imo} inputMode="numeric" onChange={e=>setField('imo', e.target.value)} /></div>
+            <div className="field"><label>{t.tonnage}</label>
+              <input value={item.tonnage} onChange={e=>setField('tonnage', e.target.value)} /></div>
+            <div className="field"><label>{t.vClass}</label>
+              <input list="classList2" value={item.vesselClass} onChange={e=>setField('vesselClass', e.target.value)} />
+              <datalist id="classList2">{CLASS_OPTIONS.map(c=><option key={c} value={c} />)}</datalist></div>
+            <div className="field"><label>{t.projectNo}</label>
+              <input value={item.projectNo} onChange={e=>setField('projectNo', e.target.value)} /></div>
+            <div className="field"><label>{t.location}</label>
+              <input value={item.location} onChange={e=>setField('location', e.target.value)} /></div>
+            <div className="field"><label>{t.inspectDate}</label>
+              <input type="date" value={item.inspectDate} onChange={e=>setField('inspectDate', e.target.value)} /></div>
+          </div>
+        ) : (
+          <div className="kv">
+            {infoPairs.map(([k,v]) => <div key={k}><div className="k">{k}</div><div className="v">{v || '—'}</div></div>)}
+          </div>
+        )}
       </div>
 
       <div className="banner blue">{t.legend}</div>
@@ -1242,10 +1318,29 @@ function NmdcForm({ t, lang, cl, item, setItem, can, editMode, onSave, onBack, s
                   <div className="panelgrid">
                     <div className="panel ctr">
                       <div className="ph">{t.ctrResult}</div>
-                      <span className={'ansbadge ' + (ca.v ? 'ans-'+ca.v : 'ans-none')}>{ca.v ? ansLabel(ca.v) : t.notAnswered}</span>
-                      {ca.remark && <div className="ctr-remark">💬 {ca.remark}</div>}
-                      <AttRow t={t} code={code} stage="self" atts={attsFor(code,'self')} can={false}
-                        uploading={false} onPick={()=>{}} onDelete={()=>{}} fileRefs={fileRefs} />
+                      {adminEdit ? (
+                        <div className="row2" style={{marginTop:0}}>
+                          <div className="seg">
+                            {['yes','no','na'].map(v => (
+                              <button key={v} className={v + (ca.v===v ? ' on' : '')}
+                                onClick={()=>setCtrAns(code, { v: ca.v===v ? '' : v })}>
+                                {v==='yes'?'Yes':v==='no'?'No':'N/A'}
+                              </button>
+                            ))}
+                          </div>
+                          <div className="remark">
+                            <input value={ca.remark || ''} placeholder={t.remark}
+                              onChange={e=>setCtrAns(code, { remark: e.target.value })} />
+                          </div>
+                        </div>
+                      ) : (
+                        <React.Fragment>
+                          <span className={'ansbadge ' + (ca.v ? 'ans-'+ca.v : 'ans-none')}>{ca.v ? ansLabel(ca.v) : t.notAnswered}</span>
+                          {ca.remark && <div className="ctr-remark">💬 {ca.remark}</div>}
+                        </React.Fragment>
+                      )}
+                      <AttRow t={t} code={code} stage="self" atts={attsFor(code,'self')} can={adminEdit}
+                        uploading={uploadingKeys.includes(code)} onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
                     </div>
                     <div className="panel">
                       <div className="ph">{t.nmdcResult}</div>
@@ -1306,7 +1401,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, editMode, onSave, onBack, s
               onClick={()=>setItem(p=>Object.assign({}, p, {status:'self_done'}))}>{t.revert}</a>}
         </div>
         {can && <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>}
-        {can && <button className="btn btn-navy" disabled={saving} onClick={trySubmit}>✓✓ {t.markNmdc}</button>}
+        {can && !done && <button className="btn btn-navy" disabled={saving} onClick={trySubmit}>✓✓ {t.markNmdc}</button>}
         {done && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
       </div>
     </div>
@@ -1391,9 +1486,16 @@ function App() {
   const t = T[lang];
   const [editMode, setEditMode] = useState(localStorage.getItem('evis_unlocked') === '1');
   const [testMode, setTestMode] = useState(TESTMODE);
-  const [checklist, setChecklist] = useState(DEFAULT_CHECKLIST);
+  /* 啟動加速:先用 localStorage 快取秒開,背景再向伺服器更新 */
+  const [checklist, setChecklist] = useState(() => {
+    try { const c = JSON.parse(localStorage.getItem('evis_cache_cl')); return (c && c.length) ? c : DEFAULT_CHECKLIST; }
+    catch(e){ return DEFAULT_CHECKLIST; }
+  });
   const [view, setView] = useState('dash');
-  const [list, setList] = useState([]);
+  const [list, setList] = useState(() => {
+    if (LOCAL || TESTMODE) return [];
+    try { return JSON.parse(localStorage.getItem('evis_cache_list')) || []; } catch(e){ return []; }
+  });
   const [loading, setLoading] = useState(true);
   const [item, setItem] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -1429,10 +1531,29 @@ function App() {
 
   const refresh = useCallback(() => {
     setLoading(true);
-    track(api('list')).then(r => { setList(r.items || []); setLoading(false); })
-      .catch(() => { setLoading(false); showToast(t.loadFail, true); });
-    api('getChecklist').then(r => setChecklist(r.checklist && r.checklist.length ? r.checklist : DEFAULT_CHECKLIST))
-      .catch(()=>{ setChecklist(DEFAULT_CHECKLIST); });
+    const useCache = !LOCAL && !TESTMODE;
+    const hasCache = useCache && !!localStorage.getItem('evis_cache_list');
+    const apply = r => {
+      setList(r.items || []); setLoading(false);
+      setChecklist(r.checklist && r.checklist.length ? r.checklist : DEFAULT_CHECKLIST);
+      if (useCache) {
+        try {
+          localStorage.setItem('evis_cache_list', JSON.stringify(r.items || []));
+          localStorage.setItem('evis_cache_cl', JSON.stringify(r.checklist || null));
+        } catch(e){}
+      }
+    };
+    let p;
+    if (useCache && window.__earlyBoot) { p = window.__earlyBoot; window.__earlyBoot = null; } // 用頁面預抓的結果
+    else p = api('bootstrap');
+    (hasCache ? p : track(p))   // 有快取:背景更新不擋畫面;沒快取:顯示讀取中
+      .then(apply)
+      .catch(() => {
+        // 後端尚未更新到 bootstrap 版本時,退回兩段式讀取
+        Promise.all([api('list'), api('getChecklist').catch(()=>({ checklist:null }))])
+          .then(([a, b]) => apply({ items: a.items, checklist: b.checklist }))
+          .catch(() => { setLoading(false); showToast(t.loadFail, true); });
+      });
   }, [lang]);
 
   useEffect(() => { refresh(); }, []);
@@ -1577,7 +1698,7 @@ function App() {
   const guardLeave = (next) => {
     const it = itemRef.current;
     const editable = viewRef.current === 'form' && it && dirtyRef.current &&
-      (it.status === 'draft' || (editMode || testMode) && it.status === 'self_done');
+      (it.status === 'draft' || editMode || testMode);
     if (!editable) { next(); return; }
     setModal({
       title: '🚨 ' + t.leaveT + ' 🚨',
@@ -1655,9 +1776,9 @@ function App() {
   };
 
   const effEdit = editMode || testMode;   // 測試模式免鑰匙即可編輯
-  // 任何人都能新增並填寫廠商自檢(draft 階段);NMDC 覆核 / 刪除 / 編輯項目需解鎖
+  // 任何人都能新增並填寫廠商自檢(draft 階段);提交後僅解鎖的管理者可修改
   const canContractor = item && item.status === 'draft';
-  const canNmdc = effEdit && item && item.status === 'self_done';
+  const canNmdc = effEdit && item && item.status !== 'draft';   // 🔓 管理者:self_done 與 nmdc_done 都可編輯
 
   return (
     <div>
@@ -1693,13 +1814,13 @@ function App() {
           <Editor t={t} checklist={checklist} onSave={saveChecklistFn} saving={saving}
             onBack={()=>{ setView('dash'); window.scrollTo(0,0); }} askConfirm={askConfirm} />}
         {view === 'form' && item && item.status === 'draft' &&
-          <ContractorForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canContractor}
+          <ContractorForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canContractor} adminEdit={effEdit}
             onSave={doSave} saving={saving}
             onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
             askConfirm={askConfirm} showToast={showToast} highlightMissing={highlightMissing} />}
         {view === 'form' && item && item.status !== 'draft' &&
-          <NmdcForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canNmdc} editMode={effEdit}
+          <NmdcForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canNmdc} adminEdit={effEdit} editMode={effEdit}
             onSave={doSave} saving={saving}
             onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
