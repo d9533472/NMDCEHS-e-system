@@ -784,6 +784,16 @@ function demoPhotoB64(text, color) {
 }
 
 /* ---------------- PDF 報表 HTML(雙語留底) ---------------- */
+/* 各大項專屬色系(超過 6 節自動循環) */
+const PDF_COLORS = [
+  { bg:'#E3F0FA', ac:'#2C6FAD', tx:'#1F4F7A' },   // A 藍
+  { bg:'#E7F4EA', ac:'#2E8B57', tx:'#1F6B40' },   // B 綠
+  { bg:'#FBF1DC', ac:'#C77F0A', tx:'#8A5A00' },   // C 琥珀
+  { bg:'#E2F1F1', ac:'#17877B', tx:'#116058' },   // D 藍綠
+  { bg:'#EFEAF7', ac:'#6D4FA3', tx:'#4E3778' },   // E 紫
+  { bg:'#FBE9EF', ac:'#B0446E', tx:'#8A2F52' },   // F 玫紅
+];
+
 function buildReportHtml(o, currentCl) {
   const cl = recCl(o, currentCl);
   const codes = codesOf(cl);
@@ -795,41 +805,53 @@ function buildReportHtml(o, currentCl) {
 
   const ansCell = (x, files) => {
     const v = x && x.v;
-    const col = v==='yes' ? '#1c7a42' : v==='no' ? '#b03030' : v==='na' ? '#666' : '#999';
-    let h = '<b style="color:'+col+'">'+ansLabel(v)+'</b>';
-    if (x && x.remark) h += '<div style="color:#333">'+esc(x.remark)+'</div>';
-    if (files.length) h += files.map(f=>'<div style="color:#555">📎 '+esc(f.name)+'</div>').join('');
-    return h;
+    const m = v==='yes' ? { col:'#1C7A42', bg:'#EFF8F2', label:'✔ YES' }
+            : v==='no'  ? { col:'#B03030', bg:'#FDEEEE', label:'✘ NO' }
+            : v==='na'  ? { col:'#5A6673', bg:'#F3F5F7', label:'N/A' }
+            : { col:'#98A2AC', bg:'#FFFFFF', label:'—' };
+    let h = '<div style="font-weight:bold; color:'+m.col+'">'+m.label+'</div>';
+    if (x && x.remark) h += '<div style="color:#333; margin-top:1px">'+esc(x.remark)+'</div>';
+    if (files.length) h += files.map(f=>'<div style="color:#556; font-size:9px; margin-top:1px">📎 '+esc(f.name)+'</div>').join('');
+    return { h: h, bg: m.bg };
   };
 
   let rows = '';
-  cl.forEach(sec => {
-    rows += '<tr><td colspan="4" style="background:#dfe7ee; font-weight:bold">'+esc(sec.code)+'. '+esc(sec.en)+' '+esc(sec.zh)+'</td></tr>';
+  cl.forEach((sec, si) => {
+    const c = PDF_COLORS[si % PDF_COLORS.length];
+    rows += '<tr><td colspan="4" style="background:'+c.bg+'; border-left:4px solid '+c.ac+'; color:'+c.tx+
+            '; font-weight:bold; font-size:11px; padding:6px 8px">'+esc(sec.code)+'. '+esc(sec.en)+'　'+esc(sec.zh)+'</td></tr>';
     (sec.items||[]).forEach((it, i) => {
       const code = sec.code+'-'+(i+1);
+      const alt = i % 2 ? '#F7FAFC' : '#FFFFFF';
+      const c1 = ansCell(a[code], attsOf(code,'self'));
+      const c2 = ansCell(na[code], attsOf(code,'nmdc'));
       rows += '<tr>' +
-        '<td style="text-align:center; white-space:nowrap"><b>'+code+'</b></td>' +
-        '<td>'+esc(it.en)+'<div style="color:#556; font-size:9px">'+esc(it.zh)+'</div></td>' +
-        '<td>'+ansCell(a[code], attsOf(code,'self'))+'</td>' +
-        '<td>'+ansCell(na[code], attsOf(code,'nmdc'))+'</td>' +
+        '<td style="text-align:center; white-space:nowrap; background:'+c.bg+'; color:'+c.tx+'; font-weight:bold">'+code+'</td>' +
+        '<td style="background:'+alt+'">'+esc(it.en)+'<div style="color:#5A6673; font-size:9px; margin-top:1px">'+esc(it.zh)+'</div></td>' +
+        '<td style="background:'+c1.bg+'">'+c1.h+'</td>' +
+        '<td style="background:'+c2.bg+'">'+c2.h+'</td>' +
         '</tr>';
     });
   });
 
+  /* 結果統計 */
+  const cntOf = (m) => { let y=0,n=0,x=0; codes.forEach(c2=>{ const v=m[c2]&&m[c2].v; if(v==='yes')y++; else if(v==='no')n++; else if(v==='na')x++; }); return {y,n,x}; };
+  const cs = cntOf(a), cn = cntOf(na);
+
   const vMap = {
-    fail: { txt:'1. 船檢未通過,擇日複檢<br>Inspection FAILED — re-inspection to be scheduled.', col:'#b03030' },
-    cond: { txt:'2. 船檢有條件通過,請於 <b>'+esc(o.verdictDeadline||'____-__-__')+'</b> 前補充改善回覆<br>CONDITIONAL PASS — improvement response required before <b>'+esc(o.verdictDeadline||'')+'</b>.', col:'#a06a08' },
-    pass: { txt:'3. 船檢通過,無須補充資料<br>Inspection PASSED — no further information required.', col:'#1c7a42' },
+    fail: { txt:'1. 船檢未通過,擇日複檢<br>Inspection FAILED — re-inspection to be scheduled.', col:'#B03030', bg:'#FDECEC', icon:'✘' },
+    cond: { txt:'2. 船檢有條件通過,請於 <b>'+esc(o.verdictDeadline||'____-__-__')+'</b> 前補充改善回覆<br>CONDITIONAL PASS — improvement response required before <b>'+esc(o.verdictDeadline||'')+'</b>.', col:'#A06A08', bg:'#FDF3E0', icon:'⚠' },
+    pass: { txt:'3. 船檢通過,無須補充資料<br>Inspection PASSED — no further information required.', col:'#1C7A42', bg:'#EAF6EE', icon:'✔' },
   };
-  const vd = vMap[o.verdict] || { txt:'—', col:'#666' };
+  const vd = vMap[o.verdict] || { txt:'—', col:'#5A6673', bg:'#F1F3F5', icon:'' };
 
   /* 附件頁:一列兩張,小尺寸(圖片大小由報表 CSS img 規則控制) */
   const attCells = [];
   codes.forEach(code => {
     [['self','廠商 Contractor'], ['nmdc','NMDC']].forEach(([stage, lbl]) => {
       attsOf(code, stage).forEach(f => {
-        let cell = '<div style="font-size:9px; margin-bottom:4px"><b>['+code+']</b> ['+lbl+'] '+esc(f.name)+
-                   ' <span style="color:#777">'+esc(f.uploadedAt||'')+'</span></div>';
+        let cell = '<div style="font-size:9px; text-align:left; margin-bottom:5px; padding:3px 6px; background:#F2F5F8; border-left:3px solid #1D3D5C; font-weight:bold; color:#12283F">['+code+'] ['+lbl+'] '+esc(f.name)+
+                   ' <span style="color:#78828D; font-weight:normal">'+esc(f.uploadedAt||'')+'</span></div>';
         if (LOCAL || TESTMODE) {
           const isImg = String(f.url).indexOf('data:image/') === 0;
           cell += isImg ? '<img src="'+f.url+'">'
@@ -848,8 +870,8 @@ function buildReportHtml(o, currentCl) {
     appendix = '<table>';
     for (let i = 0; i < attCells.length; i += 2) {
       appendix += '<tr>' +
-        '<td style="width:50%; border:1px solid #999; padding:6px; text-align:center">'+attCells[i]+'</td>' +
-        '<td style="width:50%; border:1px solid #999; padding:6px; text-align:center">'+(attCells[i+1]||'')+'</td>' +
+        '<td style="width:50%; border:1px solid #B9C4CE; padding:6px; text-align:center">'+attCells[i]+'</td>' +
+        '<td style="width:50%; border:1px solid #B9C4CE; padding:6px; text-align:center">'+(attCells[i+1]||'')+'</td>' +
         '</tr>';
     }
     appendix += '</table>';
@@ -865,34 +887,52 @@ function buildReportHtml(o, currentCl) {
   ];
   let infoRows = '';
   for (let i = 0; i < info.length; i += 2) {
-    infoRows += '<tr><td style="background:#eef2f6; width:22%">'+info[i][0]+'</td><td style="width:28%">'+esc(info[i][1])+'</td>' +
-      '<td style="background:#eef2f6; width:22%">'+(info[i+1]?info[i+1][0]:'')+'</td><td>'+(info[i+1]?esc(info[i+1][1]):'')+'</td></tr>';
+    infoRows += '<tr><td style="background:#EEF2F7; color:#1D3D5C; font-weight:bold; width:22%">'+info[i][0]+'</td><td style="width:28%">'+esc(info[i][1])+'</td>' +
+      '<td style="background:#EEF2F7; color:#1D3D5C; font-weight:bold; width:22%">'+(info[i+1]?info[i+1][0]:'')+'</td><td>'+(info[i+1]?esc(info[i+1][1]):'')+'</td></tr>';
   }
 
   const signCell = (role, sub, nm, dt) =>
-    '<td style="width:33%"><b>'+role+'</b><div style="color:#666; font-size:9px">'+sub+'</div>' +
-    '<div style="margin-top:6px">姓名 Name: '+esc(nm||'')+'</div><div>日期 Date: '+esc(dt||'')+'</div>' +
-    '<div style="margin-top:18px; border-top:1px solid #999; color:#888; font-size:9px">簽名 Signature</div></td>';
+    '<td style="width:33%; padding:0; vertical-align:top">' +
+    '<div style="background:#EEF2F7; color:#12283F; font-weight:bold; padding:5px 8px; border-bottom:1px solid #B9C4CE">'+role+
+      ' <span style="color:#6A7682; font-weight:normal; font-size:8.5px">'+sub+'</span></div>' +
+    '<div style="padding:7px 8px">姓名 Name: <b>'+esc(nm||'')+'</b><br>日期 Date: '+esc(dt||'')+'</div>' +
+    '<div style="margin:18px 8px 6px; border-top:1px solid #8A94A0; color:#8A94A0; font-size:9px">簽名 Signature</div></td>';
 
   return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' +
-    'body{font-family:Arial,"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:10.5px; color:#111; margin:18px;}' +
-    'table{border-collapse:collapse; width:100%; margin-bottom:10px;} ' +
-    'td,th{border:1px solid #555; padding:4px 6px; vertical-align:top; font-size:10px;}' +
-    'th{background:#1d3d5c; color:#fff; text-align:left;}' +
-    'h1{font-size:15px; margin:0;} h2{font-size:13px; margin:14px 0 6px;} .pb{page-break-before:always;}' +
+    'body{font-family:Arial,"Noto Sans TC","Microsoft JhengHei",sans-serif; font-size:10.5px; color:#1E2A36; margin:18px;}' +
+    'table{border-collapse:collapse; width:100%; margin-bottom:12px;} ' +
+    'td,th{border:1px solid #B9C4CE; padding:4.5px 7px; vertical-align:top; font-size:10px;}' +
+    'th{background:#1D3D5C; color:#fff; text-align:left; border-color:#1D3D5C;}' +
+    'h2{font-size:12.5px; margin:16px 0 7px; color:#12283F; border-bottom:2px solid #12283F; padding-bottom:3px;}' +
+    '.pb{page-break-before:always;}' +
     'img{max-width:100%; max-height:270px;}' +
     '</style></head><body>' +
+    /* ===== 頁首橫幅 ===== */
     '<table><tr>' +
-    '<td style="width:20%; text-align:center; vertical-align:middle"><b style="font-size:14px">NMDC ENERGY</b></td>' +
-    '<td style="text-align:center; vertical-align:middle"><h1>ENVIRONMENTAL INSPECTION CHECKLIST FOR MARINE VESSELS</h1>' +
-    '<div>船舶環境檢查表</div></td>' +
-    '<td style="width:22%; font-size:9.5px">Document No: '+DOC_NO+'<br>'+DOC_REV+'<br>列印 Printed: '+todayStr()+'</td>' +
+    '<td style="background:#12283F; border-color:#12283F; width:20%; text-align:center; vertical-align:middle; padding:10px">' +
+      '<span style="color:#fff; font-weight:bold; font-size:15px">NMDC</span> <span style="color:#6FD08C; font-weight:bold; font-size:15px">ENERGY</span></td>' +
+    '<td style="background:#12283F; border-color:#12283F; text-align:center; vertical-align:middle; padding:10px">' +
+      '<div style="color:#fff; font-size:14px; font-weight:bold; letter-spacing:.5px">ENVIRONMENTAL INSPECTION CHECKLIST FOR MARINE VESSELS</div>' +
+      '<div style="color:#B8C9DA; font-size:11px; margin-top:2px">船舶環境檢查表</div></td>' +
+    '<td style="background:#1D3D5C; border-color:#1D3D5C; width:21%; color:#DCE6EF; font-size:9px; vertical-align:middle">' +
+      'Document No: '+DOC_NO+'<br>'+DOC_REV+'<br>船檢編號 No.: <b style="color:#fff">'+esc(o.inspNo||'—')+'</b><br>列印 Printed: '+todayStr()+'</td>' +
     '</tr></table>' +
     '<h2>1. 船舶基本資料 Vessel Information</h2><table>'+infoRows+'</table>' +
     '<h2>2. 檢查結論 Final Inspection Result</h2>' +
-    '<div style="border:2px solid '+vd.col+'; color:'+vd.col+'; padding:8px 12px; font-size:12px; font-weight:bold; margin-bottom:10px">'+vd.txt+'</div>' +
-    '<h2>3. 檢查項目 Inspection Items　<span style="font-weight:normal; font-size:9.5px">Yes = 符合標準 Up to standard;No = 未達標準 Below standard (action required);NA = 不適用 Not applicable</span></h2>' +
-    '<table><tr><th style="width:34px">SN</th><th>檢查項目 Items to be Inspected</th>' +
+    '<div style="border:2px solid '+vd.col+'; background:'+vd.bg+'; color:'+vd.col+'; padding:10px 14px; font-size:12.5px; font-weight:bold; margin-bottom:12px">'+vd.icon+' '+vd.txt+'</div>' +
+    /* ===== 結果統計 ===== */
+    '<table style="width:62%"><tr><th style="width:34%">結果統計 Summary</th>' +
+    '<th style="text-align:center">✔ YES</th><th style="text-align:center">✘ NO</th><th style="text-align:center">N/A</th></tr>' +
+    '<tr><td style="font-weight:bold">廠商自檢 Contractor</td>' +
+    '<td style="text-align:center; color:#1C7A42; font-weight:bold; background:#EAF6EE">'+cs.y+'</td>' +
+    '<td style="text-align:center; color:#B03030; font-weight:bold; background:'+(cs.n?'#FDECEC':'#FFFFFF')+'">'+cs.n+'</td>' +
+    '<td style="text-align:center; color:#5A6673; font-weight:bold; background:#F1F3F5">'+cs.x+'</td></tr>' +
+    '<tr><td style="font-weight:bold">NMDC 檢查 Inspection</td>' +
+    '<td style="text-align:center; color:#1C7A42; font-weight:bold; background:#EAF6EE">'+cn.y+'</td>' +
+    '<td style="text-align:center; color:#B03030; font-weight:bold; background:'+(cn.n?'#FDECEC':'#FFFFFF')+'">'+cn.n+'</td>' +
+    '<td style="text-align:center; color:#5A6673; font-weight:bold; background:#F1F3F5">'+cn.x+'</td></tr></table>' +
+    '<h2>3. 檢查項目 Inspection Items　<span style="font-weight:normal; font-size:9px; color:#5A6673">✔ Yes = 符合標準 Up to standard;✘ No = 未達標準(須改善)Below standard;N/A = 不適用 Not applicable</span></h2>' +
+    '<table><tr><th style="width:38px">SN</th><th>檢查項目 Items to be Inspected</th>' +
     '<th style="width:19%">廠商自檢 Contractor Self-Check</th><th style="width:19%">NMDC 檢查 NMDC Inspection</th></tr>' +
     rows + '</table>' +
     '<h2>4. 簽核 Name &amp; Sign-off</h2>' +
@@ -902,9 +942,9 @@ function buildReportHtml(o, currentCl) {
     signCell('核可人 Endorsed By','(NMDC ENV Lead)', sg.endName, sg.endDate) +
     '</tr></table>' +
     '<div class="pb"></div><h2>5. 附件 Attachments</h2>' +
-    '<div style="color:#555; font-size:9.5px; margin-bottom:8px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查(' + esc(o.inspNo || o.id || '') + ')之對應資料夾內。' +
+    '<div style="color:#5A6673; font-size:9.5px; margin-bottom:8px; background:#F2F5F8; border:1px solid #DDE4EA; padding:5px 8px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查(' + esc(o.inspNo || o.id || '') + ')之對應資料夾內。' +
     'All original attachment files (incl. photos) are stored in the corresponding Google Drive folder of this inspection record.</div>' + appendix +
-    '<div style="margin-top:14px; color:#888; font-size:9px">'+DOC_NO+' · '+DOC_REV+' · Generated by 環境船檢系統</div>' +
+    '<div style="margin-top:14px; color:#8A94A0; font-size:9px; border-top:1px solid #DDE4EA; padding-top:5px">'+DOC_NO+' · '+DOC_REV+' · '+esc(o.inspNo||'')+' · Generated by 環境船檢系統 Environmental Vessel Inspection System</div>' +
     '</body></html>';
 }
 
