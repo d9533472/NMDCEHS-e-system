@@ -169,12 +169,25 @@
     border-top:1px solid var(--line); padding:10px 12px; display:flex; gap:8px; align-items:center;
     box-shadow:0 -4px 14px rgba(0,0,0,.06); flex-wrap:wrap;}
   .footbar .grow{flex:1; min-width:120px; font-size:12px; color:#67737f;}
+  .savehint{background:#fdecec; border:1px solid #f3c6c6; color:#b03030; border-radius:8px;
+    padding:6px 10px; font-size:12px; line-height:1.4; max-width:340px;}
 
   .toast{position:fixed; bottom:84px; left:50%; transform:translateX(-50%); z-index:100;
     background:var(--navy); color:#fff; padding:10px 18px; border-radius:22px; font-size:13.5px;
     box-shadow:0 6px 18px rgba(0,0,0,.25); animation:fadein .2s; max-width:90vw;}
   .toast.err{background:var(--red);}
   @keyframes fadein{from{opacity:0; transform:translate(-50%,8px);} to{opacity:1; transform:translate(-50%,0);}}
+
+  /* 資料讀取中 overlay(整頁模糊) */
+  .loadbg{position:fixed; inset:0; z-index:95; background:rgba(240,244,248,.45);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; animation:fadebg .15s;}
+  @keyframes fadebg{from{opacity:0;} to{opacity:1;}}
+  .loadcard{background:#fff; border-radius:14px; padding:22px 34px; box-shadow:0 10px 34px rgba(0,0,0,.18);
+    display:flex; align-items:center; gap:14px; font-weight:700; color:var(--navy); font-size:15px;}
+  .spinner{width:26px; height:26px; border-radius:50%; border:3.5px solid #dde4ea;
+    border-top-color:var(--accent); animation:spin .8s linear infinite; flex:none;}
+  @keyframes spin{to{transform:rotate(360deg);}}
 
   .modalbg{position:fixed; inset:0; background:rgba(15,28,42,.45); z-index:90;
     display:flex; align-items:center; justify-content:center; padding:20px;}
@@ -215,7 +228,7 @@ const DOC_REV = 'Rev. 03';
 const T = {
   en: {
     appTitle:'Environmental Inspection Checklist for Marine Vessels',
-    dash:'Dashboard', newInsp:'+ New Inspection',
+    dash:'Home', newInsp:'+ New Inspection',
     stTotal:'Total', stSelf:'Self-Check Done', stNmdc:'NMDC Done',
     colNo:'Insp. No.', colVessel:'Vessel', colIds:'MMSI / IMO', colDate:'Inspection Date', colProg:'Progress',
     colSelf:'Contractor Self-Check', colNmdc:'NMDC Inspection', colAct:'Actions',
@@ -245,10 +258,20 @@ const T = {
     name:'Name', date:'Date',
     save:'Save', back:'← Back', saved:'Saved ✓',
     markSelf:'Contractor Self-Check Complete', markNmdc:'NMDC Inspection Complete',
+    saveHint:'⚠ Still in progress? Tap "Save" to keep your work. Tap "Contractor Self-Check Complete" only when every item is confirmed — once submitted, the form can no longer be edited.',
     revert:'Revert to previous stage', exportPdf:'📄 Export PDF', exporting:'Generating PDF...',
     pdfDone:'PDF saved to Drive ✓', pdfOpen:'Open PDF', pdfLocal:'Use the print dialog → Save as PDF',
     confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
-    confirmSelfT:'Confirm Contractor Self-Check complete?', confirmSelfP:'All items are answered. The completion date will be recorded on the dashboard.',
+    newNoticeT:'NOTICE',
+    newNoticeList:[
+      'Complete each item according to the requirements applicable to your vessel\'s tonnage and class.',
+      'If an item does not apply due to your vessel\'s tonnage or class, you may select "N/A" first and briefly state the reason in the remarks.',
+      'NMDC will confirm during its review whether the item is truly not applicable.'],
+    newNoticeOk:'I understand — Start',
+    leaveT:'WARNING',
+    leaveP:'Your changes have not been saved and will be lost if you leave. Are you sure you want to leave this page?',
+    leaveGo:'Leave without saving', leaveSave:'Save & leave', leaveStay:'Back to form',
+    confirmSelfT:'Submit Contractor Self-Check?', confirmSelfP:'Once submitted, this form is locked and can no longer be edited. Please make sure every item has been properly completed. If anything is incomplete or uncertain, tap "Save" to keep your progress and come back later. The completion date will be recorded on the dashboard.',
     confirmNmdcT:'Confirm NMDC Inspection complete?', confirmNmdcP:'The record will be locked and the NMDC inspection date recorded. Export the PDF afterwards for filing.',
     cancel:'Cancel', confirm:'Confirm',
     localMode:'⚠ Local test mode (SCRIPT_URL not set) — data is saved in this browser only.',
@@ -264,6 +287,7 @@ const T = {
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
     answered:'answered', loadFail:'Load failed', saveFail:'Save failed',
+    loadingData:'Loading data...',
     /* 項目編輯器 */
     editChecklist:'📝 Edit Checklist', editorTitle:'Checklist Editor',
     editorNote:'✏️ Changes apply to NEW inspections only — existing records keep the checklist version they were created with. Item numbers are re-assigned automatically by position.',
@@ -278,7 +302,7 @@ const T = {
   },
   zh: {
     appTitle:'船舶環境檢查表 Environmental Inspection Checklist',
-    dash:'總表', newInsp:'+ 新增檢查',
+    dash:'首頁', newInsp:'+ 新增檢查',
     stTotal:'總筆數', stSelf:'廠商自檢完成', stNmdc:'NMDC 檢查完成',
     colNo:'船檢編號', colVessel:'船名', colIds:'MMSI / IMO', colDate:'檢查日期', colProg:'進度',
     colSelf:'廠商自檢', colNmdc:'NMDC 檢查', colAct:'操作',
@@ -308,10 +332,20 @@ const T = {
     name:'姓名', date:'日期',
     save:'儲存', back:'← 返回', saved:'已儲存 ✓',
     markSelf:'廠商自檢完成', markNmdc:'NMDC 檢查完成',
+    saveHint:'⚠ 填寫途中請先按「儲存」保留進度;確認全部項目完成後,再按「廠商自檢完成」送出 — 送出後即無法修改。',
     revert:'退回上一階段', exportPdf:'📄 匯出 PDF 留底', exporting:'PDF 產生中...',
     pdfDone:'PDF 已存入 Drive ✓', pdfOpen:'開啟 PDF', pdfLocal:'請在列印視窗選「另存為 PDF」',
     confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
-    confirmSelfT:'確認「廠商自檢完成」?', confirmSelfP:'全部項目已勾選,完成日期將記錄並顯示於總表。',
+    newNoticeT:'注意',
+    newNoticeList:[
+      '請依貴船之噸位與船級,逐項確認適用要求後填寫。',
+      '若項目因船舶噸位或船級而不適用,可先勾選「N/A」並於備註簡要說明原因。',
+      '是否確屬不適用,將由 NMDC 於複檢時確認。'],
+    newNoticeOk:'我了解,開始填寫',
+    leaveT:'警告',
+    leaveP:'您填寫的資料尚未儲存,離開後將會遺失。確定要離開此頁面嗎?',
+    leaveGo:'確定離開', leaveSave:'儲存後離開', leaveStay:'回到填寫頁',
+    confirmSelfT:'確認送出「廠商自檢完成」?', confirmSelfP:'送出後表單即鎖定,無法再修改。請確認所有項目均已確實完成;若尚未完成或仍有不確定的項目,請先按「儲存」保留進度,後續再回來修改。完成日期將記錄並顯示於總表。',
     confirmNmdcT:'確認「NMDC 檢查完成」?', confirmNmdcP:'紀錄將鎖定並記錄 NMDC 檢查日期,完成後請匯出 PDF 留底。',
     cancel:'取消', confirm:'確認',
     localMode:'⚠ 本機測試模式(尚未設定 SCRIPT_URL)— 資料僅儲存於此瀏覽器。',
@@ -327,6 +361,7 @@ const T = {
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
     answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗',
+    loadingData:'資料讀取中…',
     /* 項目編輯器 */
     editChecklist:'📝 編輯檢查項目', editorTitle:'檢查項目編輯器',
     editorNote:'✏️ 修改只影響「之後新增」的檢查 — 既有紀錄保留建立當時的項目版本。項目編號依排列位置自動重編。',
@@ -746,7 +781,8 @@ function buildReportHtml(o, currentCl) {
                    ' <span style="color:#777">'+esc(f.uploadedAt||'')+'</span></div>';
         if (LOCAL || TESTMODE) {
           const isImg = String(f.url).indexOf('data:image/') === 0;
-          cell += isImg ? '<img src="'+f.url+'">' : '';
+          cell += isImg ? '<img src="'+f.url+'">'
+            : '<div style="color:#555; font-size:9px; margin-top:4px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
         } else {
           cell += '{{IMG:'+f.fileId+'}}';
         }
@@ -814,7 +850,9 @@ function buildReportHtml(o, currentCl) {
     signCell('覆核人 Verified By','(HSEE)', sg.verName, sg.verDate) +
     signCell('核可人 Endorsed By','(Barge Superintendent / Vessel Captain)', sg.endName, sg.endDate) +
     '</tr></table>' +
-    '<div class="pb"></div><h2>5. 附件 Attachments</h2>' + appendix +
+    '<div class="pb"></div><h2>5. 附件 Attachments</h2>' +
+    '<div style="color:#555; font-size:9.5px; margin-bottom:8px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查(' + esc(o.inspNo || o.id || '') + ')之對應資料夾內。' +
+    'All original attachment files (incl. photos) are stored in the corresponding Google Drive folder of this inspection record.</div>' + appendix +
     '<div style="margin-top:14px; color:#888; font-size:9px">'+DOC_NO+' · '+DOC_REV+' · Generated by 環境船檢系統</div>' +
     '</body></html>';
 }
@@ -835,15 +873,23 @@ function Modal({ m, t }) {
   return (
     <div className="modalbg" onClick={m.onCancel}>
       <div className="modal" onClick={e=>e.stopPropagation()}>
-        <h4>{m.title}</h4>
+        <h4 style={m.titleStyle}>{m.title}</h4>
         {m.body && <p>{m.body}</p>}
+        {m.list &&
+          <ol style={{margin:'0 0 16px', paddingLeft:22, fontSize:14, color:'#333', lineHeight:1.75}}>
+            {m.list.map((x,i)=><li key={i} style={{marginBottom:6}}>{x}</li>)}
+          </ol>}
         {m.link && <p><a href={m.link} target="_blank" rel="noopener" style={{color:'#1e5ca8', fontWeight:700}}>{m.linkLabel || m.link}</a></p>}
         {m.input &&
           <input type="password" autoFocus value={val} onChange={e=>setVal(e.target.value)}
             onKeyDown={e=>{ if(e.key==='Enter') ok(); }} placeholder="••••" />}
-        <div className="btns">
-          <button className="btn btn-o btn-sm" onClick={m.onCancel}>{m.cancelLabel || t.cancel}</button>
-          {m.onOk && <button className={'btn btn-sm ' + (m.danger ? 'btn-r' : 'btn-p')} onClick={ok}>{m.okLabel || t.confirm}</button>}
+        <div className="btns" style={{flexWrap:'wrap'}}>
+          {m.buttons ? m.buttons.map((b,i)=>
+              <button key={i} className={'btn btn-sm ' + b.cls} onClick={b.onClick}>{b.label}</button>)
+            : <React.Fragment>
+                <button className="btn btn-o btn-sm" onClick={m.onCancel}>{m.cancelLabel || t.cancel}</button>
+                {m.onOk && <button className={'btn btn-sm ' + (m.danger ? 'btn-r' : 'btn-p')} onClick={ok}>{m.okLabel || t.confirm}</button>}
+              </React.Fragment>}
         </div>
       </div>
     </div>
@@ -1103,6 +1149,7 @@ function ContractorForm({ t, lang, cl, item, setItem, can, onSave, onBack, savin
       <div className="footbar">
         <button className="btn btn-o" onClick={onBack}>{t.back}</button>
         <div className="grow">{answered}/{TOTAL} {t.answered}</div>
+        {can && <span className="savehint">{t.saveHint}</span>}
         {can && <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>}
         {can && <button className="btn btn-p" disabled={saving} onClick={trySubmit}>✓ {t.markSelf}</button>}
       </div>
@@ -1358,8 +1405,22 @@ function App() {
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
   const [uploadingKeys, setUploadingKeys] = useState([]);
+  const [busyCount, setBusyCount] = useState(0);   // 資料讀取中 overlay 計數
+  const track = (p) => { setBusyCount(c=>c+1); return p.finally(()=>setBusyCount(c=>Math.max(0,c-1))); };
+  const [dirty, setDirty] = useState(false);       // 有未儲存的修改
+  const dirtyRef = useRef(false); dirtyRef.current = dirty;
+  const viewRef = useRef('dash'); viewRef.current = view;
   const itemRef = useRef(null);
   itemRef.current = item;
+  /* 表單修改都走這個 setter,自動標記未儲存 */
+  const setItemDirty = (updater) => { setDirty(true); setItem(updater); };
+
+  /* 關閉/重新整理瀏覽器時的原生攔截 */
+  useEffect(() => {
+    const h = (e) => { if (dirtyRef.current && viewRef.current === 'form') { e.preventDefault(); e.returnValue = ''; } };
+    window.addEventListener('beforeunload', h);
+    return () => window.removeEventListener('beforeunload', h);
+  }, []);
   const clRef = useRef(checklist);
   clRef.current = checklist;
 
@@ -1372,7 +1433,7 @@ function App() {
 
   const refresh = useCallback(() => {
     setLoading(true);
-    api('list').then(r => { setList(r.items || []); setLoading(false); })
+    track(api('list')).then(r => { setList(r.items || []); setLoading(false); })
       .catch(() => { setLoading(false); showToast(t.loadFail, true); });
     api('getChecklist').then(r => setChecklist(r.checklist && r.checklist.length ? r.checklist : DEFAULT_CHECKLIST))
       .catch(()=>{ setChecklist(DEFAULT_CHECKLIST); });
@@ -1454,12 +1515,18 @@ function App() {
   };
 
   const openItem = id => {
-    api('get', { id }).then(r => {
-      setItem(normalize(r.item)); setView('form'); window.scrollTo(0,0);
+    track(api('get', { id })).then(r => {
+      setItem(normalize(r.item)); setDirty(false); setView('form'); window.scrollTo(0,0);
     }).catch(e => showToast(t.loadFail + ': ' + e.message, true));
   };
 
-  const newItem = () => { setItem(blankItem(clRef.current)); setView('form'); window.scrollTo(0,0); };
+  const newItem = () => {
+    setModal({ title: '🚨 ' + t.newNoticeT + ' 🚨',
+      titleStyle: { color:'var(--red)', fontSize:20, textAlign:'center', letterSpacing:'2px' },
+      list: t.newNoticeList, okLabel: t.newNoticeOk,
+      onCancel: ()=>setModal(null),
+      onOk: ()=>{ setModal(null); setItem(blankItem(clRef.current)); setDirty(false); setView('form'); window.scrollTo(0,0); } });
+  };
 
   const highlightMissing = (miss) => setItem(p => Object.assign({}, p, { _miss: miss }));
 
@@ -1474,7 +1541,7 @@ function App() {
     return api('save', { item: cur }).then(r => {
       const saved = normalize(r.item);
       if (!saved.attachments.length && cur.attachments) saved.attachments = cur.attachments;
-      setItem(saved); setSaving(false); showToast(t.saved);
+      setItem(saved); setDirty(false); setSaving(false); showToast(t.saved);
       api('list').then(x=>setList(x.items||[])).catch(()=>{});
       return saved;
     }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); throw e; });
@@ -1509,6 +1576,26 @@ function App() {
       });
     }).catch(()=>{});
   };
+
+  /* 未儲存離開的三鍵警告 */
+  const guardLeave = (next) => {
+    const it = itemRef.current;
+    const editable = viewRef.current === 'form' && it && dirtyRef.current &&
+      (it.status === 'draft' || (editMode || testMode) && it.status === 'self_done');
+    if (!editable) { next(); return; }
+    setModal({
+      title: '🚨 ' + t.leaveT + ' 🚨',
+      titleStyle: { color:'var(--red)', fontSize:19, textAlign:'center', letterSpacing:'2px' },
+      body: t.leaveP,
+      onCancel: ()=>setModal(null),
+      buttons: [
+        { label: t.leaveGo,   cls:'btn-r', onClick: ()=>{ setModal(null); setDirty(false); next(); } },
+        { label: t.leaveSave, cls:'btn-p', onClick: ()=>{ setModal(null); doSave().then(()=>next()).catch(()=>{}); } },
+        { label: t.leaveStay, cls:'btn-o', onClick: ()=>setModal(null) },
+      ],
+    });
+  };
+  const goHome = () => guardLeave(()=>{ setView('dash'); refresh(); window.scrollTo(0,0); });
 
   const deleteAtt = (f) => askConfirm(t.confirmDelT, f.name, () => {
     api('deleteFile', { fileId: f.fileId }).then(() => {
@@ -1547,7 +1634,7 @@ function App() {
     }).catch(e => { setExporting(false); showToast(e.message, true); });
   };
   const exportById = (id) => {
-    api('get', { id }).then(r => exportRecord(normalize(r.item)))
+    track(api('get', { id })).then(r => exportRecord(normalize(r.item)))
       .catch(e => showToast(t.loadFail + ': ' + e.message, true));
   };
 
@@ -1579,13 +1666,13 @@ function App() {
   return (
     <div>
       <div className="topbar">
+        {view !== 'dash' &&
+          <button className="langbtn" onClick={goHome}>🏠 {t.dash}</button>}
         <div><div className="logo">NMDC <span>ENERGY</span></div></div>
         <div className="grow">
           <div style={{fontWeight:700, fontSize:13.5}}>{t.appTitle}</div>
           <div className="sub">{DOC_NO} · {DOC_REV}</div>
         </div>
-        {view !== 'dash' &&
-          <button className="langbtn" onClick={()=>{ setView('dash'); refresh(); }}>{t.dash}</button>}
         <button className="langbtn" onClick={toggleLang}>{lang === 'en' ? '中文' : 'EN'}</button>
         <button className={'lockbtn'} style={testMode ? {background:'#b8860b'} : null} onClick={toggleTest}
           title="Test mode">🧪</button>
@@ -1610,20 +1697,24 @@ function App() {
           <Editor t={t} checklist={checklist} onSave={saveChecklistFn} saving={saving}
             onBack={()=>{ setView('dash'); window.scrollTo(0,0); }} askConfirm={askConfirm} />}
         {view === 'form' && item && item.status === 'draft' &&
-          <ContractorForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItem} can={canContractor}
+          <ContractorForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canContractor}
             onSave={doSave} saving={saving}
-            onBack={()=>{ setView('dash'); refresh(); window.scrollTo(0,0); }}
+            onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
             askConfirm={askConfirm} showToast={showToast} highlightMissing={highlightMissing} />}
         {view === 'form' && item && item.status !== 'draft' &&
-          <NmdcForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItem} can={canNmdc} editMode={effEdit}
+          <NmdcForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canNmdc} editMode={effEdit}
             onSave={doSave} saving={saving}
-            onBack={()=>{ setView('dash'); refresh(); window.scrollTo(0,0); }}
+            onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
             askConfirm={askConfirm} showToast={showToast}
             onExport={()=>exportRecord(itemRef.current)} exporting={exporting} highlightMissing={highlightMissing} />}
       </div>
 
+      {busyCount > 0 &&
+        <div className="loadbg">
+          <div className="loadcard"><div className="spinner"></div>{t.loadingData}</div>
+        </div>}
       <Toast msg={toast} />
       <Modal m={modal} t={t} />
     </div>
