@@ -661,17 +661,13 @@ function localApi(action, p) {
     const item = Object.assign({}, p.item);
     if (!item.id) item.id = 'INS-' + Date.now();
     item.updatedAt = nowStr();
-    const pfx = 'EVI-' + String(item.inspectDate||'').replace(/-/g,'') + '-';
-    if (!item.inspNo || String(item.inspNo).indexOf(pfx) !== 0) {
-      const d8 = String(item.inspectDate||todayStr()).replace(/-/g,'');
-      const pre = 'EVI-'+d8+'-'; let max = 0;
+    if (!item.inspNo) {   // 全域流水號 EVI-001、EVI-002…
+      let max = 0;
       Object.values(db.items).forEach(x => {
-        if (x.id !== item.id && x.inspNo && String(x.inspNo).indexOf(pre) === 0) {
-          const n = parseInt(String(x.inspNo).slice(pre.length), 10);
-          if (n > max) max = n;
-        }
+        const m = String(x.inspNo||'').match(/^EVI-(\d+)$/);
+        if (m) max = Math.max(max, parseInt(m[1], 10));
       });
-      item.inspNo = pre + String(max+1).padStart(2,'0');
+      item.inspNo = 'EVI-' + String(max+1).padStart(3,'0');
     }
     if (item.status === 'self_done' && !item.selfDate) item.selfDate = todayStr();
     if (item.status === 'nmdc_done') { if(!item.selfDate) item.selfDate = todayStr(); if(!item.nmdcDate) item.nmdcDate = todayStr(); }
