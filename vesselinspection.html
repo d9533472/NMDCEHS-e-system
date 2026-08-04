@@ -280,9 +280,9 @@ const T = {
     vDeadline:'Improvement response deadline',
     sFail:'Failed', sCond:'Conditional pass', sPass:'Passed', sCondBy:'reply by',
     signTitle:'Name & Sign-off',
-    signInsp:'Inspected By', signInspSub:'(HSEO)',
-    signVer:'Verified By', signVerSub:'(HSEE)',
-    signEnd:'Endorsed By', signEndSub:'(Barge Superintendent / Vessel Captain)',
+    signInsp:'Inspected By', signInspSub:'(Supplier Inspector)',
+    signVer:'Verified By', signVerSub:'(NMDC ENV Officer) 🔑',
+    signEnd:'Endorsed By', signEndSub:'(NMDC ENV Lead) 🔑',
     name:'Name', date:'Date',
     save:'Save', back:'← Back', saved:'Saved ✓',
     markSelf:'Contractor Self-Check Complete', markNmdc:'NMDC Inspection Complete',
@@ -315,7 +315,9 @@ const T = {
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
     answered:'answered', loadFail:'Load failed', saveFail:'Save failed',
-    loadingData:'Loading data...', refreshing:'Refreshing…',
+    loadingData:'Loading data...', refreshing:'Refreshing…', savingData:'Saving...',
+    uploadingData:'Uploading attachment...', exportingData:'Generating PDF...', working:'Processing...',
+    refreshFail:'Could not refresh — showing last saved data.', folderTip:'Open Google Drive folder',
     adminEditNote:'🔓 Admin edit mode — you can modify all data on this record (incl. vessel info, inspection no. and contractor answers). Remember to Save after changes.',
     /* 項目編輯器 */
     editChecklist:'📝 Edit Checklist', editorTitle:'Checklist Editor',
@@ -355,9 +357,9 @@ const T = {
     vDeadline:'補充改善回覆期限',
     sFail:'未通過', sCond:'有條件通過', sPass:'通過', sCondBy:'限期',
     signTitle:'簽核 Name & Sign-off',
-    signInsp:'檢查人 Inspected By', signInspSub:'(HSEO 環安衛主任)',
-    signVer:'覆核人 Verified By', signVerSub:'(HSEE 環安衛工程師)',
-    signEnd:'核可人 Endorsed By', signEndSub:'(駁船總監 / 船長)',
+    signInsp:'檢查人 Inspected By', signInspSub:'(廠商檢查人 Supplier Inspector)',
+    signVer:'覆核人 Verified By', signVerSub:'(NMDC 環境官 ENV Officer) 🔑',
+    signEnd:'核可人 Endorsed By', signEndSub:'(NMDC 環境主管 ENV Lead) 🔑',
     name:'姓名', date:'日期',
     save:'儲存', back:'← 返回', saved:'已儲存 ✓',
     markSelf:'廠商自檢完成', markNmdc:'NMDC 檢查完成',
@@ -390,7 +392,9 @@ const T = {
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
     answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗',
-    loadingData:'資料讀取中…', refreshing:'更新中…',
+    loadingData:'資料讀取中…', refreshing:'更新中…', savingData:'儲存中…',
+    uploadingData:'附件上傳中…', exportingData:'PDF 產生中…', working:'處理中…',
+    refreshFail:'暫時無法連線更新,目前顯示上次的資料。', folderTip:'開啟 Google Drive 資料夾',
     adminEditNote:'🔓 管理者編輯模式 — 此紀錄的所有資料(含船舶基本資料、船檢編號、廠商勾選結果)皆可修改,改完請記得按「儲存」。',
     /* 項目編輯器 */
     editChecklist:'📝 編輯檢查項目', editorTitle:'檢查項目編輯器',
@@ -645,21 +649,36 @@ const LS_KEY = 'evis_data_v1';
 const TEST_KEY = 'evis_data_test';
 let TESTMODE = localStorage.getItem('evis_test') === '1';   // 🧪 測試模式:資料只存瀏覽器
 
-function api(action, payload) {
-  if (LOCAL || TESTMODE) return localApi(action, payload || {});
+/* 讀取類請求自動重試(GAS 偶發暫時錯誤/冷啟動逾時的主因對策) */
+const READ_ACTIONS = { list:1, get:1, getChecklist:1, bootstrap:1 };
+
+function apiOnce(action, payload) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', SCRIPT_URL, true);
+    xhr.timeout = 30000;                       // 30 秒逾時,避免掛住
     xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
     xhr.onload = () => {
+      if (xhr.status >= 400) { reject(new Error('HTTP ' + xhr.status)); return; }
       try {
         const res = JSON.parse(xhr.responseText);
         res.ok ? resolve(res) : reject(new Error(res.error || 'Server error'));
-      } catch (e) { reject(new Error('Bad response')); }
+      } catch (e) { reject(new Error('Bad response')); }   // GAS 偶爾回 HTML 錯誤頁
     };
+    xhr.ontimeout = () => reject(new Error('TIMEOUT'));
     xhr.onerror = () => reject(new Error('NETWORK'));
     xhr.send(JSON.stringify(Object.assign({ action }, payload)));
   });
+}
+
+function api(action, payload) {
+  if (LOCAL || TESTMODE) return localApi(action, payload || {});
+  const retries = READ_ACTIONS[action] ? 2 : 0;   // 讀取最多重試 2 次;寫入不重試(避免重複)
+  const attempt = (n) => apiOnce(action, payload || {}).catch(err => {
+    if (n < retries) return new Promise(r => setTimeout(r, 800 * (n + 1))).then(() => attempt(n + 1));
+    throw err;
+  });
+  return attempt(0);
 }
 
 /* 本機/測試模式:localStorage 模擬後端 */
@@ -734,7 +753,7 @@ function blankItem(cl) {
   const total = totalOf(cl);
   return { id:'', vesselZh:'', vesselEn:'', mmsi:'', imo:'', tonnage:'', vesselClass:'',
     projectNo:'', location:'', inspectDate:todayStr(), status:'draft', selfDate:'', nmdcDate:'',
-    progress:'0/'+total, nmdcProgress:'0/'+total, verdict:'', verdictDeadline:'', inspNo:'',
+    progress:'0/'+total, nmdcProgress:'0/'+total, verdict:'', verdictDeadline:'', inspNo:'', folderUrl:'',
     data:{ checklist: JSON.parse(JSON.stringify(cl)),   // ★ 快照:此紀錄使用的項目版本
            answers:{}, nmdcAnswers:{},
            signoff:{inspName:'',inspDate:'',verName:'',verDate:'',endName:'',endDate:''} },
@@ -878,9 +897,9 @@ function buildReportHtml(o, currentCl) {
     rows + '</table>' +
     '<h2>4. 簽核 Name &amp; Sign-off</h2>' +
     '<table><tr>' +
-    signCell('檢查人 Inspected By','(HSEO)', sg.inspName, sg.inspDate) +
-    signCell('覆核人 Verified By','(HSEE)', sg.verName, sg.verDate) +
-    signCell('核可人 Endorsed By','(Barge Superintendent / Vessel Captain)', sg.endName, sg.endDate) +
+    signCell('檢查人 Inspected By','(廠商檢查人 Supplier Inspector)', sg.inspName, sg.inspDate) +
+    signCell('覆核人 Verified By','(NMDC ENV Officer)', sg.verName, sg.verDate) +
+    signCell('核可人 Endorsed By','(NMDC ENV Lead)', sg.endName, sg.endDate) +
     '</tr></table>' +
     '<div class="pb"></div><h2>5. 附件 Attachments</h2>' +
     '<div style="color:#555; font-size:9.5px; margin-bottom:8px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查(' + esc(o.inspNo || o.id || '') + ')之對應資料夾內。' +
@@ -999,6 +1018,9 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
                         verdict={it.verdict} verdictDeadline={it.verdictDeadline} t={t} /></td>
                   <td style={{whiteSpace:'nowrap'}}>
                     <button className="btn btn-navy btn-sm" onClick={()=>onOpen(it.id)}>{t.open}</button>{' '}
+                    {canEdit && it.folderUrl &&
+                      <a className="btn btn-o btn-sm" style={{textDecoration:'none', display:'inline-block'}}
+                        href={it.folderUrl} target="_blank" rel="noopener" title={t.folderTip}>📁</a>}{' '}
                     {it.status==='nmdc_done' &&
                       <button className="btn btn-amber btn-sm" onClick={()=>onPdf(it.id)}>📄 {t.pdf}</button>}{' '}
                     {canEdit && <button className="btn btn-r btn-sm" onClick={()=>onDelete(it.id)}>{t.del}</button>}
@@ -1035,23 +1057,27 @@ function AttRow({ t, code, stage, atts, can, uploading, onPick, onDelete, fileRe
 }
 
 /* ---------------- 簽核卡 ---------------- */
-function SignCard({ t, sign, setSign, can }) {
+/* 檢查人 = 廠商可填;覆核人 / 核可人 = 需 🔑 解鎖(NMDC)才能填 */
+function SignCard({ t, sign, setSign, can, adminEdit }) {
   return (
     <div className="card">
       <h3>✍️ {t.signTitle}</h3>
       <div className="signgrid">
         {[
-          { role:t.signInsp, sub:t.signInspSub, nk:'inspName', dk:'inspDate' },
-          { role:t.signVer,  sub:t.signVerSub,  nk:'verName',  dk:'verDate' },
-          { role:t.signEnd,  sub:t.signEndSub,  nk:'endName',  dk:'endDate' },
-        ].map(s => (
-          <div className="signbox" key={s.nk}>
-            <div className="role">{s.role}</div>
-            <div className="rolesub">{s.sub}</div>
-            <input placeholder={t.name} disabled={!can} value={sign[s.nk]||''} onChange={e=>setSign(s.nk, e.target.value)} />
-            <input type="date" disabled={!can} value={sign[s.dk]||''} onChange={e=>setSign(s.dk, e.target.value)} />
-          </div>
-        ))}
+          { role:t.signInsp, sub:t.signInspSub, nk:'inspName', dk:'inspDate', nmdcOnly:false },
+          { role:t.signVer,  sub:t.signVerSub,  nk:'verName',  dk:'verDate',  nmdcOnly:true },
+          { role:t.signEnd,  sub:t.signEndSub,  nk:'endName',  dk:'endDate',  nmdcOnly:true },
+        ].map(s => {
+          const editable = s.nmdcOnly ? !!adminEdit : !!can;
+          return (
+            <div className="signbox" key={s.nk}>
+              <div className="role">{s.role}</div>
+              <div className="rolesub">{s.sub}</div>
+              <input placeholder={t.name} disabled={!editable} value={sign[s.nk]||''} onChange={e=>setSign(s.nk, e.target.value)} />
+              <input type="date" disabled={!editable} value={sign[s.dk]||''} onChange={e=>setSign(s.dk, e.target.value)} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -1182,7 +1208,7 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
         </div>
       ))}
 
-      <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} />
+      <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} adminEdit={adminEdit} />
 
       <div className="footbar">
         <button className="btn btn-o" onClick={onBack}>{t.back}</button>
@@ -1387,7 +1413,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         ))}
       </div>
 
-      <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} />
+      <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} adminEdit={adminEdit && can} />
 
       <div className="footbar">
         <button className="btn btn-o" onClick={onBack}>{t.back}</button>
@@ -1503,8 +1529,12 @@ function App() {
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
   const [uploadingKeys, setUploadingKeys] = useState([]);
-  const [busyCount, setBusyCount] = useState(0);   // 資料讀取中 overlay 計數
-  const track = (p) => { setBusyCount(c=>c+1); return p.finally(()=>setBusyCount(c=>Math.max(0,c-1))); };
+  const [busyMsgs, setBusyMsgs] = useState([]);   // 長時間動作 overlay(讀取/儲存/上傳/PDF)
+  const track = (p, msg) => {
+    const m = { msg };
+    setBusyMsgs(a => [...a, m]);
+    return p.finally(() => setBusyMsgs(a => a.filter(x => x !== m)));
+  };
   const [dirty, setDirty] = useState(false);       // 有未儲存的修改
   const dirtyRef = useRef(false); dirtyRef.current = dirty;
   const viewRef = useRef('dash'); viewRef.current = view;
@@ -1552,7 +1582,12 @@ function App() {
         // 後端尚未更新到 bootstrap 版本時,退回兩段式讀取
         Promise.all([api('list'), api('getChecklist').catch(()=>({ checklist:null }))])
           .then(([a, b]) => apply({ items: a.items, checklist: b.checklist }))
-          .catch(() => { setLoading(false); showToast(t.loadFail, true); });
+          .catch(() => {
+            setLoading(false);
+            // 有快取:溫和提示即可,畫面仍顯示上次資料;沒快取才是真的失敗
+            if (hasCache) showToast(t.refreshFail);
+            else showToast(t.loadFail, true);
+          });
       });
   }, [lang]);
 
@@ -1655,7 +1690,7 @@ function App() {
     cur.progress = countMap(cur.data.answers) + '/' + total;
     cur.nmdcProgress = countMap(cur.data.nmdcAnswers) + '/' + total;
     setSaving(true);
-    return api('save', { item: cur }).then(r => {
+    return track(api('save', { item: cur }), t.savingData).then(r => {
       const saved = normalize(r.item);
       if (!saved.attachments.length && cur.attachments) saved.attachments = cur.attachments;
       setItem(saved); setDirty(false); setSaving(false); showToast(t.saved);
@@ -1679,7 +1714,7 @@ function App() {
         const reader = new FileReader();
         reader.onload = () => {
           const base64 = String(reader.result).split(',')[1];
-          api('upload', { inspId: saved.id, itemCode, label, name: f.name, mimeType: f.type, base64 })
+          track(api('upload', { inspId: saved.id, itemCode, label, name: f.name, mimeType: f.type, base64 }), t.uploadingData)
             .then(r => {
               setItem(p => Object.assign({}, p, { attachments: [...(p.attachments||[]), r.attachment] }));
               setUploadingKeys(p => { const i=p.indexOf(itemCode); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
@@ -1715,19 +1750,19 @@ function App() {
   const goHome = () => guardLeave(()=>{ setView('dash'); refresh(); window.scrollTo(0,0); });
 
   const deleteAtt = (f) => askConfirm(t.confirmDelT, f.name, () => {
-    api('deleteFile', { fileId: f.fileId }).then(() => {
+    track(api('deleteFile', { fileId: f.fileId }), t.working).then(() => {
       setItem(p => Object.assign({}, p, { attachments: (p.attachments||[]).filter(a=>a.fileId!==f.fileId) }));
     }).catch(e => showToast(e.message, true));
   }, true);
 
   const deleteInsp = (id) => askConfirm(t.confirmDelT, t.confirmDelP, () => {
-    api('delete', { id }).then(refresh).catch(e => showToast(e.message, true));
+    track(api('delete', { id }), t.working).then(refresh).catch(e => showToast(e.message, true));
   }, true);
 
   /* 📝 儲存檢查項目範本 */
   const saveChecklistFn = (cl) => {
     setSaving(true);
-    api('saveChecklist', { checklist: cl }).then(() => {
+    track(api('saveChecklist', { checklist: cl }), t.savingData).then(() => {
       setChecklist(cl); setSaving(false);
       showToast(t.checklistSaved); setView('dash');
     }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); });
@@ -1744,7 +1779,7 @@ function App() {
       return;
     }
     setExporting(true);
-    api('exportPdf', { id: full.id, html }).then(r => {
+    track(api('exportPdf', { id: full.id, html }), t.exportingData).then(r => {
       setExporting(false);
       setModal({ title: t.pdfDone, body: r.name, link: r.url, linkLabel: '🔗 ' + t.pdfOpen,
         onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
@@ -1828,9 +1863,9 @@ function App() {
             onExport={()=>exportRecord(itemRef.current)} exporting={exporting} highlightMissing={highlightMissing} />}
       </div>
 
-      {busyCount > 0 &&
+      {busyMsgs.length > 0 &&
         <div className="loadbg">
-          <div className="loadcard"><div className="spinner"></div>{t.loadingData}</div>
+          <div className="loadcard"><div className="spinner"></div>{busyMsgs[busyMsgs.length-1].msg || t.loadingData}</div>
         </div>}
       <Toast msg={toast} />
       <Modal m={modal} t={t} />
