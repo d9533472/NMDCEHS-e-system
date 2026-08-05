@@ -1774,18 +1774,9 @@ function renderEventsHTML(){
 
   let h='<div class="card">';
 
-  // ── Sub-tab switcher: 重點活動 / 船舶檢查 ──
-  h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)">';
-  h+='<div class="trk-tabs" style="margin:0">';
-  h+=`<button class="trk-tab ${evSubView==='events'?'active':''}" onclick="evSubView='events';renderTab()">⭐ 重點活動</button>`;
-  h+=`<button class="trk-tab ${evSubView==='vessels'?'active':''}" onclick="evSubView='vessels';renderTab()">⚓ 船舶檢查</button>`;
-  h+='</div>';
-  h+='</div>';
-
-  // ── VESSEL SUB-VIEW ──
-  if(evSubView==='vessels'){
-    return h+renderVesselsInner()+'</div>';
-  }
+  // 船舶檢查子頁籤已隱藏（改用外部船檢系統）
+  // Force reset to events view in case old state persisted
+  evSubView='events';
 
   // ── EVENTS SUB-VIEW (default) ──
   // ── View mode switcher ──
