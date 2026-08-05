@@ -279,6 +279,15 @@ const T = {
     vPass:'3. Inspection PASSED — no further information required',
     vDeadline:'Improvement response deadline',
     sFail:'Failed', sCond:'Conditional pass', sPass:'Passed', sCondBy:'reply by',
+    reinspectBtn:'Create Re-inspection', reCreated:(no)=>`Re-inspection ${no} created ✓ — contractor answers carried over.`,
+    confirmReT:'Create re-inspection record?',
+    confirmReP:(no)=>`A new re-inspection record ${no} will be created with the previous contractor answers carried over (attachments are NOT copied). The contractor corrects the deficient items and re-submits. The original record is kept unchanged.`,
+    reOfBanner:(no)=>`🔁 This record is a RE-INSPECTION of ${no}.`,
+    fuTitle:'Improvement Response 改善回覆', fuPh:'Describe the corrective actions taken and supplementary information...',
+    fuSave:'💾 Save Response', fuClose:'✔ Confirm Close-out',
+    fuNote:'Contractor: upload supplementary evidence and describe the improvement here, then Save. NMDC will close out this inspection once confirmed.',
+    confirmCloseT:'Confirm close-out?', confirmCloseP:'The improvement response has been reviewed and accepted. This inspection will be marked as CLOSED.',
+    closedTag:'Closed', fuPending:'Pending close-out',
     signTitle:'Name & Sign-off',
     signInsp:'Inspected By', signInspSub:'(Supplier Inspector)',
     signVer:'Verified By', signVerSub:'(NMDC ENV Officer) 🔑',
@@ -358,6 +367,15 @@ const T = {
     vPass:'3. 船檢通過,無須補充資料',
     vDeadline:'補充改善回覆期限',
     sFail:'未通過', sCond:'有條件通過', sPass:'通過', sCondBy:'限期',
+    reinspectBtn:'建立複檢', reCreated:(no)=>`複檢紀錄 ${no} 已建立 ✓ — 已帶入上次廠商勾選結果。`,
+    confirmReT:'建立複檢紀錄?',
+    confirmReP:(no)=>`將以編號 ${no} 建立新的複檢紀錄,帶入上次廠商勾選結果(附件不複製),由廠商修正缺失項目後重新提送。原紀錄保留不變。`,
+    reOfBanner:(no)=>`🔁 本紀錄為 ${no} 之複檢 Re-inspection`,
+    fuTitle:'改善回覆 Improvement Response', fuPh:'請說明改善情形與補充內容…',
+    fuSave:'💾 儲存回覆', fuClose:'✔ 確認結案',
+    fuNote:'廠商:請於此上傳補充佐證並填寫改善說明後按「儲存回覆」;經 NMDC 確認符合要求後結案。',
+    confirmCloseT:'確認結案?', confirmCloseP:'補充改善內容已確認符合要求,此筆檢查將標記為「已結案」。',
+    closedTag:'已結案', fuPending:'待結案',
     signTitle:'簽核 Name & Sign-off',
     signInsp:'檢查人 Inspected By', signInspSub:'(廠商檢查人 Supplier Inspector)',
     signVer:'覆核人 Verified By', signVerSub:'(NMDC 環境官 ENV Officer) 🔑',
@@ -758,6 +776,7 @@ function blankItem(cl) {
   return { id:'', vesselZh:'', vesselEn:'', mmsi:'', imo:'', tonnage:'', vesselClass:'',
     projectNo:'', location:'', inspectDate:todayStr(), status:'draft', selfDate:'', nmdcDate:'',
     progress:'0/'+total, nmdcProgress:'0/'+total, verdict:'', verdictDeadline:'', inspNo:'', folderUrl:'',
+    closed:'', closedDate:'',
     data:{ checklist: JSON.parse(JSON.stringify(cl)),   // ★ 快照:此紀錄使用的項目版本
            answers:{}, nmdcAnswers:{},
            signoff:{inspName:'',inspDate:'',verName:'',verDate:'',endName:'',endDate:''} },
@@ -1027,6 +1046,7 @@ function buildReportBlocks(o, cl, imgMap) {
     ['專案編號 Project No.', o.projectNo], ['地點 Location', o.location],
     ['廠商自檢完成日 Self-Check Date', o.selfDate], ['NMDC 檢查完成日 NMDC Date', o.nmdcDate],
   ];
+  if (o.data && o.data.reOf) info.push(['🔁 複檢自 Re-inspection of', o.data.reOf]);
   let ir = '';
   const lcell = s => '<td style="background:#F0F4F8; color:#1D3D5C; font-weight:700; width:21%; padding:5px 9px; border:1px solid #E1E8EF; font-size:8.5px">'+s+'</td>';
   const vcell = s => '<td style="width:29%; padding:5px 9px; border:1px solid #E1E8EF; font-size:9.5px; font-weight:600; color:#1E2A36">'+esc(s||'—')+'</td>';
@@ -1049,6 +1069,19 @@ function buildReportBlocks(o, cl, imgMap) {
       '<div style="flex:none; width:36px; height:36px; border-radius:50%; background:'+vd.col+'; color:#fff; font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center">'+vd.icon+'</div>' +
       '<div style="color:'+vd.col+'; font-weight:800; font-size:12px; line-height:1.6">'+vd.txt+'</div>' +
     '</div>');
+
+  /* ── 改善回覆(有條件通過) ── */
+  const fu = (o.data && o.data.followup) || {};
+  const hasFu = o.verdict === 'cond' && (fu.text || String(o.closed) === '1' || atts.some(x => x.itemCode === 'FOLLOWUP'));
+  if (hasFu) {
+    const closedTag = String(o.closed) === '1'
+      ? '<span style="background:#1C7A42; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">✔ 已結案 CLOSED '+esc(o.closedDate||'')+'</span>'
+      : '<span style="background:#C77F0A; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">⏳ 待結案 PENDING CLOSE-OUT</span>';
+    push('<div style="border:1px solid #D5DEE7; border-radius:10px; padding:10px 14px; margin-top:10px; background:#FBFCFD">' +
+      '<div style="font-weight:800; color:#12283F; font-size:10.5px; margin-bottom:5px">📤 改善回覆 Improvement Response　'+closedTag+'</div>' +
+      '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(fu.text||'—')+'</div>' +
+      '</div>');
+  }
 
   /* ── 結果統計 ── */
   const cntOf = m => { let y=0,n=0,x=0; codes.forEach(c=>{ const v=m[c]&&m[c].v; if(v==='yes')y++; else if(v==='no')n++; else if(v==='na')x++; }); return {y,n,x}; };
@@ -1132,6 +1165,18 @@ function buildReportBlocks(o, cl, imgMap) {
       });
     });
   });
+  /* 改善回覆附件 */
+  atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f => {
+    const src = imgMap[f.fileId];
+    const body = src
+      ? '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>'
+      : '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
+    attCards.push(
+      '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
+      '<div style="background:#FDF7EA; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid #C77F0A">[FU] [改善回覆 Follow-up] '+esc(f.name)+
+      ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span></div>' + body + '</div>');
+  });
+
   if (!attCards.length) {
     push('<div style="color:#8A94A0; font-size:9.5px">(無附件 No attachments)</div>');
   } else {
@@ -1250,15 +1295,18 @@ function Modal({ m, t }) {
   );
 }
 
-function StatusBadge({ status, stage, dateSelf, dateNmdc, verdict, verdictDeadline, t }) {
+function StatusBadge({ status, stage, dateSelf, dateNmdc, verdict, verdictDeadline, closed, closedDate, t }) {
   if (stage === 'self') {
     if (status === 'self_done' || status === 'nmdc_done')
       return <span><span className="badge b-done">✓ {t.statusSelf}</span><div className="datesub">{dateSelf}</div></span>;
     return <span className="badge b-wait">{t.pending}</span>;
   }
   if (status === 'nmdc_done') {
+    const isClosed = String(closed) === '1';
     const v = verdict==='fail' ? <span className="badge b-fail">✗ {t.sFail}</span>
-      : verdict==='cond' ? <span className="badge b-cond">⚠ {t.sCond} · {t.sCondBy} {verdictDeadline}</span>
+      : verdict==='cond' ? (isClosed
+          ? <span className="badge b-done">✓ {t.sCond} · {t.closedTag} {closedDate}</span>
+          : <span className="badge b-cond">⚠ {t.sCond} · {t.sCondBy} {verdictDeadline}</span>)
       : verdict==='pass' ? <span className="badge b-done">✓ {t.sPass}</span> : null;
     return <span><span className="badge b-done">✓ {t.statusNmdc}</span><div className="datesub">{dateNmdc}</div>{v && <div style={{marginTop:3}}>{v}</div>}</span>;
   }
@@ -1266,7 +1314,7 @@ function StatusBadge({ status, stage, dateSelf, dateNmdc, verdict, verdictDeadli
 }
 
 /* ---------------- 總表 Dashboard ---------------- */
-function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, onEditor }) {
+function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, onEditor, onRe }) {
   const nSelf = list.filter(i=>i.status==='self_done'||i.status==='nmdc_done').length;
   const nNmdc = list.filter(i=>i.status==='nmdc_done').length;
   return (
@@ -1318,9 +1366,12 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
                   </td>
                   <td><StatusBadge status={it.status} stage="self" dateSelf={it.selfDate} t={t} /></td>
                   <td><StatusBadge status={it.status} stage="nmdc" dateNmdc={it.nmdcDate}
-                        verdict={it.verdict} verdictDeadline={it.verdictDeadline} t={t} /></td>
+                        verdict={it.verdict} verdictDeadline={it.verdictDeadline}
+                        closed={it.closed} closedDate={it.closedDate} t={t} /></td>
                   <td style={{whiteSpace:'nowrap'}}>
                     <button className="btn btn-navy btn-sm" onClick={()=>onOpen(it.id)}>{t.open}</button>{' '}
+                    {canEdit && it.status==='nmdc_done' && it.verdict==='fail' &&
+                      <button className="btn btn-r btn-sm" title={t.reinspectBtn} onClick={()=>onRe(it.id)}>🔁</button>}{' '}
                     {canEdit && it.folderUrl &&
                       <a className="btn btn-o btn-sm" style={{textDecoration:'none', display:'inline-block'}}
                         href={it.folderUrl} target="_blank" rel="noopener" title={t.folderTip}>📁</a>}{' '}
@@ -1432,6 +1483,8 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
 
   return (
     <div>
+      {item.data && item.data.reOf &&
+        <div className="banner blue" style={{fontWeight:700}}>{t.reOfBanner(item.data.reOf)}</div>}
       <div className="card">
         <h3>🚢 {t.vesselInfo}
           <span style={{float:'right', fontSize:12.5, color:'#1e5ca8', fontWeight:700}}>
@@ -1528,7 +1581,7 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
 }
 
 /* ---------------- NMDC 覆核表單 ---------------- */
-function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing }) {
+function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing, onReinspect }) {
   const answers = item.data.answers || {};
   const nAns = item.data.nmdcAnswers || {};
   const TOTAL = totalOf(cl);
@@ -1721,6 +1774,36 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         ))}
       </div>
 
+      {/* 有條件通過:改善回覆(廠商補件 → NMDC 結案) */}
+      {done && item.verdict === 'cond' && (() => {
+        const isClosed = String(item.closed) === '1';
+        const fu = (item.data && item.data.followup) || {};
+        return (
+          <div className="card" id="fu-card">
+            <h3>📤 {t.fuTitle}{' '}
+              {isClosed
+                ? <span className="badge b-done">✓ {t.closedTag} {item.closedDate}</span>
+                : <span className="badge b-cond">⏳ {t.fuPending}</span>}
+            </h3>
+            {!isClosed && <div className="banner blue">{t.fuNote}</div>}
+            <textarea rows={3} disabled={isClosed} placeholder={t.fuPh}
+              value={fu.text || ''}
+              onChange={e => setItem(p => Object.assign({}, p,
+                { data: Object.assign({}, p.data, { followup: Object.assign({}, p.data.followup, { text: e.target.value }) }) }))} />
+            <AttRow t={t} code="FOLLOWUP" stage="fu"
+              atts={(item.attachments || []).filter(x => x.itemCode === 'FOLLOWUP')}
+              can={!isClosed} uploading={uploadingKeys.includes('FOLLOWUP')}
+              onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
+            <div style={{display:'flex', gap:8, marginTop:10, flexWrap:'wrap'}}>
+              {!isClosed && <button className="btn btn-p" disabled={saving} onClick={()=>onSave()}>{t.fuSave}</button>}
+              {!isClosed && editMode &&
+                <button className="btn btn-navy" disabled={saving}
+                  onClick={()=>askConfirm(t.confirmCloseT, t.confirmCloseP, ()=>onSave(null, { closed:'1' }))}>{t.fuClose}</button>}
+            </div>
+          </div>
+        );
+      })()}
+
       <SignCard t={t} sign={item.data.signoff||{}} setSign={setSign} can={can} adminEdit={adminEdit && can} />
 
       <div className="footbar">
@@ -1736,6 +1819,8 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         </div>
         {can && <button className="btn btn-o" disabled={saving} onClick={()=>onSave()}>{saving ? '...' : '💾 ' + t.save}</button>}
         {can && !done && <button className="btn btn-navy" disabled={saving} onClick={trySubmit}>✓✓ {t.markNmdc}</button>}
+        {done && item.verdict==='fail' && editMode &&
+          <button className="btn btn-r" disabled={saving} onClick={onReinspect}>🔁 {t.reinspectBtn}</button>}
         {done && editMode && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
       </div>
     </div>
@@ -1990,8 +2075,8 @@ function App() {
 
   const highlightMissing = (miss) => setItem(p => Object.assign({}, p, { _miss: miss }));
 
-  const doSave = (newStatus) => {
-    const cur = Object.assign({}, itemRef.current);
+  const doSave = (newStatus, extra) => {
+    const cur = Object.assign({}, itemRef.current, extra || {});
     delete cur._miss;
     const total = totalOf(recCl(cur, clRef.current));
     if (newStatus) cur.status = newStatus;
@@ -2010,7 +2095,7 @@ function App() {
   const uploadFile = (code, files, stage) => {
     if (!files || !files.length) return;
     const itemCode = stage==='nmdc' ? code+'#NMDC' : code;
-    const label = stage==='nmdc' ? code+' (NMDC)' : code;
+    const label = stage==='nmdc' ? code+' (NMDC)' : (code==='FOLLOWUP' ? 'FU' : code);
     const maxSize = (LOCAL || TESTMODE) ? 2*1024*1024 : 15*1024*1024;
     const arr = Array.from(files);
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
@@ -2041,7 +2126,8 @@ function App() {
   const guardLeave = (next) => {
     const it = itemRef.current;
     const editable = viewRef.current === 'form' && it && dirtyRef.current &&
-      (it.status === 'draft' || editMode || testMode);
+      (it.status === 'draft' || editMode || testMode ||
+       (it.status === 'nmdc_done' && it.verdict === 'cond' && String(it.closed) !== '1'));
     if (!editable) { next(); return; }
     setModal({
       title: '🚨 ' + t.leaveT + ' 🚨',
@@ -2062,6 +2148,32 @@ function App() {
       setItem(p => Object.assign({}, p, { attachments: (p.attachments||[]).filter(a=>a.fileId!==f.fileId) }));
     }).catch(e => showToast(e.message, true));
   }, true);
+
+  /* 🔁 未通過 → 建立複檢紀錄(帶入上次廠商勾選,附件不複製) */
+  const nextRNo = (no) => {
+    const m = String(no || '').match(/^(.*?)-R(\d+)$/);
+    return m ? m[1] + '-R' + (parseInt(m[2], 10) + 1) : (no ? no + '-R1' : '');
+  };
+  const reinspect = (full) => {
+    const newNo = nextRNo(full.inspNo);
+    askConfirm(t.confirmReT, t.confirmReP(newNo), () => {
+      const cl = recCl(full, clRef.current);
+      const copy = blankItem(cl);
+      ['vesselZh','vesselEn','mmsi','imo','tonnage','vesselClass','projectNo','location'].forEach(k => copy[k] = full[k] || '');
+      copy.inspNo = newNo;
+      copy.data.answers = JSON.parse(JSON.stringify((full.data && full.data.answers) || {}));
+      copy.data.reOf = full.inspNo;
+      copy.progress = countMap(copy.data.answers) + '/' + totalOf(cl);
+      track(api('save', { item: copy }), t.savingData).then(r => {
+        showToast(t.reCreated(r.item.inspNo || newNo));
+        setItem(normalize(r.item)); setDirty(false); setView('form'); window.scrollTo(0,0);
+        api('list').then(x=>setList(x.items||[])).catch(()=>{});
+      }).catch(e => showToast(String(e.message || e), true));
+    });
+  };
+  const reinspectById = (id) =>
+    track(api('get', { id })).then(r => reinspect(normalize(r.item)))
+      .catch(() => showToast(t.loadFail, true));
 
   const deleteInsp = (id) => askConfirm(t.confirmDelT, t.confirmDelP, () => {
     track(api('delete', { id }), t.working).then(refresh).catch(e => showToast(e.message, true));
@@ -2159,7 +2271,7 @@ function App() {
         {!effEdit && <div className="banner gray">{t.viewMode}</div>}
         {view === 'dash' &&
           <Dashboard t={t} list={list} loading={loading} canEdit={effEdit}
-            onOpen={openItem} onNew={newItem} onDelete={deleteInsp} onPdf={exportById}
+            onOpen={openItem} onNew={newItem} onDelete={deleteInsp} onPdf={exportById} onRe={reinspectById}
             onEditor={()=>{ setView('editor'); window.scrollTo(0,0); }} />}
         {view === 'editor' &&
           <Editor t={t} checklist={checklist} onSave={saveChecklistFn} saving={saving}
@@ -2176,7 +2288,8 @@ function App() {
             onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
             askConfirm={askConfirm} showToast={showToast}
-            onExport={()=>exportRecord(itemRef.current)} exporting={exporting} highlightMissing={highlightMissing} />}
+            onExport={()=>exportRecord(itemRef.current)} exporting={exporting} highlightMissing={highlightMissing}
+            onReinspect={()=>reinspect(itemRef.current)} />}
       </div>
 
       {busyMsgs.length > 0 &&
