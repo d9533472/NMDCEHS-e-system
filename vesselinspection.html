@@ -1073,7 +1073,7 @@ function buildReportBlocks(o, cl, imgMap) {
 
   cl.forEach((sec, si) => {
     const c = PDF_COLORS[si % PDF_COLORS.length];
-    push('<div style="display:flex; align-items:center; gap:8px; background:'+c.bg+'; border-left:5px solid '+c.ac+'; border-radius:0 6px 6px 0; padding:5px 10px; margin:8px 0 3px">' +
+    push('<div style="display:flex; align-items:center; gap:8px; background:'+c.bg+'; border-left:5px solid '+c.ac+'; border-radius:0 6px 6px 0; padding:6px 10px; margin:'+(si===0?'8px':'22px')+' 0 4px">' +
       '<div style="flex:none; width:19px; height:19px; border-radius:50%; background:'+c.ac+'; color:#fff; font-weight:800; font-size:10px; display:flex; align-items:center; justify-content:center">'+esc(sec.code)+'</div>' +
       '<div style="font-weight:800; color:'+c.tx+'; font-size:11px">'+esc(sec.en)+'　'+esc(sec.zh)+'</div>' +
       '<div style="margin-left:auto; font-size:8.5px; color:'+c.tx+'; opacity:.8">'+(sec.items||[]).length+' items</div></div>');
@@ -1141,47 +1141,58 @@ function buildReportBlocks(o, cl, imgMap) {
 async function generatePdf(o, cl, imgMap) {
   await loadScriptOnce(LIB_H2C);
   await loadScriptOnce(LIB_JSPDF);
-  const PAGE_W = 794, PAGE_H = 1123, PAD = 30, FOOT = 24;   // A4 @96dpi
+  const PAGE_W = 794, PAGE_H = 1123, PAD = 30, FOOT = 26;   // A4 @96dpi
   const availH = PAGE_H - PAD * 2 - FOOT;
+  const FONT = 'Arial,\'Noto Sans TC\',\'PingFang TC\',\'Microsoft JhengHei\',sans-serif';
 
   const work = document.createElement('div');
-  work.style.cssText = 'position:fixed; left:-12000px; top:0; width:'+(PAGE_W - PAD*2)+'px; background:#fff; font-family:Arial,\'Noto Sans TC\',\'PingFang TC\',\'Microsoft JhengHei\',sans-serif; color:#1E2A36;';
+  work.style.cssText = 'position:fixed; left:-12000px; top:0; background:#fff;';
   document.body.appendChild(work);
 
-  const blocks = buildReportBlocks(o, cl, imgMap).map(b => {
+  // 先把全部 blocks 放進暫存區,等圖片載入
+  const stage = document.createElement('div');
+  stage.style.cssText = 'width:'+(PAGE_W - PAD*2)+'px; background:#fff; font-family:'+FONT+'; color:#1E2A36;';
+  work.appendChild(stage);
+  const queue = buildReportBlocks(o, cl, imgMap).map(b => {
     const d = document.createElement('div');
     d.innerHTML = b.html;
     d.__break = b.pageBreak;
-    work.appendChild(d);
+    stage.appendChild(d);
     return d;
   });
-
-  // 等圖片載入完成再量高度
-  await Promise.all(Array.from(work.querySelectorAll('img')).map(im =>
+  await Promise.all(Array.from(stage.querySelectorAll('img')).map(im =>
     (im.decode ? im.decode() : Promise.resolve()).catch(()=>{})));
 
-  // 分頁
-  const pages = [];
-  let cur = [], h = 0;
-  blocks.forEach(d => {
-    const bh = d.offsetHeight;
-    if ((d.__break || h + bh > availH) && cur.length) { pages.push(cur); cur = []; h = 0; }
-    cur.push(d); h += bh;
-  });
-  if (cur.length) pages.push(cur);
+  // 逐頁「實際裝箱」:放進頁面量實際高度(含 margin),超出就整塊移到下一頁 → 內容不會被切割
+  const pageDivs = [];
+  let qi = 0;
+  while (qi < queue.length) {
+    const pg = document.createElement('div');
+    pg.style.cssText = 'width:'+PAGE_W+'px; height:'+PAGE_H+'px; background:#fff; padding:'+PAD+'px; box-sizing:border-box; position:relative; overflow:hidden; font-family:'+FONT+'; color:#1E2A36;';
+    const inner = document.createElement('div');
+    pg.appendChild(inner);
+    work.appendChild(pg);
+    let count = 0;
+    while (qi < queue.length) {
+      const d = queue[qi];
+      if (count > 0 && d.__break) break;          // 指定換頁
+      inner.appendChild(d);
+      if (inner.scrollHeight > availH && count > 0) { inner.removeChild(d); break; }  // 裝不下 → 下一頁
+      qi++; count++;
+      if (inner.scrollHeight > availH) break;     // 單一 block 高於一頁:自成一頁
+    }
+    pageDivs.push(pg);
+  }
 
-  // 逐頁轉圖 → jsPDF
+  // 加頁尾 → 逐頁轉圖 → jsPDF
   const jsPDFC = window.jspdf.jsPDF;
   const pdf = new jsPDFC({ unit:'mm', format:'a4', orientation:'portrait', compress:true });
-  for (let i = 0; i < pages.length; i++) {
-    const pg = document.createElement('div');
-    pg.style.cssText = 'width:'+PAGE_W+'px; height:'+PAGE_H+'px; background:#fff; padding:'+PAD+'px; box-sizing:border-box; position:relative; font-family:Arial,\'Noto Sans TC\',\'PingFang TC\',\'Microsoft JhengHei\',sans-serif; color:#1E2A36;';
-    pages[i].forEach(d => pg.appendChild(d));
+  for (let i = 0; i < pageDivs.length; i++) {
+    const pg = pageDivs[i];
     const foot = document.createElement('div');
-    foot.style.cssText = 'position:absolute; left:'+PAD+'px; right:'+PAD+'px; bottom:9px; border-top:1px solid #C9D3DC; color:#8A94A0; font-size:8px; padding-top:4px; display:flex; justify-content:space-between;';
-    foot.innerHTML = '<span>'+DOC_NO+' · '+DOC_REV+' · '+esc(o.inspNo||'')+' · 環境船檢系統</span><span>Page '+(i+1)+' / '+pages.length+'</span>';
+    foot.style.cssText = 'position:absolute; left:'+PAD+'px; right:'+PAD+'px; bottom:9px; background:#fff; border-top:1px solid #C9D3DC; color:#8A94A0; font-size:8px; padding-top:4px; display:flex; justify-content:space-between;';
+    foot.innerHTML = '<span>'+DOC_NO+' · '+DOC_REV+' · '+esc(o.inspNo||'')+' · 環境船檢系統</span><span>Page '+(i+1)+' / '+pageDivs.length+'</span>';
     pg.appendChild(foot);
-    work.appendChild(pg);
     const canvas = await window.html2canvas(pg, { scale:2, backgroundColor:'#ffffff', logging:false });
     if (i > 0) pdf.addPage();
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.88), 'JPEG', 0, 0, 210, 297);
