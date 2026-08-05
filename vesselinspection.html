@@ -293,6 +293,7 @@ const T = {
     newNoticeT:'NOTICE',
     newNoticeList:[
       'Complete each item according to the requirements applicable to your vessel\'s tonnage and class.',
+      { hot:true, text:'If you select "Yes", supporting evidence (e.g. photos or documents) MUST be attached.' },
       'If an item does not apply due to your vessel\'s tonnage or class, you may select "N/A" first and briefly state the reason in the remarks.',
       'NMDC will confirm during its review whether the item is truly not applicable.'],
     newNoticeOk:'I understand — Start',
@@ -318,6 +319,7 @@ const T = {
     loadingData:'Loading data...', refreshing:'Refreshing…', savingData:'Saving...',
     uploadingData:'Uploading attachment...', exportingData:'Generating PDF...', working:'Processing...',
     refreshFail:'Could not refresh — showing last saved data.', folderTip:'Open Google Drive folder',
+    folderUrlLabel:'📁 Drive Folder Link', folderUrlPh:'Leave blank — auto-created on save; or paste a link',
     adminEditNote:'🔓 Admin edit mode — you can modify all data on this record (incl. vessel info, inspection no. and contractor answers). Remember to Save after changes.',
     /* 項目編輯器 */
     editChecklist:'📝 Edit Checklist', editorTitle:'Checklist Editor',
@@ -370,6 +372,7 @@ const T = {
     newNoticeT:'注意',
     newNoticeList:[
       '請依貴船之噸位與船級,逐項確認適用要求後填寫。',
+      { hot:true, text:'若勾選「Yes」,請務必附上相關佐證(如照片或文件)。' },
       '若項目因船舶噸位或船級而不適用,可先勾選「N/A」並於備註簡要說明原因。',
       '是否確屬不適用,將由 NMDC 於複檢時確認。'],
     newNoticeOk:'我了解,開始填寫',
@@ -395,6 +398,7 @@ const T = {
     loadingData:'資料讀取中…', refreshing:'更新中…', savingData:'儲存中…',
     uploadingData:'附件上傳中…', exportingData:'PDF 產生中…', working:'處理中…',
     refreshFail:'暫時無法連線更新,目前顯示上次的資料。', folderTip:'開啟 Google Drive 資料夾',
+    folderUrlLabel:'📁 Drive 資料夾連結', folderUrlPh:'留空儲存後自動建立;也可自行貼上連結',
     adminEditNote:'🔓 管理者編輯模式 — 此紀錄的所有資料(含船舶基本資料、船檢編號、廠商勾選結果)皆可修改,改完請記得按「儲存」。',
     /* 項目編輯器 */
     editChecklist:'📝 編輯檢查項目', editorTitle:'檢查項目編輯器',
@@ -1222,7 +1226,12 @@ function Modal({ m, t }) {
         {m.body && <p>{m.body}</p>}
         {m.list &&
           <ol style={{margin:'0 0 16px', paddingLeft:22, fontSize:14, color:'#333', lineHeight:1.75}}>
-            {m.list.map((x,i)=><li key={i} style={{marginBottom:6}}>{x}</li>)}
+            {m.list.map((x,i)=> (typeof x === 'object' && x.hot)
+              ? <li key={i} style={{marginBottom:6}}>
+                  <span style={{background:'#fdecec', color:'var(--red)', fontWeight:800,
+                    border:'1px solid #f3c6c6', borderRadius:7, padding:'2px 7px', display:'inline-block'}}>
+                    ❗ {x.text}</span></li>
+              : <li key={i} style={{marginBottom:6}}>{typeof x === 'object' ? x.text : x}</li>)}
           </ol>}
         {m.link && <p><a href={m.link} target="_blank" rel="noopener" style={{color:'#1e5ca8', fontWeight:700}}>{m.linkLabel || m.link}</a></p>}
         {m.input &&
@@ -1431,6 +1440,9 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
           {adminEdit &&
             <div className="field"><label>{t.colNo} 🔓</label>
               <input value={item.inspNo||''} onChange={e=>setField('inspNo', e.target.value)} placeholder="EVI-001" /></div>}
+          {adminEdit &&
+            <div className="field"><label>{t.folderUrlLabel} 🔓</label>
+              <input value={item.folderUrl||''} onChange={e=>setField('folderUrl', e.target.value)} placeholder={t.folderUrlPh} /></div>}
           <div className="field"><label>{t.vNameZh}</label>
             <input disabled={!can} value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} placeholder="例:大地" /></div>
           <div className="field"><label>{t.vNameEn} <span className="req">*</span></label>
@@ -1581,6 +1593,8 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
           <div className="grid">
             <div className="field"><label>{t.colNo}</label>
               <input value={item.inspNo||''} onChange={e=>setField('inspNo', e.target.value)} placeholder="EVI-001" /></div>
+            <div className="field"><label>{t.folderUrlLabel}</label>
+              <input value={item.folderUrl||''} onChange={e=>setField('folderUrl', e.target.value)} placeholder={t.folderUrlPh} /></div>
             <div className="field"><label>{t.vNameZh}</label>
               <input value={item.vesselZh} onChange={e=>setField('vesselZh', e.target.value)} /></div>
             <div className="field"><label>{t.vNameEn}</label>
