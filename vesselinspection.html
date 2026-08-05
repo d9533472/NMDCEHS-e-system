@@ -316,7 +316,7 @@ const T = {
     testBanner:'🧪 TEST MODE — practice freely: data stays in this browser only, nothing is written to the production database. Editing is enabled without the key.',
     clearTest:'Clear test data', testOn:'Test mode ON 🧪', testOff:'Test mode OFF — back to production data',
     confirmClearT:'Clear all test data?', confirmClearP:'All test records in this browser will be removed.',
-    seedDemo:'⚡ Create sample data', seedDone:'Sample records created ✓ (one Self-Check done, one NMDC done)',
+    seedDemo:'⚡ Create sample data', seedDone:'Sample records created ✓ — Self-Check done / Conditional-pass awaiting close-out / Failed + Re-inspection / Closed-out',
     viewMode:'👁 Anyone can create a new inspection and fill the contractor self-check. Editing existing records, NMDC review, delete and the checklist editor require the 🔑 key (top right).',
     unlockT:'Enter Edit Mode', unlockP:'Enter the edit password.', wrongCode:'Wrong password', lockedMsg:'Switched to view mode',
     needSave:'Record will be saved first before uploading.',
@@ -404,7 +404,7 @@ const T = {
     testBanner:'🧪 測試模式 — 可放心練習:資料僅存於此瀏覽器,不會寫入正式資料庫;不需鑰匙即可編輯。',
     clearTest:'清除測試資料', testOn:'已開啟測試模式 🧪', testOff:'已關閉測試模式 — 回到正式資料',
     confirmClearT:'清除所有測試資料?', confirmClearP:'此瀏覽器內的測試紀錄將全部刪除。',
-    seedDemo:'⚡ 建立範例資料', seedDone:'範例資料已建立 ✓(自檢完成、NMDC 完成各一筆)',
+    seedDemo:'⚡ 建立範例資料', seedDone:'範例資料已建立 ✓:自檢完成、有條件通過(待結案)、未通過+複檢、已結案 各一組',
     viewMode:'👁 任何人都可以「新增檢查」並填寫廠商自檢;編輯既有紀錄、NMDC 覆核、刪除與項目編輯需點右上角 🔑 解鎖。',
     unlockT:'進入編輯模式', unlockP:'請輸入編輯密碼。', wrongCode:'密碼錯誤', lockedMsg:'已切換為檢視模式',
     needSave:'上傳前將先自動儲存紀錄。',
@@ -2020,34 +2020,66 @@ function App() {
     const plus14 = (() => { const d = new Date(); d.setDate(d.getDate() + 14);
       return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); })();
 
-    const rec1 = Object.assign(blankItem(cl), {
-      vesselZh:'測試船 Alpha', vesselEn:'TEST VESSEL ALPHA', mmsi:'416000001', imo:'9000001',
-      tonnage:'3500', vesselClass:'CR', projectNo:'TXO-P2', location:'Taichung Anchorage',
-      status:'self_done', progress:total+'/'+total });
+    const baseInfo = (zh, en, mmsi, imo, ton, cls) => ({
+      vesselZh:zh, vesselEn:en, mmsi:mmsi, imo:imo, tonnage:ton, vesselClass:cls,
+      projectNo:'TXO-P2', location:'Taichung Anchorage' });
+    const signAll = {inspName:'HSEO 王環安', inspDate:todayStr(), verName:'HSEE 李工程', verDate:todayStr(),
+                     endName:'Capt. J. Hansen', endDate:todayStr()};
+
+    /* ① Alpha:自檢完成(等 NMDC 查驗) */
+    const rec1 = Object.assign(blankItem(cl), baseInfo('測試船 Alpha','TEST VESSEL ALPHA','416000001','9000001','3500','CR'),
+      { status:'self_done', progress:total+'/'+total });
     rec1.data.answers = mkAnswers(noC1, 'Waste bin near galley overflowing — cleared during inspection');
     rec1.data.signoff = {inspName:'', inspDate:'', verName:'', verDate:'', endName:'Capt. J. Hansen', endDate:todayStr()};
 
-    const rec2 = Object.assign(blankItem(cl), {
-      vesselZh:'測試船 Beta', vesselEn:'TEST VESSEL BETA', mmsi:'416000002', imo:'9000002',
-      tonnage:'5200', vesselClass:'DNV', projectNo:'TXO-P2', location:'Taichung Anchorage',
-      status:'nmdc_done', verdict:'cond', verdictDeadline:plus14,
-      progress:total+'/'+total, nmdcProgress:total+'/'+total });
+    /* ② Beta:有條件通過 → 廠商已補件,待 NMDC 確認結案 */
+    const rec2 = Object.assign(blankItem(cl), baseInfo('測試船 Beta','TEST VESSEL BETA','416000002','9000002','5200','DNV'),
+      { status:'nmdc_done', verdict:'cond', verdictDeadline:plus14,
+        progress:total+'/'+total, nmdcProgress:total+'/'+total });
     rec2.data.answers = mkAnswers(noC2, 'Visible dust observed during bulk material transfer');
     rec2.data.nmdcAnswers = mkAnswers(noC2, 'Confirmed — submit updated dust control method statement');
-    rec2.data.signoff = {inspName:'HSEO 王環安', inspDate:todayStr(), verName:'HSEE 李工程', verDate:todayStr(),
-                         endName:'Capt. J. Hansen', endDate:todayStr()};
+    rec2.data.followup = { text:'已提交更新之揚塵抑制作業程序,散裝物料作業改採密閉輸送並加強灑水。\nUpdated dust control method statement submitted; bulk transfer now enclosed with water spray applied.' };
+    rec2.data.signoff = signAll;
+
+    /* ③ Gamma:未通過(總表會出現 🔁 建立複檢) */
+    const rec3 = Object.assign(blankItem(cl), baseInfo('測試船 Gamma','TEST VESSEL GAMMA','416000003','9000003','4100','ABS'),
+      { status:'nmdc_done', verdict:'fail',
+        progress:total+'/'+total, nmdcProgress:total+'/'+total });
+    rec3.data.answers = mkAnswers(noC1, 'Oily water discharge record missing for last voyage');
+    rec3.data.nmdcAnswers = mkAnswers(noC1, 'Not acceptable — records cannot be produced on board. Re-inspection required.');
+    rec3.data.signoff = signAll;
+
+    /* ⑤ Delta:有條件通過 → 已補件並結案(綠色 ✓) */
+    const rec5 = Object.assign(blankItem(cl), baseInfo('測試船 Delta','TEST VESSEL DELTA','416000004','9000004','2800','CR'),
+      { status:'nmdc_done', verdict:'cond', verdictDeadline:todayStr(),
+        closed:'1', closedDate:todayStr(),
+        progress:total+'/'+total, nmdcProgress:total+'/'+total });
+    rec5.data.answers = mkAnswers(noC2, 'Dust screen partially damaged on stbd side');
+    rec5.data.nmdcAnswers = mkAnswers(noC2, 'Conditional — replace dust screen and submit photo evidence');
+    rec5.data.followup = { text:'右舷防塵網已更換完成,照片如附件。\nStbd dust screen replaced — photo attached. Confirmed and closed by NMDC.' };
+    rec5.data.signoff = signAll;
 
     const img1 = demoPhotoB64('A-2 DUST PHOTO', '#8a6d3b');
     const img2 = demoPhotoB64('NMDC VERIFICATION', '#1d3d5c');
-    api('save', { item: rec1 })
-      .then(() => api('save', { item: rec2 }))
-      .then(r => {
-        const id = r.item.id;
-        return api('upload', { inspId:id, itemCode:noC2, label:noC2, name:'dust_photo.png', mimeType:'image/png', base64:img1 })
-          .then(() => api('upload', { inspId:id, itemCode:noC2+'#NMDC', label:noC2+' (NMDC)', name:'verification_photo.png', mimeType:'image/png', base64:img2 }));
-      })
-      .then(() => { showToast(t.seedDone); refresh(); })
-      .catch(e => showToast(String(e.message||e), true));
+    const img3 = demoPhotoB64('IMPROVEMENT EVIDENCE', '#1c7a42');
+    (async () => {
+      await api('save', { item: rec1 });
+      const r2 = await api('save', { item: rec2 });
+      await api('upload', { inspId:r2.item.id, itemCode:noC2, label:noC2, name:'dust_photo.png', mimeType:'image/png', base64:img1 });
+      await api('upload', { inspId:r2.item.id, itemCode:noC2+'#NMDC', label:noC2+' (NMDC)', name:'verification_photo.png', mimeType:'image/png', base64:img2 });
+      await api('upload', { inspId:r2.item.id, itemCode:'FOLLOWUP', label:'FU', name:'improvement_evidence.png', mimeType:'image/png', base64:img3 });
+      const r3 = await api('save', { item: rec3 });
+      /* ④ Gamma-R1:複檢紀錄(帶入 Gamma 廠商勾選,草稿狀態) */
+      const rec4 = Object.assign(blankItem(cl), baseInfo('測試船 Gamma','TEST VESSEL GAMMA','416000003','9000003','4100','ABS'));
+      rec4.inspNo = (r3.item.inspNo || 'EVI-003') + '-R1';
+      rec4.data.reOf = r3.item.inspNo || '';
+      rec4.data.answers = JSON.parse(JSON.stringify(rec3.data.answers));
+      rec4.progress = countMap(rec4.data.answers) + '/' + total;
+      await api('save', { item: rec4 });
+      const r5 = await api('save', { item: rec5 });
+      await api('upload', { inspId:r5.item.id, itemCode:'FOLLOWUP', label:'FU', name:'dust_screen_replaced.png', mimeType:'image/png', base64:img3 });
+      showToast(t.seedDone); refresh();
+    })().catch(e => showToast(String(e.message||e), true));
   };
 
   const normalize = (it) => {
