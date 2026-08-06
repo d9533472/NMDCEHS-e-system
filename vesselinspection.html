@@ -197,6 +197,10 @@ window.__earlyBoot = null;
   .sechead-edit input.code{width:64px; text-align:center; font-weight:800;}
   .sechead-edit input{font-size:14px;}
 
+  .retrybar{position:fixed; left:0; right:0; bottom:64px; z-index:70; background:#8a4a00; color:#fff;
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:9px 16px; font-size:13.5px; font-weight:700;
+    box-shadow:0 -2px 10px rgba(0,0,0,.25);}
+  .retrybar .btn{padding:5px 14px; font-size:13px;}
   .footbar{position:fixed; left:0; right:0; bottom:0; z-index:60; background:#fff;
     border-top:1px solid var(--line); padding:10px 12px; display:flex; gap:8px; align-items:center;
     box-shadow:0 -4px 14px rgba(0,0,0,.06); flex-wrap:wrap;}
@@ -335,6 +339,8 @@ const T = {
     upNetwork:'Network error during upload — check your connection and try again.',
     upFail:'Upload failed',
     upLsFull:'Test-mode browser storage is full — clear test data and try again.',
+    upRetryMsg:(n)=>`⚠ ${n} attachment(s) failed to upload — kept on this page. Retry before leaving.`,
+    upRetryAll:'↻ Retry all', upRetryDrop:'✕ Discard', upRetryDone:'Attachment(s) uploaded ✓',
     errAllItems:(n,total)=>`${n} item(s) not answered yet — ALL ${total} items must be answered before completion.`,
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
@@ -437,6 +443,8 @@ const T = {
     upNetwork:'上傳時網路中斷 — 請確認連線後重試。Network error.',
     upFail:'上傳失敗 Upload failed',
     upLsFull:'測試模式瀏覽器空間已滿 — 請清除測試資料後再試。Browser storage full.',
+    upRetryMsg:(n)=>`⚠ ${n} 張附件上傳失敗 — 照片仍暫存於此頁,離開前請重試(不用重新選檔)。`,
+    upRetryAll:'↻ 全部重試', upRetryDrop:'✕ 放棄', upRetryDone:'附件已上傳 ✓',
     errAllItems:(n,total)=>`尚有 ${n} 項未勾選 — 全部 ${total} 項勾選完成後才能送出。`,
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
@@ -2038,6 +2046,8 @@ function App() {
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
   const [uploadingKeys, setUploadingKeys] = useState([]);
+  const [failedUps, setFailedUps] = useState([]);   // 上傳失敗的附件(壓縮檔暫存於記憶體,可一鍵重試)
+  const failedRef = useRef([]); failedRef.current = failedUps;
   const [busyMsgs, setBusyMsgs] = useState([]);   // 長時間動作 overlay(讀取/儲存/上傳/PDF)
   const track = (p, msg) => {
     const m = { msg };
@@ -2090,7 +2100,7 @@ function App() {
 
   /* 關閉/重新整理瀏覽器時的原生攔截 */
   useEffect(() => {
-    const h = (e) => { if (dirtyRef.current && viewRef.current === 'form') { e.preventDefault(); e.returnValue = ''; } };
+    const h = (e) => { if ((dirtyRef.current && viewRef.current === 'form') || failedRef.current.length) { e.preventDefault(); e.returnValue = ''; } };
     window.addEventListener('beforeunload', h);
     return () => window.removeEventListener('beforeunload', h);
   }, []);
@@ -2366,22 +2376,43 @@ function App() {
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
       (showToast(t.needSave), doSave());
     ensureSaved.then(saved => {
-      /* 逐張排隊上傳:避免多張同時打後端搶寫入鎖而逾時 */
+      /* 逐張排隊上傳:避免多張同時打後端搶寫入鎖而逾時(背景執行,不擋畫面) */
       arr.reduce((chain, f) => chain.then(() =>
-        prepFile(f).then(p => {
-          if (!p) { showToast(t.upFail + ': ' + f.name, true); return; }
-          if (p.size > maxSize) { showToast(t.fileTooBig, true); return; }
-          setUploadingKeys(k=>[...k, itemCode]);
-          return track(api('upload', { inspId: saved.id, itemCode, label, name: p.name, mimeType: p.mimeType, base64: p.base64 }), t.uploadingData)
-            .then(r => {
-              setItem(x => Object.assign({}, x, { attachments: [...(x.attachments||[]), r.attachment] }));
-            })
-            .catch(e => showToast(friendlyUpErr(e), true))
-            .then(() => setUploadingKeys(k => { const i=k.indexOf(itemCode); const c=[...k]; if(i>-1)c.splice(i,1); return c; }));
+        prepFile(f).then(pf => {
+          if (!pf) { showToast(t.upFail + ': ' + f.name, true); return; }
+          if (pf.size > maxSize) { showToast(t.fileTooBig, true); return; }
+          return sendUpload({ inspId: saved.id, itemCode, label, name: pf.name, mimeType: pf.mimeType, base64: pf.base64, size: pf.size });
         })
       ), Promise.resolve()).catch(()=>{});
     }).catch(()=>{});
   };
+
+  /* 單張上傳(含失敗暫存):成功掛進附件列表;失敗留在 failedUps 可一鍵重試,不用重選檔案 */
+  const sendUpload = (u) => {
+    setUploadingKeys(k => [...k, u.itemCode]);
+    return api('upload', { inspId: u.inspId, itemCode: u.itemCode, label: u.label, name: u.name, mimeType: u.mimeType, base64: u.base64 })
+      .then(r => {
+        setItem(x => (x && x.id === u.inspId)
+          ? Object.assign({}, x, { attachments: [...(x.attachments||[]), r.attachment] }) : x);
+        return true;
+      })
+      .catch(e => {
+        showToast(friendlyUpErr(e), true);
+        setFailedUps(p => [...p, Object.assign({ fid: 'f' + Date.now() + Math.floor(Math.random()*999) }, u)]);
+        return false;
+      })
+      .then(ok => { setUploadingKeys(k => { const i=k.indexOf(u.itemCode); const c=[...k]; if(i>-1)c.splice(i,1); return c; }); return ok; });
+  };
+
+  const retryFailedUps = () => {
+    const list = failedRef.current;
+    if (!list.length) return;
+    setFailedUps([]);
+    list.reduce((chain, u) => chain.then(okAll =>
+      sendUpload(u).then(ok => okAll && ok)
+    ), Promise.resolve(true)).then(allOk => { if (allOk) showToast(t.upRetryDone); });
+  };
+  const dropFailedUps = () => setFailedUps([]);
 
   /* 未儲存離開的三鍵警告 */
   const guardLeave = (next) => {
@@ -2553,6 +2584,12 @@ function App() {
             onReinspect={()=>reinspect(itemRef.current)} />}
       </div>
 
+      {failedUps.length > 0 &&
+        <div className="retrybar">
+          <span style={{flex:1, minWidth:200}}>{t.upRetryMsg(failedUps.length)}</span>
+          <button className="btn btn-p" onClick={retryFailedUps}>{t.upRetryAll}</button>
+          <button className="btn btn-o" onClick={dropFailedUps}>{t.upRetryDrop}</button>
+        </div>}
       {busyMsgs.length > 0 &&
         <div className="loadbg">
           <div className="loadcard"><div className="spinner"></div>{busyMsgs[busyMsgs.length-1].msg || t.loadingData}</div>
