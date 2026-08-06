@@ -277,7 +277,8 @@ const T = {
     progSelf:'Self', progNmdc:'NMDC',
     vesselInfo:'Vessel Information', autoNo:'(auto-numbered on save)',
     contactName:'Inspection Contact Person 船檢聯絡人', contactPhone:'Contact Phone 聯絡電話', contactEmail:'Contact Email 電子信箱',
-    pdfFetching:'Downloading attachment photos…', pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
+    pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
+    pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
     vNameZh:'Vessel Name (Chinese)', vNameEn:'Vessel Name (English)', mmsi:'MMSI', imo:'IMO No.',
     tonnage:'Gross Tonnage', vClass:'Class Society (CR, ABS...)', projectNo:'Project No.',
     location:'Location', inspectDate:'Inspection Date',
@@ -331,6 +332,7 @@ const T = {
     revert:'Revert to previous stage', exportPdf:'📄 Export PDF', exporting:'Generating PDF...',
     pdfDone:'PDF saved to Drive ✓', pdfOpen:'Open PDF', pdfLocal:'Use the print dialog → Save as PDF',
     pdfLocalToo:'A copy has also been downloaded to this device.',
+    pdfDriveFail:'⚠ PDF was downloaded to this device, but saving to Drive failed — export again later to file the Drive copy.',
     confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
     newNoticeT:'NOTICE',
     newNoticeList:[
@@ -394,7 +396,8 @@ const T = {
     progSelf:'自檢', progNmdc:'NMDC',
     vesselInfo:'船舶基本資料', autoNo:'(儲存後自動編號)',
     contactName:'船檢聯絡人 Contact Person', contactPhone:'聯絡電話 Contact Phone', contactEmail:'電子信箱 Contact Email',
-    pdfFetching:'附件照片下載中…', pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
+    pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
+    pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
     vNameZh:'船舶中文名稱', vNameEn:'船舶英文名稱', mmsi:'MMSI', imo:'IMO 編號',
     tonnage:'總噸位', vClass:'船級協會 (CR、ABS...)', projectNo:'專案編號',
     location:'地點', inspectDate:'檢查日期',
@@ -448,6 +451,7 @@ const T = {
     revert:'退回上一階段', exportPdf:'📄 匯出 PDF 留底', exporting:'PDF 產生中...',
     pdfDone:'PDF 已存入 Drive ✓', pdfOpen:'開啟 PDF', pdfLocal:'請在列印視窗選「另存為 PDF」',
     pdfLocalToo:'已同時下載一份到此裝置。A copy has also been downloaded to this device.',
+    pdfDriveFail:'⚠ PDF 已下載到此裝置,但存回 Drive 失敗 — 請稍後對此紀錄再按一次匯出即可補存 Drive。',
     confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
     newNoticeT:'注意',
     newNoticeList:[
@@ -749,7 +753,8 @@ function apiOnce(action, payload) {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', SCRIPT_URL, true);
     /* 上傳/存 PDF 帶大 payload,行動網路慢時 30 秒不夠 → 給 120 秒;其餘 30 秒避免掛住 */
-    xhr.timeout = (action === 'upload' || action === 'storePdf') ? 120000 : 30000;
+    xhr.timeout = (action === 'upload' || action === 'storePdf') ? 120000
+                : (action === 'filesData') ? 90000 : 30000;   // 抓附件圖片:分批+90 秒
     xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
     xhr.onload = () => {
       if (xhr.status >= 400) { reject(new Error('HTTP ' + xhr.status)); return; }
@@ -2686,9 +2691,17 @@ function App() {
       if (LOCAL || TESTMODE) {
         atts.forEach(x => { if (String(x.url).indexOf('data:image/') === 0) imgMap[x.fileId] = x.url; });
       } else if (atts.length) {
-        upd(t.pdfFetching);
-        const r = await api('filesData', { ids: atts.map(x => x.fileId) });
-        imgMap = r.images || {};
+        /* 分批抓附件圖片(每批 3 張):一次抓全部在行動網路上會逾時;
+           某批失敗 → 該批照片以「存於 Drive」佔位,PDF 照樣產出,不整份失敗 */
+        const ids = atts.map(x => x.fileId);
+        const CHUNK = 3;
+        for (let i = 0; i < ids.length; i += CHUNK) {
+          upd(t.pdfFetchingN(Math.min(i + CHUNK, ids.length), ids.length));
+          try {
+            const r = await api('filesData', { ids: ids.slice(i, i + CHUNK) });
+            Object.assign(imgMap, r.images || {});
+          } catch (e) {}   // 這批抓不到就略過,報表中顯示 Drive 佔位說明
+        }
       }
       const pdf = await generatePdf(full, cl, imgMap, (i, n) => upd(t.pdfPaging(i, n)));
       const name = '船檢表_' + (full.inspNo || full.id) + '_' + (full.vesselEn || full.vesselZh || '') + '.pdf';
@@ -2696,9 +2709,13 @@ function App() {
       pdf.save(name);   // ① 先直接下載一份到裝置(就算之後存 Drive 失敗,檔案也已在手上)
       upd(t.pdfUploading);
       const base64 = pdf.output('datauristring').split(',')[1];
-      const r2 = await api('storePdf', { id: full.id, name, base64 });   // ② 再存回該筆檢查的 Drive 資料夾
-      setModal({ title: t.pdfDone, body: r2.name + '\n' + t.pdfLocalToo, link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
-        onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
+      try {
+        const r2 = await api('storePdf', { id: full.id, name, base64 });   // ② 再存回該筆檢查的 Drive 資料夾
+        setModal({ title: t.pdfDone, body: r2.name + '\n' + t.pdfLocalToo, link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
+          onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
+      } catch (e) {
+        showToast(t.pdfDriveFail, true);   // 檔案已在裝置上,只是 Drive 留底失敗
+      }
     })();
     setExporting(true);
     run.finally(() => setBusyMsgs(a => a.filter(x => x !== bm)))
