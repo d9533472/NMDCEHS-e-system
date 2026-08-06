@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v26';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v27';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -1191,7 +1191,7 @@ function buildReportBlocks(o, cl, imgMap) {
         return '<div style="font-size:8px; color:#555; line-height:1.5; margin-top:1px"><b style="color:#B03030">'+esc(c)+'</b> '+esc(truncS(tt.zh, 52))+'　<span style="color:#98A2AC">'+esc(truncS(tt.en, 80))+'</span></div>'; }).join('');
       const dAtts = atts.filter(x => x.itemCode === 'DEF-' + d.id);
       push('<div style="border:1px solid #E4D8C0; background:#FFFDF6; border-radius:8px; padding:7px 10px; margin-top:6px">' +
-        '<div style="margin-bottom:2px"><span style="background:#8a5a00; color:#fff; font-weight:800; font-size:8px; border-radius:7px; padding:1.5px 8px; margin-right:5px">D'+(i+1)+'</span>'+chips+'</div>' +
+        '<div style="margin-bottom:2px">'+chips+'</div>' +
         titles +
         '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap; margin-top:3px">'+esc(d.desc || '')+'</div>' +
         '<div style="margin-top:5px; border-top:1px dashed #D8CBAA; padding-top:4px">' +
