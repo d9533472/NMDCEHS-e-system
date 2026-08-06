@@ -328,6 +328,10 @@ const T = {
     unlockT:'Enter Edit Mode', unlockP:'Enter the edit password.', wrongCode:'Wrong password', lockedMsg:'Switched to view mode',
     needSave:'Record will be saved first before uploading.',
     fileTooBig:'File too large (max 15 MB per file; 2 MB in local mode).',
+    upTimeout:'Upload timed out — check your signal and try again. If it shows in the list below, do NOT re-upload.',
+    upNetwork:'Network error during upload — check your connection and try again.',
+    upFail:'Upload failed',
+    upLsFull:'Test-mode browser storage is full — clear test data and try again.',
     errAllItems:(n,total)=>`${n} item(s) not answered yet — ALL ${total} items must be answered before completion.`,
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
@@ -423,6 +427,10 @@ const T = {
     unlockT:'進入編輯模式', unlockP:'請輸入編輯密碼。', wrongCode:'密碼錯誤', lockedMsg:'已切換為檢視模式',
     needSave:'上傳前將先自動儲存紀錄。',
     fileTooBig:'檔案過大(單檔上限 15 MB;本機模式 2 MB)。',
+    upTimeout:'上傳逾時 — 請確認訊號後重試;若下方清單已出現該檔案,請勿重複上傳。Upload timed out.',
+    upNetwork:'上傳時網路中斷 — 請確認連線後重試。Network error.',
+    upFail:'上傳失敗 Upload failed',
+    upLsFull:'測試模式瀏覽器空間已滿 — 請清除測試資料後再試。Browser storage full.',
     errAllItems:(n,total)=>`尚有 ${n} 項未勾選 — 全部 ${total} 項勾選完成後才能送出。`,
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
@@ -692,7 +700,8 @@ function apiOnce(action, payload) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', SCRIPT_URL, true);
-    xhr.timeout = 30000;                       // 30 秒逾時,避免掛住
+    /* 上傳/存 PDF 帶大 payload,行動網路慢時 30 秒不夠 → 給 120 秒;其餘 30 秒避免掛住 */
+    xhr.timeout = (action === 'upload' || action === 'storePdf') ? 120000 : 30000;
     xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
     xhr.onload = () => {
       if (xhr.status >= 400) { reject(new Error('HTTP ' + xhr.status)); return; }
@@ -774,7 +783,8 @@ function localApi(action, p) {
     const att = { fileId:'local-'+Date.now()+Math.floor(Math.random()*99), inspId:p.inspId, itemCode:p.itemCode,
       name:(p.label||p.itemCode)+' & '+p.name, url:'data:'+(p.mimeType||'application/octet-stream')+';base64,'+p.base64,
       uploadedAt:nowStr(), size:Math.round(p.base64.length*0.75) };
-    it.attachments = it.attachments || []; it.attachments.push(att); lsWrite(db);
+    it.attachments = it.attachments || []; it.attachments.push(att);
+    try { lsWrite(db); } catch (e) { it.attachments.pop(); return Promise.reject(new Error('LSFULL')); }
     return done({ attachment: att });
   }
   if (action === 'deleteFile') {
@@ -1189,25 +1199,41 @@ function buildReportBlocks(o, cl, imgMap) {
       ? '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>'
       : '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
   };
-  const attCard = (tag, ac, hbg, f) =>
+  const attCard = (tag, ac, hbg, f, dispName) =>
     '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
-    '<div style="background:'+hbg+'; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid '+ac+'">'+tag+' '+esc(f.name)+
+    '<div style="background:'+hbg+'; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid '+ac+'">'+tag+' '+esc(dispName!=null?dispName:f.name)+
     ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span></div>' + attBody(f) + '</div>';
 
-  const selfCards = [], nmdcCards = [], cmtCards = [];
+  /* 同一張照片上傳到多個項目(檔名+大小相同)→ 附錄只放一次,標籤列出涵蓋的項目 */
+  const origName = f => { const s = String(f.name||''); const i = s.indexOf(' & '); return i > -1 ? s.slice(i+3) : s; };
+  const dedupeAtts = list => {          // list: [{f, tag, ac, hbg}]
+    const map = new Map();
+    list.forEach(x => {
+      const k = origName(x.f) + '|' + (x.f.size || '');
+      const g = map.get(k);
+      if (g) { if (g.tags.indexOf(x.tag) < 0) g.tags.push(x.tag); }
+      else map.set(k, { f: x.f, tags: [x.tag], ac: x.ac, hbg: x.hbg });
+    });
+    return Array.from(map.values());
+  };
+  const mkCards = list => dedupeAtts(list).map(g =>
+    attCard('['+g.tags.join(' · ')+']', g.ac, g.hbg, g.f, origName(g.f)));
+
+  const selfList = [], nmdcList = [], cmtList = [];
   codes.forEach(code => {
     const c = secColorOf(code);
-    attsOf(code, 'self').forEach(f => selfCards.push(attCard('['+code+']', c.ac, '#F0F4F8', f)));
-    attsOf(code, 'nmdc').forEach(f => nmdcCards.push(attCard('['+code+']', '#1D3D5C', '#EDF2F8', f)));
+    attsOf(code, 'self').forEach(f => selfList.push({ f, tag: code, ac: c.ac, hbg: '#F0F4F8' }));
+    attsOf(code, 'nmdc').forEach(f => nmdcList.push({ f, tag: code, ac: '#1D3D5C', hbg: '#EDF2F8' }));
   });
   atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f =>
-    cmtCards.push(attCard('[改善回覆 Follow-up]', '#C77F0A', '#FDF7EA', f)));
+    cmtList.push({ f, tag: '改善回覆 Follow-up', ac: '#C77F0A', hbg: '#FDF7EA' }));
   cmts.forEach(e => {
     const isN = e.author === 'nmdc';
     atts.filter(x => x.itemCode === 'CMT-'+e.id).forEach(f =>
-      cmtCards.push(attCard('[💬 '+(isN?'NMDC':'廠商 Contractor')+' '+esc((e.at||'').slice(0,10))+']',
-        isN?'#1D3D5C':'#1C7A42', isN?'#EDF2F8':'#F0FAF4', f)));
+      cmtList.push({ f, tag: '💬 '+(isN?'NMDC':'廠商 Contractor')+' '+String(e.at||'').slice(0,10),
+        ac: isN?'#1D3D5C':'#1C7A42', hbg: isN?'#EDF2F8':'#F0FAF4' }));
   });
+  const selfCards = mkCards(selfList), nmdcCards = mkCards(nmdcList), cmtCards = mkCards(cmtList);
 
   const pushCards = (title, cards) => {
     if (!cards.length) return;
@@ -2220,6 +2246,47 @@ function App() {
     }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); throw e; });
   };
 
+  /* 📷 照片自動壓縮:長邊 1600px、JPEG 0.82(佐證照片綽綽有餘)
+   *   → 8MB 手機照片通常變 300~600KB,大幅減少行動網路上傳逾時 */
+  const prepFile = (f) => new Promise((resolve) => {
+    const asOriginal = () => {
+      const rd = new FileReader();
+      rd.onload = () => resolve({ base64: String(rd.result).split(',')[1], name: f.name, mimeType: f.type || 'application/octet-stream', size: f.size });
+      rd.onerror = () => resolve(null);
+      rd.readAsDataURL(f);
+    };
+    /* 非圖片、GIF、或本來就小(<400KB)→ 不壓縮 */
+    if (!/^image\//i.test(f.type || '') || /gif/i.test(f.type || '') || f.size < 400*1024) { asOriginal(); return; }
+    const url = URL.createObjectURL(f);
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const MAX = 1600;
+        const sc = Math.min(1, MAX / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.max(1, Math.round(img.naturalWidth * sc));
+        const h = Math.max(1, Math.round(img.naturalHeight * sc));
+        const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+        cv.getContext('2d').drawImage(img, 0, 0, w, h);
+        const b64 = cv.toDataURL('image/jpeg', 0.82).split(',')[1];
+        URL.revokeObjectURL(url);
+        const bytes = Math.round(b64.length * 0.75);
+        if (bytes && bytes < f.size) {
+          resolve({ base64: b64, name: f.name.replace(/\.[^.]+$/, '') + '.jpg', mimeType: 'image/jpeg', size: bytes });
+        } else asOriginal();
+      } catch (e) { URL.revokeObjectURL(url); asOriginal(); }   // 例:HEIC 無法解碼 → 原檔上傳
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); asOriginal(); };
+    img.src = url;
+  });
+
+  const friendlyUpErr = (e) => {
+    const m = String((e && e.message) || e);
+    if (m === 'TIMEOUT') return t.upTimeout;
+    if (m === 'NETWORK') return t.upNetwork;
+    if (m === 'LSFULL' || /quota/i.test(m)) return t.upLsFull;
+    return t.upFail + ': ' + m;
+  };
+
   const uploadFile = (code, files, stage) => {
     if (!files || !files.length) return;
     const itemCode = stage==='nmdc' ? code+'#NMDC' : code;
@@ -2229,24 +2296,20 @@ function App() {
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
       (showToast(t.needSave), doSave());
     ensureSaved.then(saved => {
-      arr.forEach(f => {
-        if (f.size > maxSize) { showToast(t.fileTooBig, true); return; }
-        setUploadingKeys(p=>[...p, itemCode]);
-        const reader = new FileReader();
-        reader.onload = () => {
-          const base64 = String(reader.result).split(',')[1];
-          track(api('upload', { inspId: saved.id, itemCode, label, name: f.name, mimeType: f.type, base64 }), t.uploadingData)
+      /* 逐張排隊上傳:避免多張同時打後端搶寫入鎖而逾時 */
+      arr.reduce((chain, f) => chain.then(() =>
+        prepFile(f).then(p => {
+          if (!p) { showToast(t.upFail + ': ' + f.name, true); return; }
+          if (p.size > maxSize) { showToast(t.fileTooBig, true); return; }
+          setUploadingKeys(k=>[...k, itemCode]);
+          return track(api('upload', { inspId: saved.id, itemCode, label, name: p.name, mimeType: p.mimeType, base64: p.base64 }), t.uploadingData)
             .then(r => {
-              setItem(p => Object.assign({}, p, { attachments: [...(p.attachments||[]), r.attachment] }));
-              setUploadingKeys(p => { const i=p.indexOf(itemCode); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
+              setItem(x => Object.assign({}, x, { attachments: [...(x.attachments||[]), r.attachment] }));
             })
-            .catch(e => {
-              setUploadingKeys(p => { const i=p.indexOf(itemCode); const c=[...p]; if(i>-1)c.splice(i,1); return c; });
-              showToast('Upload failed: ' + e.message, true);
-            });
-        };
-        reader.readAsDataURL(f);
-      });
+            .catch(e => showToast(friendlyUpErr(e), true))
+            .then(() => setUploadingKeys(k => { const i=k.indexOf(itemCode); const c=[...k]; if(i>-1)c.splice(i,1); return c; }));
+        })
+      ), Promise.resolve()).catch(()=>{});
     }).catch(()=>{});
   };
 
