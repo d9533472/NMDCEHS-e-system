@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v24';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v25';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -279,6 +279,7 @@ const T = {
     vesselInfo:'Vessel Information', autoNo:'(auto-numbered on save)',
     contactName:'Inspection Contact Person 船檢聯絡人', contactPhone:'Contact Phone 聯絡電話', contactEmail:'Contact Email 電子信箱',
     pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
+    pdfFetchBig:(i,n)=>`Downloading large photos… ${i} / ${n}`,
     pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
     vNameZh:'Vessel Name (Chinese)', vNameEn:'Vessel Name (English)', mmsi:'MMSI', imo:'IMO No.',
     tonnage:'Gross Tonnage', vClass:'Class Society (CR, ABS...)', projectNo:'Project No.',
@@ -403,6 +404,7 @@ const T = {
     vesselInfo:'船舶基本資料', autoNo:'(儲存後自動編號)',
     contactName:'船檢聯絡人 Contact Person', contactPhone:'聯絡電話 Contact Phone', contactEmail:'電子信箱 Contact Email',
     pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
+    pdfFetchBig:(i,n)=>`大圖下載壓縮中… ${i} / ${n} 張`,
     pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
     vNameZh:'船舶中文名稱', vNameEn:'船舶英文名稱', mmsi:'MMSI', imo:'IMO 編號',
     tonnage:'總噸位', vClass:'船級協會 (CR、ABS...)', projectNo:'專案編號',
@@ -765,7 +767,7 @@ function apiOnce(action, payload) {
     xhr.open('POST', SCRIPT_URL, true);
     /* 上傳/存 PDF 帶大 payload,行動網路慢時 30 秒不夠 → 給 120 秒;其餘 30 秒避免掛住 */
     xhr.timeout = (action === 'upload' || action === 'storePdf') ? 120000
-                : (action === 'filesData') ? 90000 : 30000;   // 抓附件圖片:分批+90 秒
+                : (action === 'filesData' || action === 'fileData') ? 90000 : 30000;   // 抓附件圖片:分批+90 秒
     xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
     xhr.onload = () => {
       if (xhr.status >= 400) { reject(new Error('HTTP ' + xhr.status)); return; }
@@ -782,7 +784,7 @@ function apiOnce(action, payload) {
 
 function api(action, payload) {
   if (LOCAL || TESTMODE) return localApi(action, payload || {});
-  const retries = action === 'filesData' ? 1                 // 抓圖:批次本身可容錯,只重試 1 次(失敗批以佔位顯示)
+  const retries = (action === 'filesData' || action === 'fileData') ? 1   // 抓圖:批次本身可容錯,只重試 1 次
                 : READ_ACTIONS[action] ? 2 : 0;   // 讀取最多重試 2 次;寫入不重試(避免重複)
   const attempt = (n) => apiOnce(action, payload || {}).catch(err => {
     if (n < retries) return new Promise(r => setTimeout(r, 800 * (n + 1))).then(() => attempt(n + 1));
@@ -2640,10 +2642,15 @@ function App() {
     }).catch(()=>{});
   };
 
-  /* 單張上傳(含失敗暫存):成功掛進附件列表;失敗留在 failedUps 可一鍵重試,不用重選檔案 */
+  /* 單張上傳(含失敗暫存):成功掛進附件列表;失敗留在 failedUps 可一鍵重試,不用重選檔案
+     ★ 全站單一上傳佇列:不同欄位同時選檔也乖乖排同一條隊,不再互搶後端寫入鎖而報錯 */
+  const upQRef = useRef(Promise.resolve());
   const sendUpload = (u) => {
     setUploadingKeys(k => [...k, u.itemCode]);
-    return api('upload', { inspId: u.inspId, itemCode: u.itemCode, label: u.label, sub: u.sub || '', name: u.name, mimeType: u.mimeType, base64: u.base64 })
+    const job = upQRef.current.then(() =>
+      api('upload', { inspId: u.inspId, itemCode: u.itemCode, label: u.label, sub: u.sub || '', name: u.name, mimeType: u.mimeType, base64: u.base64 }));
+    upQRef.current = job.catch(() => {});
+    return job
       .then(r => {
         setItem(x => (x && x.id === u.inspId)
           ? Object.assign({}, x, { attachments: [...(x.attachments||[]), r.attachment] }) : x);
@@ -2770,6 +2777,21 @@ function App() {
             upd(t.pdfFetchingN(Math.min(fdone, ids.length), ids.length));
           }
         }));
+        /* 保底:凡是「圖片檔」還沒拿到圖(超大圖且縮圖失敗)→ 逐張抓原圖回來,由瀏覽器壓縮後放入 PDF
+           佔位文字只保留給 PDF/文件等非圖片檔案 */
+        const isImgName = n => /\.(jpe?g|png|gif|webp|bmp|heic|heif)$/i.test(String(n || ''));
+        const missing = atts.filter(a => !imgMap[a.fileId] && isImgName(a.name)).map(a => a.fileId);
+        for (let m = 0; m < missing.length; m++) {
+          upd(t.pdfFetchBig(m + 1, missing.length));
+          try {
+            const r = await api('fileData', { id: missing[m] });
+            if (r.image) {
+              const small = await shrinkDataUrl(r.image, 1280);
+              imgMap[missing[m]] = small;
+              if (String(small).length < 1.5 * 1024 * 1024) IMGC[missing[m]] = small;
+            }
+          } catch (e) {}
+        }
       }
       diag.imgs = Object.keys(imgMap).length;
       diag.stage = 'render';
