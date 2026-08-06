@@ -344,6 +344,8 @@ const T = {
     errAllItems:(n,total)=>`${n} item(s) not answered yet — ALL ${total} items must be answered before completion.`,
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
+    errComment:'FAIL / CONDITIONAL PASS requires an NMDC comment — please post one in the Comments & Verification board.',
+    cmtNeed:'FAIL / CONDITIONAL PASS selected — post an NMDC comment below (required) telling the contractor what to fix. It becomes visible to the contractor once the inspection is completed.',
     answered:'answered', loadFail:'Load failed', saveFail:'Save failed',
     loadingData:'Loading data...', refreshing:'Refreshing…', savingData:'Saving...',
     uploadingData:'Uploading attachment...', exportingData:'Generating PDF...', working:'Processing...',
@@ -448,6 +450,8 @@ const T = {
     errAllItems:(n,total)=>`尚有 ${n} 項未勾選 — 全部 ${total} 項勾選完成後才能送出。`,
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
+    errComment:'「未通過/有條件通過」必須填寫檢查意見 — 請在留言板送出一則 NMDC 留言。',
+    cmtNeed:'已勾選「未通過/有條件通過」— 請在下方留言板填寫檢查意見(必填),告訴廠商要改善什麼;完成檢查後廠商即可看到並回覆。',
     answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗',
     loadingData:'資料讀取中…', refreshing:'更新中…', savingData:'儲存中…',
     uploadingData:'附件上傳中…', exportingData:'PDF 產生中…', working:'處理中…',
@@ -1707,6 +1711,15 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
     }
     if (!item.verdict) { showToast(t.errVerdict, true); const el=document.getElementById('verdict-card'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
     if (item.verdict === 'cond' && !item.verdictDeadline) { showToast(t.errDeadline, true); const el=document.getElementById('verdict-card'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
+    /* ⚠ 未通過/有條件通過:必須先在留言板留下 NMDC 檢查意見 */
+    if (item.verdict === 'fail' || item.verdict === 'cond') {
+      const cs = (item.data && item.data.comments) || [];
+      if (!cs.some(c => c.author === 'nmdc')) {
+        showToast(t.errComment, true);
+        const el = document.getElementById('cmt-card'); if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+        return;
+      }
+    }
     askConfirm(t.confirmNmdcT, t.confirmNmdcP, ()=>onSave('nmdc_done'));
   };
 
@@ -1855,8 +1868,9 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         ))}
       </div>
 
-      {/* 💬 檢查意見與驗證回覆:NMDC 留 comment → 廠商依 comment 自檢、上傳佐證、留言驗證 → (有條件通過)NMDC 結案 */}
-      {done && (() => {
+      {/* 💬 檢查意見與驗證回覆:NMDC 留 comment → 廠商依 comment 自檢、上傳佐證、留言驗證 → (有條件通過)NMDC 結案
+          檢查進行中勾選「未通過/有條件通過」即出現(必填);檢查完成後所有結果都顯示 */}
+      {(done || item.verdict === 'fail' || item.verdict === 'cond') && (() => {
         const isClosed = String(item.closed) === '1';
         const isCond = item.verdict === 'cond';
         const cmts = (item.data && item.data.comments) || [];
@@ -1874,11 +1888,12 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         return (
           <div className="card" id="cmt-card">
             <h3>💬 {t.cmtTitle}{' '}
-              {isCond && (isClosed
+              {isCond && done && (isClosed
                 ? <span className="badge b-done">✓ {t.closedTag} {item.closedDate}</span>
                 : <span className="badge b-cond">⏳ {t.fuPending}</span>)}
             </h3>
-            {!isClosed && <div className="banner blue">{t.cmtNote}</div>}
+            {!done && <div className="banner">⚠ {t.cmtNeed}</div>}
+            {done && !isClosed && <div className="banner blue">{t.cmtNote}</div>}
 
             {legacyFu || legacyAtts.length ? (
               <div style={{border:'1px solid #E5D9BC', background:'#FDF9EF', borderRadius:10, padding:'9px 12px', marginBottom:10}}>
@@ -1919,7 +1934,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
                   onChange={e => setCmtText(e.target.value)} />
                 <div style={{display:'flex', gap:8, marginTop:8, flexWrap:'wrap'}}>
                   <button className="btn btn-p" disabled={saving || !cmtText.trim()} onClick={postCmt}>{t.cmtPost}</button>
-                  {isCond && editMode &&
+                  {isCond && done && editMode &&
                     <button className="btn btn-navy" disabled={saving}
                       onClick={()=>askConfirm(t.confirmCloseT, t.confirmCloseP, ()=>onSave(null, { closed:'1' }))}>{t.fuClose}</button>}
                 </div>
