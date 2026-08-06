@@ -286,6 +286,13 @@ const T = {
     fuTitle:'Improvement Response 改善回覆', fuPh:'Describe the corrective actions taken and supplementary information...',
     fuSave:'💾 Save Response', fuClose:'✔ Confirm Close-out',
     fuNote:'Contractor: upload supplementary evidence and describe the improvement here, then Save. NMDC will close out this inspection once confirmed.',
+    cmtTitle:'Comments & Verification 檢查意見與驗證回覆',
+    cmtNote:'NMDC leaves comments here after the inspection. The contractor follows the comments to self-check and improve, uploads evidence under their reply, and posts a verification message. No key is required for contractor replies.',
+    cmtAsNmdc:'🔑 Posting as NMDC', cmtAsCtr:'Posting as Contractor 廠商',
+    cmtNmdc:'NMDC', cmtCtr:'Contractor 廠商',
+    cmtPost:'💬 Post Comment', cmtPh:'Write a comment / reply here...',
+    cmtEmpty:'No comments yet. NMDC can post the first comment after unlocking with the key 🔑.',
+    cmtLegacy:'Improvement Response (earlier version) 改善回覆',
     confirmCloseT:'Confirm close-out?', confirmCloseP:'The improvement response has been reviewed and accepted. This inspection will be marked as CLOSED.',
     closedTag:'Closed', fuPending:'Pending close-out',
     signTitle:'Name & Sign-off',
@@ -374,6 +381,13 @@ const T = {
     fuTitle:'改善回覆 Improvement Response', fuPh:'請說明改善情形與補充內容…',
     fuSave:'💾 儲存回覆', fuClose:'✔ 確認結案',
     fuNote:'廠商:請於此上傳補充佐證並填寫改善說明後按「儲存回覆」;經 NMDC 確認符合要求後結案。',
+    cmtTitle:'檢查意見與驗證回覆 Comments & Verification',
+    cmtNote:'NMDC 檢查完成後可於此留言給廠商;廠商依意見自行檢查改善,在自己的留言下方上傳佐證照片並留言回覆驗證。廠商回覆不需鑰匙。',
+    cmtAsNmdc:'🔑 以 NMDC 身分留言', cmtAsCtr:'以廠商身分留言 Contractor',
+    cmtNmdc:'NMDC', cmtCtr:'廠商 Contractor',
+    cmtPost:'💬 送出留言', cmtPh:'輸入留言/回覆…',
+    cmtEmpty:'尚無留言。NMDC 以鑰匙 🔑 解鎖後即可留下第一則意見。',
+    cmtLegacy:'改善回覆(舊版)Improvement Response',
     confirmCloseT:'確認結案?', confirmCloseP:'補充改善內容已確認符合要求,此筆檢查將標記為「已結案」。',
     closedTag:'已結案', fuPending:'待結案',
     signTitle:'簽核 Name & Sign-off',
@@ -1070,17 +1084,36 @@ function buildReportBlocks(o, cl, imgMap) {
       '<div style="color:'+vd.col+'; font-weight:800; font-size:12px; line-height:1.6">'+vd.txt+'</div>' +
     '</div>');
 
-  /* ── 改善回覆(有條件通過) ── */
+  /* ── 💬 檢查意見與驗證回覆(留言板)── */
   const fu = (o.data && o.data.followup) || {};
-  const hasFu = o.verdict === 'cond' && (fu.text || String(o.closed) === '1' || atts.some(x => x.itemCode === 'FOLLOWUP'));
+  const cmts = (o.data && o.data.comments) || [];
+  const isCmtAtt = x => x.itemCode === 'FOLLOWUP' || /^CMT-/.test(String(x.itemCode||''));
+  const hasFu = cmts.length || fu.text || String(o.closed) === '1' || atts.some(isCmtAtt);
   if (hasFu) {
     const closedTag = String(o.closed) === '1'
       ? '<span style="background:#1C7A42; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">✔ 已結案 CLOSED '+esc(o.closedDate||'')+'</span>'
-      : '<span style="background:#C77F0A; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">⏳ 待結案 PENDING CLOSE-OUT</span>';
+      : (o.verdict === 'cond'
+        ? '<span style="background:#C77F0A; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">⏳ 待結案 PENDING CLOSE-OUT</span>' : '');
+    let inner = '';
+    if (fu.text) {
+      inner += '<div style="border:1px solid #E5D9BC; background:#FDF9EF; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
+        '<div style="font-size:8px; font-weight:800; color:#8a6d3b; margin-bottom:3px">📤 改善回覆(舊版)Improvement Response</div>' +
+        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(fu.text)+'</div></div>';
+    }
+    cmts.forEach(e => {
+      const isN = e.author === 'nmdc';
+      const eAtts = atts.filter(x => x.itemCode === 'CMT-'+e.id);
+      inner += '<div style="border:1px solid '+(isN?'#C9D6E4':'#CBE3D2')+'; background:'+(isN?'#F5F8FB':'#F4FAF6')+'; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
+        '<div style="margin-bottom:3px"><span style="background:'+(isN?'#1D3D5C':'#1C7A42')+'; color:#fff; font-weight:800; font-size:7.5px; padding:1.5px 8px; border-radius:8px">'+(isN?'🛠 NMDC':'⛴ 廠商 CONTRACTOR')+'</span>' +
+        ' <span style="font-size:8px; color:#8A94A0">'+esc(e.at||'')+'</span></div>' +
+        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(e.text||'')+'</div>' +
+        (eAtts.length ? '<div style="font-size:8px; color:#556; margin-top:3px">'+eAtts.map(f=>'📎 '+esc(f.name)).join('　')+'</div>' : '') +
+        '</div>';
+    });
+    if (!inner) inner = '<div style="font-size:9.5px; color:#8A94A0">—</div>';
     push('<div style="border:1px solid #D5DEE7; border-radius:10px; padding:10px 14px; margin-top:10px; background:#FBFCFD">' +
-      '<div style="font-weight:800; color:#12283F; font-size:10.5px; margin-bottom:5px">📤 改善回覆 Improvement Response　'+closedTag+'</div>' +
-      '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(fu.text||'—')+'</div>' +
-      '</div>');
+      '<div style="font-weight:800; color:#12283F; font-size:10.5px; margin-bottom:6px">💬 檢查意見與驗證回覆 Comments &amp; Verification　'+closedTag+'</div>' +
+      inner + '</div>');
   }
 
   /* ── 結果統計 ── */
@@ -1149,40 +1182,47 @@ function buildReportBlocks(o, cl, imgMap) {
   push(h2('5. 附件 Attachments') +
     '<div style="color:#5A6673; font-size:8.5px; margin-bottom:8px; background:#F2F5F8; border:1px solid #DDE4EA; border-radius:7px; padding:5px 9px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查('+esc(o.inspNo||o.id||'')+')之對應資料夾內。 All original attachment files are stored in the corresponding Google Drive folder of this inspection record.</div>', true);
 
-  const attCards = [];
-  codes.forEach(code => {
-    [['self','廠商 Contractor'], ['nmdc','NMDC']].forEach(([stage, lbl]) => {
-      attsOf(code, stage).forEach(f => {
-        const c = secColorOf(code);
-        const src = imgMap[f.fileId];
-        const body = src
-          ? '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>'
-          : '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
-        attCards.push(
-          '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
-          '<div style="background:#F0F4F8; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid '+c.ac+'">['+code+'] ['+lbl+'] '+esc(f.name)+
-          ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span></div>' + body + '</div>');
-      });
-    });
-  });
-  /* 改善回覆附件 */
-  atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f => {
+  /* 附件卡片:依來源分三組 — 5.1 廠商自檢 / 5.2 NMDC 檢查 / 5.3 留言與改善回覆 */
+  const attBody = f => {
     const src = imgMap[f.fileId];
-    const body = src
+    return src
       ? '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>'
       : '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
-    attCards.push(
-      '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
-      '<div style="background:#FDF7EA; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid #C77F0A">[FU] [改善回覆 Follow-up] '+esc(f.name)+
-      ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span></div>' + body + '</div>');
+  };
+  const attCard = (tag, ac, hbg, f) =>
+    '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
+    '<div style="background:'+hbg+'; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid '+ac+'">'+tag+' '+esc(f.name)+
+    ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span></div>' + attBody(f) + '</div>';
+
+  const selfCards = [], nmdcCards = [], cmtCards = [];
+  codes.forEach(code => {
+    const c = secColorOf(code);
+    attsOf(code, 'self').forEach(f => selfCards.push(attCard('['+code+']', c.ac, '#F0F4F8', f)));
+    attsOf(code, 'nmdc').forEach(f => nmdcCards.push(attCard('['+code+']', '#1D3D5C', '#EDF2F8', f)));
+  });
+  atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f =>
+    cmtCards.push(attCard('[改善回覆 Follow-up]', '#C77F0A', '#FDF7EA', f)));
+  cmts.forEach(e => {
+    const isN = e.author === 'nmdc';
+    atts.filter(x => x.itemCode === 'CMT-'+e.id).forEach(f =>
+      cmtCards.push(attCard('[💬 '+(isN?'NMDC':'廠商 Contractor')+' '+esc((e.at||'').slice(0,10))+']',
+        isN?'#1D3D5C':'#1C7A42', isN?'#EDF2F8':'#F0FAF4', f)));
   });
 
-  if (!attCards.length) {
+  const pushCards = (title, cards) => {
+    if (!cards.length) return;
+    push('<div style="font-weight:800; color:#12283F; font-size:10px; border-left:4px solid #1D3D5C; background:#F0F4F8; border-radius:0 6px 6px 0; padding:5px 10px; margin:4px 0 8px">'+title+'</div>');
+    for (let i = 0; i < cards.length; i += 2) {
+      push('<div style="display:flex; gap:10px; margin-bottom:10px">' + cards[i] + (cards[i+1] || '<div style="flex:1"></div>') + '</div>');
+    }
+  };
+
+  if (!selfCards.length && !nmdcCards.length && !cmtCards.length) {
     push('<div style="color:#8A94A0; font-size:9.5px">(無附件 No attachments)</div>');
   } else {
-    for (let i = 0; i < attCards.length; i += 2) {
-      push('<div style="display:flex; gap:10px; margin-bottom:10px">' + attCards[i] + (attCards[i+1] || '<div style="flex:1"></div>') + '</div>');
-    }
+    pushCards('5.1 廠商自檢附件 Contractor Self-Check Attachments('+selfCards.length+')', selfCards);
+    pushCards('5.2 NMDC 檢查附件 NMDC Inspection Attachments('+nmdcCards.length+')', nmdcCards);
+    pushCards('5.3 留言與改善回覆附件 Comment &amp; Follow-up Attachments('+cmtCards.length+')', cmtCards);
   }
   return B;
 }
@@ -1588,6 +1628,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
   const [activeSec, setActiveSec] = useState(cl.length ? cl[0].code : 'A');
   const fileRefs = useRef({});
   const done = item.status === 'nmdc_done';
+  const [cmtText, setCmtText] = useState('');
 
   const setAns = (code, patch) => can && setItem(p => {
     const a = Object.assign({}, p.data.nmdcAnswers);
@@ -1774,32 +1815,75 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         ))}
       </div>
 
-      {/* 有條件通過:改善回覆(廠商補件 → NMDC 結案) */}
-      {done && item.verdict === 'cond' && (() => {
+      {/* 💬 檢查意見與驗證回覆:NMDC 留 comment → 廠商依 comment 自檢、上傳佐證、留言驗證 → (有條件通過)NMDC 結案 */}
+      {done && (() => {
         const isClosed = String(item.closed) === '1';
-        const fu = (item.data && item.data.followup) || {};
+        const isCond = item.verdict === 'cond';
+        const cmts = (item.data && item.data.comments) || [];
+        const legacyFu = (item.data && item.data.followup && item.data.followup.text) || '';
+        const legacyAtts = (item.attachments || []).filter(x => x.itemCode === 'FOLLOWUP');
+        const postCmt = () => {
+          const txt = cmtText.trim(); if (!txt) return;
+          const entry = { id:'c'+Date.now(), author: editMode ? 'nmdc' : 'ctr', text: txt, at: nowStr() };
+          onSave(null, { data: Object.assign({}, item.data, { comments: cmts.concat([entry]) }) })
+            .then(() => setCmtText('')).catch(()=>{});
+        };
+        const roleTag = (au) => au === 'nmdc'
+          ? <span className="badge" style={{background:'#1D3D5C', color:'#fff'}}>🛠 {t.cmtNmdc}</span>
+          : <span className="badge b-done">⛴ {t.cmtCtr}</span>;
         return (
-          <div className="card" id="fu-card">
-            <h3>📤 {t.fuTitle}{' '}
-              {isClosed
+          <div className="card" id="cmt-card">
+            <h3>💬 {t.cmtTitle}{' '}
+              {isCond && (isClosed
                 ? <span className="badge b-done">✓ {t.closedTag} {item.closedDate}</span>
-                : <span className="badge b-cond">⏳ {t.fuPending}</span>}
+                : <span className="badge b-cond">⏳ {t.fuPending}</span>)}
             </h3>
-            {!isClosed && <div className="banner blue">{t.fuNote}</div>}
-            <textarea rows={3} disabled={isClosed} placeholder={t.fuPh}
-              value={fu.text || ''}
-              onChange={e => setItem(p => Object.assign({}, p,
-                { data: Object.assign({}, p.data, { followup: Object.assign({}, p.data.followup, { text: e.target.value }) }) }))} />
-            <AttRow t={t} code="FOLLOWUP" stage="fu"
-              atts={(item.attachments || []).filter(x => x.itemCode === 'FOLLOWUP')}
-              can={!isClosed} uploading={uploadingKeys.includes('FOLLOWUP')}
-              onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
-            <div style={{display:'flex', gap:8, marginTop:10, flexWrap:'wrap'}}>
-              {!isClosed && <button className="btn btn-p" disabled={saving} onClick={()=>onSave()}>{t.fuSave}</button>}
-              {!isClosed && editMode &&
-                <button className="btn btn-navy" disabled={saving}
-                  onClick={()=>askConfirm(t.confirmCloseT, t.confirmCloseP, ()=>onSave(null, { closed:'1' }))}>{t.fuClose}</button>}
-            </div>
+            {!isClosed && <div className="banner blue">{t.cmtNote}</div>}
+
+            {legacyFu || legacyAtts.length ? (
+              <div style={{border:'1px solid #E5D9BC', background:'#FDF9EF', borderRadius:10, padding:'9px 12px', marginBottom:10}}>
+                <div style={{fontSize:12, fontWeight:800, color:'#8a6d3b', marginBottom:4}}>📤 {t.cmtLegacy}</div>
+                {legacyFu && <div style={{fontSize:13, whiteSpace:'pre-wrap', lineHeight:1.55}}>{legacyFu}</div>}
+                {legacyAtts.length > 0 &&
+                  <AttRow t={t} code="FOLLOWUP" stage="fu" atts={legacyAtts}
+                    can={false} uploading={false} onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />}
+              </div>
+            ) : null}
+
+            {cmts.length === 0 && !legacyFu && !legacyAtts.length &&
+              <div style={{color:'#8A94A0', fontSize:13, padding:'4px 2px'}}>{t.cmtEmpty}</div>}
+
+            {cmts.map(e => {
+              const mine = e.author === 'nmdc' ? editMode : true;   // 廠商留言人人可補附件;NMDC 留言需 🔑
+              const eAtts = (item.attachments || []).filter(x => x.itemCode === 'CMT-'+e.id);
+              return (
+                <div key={e.id} style={{border:'1px solid '+(e.author==='nmdc'?'#C9D6E4':'#CBE3D2'),
+                    background:e.author==='nmdc'?'#F5F8FB':'#F4FAF6', borderRadius:10, padding:'9px 12px', marginBottom:8}}>
+                  <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:5, flexWrap:'wrap'}}>
+                    {roleTag(e.author)}
+                    <span style={{fontSize:11.5, color:'#8A94A0'}}>{e.at}</span>
+                  </div>
+                  <div style={{fontSize:13.5, whiteSpace:'pre-wrap', lineHeight:1.55}}>{e.text}</div>
+                  <AttRow t={t} code={'CMT-'+e.id} stage="fu" atts={eAtts}
+                    can={!isClosed && mine} uploading={uploadingKeys.includes('CMT-'+e.id)}
+                    onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
+                </div>
+              );
+            })}
+
+            {!isClosed &&
+              <div style={{marginTop:6}}>
+                <div style={{fontSize:12, fontWeight:700, color: editMode ? '#1D3D5C' : '#1C7A42', marginBottom:4}}>
+                  {editMode ? t.cmtAsNmdc : t.cmtAsCtr}</div>
+                <textarea rows={3} placeholder={t.cmtPh} value={cmtText}
+                  onChange={e => setCmtText(e.target.value)} />
+                <div style={{display:'flex', gap:8, marginTop:8, flexWrap:'wrap'}}>
+                  <button className="btn btn-p" disabled={saving || !cmtText.trim()} onClick={postCmt}>{t.cmtPost}</button>
+                  {isCond && editMode &&
+                    <button className="btn btn-navy" disabled={saving}
+                      onClick={()=>askConfirm(t.confirmCloseT, t.confirmCloseP, ()=>onSave(null, { closed:'1' }))}>{t.fuClose}</button>}
+                </div>
+              </div>}
           </div>
         );
       })()}
@@ -2038,7 +2122,12 @@ function App() {
         progress:total+'/'+total, nmdcProgress:total+'/'+total });
     rec2.data.answers = mkAnswers(noC2, 'Visible dust observed during bulk material transfer');
     rec2.data.nmdcAnswers = mkAnswers(noC2, 'Confirmed — submit updated dust control method statement');
-    rec2.data.followup = { text:'已提交更新之揚塵抑制作業程序,散裝物料作業改採密閉輸送並加強灑水。\nUpdated dust control method statement submitted; bulk transfer now enclosed with water spray applied.' };
+    rec2.data.comments = [
+      { id:'demo-b1', author:'nmdc', at:todayStr()+' 10:30:00',
+        text:'請提交更新之揚塵抑制作業程序,並依 comment 自行檢查後上傳散裝作業灑水/密閉輸送照片。\nPlease submit the updated dust control method statement, self-check per this comment, and upload photos of water spray / enclosed transfer.' },
+      { id:'demo-b2', author:'ctr', at:todayStr()+' 15:20:00',
+        text:'已依意見完成改善:散裝物料改採密閉輸送並加強灑水,佐證照片如附,請查核驗證。\nImprovement completed per comment — bulk transfer now enclosed with water spray applied. Evidence attached for your verification.' },
+    ];
     rec2.data.signoff = signAll;
 
     /* ③ Gamma:未通過(總表會出現 🔁 建立複檢) */
@@ -2056,7 +2145,14 @@ function App() {
         progress:total+'/'+total, nmdcProgress:total+'/'+total });
     rec5.data.answers = mkAnswers(noC2, 'Dust screen partially damaged on stbd side');
     rec5.data.nmdcAnswers = mkAnswers(noC2, 'Conditional — replace dust screen and submit photo evidence');
-    rec5.data.followup = { text:'右舷防塵網已更換完成,照片如附件。\nStbd dust screen replaced — photo attached. Confirmed and closed by NMDC.' };
+    rec5.data.comments = [
+      { id:'demo-d1', author:'nmdc', at:todayStr()+' 09:00:00',
+        text:'請更換右舷防塵網並上傳更換後照片。Replace the stbd dust screen and upload photo evidence.' },
+      { id:'demo-d2', author:'ctr', at:todayStr()+' 14:00:00',
+        text:'右舷防塵網已更換完成,照片如附件,請驗證。Stbd dust screen replaced — photo attached for verification.' },
+      { id:'demo-d3', author:'nmdc', at:todayStr()+' 16:30:00',
+        text:'已確認改善完成,本筆檢查結案。Improvement verified — this inspection is closed.' },
+    ];
     rec5.data.signoff = signAll;
 
     const img1 = demoPhotoB64('A-2 DUST PHOTO', '#8a6d3b');
@@ -2067,7 +2163,7 @@ function App() {
       const r2 = await api('save', { item: rec2 });
       await api('upload', { inspId:r2.item.id, itemCode:noC2, label:noC2, name:'dust_photo.png', mimeType:'image/png', base64:img1 });
       await api('upload', { inspId:r2.item.id, itemCode:noC2+'#NMDC', label:noC2+' (NMDC)', name:'verification_photo.png', mimeType:'image/png', base64:img2 });
-      await api('upload', { inspId:r2.item.id, itemCode:'FOLLOWUP', label:'FU', name:'improvement_evidence.png', mimeType:'image/png', base64:img3 });
+      await api('upload', { inspId:r2.item.id, itemCode:'CMT-demo-b2', label:'CMT', name:'improvement_evidence.png', mimeType:'image/png', base64:img3 });
       const r3 = await api('save', { item: rec3 });
       /* ④ Gamma-R1:複檢紀錄(帶入 Gamma 廠商勾選,草稿狀態) */
       const rec4 = Object.assign(blankItem(cl), baseInfo('測試船 Gamma','TEST VESSEL GAMMA','416000003','9000003','4100','ABS'));
@@ -2077,7 +2173,7 @@ function App() {
       rec4.progress = countMap(rec4.data.answers) + '/' + total;
       await api('save', { item: rec4 });
       const r5 = await api('save', { item: rec5 });
-      await api('upload', { inspId:r5.item.id, itemCode:'FOLLOWUP', label:'FU', name:'dust_screen_replaced.png', mimeType:'image/png', base64:img3 });
+      await api('upload', { inspId:r5.item.id, itemCode:'CMT-demo-d2', label:'CMT', name:'dust_screen_replaced.png', mimeType:'image/png', base64:img3 });
       showToast(t.seedDone); refresh();
     })().catch(e => showToast(String(e.message||e), true));
   };
@@ -2127,7 +2223,7 @@ function App() {
   const uploadFile = (code, files, stage) => {
     if (!files || !files.length) return;
     const itemCode = stage==='nmdc' ? code+'#NMDC' : code;
-    const label = stage==='nmdc' ? code+' (NMDC)' : (code==='FOLLOWUP' ? 'FU' : code);
+    const label = stage==='nmdc' ? code+' (NMDC)' : (code==='FOLLOWUP' ? 'FU' : (/^CMT-/.test(code) ? 'CMT' : code));
     const maxSize = (LOCAL || TESTMODE) ? 2*1024*1024 : 15*1024*1024;
     const arr = Array.from(files);
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
@@ -2159,7 +2255,7 @@ function App() {
     const it = itemRef.current;
     const editable = viewRef.current === 'form' && it && dirtyRef.current &&
       (it.status === 'draft' || editMode || testMode ||
-       (it.status === 'nmdc_done' && it.verdict === 'cond' && String(it.closed) !== '1'));
+       (it.status === 'nmdc_done' && String(it.closed) !== '1'));
     if (!editable) { next(); return; }
     setModal({
       title: '🚨 ' + t.leaveT + ' 🚨',
