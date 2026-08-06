@@ -312,6 +312,7 @@ const T = {
     saveHint:'⚠ Still in progress? Tap "Save" to keep your work. Tap "Contractor Self-Check Complete" only when every item is confirmed — once submitted, the form can no longer be edited.',
     revert:'Revert to previous stage', exportPdf:'📄 Export PDF', exporting:'Generating PDF...',
     pdfDone:'PDF saved to Drive ✓', pdfOpen:'Open PDF', pdfLocal:'Use the print dialog → Save as PDF',
+    pdfLocalToo:'A copy has also been downloaded to this device.',
     confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
     newNoticeT:'NOTICE',
     newNoticeList:[
@@ -418,6 +419,7 @@ const T = {
     saveHint:'⚠ 填寫途中請先按「儲存」保留進度;確認全部項目完成後,再按「廠商自檢完成」送出 — 送出後即無法修改。',
     revert:'退回上一階段', exportPdf:'📄 匯出 PDF 留底', exporting:'PDF 產生中...',
     pdfDone:'PDF 已存入 Drive ✓', pdfOpen:'開啟 PDF', pdfLocal:'請在列印視窗選「另存為 PDF」',
+    pdfLocalToo:'已同時下載一份到此裝置。A copy has also been downloaded to this device.',
     confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
     newNoticeT:'注意',
     newNoticeList:[
@@ -1352,7 +1354,7 @@ function Modal({ m, t }) {
     <div className="modalbg" onClick={m.onCancel}>
       <div className="modal" onClick={e=>e.stopPropagation()}>
         <h4 style={m.titleStyle}>{m.title}</h4>
-        {m.body && <p>{m.body}</p>}
+        {m.body && <p style={{whiteSpace:'pre-wrap'}}>{m.body}</p>}
         {m.list &&
           <ol style={{margin:'0 0 16px', paddingLeft:22, fontSize:14, color:'#333', lineHeight:1.75}}>
             {m.list.map((x,i)=> (typeof x === 'object' && x.hot)
@@ -2510,9 +2512,10 @@ function App() {
       const pdf = await generatePdf(full, cl, imgMap);
       const name = '船檢表_' + (full.inspNo || full.id) + '_' + (full.vesselEn || full.vesselZh || '') + '.pdf';
       if (LOCAL || TESTMODE) { pdf.save(name); showToast(t.pdfDone); return; }
+      pdf.save(name);   // ① 先直接下載一份到裝置(就算之後存 Drive 失敗,檔案也已在手上)
       const base64 = pdf.output('datauristring').split(',')[1];
-      const r2 = await api('storePdf', { id: full.id, name, base64 });
-      setModal({ title: t.pdfDone, body: r2.name, link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
+      const r2 = await api('storePdf', { id: full.id, name, base64 });   // ② 再存回該筆檢查的 Drive 資料夾
+      setModal({ title: t.pdfDone, body: r2.name + '\n' + t.pdfLocalToo, link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
         onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
     })();
     setExporting(true);
