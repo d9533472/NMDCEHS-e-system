@@ -85,6 +85,14 @@ window.__earlyBoot = null;
   .tblscroll{overflow-x:auto; border:1px solid var(--line); border-radius:12px;}
 
   .badge{display:inline-block; padding:3px 9px; border-radius:12px; font-size:12px; font-weight:600; white-space:nowrap;}
+  .defchip{display:inline-block; border:1.5px solid #C6D2DE; border-radius:14px; padding:2px 10px; font-size:12px; font-weight:700;
+    margin:2px 4px 2px 0; cursor:pointer; background:#fff; color:#33475a; user-select:none;}
+  .defchip.no{border-color:#d08a8a; color:#a33;}
+  .defchip.on{background:#1D3D5C; color:#fff; border-color:#1D3D5C;}
+  .defchip.on.no{background:#B03030; border-color:#B03030; color:#fff;}
+  .defchip.ro{cursor:default;}
+  .defcard{border:1px solid #E0D6C2; background:#FFFDF6; border-radius:10px; padding:10px 12px; margin-bottom:10px;}
+  .defnum{display:inline-block; background:#8a5a00; color:#fff; font-weight:800; font-size:12px; border-radius:8px; padding:2px 10px; margin-right:6px;}
   .b-done{background:var(--accent2); color:#1c7a42; border:1px solid #bfe3cc;}
   .b-wait{background:#f0f2f5; color:#78828d; border:1px solid var(--line);}
   .b-fail{background:#fdecec; color:#b03030; border:1px solid #f3c6c6;}
@@ -299,6 +307,14 @@ const T = {
     cmtPost:'💬 Post Comment', cmtPh:'Write a comment / reply here...',
     cmtEmpty:'No comments yet. NMDC can post the first comment after unlocking with the key 🔑.',
     cmtLegacy:'Improvement Response (earlier version) 改善回覆',
+    cmtAttachHint:'Tip: post the message first, then attach files under it. Improvement files are stored in the "改善佐證 Improvement Evidence" subfolder on Drive.',
+    defTitle:'Deficiency List 缺失清單', defAdd:'+ Add deficiency',
+    defDescPh:'Deficiency description & required action 缺失敘述與要求事項…',
+    defCodesHint:'For each deficiency, tap to select the related checklist items (red = items marked NO by NMDC), then write the description.',
+    defUpNote:'Contractor: reply under each deficiency and upload evidence there. Files are auto-named with the deficiency number (e.g. "D2 & photo.jpg") and stored in the "改善佐證 Improvement Evidence" Drive subfolder.',
+    defReplyPh:'Contractor reply — describe the improvement made…',
+    defReplySave:'💾 Save replies', defCtrReply:'Contractor Reply 廠商改善回覆', defNoReply:'(no reply yet)',
+    errDefect:'FAIL / CONDITIONAL PASS requires at least one deficiency (with description) or an NMDC comment.',
     confirmCloseT:'Confirm close-out?', confirmCloseP:'The improvement response has been reviewed and accepted. This inspection will be marked as CLOSED.',
     closedTag:'Closed', fuPending:'Pending close-out',
     signTitle:'Name & Sign-off',
@@ -348,7 +364,7 @@ const T = {
     errVerdict:'Please select the Final Inspection Result.',
     errDeadline:'Please set the improvement response deadline.',
     errComment:'FAIL / CONDITIONAL PASS requires an NMDC comment — please post one in the Comments & Verification board.',
-    cmtNeed:'FAIL / CONDITIONAL PASS selected — post an NMDC comment below (required) telling the contractor what to fix. It becomes visible to the contractor once the inspection is completed.',
+    cmtNeed:'FAIL / CONDITIONAL PASS selected — use the Deficiency List above (recommended) or post an NMDC comment below, telling the contractor what to fix. Visible to the contractor once the inspection is completed.',
     answered:'answered', loadFail:'Load failed', saveFail:'Save failed',
     loadingData:'Loading data...', refreshing:'Refreshing…', savingData:'Saving...',
     uploadingData:'Uploading attachment...', exportingData:'Generating PDF...', working:'Processing...',
@@ -408,6 +424,14 @@ const T = {
     cmtPost:'💬 送出留言', cmtPh:'輸入留言/回覆…',
     cmtEmpty:'尚無留言。NMDC 以鑰匙 🔑 解鎖後即可留下第一則意見。',
     cmtLegacy:'改善回覆(舊版)Improvement Response',
+    cmtAttachHint:'提示:先送出留言,即可在該則留言下方上傳附件;改善相關檔案會存入 Drive 的「改善佐證 Improvement Evidence」子資料夾。',
+    defTitle:'缺失清單 Deficiency List', defAdd:'+ 新增缺失',
+    defDescPh:'缺失敘述與要求事項 Deficiency description & required action…',
+    defCodesHint:'每筆缺失:點選相關檢查項目(紅色 = NMDC 勾 NO 的項目),再填寫缺失敘述與要求。',
+    defUpNote:'廠商:請直接在每筆缺失下方回覆改善說明並上傳佐證。檔案會自動以缺失編號開頭命名(如「D2 & 照片.jpg」),存入 Drive「改善佐證 Improvement Evidence」子資料夾。',
+    defReplyPh:'廠商回覆 — 說明改善情形…',
+    defReplySave:'💾 儲存回覆', defCtrReply:'廠商改善回覆 Contractor Reply', defNoReply:'(尚未回覆)',
+    errDefect:'「未通過/有條件通過」請至少新增一筆缺失(含敘述),或送出一則 NMDC 留言。',
     confirmCloseT:'確認結案?', confirmCloseP:'補充改善內容已確認符合要求,此筆檢查將標記為「已結案」。',
     closedTag:'已結案', fuPending:'待結案',
     signTitle:'簽核 Name & Sign-off',
@@ -457,7 +481,7 @@ const T = {
     errVerdict:'請先選擇「檢查結論」。',
     errDeadline:'請填寫補充改善回覆期限。',
     errComment:'「未通過/有條件通過」必須填寫檢查意見 — 請在留言板送出一則 NMDC 留言。',
-    cmtNeed:'已勾選「未通過/有條件通過」— 請在下方留言板填寫檢查意見(必填),告訴廠商要改善什麼;完成檢查後廠商即可看到並回覆。',
+    cmtNeed:'已勾選「未通過/有條件通過」— 建議優先使用上方「缺失清單」逐項填寫,或於此留言板送出 NMDC 檢查意見;完成檢查後廠商即可看到並逐項回覆。',
     answered:'已勾選', loadFail:'載入失敗', saveFail:'儲存失敗',
     loadingData:'資料讀取中…', refreshing:'更新中…', savingData:'儲存中…',
     uploadingData:'附件上傳中…', exportingData:'PDF 產生中…', working:'處理中…',
@@ -1124,6 +1148,27 @@ function buildReportBlocks(o, cl, imgMap) {
       '<div style="color:'+vd.col+'; font-weight:800; font-size:12px; line-height:1.6">'+vd.txt+'</div>' +
     '</div>');
 
+  /* ── 🧾 缺失清單 ── */
+  const defects = (o.data && o.data.defects) || [];
+  if (defects.length) {
+    let dh = '';
+    defects.forEach((d, i) => {
+      const chips = (d.codes || []).map(c =>
+        '<span style="display:inline-block; border:1px solid #B03030; color:#B03030; font-weight:800; font-size:8px; border-radius:9px; padding:1px 8px; margin-right:4px">'+esc(c)+'</span>').join('');
+      const dAtts = atts.filter(x => x.itemCode === 'DEF-' + d.id);
+      dh += '<div style="border:1px solid #E4D8C0; background:#FFFDF6; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
+        '<div style="margin-bottom:3px"><span style="background:#8a5a00; color:#fff; font-weight:800; font-size:8px; border-radius:7px; padding:1.5px 8px; margin-right:5px">D'+(i+1)+'</span>'+chips+'</div>' +
+        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(d.desc || '')+'</div>' +
+        '<div style="margin-top:5px; border-top:1px dashed #D8CBAA; padding-top:4px">' +
+          '<span style="font-size:8px; font-weight:800; color:#1C7A42">⛴ 廠商改善回覆 Contractor Reply</span>' +
+          '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(d.reply || '(尚未回覆 no reply yet)')+'</div>' +
+          (dAtts.length ? '<div style="font-size:8px; color:#556; margin-top:2px">'+dAtts.map(f=>'📎 '+esc(f.name)).join('　')+'</div>' : '') +
+        '</div></div>';
+    });
+    push('<div style="border:1px solid #D5DEE7; border-radius:10px; padding:10px 14px; margin-top:10px; background:#FBFCFD">' +
+      '<div style="font-weight:800; color:#12283F; font-size:10.5px; margin-bottom:6px">🧾 缺失清單 Deficiency List('+defects.length+')</div>' + dh + '</div>');
+  }
+
   /* ── 💬 檢查意見與驗證回覆(留言板)── */
   const fu = (o.data && o.data.followup) || {};
   const cmts = (o.data && o.data.comments) || [];
@@ -1254,6 +1299,11 @@ function buildReportBlocks(o, cl, imgMap) {
     const c = secColorOf(code);
     attsOf(code, 'self').forEach(f => selfList.push({ f, tag: code, ac: c.ac, hbg: '#F0F4F8' }));
     attsOf(code, 'nmdc').forEach(f => nmdcList.push({ f, tag: code, ac: '#1D3D5C', hbg: '#EDF2F8' }));
+  });
+  defects.forEach((d, i) => {
+    atts.filter(x => x.itemCode === 'DEF-' + d.id).forEach(f =>
+      cmtList.push({ f, tag: 'D' + (i+1) + ((d.codes||[]).length ? ' · ' + d.codes.join(' · ') : ''),
+        ac: '#8a5a00', hbg: '#FFF7E8' }));
   });
   atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f =>
     cmtList.push({ f, tag: '改善回覆 Follow-up', ac: '#C77F0A', hbg: '#FDF7EA' }));
@@ -1756,12 +1806,14 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
     }
     if (!item.verdict) { showToast(t.errVerdict, true); const el=document.getElementById('verdict-card'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
     if (item.verdict === 'cond' && !item.verdictDeadline) { showToast(t.errDeadline, true); const el=document.getElementById('verdict-card'); if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); return; }
-    /* ⚠ 未通過/有條件通過:必須先在留言板留下 NMDC 檢查意見 */
+    /* ⚠ 未通過/有條件通過:必須有缺失清單(含敘述)或 NMDC 留言 */
     if (item.verdict === 'fail' || item.verdict === 'cond') {
       const cs = (item.data && item.data.comments) || [];
-      if (!cs.some(c => c.author === 'nmdc')) {
-        showToast(t.errComment, true);
-        const el = document.getElementById('cmt-card'); if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
+      const defs = (item.data && item.data.defects || []).filter(d => d.desc && d.desc.trim());
+      if (!defs.length && !cs.some(c => c.author === 'nmdc')) {
+        showToast(t.errDefect, true);
+        const el = document.getElementById('def-card') || document.getElementById('cmt-card');
+        if (el) el.scrollIntoView({ behavior:'smooth', block:'center' });
         return;
       }
     }
@@ -1922,6 +1974,65 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         ))}
       </div>
 
+      {/* 🧾 缺失清單:NMDC 選項目(複選)+敘述 → 廠商在每筆缺失下回覆+上傳佐證(附件自動以 D1、D2 編號) */}
+      {(item.verdict === 'fail' || item.verdict === 'cond' || ((item.data.defects || []).length > 0)) && (() => {
+        const isClosed = String(item.closed) === '1';
+        const defects = item.data.defects || [];
+        const allCodes = codesOf(cl);
+        const canDef = editMode && !isClosed;
+        const setDefects = (list) => setItem(p => Object.assign({}, p, { data: Object.assign({}, p.data, { defects: list }) }));
+        const upDef = (i, patch) => setDefects(defects.map((d, j) => j === i ? Object.assign({}, d, patch) : d));
+        const addDef = () => setDefects(defects.concat([{ id: 'd' + Date.now(), codes: [], desc: '', reply: '' }]));
+        const delDef = (i) => askConfirm(t.confirmDelT, 'D' + (i + 1), () => setDefects(defects.filter((_, j) => j !== i)), true);
+        const toggleCode = (i, c) => { const d = defects[i]; const has = (d.codes || []).indexOf(c) > -1;
+          upDef(i, { codes: has ? d.codes.filter(x => x !== c) : (d.codes || []).concat([c]) }); };
+        const isNo = c => nAns[c] && nAns[c].v === 'no';
+        return (
+          <div className="card" id="def-card">
+            <h3>🧾 {t.defTitle}</h3>
+            {canDef && <div className="banner blue">{t.defCodesHint}</div>}
+            {done && !isClosed && !editMode && defects.length > 0 && <div className="banner blue">{t.defUpNote}</div>}
+            {defects.map((d, i) => {
+              const dAtts = (item.attachments || []).filter(x => x.itemCode === 'DEF-' + d.id);
+              return (
+                <div key={d.id} className="defcard">
+                  <div style={{display:'flex', alignItems:'flex-start', gap:6, flexWrap:'wrap', marginBottom:6}}>
+                    <span className="defnum">D{i + 1}</span>
+                    <div style={{flex:1, minWidth:200}}>
+                      {canDef
+                        ? allCodes.map(c =>
+                            <span key={c} className={'defchip' + ((d.codes||[]).indexOf(c)>-1 ? ' on' : '') + (isNo(c) ? ' no' : '')}
+                              onClick={() => toggleCode(i, c)}>{c}</span>)
+                        : (d.codes||[]).map(c =>
+                            <span key={c} className={'defchip on ro' + (isNo(c) ? ' no' : '')}>{c}</span>)}
+                    </div>
+                    {canDef && <button className="btn btn-r btn-sm" onClick={() => delDef(i)}>✕</button>}
+                  </div>
+                  {canDef
+                    ? <textarea rows={3} placeholder={t.defDescPh} value={d.desc || ''} onChange={e => upDef(i, { desc: e.target.value })} />
+                    : <div style={{fontSize:13.5, whiteSpace:'pre-wrap', lineHeight:1.55}}>{d.desc || '—'}</div>}
+                  {done && (
+                    <div style={{marginTop:8, borderTop:'1px dashed #D8CBAA', paddingTop:8}}>
+                      <div style={{fontSize:12, fontWeight:800, color:'#1C7A42', marginBottom:4}}>⛴ {t.defCtrReply}</div>
+                      <textarea rows={2} disabled={isClosed} placeholder={t.defReplyPh} value={d.reply || ''}
+                        onChange={e => upDef(i, { reply: e.target.value })} />
+                      <AttRow t={t} code={'DEF-' + d.id} stage="fu" atts={dAtts}
+                        can={!isClosed} uploading={uploadingKeys.includes('DEF-' + d.id)}
+                        onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            <div style={{display:'flex', gap:8, flexWrap:'wrap'}}>
+              {canDef && <button className="btn btn-o" onClick={addDef}>{t.defAdd}</button>}
+              {done && !isClosed && defects.length > 0 &&
+                <button className="btn btn-p" disabled={saving} onClick={() => onSave()}>{t.defReplySave}</button>}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* 💬 檢查意見與驗證回覆:NMDC 留 comment → 廠商依 comment 自檢、上傳佐證、留言驗證 → (有條件通過)NMDC 結案
           檢查進行中勾選「未通過/有條件通過」即出現(必填);檢查完成後所有結果都顯示 */}
       {(done || item.verdict === 'fail' || item.verdict === 'cond') && (() => {
@@ -1986,6 +2097,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
                   {editMode ? t.cmtAsNmdc : t.cmtAsCtr}</div>
                 <textarea rows={3} placeholder={t.cmtPh} value={cmtText}
                   onChange={e => setCmtText(e.target.value)} />
+                <div style={{fontSize:11.5, color:'#8A94A0', marginTop:3}}>{t.cmtAttachHint}</div>
                 <div style={{display:'flex', gap:8, marginTop:8, flexWrap:'wrap'}}>
                   <button className="btn btn-p" disabled={saving || !cmtText.trim()} onClick={postCmt}>{t.cmtPost}</button>
                   {isCond && done && editMode &&
@@ -2271,11 +2383,13 @@ function App() {
     rec2.data.contact = { name:'王大明 HSE Officer', phone:'0922-333-444', email:'beta.hse@example.com' };
     rec2.data.answers = mkAnswers(noC2, 'Visible dust observed during bulk material transfer');
     rec2.data.nmdcAnswers = mkAnswers(noC2, 'Confirmed — submit updated dust control method statement');
-    rec2.data.comments = [
-      { id:'demo-b1', author:'nmdc', at:todayStr()+' 10:30:00',
-        text:'請提交更新之揚塵抑制作業程序,並依 comment 自行檢查後上傳散裝作業灑水/密閉輸送照片。\nPlease submit the updated dust control method statement, self-check per this comment, and upload photos of water spray / enclosed transfer.' },
-      { id:'demo-b2', author:'ctr', at:todayStr()+' 15:20:00',
-        text:'已依意見完成改善:散裝物料改採密閉輸送並加強灑水,佐證照片如附,請查核驗證。\nImprovement completed per comment — bulk transfer now enclosed with water spray applied. Evidence attached for your verification.' },
+    rec2.data.defects = [
+      { id:'demo-def1', codes:[noC2],
+        desc:'現場散裝物料轉運有明顯揚塵,請提交更新之揚塵抑制作業程序,並改採密閉輸送+加強灑水。\nVisible dust during bulk transfer — submit updated dust control method statement; use enclosed transfer with water spray.',
+        reply:'已完成改善:散裝物料改採密閉輸送並加強灑水,佐證照片如附,請查核驗證。\nImprovement completed — enclosed transfer with water spray applied. Evidence attached for verification.' },
+      { id:'demo-def2', codes:[noC2 === 'A-2' ? (codes.indexOf('E-5') > -1 ? 'E-5' : codes[0]) : codes[0]],
+        desc:'請補充環保宣導海報張貼於船員休息區之照片(NMDC 提供海報)。\nPost the environmental awareness poster (provided by NMDC) in the crew rest area and upload a photo.',
+        reply:'' },
     ];
     rec2.data.signoff = signAll;
 
@@ -2312,7 +2426,7 @@ function App() {
       const r2 = await api('save', { item: rec2 });
       await api('upload', { inspId:r2.item.id, itemCode:noC2, label:noC2, name:'dust_photo.png', mimeType:'image/png', base64:img1 });
       await api('upload', { inspId:r2.item.id, itemCode:noC2+'#NMDC', label:noC2+' (NMDC)', name:'verification_photo.png', mimeType:'image/png', base64:img2 });
-      await api('upload', { inspId:r2.item.id, itemCode:'CMT-demo-b2', label:'CMT', name:'improvement_evidence.png', mimeType:'image/png', base64:img3 });
+      await api('upload', { inspId:r2.item.id, itemCode:'DEF-demo-def1', label:'D1', name:'improvement_evidence.png', mimeType:'image/png', base64:img3 });
       const r3 = await api('save', { item: rec3 });
       /* ④ Gamma-R1:複檢紀錄(帶入 Gamma 廠商勾選,草稿狀態) */
       const rec4 = Object.assign(blankItem(cl), baseInfo('測試船 Gamma','TEST VESSEL GAMMA','416000003','9000003','4100','ABS'));
@@ -2442,7 +2556,14 @@ function App() {
   const uploadFile = (code, files, stage) => {
     if (!files || !files.length) return;
     const itemCode = stage==='nmdc' ? code+'#NMDC' : code;
-    const label = stage==='nmdc' ? code+' (NMDC)' : (code==='FOLLOWUP' ? 'FU' : (/^CMT-/.test(code) ? 'CMT' : code));
+    let label = stage==='nmdc' ? code+' (NMDC)' : (code==='FOLLOWUP' ? 'FU' : (/^CMT-/.test(code) ? 'CMT' : code));
+    if (/^DEF-/.test(code)) {   // 缺失附件:自動以缺失編號命名(D1、D2…)
+      const ds = (itemRef.current && itemRef.current.data && itemRef.current.data.defects) || [];
+      const ix = ds.findIndex(d => 'DEF-' + d.id === code);
+      label = 'D' + (ix > -1 ? ix + 1 : '');
+    }
+    /* 改善相關附件(缺失回覆/留言/補件)→ 存 Drive 子資料夾 */
+    const sub = (/^(DEF-|CMT-)/.test(itemCode) || itemCode === 'FOLLOWUP') ? '改善佐證 Improvement Evidence' : '';
     const maxSize = (LOCAL || TESTMODE) ? 2*1024*1024 : 15*1024*1024;
     const arr = Array.from(files);
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
@@ -2453,7 +2574,7 @@ function App() {
         prepFile(f).then(pf => {
           if (!pf) { showToast(t.upFail + ': ' + f.name, true); return; }
           if (pf.size > maxSize) { showToast(t.fileTooBig, true); return; }
-          return sendUpload({ inspId: saved.id, itemCode, label, name: pf.name, mimeType: pf.mimeType, base64: pf.base64, size: pf.size });
+          return sendUpload({ inspId: saved.id, itemCode, label, sub, name: pf.name, mimeType: pf.mimeType, base64: pf.base64, size: pf.size });
         })
       ), Promise.resolve()).catch(()=>{});
     }).catch(()=>{});
@@ -2462,7 +2583,7 @@ function App() {
   /* 單張上傳(含失敗暫存):成功掛進附件列表;失敗留在 failedUps 可一鍵重試,不用重選檔案 */
   const sendUpload = (u) => {
     setUploadingKeys(k => [...k, u.itemCode]);
-    return api('upload', { inspId: u.inspId, itemCode: u.itemCode, label: u.label, name: u.name, mimeType: u.mimeType, base64: u.base64 })
+    return api('upload', { inspId: u.inspId, itemCode: u.itemCode, label: u.label, sub: u.sub || '', name: u.name, mimeType: u.mimeType, base64: u.base64 })
       .then(r => {
         setItem(x => (x && x.id === u.inspId)
           ? Object.assign({}, x, { attachments: [...(x.attachments||[]), r.attachment] }) : x);
