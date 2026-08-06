@@ -301,6 +301,9 @@ const T = {
     signEnd:'Endorsed By', signEndSub:'(NMDC ENV Lead) 🔑',
     name:'Name', date:'Date',
     save:'Save', back:'← Back', saved:'Saved ✓',
+    bgSaveFail:'⚠ Save failed — your edits are kept as a draft on this device. Check the connection and press Save again.',
+    draftT:'Unsaved draft found', draftP:(tm)=>`This device has an unsaved draft from ${tm}, newer than the saved copy. Restore it?`,
+    draftRestore:'↩ Restore draft', draftDiscard:'Discard draft',
     markSelf:'Contractor Self-Check Complete', markNmdc:'NMDC Inspection Complete',
     saveHint:'⚠ Still in progress? Tap "Save" to keep your work. Tap "Contractor Self-Check Complete" only when every item is confirmed — once submitted, the form can no longer be edited.',
     revert:'Revert to previous stage', exportPdf:'📄 Export PDF', exporting:'Generating PDF...',
@@ -400,6 +403,9 @@ const T = {
     signEnd:'核可人 Endorsed By', signEndSub:'(NMDC 環境主管 ENV Lead) 🔑',
     name:'姓名', date:'日期',
     save:'儲存', back:'← 返回', saved:'已儲存 ✓',
+    bgSaveFail:'⚠ 儲存失敗 — 內容已保留在此裝置的草稿中,請確認網路後再按一次儲存。Save failed — draft kept on this device.',
+    draftT:'發現未儲存的草稿 Unsaved draft found', draftP:(tm)=>`此裝置有 ${tm} 的未儲存草稿,比已儲存的版本新。要還原嗎?`,
+    draftRestore:'↩ 還原草稿', draftDiscard:'放棄草稿',
     markSelf:'廠商自檢完成', markNmdc:'NMDC 檢查完成',
     saveHint:'⚠ 填寫途中請先按「儲存」保留進度;確認全部項目完成後,再按「廠商自檢完成」送出 — 送出後即無法修改。',
     revert:'退回上一階段', exportPdf:'📄 匯出 PDF 留底', exporting:'PDF 產生中...',
@@ -2044,7 +2050,43 @@ function App() {
   const itemRef = useRef(null);
   itemRef.current = item;
   /* 表單修改都走這個 setter,自動標記未儲存 */
-  const setItemDirty = (updater) => { setDirty(true); setItem(updater); };
+  /* 📝 本機草稿備援:編輯內容 0.8 秒後自動備份到此裝置(不含附件),意外關閉/斷線可還原 */
+  const draftKey = (it) => 'evis_draft_' + (TESTMODE ? 'test_' : '') + ((it && it.id) ? it.id : 'new');
+  const draftTimer = useRef(null);
+  const writeDraft = (force) => {
+    const it = itemRef.current;
+    if (!it || viewRef.current !== 'form' || (!force && !dirtyRef.current)) return;
+    try {
+      const c = Object.assign({}, it); delete c._miss; c.attachments = [];
+      localStorage.setItem(draftKey(it), JSON.stringify({ at: Date.now(), item: c }));
+    } catch (e) {}   // 空間滿等錯誤:草稿為輔助功能,略過
+  };
+  const clearDraftOne = (it) => { try { localStorage.removeItem(draftKey(it || {})); } catch (e) {} };
+  const clearDraft = (it) => { clearDraftOne(it); clearDraftOne({}); };   // 含 new 草稿
+  const setItemDirty = (updater) => {
+    setDirty(true); setItem(updater);
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    draftTimer.current = setTimeout(writeDraft, 800);
+  };
+  /* 開啟紀錄時:若此裝置有比伺服器版本新的草稿 → 詢問是否還原 */
+  const maybeOfferDraft = (it) => {
+    let d = null;
+    try { d = JSON.parse(localStorage.getItem(draftKey(it))); } catch (e) {}
+    if (!d || !d.item) return;
+    const srvT = Date.parse(String(it.updatedAt || '').replace(' ', 'T')) || 0;
+    if (!(d.at > srvT)) { clearDraftOne(it); return; }   // 草稿比伺服器舊 → 自動丟棄
+    const dt = new Date(d.at);
+    const tm = dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')+' '+dt.toTimeString().slice(0,5);
+    setModal({ title: '📝 ' + t.draftT, body: t.draftP(tm),
+      onCancel: () => setModal(null),
+      buttons: [
+        { label: t.draftRestore, cls: 'btn-p', onClick: () => { setModal(null);
+            setItem(x => normalize(Object.assign({}, d.item, { id: (x && x.id) || d.item.id || '',
+              attachments: (x && x.attachments) || [] })));
+            setDirty(true); } },
+        { label: t.draftDiscard, cls: 'btn-o', onClick: () => { setModal(null); clearDraftOne(it); } },
+      ] });
+  };
 
   /* 關閉/重新整理瀏覽器時的原生攔截 */
   useEffect(() => {
@@ -2215,7 +2257,9 @@ function App() {
 
   const openItem = id => {
     track(api('get', { id })).then(r => {
-      setItem(normalize(r.item)); setDirty(false); setView('form'); window.scrollTo(0,0);
+      const it = normalize(r.item);
+      setItem(it); setDirty(false); setView('form'); window.scrollTo(0,0);
+      maybeOfferDraft(it);
     }).catch(e => showToast(t.loadFail + ': ' + e.message, true));
   };
 
@@ -2224,11 +2268,13 @@ function App() {
       titleStyle: { color:'var(--red)', fontSize:20, textAlign:'center', letterSpacing:'2px' },
       list: t.newNoticeList, okLabel: t.newNoticeOk,
       onCancel: ()=>setModal(null),
-      onOk: ()=>{ setModal(null); setItem(blankItem(clRef.current)); setDirty(false); setView('form'); window.scrollTo(0,0); } });
+      onOk: ()=>{ setModal(null); setItem(blankItem(clRef.current)); setDirty(false); setView('form'); window.scrollTo(0,0);
+        setTimeout(()=>maybeOfferDraft({ id:'', updatedAt:'' }), 80); } });   // 未儲存過的新表單草稿
   };
 
   const highlightMissing = (miss) => setItem(p => Object.assign({}, p, { _miss: miss }));
 
+  const bgChainRef = useRef(Promise.resolve());
   const doSave = (newStatus, extra) => {
     const cur = Object.assign({}, itemRef.current, extra || {});
     delete cur._miss;
@@ -2236,14 +2282,38 @@ function App() {
     if (newStatus) cur.status = newStatus;
     cur.progress = countMap(cur.data.answers) + '/' + total;
     cur.nmdcProgress = countMap(cur.data.nmdcAnswers) + '/' + total;
-    setSaving(true);
-    return track(api('save', { item: cur }), t.savingData).then(r => {
-      const saved = normalize(r.item);
-      if (!saved.attachments.length && cur.attachments) saved.attachments = cur.attachments;
-      setItem(saved); setDirty(false); setSaving(false); showToast(t.saved);
-      api('list').then(x=>setList(x.items||[])).catch(()=>{});
-      return saved;
-    }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); throw e; });
+
+    /* 階段變更(完成自檢/完成檢查/退回)、結案、第一次儲存(要取編號)→ 同步等待,其餘背景儲存 */
+    const blocking = !!newStatus || !!(extra && extra.closed) || !cur.id;
+    if (blocking) {
+      setSaving(true);
+      return track(api('save', { item: cur }), t.savingData).then(r => {
+        const saved = normalize(r.item);
+        if (!saved.attachments.length && cur.attachments) saved.attachments = cur.attachments;
+        setItem(saved); setDirty(false); setSaving(false); showToast(t.saved);
+        clearDraft(saved);
+        api('list').then(x=>setList(x.items||[])).catch(()=>{});
+        return saved;
+      }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); throw e; });
+    }
+
+    /* 🚀 背景儲存:畫面立即可繼續操作;成功跳「已儲存 ✓」,失敗自動標回未儲存+保留本機草稿 */
+    if (extra) setItem(x => x ? Object.assign({}, x, extra) : x);   // 樂觀更新(例:留言立即顯示)
+    setDirty(false);
+    const p = bgChainRef.current
+      .then(() => api('save', { item: cur }))
+      .then(r => {
+        const s = (r && r.item) || {};
+        setItem(x => x ? Object.assign({}, x, { updatedAt: s.updatedAt || x.updatedAt,
+          inspNo: s.inspNo || x.inspNo, folderUrl: s.folderUrl || x.folderUrl }) : x);
+        if (!dirtyRef.current) clearDraft(cur);
+        showToast(t.saved);
+        api('list').then(x=>setList(x.items||[])).catch(()=>{});
+        return normalize(Object.assign({}, cur, { inspNo: s.inspNo || cur.inspNo, updatedAt: s.updatedAt || cur.updatedAt }));
+      })
+      .catch(e => { setDirty(true); writeDraft(true); showToast(t.bgSaveFail, true); throw e; });
+    bgChainRef.current = p.catch(()=>{});   // 序列化:多次儲存依序送出,不互搶
+    return p;
   };
 
   /* 📷 照片自動壓縮:長邊 1600px、JPEG 0.82(佐證照片綽綽有餘)
@@ -2326,7 +2396,7 @@ function App() {
       body: t.leaveP,
       onCancel: ()=>setModal(null),
       buttons: [
-        { label: t.leaveGo,   cls:'btn-r', onClick: ()=>{ setModal(null); setDirty(false); next(); } },
+        { label: t.leaveGo,   cls:'btn-r', onClick: ()=>{ setModal(null); setDirty(false); clearDraftOne(itemRef.current); next(); } },
         { label: t.leaveSave, cls:'btn-p', onClick: ()=>{ setModal(null); doSave().then(()=>next()).catch(()=>{}); } },
         { label: t.leaveStay, cls:'btn-o', onClick: ()=>setModal(null) },
       ],
