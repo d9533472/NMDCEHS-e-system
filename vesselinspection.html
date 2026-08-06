@@ -263,6 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
+const APP_VER = 'v24';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -309,6 +310,8 @@ const T = {
     cmtEmpty:'No comments yet. NMDC can post the first comment after unlocking with the key 🔑.',
     cmtLegacy:'Improvement Response (earlier version) 改善回覆',
     cmtAttachHint:'Tip: post the message first, then attach files under it. Improvement files are stored in the "改善佐證 Improvement Evidence" subfolder on Drive.',
+    cmtDelP:'Delete this comment? Its attachments will also be deleted.',
+    cmtEdited:'edited', cmtEditSave:'💾 Update', cmtEditCancel:'Cancel',
     defTitle:'Deficiency List 缺失清單', defAdd:'+ Add deficiency',
     defDescPh:'Deficiency description & required action 缺失敘述與要求事項…',
     defCodesHint:'For each deficiency, tap to select the related checklist items (red = items marked NO by NMDC), then write the description.',
@@ -333,6 +336,9 @@ const T = {
     pdfDone:'PDF saved to Drive ✓', pdfOpen:'Open PDF', pdfLocal:'Use the print dialog → Save as PDF',
     pdfLocalToo:'A copy has also been downloaded to this device.',
     pdfDriveFail:'⚠ PDF was downloaded to this device, but saving to Drive failed — export again later to file the Drive copy.',
+    pdfFailT:'PDF export failed — diagnostic info',
+    pdfStage:{ init:'Initialising', fetch:'Downloading attachment photos', render:'Rendering pages', download:'Downloading file', upload:'Saving to Drive' },
+    pdfFailBody:(st, msg, d)=>`Failed at stage: ${st}\nError: ${msg}\nAttachments: ${d.atts} (photos fetched: ${d.imgs})\nPages: ${d.pages || '—'}\nVersion: ${APP_VER} · ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)?'Mobile':'Desktop'}\n\nPlease screenshot this window and send it to the system admin.`,
     confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
     newNoticeT:'NOTICE',
     newNoticeList:[
@@ -428,6 +434,8 @@ const T = {
     cmtEmpty:'尚無留言。NMDC 以鑰匙 🔑 解鎖後即可留下第一則意見。',
     cmtLegacy:'改善回覆(舊版)Improvement Response',
     cmtAttachHint:'提示:先送出留言,即可在該則留言下方上傳附件;改善相關檔案會存入 Drive 的「改善佐證 Improvement Evidence」子資料夾。',
+    cmtDelP:'確定刪除這則留言?其附件也會一併刪除。Delete this comment and its attachments?',
+    cmtEdited:'已編輯 edited', cmtEditSave:'💾 更新留言', cmtEditCancel:'取消',
     defTitle:'缺失清單 Deficiency List', defAdd:'+ 新增缺失',
     defDescPh:'缺失敘述與要求事項 Deficiency description & required action…',
     defCodesHint:'每筆缺失:點選相關檢查項目(紅色 = NMDC 勾 NO 的項目),再填寫缺失敘述與要求。',
@@ -452,6 +460,9 @@ const T = {
     pdfDone:'PDF 已存入 Drive ✓', pdfOpen:'開啟 PDF', pdfLocal:'請在列印視窗選「另存為 PDF」',
     pdfLocalToo:'已同時下載一份到此裝置。A copy has also been downloaded to this device.',
     pdfDriveFail:'⚠ PDF 已下載到此裝置,但存回 Drive 失敗 — 請稍後對此紀錄再按一次匯出即可補存 Drive。',
+    pdfFailT:'PDF 匯出失敗 — 診斷資訊',
+    pdfStage:{ init:'初始化', fetch:'附件照片下載', render:'頁面排版', download:'檔案下載', upload:'存回 Drive' },
+    pdfFailBody:(st, msg, d)=>`失敗階段:${st}\n錯誤訊息:${msg}\n附件:${d.atts} 個(照片取得 ${d.imgs} 張)\n頁數:${d.pages || '—'}\n版本:${APP_VER} · ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)?'手機':'電腦'}\n\n請截圖此視窗回報,即可快速定位問題。`,
     confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
     newNoticeT:'注意',
     newNoticeList:[
@@ -771,7 +782,8 @@ function apiOnce(action, payload) {
 
 function api(action, payload) {
   if (LOCAL || TESTMODE) return localApi(action, payload || {});
-  const retries = READ_ACTIONS[action] ? 2 : 0;   // 讀取最多重試 2 次;寫入不重試(避免重複)
+  const retries = action === 'filesData' ? 1                 // 抓圖:批次本身可容錯,只重試 1 次(失敗批以佔位顯示)
+                : READ_ACTIONS[action] ? 2 : 0;   // 讀取最多重試 2 次;寫入不重試(避免重複)
   const attempt = (n) => apiOnce(action, payload || {}).catch(err => {
     if (n < retries) return new Promise(r => setTimeout(r, 800 * (n + 1))).then(() => attempt(n + 1));
     throw err;
@@ -1056,13 +1068,22 @@ function buildReportHtml(o, currentCl) {
 const LIB_H2C   = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
 const LIB_JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
 const __libs = {};
-function loadScriptOnce(src) {
-  if (__libs[src]) return __libs[src];
-  __libs[src] = new Promise((res, rej) => {
+/* 備援 CDN:cdnjs 連不上(公司網路封鎖/船上網路)時改抓 jsdelivr */
+const LIB_FALLBACK = {};
+LIB_FALLBACK[LIB_H2C]   = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+LIB_FALLBACK[LIB_JSPDF] = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+function loadOne_(src) {
+  return new Promise((res, rej) => {
     const s = document.createElement('script');
-    s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error('PDF 元件載入失敗'));
+    s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error('LIB_LOAD: ' + src.split('/').pop()));
     document.head.appendChild(s);
   });
+}
+function loadScriptOnce(src) {
+  if (__libs[src]) return __libs[src];
+  __libs[src] = loadOne_(src).catch(() =>
+    LIB_FALLBACK[src] ? loadOne_(LIB_FALLBACK[src]) : Promise.reject(new Error('PDF 元件載入失敗'))
+  ).catch(() => { delete __libs[src]; throw new Error('PDF 元件載入失敗(網路無法連到 CDN)LIB_LOAD_FAIL'); });
   return __libs[src];
 }
 
@@ -1195,7 +1216,8 @@ function buildReportBlocks(o, cl, imgMap) {
       const eAtts = atts.filter(x => x.itemCode === 'CMT-'+e.id);
       inner += '<div style="border:1px solid '+(isN?'#C9D6E4':'#CBE3D2')+'; background:'+(isN?'#F5F8FB':'#F4FAF6')+'; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
         '<div style="margin-bottom:3px"><span style="background:'+(isN?'#1D3D5C':'#1C7A42')+'; color:#fff; font-weight:800; font-size:7.5px; padding:1.5px 8px; border-radius:8px">'+(isN?'🛠 NMDC':'⛴ 廠商 CONTRACTOR')+'</span>' +
-        ' <span style="font-size:8px; color:#8A94A0">'+esc(e.at||'')+'</span></div>' +
+        ' <span style="font-size:8px; color:#8A94A0">'+esc(e.at||'')+'</span>' +
+        (e.editedAt ? ' <span style="font-size:7.5px; color:#B8A26E">✎ 已編輯 edited '+esc(String(e.editedAt).slice(0,16))+'</span>' : '') + '</div>' +
         '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(e.text||'')+'</div>' +
         (eAtts.length ? '<div style="font-size:8px; color:#556; margin-top:3px">'+eAtts.map(f=>'📎 '+esc(f.name)).join('　')+'</div>' : '') +
         '</div>';
@@ -1418,10 +1440,14 @@ async function generatePdf(o, cl, imgMap, onProg) {
     foot.innerHTML = '<span>'+DOC_NO+' · '+DOC_REV+' · '+esc(o.inspNo||'')+' · 環境船檢系統</span><span>Page '+(i+1)+' / '+pageDivs.length+'</span>';
     pg.appendChild(foot);
     if (onProg) onProg(i + 1, pageDivs.length);
-    const canvas = await window.html2canvas(pg, { scale:1.75, backgroundColor:'#ffffff', logging:false });
+    /* 手機記憶體有限:行動裝置降為 1.5 倍,避免 iOS Safari 記憶體不足閃退/失敗 */
+    const SCALE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1.5 : 1.75;
+    const canvas = await window.html2canvas(pg, { scale:SCALE, backgroundColor:'#ffffff', logging:false });
     if (i > 0) pdf.addPage();
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, 210, 297);
+    canvas.width = canvas.height = 0;   // 立即釋放記憶體
     pg.remove();
+    await new Promise(r => setTimeout(r, 30));   // 讓瀏覽器喘口氣回收記憶體
   }
   work.remove();
   return pdf;
@@ -1551,7 +1577,7 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
                     {canEdit && it.folderUrl &&
                       <a className="btn btn-o btn-sm" style={{textDecoration:'none', display:'inline-block'}}
                         href={it.folderUrl} target="_blank" rel="noopener" title={t.folderTip}>📁</a>}{' '}
-                    {it.status==='nmdc_done' && canEdit &&
+                    {(it.status==='nmdc_done' || it.status==='self_done') && canEdit &&
                       <button className="btn btn-amber btn-sm" onClick={()=>onPdf(it.id)}>📄 {t.pdf}</button>}{' '}
                     {canEdit && <button className="btn btn-r btn-sm" onClick={()=>onDelete(it.id)}>{t.del}</button>}
                   </td>
@@ -1773,6 +1799,8 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
   const fileRefs = useRef({});
   const done = item.status === 'nmdc_done';
   const [cmtText, setCmtText] = useState('');
+  const [cmtEditId, setCmtEditId] = useState(null);     // 留言編輯中:哪一則
+  const [cmtEditText, setCmtEditText] = useState('');
 
   const setAns = (code, patch) => can && setItem(p => {
     const a = Object.assign({}, p.data.nmdcAnswers);
@@ -2079,16 +2107,43 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
               <div style={{color:'#8A94A0', fontSize:13, padding:'4px 2px'}}>{t.cmtEmpty}</div>}
 
             {cmts.map(e => {
-              const mine = e.author === 'nmdc' ? editMode : true;   // 廠商留言人人可補附件;NMDC 留言需 🔑
+              const mine = e.author === 'nmdc' ? editMode : true;   // 廠商留言人人可改;NMDC 留言需 🔑
               const eAtts = (item.attachments || []).filter(x => x.itemCode === 'CMT-'+e.id);
+              const editing = cmtEditId === e.id;
+              const saveEdit = () => {
+                const txt = cmtEditText.trim(); if (!txt) return;
+                const updated = cmts.map(c => c.id === e.id ? Object.assign({}, c, { text: txt, editedAt: nowStr() }) : c);
+                onSave(null, { data: Object.assign({}, item.data, { comments: updated }) })
+                  .then(() => setCmtEditId(null)).catch(()=>{});
+              };
+              const delEntry = () => askConfirm(t.confirmDelT, t.cmtDelP, () => {
+                Promise.all(eAtts.map(f => api('deleteFile', { fileId: f.fileId }).catch(()=>{}))).then(() => {
+                  setItem(p => Object.assign({}, p, { attachments: (p.attachments||[]).filter(x => x.itemCode !== 'CMT-'+e.id) }));
+                  onSave(null, { data: Object.assign({}, item.data, { comments: cmts.filter(c => c.id !== e.id) }) });
+                });
+              }, true);
               return (
                 <div key={e.id} style={{border:'1px solid '+(e.author==='nmdc'?'#C9D6E4':'#CBE3D2'),
                     background:e.author==='nmdc'?'#F5F8FB':'#F4FAF6', borderRadius:10, padding:'9px 12px', marginBottom:8}}>
                   <div style={{display:'flex', alignItems:'center', gap:8, marginBottom:5, flexWrap:'wrap'}}>
                     {roleTag(e.author)}
                     <span style={{fontSize:11.5, color:'#8A94A0'}}>{e.at}</span>
+                    {e.editedAt && <span style={{fontSize:11, color:'#B8A26E'}}>✎ {t.cmtEdited} {String(e.editedAt).slice(0,16)}</span>}
+                    {mine && !isClosed && !editing &&
+                      <span style={{marginLeft:'auto', display:'flex', gap:6}}>
+                        <button className="btn btn-o btn-sm" onClick={()=>{ setCmtEditId(e.id); setCmtEditText(e.text||''); }}>✎</button>
+                        <button className="btn btn-r btn-sm" onClick={delEntry}>✕</button>
+                      </span>}
                   </div>
-                  <div style={{fontSize:13.5, whiteSpace:'pre-wrap', lineHeight:1.55}}>{e.text}</div>
+                  {editing
+                    ? <div>
+                        <textarea rows={3} value={cmtEditText} onChange={ev=>setCmtEditText(ev.target.value)} />
+                        <div style={{display:'flex', gap:8, marginTop:6}}>
+                          <button className="btn btn-p btn-sm" disabled={saving || !cmtEditText.trim()} onClick={saveEdit}>{t.cmtEditSave}</button>
+                          <button className="btn btn-o btn-sm" onClick={()=>setCmtEditId(null)}>{t.cmtEditCancel}</button>
+                        </div>
+                      </div>
+                    : <div style={{fontSize:13.5, whiteSpace:'pre-wrap', lineHeight:1.55}}>{e.text}</div>}
                   <AttRow t={t} code={'CMT-'+e.id} stage="fu" atts={eAtts}
                     can={!isClosed && mine} uploading={uploadingKeys.includes('CMT-'+e.id)}
                     onPick={uploadFile} onDelete={deleteAtt} fileRefs={fileRefs} />
@@ -2131,7 +2186,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
         {can && !done && <button className="btn btn-navy" disabled={saving} onClick={trySubmit}>✓✓ {t.markNmdc}</button>}
         {done && item.verdict==='fail' && editMode &&
           <button className="btn btn-r" disabled={saving} onClick={onReinspect}>🔁 {t.reinspectBtn}</button>}
-        {done && editMode && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
+        {editMode && <button className="btn btn-amber" disabled={exporting} onClick={onExport}>{exporting ? t.exporting : t.exportPdf}</button>}
       </div>
     </div>
   );
@@ -2685,32 +2740,49 @@ function App() {
     const bm = { msg: t.exportingData };
     setBusyMsgs(a => [...a, bm]);
     const upd = (m) => { bm.msg = m; setBusyMsgs(a => [...a]); };
+    const diag = { stage: 'init', atts: (full.attachments || []).length, imgs: 0, pages: 0 };
     const run = (async () => {
       const atts = full.attachments || [];
       let imgMap = {};
       if (LOCAL || TESTMODE) {
         atts.forEach(x => { if (String(x.url).indexOf('data:image/') === 0) imgMap[x.fileId] = x.url; });
       } else if (atts.length) {
-        /* 分批抓附件圖片(每批 3 張):一次抓全部在行動網路上會逾時;
-           某批失敗 → 該批照片以「存於 Drive」佔位,PDF 照樣產出,不整份失敗 */
+        /* 分批(每批 3 張)× 3 條線平行抓;抓過的存快取,同筆再匯出免重抓;某批失敗 → 以「存於 Drive」佔位 */
+        diag.stage = 'fetch';
+        const IMGC = window.__imgCache = window.__imgCache || {};
         const ids = atts.map(x => x.fileId);
-        const CHUNK = 3;
-        for (let i = 0; i < ids.length; i += CHUNK) {
-          upd(t.pdfFetchingN(Math.min(i + CHUNK, ids.length), ids.length));
-          try {
-            const r = await api('filesData', { ids: ids.slice(i, i + CHUNK) });
-            Object.assign(imgMap, r.images || {});
-          } catch (e) {}   // 這批抓不到就略過,報表中顯示 Drive 佔位說明
-        }
+        ids.forEach(id => { if (IMGC[id]) imgMap[id] = IMGC[id]; });
+        const need = ids.filter(id => !imgMap[id]);
+        const chunks = [];
+        for (let i = 0; i < need.length; i += 3) chunks.push(need.slice(i, i + 3));
+        let fdone = ids.length - need.length;
+        upd(t.pdfFetchingN(Math.min(fdone, ids.length), ids.length));
+        await Promise.all(Array.from({ length: Math.min(3, chunks.length || 1) }, async () => {
+          while (chunks.length) {
+            const c = chunks.shift();
+            try {
+              const r = await api('filesData', { ids: c });
+              Object.assign(imgMap, r.images || {});
+              Object.keys(r.images || {}).forEach(k => {   // 只快取壓縮過的小圖,避免吃光記憶體
+                if (String(r.images[k]).length < 1.5 * 1024 * 1024) IMGC[k] = r.images[k]; });
+            } catch (e) {}
+            fdone += c.length;
+            upd(t.pdfFetchingN(Math.min(fdone, ids.length), ids.length));
+          }
+        }));
       }
-      const pdf = await generatePdf(full, cl, imgMap, (i, n) => upd(t.pdfPaging(i, n)));
+      diag.imgs = Object.keys(imgMap).length;
+      diag.stage = 'render';
+      const pdf = await generatePdf(full, cl, imgMap, (i, n) => { diag.pages = n; upd(t.pdfPaging(i, n)); });
       const name = '船檢表_' + (full.inspNo || full.id) + '_' + (full.vesselEn || full.vesselZh || '') + '.pdf';
+      diag.stage = 'download';
       if (LOCAL || TESTMODE) { pdf.save(name); showToast(t.pdfDone); return; }
-      pdf.save(name);   // ① 先直接下載一份到裝置(就算之後存 Drive 失敗,檔案也已在手上)
+      pdf.save(name);   // ① 先直接下載一份到裝置
+      diag.stage = 'upload';
       upd(t.pdfUploading);
       const base64 = pdf.output('datauristring').split(',')[1];
       try {
-        const r2 = await api('storePdf', { id: full.id, name, base64 });   // ② 再存回該筆檢查的 Drive 資料夾
+        const r2 = await api('storePdf', { id: full.id, name, base64 });   // ② 再存回 Drive
         setModal({ title: t.pdfDone, body: r2.name + '\n' + t.pdfLocalToo, link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
           onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
       } catch (e) {
@@ -2720,7 +2792,13 @@ function App() {
     setExporting(true);
     run.finally(() => setBusyMsgs(a => a.filter(x => x !== bm)))
       .then(() => setExporting(false))
-      .catch(e => { setExporting(false); showToast(String(e.message || e), true); });
+      .catch(e => {
+        setExporting(false);
+        /* 🔍 失敗診斷視窗:顯示死在哪個階段+環境資訊,截圖即可回報 */
+        setModal({ title: '⚠ ' + t.pdfFailT,
+          body: t.pdfFailBody(t.pdfStage[diag.stage] || diag.stage, String((e && e.message) || e), diag),
+          onCancel: () => setModal(null), onOk: null, cancelLabel: 'OK' });
+      });
   };
   const exportById = (id) => {
     track(api('get', { id })).then(r => exportRecord(normalize(r.item)))
@@ -2760,7 +2838,7 @@ function App() {
         <div><div className="logo">NMDC <span>ENERGY</span></div></div>
         <div className="grow">
           <div style={{fontWeight:700, fontSize:13.5}}>{t.appTitle}</div>
-          <div className="sub">{DOC_NO} · {DOC_REV}</div>
+          <div className="sub">{DOC_NO} · {DOC_REV} · {APP_VER}</div>
         </div>
         <button className="langbtn" onClick={toggleLang}>{lang === 'en' ? '中文' : 'EN'}</button>
         <button className={'lockbtn'} style={testMode ? {background:'#b8860b'} : null} onClick={toggleTest}
