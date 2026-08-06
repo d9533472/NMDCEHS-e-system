@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v25';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v26';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -749,6 +749,8 @@ const DEFAULT_CHECKLIST = [
 /* ---------------- 範本工具 ---------------- */
 function codesOf(cl){ const out=[]; (cl||[]).forEach(sec => (sec.items||[]).forEach((it,i)=>out.push(sec.code+'-'+(i+1)))); return out; }
 function totalOf(cl){ return (cl||[]).reduce((s,sec)=>s+(sec.items||[]).length,0); }
+function titleMapOf(cl){ const m={}; (cl||[]).forEach(sec => (sec.items||[]).forEach((it,i)=>{ m[sec.code+'-'+(i+1)] = { zh: it.zh||'', en: it.en||'' }; })); return m; }
+function truncS(s,n){ s=String(s||''); return s.length>n ? s.slice(0,n)+'…' : s; }
 function missingOf(map, cl){ return codesOf(cl).filter(c => !(map && map[c] && map[c].v)); }
 const CLASS_OPTIONS = ['CR','ABS','BV','DNV','LR','NK (ClassNK)','KR','RINA','CCS'];
 
@@ -1176,25 +1178,28 @@ function buildReportBlocks(o, cl, imgMap) {
       '<div style="color:'+vd.col+'; font-weight:800; font-size:12px; line-height:1.6">'+vd.txt+'</div>' +
     '</div>');
 
-  /* ── 🧾 缺失清單 ── */
+  /* ── 🧾 缺失清單(標題+每筆各自成塊 → 自動逐筆填滿頁面,不留大空白)── */
   const defects = (o.data && o.data.defects) || [];
   if (defects.length) {
-    let dh = '';
+    const tmap = titleMapOf(cl);
+    push('<div style="font-weight:800; color:#12283F; font-size:10.5px; border-left:4px solid #8a5a00; background:#FDF7EA; border-radius:0 6px 6px 0; padding:6px 10px; margin-top:10px">🧾 缺失清單 Deficiency List('+defects.length+')</div>');
     defects.forEach((d, i) => {
       const chips = (d.codes || []).map(c =>
         '<span style="display:inline-block; border:1px solid #B03030; color:#B03030; font-weight:800; font-size:8px; border-radius:9px; padding:1px 8px; margin-right:4px">'+esc(c)+'</span>').join('');
+      /* 每個項目代碼附上題目,一看就知道缺失對應哪一項 */
+      const titles = (d.codes || []).map(c => { const tt = tmap[c] || {};
+        return '<div style="font-size:8px; color:#555; line-height:1.5; margin-top:1px"><b style="color:#B03030">'+esc(c)+'</b> '+esc(truncS(tt.zh, 52))+'　<span style="color:#98A2AC">'+esc(truncS(tt.en, 80))+'</span></div>'; }).join('');
       const dAtts = atts.filter(x => x.itemCode === 'DEF-' + d.id);
-      dh += '<div style="border:1px solid #E4D8C0; background:#FFFDF6; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
-        '<div style="margin-bottom:3px"><span style="background:#8a5a00; color:#fff; font-weight:800; font-size:8px; border-radius:7px; padding:1.5px 8px; margin-right:5px">D'+(i+1)+'</span>'+chips+'</div>' +
-        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(d.desc || '')+'</div>' +
+      push('<div style="border:1px solid #E4D8C0; background:#FFFDF6; border-radius:8px; padding:7px 10px; margin-top:6px">' +
+        '<div style="margin-bottom:2px"><span style="background:#8a5a00; color:#fff; font-weight:800; font-size:8px; border-radius:7px; padding:1.5px 8px; margin-right:5px">D'+(i+1)+'</span>'+chips+'</div>' +
+        titles +
+        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap; margin-top:3px">'+esc(d.desc || '')+'</div>' +
         '<div style="margin-top:5px; border-top:1px dashed #D8CBAA; padding-top:4px">' +
           '<span style="font-size:8px; font-weight:800; color:#1C7A42">⛴ 廠商改善回覆 Contractor Reply</span>' +
           '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(d.reply || '(尚未回覆 no reply yet)')+'</div>' +
           (dAtts.length ? '<div style="font-size:8px; color:#556; margin-top:2px">'+dAtts.map(f=>'📎 '+esc(f.name)).join('　')+'</div>' : '') +
-        '</div></div>';
+        '</div></div>');
     });
-    push('<div style="border:1px solid #D5DEE7; border-radius:10px; padding:10px 14px; margin-top:10px; background:#FBFCFD">' +
-      '<div style="font-weight:800; color:#12283F; font-size:10.5px; margin-bottom:6px">🧾 缺失清單 Deficiency List('+defects.length+')</div>' + dh + '</div>');
   }
 
   /* ── 💬 檢查意見與驗證回覆(留言板)── */
@@ -1207,27 +1212,25 @@ function buildReportBlocks(o, cl, imgMap) {
       ? '<span style="background:#1C7A42; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">✔ 已結案 CLOSED '+esc(o.closedDate||'')+'</span>'
       : (o.verdict === 'cond'
         ? '<span style="background:#C77F0A; color:#fff; font-weight:800; font-size:8.5px; padding:2px 10px; border-radius:9px">⏳ 待結案 PENDING CLOSE-OUT</span>' : '');
-    let inner = '';
+    /* 標題+每則留言各自成塊 → 自動填滿頁面 */
+    push('<div style="font-weight:800; color:#12283F; font-size:10.5px; border-left:4px solid #1D3D5C; background:#F0F4F8; border-radius:0 6px 6px 0; padding:6px 10px; margin-top:10px">💬 檢查意見與驗證回覆 Comments &amp; Verification　'+closedTag+'</div>');
     if (fu.text) {
-      inner += '<div style="border:1px solid #E5D9BC; background:#FDF9EF; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
+      push('<div style="border:1px solid #E5D9BC; background:#FDF9EF; border-radius:8px; padding:7px 10px; margin-top:6px">' +
         '<div style="font-size:8px; font-weight:800; color:#8a6d3b; margin-bottom:3px">📤 改善回覆(舊版)Improvement Response</div>' +
-        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(fu.text)+'</div></div>';
+        '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(fu.text)+'</div></div>');
     }
     cmts.forEach(e => {
       const isN = e.author === 'nmdc';
       const eAtts = atts.filter(x => x.itemCode === 'CMT-'+e.id);
-      inner += '<div style="border:1px solid '+(isN?'#C9D6E4':'#CBE3D2')+'; background:'+(isN?'#F5F8FB':'#F4FAF6')+'; border-radius:8px; padding:7px 10px; margin-bottom:6px">' +
+      push('<div style="border:1px solid '+(isN?'#C9D6E4':'#CBE3D2')+'; background:'+(isN?'#F5F8FB':'#F4FAF6')+'; border-radius:8px; padding:7px 10px; margin-top:6px">' +
         '<div style="margin-bottom:3px"><span style="background:'+(isN?'#1D3D5C':'#1C7A42')+'; color:#fff; font-weight:800; font-size:7.5px; padding:1.5px 8px; border-radius:8px">'+(isN?'🛠 NMDC':'⛴ 廠商 CONTRACTOR')+'</span>' +
         ' <span style="font-size:8px; color:#8A94A0">'+esc(e.at||'')+'</span>' +
         (e.editedAt ? ' <span style="font-size:7.5px; color:#B8A26E">✎ 已編輯 edited '+esc(String(e.editedAt).slice(0,16))+'</span>' : '') + '</div>' +
         '<div style="font-size:9.5px; color:#333; line-height:1.55; white-space:pre-wrap">'+esc(e.text||'')+'</div>' +
         (eAtts.length ? '<div style="font-size:8px; color:#556; margin-top:3px">'+eAtts.map(f=>'📎 '+esc(f.name)).join('　')+'</div>' : '') +
-        '</div>';
+        '</div>');
     });
-    if (!inner) inner = '<div style="font-size:9.5px; color:#8A94A0">—</div>';
-    push('<div style="border:1px solid #D5DEE7; border-radius:10px; padding:10px 14px; margin-top:10px; background:#FBFCFD">' +
-      '<div style="font-weight:800; color:#12283F; font-size:10.5px; margin-bottom:6px">💬 檢查意見與驗證回覆 Comments &amp; Verification　'+closedTag+'</div>' +
-      inner + '</div>');
+    if (!fu.text && !cmts.length) push('<div style="font-size:9.5px; color:#8A94A0; margin-top:4px">—</div>');
   }
 
   /* ── 結果統計 ── */
@@ -2040,6 +2043,14 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
                               onClick={() => toggleCode(i, c)}>{c}</span>)
                         : (d.codes||[]).map(c =>
                             <span key={c} className={'defchip on ro' + (isNo(c) ? ' no' : '')}>{c}</span>)}
+                      {/* 項目題目:一看就知道缺失對應哪一項 */}
+                      {(d.codes||[]).length > 0 && (() => { const tm = titleMapOf(cl); return (
+                        <div style={{marginTop:3}}>
+                          {(d.codes||[]).map(c => { const tt = tm[c] || {}; return (
+                            <div key={c} style={{fontSize:12, color:'#54626f', lineHeight:1.5}}>
+                              <b style={{color:'#B03030'}}>{c}</b> {truncS(lang==='zh' ? (tt.zh || tt.en) : (tt.en || tt.zh), 70)}
+                            </div>); })}
+                        </div>); })()}
                     </div>
                     {canDef && <button className="btn btn-r btn-sm" onClick={() => delDef(i)}>✕</button>}
                   </div>
