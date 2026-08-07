@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v27';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v28';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -1391,7 +1391,7 @@ async function generatePdf(o, cl, imgMap, onProg) {
   await loadScriptOnce(LIB_JSPDF);
   /* 大圖先縮小(平行處理) */
   const keys = Object.keys(imgMap || {});
-  await Promise.all(keys.map(k => shrinkDataUrl(imgMap[k], 1280).then(d => { imgMap[k] = d; })));
+  await Promise.all(keys.map(k => shrinkDataUrl(imgMap[k], 1600).then(d => { imgMap[k] = d; })));
   const PAGE_W = 794, PAGE_H = 1123, PAD = 30, FOOT = 26;   // A4 @96dpi
   const availH = PAGE_H - PAD * 2 - FOOT;
   const FONT = 'Arial,\'Noto Sans TC\',\'PingFang TC\',\'Microsoft JhengHei\',sans-serif';
@@ -1445,11 +1445,23 @@ async function generatePdf(o, cl, imgMap, onProg) {
     foot.innerHTML = '<span>'+DOC_NO+' · '+DOC_REV+' · '+esc(o.inspNo||'')+' · 環境船檢系統</span><span>Page '+(i+1)+' / '+pageDivs.length+'</span>';
     pg.appendChild(foot);
     if (onProg) onProg(i + 1, pageDivs.length);
+    /* 📷 照片以「原始解析度」另外疊進 PDF:整頁轉圖只是底圖,照片本身用最高 1600px 原圖嵌入
+       → 放大 PDF 也能看清照片裡的文字 */
+    const pgRect = pg.getBoundingClientRect();
+    const overlays = Array.from(pg.querySelectorAll('img')).map(im => {
+      const r = im.getBoundingClientRect();
+      return { src: im.src,
+        x: (r.left - pgRect.left) * 210 / PAGE_W, y: (r.top - pgRect.top) * 210 / PAGE_W,
+        w: r.width * 210 / PAGE_W, h: r.height * 210 / PAGE_W };
+    }).filter(o => o.w > 5 && o.h > 5 && /^data:image\/(jpeg|jpg|png)/i.test(o.src));
     /* 手機記憶體有限:行動裝置降為 1.5 倍,避免 iOS Safari 記憶體不足閃退/失敗 */
     const SCALE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1.5 : 1.75;
     const canvas = await window.html2canvas(pg, { scale:SCALE, backgroundColor:'#ffffff', logging:false });
     if (i > 0) pdf.addPage();
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.85), 'JPEG', 0, 0, 210, 297);
+    overlays.forEach(o => {
+      try { pdf.addImage(o.src, /png/i.test(o.src.slice(0,20)) ? 'PNG' : 'JPEG', o.x, o.y, o.w, o.h); } catch (e) {}
+    });
     canvas.width = canvas.height = 0;   // 立即釋放記憶體
     pg.remove();
     await new Promise(r => setTimeout(r, 30));   // 讓瀏覽器喘口氣回收記憶體
@@ -2797,7 +2809,7 @@ function App() {
           try {
             const r = await api('fileData', { id: missing[m] });
             if (r.image) {
-              const small = await shrinkDataUrl(r.image, 1280);
+              const small = await shrinkDataUrl(r.image, 1600);
               imgMap[missing[m]] = small;
               if (String(small).length < 1.5 * 1024 * 1024) IMGC[missing[m]] = small;
             }
