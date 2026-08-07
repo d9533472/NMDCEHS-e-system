@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v28';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v29';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -1306,10 +1306,10 @@ function buildReportBlocks(o, cl, imgMap) {
       ? '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>'
       : '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
   };
-  const attCard = (tag, ac, hbg, f, dispName) =>
+  const attCard = (tag, ac, hbg, f, dispName, titlesHtml) =>
     '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
     '<div style="background:'+hbg+'; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid '+ac+'">'+tag+' '+esc(dispName!=null?dispName:f.name)+
-    ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span></div>' + attBody(f) + '</div>';
+    ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span>' + (titlesHtml||'') + '</div>' + attBody(f) + '</div>';
 
   /* 同一張照片上傳到多個項目(檔名+大小相同)→ 附錄只放一次,標籤列出涵蓋的項目 */
   const origName = f => { const s = String(f.name||''); const i = s.indexOf(' & '); return i > -1 ? s.slice(i+3) : s; };
@@ -1323,8 +1323,19 @@ function buildReportBlocks(o, cl, imgMap) {
     });
     return Array.from(map.values());
   };
+  /* 附錄卡片標頭:項目編號後面附上項目題目(合併多項時每個代碼各一行) */
+  const tmapA = titleMapOf(cl);
+  const tagTitles = (tags) => {
+    const seen2 = [];
+    tags.forEach(tg => String(tg).split(' · ').forEach(tok => {
+      tok = tok.trim();
+      if (/^[A-Z]{1,3}-\d+$/i.test(tok) && tmapA[tok] && seen2.indexOf(tok) < 0) seen2.push(tok);
+    }));
+    return seen2.map(c => '<div style="font-size:7.5px; color:#5A6673; font-weight:400; line-height:1.45; margin-top:1px">' +
+      '<b style="color:#B03030">'+esc(c)+'</b> '+esc(truncS(tmapA[c].zh, 40))+'　<span style="color:#98A2AC">'+esc(truncS(tmapA[c].en, 55))+'</span></div>').join('');
+  };
   const mkCards = list => dedupeAtts(list).map(g =>
-    attCard('['+g.tags.join(' · ')+']', g.ac, g.hbg, g.f, origName(g.f)));
+    attCard('['+g.tags.join(' · ')+']', g.ac, g.hbg, g.f, origName(g.f), tagTitles(g.tags)));
 
   const selfList = [], nmdcList = [], cmtList = [];
   codes.forEach(code => {
