@@ -28,6 +28,20 @@ const App = {
     this.render();
   },
 
+  // ===== Load Calculation Questions =====
+  async loadCalcQuestions() {
+    if (this._calcQuestions) return this._calcQuestions;
+    try {
+      const res = await fetch('data/calc_questions.json');
+      if (!res.ok) return null;
+      const data = await res.json();
+      this._calcQuestions = data;
+      return data;
+    } catch(e) {
+      return null;
+    }
+  },
+
   parseHash() {
     const hash = window.location.hash.slice(1) || 'home';
     const parts = hash.split('/');
@@ -48,6 +62,7 @@ const App = {
       case 'random': this.renderRandomExam(app); break;
       case 'results': this.renderResults(app); break;
       case 'wrongbook': this.renderWrongBook(app); break;
+      case 'calc': this.renderCalcSection(app, this.route.params[0]); break;
       default: this.renderHome(app);
     }
   },
@@ -116,6 +131,11 @@ const App = {
             <div class="icon">🎲</div>
             <h3>隨機練習</h3>
             <p>全範圍隨機抽題<br>自選題數</p>
+          </div>
+          <div class="mode-card" onclick="App.navigate('calc')">
+            <div class="icon">🧮</div>
+            <h3>計算題專區</h3>
+            <p>120題計算題<br>詳細解題流程</p>
           </div>
           <div class="mode-card" onclick="App.navigate('wrongbook')">
             <div class="icon">📕</div>
@@ -1072,6 +1092,203 @@ const App = {
       [a[i], a[j]] = [a[j], a[i]];
     }
     return a;
+  },
+
+  // ===== Calculation Section =====
+  async renderCalcSection(app, param) {
+    app.innerHTML = `
+      <header class="app-header">
+        <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
+        <h1>🧮 計算題專區</h1>
+        <div class="subtitle">120 題計算題 · 詳細解題流程</div>
+      </header>
+      <div class="container">
+        <div class="loading-spinner"><div class="spinner"></div><p>載入計算題中...</p></div>
+      </div>
+    `;
+
+    const calcData = await this.loadCalcQuestions();
+    if (!calcData || calcData.length === 0) {
+      app.querySelector('.container').innerHTML = `
+        <div class="no-data-warning">
+          <h3>計算題資料載入中</h3>
+          <p>計算題專區正在建置中，請稍後再來。</p>
+        </div>
+        <div style="text-align:center;margin:1rem 0">
+          <button class="btn btn-primary" onclick="App.navigate('home')">返回首頁</button>
+        </div>
+      `;
+      return;
+    }
+
+    // Group by unit
+    const byUnit = {};
+    calcData.forEach(q => {
+      if (!byUnit[q.unitId]) byUnit[q.unitId] = { unitNumber: q.unitNumber, unitTitle: q.unitTitle, questions: [] };
+      byUnit[q.unitId].questions.push(q);
+    });
+
+    const unitKeys = Object.keys(byUnit).sort();
+    const selectedUnit = param || 'all';
+
+    let html = `
+      <header class="app-header">
+        <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
+        <h1>🧮 計算題專區</h1>
+        <div class="subtitle">${calcData.length} 題計算題 · 詳細解題流程</div>
+      </header>
+      <div class="container">
+        <div class="hero-section">
+          <h2>計算題完全攻略</h2>
+          <p>每題附詳細解題步驟，帶你從理解題意到得出答案</p>
+        </div>
+        <div class="stats-bar">
+          <div class="stat-card"><div class="num">${calcData.length}</div><div class="label">總計算題數</div></div>
+          <div class="stat-card"><div class="num">${unitKeys.length}</div><div class="label">涵蓋單元</div></div>
+          <div class="stat-card"><div class="num">${calcData.filter(q => q.difficulty === 'basic').length}</div><div class="label">基礎題</div></div>
+          <div class="stat-card"><div class="num">${calcData.filter(q => q.difficulty === 'intermediate').length}</div><div class="label">進階題</div></div>
+          <div class="stat-card"><div class="num">${calcData.filter(q => q.difficulty === 'advanced').length}</div><div class="label">高難度題</div></div>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab ${selectedUnit === 'all' ? 'active' : ''}" onclick="App.navigate('calc','all')">全部單元</button>
+    `;
+    
+    for (const key of unitKeys) {
+      const u = byUnit[key];
+      html += `<button class="filter-tab ${selectedUnit === key ? 'active' : ''}" onclick="App.navigate('calc','${key}')">第${u.unitNumber}單元</button>`;
+    }
+    
+    html += `</div>`;
+
+    // Determine which questions to show
+    let questionsToShow;
+    if (selectedUnit === 'all') {
+      questionsToShow = calcData;
+    } else {
+      questionsToShow = calcData.filter(q => q.unitId === selectedUnit);
+    }
+
+    html += `<div class="calc-question-list">`;
+    
+    if (selectedUnit === 'all') {
+      // Group by unit when showing all
+      for (const key of unitKeys) {
+        const u = byUnit[key];
+        html += `<div class="part-section">
+          <div class="part-title">第 ${u.unitNumber} 單元：${u.unitTitle}<span class="part-count">${u.questions.length} 題</span></div>`;
+        u.questions.forEach((q, i) => {
+          html += this.renderCalcQuestionHTML(q, i);
+        });
+        html += `</div>`;
+      }
+    } else {
+      questionsToShow.forEach((q, i) => {
+        html += this.renderCalcQuestionHTML(q, i);
+      });
+    }
+
+    html += `</div>
+      </div>`;
+    
+    app.innerHTML = html;
+    this.attachCalcHandlers();
+  },
+
+  renderCalcQuestionHTML(q, index) {
+    const stepsHtml = q.steps ? q.steps.map(s => `
+      <div class="calc-step">
+        <div class="calc-step-num">${s.step}</div>
+        <div class="calc-step-content">
+          <div class="calc-step-title">${s.title}</div>
+          <div class="calc-step-detail">${(s.detail || '').replace(/\n/g, '<br>')}</div>
+        </div>
+      </div>
+    `).join('') : '';
+
+    const answerValue = typeof q.answer === 'object' ? q.answer.value : q.answer;
+    const answerUnit = typeof q.answer === 'object' && q.answer.unit ? q.answer.unit : '';
+
+    const refsHtml = q.references ? q.references.map(r => `<a href="${r.url}" target="_blank">📎 ${r.title}</a>`).join(' · ') : '';
+
+    const diffLabels = { basic: '基礎', intermediate: '進階', advanced: '高難度' };
+    
+    return `
+      <div class="calc-question-card" id="calc-${q.id}">
+        <div class="calc-q-header">
+          <span class="q-number">Q${index + 1}</span>
+          <span class="calc-diff-badge ${q.difficulty}">${diffLabels[q.difficulty] || q.difficulty}</span>
+          <span class="calc-unit-tag">第${q.unitNumber}單元</span>
+          <div class="calc-q-stem">${q.stem}</div>
+        </div>
+        <div class="calc-answer-area">
+          <div class="calc-input-group">
+            <input type="text" class="calc-input" placeholder="請輸入答案" data-qid="${q.id}" oninput="App.checkCalcInput('${q.id}', this.value)">
+            <span class="calc-unit">${answerUnit}</span>
+            <button class="btn btn-outline calc-reveal-btn" onclick="App.revealCalcSolution('${q.id}')">查看解題</button>
+          </div>
+          <div class="calc-feedback" id="calc-feedback-${q.id}"></div>
+        </div>
+        <div class="calc-solution-wrapper" id="solution-${q.id}">
+          <div class="calc-solution">
+            <div class="calc-solution-header">
+              <span class="calc-solution-icon">📝</span>
+              <span>詳細解題流程</span>
+            </div>
+            <div class="calc-steps-container">
+              ${stepsHtml}
+            </div>
+            <div class="calc-solution-answer">
+              <strong>最終答案：${answerValue}${answerUnit ? ' ' + answerUnit : ''}</strong>
+            </div>
+            ${q.explanation ? `<div class="calc-solution-explanation">${q.explanation}</div>` : ''}
+            ${refsHtml ? `<div class="ex-ref">${refsHtml}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  checkCalcInput(qid, value) {
+    const feedback = document.getElementById(`calc-feedback-${qid}`);
+    if (!feedback || !value.trim()) return;
+    
+    // Find the question
+    const q = this._calcQuestions.find(qq => qq.id === qid);
+    if (!q) return;
+    
+    const userVal = parseFloat(value);
+    if (isNaN(userVal)) {
+      feedback.innerHTML = '<span style="color:var(--text-light)">請輸入數值</span>';
+      return;
+    }
+    
+    const correctVal = typeof q.answer === 'object' ? q.answer.value : parseFloat(q.answer);
+    const tolerance = typeof q.answer === 'object' && q.answer.tolerance !== undefined ? q.answer.tolerance : 0.01;
+    
+    if (Math.abs(userVal - correctVal) <= tolerance) {
+      feedback.innerHTML = '<span style="color:var(--success);font-weight:700">✓ 答對了！</span>';
+      const input = document.querySelector(`input[data-qid="${qid}"]`);
+      if (input) { input.classList.remove('wrong'); input.classList.add('correct'); }
+    } else {
+      feedback.innerHTML = '<span style="color:var(--danger);font-weight:700">✗ 再試一次</span>';
+      const input = document.querySelector(`input[data-qid="${qid}"]`);
+      if (input) { input.classList.remove('correct'); input.classList.add('wrong'); }
+    }
+  },
+
+  revealCalcSolution(qid) {
+    const wrapper = document.getElementById(`solution-${qid}`);
+    if (!wrapper) return;
+    const isShown = wrapper.classList.contains('show');
+    if (isShown) {
+      wrapper.classList.remove('show');
+    } else {
+      wrapper.classList.add('show');
+    }
+  },
+
+  attachCalcHandlers() {
+    // Any additional initialization for calc section
   },
 
   // ===== Results Route =====
