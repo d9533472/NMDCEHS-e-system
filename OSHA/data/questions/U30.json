@@ -1,0 +1,716 @@
+{
+  "unitId": "U30",
+  "unitTitle": "物料處置相關法規",
+  "unitNumber": 30,
+  "questions": [
+    {
+      "id": "U30-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第152條規定，雇主對於物料之堆放，應依下列何者辦理？",
+      "options": [
+        {"id": "A", "text": "應清除通道上阻礙物，保持通暢"},
+        {"id": "B", "text": "可任意堆放於通道上"},
+        {"id": "C", "text": "不需考慮通道通暢"},
+        {"id": "D", "text": "僅需在緊急時清除通道"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第152條規定，雇主對於物料之堆放，應清除通道上之阻礙物，保持通道通暢。B、C、D均不符規定，通道須隨時保持通暢以確保安全。",
+      "references": [{"title": "職業安全衛生設施規則第152條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=152"}]
+    },
+    {
+      "id": "U30-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第153條規定，雇主為防止物料倒塌，應採取哪些措施？",
+      "options": [
+        {"id": "A", "text": "以繩索捆綁、護網、擋樁、限制高度等方式"},
+        {"id": "B", "text": "僅需限制堆放高度即可"},
+        {"id": "C", "text": "不需任何防護措施"},
+        {"id": "D", "text": "僅需以繩索捆綁即可"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第153條規定，雇主為防止物料倒塌，應以繩索捆綁、護網、擋樁、限制高度等方式防護。B僅限制高度不夠完整，C不需防護屬違法，D僅繩索捆綁不夠全面。",
+      "references": [{"title": "職業安全衛生設施規則第153條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=153"}]
+    },
+    {
+      "id": "U30-Q003",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第154條規定，雇主對勞工於槽桶內部作業時，應依下列何者規定辦理？",
+      "options": [
+        {"id": "A", "text": "作業前應測定空氣中危險物及有害物濃度"},
+        {"id": "B", "text": "應使勞工佩掛安全帶及救生索"},
+        {"id": "C", "text": "應置監視人員於外部監視"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生設施規則第154條規定，槽桶內部作業應：作業前測定危險物及有害物濃度、使勞工佩掛安全帶及救生索、置監視人員於外部監視、必要時應從上方進入等。A、B、C均為正確規定，故選D。",
+      "references": [{"title": "職業安全衛生設施規則第154條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=154"}]
+    },
+    {
+      "id": "U30-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於使用人力車輛搬運物料時，其搬運重量限制為何？",
+      "options": [
+        {"id": "A", "text": "每人每次不得超過40公斤"},
+        {"id": "B", "text": "每人每次不得超過50公斤"},
+        {"id": "C", "text": "每人每次不得超過60公斤"},
+        {"id": "D", "text": "每人每次不得超過80公斤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第155條規定，人力車輛搬運物料每人每次不得超過40公斤。50、60、80公斤均超過法定上限。人力搬運過重易造成肌肉骨骼傷害。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於使用機動車輛搬運物料時，其搬運重量限制為何？",
+      "options": [
+        {"id": "A", "text": "不得超過200公斤"},
+        {"id": "B", "text": "不得超過300公斤"},
+        {"id": "C", "text": "不得超過500公斤"},
+        {"id": "D", "text": "不得超過1000公斤"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第155條規定，機動車輛搬運物料不得超過500公斤。200、300公斤低於上限，1000公斤超過上限。機動車輛載重能力較人力車輛為高。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第159條規定，雇主對於物料之堆放，應依下列何者規定辦理？",
+      "options": [
+        {"id": "A", "text": "不得超過堆放地點最大安全負荷"},
+        {"id": "B", "text": "不得影響照明"},
+        {"id": "C", "text": "不得妨礙消防設備之使用"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生設施規則第159條規定物料堆放七項要求：不超過安全負荷、不影響照明、不妨礙機械操作、不阻礙交通、不減少灑水器功用、不妨礙消防設備使用、不倚靠牆壁。A、B、C均為正確規定，故選D。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q007",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第161條規定，雇主對於積垛之作業，積垛高度達多少公尺以上時，應設置使勞工能安全上下之設備？",
+      "options": [
+        {"id": "A", "text": "1.0公尺以上"},
+        {"id": "B", "text": "1.5公尺以上"},
+        {"id": "C", "text": "2.0公尺以上"},
+        {"id": "D", "text": "2.5公尺以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第161條規定，積垛高度達1.5公尺以上時，應設置安全上下之設備。2.5公尺以上時應指定專人指揮。1.0、2.0公尺均非正確門檻。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q008",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第161條規定，雇主對於積垛之作業，積垛高度達多少公尺以上時，應指定專人指揮？",
+      "options": [
+        {"id": "A", "text": "1.5公尺以上"},
+        {"id": "B", "text": "2.0公尺以上"},
+        {"id": "C", "text": "2.5公尺以上"},
+        {"id": "D", "text": "3.0公尺以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第161條規定，積垛高度達2.5公尺以上時，應指定專人指揮。1.5公尺為設置安全上下設備之門檻。2.0、3.0公尺均非正確門檻。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q009",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第162條規定，雇主對於袋裝物料之積垛，高度超過多少公尺時，其積垛與積垛間距離應在10公分以上？",
+      "options": [
+        {"id": "A", "text": "1.0公尺以上"},
+        {"id": "B", "text": "1.5公尺以上"},
+        {"id": "C", "text": "2.0公尺以上"},
+        {"id": "D", "text": "2.5公尺以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第162條規定，袋裝物料積垛高度超過2.0公尺時，積垛間距離應在10公分以上，以防止倒塌時連鎖反應。1.0、1.5、2.5公尺均非正確門檻。",
+      "references": [{"title": "職業安全衛生設施規則第162條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=162"}]
+    },
+    {
+      "id": "U30-Q010",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依營造安全衛生設施標準規定，磚瓦之堆放高度不得超過多少公尺？",
+      "options": [
+        {"id": "A", "text": "1.2公尺"},
+        {"id": "B", "text": "1.5公尺"},
+        {"id": "C", "text": "1.8公尺"},
+        {"id": "D", "text": "2.0公尺"}
+      ],
+      "answer": ["C"],
+      "explanation": "依營造安全衛生設施標準，磚瓦之堆放高度不得超過1.8公尺。1.2、1.5、2.0公尺均非正確限制。磚瓦為重物，堆放過高易倒塌造成災害。",
+      "references": [{"title": "營造安全衛生設施標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060011"}]
+    },
+    {
+      "id": "U30-Q011",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依營造安全衛生設施標準規定，袋裝物料之堆放不得超過多少層？",
+      "options": [
+        {"id": "A", "text": "8層"},
+        {"id": "B", "text": "10層"},
+        {"id": "C", "text": "12層"},
+        {"id": "D", "text": "15層"}
+      ],
+      "answer": ["B"],
+      "explanation": "依營造安全衛生設施標準，袋裝物料之堆放不得超過10層，且每2層應交錯堆放以增加穩定性。8、12、15層均非正確限制。每2層交錯可防止積垛傾倒。",
+      "references": [{"title": "營造安全衛生設施標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060011"}]
+    },
+    {
+      "id": "U30-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第159條規定，雇主對於物料之堆放，不得減少下列何種設備之功用？",
+      "options": [
+        {"id": "A", "text": "灑水器等自動滅火設備"},
+        {"id": "B", "text": "照明設備"},
+        {"id": "C", "text": "通風設備"},
+        {"id": "D", "text": "空調設備"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第159條規定，物料堆放不得減少灑水器等自動滅火設備之功用。物料堆放過高或過近灑水器會影響滅火效果。照明、通風、空調非此條文之重點。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第159條規定，雇主對於物料之堆放，下列何者非屬法定禁止事項？",
+      "options": [
+        {"id": "A", "text": "不得超過堆放地點最大安全負荷"},
+        {"id": "B", "text": "不得影響照明"},
+        {"id": "C", "text": "不得倚靠牆壁"},
+        {"id": "D", "text": "不得使用機械搬運"}
+      ],
+      "answer": ["D"],
+      "explanation": "第159條規定包括不超過安全負荷、不影響照明、不倚靠牆壁等。D不得使用機械搬運不屬於第159條之規定，法規並未禁止使用機械搬運，反而鼓勵以機械替代人力。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於物料搬運、處置，如以車輛搬運物料時，應規定其行駛速度，並不得超過每小時多少公里？",
+      "options": [
+        {"id": "A", "text": "10公里"},
+        {"id": "B", "text": "15公里"},
+        {"id": "C", "text": "20公里"},
+        {"id": "D", "text": "30公里"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生設施規則規定，廠內車輛行駛速度不得超過每小時10公里。15、20、30公里均超過法定上限。廠內空間有限，降低速限以確保安全。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U30-Q015",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第154條規定，雇主對於勞工於槽桶內部作業，必要時應採取何種方式進入？",
+      "options": [
+        {"id": "A", "text": "從上方進入"},
+        {"id": "B", "text": "從側面進入"},
+        {"id": "C", "text": "從底部進入"},
+        {"id": "D", "text": "任意方式進入"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第154條規定，槽桶內部作業必要時應從上方進入。從上方進入可避免勞工直接暴露於底部可能殘留之有害物，且便於救援。側面、底部、任意方式均不符規定。",
+      "references": [{"title": "職業安全衛生設施規則第154條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=154"}]
+    },
+    {
+      "id": "U30-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於人力搬運物料，應儘量利用何種方式以代替人力？",
+      "options": [
+        {"id": "A", "text": "機械或自動化設備"},
+        {"id": "B", "text": "外包勞工"},
+        {"id": "C", "text": "增加人力"},
+        {"id": "D", "text": "延長作業時間"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第155條規定，雇主應儘量利用機械或自動化設備代替人力搬運，以減少勞工肌肉骨骼傷害。外包勞工、增加人力、延長時間均非正確之替代方案。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於物料之搬運，如使用堆高機等車輛，其作業時應注意之事項，下列何者正確？",
+      "options": [
+        {"id": "A", "text": "不得超載，並應平穩搬運"},
+        {"id": "B", "text": "可超載以提升效率"},
+        {"id": "C", "text": "行駛時可將貨叉升高"},
+        {"id": "D", "text": "無需注意行人安全"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生設施規則，堆高機作業不得超載並應平穩搬運。B超載違法，C行駛時貨叉應降低，D應注意行人安全。安全搬運為基本要求。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U30-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於物料之堆放，不得妨礙下列何種設備之操作？",
+      "options": [
+        {"id": "A", "text": "機械"},
+        {"id": "B", "text": "通風設備"},
+        {"id": "C", "text": "空調設備"},
+        {"id": "D", "text": "電梯"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第159條規定，物料堆放不得妨礙機械之操作。通風設備、空調設備、電梯非此條文之重點。妨礙機械操作可能導致機械故障或操作人員受傷。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於物料之堆放，不得阻礙下列何者？",
+      "options": [
+        {"id": "A", "text": "交通"},
+        {"id": "B", "text": "通訊"},
+        {"id": "C", "text": "電力"},
+        {"id": "D", "text": "水管"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第159條規定，物料堆放不得阻礙交通。阻礙交通會影響人員通行及緊急逃生。通訊、電力、水管非此條文之重點。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第162條規定，袋裝物料積垛高度超過2公尺時，積垛間距離應在多少以上？",
+      "options": [
+        {"id": "A", "text": "5公分以上"},
+        {"id": "B", "text": "10公分以上"},
+        {"id": "C", "text": "15公分以上"},
+        {"id": "D", "text": "20公分以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第162條規定，袋裝物料積垛高度超過2公尺時，積垛間距離應在10公分以上。5、15、20公分均非正確距離。保持距離可防止倒塌連鎖反應及便於檢查。",
+      "references": [{"title": "職業安全衛生設施規則第162條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=162"}]
+    },
+    {
+      "id": "U30-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於勞工從事物料搬運，為防止勞工過度疲勞，應採取何種措施？",
+      "options": [
+        {"id": "A", "text": "適當休息時間及輪班制度"},
+        {"id": "B", "text": "增加搬運重量"},
+        {"id": "C", "text": "減少休息時間"},
+        {"id": "D", "text": "延長作業時間"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生設施規則，雇主應提供適當休息時間及輪班制度，防止勞工過度疲勞。增加重量、減少休息、延長時間均會增加勞工負擔及受傷風險。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U30-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第154條規定，雇主對於勞工於槽桶內部作業前，應實施何種測定？",
+      "options": [
+        {"id": "A", "text": "測定空氣中危險物及有害物之濃度"},
+        {"id": "B", "text": "測定溫度及濕度"},
+        {"id": "C", "text": "測定噪音"},
+        {"id": "D", "text": "測定照度"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第154條規定，槽桶內部作業前應測定空氣中危險物及有害物之濃度，確認安全後方可作業。溫濕度、噪音、照度非此條文之重點測定項目。",
+      "references": [{"title": "職業安全衛生設施規則第154條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=154"}]
+    },
+    {
+      "id": "U30-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第159條規定，雇主對於物料之堆放，不得倚靠於何處？",
+      "options": [
+        {"id": "A", "text": "牆壁"},
+        {"id": "B", "text": "貨架"},
+        {"id": "C", "text": "地面"},
+        {"id": "D", "text": "棧板"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第159條規定，物料堆放不得倚靠牆壁，以免牆壁承受過大側壓力而倒塌。貨架、地面、棧板為正常堆放位置。倚靠牆壁可能導致牆壁結構破壞。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第154條規定，雇主對於勞工於槽桶內部作業時，應置監視人員於何處監視？",
+      "options": [
+        {"id": "A", "text": "槽桶外部"},
+        {"id": "B", "text": "槽桶內部"},
+        {"id": "C", "text": "遠離槽桶之辦公室"},
+        {"id": "D", "text": "不需監視人員"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第154條規定，應置監視人員於槽桶外部監視。外部監視可及時發現異常並啟動救援。內部監視無法有效觀察全貌，遠離辦公室及不需監視均不符規定。",
+      "references": [{"title": "職業安全衛生設施規則第154條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=154"}]
+    },
+    {
+      "id": "U30-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第159條規定，雇主對於物料之堆放，應依下列哪些規定辦理？（複選）",
+      "options": [
+        {"id": "A", "text": "不得超過堆放地點最大安全負荷"},
+        {"id": "B", "text": "不得影響照明"},
+        {"id": "C", "text": "不得妨礙消防設備之使用"},
+        {"id": "D", "text": "不得倚靠牆壁"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第159條規定之七項要求包括：不超過安全負荷、不影響照明、不妨礙機械操作、不阻礙交通、不減少灑水器功用、不妨礙消防、不倚靠牆壁。四項均為正確規定。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q026",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第154條規定，雇主對於勞工於槽桶內部作業時，應採取哪些措施？（複選）",
+      "options": [
+        {"id": "A", "text": "作業前測定空氣中危險物及有害物濃度"},
+        {"id": "B", "text": "使勞工佩掛安全帶及救生索"},
+        {"id": "C", "text": "置監視人員於外部監視"},
+        {"id": "D", "text": "必要時從上方進入"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第154條規定，槽桶內部作業應：測定危險有害物濃度、佩掛安全帶及救生索、置監視人員外部監視、必要時從上方進入。四項均為法定安全措施。",
+      "references": [{"title": "職業安全衛生設施規則第154條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=154"}]
+    },
+    {
+      "id": "U30-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第153條規定，雇主為防止物料倒塌，可採取哪些防護措施？（複選）",
+      "options": [
+        {"id": "A", "text": "繩索捆綁"},
+        {"id": "B", "text": "設置護網"},
+        {"id": "C", "text": "設置擋樁"},
+        {"id": "D", "text": "限制堆放高度"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第153條規定，防止物料倒塌之措施包括：繩索捆綁、護網、擋樁、限制高度等。四項均為法定防護措施。",
+      "references": [{"title": "職業安全衛生設施規則第153條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=153"}]
+    },
+    {
+      "id": "U30-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於使用車輛搬運物料時，下列哪些規定正確？（複選）",
+      "options": [
+        {"id": "A", "text": "人力車輛每人每次不得超過40公斤"},
+        {"id": "B", "text": "機動車輛不得超過500公斤"},
+        {"id": "C", "text": "廠內行駛速度不得超過每小時10公里"},
+        {"id": "D", "text": "機動車輛可超載以提升效率"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依職業安全衛生設施規則，人力車輛40公斤、機動車輛500公斤、廠內行駛速度10公里/小時。D超載違法。重量及速度限制均為防止事故之重要規定。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U30-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依營造安全衛生設施標準規定，關於磚瓦及袋裝物料之堆放，下列哪些規定正確？（複選）",
+      "options": [
+        {"id": "A", "text": "磚瓦堆放高度不得超過1.8公尺"},
+        {"id": "B", "text": "袋裝物料堆放不得超過10層"},
+        {"id": "C", "text": "袋裝物料每2層應交錯堆放"},
+        {"id": "D", "text": "磚瓦可任意堆放高度"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依營造安全衛生設施標準：磚瓦≤1.8公尺、袋裝≤10層、每2層交錯堆放。D磚瓦可任意堆放不正確，高度不得超過1.8公尺。",
+      "references": [{"title": "營造安全衛生設施標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060011"}]
+    },
+    {
+      "id": "U30-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第161條規定，關於積垛作業之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "積垛高度達1.5公尺以上時應設置安全上下設備"},
+        {"id": "B", "text": "積垛高度達2.5公尺以上時應指定專人指揮"},
+        {"id": "C", "text": "積垛應穩固堆放"},
+        {"id": "D", "text": "積垛無需任何安全措施"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第161條規定：1.5公尺以上設安全上下設備、2.5公尺以上指定專人指揮、積垛應穩固堆放。D無需安全措施明顯違法。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於物料搬運，下列哪些規定正確？（複選）",
+      "options": [
+        {"id": "A", "text": "應儘量利用機械或自動化設備代替人力"},
+        {"id": "B", "text": "人力車輛每人每次不得超過40公斤"},
+        {"id": "C", "text": "機動車輛不得超過500公斤"},
+        {"id": "D", "text": "人力搬運不需限制重量"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第155條規定：應利用機械自動化、人力車輛≤40公斤、機動車輛≤500公斤。D人力搬運不需限制重量不正確，有明確重量限制。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於物料處置作業，下列哪些為應注意之事項？（複選）",
+      "options": [
+        {"id": "A", "text": "清除通道阻礙物保持通暢"},
+        {"id": "B", "text": "防止物料倒塌"},
+        {"id": "C", "text": "適當之搬運方式及重量限制"},
+        {"id": "D", "text": "可不考慮勞工體力負荷"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依職業安全衛生設施規則：清除通道阻礙物、防止倒塌、適當搬運方式及重量限制均為物料處置之重要規定。D可不考慮勞工體力負荷不正確，應注意勞工負荷。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U30-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第152條規定，雇主對於物料之堆放，應清除通道上之阻礙物，保持通道通暢。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第152條確實規定，物料堆放應清除通道阻礙物保持通暢，以確保人員通行及緊急逃生安全。",
+      "references": [{"title": "職業安全衛生設施規則第152條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=152"}]
+    },
+    {
+      "id": "U30-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於使用人力車輛搬運物料時，每人每次不得超過50公斤。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第155條規定，人力車輛搬運每人每次不得超過40公斤，非50公斤。50公斤超過法定上限，過重易造成肌肉骨骼傷害。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q035",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第161條規定，積垛高度達1.5公尺以上時應設置安全上下之設備，達2.5公尺以上時應指定專人指揮。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第161條確實規定，1.5公尺以上設安全上下設備，2.5公尺以上指定專人指揮。高度越高安全要求越嚴格。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依營造安全衛生設施標準規定，袋裝物料之堆放不得超過10層，且每2層應交錯堆放。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "依營造安全衛生設施標準確實規定，袋裝物料堆放不得超過10層，每2層應交錯堆放以增加穩定性，防止積垛傾倒。",
+      "references": [{"title": "營造安全衛生設施標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060011"}]
+    },
+    {
+      "id": "U30-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第159條規定，物料堆放可以倚靠牆壁以節省空間。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第159條規定，物料堆放不得倚靠牆壁。倚靠牆壁會對牆壁產生側壓力，可能導致牆壁倒塌，造成災害。",
+      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+    },
+    {
+      "id": "U30-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於使用人力車輛搬運物料時，每人每次不得超過________公斤。",
+      "answer": ["40", "四十"],
+      "explanation": "人力車輛搬運每人每次不得超過40公斤。機動車輛不得超過500公斤。重量限制為防止勞工肌肉骨骼傷害。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第155條規定，雇主對於使用機動車輛搬運物料時，不得超過________公斤。",
+      "answer": ["500", "五百"],
+      "explanation": "機動車輛搬運不得超過500公斤。人力車輛不得超過40公斤。機動車輛載重能力較高，但仍有安全限制。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q040",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第161條規定，積垛高度達________公尺以上時，應設置使勞工能安全上下之設備。",
+      "answer": ["1.5", "一點五"],
+      "explanation": "積垛高度達1.5公尺以上時應設安全上下設備。2.5公尺以上時應指定專人指揮。高度越高安全要求越嚴格。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第161條規定，積垛高度達________公尺以上時，應指定專人指揮。",
+      "answer": ["2.5", "二點五"],
+      "explanation": "積垛高度達2.5公尺以上時應指定專人指揮。1.5公尺為設安全上下設備之門檻。專人指揮可確保積垛作業之安全。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依營造安全衛生設施標準規定，磚瓦之堆放高度不得超過________公尺。",
+      "answer": ["1.8", "一點八"],
+      "explanation": "磚瓦堆放高度不得超過1.8公尺。磚瓦為重物，堆放過高易倒塌造成災害。袋裝物料不得超過10層。",
+      "references": [{"title": "營造安全衛生設施標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060011"}]
+    },
+    {
+      "id": "U30-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工廠使用人力車輛搬運物料，共有5位勞工同時作業，依職業安全衛生設施規則第155條規定，請計算該工廠每批次搬運物料之總重量上限為多少公斤？",
+      "answer": {"value": 200, "unit": "公斤", "tolerance": 1},
+      "explanation": "人力車輛每人每次不得超過40公斤。5位勞工×40公斤＝200公斤。每批次總重量上限為200公斤。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某倉庫使用機動車輛搬運物料，共有3輛機動車輛同時作業，依職業安全衛生設施規則第155條規定，請計算每批次搬運物料之總重量上限為多少公斤？",
+      "answer": {"value": 1500, "unit": "公斤", "tolerance": 1},
+      "explanation": "機動車輛每輛不得超過500公斤。3輛機動車輛×500公斤＝1500公斤。每批次總重量上限為1500公斤。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某營造工地堆放袋裝水泥，每袋重量為50公斤，依營造安全衛生設施標準規定最多堆放10層。請計算單一積垛之最大總重量為多少公斤？",
+      "answer": {"value": 500, "unit": "公斤", "tolerance": 1},
+      "explanation": "每袋50公斤，最多10層。50公斤×10層＝500公斤。每2層應交錯堆放以增加穩定性。",
+      "references": [{"title": "營造安全衛生設施標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060011"}]
+    },
+    {
+      "id": "U30-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列搬運車輛類型與其重量限制正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "人力車輛（每人每次）"},
+        {"id": "L2", "text": "機動車輛"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "不得超過40公斤"},
+        {"id": "R2", "text": "不得超過500公斤"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"}
+      ],
+      "explanation": "依職業安全衛生設施規則第155條，人力車輛每人每次不得超過40公斤，機動車輛不得超過500公斤。機動車輛載重能力較高。",
+      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+    },
+    {
+      "id": "U30-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列積垛高度與其安全要求正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "積垛高度1.5公尺以上"},
+        {"id": "L2", "text": "積垛高度2.5公尺以上"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "應設置安全上下之設備"},
+        {"id": "R2", "text": "應指定專人指揮"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"}
+      ],
+      "explanation": "依職業安全衛生設施規則第161條，1.5公尺以上設安全上下設備，2.5公尺以上指定專人指揮。高度越高安全要求越嚴格。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列物料堆放規定與其法源依據正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "磚瓦堆放高度不得超過1.8公尺"},
+        {"id": "L2", "text": "袋裝物料不得超過10層每2層交錯"},
+        {"id": "L3", "text": "清除通道阻礙物保持通暢"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "營造安全衛生設施標準"},
+        {"id": "R2", "text": "營造安全衛生設施標準"},
+        {"id": "R3", "text": "職業安全衛生設施規則第152條"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"}
+      ],
+      "explanation": "磚瓦高度限制及袋裝物料層數限制均屬營造安全衛生設施標準之規定，清除通道阻礙物屬職業安全衛生設施規則第152條之規定。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U30-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第161條規定，請依積垛高度由低到高排列，並對應其安全要求：",
+      "items": [
+        {"id": "I1", "text": "積垛高度1.5公尺以上（設安全上下設備）"},
+        {"id": "I2", "text": "積垛高度2.0公尺以上（袋裝間距10公分以上）"},
+        {"id": "I3", "text": "積垛高度2.5公尺以上（指定專人指揮）"}
+      ],
+      "answer": ["I1", "I2", "I3"],
+      "explanation": "積垛高度由低到高：1.5公尺設安全上下設備→2.0公尺袋裝間距10公分→2.5公尺指定專人指揮。高度越高安全要求越嚴格。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U30-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第154條規定，請依槽桶內部作業之安全步驟順序排列：",
+      "items": [
+        {"id": "I1", "text": "作業前測定空氣中危險物及有害物濃度"},
+        {"id": "I2", "text": "確認安全後使勞工佩掛安全帶及救生索"},
+        {"id": "I3", "text": "必要時從上方進入槽桶"},
+        {"id": "I4", "text": "置監視人員於外部監視作業"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "槽桶內部作業安全步驟：先測定濃度確認安全→佩掛安全帶及救生索→從上方進入→外部監視人員監視。確保每一步驟安全後方可進行下一步。",
+      "references": [{"title": "職業安全衛生設施規則第154條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=154"}]
+    }
+  ]
+}

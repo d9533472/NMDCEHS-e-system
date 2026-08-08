@@ -1,0 +1,1659 @@
+{
+  "unitId": "U07",
+  "unitTitle": "危險性工作場所審查及檢查辦法",
+  "unitNumber": 7,
+  "questions": [
+    {
+      "id": "U07-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "《危險性工作場所審查及檢查辦法》的法律授權依據為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "職業安全衛生法第二十三條第四項"
+        },
+        {
+          "id": "B",
+          "text": "勞動檢查法第二十六條第二項"
+        },
+        {
+          "id": "C",
+          "text": "勞動基準法第二十三條"
+        },
+        {
+          "id": "D",
+          "text": "職業安全衛生法第六條第三項"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "危險性工作場所審查及檢查辦法第1條明定，本辦法依勞動檢查法第二十六條第二項規定訂定之。A選項是職業安全衛生管理辦法的授權依據；C選項與本辦法無關；D選項是職業安全衛生設施規則等法規的授權依據。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=1"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "危險性工作場所分為甲、乙、丙、丁四類，其中甲類工作場所包含下列何者？",
+      "options": [
+        {
+          "id": "A",
+          "text": "從事石油產品之裂解反應，以製造石化基本原料之工作場所"
+        },
+        {
+          "id": "B",
+          "text": "使用異氰酸甲酯從事農藥原體合成之工作場所"
+        },
+        {
+          "id": "C",
+          "text": "蒸汽鍋爐之傳熱面積在五百平方公尺以上之工作場所"
+        },
+        {
+          "id": "D",
+          "text": "建築物高度在八十公尺以上之建築工程"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依危險性工作場所審查及檢查辦法第2條，甲類工作場所包括：(1)從事石油產品之裂解反應，以製造石化基本原料之工作場所；(2)製造、處置、使用危險物、有害物之數量達規定數量之工作場所。B為乙類；C為丙類；D為丁類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q003",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依危險性工作場所審查及檢查辦法，爆竹煙火工廠屬於哪一類工作場所？",
+      "options": [
+        {
+          "id": "A",
+          "text": "甲類"
+        },
+        {
+          "id": "B",
+          "text": "乙類"
+        },
+        {
+          "id": "C",
+          "text": "丙類"
+        },
+        {
+          "id": "D",
+          "text": "丁類"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第2條，乙類工作場所包含利用氯酸鹽類等原料製造爆竹煙火類物品之爆竹煙火工廠。爆竹煙火工廠屬於乙類，而非甲類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "丙類工作場所中，蒸汽鍋爐之傳熱面積須達多少平方公尺以上？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三百平方公尺"
+        },
+        {
+          "id": "B",
+          "text": "四百平方公尺"
+        },
+        {
+          "id": "C",
+          "text": "五百平方公尺"
+        },
+        {
+          "id": "D",
+          "text": "一千平方公尺"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第2條第三款，丙類工作場所指蒸汽鍋爐之傳熱面積在五百平方公尺以上者，或高壓氣體類壓力容器一日之冷凍能力在一百五十公噸以上者等。五百平方公尺是法定門檻。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "丁類工作場所中，建築物高度須達多少公尺以上之建築工程始屬之？",
+      "options": [
+        {
+          "id": "A",
+          "text": "五十公尺"
+        },
+        {
+          "id": "B",
+          "text": "六十公尺"
+        },
+        {
+          "id": "C",
+          "text": "七十公尺"
+        },
+        {
+          "id": "D",
+          "text": "八十公尺"
+        }
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "依第2條第四款第一目，丁類工作場所指建築物高度在八十公尺以上之建築工程。八十公尺為法定門檻，低於此高度不屬丁類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法第3條，「審查」的定義為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "勞動檢查機構對工作場所有關資料及設施之現場檢查"
+        },
+        {
+          "id": "B",
+          "text": "勞動檢查機構對工作場所有關資料之書面審查"
+        },
+        {
+          "id": "C",
+          "text": "雇主對工作場所之自我評估"
+        },
+        {
+          "id": "D",
+          "text": "中央主管機關對事業單位之年度查核"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第3條第六款，審查指勞動檢查機構對工作場所有關資料之書面審查。A選項為「檢查」的定義（第3條第七款），指現場檢查。兩者不同。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=3"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q007",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "事業單位對於甲類工作場所，應於使勞工作業多少日前向檢查機構申請審查？",
+      "options": [
+        {
+          "id": "A",
+          "text": "十五日前"
+        },
+        {
+          "id": "B",
+          "text": "三十日前"
+        },
+        {
+          "id": "C",
+          "text": "四十五日前"
+        },
+        {
+          "id": "D",
+          "text": "六十日前"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第4條，甲類工作場所及丁類工作場所應於使勞工作業三十日前申請審查；乙類及丙類工作場所應於四十五日前申請審查及檢查。甲、丁類為30天，乙、丙類為45天。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q008",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "事業單位對於乙類工作場所，應於使勞工作業多少日前向檢查機構申請審查及檢查？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三十日前"
+        },
+        {
+          "id": "B",
+          "text": "四十五日前"
+        },
+        {
+          "id": "C",
+          "text": "六十日前"
+        },
+        {
+          "id": "D",
+          "text": "九十日前"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第4條第二項，乙類工作場所及丙類工作場所應於使勞工作業四十五日前向檢查機構申請審查及檢查。注意乙丙類需申請「審查及檢查」，甲丁類僅申請「審查」。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "甲類工作場所之評估小組，依規定應由哪些人員組成？下列何者不屬之？",
+      "options": [
+        {
+          "id": "A",
+          "text": "工作場所負責人"
+        },
+        {
+          "id": "B",
+          "text": "製程安全評估人員"
+        },
+        {
+          "id": "C",
+          "text": "職業安全衛生人員"
+        },
+        {
+          "id": "D",
+          "text": "當地勞動檢查員"
+        }
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "依第6條，評估小組由：(1)工作場所負責人、(2)製程安全評估人員、(3)職業安全衛生人員、(4)工作場所作業主管、(5)熟悉該場所作業之勞工組成。勞動檢查員不屬評估小組成員，而是由檢查機構指派執行審查或檢查。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=6"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "檢查機構對甲類工作場所之申請審查，應於受理申請後多少日內以書面通知事業單位？",
+      "options": [
+        {
+          "id": "A",
+          "text": "十五日內"
+        },
+        {
+          "id": "B",
+          "text": "二十日內"
+        },
+        {
+          "id": "C",
+          "text": "三十日內"
+        },
+        {
+          "id": "D",
+          "text": "四十五日內"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第7條第三項，檢查機構應於受理申請後三十日內以書面通知事業單位審查結果。但可歸責於事業單位者，不在此限。甲類和丁類為30日，乙類和丙類為45日。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=7"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "事業單位對經審查合格之甲類工作場所，應至少每幾年重新評估一次？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三年"
+        },
+        {
+          "id": "B",
+          "text": "五年"
+        },
+        {
+          "id": "C",
+          "text": "七年"
+        },
+        {
+          "id": "D",
+          "text": "十年"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第8條，事業單位對經審查合格之工作場所，應於製程修改時或至少每五年重新評估，為必要之更新及記錄，並報請檢查機構備查。五年是法定最長期限，製程修改時則需立即重新評估。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "乙類工作場所申請審查及檢查時，下列何者不屬於應檢附之資料？",
+      "options": [
+        {
+          "id": "A",
+          "text": "製程安全評估報告書"
+        },
+        {
+          "id": "B",
+          "text": "製程修改安全計畫"
+        },
+        {
+          "id": "C",
+          "text": "緊急應變計畫"
+        },
+        {
+          "id": "D",
+          "text": "施工計畫書"
+        }
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "依第9條，乙類工作場所應檢附：(1)安全衛生管理基本資料、(2)製程安全評估報告書、(3)製程修改安全計畫、(4)緊急應變計畫、(5)稽核管理計畫。施工計畫書是丁類工作場所應檢附之資料（第17條），不屬乙類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第9條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=9"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "檢查機構對乙類工作場所之審查及檢查結果，應於受理申請後多少日內書面通知？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三十日內"
+        },
+        {
+          "id": "B",
+          "text": "四十五日內"
+        },
+        {
+          "id": "C",
+          "text": "六十日內"
+        },
+        {
+          "id": "D",
+          "text": "九十日內"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第11條，乙類工作場所之審查及檢查結果，檢查機構應於受理申請後四十五日內以書面通知事業單位。乙類及丙類均為45日。但可歸責於事業單位者，不在此限。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "丁類工作場所申請審查時，應檢附施工安全評估報告書，其內容依哪一附件規定？",
+      "options": [
+        {
+          "id": "A",
+          "text": "附件十四"
+        },
+        {
+          "id": "B",
+          "text": "附件十五"
+        },
+        {
+          "id": "C",
+          "text": "附件十六"
+        },
+        {
+          "id": "D",
+          "text": "附件一"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第17條，丁類工作場所申請應檢附施工計畫書（內容如附件十四）及施工安全評估報告書（內容如附件十五）。附件十四為施工計畫書，附件十五為施工安全評估報告書，附件十六為變更主要分項工程施工方法之例示。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第17條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=17"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "丁類工作場所之施工安全評估小組成員，下列何者不屬之？",
+      "options": [
+        {
+          "id": "A",
+          "text": "工作場所負責人"
+        },
+        {
+          "id": "B",
+          "text": "施工安全評估人員"
+        },
+        {
+          "id": "C",
+          "text": "專任工程人員"
+        },
+        {
+          "id": "D",
+          "text": "勞工保險局代表"
+        }
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "依第18條，丁類評估小組由：(1)工作場所負責人、(2)施工安全評估人員、(3)專任工程人員、(4)職業安全衛生人員、(5)工作場所作業主管（含承攬人之人員）組成。勞工保險局代表不屬評估小組成員。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第18條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=18"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "檢查機構對丁類工作場所之審查結果，應於受理申請後多少日內以書面通知事業單位？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三十日內"
+        },
+        {
+          "id": "B",
+          "text": "四十五日內"
+        },
+        {
+          "id": "C",
+          "text": "六十日內"
+        },
+        {
+          "id": "D",
+          "text": "九十日內"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第19條，丁類工作場所之審查結果，檢查機構應於受理申請後三十日內以書面通知事業單位。甲類和丁類均為30日，乙類和丙類為45日。但可歸責於事業單位者，不在此限。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第19條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=19"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "事業單位對經審查合格之丁類工作場所，於施工過程中變更主要分項工程施工方法時，應如何處理？",
+      "options": [
+        {
+          "id": "A",
+          "text": "不需重新評估，繼續施工即可"
+        },
+        {
+          "id": "B",
+          "text": "就變更部分重新評估，採取必要之預防措施，更新施工計畫書及施工安全評估報告書並記錄"
+        },
+        {
+          "id": "C",
+          "text": "仅需通知檢查機構，無需重新評估"
+        },
+        {
+          "id": "D",
+          "text": "應重新申請審查，等待核准後方可繼續施工"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第20條，事業單位對經審查合格之工作場所，於施工過程中變更主要分項工程施工方法時，應就變更部分重新評估，就評估之危害採取必要之預防措施，更新施工計畫書及施工安全評估報告書，並記錄之。不是重新申請審查，而是重新評估並更新紀錄。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第20條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=20"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "丁類工作場所中，單跨橋梁之橋墩跨距須達多少公尺以上始屬之？",
+      "options": [
+        {
+          "id": "A",
+          "text": "五十公尺"
+        },
+        {
+          "id": "B",
+          "text": "六十公尺"
+        },
+        {
+          "id": "C",
+          "text": "七十五公尺"
+        },
+        {
+          "id": "D",
+          "text": "八十公尺"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第2條第四款第二目，丁類工作場所指單跨橋梁之橋墩跨距在七十五公尺以上，或多跨橋梁之橋墩跨距在五十公尺以上之橋梁工程。單跨與多跨標準不同。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "丁類工作場所中，隧道工程長度須達多少公尺以上始屬之？",
+      "options": [
+        {
+          "id": "A",
+          "text": "五百公尺"
+        },
+        {
+          "id": "B",
+          "text": "八百公尺"
+        },
+        {
+          "id": "C",
+          "text": "一千公尺"
+        },
+        {
+          "id": "D",
+          "text": "一千五百公尺"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第2條第四款第四目，丁類工作場所指長度一千公尺以上或需開挖十五公尺以上豎坑之隧道工程。一千公尺或十五公尺豎坑，二者之一即屬丁類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "丙類工作場所中，氧氣、有毒性及可燃性高壓氣體之處理能力須達多少立方公尺以上？",
+      "options": [
+        {
+          "id": "A",
+          "text": "五百立方公尺"
+        },
+        {
+          "id": "B",
+          "text": "八百立方公尺"
+        },
+        {
+          "id": "C",
+          "text": "一千立方公尺"
+        },
+        {
+          "id": "D",
+          "text": "五千立方公尺"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第2條第三款，丙類工作場所指處理能力符合下列規定之一者：(1)一千立方公尺以上之氧氣、有毒性及可燃性高壓氣體；(2)五千立方公尺以上之前款以外之高壓氣體。氧氣/有毒性/可燃性為1000立方公尺，其他高壓氣體為5000立方公尺。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q021",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "丁類工作場所中，開挖深度達十八公尺以上且開挖面積達多少平方公尺以上之工程始屬之？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三百平方公尺"
+        },
+        {
+          "id": "B",
+          "text": "三百三十平方公尺"
+        },
+        {
+          "id": "C",
+          "text": "五百平方公尺"
+        },
+        {
+          "id": "D",
+          "text": "一千平方公尺"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第2條第四款第五目，開挖深度達十八公尺以上，且開挖面積達五百平方公尺以上之工程屬丁類。兩個條件需同時滿足。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "爆竹煙火工廠向檢查機構申請審查或檢查時，應檢附何種文件影本？",
+      "options": [
+        {
+          "id": "A",
+          "text": "營利事業登記證影本"
+        },
+        {
+          "id": "B",
+          "text": "由爆竹煙火管理條例主管機關核發之製造許可文件影本"
+        },
+        {
+          "id": "C",
+          "text": "工廠登記證影本"
+        },
+        {
+          "id": "D",
+          "text": "稅籍登記影本"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第23條之1，爆竹煙火工廠向檢查機構申請審查或檢查時，應檢附由爆竹煙火管理條例主管機關核發之製造許可文件影本。這是針對爆竹煙火工廠的特別規定。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第23-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=23-1"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞動檢查法第26條，下列何者非屬應經審查或檢查合格始得使勞工作業之危險性工作場所？",
+      "options": [
+        {
+          "id": "A",
+          "text": "從事石油裂解之石化工業之工作場所"
+        },
+        {
+          "id": "B",
+          "text": "農藥製造工作場所"
+        },
+        {
+          "id": "C",
+          "text": "一般辦公室"
+        },
+        {
+          "id": "D",
+          "text": "爆竹煙火工廠及火藥類製造工作場所"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "勞動檢查法第26條列舉七種危險性工作場所，包括石化工業、農藥製造、爆竹煙火及火藥類製造、高壓氣體類壓力容器或蒸汽鍋爐、危險物有害物達規定數量、營造工程等。一般辦公室不屬危險性工作場所。",
+      "references": [
+        {
+          "title": "勞動檢查法第26條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070001&flno=26"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞動檢查法，事業單位違反第26條規定，使勞工在未經審查或檢查合格之工作場所作業者，其刑責為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "處新臺幣三萬元以上十五萬元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "處三年以下有期徒刑、拘役或科或併科新臺幣十五萬元以下罰金"
+        },
+        {
+          "id": "C",
+          "text": "處一年以下有期徒刑"
+        },
+        {
+          "id": "D",
+          "text": "僅處罰鍰，無刑事責任"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依勞動檢查法第34條第1項第1款，違反第26條規定使勞工在未經審查或檢查合格之工作場所作業者，處三年以下有期徒刑、拘役或科或併科新臺幣十五萬元以下罰金。法人亦可能被科以罰金。A選項為第35條的罰鍰規定。",
+      "references": [
+        {
+          "title": "勞動檢查法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070001&flno=34"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，下列哪些屬於甲類工作場所？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "從事石油產品之裂解反應，以製造石化基本原料之工作場所"
+        },
+        {
+          "id": "B",
+          "text": "製造、處置、使用危險物、有害物之數量達規定數量之工作場所"
+        },
+        {
+          "id": "C",
+          "text": "建築物高度在八十公尺以上之建築工程"
+        },
+        {
+          "id": "D",
+          "text": "使用異氰酸甲酯從事農藥原體合成之工作場所"
+        }
+      ],
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "依第2條第一款，甲類工作場所包括：(1)從事石油產品裂解反應製造石化基本原料者；(2)製造、處置、使用危險物有害物數量達規定者。C屬丁類，D屬乙類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，下列哪些屬於丁類工作場所？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "建築物高度在八十公尺以上之建築工程"
+        },
+        {
+          "id": "B",
+          "text": "採用壓氣施工作業之工程"
+        },
+        {
+          "id": "C",
+          "text": "蒸汽鍋爐之傳熱面積在五百平方公尺以上"
+        },
+        {
+          "id": "D",
+          "text": "模板支撐高度七公尺以上，且面積達三百三十平方公尺以上者"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
+      "explanation": "依第2條第四款，丁類包括：建築物高度80m以上、壓氣施工作業、隧道長度1000m以上或豎坑15m以上、開挖深度18m以上且面積500m²以上、模板支撐高度7m以上且面積330m²以上。C屬丙類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，甲類工作場所之評估小組成員包括下列哪些？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "工作場所負責人"
+        },
+        {
+          "id": "B",
+          "text": "製程安全評估人員"
+        },
+        {
+          "id": "C",
+          "text": "依職業安全衛生管理辦法設置之職業安全衛生人員"
+        },
+        {
+          "id": "D",
+          "text": "熟悉該場所作業之勞工"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第6條第1項，評估小組由五類人員組成：(1)工作場所負責人、(2)製程安全評估人員、(3)職業安全衛生人員、(4)工作場所作業主管、(5)熟悉該場所作業之勞工。四個選項均為評估小組成員。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=6"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q028",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依危險性工作場所審查及檢查辦法，乙類工作場所申請審查及檢查時，應檢附哪些資料？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "安全衛生管理基本資料"
+        },
+        {
+          "id": "B",
+          "text": "製程安全評估報告書"
+        },
+        {
+          "id": "C",
+          "text": "緊急應變計畫"
+        },
+        {
+          "id": "D",
+          "text": "稽核管理計畫"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第9條，乙類工作場所應檢附五項資料：(1)安全衛生管理基本資料、(2)製程安全評估報告書、(3)製程修改安全計畫、(4)緊急應變計畫、(5)稽核管理計畫。四個選項均為應檢附資料（另有製程修改安全計畫）。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第9條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=9"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q029",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，關於各類工作場所審查結果通知期限，下列何者正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "甲類工作場所：受理申請後三十日內"
+        },
+        {
+          "id": "B",
+          "text": "乙類工作場所：受理申請後四十五日內"
+        },
+        {
+          "id": "C",
+          "text": "丙類工作場所：受理申請後四十五日內"
+        },
+        {
+          "id": "D",
+          "text": "丁類工作場所：受理申請後三十日內"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "甲類（第7條）和丁類（第19條）為30日內通知；乙類（第11條）和丙類（第15條）為45日內通知。但可歸責於事業單位者，不在此限。四個選項均正確。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=7"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q030",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依危險性工作場所審查及檢查辦法，關於重新評估之規定，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "甲類工作場所應至少每五年重新評估"
+        },
+        {
+          "id": "B",
+          "text": "乙類工作場所應至少每五年重新評估"
+        },
+        {
+          "id": "C",
+          "text": "丙類工作場所應至少每五年重新評估"
+        },
+        {
+          "id": "D",
+          "text": "製程修改時亦應重新評估"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第8條（甲類）、第12條（乙類）、第16條（丙類），各類工作場所均應於製程修改時或至少每五年重新評估。D選項亦正確，製程修改時均需重新評估。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依危險性工作場所審查及檢查辦法，關於丁類工作場所申請審查之規定，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "應檢附施工計畫書及施工安全評估報告書各三份"
+        },
+        {
+          "id": "B",
+          "text": "應檢附施工安全評估人員及其所僱之專任工程人員簽章文件"
+        },
+        {
+          "id": "C",
+          "text": "對工程內容較複雜者，得報經檢查機構同意後分段申請審查"
+        },
+        {
+          "id": "D",
+          "text": "應於使勞工作業四十五日前申請審查"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "依第17條，丁類應檢附施工計畫書（附件十四）及施工安全評估報告書（附件十五）各三份，並檢附簽章文件。複雜工程得分段申請。D錯誤，丁類應於作業三十日前申請（第4條），非四十五日。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第17條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=17"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法第3條，下列哪些用詞定義正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "審查：勞動檢查機構對工作場所有關資料之書面審查"
+        },
+        {
+          "id": "B",
+          "text": "檢查：勞動檢查機構對工作場所有關資料及設施之現場檢查"
+        },
+        {
+          "id": "C",
+          "text": "製程修改：既有安全防護措施未能控制新潛在危害之變更"
+        },
+        {
+          "id": "D",
+          "text": "液化石油氣：混合三個碳及四個碳之碳氫化合物為主要成分"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第3條，審查為書面審查（第6款）、檢查為現場檢查（第7款）、製程修改指既有安全防護措施未能控制新潛在危害之變更（第1款）、液化石油氣指混合三個碳及四個碳之碳氫化合物為主要成分（第2款）。四個定義均正確。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=3"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "危險性工作場所審查及檢查辦法是依據勞動檢查法第二十六條第二項訂定。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "危險性工作場所審查及檢查辦法第1條明定，本辦法依勞動檢查法（以下簡稱本法）第二十六條第二項規定訂定之。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=1"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q034",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "甲類工作場所與丁類工作場所均應於使勞工作業三十日前向檢查機構申請審查。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第4條，甲類及丁類工作場所應於使勞工作業三十日前申請審查；乙類及丙類工作場所應於四十五日前申請審查及檢查。甲丁類為30天，乙丙類為45天。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "檢查機構實施危險性工作場所審查、檢查時，製程安全評估小組成員應列席說明。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第22條，檢查機構實施危險性工作場所審查、檢查時，製程安全評估小組、施工安全評估小組成員應列席說明。這是確保評估過程透明之規定。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第22條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=22"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q036",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "事業單位對經審查合格之甲類工作場所，只要不修改製程，就不需要重新評估。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第8條，事業單位應於製程修改時「或至少每五年」重新評估。即使不修改製程，也必須至少每五年重新評估一次。兩個觸發條件是並行的，不修改製程不能免除定期重新評估義務。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q037",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依勞動檢查法第26條，危險性工作場所非經勞動檢查機構審查或檢查合格，事業單位不得使勞工在該場所作業。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "勞動檢查法第26條第1項明定，危險性工作場所非經勞動檢查機構審查或檢查合格，事業單位不得使勞工在該場所作業。違反者依第34條可處三年以下有期徒刑。",
+      "references": [
+        {
+          "title": "勞動檢查法第26條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070001&flno=26"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，事業單位應於甲類工作場所使勞工作業________日前，向檢查機構申請審查。",
+      "answer": [
+        "30",
+        "三十"
+      ],
+      "explanation": "依第4條，甲類工作場所及丁類工作場所應於使勞工作業三十日前申請審查。乙類及丙類為四十五日前。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，事業單位對經審查合格之工作場所，應於製程修改時或至少每________年重新評估。",
+      "answer": [
+        "5",
+        "五"
+      ],
+      "explanation": "依第8條、第12條、第16條，甲、乙、丙類工作場所均應於製程修改時或至少每五年重新評估。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，丁類工作場所中，建築物高度在________公尺以上之建築工程始屬之。",
+      "answer": [
+        "80",
+        "八十"
+      ],
+      "explanation": "依第2條第四款第一目，建築物高度在八十公尺以上之建築工程屬丁類工作場所。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危險性工作場所審查及檢查辦法，丙類工作場所中，蒸汽鍋爐之傳熱面積在________平方公尺以上者始屬之。",
+      "answer": [
+        "500",
+        "五百"
+      ],
+      "explanation": "依第2條第三款，蒸汽鍋爐之傳熱面積在五百平方公尺以上者屬丙類工作場所。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依勞動檢查法第34條，違反第26條規定使勞工在未經審查或檢查合格之工作場所作業者，處________年以下有期徒刑。",
+      "answer": [
+        "3",
+        "三"
+      ],
+      "explanation": "依勞動檢查法第34條第1項第1款，違反第26條規定者，處三年以下有期徒刑、拘役或科或併科新臺幣十五萬元以下罰金。",
+      "references": [
+        {
+          "title": "勞動檢查法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070001&flno=34"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位之蒸汽鍋爐傳熱面積為350平方公尺，依危險性工作場所審查及檢查辦法第2條，此工作場所是否屬於丙類工作場所？若不屬於，則傳熱面積至少需增加多少平方公尺？",
+      "answer": {
+        "value": 150,
+        "unit": "平方公尺",
+        "tolerance": 0
+      },
+      "explanation": "丙類工作場所之蒸汽鍋爐傳熱面積須達500平方公尺以上。現有350平方公尺不足，需增加500-350=150平方公尺。350<500，故目前不屬丙類。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位計畫於甲類工作場所使勞工於8月1日開始作業，依規定應於使勞工作業多少日前申請審查？申請截止日為何月何日？請輸入應提前之日數。",
+      "answer": {
+        "value": 30,
+        "unit": "日",
+        "tolerance": 0
+      },
+      "explanation": "依第4條，甲類工作場所應於使勞工作業三十日前申請審查。8月1日前推30日，申請截止日為7月2日。題目要求輸入應提前之日數為30日。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某營造工程之模板支撐高度為6公尺，面積為300平方公尺。依危險性工作場所審查及檢查辦法第2條，丁類工作場所之模板支撐標準為高度7公尺以上且面積330平方公尺以上。請問高度尚差多少公尺？（兩條件須同時滿足）",
+      "answer": {
+        "value": 1,
+        "unit": "公尺",
+        "tolerance": 0
+      },
+      "explanation": "丁類模板支撐標準為高度7公尺以上且面積330平方公尺以上，兩條件須同時滿足。現有高度6公尺，差7-6=1公尺；面積300平方公尺，差330-300=30平方公尺。題目問高度差，答案為1公尺。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列工作場所類別與其審查結果通知期限正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "甲類工作場所"
+        },
+        {
+          "id": "L2",
+          "text": "乙類工作場所"
+        },
+        {
+          "id": "L3",
+          "text": "丙類工作場所"
+        },
+        {
+          "id": "L4",
+          "text": "丁類工作場所"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "受理申請後三十日內"
+        },
+        {
+          "id": "R2",
+          "text": "受理申請後四十五日內"
+        },
+        {
+          "id": "R3",
+          "text": "受理申請後四十五日內"
+        },
+        {
+          "id": "R4",
+          "text": "受理申請後三十日內"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "甲類（第7條）和丁類（第19條）為30日內通知；乙類（第11條）和丙類（第15條）為45日內通知。但可歸責於事業單位者，不在此限。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=7"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列工作場所類別與其申請期限正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "甲類工作場所"
+        },
+        {
+          "id": "L2",
+          "text": "乙類工作場所"
+        },
+        {
+          "id": "L3",
+          "text": "丙類工作場所"
+        },
+        {
+          "id": "L4",
+          "text": "丁類工作場所"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "作業三十日前申請審查"
+        },
+        {
+          "id": "R2",
+          "text": "作業四十五日前申請審查及檢查"
+        },
+        {
+          "id": "R3",
+          "text": "作業四十五日前申請審查及檢查"
+        },
+        {
+          "id": "R4",
+          "text": "作業三十日前申請審查"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "依第4條，甲類及丁類為作業三十日前申請「審查」；乙類及丙類為作業四十五日前申請「審查及檢查」。注意甲丁類僅審查，乙丙類需審查及檢查。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q048",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列工作場所類別與其對應之評估小組類型正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "甲類工作場所"
+        },
+        {
+          "id": "L2",
+          "text": "乙類工作場所"
+        },
+        {
+          "id": "L3",
+          "text": "丙類工作場所"
+        },
+        {
+          "id": "L4",
+          "text": "丁類工作場所"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "製程安全評估小組（第6條）"
+        },
+        {
+          "id": "R2",
+          "text": "製程安全評估小組（準用第6條）"
+        },
+        {
+          "id": "R3",
+          "text": "製程安全評估小組（準用第6條）"
+        },
+        {
+          "id": "R4",
+          "text": "施工安全評估小組（第18條）"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "甲類適用第6條之製程安全評估小組；乙類（第10條）及丙類（第14條）準用第6條之製程安全評估小組；丁類（第18條）則適用施工安全評估小組，成員包括專任工程人員等。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=6"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依危險性工作場所審查及檢查辦法，將甲類工作場所審查申請之作業流程依正確順序排列：",
+      "items": [
+        {
+          "id": "I1",
+          "text": "事業單位於作業30日前向檢查機構申請審查"
+        },
+        {
+          "id": "I2",
+          "text": "事前組成評估小組實施評估"
+        },
+        {
+          "id": "I3",
+          "text": "填具申請書並檢附資料三份，登錄指定資訊網站"
+        },
+        {
+          "id": "I4",
+          "text": "檢查機構受理後30日內書面通知審查結果"
+        }
+      ],
+      "answer": [
+        "I2",
+        "I1",
+        "I3",
+        "I4"
+      ],
+      "explanation": "正確流程為：(1)事前組成評估小組實施評估（第6條）→(2)於作業30日前申請審查（第4條）→(3)填具申請書檢附資料三份並登錄（第5條）→(4)檢查機構於30日內書面通知結果（第7條）。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第4條至第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U07-Q050",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依危險性工作場所審查及檢查辦法第2條，將丁類工作場所之各項營造工程依其門檻數值由小到大排列：",
+      "items": [
+        {
+          "id": "I1",
+          "text": "模板支撐高度7公尺以上"
+        },
+        {
+          "id": "I2",
+          "text": "開挖深度18公尺以上"
+        },
+        {
+          "id": "I3",
+          "text": "建築物高度80公尺以上"
+        },
+        {
+          "id": "I4",
+          "text": "隧道長度1000公尺以上"
+        }
+      ],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
+      "explanation": "門檻數值由小到大：模板支撐高度7公尺→開挖深度18公尺→建築物高度80公尺→隧道長度1000公尺。7<18<80<1000。",
+      "references": [
+        {
+          "title": "危險性工作場所審查及檢查辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070019&flno=2"
+        }
+      ]
+    }
+  ]
+}

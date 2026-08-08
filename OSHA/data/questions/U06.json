@@ -1,0 +1,725 @@
+{
+  "unitId": "U06",
+  "unitTitle": "勞工健康保護規則",
+  "unitNumber": 6,
+  "questions": [
+    {
+      "id": "U06-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依勞工健康保護規則第2條，本規則依職業安全衛生法第幾條訂定？",
+      "options": [
+        {"id": "A", "text": "第二十條"},
+        {"id": "B", "text": "第二十一條第三項"},
+        {"id": "C", "text": "第三十六條"},
+        {"id": "D", "text": "第六十四條"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第2條明確規定，本規則依職業安全衛生法第二十一條第三項規定訂定之。職安法第21條為雇主應為勞工舉辦健康檢查及健康管理之規定。",
+      "references": [{"title": "勞工健康保護規則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=2"}]
+    },
+    {
+      "id": "U06-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第10條，雇主僱用勞工時，應施行體格檢查。但對於無特別危害健康之作業，且於下列何種情形得免一般體格檢查？",
+      "options": [
+        {"id": "A", "text": "雇主自認無必要時"},
+        {"id": "B", "text": "其他雇主於最近一年內已施行一般體格檢查且檢查結果合格者"},
+        {"id": "C", "text": "勞工自行出具健康聲明書"},
+        {"id": "D", "text": "勞工自願放棄體格檢查"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第10條第2項但書規定，對於無特別危害健康之作業，其他雇主於最近一年內已施行一般體格檢查，且檢查結果合格者，得免施行一般體格檢查。以避免重複檢查，保障勞工權益。",
+      "references": [{"title": "勞工健康保護規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=10"}]
+    },
+    {
+      "id": "U06-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，雇主對於在職勞工，應依其年齡及作業特性，定期施行一般健康檢查。未滿40歲者每幾年檢查一次？",
+      "options": [
+        {"id": "A", "text": "每一年"},
+        {"id": "B", "text": "每二年"},
+        {"id": "C", "text": "每三年"},
+        {"id": "D", "text": "每五年"}
+      ],
+      "answer": ["D"],
+      "explanation": "健康保護規則第11條第1項第1款規定，未滿40歲者每五年檢查一次；40歲以上未滿65歲者每三年檢查一次；65歲以上者每年檢查一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，雇主對在職勞工施行一般健康檢查，40歲以上未滿65歲者每幾年檢查一次？",
+      "options": [
+        {"id": "A", "text": "每一年"},
+        {"id": "B", "text": "每二年"},
+        {"id": "C", "text": "每三年"},
+        {"id": "D", "text": "每五年"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第11條第1項第2款規定，40歲以上未滿65歲者每三年檢查一次。未滿40歲者每五年一次，65歲以上者每年一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q005",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第12條，雇主使勞工從事特別危害健康作業時，應每年或於變更其作業前，使該勞工接受何種健康檢查？",
+      "options": [
+        {"id": "A", "text": "一般體格檢查"},
+        {"id": "B", "text": "一般健康檢查"},
+        {"id": "C", "text": "特殊體格檢查及特殊健康檢查"},
+        {"id": "D", "text": "住院全身檢查"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第12條規定，雇主使勞工從事特別危害健康作業時，應於其受僱或變更其作業前，施行特殊體格檢查；於在職勞工，應每年施行特殊健康檢查一次。特殊檢查之項目依附表規定。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第15條，雇主對於經健康檢查發現異常之勞工，其健康檢查紀錄應保存多久？",
+      "options": [
+        {"id": "A", "text": "三年"},
+        {"id": "B", "text": "五年"},
+        {"id": "C", "text": "十年"},
+        {"id": "D", "text": "保存至勞工離職"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第15條第1項規定，雇主應將健康檢查及健康管理紀錄保存十年。但從事特別危害健康作業勞工之特殊健康檢查及健康管理紀錄，應保存十年以上。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U06-Q007",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第16條，雇主對於經健康檢查發現有異常之勞工，應依醫師之建議，採取適當之措施。下列何者非屬之？",
+      "options": [
+        {"id": "A", "text": "變更其作業場所"},
+        {"id": "B", "text": "更換其工作"},
+        {"id": "C", "text": "減少工作時間"},
+        {"id": "D", "text": "解僱該勞工"}
+      ],
+      "answer": ["D"],
+      "explanation": "健康保護規則第16條第1項列舉雇主應採取之措施包括：變更作業場所、更換工作、減少工作時間、以其他適當措施。解僱勞工非屬法定應採取之措施，且違反勞基法之保護規定。",
+      "references": [{"title": "勞工健康保護規則第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=16"}]
+    },
+    {
+      "id": "U06-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第3條，事業單位勞工人數在多少人以上者，應僱用或特約醫護人員設置醫療衛生單位？",
+      "options": [
+        {"id": "A", "text": "五十人以上"},
+        {"id": "B", "text": "一百人以上"},
+        {"id": "C", "text": "三百人以上"},
+        {"id": "D", "text": "五百人以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第3條第1項規定，事業單位勞工人數在三百人以上者，應僱用或特約醫護人員設置醫療衛生單位。但第一類事業勞工人數在一百人以上者亦須設置。",
+      "references": [{"title": "勞工健康保護規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=3"}]
+    },
+    {
+      "id": "U06-Q009",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第4條，事業單位勞工人數在三百人以上未滿六百人者，應設置醫療衛生單位，並應僱用或特約多少名醫師及護理人員？",
+      "options": [
+        {"id": "A", "text": "醫師一人、護理人員一人"},
+        {"id": "B", "text": "醫師一人、護理人員二人"},
+        {"id": "C", "text": "醫師二人、護理人員二人"},
+        {"id": "D", "text": "醫師一人、護理人員三人"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第4條附表二規定，勞工人數300人以上未滿600人者，應僱用或特約醫師一人及護理人員二人。600人以上未滿1000人者為醫師一人、護理人員三人。",
+      "references": [{"title": "勞工健康保護規則第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=4"}]
+    },
+    {
+      "id": "U06-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第5條，醫療衛生單位之醫師應為何科別？",
+      "options": [
+        {"id": "A", "text": "內科"},
+        {"id": "B", "text": "外科"},
+        {"id": "C", "text": "職業醫學科"},
+        {"id": "D", "text": "家庭醫學科"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第5條規定，醫療衛生單位之醫師應為職業醫學科專科醫師。但勞工人數未滿三千人者，得由具有職業醫學相關訓練之醫師擔任。",
+      "references": [{"title": "勞工健康保護規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=5"}]
+    },
+    {
+      "id": "U06-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第6條，醫療衛生單位之護理人員應具備之資格為何？",
+      "options": [
+        {"id": "A", "text": "領有護理師或護士證書"},
+        {"id": "B", "text": "領有護理師或護士證書，且經職業衛生護理相關訓練"},
+        {"id": "C", "text": "大學護理系畢業"},
+        {"id": "D", "text": "曾任職業衛生護理工作三年以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第6條規定，醫療衛生單位之護理人員應領有護理師或護士證書，且經中央主管機關認可之職業衛生護理相關訓練合格者。僅有護理證書不足以擔任。",
+      "references": [{"title": "勞工健康保護規則第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=6"}]
+    },
+    {
+      "id": "U06-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第7條，醫療衛生單位應辦理之事項，下列何者不屬之？",
+      "options": [
+        {"id": "A", "text": "勞工之健康教育及健康促進"},
+        {"id": "B", "text": "職業傷病之診治及職業傷病復健"},
+        {"id": "C", "text": "勞工之薪資發放"},
+        {"id": "D", "text": "健康檢查及健康管理"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第7條列舉多項醫療衛生單位應辦理事項，包括健康教育健康促進、職業傷病診治復健、健康檢查及健康管理、緊急急救等。薪資發放非屬醫療衛生單位之職責。",
+      "references": [{"title": "勞工健康保護規則第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=7"}]
+    },
+    {
+      "id": "U06-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第17條，雇主對於特別危害健康作業勞工之健康管理，依健康檢查結果分為幾級管理？",
+      "options": [
+        {"id": "A", "text": "二級"},
+        {"id": "B", "text": "三級"},
+        {"id": "C", "text": "四級"},
+        {"id": "D", "text": "五級"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第17條第1項規定，雇主對於特別危害健康作業勞工之健康管理，依健康檢查結果分為四級管理：第一級管理（正常）、第二級管理（異常但可繼續工作）、第三級管理（需限制工作）、第四級管理（不宜繼續工作）。",
+      "references": [{"title": "勞工健康保護規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=17"}]
+    },
+    {
+      "id": "U06-Q014",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第18條，雇主對於經健康檢查結果屬第二級管理者，應採取何種措施？",
+      "options": [
+        {"id": "A", "text": "不受限制，可繼續從事原有工作"},
+        {"id": "B", "text": "應限制其繼續從事特別危害健康作業"},
+        {"id": "C", "text": "應調離特別危害健康作業"},
+        {"id": "D", "text": "應予解僱"}
+      ],
+      "answer": ["A"],
+      "explanation": "健康保護規則第18條第1項規定，第二級管理之勞工，指其健康異常，經醫師評估後認定可繼續從事原有工作者。雇主仍應採取適當之追蹤管理措施。",
+      "references": [{"title": "勞工健康保護規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=18"}]
+    },
+    {
+      "id": "U06-Q015",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第18條，雇主對於經健康檢查結果屬第四級管理者，應採取何種措施？",
+      "options": [
+        {"id": "A", "text": "不受限制，可繼續從事原有工作"},
+        {"id": "B", "text": "應限制其從事特別危害健康作業"},
+        {"id": "C", "text": "應予調離特別危害健康作業，並依醫師建議處理"},
+        {"id": "D", "text": "無需採取任何措施"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第18條第1項第4款規定，第四級管理之勞工，指其健康異常不宜繼續從事特別危害健康作業者，雇主應予調離特別危害健康作業，並依醫師之建議處理。",
+      "references": [{"title": "勞工健康保護規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=18"}]
+    },
+    {
+      "id": "U06-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第8條，事業單位之醫療衛生單位，如未設置，雇主應與何者簽訂契約，辦理勞工健康服務？",
+      "options": [
+        {"id": "A", "text": "與附近診所簽約"},
+        {"id": "B", "text": "與醫院或診所簽訂契約，辦理勞工健康服務事項"},
+        {"id": "C", "text": "與健保局簽約"},
+        {"id": "D", "text": "由勞工自行就醫"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第8條規定，事業單位未設置醫療衛生單位者，雇主應與醫療機構或職業醫學專科醫師簽訂契約，辦理勞工健康服務事項。以確保勞工能獲得適當之健康服務。",
+      "references": [{"title": "勞工健康保護規則第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=8"}]
+    },
+    {
+      "id": "U06-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第9條，雇主應參照勞工健康檢查結果及工作性質，安排勞工從事適當之工作。下列何者屬於特別危害健康之作業？",
+      "options": [
+        {"id": "A", "text": "一般文書作業"},
+        {"id": "B", "text": "鉛作業"},
+        {"id": "C", "text": "清潔打掃作業"},
+        {"id": "D", "text": "電腦資料輸入作業"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則附表一列舉多種特別危害健康之作業，包括鉛作業、四烷基鉛作業、有機溶劑作業、特定化學物質作業、粉塵作業、噪音作業等。一般文書、清潔、電腦輸入不屬之。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q018",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第19條，雇主使勞工從事特別危害健康作業時，應建立勞工之健康資料，並定期實施健康追蹤。下列何者非屬應建立之健康資料？",
+      "options": [
+        {"id": "A", "text": "勞工之基本資料"},
+        {"id": "B", "text": "作業環境測定結果"},
+        {"id": "C", "text": "勞工之薪資紀錄"},
+        {"id": "D", "text": "勞工之健康檢查紀錄"}
+      ],
+      "answer": ["C"],
+      "explanation": "健康保護規則第19條規定，雇主應建立之健康資料包括勞工基本資料、作業環境測定結果、健康檢查紀錄、工作經歷等。薪資紀錄非屬健康資料之範疇。",
+      "references": [{"title": "勞工健康保護規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=19"}]
+    },
+    {
+      "id": "U06-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第20條，雇主應使勞工健康服務護理人員會同職業安全衛生人員，辦理勞工健康服務。下列何者屬之？",
+      "options": [
+        {"id": "A", "text": "勞工健康之選配及適性工作之建議"},
+        {"id": "B", "text": "職業傷病預防"},
+        {"id": "C", "text": "健康指導及健康促進"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "健康保護規則第20條列舉多項勞工健康服務事項，包括勞工健康選配及適性工作建議、職業傷病預防、健康指導及健康促進、急救及緊急處置等。三項均屬之。",
+      "references": [{"title": "勞工健康保護規則第20條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=20"}]
+    },
+    {
+      "id": "U06-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第21條，雇主對於從事特別危害健康作業之勞工人數在多少人以上者，應另僱用或特約勞工健康服務護理人員？",
+      "options": [
+        {"id": "A", "text": "五十人以上"},
+        {"id": "B", "text": "一百人以上"},
+        {"id": "C", "text": "三百人以上"},
+        {"id": "D", "text": "五百人以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "依健康保護規則第21條規定，雇主對於從事特別危害健康作業之勞工人數在三百人以上者，應另僱用或特約勞工健康服務護理人員，辦理勞工健康服務事項。",
+      "references": [{"title": "勞工健康保護規則第21條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=21"}]
+    },
+    {
+      "id": "U06-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第13條，雇主使勞工從事特別危害健康作業時，應多久實施特殊健康檢查一次？",
+      "options": [
+        {"id": "A", "text": "每半年"},
+        {"id": "B", "text": "每一年"},
+        {"id": "C", "text": "每二年"},
+        {"id": "D", "text": "每三年"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第12條第2項規定，雇主對於從事特別危害健康作業之在職勞工，應每年施行特殊健康檢查一次。特殊健康檢查之項目依作業種類依附表規定。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，雇主對於65歲以上之在職勞工，應多久施行一般健康檢查一次？",
+      "options": [
+        {"id": "A", "text": "每一年"},
+        {"id": "B", "text": "每二年"},
+        {"id": "C", "text": "每三年"},
+        {"id": "D", "text": "每五年"}
+      ],
+      "answer": ["A"],
+      "explanation": "健康保護規則第11條第1項第3款規定，65歲以上者每年檢查一次。未滿40歲者每五年一次，40歲以上未滿65歲者每三年一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則，雇主對於從事下列何種作業之勞工，應施以特殊健康檢查？",
+      "options": [
+        {"id": "A", "text": "噪音作業"},
+        {"id": "B", "text": "高溫作業"},
+        {"id": "C", "text": "游離輻射作業"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "健康保護規則附表一列舉多種特別危害健康之作業，包括噪音作業、高溫作業、游離輻射作業等。以上均屬特別危害健康之作業，雇主應施以特殊健康檢查。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第22條，事業單位勞工人數在多少人以上者，雇主應訂定勞工健康服務計畫？",
+      "options": [
+        {"id": "A", "text": "一百人以上"},
+        {"id": "B", "text": "三百人以上"},
+        {"id": "C", "text": "五百人以上"},
+        {"id": "D", "text": "一千人以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "依健康保護規則第22條規定，事業單位勞工人數在三百人以上者，雇主應訂定勞工健康服務計畫，據以執行勞工健康服務事項。未滿三百人者得參考附表辦理。",
+      "references": [{"title": "勞工健康保護規則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=22"}]
+    },
+    {
+      "id": "U06-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，雇主對在職勞工施行一般健康檢查之頻率，下列何者正確？（複選）",
+      "options": [
+        {"id": "A", "text": "未滿40歲者每五年一次"},
+        {"id": "B", "text": "40歲以上未滿65歲者每三年一次"},
+        {"id": "C", "text": "65歲以上者每年一次"},
+        {"id": "D", "text": "所有勞工每年一次"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "健康保護規則第11條第1項規定：未滿40歲者每五年一次；40歲以上未滿65歲者每三年一次；65歲以上者每年一次。並非所有勞工每年一次，年齡越大檢查頻率越高。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q026",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則附表一，下列哪些屬於特別危害健康之作業？（複選）",
+      "options": [
+        {"id": "A", "text": "鉛作業"},
+        {"id": "B", "text": "噪音作業"},
+        {"id": "C", "text": "有機溶劑作業"},
+        {"id": "D", "text": "一般文書作業"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "健康保護規則附表一列舉多種特別危害健康之作業，包括鉛作業、噪音作業、有機溶劑作業、特定化學物質作業、粉塵作業等。一般文書作業不屬於特別危害健康之作業。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第7條，醫療衛生單位應辦理之事項包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "勞工之健康教育及健康促進"},
+        {"id": "B", "text": "職業傷病之診治及職業傷病復健"},
+        {"id": "C", "text": "健康檢查及健康管理"},
+        {"id": "D", "text": "緊急救護及急救"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "健康保護規則第7條列舉多項醫療衛生單位應辦理事項，包括健康教育健康促進、職業傷病診治復健、健康檢查健康管理、緊急救護急救、作業環境衛生改善等。四項均屬之。",
+      "references": [{"title": "勞工健康保護規則第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=7"}]
+    },
+    {
+      "id": "U06-Q028",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第17條及第18條，雇主對於特別危害健康作業勞工之健康管理分為四級。下列哪些為正確的管理等級？（複選）",
+      "options": [
+        {"id": "A", "text": "第一級管理（正常）"},
+        {"id": "B", "text": "第二級管理（異常但可繼續工作）"},
+        {"id": "C", "text": "第三級管理（需限制工作）"},
+        {"id": "D", "text": "第四級管理（不宜繼續工作）"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "健康保護規則第17條及第18條規定，健康管理分為四級：第一級（正常）、第二級（異常但可繼續工作）、第三級（需限制工作）、第四級（不宜繼續工作）。四級管理均為法定等級。",
+      "references": [{"title": "勞工健康保護規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=17"}]
+    },
+    {
+      "id": "U06-Q029",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第16條，雇主對於經健康檢查發現異常之勞工，應依醫師建議採取適當措施。下列哪些為法定措施？（複選）",
+      "options": [
+        {"id": "A", "text": "變更其作業場所"},
+        {"id": "B", "text": "更換其工作"},
+        {"id": "C", "text": "減少工作時間"},
+        {"id": "D", "text": "以其他適當措施"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "健康保護規則第16條第1項列舉雇主應採取之措施包括：變更作業場所、更換工作、減少工作時間、以其他適當措施。四項均為法定措施。",
+      "references": [{"title": "勞工健康保護規則第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=16"}]
+    },
+    {
+      "id": "U06-Q030",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則，下列哪些情況雇主應為勞工施行健康檢查？（複選）",
+      "options": [
+        {"id": "A", "text": "新僱勞工應施行體格檢查"},
+        {"id": "B", "text": "在職勞工應定期施行一般健康檢查"},
+        {"id": "C", "text": "從事特別危害健康作業之勞工應施行特殊健康檢查"},
+        {"id": "D", "text": "勞工自願免檢者得免檢查"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "健康保護規則規定：雇主僱用勞工時應施行體格檢查（第10條）；在職勞工應定期施行一般健康檢查（第11條）；從事特別危害健康作業之勞工應施行特殊健康檢查（第12條）。勞工不得自願免除法定健康檢查。",
+      "references": [{"title": "勞工健康保護規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=10"}]
+    },
+    {
+      "id": "U06-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第20條，雇主應使勞工健康服務護理人員會同職業安全衛生人員辦理勞工健康服務。下列哪些屬於勞工健康服務事項？（複選）",
+      "options": [
+        {"id": "A", "text": "勞工健康之選配及適性工作之建議"},
+        {"id": "B", "text": "職業傷病預防"},
+        {"id": "C", "text": "健康指導及健康促進"},
+        {"id": "D", "text": "急救及緊急處置"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "健康保護規則第20條列舉多項勞工健康服務事項，包括勞工健康選配及適性工作建議、職業傷病預防、健康指導及健康促進、急救及緊急處置、工作相關疾病預防等。四項均屬之。",
+      "references": [{"title": "勞工健康保護規則第20條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=20"}]
+    },
+    {
+      "id": "U06-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第4條附表二，事業單位勞工人數與醫護人員配置之規定，下列何者正確？（複選）",
+      "options": [
+        {"id": "A", "text": "300人以上未滿600人者，醫師1人、護理人員2人"},
+        {"id": "B", "text": "600人以上未滿1000人者，醫師1人、護理人員3人"},
+        {"id": "C", "text": "1000人以上未滿3000人者，醫師1人、護理人員4人以上"},
+        {"id": "D", "text": "3000人以上者，醫師2人、護理人員6人以上"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "健康保護規則第4條附表二規定不同勞工人數應配置之醫護人員數。300-599人：醫1護2；600-999人：醫1護3；1000-2999人：醫1護4以上；3000人以上：醫2護6以上。四項均正確。",
+      "references": [{"title": "勞工健康保護規則第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=4"}]
+    },
+    {
+      "id": "U06-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依勞工健康保護規則第2條，本規則依職業安全衛生法第二十一條第三項規定訂定之。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "健康保護規則第2條明確規定，本規則依職業安全衛生法第二十一條第三項規定訂定之。職安法第21條為雇主應為勞工舉辦健康檢查及健康管理之規定。",
+      "references": [{"title": "勞工健康保護規則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=2"}]
+    },
+    {
+      "id": "U06-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，雇主對於未滿40歲之在職勞工，應每五年施行一般健康檢查一次。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "健康保護規則第11條第1項第1款規定，未滿40歲者每五年檢查一次。40歲以上未滿65歲者每三年一次，65歲以上者每年一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第12條，雇主對於從事特別危害健康作業之在職勞工，應每年施行特殊健康檢查一次。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "健康保護規則第12條第2項規定，雇主對於從事特別危害健康作業之在職勞工，應每年施行特殊健康檢查一次。特殊健康檢查之項目依作業種類依附表規定。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第15條，雇主應將健康檢查及健康管理紀錄保存五年。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "健康保護規則第15條第1項規定，雇主應將健康檢查及健康管理紀錄保存十年，並非五年。從事特別危害健康作業勞工之特殊健康檢查及健康管理紀錄應保存十年以上。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U06-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第3條，事業單位勞工人數在三百人以上者，應僱用或特約醫護人員設置醫療衛生單位。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "健康保護規則第3條第1項規定，事業單位勞工人數在三百人以上者，應僱用或特約醫護人員設置醫療衛生單位。但第一類事業勞工人數在一百人以上者亦須設置。",
+      "references": [{"title": "勞工健康保護規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=3"}]
+    },
+    {
+      "id": "U06-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，雇主對於未滿40歲之在職勞工，應每________年施行一般健康檢查一次。",
+      "answer": ["5", "五"],
+      "explanation": "健康保護規則第11條第1項第1款規定，未滿40歲者每五年檢查一次。40歲以上未滿65歲者每三年一次，65歲以上者每年一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第15條，雇主應將健康檢查及健康管理紀錄保存________年。",
+      "answer": ["10", "十"],
+      "explanation": "健康保護規則第15條第1項規定，雇主應將健康檢查及健康管理紀錄保存十年。從事特別危害健康作業勞工之特殊健康檢查及健康管理紀錄應保存十年以上。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U06-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第3條，事業單位勞工人數在________人以上者，應僱用或特約醫護人員設置醫療衛生單位。",
+      "answer": ["300", "三百"],
+      "explanation": "健康保護規則第3條第1項規定，事業單位勞工人數在三百人以上者，應僱用或特約醫護人員設置醫療衛生單位。但第一類事業勞工人數在一百人以上者亦須設置。",
+      "references": [{"title": "勞工健康保護規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=3"}]
+    },
+    {
+      "id": "U06-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第17條，雇主對於特別危害健康作業勞工之健康管理，依健康檢查結果分為________級管理。",
+      "answer": ["4", "四"],
+      "explanation": "健康保護規則第17條規定，健康管理分為四級：第一級（正常）、第二級（異常但可繼續工作）、第三級（需限制工作）、第四級（不宜繼續工作）。",
+      "references": [{"title": "勞工健康保護規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=17"}]
+    },
+    {
+      "id": "U06-Q042",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第12條，雇主對於從事特別危害健康作業之在職勞工，應每________年施行特殊健康檢查一次。",
+      "answer": ["1", "一"],
+      "explanation": "健康保護規則第12條第2項規定，雇主對於從事特別危害健康作業之在職勞工，應每年施行特殊健康檢查一次。特殊健康檢查之項目依作業種類依附表規定。",
+      "references": [{"title": "勞工健康保護規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=12"}]
+    },
+    {
+      "id": "U06-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，某勞工現年38歲，雇主應每隔幾年為其施行一般健康檢查一次？",
+      "answer": {"value": 5, "unit": "年", "tolerance": 0},
+      "explanation": "健康保護規則第11條第1項第1款規定，未滿40歲者每五年檢查一次。該勞工38歲未滿40歲，故應每五年施行一般健康檢查一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第4條附表二，某事業單位勞工人數為800人，應僱用或特約醫師及護理人員共多少名？",
+      "answer": {"value": 4, "unit": "人", "tolerance": 0},
+      "explanation": "健康保護規則第4條附表二規定，勞工人數600人以上未滿1000人者，應僱用或特約醫師1人及護理人員3人，共4人。800人屬於此區間，故共需4名醫護人員。",
+      "references": [{"title": "勞工健康保護規則第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=4"}]
+    },
+    {
+      "id": "U06-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，某勞工現年50歲，雇主應每隔幾年為其施行一般健康檢查一次？",
+      "answer": {"value": 3, "unit": "年", "tolerance": 0},
+      "explanation": "健康保護規則第11條第1項第2款規定，40歲以上未滿65歲者每三年檢查一次。該勞工50歲屬於40歲以上未滿65歲，故應每三年施行一般健康檢查一次。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列勞工年齡與其一般健康檢查頻率正確配對（依健康保護規則第11條）：",
+      "leftItems": [
+        {"id": "L1", "text": "未滿40歲"},
+        {"id": "L2", "text": "40歲以上未滿65歲"},
+        {"id": "L3", "text": "65歲以上"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每年一次"},
+        {"id": "R2", "text": "每五年一次"},
+        {"id": "R3", "text": "每三年一次"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R3"},
+        {"left": "L3", "right": "R1"}
+      ],
+      "explanation": "健康保護規則第11條規定：未滿40歲每五年一次、40歲以上未滿65歲每三年一次、65歲以上每年一次。年齡越大，檢查頻率越高。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列健康管理等級與其處理方式正確配對（依健康保護規則第18條）：",
+      "leftItems": [
+        {"id": "L1", "text": "第一級管理"},
+        {"id": "L2", "text": "第二級管理"},
+        {"id": "L3", "text": "第三級管理"},
+        {"id": "L4", "text": "第四級管理"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "不宜繼續從事特別危害健康作業，應調離"},
+        {"id": "R2", "text": "正常，可繼續從事原有工作"},
+        {"id": "R3", "text": "異常，經醫師評估可繼續從事原有工作"},
+        {"id": "R4", "text": "應限制其從事特別危害健康作業"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R3"},
+        {"left": "L3", "right": "R4"},
+        {"left": "L4", "right": "R1"}
+      ],
+      "explanation": "健康保護規則第18條規定：第一級=正常可繼續工作；第二級=異常但可繼續工作；第三級=應限制從事特別危害健康作業；第四級=不宜繼續工作，應調離。",
+      "references": [{"title": "勞工健康保護規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=18"}]
+    },
+    {
+      "id": "U06-Q048",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列事業單位勞工人數與其應配置之醫護人員數正確配對（依健康保護規則第4條附表二）：",
+      "leftItems": [
+        {"id": "L1", "text": "300人以上未滿600人"},
+        {"id": "L2", "text": "600人以上未滿1000人"},
+        {"id": "L3", "text": "1000人以上未滿3000人"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "醫師1人、護理人員3人"},
+        {"id": "R2", "text": "醫師1人、護理人員4人以上"},
+        {"id": "R3", "text": "醫師1人、護理人員2人"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R3"},
+        {"left": "L2", "right": "R1"},
+        {"left": "L3", "right": "R2"}
+      ],
+      "explanation": "健康保護規則第4條附表二規定：300-599人=醫1護2；600-999人=醫1護3；1000-2999人=醫1護4以上；3000人以上=醫2護6以上。勞工人數越多，配置醫護人員越多。",
+      "references": [{"title": "勞工健康保護規則第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=4"}]
+    },
+    {
+      "id": "U06-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "依健康保護規則第11條，請依勞工一般健康檢查頻率由短到長排列下列年齡層：",
+      "items": [
+        {"id": "I1", "text": "65歲以上（每年一次）"},
+        {"id": "I2", "text": "40歲以上未滿65歲（每三年一次）"},
+        {"id": "I3", "text": "未滿40歲（每五年一次）"}
+      ],
+      "answer": ["I1", "I2", "I3"],
+      "explanation": "健康保護規則第11條規定：65歲以上每年一次（最短）、40-64歲每三年一次、未滿40歲每五年一次（最長）。由短到長排列為65歲以上→40-64歲→未滿40歲。",
+      "references": [{"title": "勞工健康保護規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=11"}]
+    },
+    {
+      "id": "U06-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依健康保護規則第18條，請依健康管理等級由輕到重排列下列管理等級：",
+      "items": [
+        {"id": "I1", "text": "第一級管理（正常）"},
+        {"id": "I2", "text": "第二級管理（異常但可繼續工作）"},
+        {"id": "I3", "text": "第三級管理（需限制工作）"},
+        {"id": "I4", "text": "第四級管理（不宜繼續工作）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "健康保護規則第18條規定，健康管理由輕到重為：第一級（正常）→第二級（異常但可繼續工作）→第三級（需限制工作）→第四級（不宜繼續工作）。等級越高，健康問題越嚴重，工作限制越多。",
+      "references": [{"title": "勞工健康保護規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=18"}]
+    }
+  ]
+}

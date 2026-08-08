@@ -1,0 +1,731 @@
+{
+  "unitId": "U35",
+  "unitTitle": "化學性危害預防",
+  "unitNumber": 35,
+  "questions": [
+    {
+      "id": "U35-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依危害性化學品標示及通識規則，雇主對裝有危害性化學品之容器，應標示之事項共有幾項？",
+      "options": [
+        {"id": "A", "text": "3項"},
+        {"id": "B", "text": "4項"},
+        {"id": "C", "text": "5項"},
+        {"id": "D", "text": "6項"}
+      ],
+      "answer": ["D"],
+      "explanation": "危害性化學品標示及通識規則第5條規定，雇主對裝有危害性化學品之容器應標示：危害圖式及內容（名稱、危害成分、警示語、危害警告訊息、危害防範措施、製造者輸入者或供應者之名稱地址及電話），共6項。容器容積在100毫升以下者，得僅標示名稱、危害圖式及警示語。",
+      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+    },
+    {
+      "id": "U35-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，標示之危害圖式形狀為何？",
+      "options": [
+        {"id": "A", "text": "直立之正方形，旋轉45度角"},
+        {"id": "B", "text": "圓形"},
+        {"id": "C", "text": "三角形"},
+        {"id": "D", "text": "正方形不旋轉"}
+      ],
+      "answer": ["A"],
+      "explanation": "危害性化學品標示及通識規則規定，標示之危害圖式形狀為直立四十五度角之正方形，其大小需能辨識清楚。圖式符號應使用黑色，背景為白色，圖式之紅框有足夠警示作用之寬度。此為GHS（全球化學品統一分類及標示制度）之標準圖式。",
+      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+    },
+    {
+      "id": "U35-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，容器容積在多少毫升以下者，得僅標示名稱、危害圖式及警示語？",
+      "options": [
+        {"id": "A", "text": "50毫升"},
+        {"id": "B", "text": "100毫升"},
+        {"id": "C", "text": "500毫升"},
+        {"id": "D", "text": "1000毫升"}
+      ],
+      "answer": ["B"],
+      "explanation": "危害性化學品標示及通識規則第5條第3項規定，容器之容積在100毫升以下者，得僅標示名稱、危害圖式及警示語。因小容器空間有限，無法完整標示所有項目，故法規放寬小容器之標示要求。",
+      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+    },
+    {
+      "id": "U35-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，雇主為防止勞工未確實知悉危害性化學品之危害資訊，應採取必要措施，下列何者不屬之？",
+      "options": [
+        {"id": "A", "text": "訂定危害通識計畫，執行紀錄保存三年"},
+        {"id": "B", "text": "製作危害性化學品清單"},
+        {"id": "C", "text": "將安全資料表置於工作場所易取得之處"},
+        {"id": "D", "text": "僅以口頭告知勞工即可"}
+      ],
+      "answer": ["D"],
+      "explanation": "危害性化學品標示及通識規則規定，雇主應採取之必要措施包括：訂定危害通識計畫（執行紀錄保存三年）、製作危害性化學品清單、將安全資料表（SDS）置於工作場所易取得之處、辦理危害通識教育訓練等。口頭告知不足以確保勞工確實知悉危害資訊。",
+      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+    },
+    {
+      "id": "U35-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，危害通識計畫之執行紀錄應保存多久？",
+      "options": [
+        {"id": "A", "text": "1年"},
+        {"id": "B", "text": "2年"},
+        {"id": "C", "text": "3年"},
+        {"id": "D", "text": "5年"}
+      ],
+      "answer": ["C"],
+      "explanation": "危害性化學品標示及通識規則規定，雇主應依實際狀況訂定危害通識計畫，適時檢討更新，並依計畫確實執行，其執行紀錄保存三年。3年為法規規定之保存期限。",
+      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+    },
+    {
+      "id": "U35-Q006",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依危害性化學品標示及通識規則，本規則所稱危害性化學品包括哪兩大類？",
+      "options": [
+        {"id": "A", "text": "危險物及有害物"},
+        {"id": "B", "text": "固體及液體"},
+        {"id": "C", "text": "有機物及無機物"},
+        {"id": "D", "text": "天然物及合成物"}
+      ],
+      "answer": ["A"],
+      "explanation": "危害性化學品標示及通識規則第3條規定，危害性化學品指危險物（具有物理性危害者）及有害物（具有健康危害者）。危險物如易燃液體、爆炸物等；有害物如致癌物、毒性物質等。分類依國家標準CNS15030辦理。",
+      "references": [{"title": "危害性化學品標示及通識規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=3"}]
+    },
+    {
+      "id": "U35-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則，有機溶劑依其危害程度分為幾種？",
+      "options": [
+        {"id": "A", "text": "2種"},
+        {"id": "B", "text": "3種"},
+        {"id": "C", "text": "4種"},
+        {"id": "D", "text": "5種"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則將有機溶劑依其危害程度分為第一種、第二種及第三種共3種。第一種有機溶劑危害性最高（如三氯乙烯、四氯化碳等），第二種次之，第三種危害性較低。不同種類之有機溶劑適用不同之防護規定。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U35-Q008",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則，下列何者屬於第一種有機溶劑？",
+      "options": [
+        {"id": "A", "text": "甲苯"},
+        {"id": "B", "text": "丙酮"},
+        {"id": "C", "text": "三氯乙烯、四氯化碳"},
+        {"id": "D", "text": "甲醇"}
+      ],
+      "answer": ["C"],
+      "explanation": "有機溶劑中毒預防規則規定，第一種有機溶劑包括三氯乙烯、四氯化碳、二氯乙烯、二硫化碳等，危害性最高。甲苯屬於第二種，丙酮及甲醇屬於第三種有機溶劑。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U35-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則，雇主使勞工從事有機溶劑作業時，原則上應設置何種設備以防止有機溶劑蒸氣之危害？",
+      "options": [
+        {"id": "A", "text": "僅需設置空調"},
+        {"id": "B", "text": "密閉設備或局部排氣裝置等"},
+        {"id": "C", "text": "僅需開窗通風"},
+        {"id": "D", "text": "無特別規定"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則規定，雇主使勞工從事有機溶劑作業時，原則上應設置密閉設備或局部排氣裝置，或採取整體換氣裝置等適當措施，以防止有機溶劑蒸氣危害勞工健康。僅開窗通風不足以有效控制有機溶劑蒸氣之濃度。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U35-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準，本標準所稱特定化學物質分為哪幾類？",
+      "options": [
+        {"id": "A", "text": "甲類、乙類、丙類、丁類"},
+        {"id": "B", "text": "第一種至第五種"},
+        {"id": "C", "text": "A、B、C三類"},
+        {"id": "D", "text": "一級至四級"}
+      ],
+      "answer": ["A"],
+      "explanation": "特定化學物質危害預防標準第2條規定，特定化學物質分為甲類物質、乙類物質、丙類物質（含第一種、第二種、第三種）及丁類物質。甲類物質危害最嚴重，雇主不得使勞工從事製造、處置或使用（供試驗研究除外）。",
+      "references": [{"title": "特定化學物質危害預防標準第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=2"}]
+    },
+    {
+      "id": "U35-Q011",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準，雇主對於甲類物質之處置，下列規定何者正確？",
+      "options": [
+        {"id": "A", "text": "可自由使勞工從事製造、處置或使用"},
+        {"id": "B", "text": "不得使勞工從事製造、處置或使用，但供試驗或研究者不在此限"},
+        {"id": "C", "text": "僅需佩戴防護具即可"},
+        {"id": "D", "text": "無特別限制"}
+      ],
+      "answer": ["B"],
+      "explanation": "特定化學物質危害預防標準規定，雇主不得使勞工從事製造、處置或使用甲類物質。但供試驗或研究者不在此限。甲類物質危害性極高（如黃磷、聯苯胺等），一般作業禁止使用，僅試驗研究經申請許可後可為之。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U35-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準，雇主因特定化學物質漏洩致勞工吸入或遭受污染時，應如何處理？",
+      "options": [
+        {"id": "A", "text": "繼續作業，事後再處理"},
+        {"id": "B", "text": "迅即使其接受醫師之診察及治療"},
+        {"id": "C", "text": "僅用清水沖洗即可"},
+        {"id": "D", "text": "由勞工自行決定是否就醫"}
+      ],
+      "answer": ["B"],
+      "explanation": "特定化學物質危害預防標準規定，雇主因特定化學物質之漏洩，致勞工吸入或遭受其污染時，應迅即使其接受醫師之診察及治療。即時就醫可降低特定化學物質對人體之損害，延誤治療可能造成嚴重後果。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U35-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準，雇主不得使勞工從事以何種物質為溶劑之作業（除非符合特定條件）？",
+      "options": [
+        {"id": "A", "text": "乙醇"},
+        {"id": "B", "text": "苯"},
+        {"id": "C", "text": "丙酮"},
+        {"id": "D", "text": "甲醇"}
+      ],
+      "answer": ["B"],
+      "explanation": "特定化學物質危害預防標準規定，雇主不得使勞工從事以苯等為溶劑之作業。但作業設備為密閉設備或採用不使勞工直接與苯等接觸並設置包圍型局部排氣裝置者，不在此限。苯為已知致癌物，對造血系統危害極大。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U35-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，雇主對於室內粉塵作業場所之清掃，至少每日應清掃幾次以上？",
+      "options": [
+        {"id": "A", "text": "每週一次"},
+        {"id": "B", "text": "每日一次以上"},
+        {"id": "C", "text": "每月一次"},
+        {"id": "D", "text": "無特別規定"}
+      ],
+      "answer": ["B"],
+      "explanation": "粉塵危害預防標準第22條規定，雇主對室內粉塵作業場所至少每日應清掃一次以上。此外，雇主至少每月應定期使用真空吸塵器或以水沖洗等不致發生粉塵飛揚之方法清除地面及設備。定期清掃可防止粉塵積聚造成塵肺病或粉塵爆炸。",
+      "references": [{"title": "粉塵危害預防標準第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060021&flno=22"}]
+    },
+    {
+      "id": "U35-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，雇主至少每月應定期使用何種方法清除室內作業場所之地面及設備？",
+      "options": [
+        {"id": "A", "text": "掃帚乾掃"},
+        {"id": "B", "text": "壓縮空氣吹除"},
+        {"id": "C", "text": "真空吸塵器或以水沖洗等不致發生粉塵飛揚之方法"},
+        {"id": "D", "text": "任意方式均可"}
+      ],
+      "answer": ["C"],
+      "explanation": "粉塵危害預防標準第22條規定，雇主至少每月應定期使用真空吸塵器或以水沖洗等不致發生粉塵飛揚之方法清除室內作業場所之地面、設備。掃帚乾掃或壓縮空氣吹除會造成粉塵飛揚，反而增加暴露風險。",
+      "references": [{"title": "粉塵危害預防標準第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060021&flno=22"}]
+    },
+    {
+      "id": "U35-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，雇主使勞工戴用輸氣管面罩之連續作業時間，每次不得超過多久？",
+      "options": [
+        {"id": "A", "text": "30分鐘"},
+        {"id": "B", "text": "1小時"},
+        {"id": "C", "text": "2小時"},
+        {"id": "D", "text": "4小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "粉塵危害預防標準規定，雇主使勞工戴用輸氣管面罩之連續作業時間，每次不得超過1小時。長時間使用輸氣管面罩可能造成勞工不適及疲勞，影響作業安全，故限制每次連續作業時間。",
+      "references": [{"title": "粉塵危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060021"}]
+    },
+    {
+      "id": "U35-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，雇主應公告粉塵作業場所禁止何種行為，並揭示於明顯易見之處所？",
+      "options": [
+        {"id": "A", "text": "禁止吸菸"},
+        {"id": "B", "text": "禁止飲食或吸菸"},
+        {"id": "C", "text": "禁止交談"},
+        {"id": "D", "text": "禁止使用手機"}
+      ],
+      "answer": ["B"],
+      "explanation": "粉塵危害預防標準規定，雇主應公告粉塵作業場所禁止飲食或吸菸，並揭示於明顯易見之處所。粉塵作業場所之粉塵可能附著於食物或香菸上，經由食入或吸入途徑進入人體，造成健康危害。",
+      "references": [{"title": "粉塵危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060021"}]
+    },
+    {
+      "id": "U35-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法，製造、處置或使用有機溶劑之作業場所，應每隔多久監測其濃度一次以上？",
+      "options": [
+        {"id": "A", "text": "三個月"},
+        {"id": "B", "text": "六個月"},
+        {"id": "C", "text": "一年"},
+        {"id": "D", "text": "二年"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第8條規定，製造、處置或使用附表一所列有機溶劑之作業場所，應每六個月監測其濃度一次以上。定期監測可掌握作業環境中有機溶劑之實際濃度，確保勞工暴露低於容許標準。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，鉛中毒預防規則所稱鉛作業之作業場所，應每隔多久監測鉛濃度一次以上？",
+      "options": [
+        {"id": "A", "text": "六個月"},
+        {"id": "B", "text": "一年"},
+        {"id": "C", "text": "二年"},
+        {"id": "D", "text": "三年"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第8條規定，鉛中毒預防規則所稱鉛作業之作業場所，應每年監測鉛濃度一次以上。注意鉛作業之監測頻率為每年一次，與有機溶劑及特定化學物質之每六個月不同。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，作業環境監測結果之紀錄原則上應保存多久？但屬附表四所列化學物質者應保存多久？",
+      "options": [
+        {"id": "A", "text": "原則保存3年，附表四物質保存10年"},
+        {"id": "B", "text": "原則保存3年，附表四物質保存30年"},
+        {"id": "C", "text": "原則保存5年，附表四物質保存10年"},
+        {"id": "D", "text": "原則保存5年，附表四物質保存30年"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法規定，監測結果應依附表三記錄，並保存三年。但屬附表四所列化學物質者，應保存三十年；粉塵之監測紀錄應保存十年。保存期限長短依危害程度而定，高危害物質之紀錄須保存較長時間。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U35-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法，雇主應於採樣或測定後多少日內完成監測結果報告，通報至中央主管機關指定之資訊系統？",
+      "options": [
+        {"id": "A", "text": "15日內"},
+        {"id": "B", "text": "30日內"},
+        {"id": "C", "text": "45日內"},
+        {"id": "D", "text": "60日內"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法規定，雇主應於採樣或測定後45日內完成監測結果報告，通報至中央主管機關指定之資訊系統。45日為完成監測分析及報告通報之法定期限。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U35-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業場所容許暴露標準，八小時日時量平均容許濃度（PEL-TWA）之意義為何？",
+      "options": [
+        {"id": "A", "text": "勞工每天工作8小時，重複暴露此濃度以下不致有不良反應"},
+        {"id": "B", "text": "任何時間均不得超過之濃度"},
+        {"id": "C", "text": "連續15分鐘內之時量平均濃度"},
+        {"id": "D", "text": "短時間內可超過之濃度"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞工作業場所容許暴露標準規定，八小時日時量平均容許濃度（PEL-TWA）指勞工每天工作8小時，一般勞工重複暴露此濃度以下，不致有不良反應者。任何時間不得超過者為最高容許濃度（Ceiling），連續15分鐘者為短時間時量平均容許濃度（STEL）。",
+      "references": [{"title": "勞工作業場所容許暴露標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060004"}]
+    },
+    {
+      "id": "U35-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業場所容許暴露標準，勞工作業環境空氣中有害物之濃度應符合哪些規定？（下列何者最完整）",
+      "options": [
+        {"id": "A", "text": "僅須符合八小時日時量平均容許濃度"},
+        {"id": "B", "text": "全程工作日之時量平均濃度不超過TWA、任何連續15分鐘不超過STEL、任何時間不超過Ceiling"},
+        {"id": "C", "text": "僅須符合最高容許濃度"},
+        {"id": "D", "text": "僅須符合短時間時量平均容許濃度"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業場所容許暴露標準規定，勞工作業環境空氣中有害物之濃度應同時符合三項規定：全程工作日之時量平均濃度不超過八小時日時量平均容許濃度（TWA）、任何連續15分鐘不超過短時間時量平均容許濃度（STEL）、任何時間不超過最高容許濃度（Ceiling）。",
+      "references": [{"title": "勞工作業場所容許暴露標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060004"}]
+    },
+    {
+      "id": "U35-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準，雇主對於製造、處置或使用特定化學物質之作業場所，應置備與同一工作時間作業勞工人數相同數量以上之何種物品？",
+      "options": [
+        {"id": "A", "text": "安全帽"},
+        {"id": "B", "text": "適當必要之防護具"},
+        {"id": "C", "text": "工作服"},
+        {"id": "D", "text": "安全鞋"}
+      ],
+      "answer": ["B"],
+      "explanation": "特定化學物質危害預防標準規定，雇主對製造、處置或使用特定化學物質之作業場所，應依規定置備與同一工作時間作業勞工人數相同數量以上之適當必要防護具，包括呼吸用防護具、不浸透性防護衣及手套、防護眼鏡等，並保持其性能及清潔。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U35-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，雇主對裝有危害性化學品之容器應標示之內容包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "危害圖式"},
+        {"id": "B", "text": "名稱及危害成分"},
+        {"id": "C", "text": "警示語及危害警告訊息"},
+        {"id": "D", "text": "危害防範措施及製造者資訊"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "危害性化學品標示及通識規則第5條規定，容器應標示危害圖式，及內容包括：名稱、危害成分、警示語、危害警告訊息、危害防範措施、製造者輸入者或供應者之名稱地址及電話。四項均為應標示之內容。",
+      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+    },
+    {
+      "id": "U35-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，雇主為防止勞工未確實知悉危害性化學品之危害資訊，應採取哪些必要措施？（複選）",
+      "options": [
+        {"id": "A", "text": "訂定危害通識計畫，執行紀錄保存三年"},
+        {"id": "B", "text": "製作危害性化學品清單"},
+        {"id": "C", "text": "將安全資料表（SDS）置於工作場所易取得之處"},
+        {"id": "D", "text": "辦理危害通識教育訓練"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "危害性化學品標示及通識規則規定，雇主應採取之必要措施包括：訂定危害通識計畫（紀錄保存三年）、製作危害性化學品清單、將安全資料表置於工作場所易取得之處、辦理危害通識教育訓練。四項均為法定之必要措施。",
+      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+    },
+    {
+      "id": "U35-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則，有機溶劑分為第一種、第二種、第三種，下列哪些屬於第二種有機溶劑？（複選）",
+      "options": [
+        {"id": "A", "text": "甲苯"},
+        {"id": "B", "text": "二甲苯"},
+        {"id": "C", "text": "正己烷"},
+        {"id": "D", "text": "三氯乙烯"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "有機溶劑中毒預防規則規定，第二種有機溶劑包括甲苯、二甲苯、正己烷、甲醇等。三氯乙烯屬於第一種有機溶劑（危害性最高）。第二種有機溶劑危害性次高，須設置適當之通風排氣設備。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U35-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，關於粉塵作業場所之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "室內作業場所至少每日清掃一次以上"},
+        {"id": "B", "text": "至少每月定期使用真空吸塵器或水沖洗清除"},
+        {"id": "C", "text": "禁止飲食或吸菸並揭示於明顯處所"},
+        {"id": "D", "text": "可用掃帚乾掃以節省成本"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "粉塵危害預防標準第22條規定，室內粉塵作業場所至少每日清掃一次以上，至少每月以真空吸塵器或水沖洗清除。雇主應公告禁止飲食或吸菸。掃帚乾掃會造成粉塵飛揚，違反法規規定。",
+      "references": [{"title": "粉塵危害預防標準第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060021&flno=22"}]
+    },
+    {
+      "id": "U35-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，下列哪些作業場所應每六個月監測一次以上？（複選）",
+      "options": [
+        {"id": "A", "text": "特定粉塵作業場所（監測粉塵濃度）"},
+        {"id": "B", "text": "有機溶劑作業場所（監測其濃度）"},
+        {"id": "C", "text": "特定化學物質作業場所（監測其濃度）"},
+        {"id": "D", "text": "鉛作業場所（監測鉛濃度）"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞工作業環境監測實施辦法第8條規定，特定粉塵作業場所、有機溶劑作業場所、特定化學物質作業場所均應每六個月監測一次以上。鉛作業之作業場所則應每年監測一次以上，監測頻率不同。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準，特定化學物質分為甲類、乙類、丙類、丁類，下列敘述哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "甲類物質危害性最高，雇主不得使勞工製造處置或使用（供試驗研究除外）"},
+        {"id": "B", "text": "丙類物質分為第一種、第二種、第三種"},
+        {"id": "C", "text": "丁類物質為附表一第四款規定之物質"},
+        {"id": "D", "text": "所有特定化學物質均可自由使用"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "特定化學物質危害預防標準第2條規定，甲類物質危害最嚴重，禁止使勞工製造處置或使用（供試驗研究除外）；丙類物質分為第一種、第二種、第三種；丁類物質為附表一第四款之物質。選項D錯誤，甲類物質有嚴格限制。",
+      "references": [{"title": "特定化學物質危害預防標準第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=2"}]
+    },
+    {
+      "id": "U35-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準，雇主對製造、處置或使用特定化學物質之作業場所，應置備哪些防護具？（複選）",
+      "options": [
+        {"id": "A", "text": "呼吸用防護具"},
+        {"id": "B", "text": "不浸透性防護衣、防護手套、防護鞋"},
+        {"id": "C", "text": "防護眼鏡"},
+        {"id": "D", "text": "僅需工作服即可"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "特定化學物質危害預防標準規定，雇主應置備之防護具包括：呼吸用防護具（防止吸入）、不浸透性防護衣及手套鞋（防止皮膚接觸及吸收）、防護眼鏡（防止視機能影響）。一般工作服不足以防止特定化學物質之危害。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U35-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業場所容許暴露標準，關於有害物濃度之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "全程工作日之時量平均濃度不得超過TWA"},
+        {"id": "B", "text": "任何連續15分鐘內之時量平均濃度不得超過STEL"},
+        {"id": "C", "text": "任何時間均不得超過Ceiling"},
+        {"id": "D", "text": "可短暫超過TWA而無限制"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞工作業場所容許暴露標準規定，有害物濃度應同時符合：全程工作日時量平均不超過TWA、連續15分鐘不超過STEL、任何時間不超過Ceiling。選項D錯誤，短暫超過亦受STEL及Ceiling之限制。",
+      "references": [{"title": "勞工作業場所容許暴露標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060004"}]
+    },
+    {
+      "id": "U35-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依危害性化學品標示及通識規則，危害性化學品包括危險物及有害物兩大類。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "危害性化學品標示及通識規則第3條規定，危害性化學品指危險物（具有物理性危害者）及有害物（具有健康危害者）。分類依國家標準CNS15030辦理。",
+      "references": [{"title": "危害性化學品標示及通識規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=3"}]
+    },
+    {
+      "id": "U35-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，容器容積在100毫升以下者，仍須完整標示所有6項內容。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "危害性化學品標示及通識規則第5條第3項規定，容器之容積在100毫升以下者，得僅標示名稱、危害圖式及警示語，不須完整標示所有6項內容。因小容器空間有限，法規放寬其標示要求。",
+      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+    },
+    {
+      "id": "U35-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準，雇主不得使勞工從事以苯為溶劑之作業，但作業設備為密閉設備者不在此限。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "特定化學物質危害預防標準規定，雇主不得使勞工從事以苯等為溶劑之作業。但作業設備為密閉設備或採用不使勞工直接與苯等接觸並設置包圍型局部排氣裝置者，不在此限。苯為致癌物，須嚴格管制。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U35-Q036",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，室內粉塵作業場所可用掃帚乾掃以清除粉塵。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "粉塵危害預防標準第22條規定，雇主至少每月應定期使用真空吸塵器或以水沖洗等不致發生粉塵飛揚之方法清除室內作業場所。掃帚乾掃會造成粉塵飛揚，增加勞工吸入暴露風險，違反法規規定。",
+      "references": [{"title": "粉塵危害預防標準第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060021&flno=22"}]
+    },
+    {
+      "id": "U35-Q037",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，鉛作業之作業場所應每六個月監測鉛濃度一次以上。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第8條規定，鉛中毒預防規則所稱鉛作業之作業場所，應每年監測鉛濃度一次以上，非每六個月。有機溶劑及特定化學物質為每六個月，鉛作業為每年一次，頻率不同。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，容器容積在________毫升以下者，得僅標示名稱、危害圖式及警示語。",
+      "answer": ["100", "一百"],
+      "explanation": "危害性化學品標示及通識規則第5條第3項規定，容器容積在100毫升以下者，得僅標示名稱、危害圖式及警示語。100毫升為小容器簡化標示之基準。",
+      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+    },
+    {
+      "id": "U35-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危害性化學品標示及通識規則，危害通識計畫之執行紀錄應保存________年。",
+      "answer": ["3", "三"],
+      "explanation": "危害性化學品標示及通識規則規定，雇主應訂定危害通識計畫，適時檢討更新，並依計畫確實執行，其執行紀錄保存3年。3年為法規規定之保存期限。",
+      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+    },
+    {
+      "id": "U35-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依粉塵危害預防標準，雇主使勞工戴用輸氣管面罩之連續作業時間，每次不得超過________小時。",
+      "answer": ["1", "一"],
+      "explanation": "粉塵危害預防標準規定，雇主使勞工戴用輸氣管面罩之連續作業時間，每次不得超過1小時。長時間使用輸氣管面罩可能造成勞工不適，影響作業安全。",
+      "references": [{"title": "粉塵危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060021"}]
+    },
+    {
+      "id": "U35-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，雇主應於採樣或測定後________日內完成監測結果報告，通報至中央主管機關指定之資訊系統。",
+      "answer": ["45", "四十五"],
+      "explanation": "勞工作業環境監測實施辦法規定，雇主應於採樣或測定後45日內完成監測結果報告，通報至中央主管機關指定之資訊系統。45日為完成監測分析及報告通報之法定期限。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U35-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，監測結果之紀錄原則上應保存3年，但屬附表四所列化學物質者應保存________年。",
+      "answer": ["30", "三十"],
+      "explanation": "勞工作業環境監測實施辦法規定，監測結果紀錄原則保存3年，但屬附表四所列化學物質者應保存30年，粉塵監測紀錄應保存10年。高危害物質之監測紀錄保存期限較長，以利長期追蹤。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U35-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某作業場所使用甲苯（屬第二種有機溶劑），依勞工作業環境監測實施辦法，該作業場所應每隔多少個月監測甲苯濃度一次以上？",
+      "answer": {"value": 6, "unit": "個月", "tolerance": 0},
+      "explanation": "勞工作業環境監測實施辦法第8條規定，製造、處置或使用有機溶劑之作業場所，應每六個月監測其濃度一次以上。甲苯為有機溶劑，故應每6個月監測一次以上。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法，某作業場所從事鉛作業，監測紀錄之保存期限原則上為3年。若該場所之鉛監測紀錄屬附表四所列化學物質，應保存多少年？又一般監測紀錄保存多少年？請計算兩者保存年限之差值（附表四年限減一般年限）。",
+      "answer": {"value": 27, "unit": "年", "tolerance": 0},
+      "explanation": "一般監測紀錄保存3年，附表四所列化學物質之監測紀錄應保存30年。差值=30-3=27年。附表四化學物質危害性較高，故監測紀錄須保存較長時間以利長期追蹤。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U35-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法，有機溶劑作業場所每6個月監測一次，鉛作業場所每年監測一次。某工廠同時有有機溶劑作業及鉛作業，一年內有機溶劑監測次數比鉛監測多幾次？",
+      "answer": {"value": 1, "unit": "次", "tolerance": 0},
+      "explanation": "有機溶劑每6個月監測一次，一年監測2次。鉛作業每年監測一次，一年監測1次。差值=2-1=1次。有機溶劑之監測頻率較鉛作業高。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列法規與其監測頻率正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "有機溶劑作業場所"},
+        {"id": "L2", "text": "特定化學物質作業場所"},
+        {"id": "L3", "text": "鉛作業場所"},
+        {"id": "L4", "text": "特定粉塵作業場所"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每六個月監測一次以上"},
+        {"id": "R2", "text": "每六個月監測一次以上"},
+        {"id": "R3", "text": "每年監測一次以上"},
+        {"id": "R4", "text": "每六個月監測一次以上"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "勞工作業環境監測實施辦法規定：有機溶劑、特定化學物質、特定粉塵作業場所均每六個月監測一次以上；鉛作業場所每年監測一次以上。鉛作業之監測頻率與其他三者不同。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U35-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列容許暴露標準之名詞與其意義正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "八小時日時量平均容許濃度（TWA）"},
+        {"id": "L2", "text": "短時間時量平均容許濃度（STEL）"},
+        {"id": "L3", "text": "最高容許濃度（Ceiling）"},
+        {"id": "L4", "text": "容許暴露標準（PEL）"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每天工作8小時重複暴露不致有不良反應之濃度"},
+        {"id": "R2", "text": "連續15分鐘內不致有不可忍受刺激等之濃度"},
+        {"id": "R3", "text": "任何時間均不得超過之濃度"},
+        {"id": "R4", "text": "雇主應確保勞工暴露低於之標準"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "TWA為8小時重複暴露不致有不良反應之濃度；STEL為連續15分鐘不致有不可忍受刺激之濃度；Ceiling為任何時間不得超過之濃度；PEL為雇主應確保勞工暴露低於之標準總稱。",
+      "references": [{"title": "勞工作業場所容許暴露標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060004"}]
+    },
+    {
+      "id": "U35-Q048",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依有機溶劑危害程度由高到低排列下列有機溶劑之種類：",
+      "items": [
+        {"id": "I1", "text": "第一種有機溶劑（如三氯乙烯、四氯化碳）"},
+        {"id": "I2", "text": "第二種有機溶劑（如甲苯、二甲苯）"},
+        {"id": "I3", "text": "第三種有機溶劑（如丙酮、甲醇）"}
+      ],
+      "answer": ["I1", "I2", "I3"],
+      "explanation": "有機溶劑中毒預防規則將有機溶劑分為三種，第一種危害性最高（如三氯乙烯、四氯化碳），第二種次之（如甲苯、二甲苯），第三種危害性較低（如丙酮、甲醇）。由高到低為第一種→第二種→第三種。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U35-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依化學性危害防護之控制層級，由最優先到最後排列：",
+      "items": [
+        {"id": "I1", "text": "源頭消除或替代（使用低危害物質替代）"},
+        {"id": "I2", "text": "工程控制（密閉設備、局部排氣裝置）"},
+        {"id": "I3", "text": "行政管理（減少暴露時間、輪班）"},
+        {"id": "I4", "text": "個人防護具（呼吸防護具、防護衣）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "化學性危害防護之優先順序為：源頭消除或替代（使用低危害物質）→工程控制（密閉設備、局部排氣）→行政管理（減少暴露時間）→個人防護具（呼吸防護具等）。工程控制優於行政管理及個人防護具，個人防護具為最後一道防線。",
+      "references": [{"title": "職業安全衛生設施規則第292條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=292"}]
+    },
+    {
+      "id": "U35-Q050",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "某工廠使用甲苯作為溶劑，請將下列化學性危害防護措施與其對應之控制層級正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "以低毒性溶劑取代甲苯"},
+        {"id": "L2", "text": "設置密閉設備或局部排氣裝置"},
+        {"id": "L3", "text": "使勞工戴用適當之呼吸防護具"},
+        {"id": "L4", "text": "實施作業環境監測測定甲苯濃度"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "源頭控制/取代"},
+        {"id": "R2", "text": "工程控制"},
+        {"id": "R3", "text": "個人防護具"},
+        {"id": "R4", "text": "環境監測"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "化學性危害防護之優先順序為：源頭控制/取代（以低毒物取代）→工程控制（密閉設備、局部排氣）→個人防護具（呼吸防護具）→環境監測（定期測定濃度）。一般排風扇不足以有效控制蒸氣濃度，須依規定設置適當之通風排氣設備。口罩亦不能取代工程控制措施。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    }
+  ]
+}

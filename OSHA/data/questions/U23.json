@@ -1,0 +1,732 @@
+{
+  "unitId": "U23",
+  "unitTitle": "安全衛生測定儀器",
+  "unitNumber": 23,
+  "questions": [
+    {
+      "id": "U23-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法規定，雇主對於經中央主管機關指定之作業場所，應訂定作業環境監測計畫，並設置或委託何者實施監測？",
+      "options": [
+        {"id": "A", "text": "由雇主自行實施即可"},
+        {"id": "B", "text": "由中央主管機關認可之作業環境監測機構"},
+        {"id": "C", "text": "由勞動檢查機構"},
+        {"id": "D", "text": "由環保署指定機構"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第12條第3項規定，雇主應設置或委託由中央主管機關認可之作業環境監測機構實施監測。但中央主管機關指定免經監測機構分析之監測項目，得僱用合格監測人員辦理。",
+      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+    },
+    {
+      "id": "U23-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依勞工作業環境監測實施辦法規定，設有中央管理方式之空氣調節設備之建築物室內作業場所，應多久監測二氧化碳濃度一次以上？",
+      "options": [
+        {"id": "A", "text": "每三個月"},
+        {"id": "B", "text": "每六個月"},
+        {"id": "C", "text": "每年"},
+        {"id": "D", "text": "每二年"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第7條第1款規定，設有中央管理方式之空氣調節設備之建築物室內作業場所，應每六個月監測二氧化碳濃度一次以上。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，勞工噪音暴露工作日八小時日時量平均音壓級在多少分貝以上之作業場所，應每六個月監測噪音一次以上？",
+      "options": [
+        {"id": "A", "text": "75分貝"},
+        {"id": "B", "text": "80分貝"},
+        {"id": "C", "text": "85分貝"},
+        {"id": "D", "text": "90分貝"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法第7條第3款規定，勞工噪音暴露工作日八小時日時量平均音壓級85分貝以上之作業場所，應每六個月監測噪音一次以上。85分貝為噪音作業環境監測之起點標準。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，下列何者之作業場所應每三個月監測綜合溫度熱指數一次以上？",
+      "options": [
+        {"id": "A", "text": "勞工工作日時量平均綜合溫度熱指數在中央主管機關規定值以上者"},
+        {"id": "B", "text": "所有室內作業場所"},
+        {"id": "C", "text": "所有戶外作業場所"},
+        {"id": "D", "text": "噪音超過85分貝之場所"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞工作業環境監測實施辦法第8條第1款規定，勞工工作日時量平均綜合溫度熱指數在中央主管機關規定值以上之作業場所，應每三個月監測綜合溫度熱指數一次以上。熱環境監測頻率為每三個月，較一般監測更頻繁。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U23-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，製造、處置或使用有機溶劑之作業場所，應多久監測其濃度一次以上？",
+      "options": [
+        {"id": "A", "text": "每三個月"},
+        {"id": "B", "text": "每六個月"},
+        {"id": "C", "text": "每年"},
+        {"id": "D", "text": "每二年"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第8條第3款規定，製造、處置或使用附表一所列有機溶劑之作業場所，應每六個月監測其濃度一次以上。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U23-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，鉛作業之作業場所應多久監測鉛濃度一次以上？",
+      "options": [
+        {"id": "A", "text": "每三個月"},
+        {"id": "B", "text": "每六個月"},
+        {"id": "C", "text": "每年"},
+        {"id": "D", "text": "每二年"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法第8條第6款規定，鉛中毒預防規則所稱鉛作業之作業場所，應每年監測鉛濃度一次以上。鉛作業監測頻率為每年一次，與有機溶劑每六個月不同。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U23-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，作業環境監測之監測結果應保存多久？",
+      "options": [
+        {"id": "A", "text": "保存一年"},
+        {"id": "B", "text": "保存三年"},
+        {"id": "C", "text": "保存五年"},
+        {"id": "D", "text": "保存十年"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第12條第2項規定，監測結果應依附表三記錄，並保存三年。但屬附表四所列化學物質者，應保存三十年；粉塵之監測紀錄應保存十年。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q008",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法規定，粉塵之監測紀錄應保存多久？",
+      "options": [
+        {"id": "A", "text": "三年"},
+        {"id": "B", "text": "五年"},
+        {"id": "C", "text": "十年"},
+        {"id": "D", "text": "三十年"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法第12條第2項規定，一般監測結果保存三年，但粉塵之監測紀錄應保存十年，附表四所列化學物質之監測紀錄應保存三十年。粉塵與一般化學物質之保存期限不同。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，雇主應於採樣或測定後多少日內完成監測結果報告，通報至中央主管機關指定之資訊系統？",
+      "options": [
+        {"id": "A", "text": "15日內"},
+        {"id": "B", "text": "30日內"},
+        {"id": "C", "text": "45日內"},
+        {"id": "D", "text": "60日內"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法第12條第4項規定，雇主應於採樣或測定後45日內完成監測結果報告，通報至中央主管機關指定之資訊系統。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，雇主實施作業環境監測前，應於實施監測多少日前將監測計畫通報？",
+      "options": [
+        {"id": "A", "text": "5日前"},
+        {"id": "B", "text": "10日前"},
+        {"id": "C", "text": "15日前"},
+        {"id": "D", "text": "30日前"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法第10條第3項規定，雇主應於實施監測15日前，將監測計畫依中央主管機關公告之網路登錄系統及格式實施通報。但以直讀式儀器監測二氧化碳者，得於實施後7日內通報。",
+      "references": [{"title": "勞工作業環境監測實施辦法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=10"}]
+    },
+    {
+      "id": "U23-Q011",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法規定，雇主以直讀式儀器方式監測二氧化碳濃度者，其監測計畫得於實施後多少日內通報？",
+      "options": [
+        {"id": "A", "text": "3日內"},
+        {"id": "B", "text": "5日內"},
+        {"id": "C", "text": "7日內"},
+        {"id": "D", "text": "15日內"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法第10條第3項但書規定，以直讀式儀器方式監測二氧化碳濃度者，得於實施後7日內通報。一般監測須15日前通報，但直讀式儀器監測二氧化碳放寬為7日內通報。",
+      "references": [{"title": "勞工作業環境監測實施辦法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=10"}]
+    },
+    {
+      "id": "U23-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，監測機構應具備之人員資格條件，下列何者正確？",
+      "options": [
+        {"id": "A", "text": "一人以上甲級監測人員即可"},
+        {"id": "B", "text": "三人以上甲級監測人員或一人以上執業工礦衛生技師"},
+        {"id": "C", "text": "五人以上乙級監測人員"},
+        {"id": "D", "text": "任何人均可擔任"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第14條規定，監測機構應具備三人以上甲級監測人員或一人以上執業工礦衛生技師，以及必要之採樣及測定儀器設備、專屬之認證實驗室等資格條件。",
+      "references": [{"title": "勞工作業環境監測實施辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=14"}]
+    },
+    {
+      "id": "U23-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，認證實驗室應符合何種標準？",
+      "options": [
+        {"id": "A", "text": "ISO 9001"},
+        {"id": "B", "text": "ISO 14001"},
+        {"id": "C", "text": "CNS 17025 或 ISO/IEC 17025"},
+        {"id": "D", "text": "ISO 45001"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞工作業環境監測實施辦法規定，認證實驗室應符合國家標準CNS17025或國際標準ISO/IEC17025及中央主管機關公告之實驗室認證規範。此為實驗室品質保證之國際標準。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U23-Q014",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法第11條規定，監測項目屬物理性因子或得以直讀式儀器有效監測之化學性因子者，得僱用何種人員辦理？",
+      "options": [
+        {"id": "A", "text": "任何人員均可"},
+        {"id": "B", "text": "乙級以上之監測人員或執業之工礦衛生技師"},
+        {"id": "C", "text": "僅限甲級監測人員"},
+        {"id": "D", "text": "僅限醫師"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第11條規定，監測項目屬物理性因子或得以直讀式儀器有效監測之特定化學性因子（如二氧化碳等），得僱用乙級以上之監測人員或委由執業之工礦衛生技師辦理，不必委託監測機構。",
+      "references": [{"title": "勞工作業環境監測實施辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=11"}]
+    },
+    {
+      "id": "U23-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法規定，雇主對於中央主管機關定有容許暴露標準之作業場所，應確保勞工之危害暴露低於何者？",
+      "options": [
+        {"id": "A", "text": "容許暴露標準值"},
+        {"id": "B", "text": "容許暴露標準值之二分之一"},
+        {"id": "C", "text": "容許暴露標準值之三分之一"},
+        {"id": "D", "text": "零暴露"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第12條第1項規定，雇主對於中央主管機關定有容許暴露標準之作業場所，應確保勞工之危害暴露低於標準值。容許暴露標準由中央主管機關定之。",
+      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+    },
+    {
+      "id": "U23-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，作業場所有易燃液體之蒸氣、可燃性氣體或可燃性粉塵滯留時，蒸氣或氣體之濃度達爆炸下限值之多少以上，應使勞工退避至安全場所？",
+      "options": [
+        {"id": "A", "text": "百分之十"},
+        {"id": "B", "text": "百分之二十"},
+        {"id": "C", "text": "百分之三十"},
+        {"id": "D", "text": "百分之五十"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第177條規定，蒸氣或氣體之濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所，並停止使用煙火及其他為點火源之虞之機具，並應加強通風。",
+      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+    },
+    {
+      "id": "U23-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，雇主為防止電氣災害，對於絕緣用防護裝備、防護具、活線作業用工具等，應多久檢驗其性能一次？",
+      "options": [
+        {"id": "A", "text": "每三個月"},
+        {"id": "B", "text": "每六個月"},
+        {"id": "C", "text": "每年"},
+        {"id": "D", "text": "每二年"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第263條規定，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點，不合格者應予更換。",
+      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+    },
+    {
+      "id": "U23-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對良導體機器設備內之檢修工作所用之手提式照明燈，其使用電壓不得超過多少伏特？",
+      "options": [
+        {"id": "A", "text": "12伏特"},
+        {"id": "B", "text": "24伏特"},
+        {"id": "C", "text": "36伏特"},
+        {"id": "D", "text": "110伏特"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第249條規定，雇主對勞工於良導體機器設備內之檢修工作所用之手提式照明燈，其使用電壓不得超過24伏特，且導線須為耐磨損及有良好絕緣，並不得有接頭。",
+      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+    },
+    {
+      "id": "U23-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法規定，雇主對高壓電氣設備應多久定期實施檢查一次？",
+      "options": [
+        {"id": "A", "text": "每月"},
+        {"id": "B", "text": "每三個月"},
+        {"id": "C", "text": "每半年"},
+        {"id": "D", "text": "每年"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生管理辦法規定，雇主對高壓電氣設備，應於每年依規定定期實施檢查一次，包括高壓受電盤及分電盤之動作試驗等，及其他保持性能之必要事項。",
+      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+    },
+    {
+      "id": "U23-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法規定，雇主對局部排氣裝置、空氣清淨裝置及吹吸型換氣裝置應多久定期實施檢查一次？",
+      "options": [
+        {"id": "A", "text": "每月"},
+        {"id": "B", "text": "每三個月"},
+        {"id": "C", "text": "每半年"},
+        {"id": "D", "text": "每年"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生管理辦法規定，雇主對局部排氣裝置、空氣清淨裝置及吹吸型換氣裝置應每年依規定定期實施檢查一次，以確保其性能正常運作。",
+      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+    },
+    {
+      "id": "U23-Q021",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法規定，雇主對化學設備及其附屬設備應多久定期實施檢查一次？",
+      "options": [
+        {"id": "A", "text": "每年"},
+        {"id": "B", "text": "每二年"},
+        {"id": "C", "text": "每三年"},
+        {"id": "D", "text": "每五年"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法規定，雇主對化學設備及其附屬設備應就內部是否有造成爆炸或火災之虞、損傷變形腐蝕、安全裝置性能等事項，每二年定期實施檢查一次。",
+      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+    },
+    {
+      "id": "U23-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法規定，雇主依規定實施之定期檢查、重點檢查紀錄應保存多久？",
+      "options": [
+        {"id": "A", "text": "一年"},
+        {"id": "B", "text": "二年"},
+        {"id": "C", "text": "三年"},
+        {"id": "D", "text": "五年"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生管理辦法規定，雇主依第十三條至第四十九條規定實施之定期檢查、重點檢查應就檢查年月日、方法、部分、結果、實施者姓名及改善措施等記錄，並保存三年。",
+      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+    },
+    {
+      "id": "U23-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何種儀器常用於測量作業環境中之噪音暴露？",
+      "options": [
+        {"id": "A", "text": "熱像儀"},
+        {"id": "B", "text": "噪音計（聲度計）"},
+        {"id": "C", "text": "氣體偵測器"},
+        {"id": "D", "text": "照度計"}
+      ],
+      "answer": ["B"],
+      "explanation": "噪音計（聲度計，Sound Level Meter）為測量作業環境噪音暴露之常用儀器，可測量音壓級。職安法規定噪音85分貝以上之作業場所應每六個月監測噪音一次以上。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主實施停電作業時，開路後之電路如含有電力電纜、電力電容器等，應以安全方法確實實施何種操作？",
+      "options": [
+        {"id": "A", "text": "加壓"},
+        {"id": "B", "text": "放電"},
+        {"id": "C", "text": "通電"},
+        {"id": "D", "text": "加熱"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第254條規定，開路後之電路如含有電力電纜、電力電容器等致電路有殘留電荷引起危害之虞，應以安全方法確實放電。放電後應以檢電器具檢查確認停電，再短路接地。",
+      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+    },
+    {
+      "id": "U23-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法第7條規定，下列哪些作業場所應每六個月監測一次以上？（複選）",
+      "options": [
+        {"id": "A", "text": "設有中央管理方式之空氣調節設備之建築物室內作業場所（二氧化碳濃度）"},
+        {"id": "B", "text": "噪音暴露85分貝以上之作業場所（噪音）"},
+        {"id": "C", "text": "坑內作業場所（粉塵、二氧化碳）"},
+        {"id": "D", "text": "鉛作業之作業場所（鉛濃度）"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依第7條規定，二氧化碳濃度、噪音、坑內粉塵及二氧化碳均為每六個月監測。鉛作業場所依第8條規定為每年監測一次，非每六個月。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q026",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法第8條規定，下列哪些作業場所應每年監測一次以上？（複選）",
+      "options": [
+        {"id": "A", "text": "鉛作業之作業場所"},
+        {"id": "B", "text": "四烷基鉛作業之作業場所"},
+        {"id": "C", "text": "特定粉塵作業場所"},
+        {"id": "D", "text": "有機溶劑作業場所"}
+      ],
+      "answer": ["A", "B"],
+      "explanation": "依第8條規定，鉛作業（第6款）及四烷基鉛作業（第7款）均為每年監測一次以上。特定粉塵作業場所（第2款）及有機溶劑作業場所（第3款）為每六個月監測一次以上，非每年。",
+      "references": [{"title": "勞工作業環境監測實施辦法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=8"}]
+    },
+    {
+      "id": "U23-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，監測機構應具備哪些資格條件？（複選）",
+      "options": [
+        {"id": "A", "text": "必要之採樣及測定儀器設備"},
+        {"id": "B", "text": "三人以上甲級監測人員或一人以上執業工礦衛生技師"},
+        {"id": "C", "text": "專屬之認證實驗室"},
+        {"id": "D", "text": "二年內未經撤銷或廢止認可"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "勞工作業環境監測實施辦法第14條規定，監測機構應具備：必要之採樣及測定儀器設備、三人以上甲級監測人員或一人以上執業工礦衛生技師、專屬之認證實驗室、二年內未經撤銷或廢止認可等四項資格條件。",
+      "references": [{"title": "勞工作業環境監測實施辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=14"}]
+    },
+    {
+      "id": "U23-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，監測結果紀錄之保存期限，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "一般監測結果保存三年"},
+        {"id": "B", "text": "粉塵之監測紀錄保存十年"},
+        {"id": "C", "text": "附表四所列化學物質之監測紀錄保存三十年"},
+        {"id": "D", "text": "所有監測紀錄均保存一年"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞工作業環境監測實施辦法第12條第2項規定，一般監測結果保存三年；粉塵之監測紀錄保存十年；附表四所列化學物質之監測紀錄保存三十年。保存期限因監測項目而異。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工作業環境監測實施辦法第11條規定，下列哪些化學性因子得以直讀式儀器有效監測，得僱用乙級以上監測人員辦理？（複選）",
+      "options": [
+        {"id": "A", "text": "二氧化碳"},
+        {"id": "B", "text": "硫化氫"},
+        {"id": "C", "text": "汞及其無機化合物"},
+        {"id": "D", "text": "粉塵（非直讀式項目）"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞工作業環境監測實施辦法第11條規定，二氧化碳、二硫化碳、硫化氫、汞及其無機化合物等得以直讀式儀器有效監測之化學性因子，得僱用乙級以上監測人員辦理。粉塵一般需採樣分析，非單純直讀式儀器項目。",
+      "references": [{"title": "勞工作業環境監測實施辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=11"}]
+    },
+    {
+      "id": "U23-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第17條規定，應訂定作業環境監測計畫及實施監測之作業場所包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "設置有中央管理方式之空氣調節設備之建築物室內作業場所"},
+        {"id": "B", "text": "坑內作業場所"},
+        {"id": "C", "text": "顯著發生噪音之作業場所"},
+        {"id": "D", "text": "高溫作業場所"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安法施行細則第17條第2項規定，應訂定監測計畫之作業場所包括：中央空調室內場所、坑內作業場所、顯著噪音場所，以及經中央主管機關指定之高溫、粉塵、鉛、四烷基鉛、有機溶劑、特定化學物質等作業場所及其他指定場所。",
+      "references": [{"title": "職業安全衛生法施行細則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=17"}]
+    },
+    {
+      "id": "U23-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，雇主為防止電氣災害，停電作業時應採取哪些措施？（複選）",
+      "options": [
+        {"id": "A", "text": "開路之開關應上鎖或標示「禁止送電」"},
+        {"id": "B", "text": "含有殘留電荷之電路應確實放電"},
+        {"id": "C", "text": "放電後應以檢電器具確認停電"},
+        {"id": "D", "text": "應使用短路接地器具確實短路並加接地"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安設施規則第254條規定，停電作業應依序：開關上鎖標示、殘留電荷放電、檢電確認停電、短路接地。四項措施均為停電作業之必要步驟，確保作業安全。",
+      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+    },
+    {
+      "id": "U23-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些儀器常用於安全衛生測定？（複選）",
+      "options": [
+        {"id": "A", "text": "噪音計（聲度計）用於噪音測定"},
+        {"id": "B", "text": "照度計用於照明測定"},
+        {"id": "C", "text": "氣體偵測器用於有害氣體濃度測定"},
+        {"id": "D", "text": "體溫計用於測量體溫"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "噪音計用於噪音測定、照度計用於照明測定、氣體偵測器用於有害氣體濃度測定，均為安全衛生測定常用儀器。體溫計雖可測量體溫，但不屬於作業環境安全衛生測定儀器。",
+      "references": [{"title": "勞工作業環境監測實施辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060033"}]
+    },
+    {
+      "id": "U23-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "雇主對於經中央主管機關指定之作業場所，應訂定作業環境監測計畫，並設置或委託由中央主管機關認可之作業環境監測機構實施監測。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第12條第3項明確規定，雇主應設置或委託由中央主管機關認可之作業環境監測機構實施監測。但指定免經監測機構分析之項目，得僱用合格監測人員辦理。",
+      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+    },
+    {
+      "id": "U23-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "作業環境監測之監測結果，雇主應於作業勞工顯而易見之場所公告或以其他公開方式揭示之。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞工作業環境監測實施辦法第12條第3項規定，監測結果雇主應於作業勞工顯而易見之場所公告或以其他公開方式揭示之，必要時應向勞工代表說明。確保勞工知悉監測結果。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "勞工噪音暴露工作日八小時日時量平均音壓級在85分貝以上之作業場所，應每年監測噪音一次以上。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工作業環境監測實施辦法第7條第3款規定，噪音85分貝以上之作業場所應每六個月監測一次以上，非每年。須注意監測頻率為每六個月而非每年。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "粉塵之監測紀錄應保存十年，附表四所列化學物質之監測紀錄應保存三十年。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞工作業環境監測實施辦法第12條第2項規定，一般監測結果保存三年，但粉塵保存十年，附表四所列化學物質（如致癌物等）保存三十年。不同監測項目有不同之保存期限。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "雇主對絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第263條規定，雇主對絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點，不合格者應予更換。",
+      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+    },
+    {
+      "id": "U23-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，勞工噪音暴露工作日八小時日時量平均音壓級在________分貝以上之作業場所，應每六個月監測噪音一次以上。",
+      "answer": ["85", "八十五"],
+      "explanation": "勞工作業環境監測實施辦法第7條第3款規定，噪音85分貝以上之作業場所應每六個月監測噪音一次以上。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依勞工作業環境監測實施辦法規定，雇主應於採樣或測定後________日內完成監測結果報告，通報至中央主管機關指定之資訊系統。",
+      "answer": ["45", "四十五"],
+      "explanation": "勞工作業環境監測實施辦法第12條第4項規定，雇主應於採樣或測定後45日內完成監測結果報告，通報至中央主管機關指定之資訊系統。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q040",
+      "type": "fill_blank",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則規定，作業場所蒸氣或氣體之濃度達爆炸下限值之百分之________以上時，應即刻使勞工退避至安全場所。",
+      "answer": ["30", "三十"],
+      "explanation": "職業安全衛生設施規則第177條規定，蒸氣或氣體之濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所，並停止使用煙火及加強通風。",
+      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+    },
+    {
+      "id": "U23-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對良導體機器設備內之檢修工作所用之手提式照明燈，其使用電壓不得超過________伏特。",
+      "answer": ["24", "二十四"],
+      "explanation": "職業安全衛生設施規則第249條規定，良導體機器設備內檢修用手提式照明燈使用電壓不得超過24伏特，以防止感電危害。",
+      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+    },
+    {
+      "id": "U23-Q042",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對絕緣用防護裝備、防護具、活線作業用工具等，應每________個月檢驗其性能一次。",
+      "answer": ["6", "六"],
+      "explanation": "職業安全衛生設施規則第263條規定，雇主對絕緣用防護裝備等應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點。",
+      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+    },
+    {
+      "id": "U23-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某作業場所測得二氧化碳濃度為5,000 ppm，依職業安全衛生法第12條規定，雇主應確保勞工之危害暴露低於容許暴露標準值。若二氧化碳之八小時日時量平均容許濃度（PEL-TWA）為5,000 ppm，請問該測定值是否符合標準？（輸入1表示符合，0表示不符合）",
+      "answer": {"value": 0, "unit": "", "tolerance": 0},
+      "explanation": "測定值5,000 ppm等於容許暴露標準值5,000 ppm，但法規規定應「低於」標準值，等於並非低於，因此不符合標準。雇主應採取改善措施使暴露濃度低於5,000 ppm。",
+      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+    },
+    {
+      "id": "U23-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某作業場所測得三氯乙烯之濃度為40 ppm，其八小時日時量平均容許濃度（PEL-TWA）為50 ppm。請計算其暴露比值（即測定值÷容許標準值，以百分比表示，四捨五入至整數）。",
+      "answer": {"value": 80, "unit": "%", "tolerance": 1},
+      "explanation": "暴露比值=測定值÷容許標準值×100%=40÷50×100%=80%。雖低於標準值（符合規定），但已達標準值之80%，依危害性化學品評估及分級管理辦法屬第二級管理（高於二分之一），應實施檢點及改善措施。",
+      "references": [{"title": "危害性化學品評估及分級管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"}]
+    },
+    {
+      "id": "U23-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某作業場所實施噪音監測，測得勞工八小時日時量平均音壓級為88分貝。依勞工作業環境監測實施辦法規定，該場所應多久監測一次？請輸入監測週期之月數。",
+      "answer": {"value": 6, "unit": "月", "tolerance": 0},
+      "explanation": "勞工作業環境監測實施辦法第7條第3款規定，勞工噪音暴露工作日八小時日時量平均音壓級85分貝以上之作業場所，應每六個月監測噪音一次以上。88分貝超過85分貝，故監測週期為6個月。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列作業環境監測項目與其監測頻率正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "二氧化碳濃度（中央空調場所）"},
+        {"id": "L2", "text": "綜合溫度熱指數"},
+        {"id": "L3", "text": "鉛濃度"},
+        {"id": "L4", "text": "噪音（85分貝以上）"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每六個月"},
+        {"id": "R2", "text": "每三個月"},
+        {"id": "R3", "text": "每年"},
+        {"id": "R4", "text": "每六個月"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "二氧化碳每六個月監測；綜合溫度熱指數每三個月監測（最頻繁）；鉛濃度每年監測；噪音85分貝以上每六個月監測。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7、8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    },
+    {
+      "id": "U23-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列監測紀錄類型與其保存期限正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "一般監測結果"},
+        {"id": "L2", "text": "粉塵監測紀錄"},
+        {"id": "L3", "text": "附表四化學物質監測紀錄"},
+        {"id": "L4", "text": "定期檢查紀錄（管理辦法）"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "三年"},
+        {"id": "R2", "text": "十年"},
+        {"id": "R3", "text": "三十年"},
+        {"id": "R4", "text": "三年"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "一般監測結果保存三年；粉塵監測紀錄保存十年；附表四所列化學物質監測紀錄保存三十年；職安管理辦法之定期檢查紀錄亦保存三年。",
+      "references": [{"title": "勞工作業環境監測實施辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=12"}]
+    },
+    {
+      "id": "U23-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列測定儀器與其測定用途正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "噪音計（聲度計）"},
+        {"id": "L2", "text": "照度計"},
+        {"id": "L3", "text": "氣體偵測器"},
+        {"id": "L4", "text": "檢電器具"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "噪音測定"},
+        {"id": "R2", "text": "照明測定"},
+        {"id": "R3", "text": "有害氣體濃度測定"},
+        {"id": "R4", "text": "停電確認"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "噪音計測噪音、照度計測照明、氣體偵測器測有害氣體濃度、檢電器具用於停電作業時確認電路已停電。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U23-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依職業安全衛生設施規則第254條規定，將停電作業之步驟依正確順序排列：",
+      "items": [
+        {"id": "I1", "text": "確認電路開路，開關上鎖或標示「禁止送電」"},
+        {"id": "I2", "text": "殘留電荷放電"},
+        {"id": "I3", "text": "以檢電器具檢查確認停電"},
+        {"id": "I4", "text": "使用短路接地器具確實短路並加接地"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "職安設施規則第254條規定之停電作業步驟依序為：確認開路並上鎖標示→放電消除殘留電荷→檢電確認停電→短路接地。每一步驟均為確保下一步驟安全之前提。",
+      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+    },
+    {
+      "id": "U23-Q050",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依監測頻率由短至長（最頻繁至最少）排列下列作業環境監測項目：",
+      "items": [
+        {"id": "I1", "text": "綜合溫度熱指數（每三個月）"},
+        {"id": "I2", "text": "二氧化碳濃度（每六個月）"},
+        {"id": "I3", "text": "噪音85分貝以上（每六個月）"},
+        {"id": "I4", "text": "鉛濃度（每年）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "監測頻率由短至長：綜合溫度熱指數每三個月最頻繁，二氧化碳及噪音均每六個月，鉛濃度每年一次最不頻繁。",
+      "references": [{"title": "勞工作業環境監測實施辦法第7、8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+    }
+  ]
+}

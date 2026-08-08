@@ -1,0 +1,734 @@
+{
+  "unitId": "U19",
+  "unitTitle": "教學技巧相關知識",
+  "unitNumber": 19,
+  "questions": [
+    {
+      "id": "U19-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第32條規定，雇主對勞工應施以從事工作與預防災變所必要之何種教育及訓練？",
+      "options": [
+        {"id": "A", "text": "安全衛生教育及訓練"},
+        {"id": "B", "text": "生產技術教育及訓練"},
+        {"id": "C", "text": "行銷管理教育及訓練"},
+        {"id": "D", "text": "財務管理教育及訓練"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第32條第1項規定，雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練。此為雇主在教育訓練方面的法定義務，也是教學技巧相關知識的核心法源。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U19-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第32條規定，勞工對於安全衛生教育及訓練，有何義務？",
+      "options": [
+        {"id": "A", "text": "可自由選擇是否參加"},
+        {"id": "B", "text": "有接受之義務"},
+        {"id": "C", "text": "可委由他人代替"},
+        {"id": "D", "text": "僅需參加第一次"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第32條第3項明文規定，勞工對於第一項之安全衛生教育及訓練，有接受之義務。此規定確保教育訓練能落實，勞工不可自由選擇是否參加。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U19-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第3條規定，雇主對擔任職業安全衛生業務主管之勞工，應於何時使其接受安全衛生教育訓練？",
+      "options": [
+        {"id": "A", "text": "擔任後一個月內"},
+        {"id": "B", "text": "事前"},
+        {"id": "C", "text": "擔任後三個月內"},
+        {"id": "D", "text": "無時間限制"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第3條第1項規定，雇主對擔任職業安全衛生業務主管之勞工，應於「事前」使其接受職業安全衛生業務主管之安全衛生教育訓練。雇主或其代理人擔任業務主管者，亦同。注意是「事前」而非事後。",
+      "references": [{"title": "職業安全衛生教育訓練規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=3"}]
+    },
+    {
+      "id": "U19-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條規定，雇主對新僱勞工應使其接受何種教育訓練？",
+      "options": [
+        {"id": "A", "text": "特殊作業教育訓練"},
+        {"id": "B", "text": "一般安全衛生教育訓練"},
+        {"id": "C", "text": "業務主管教育訓練"},
+        {"id": "D", "text": "急救人員教育訓練"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第1項規定，雇主對新僱勞工或在職勞工於變更工作前，應使其接受適於各該工作必要之一般安全衛生教育訓練。但工作環境、工作性質與變更前相當者，不在此限。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生業務主管之在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每二年至少六小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第一款之勞工（職業安全衛生業務主管），安全衛生在職教育訓練每二年至少六小時。注意與管理人員每二年至少十二小時不同，不可混淆。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生管理人員之在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第二款之勞工（職業安全衛生管理人員），安全衛生在職教育訓練每二年至少十二小時。管理人員因專業要求較高，時數為業務主管的二倍。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，一般勞工之安全衛生在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每三年至少三小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第七款至第十三款之勞工（包括一般勞工），安全衛生在職教育訓練每三年至少三小時。此為一般勞工的基本在職教育訓練要求。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "在教學方法中，下列何者最適合用於教授安全衛生操作的「實作技能」？",
+      "options": [
+        {"id": "A", "text": "講述法"},
+        {"id": "B", "text": "示範法"},
+        {"id": "C", "text": "純粹閱讀法規"},
+        {"id": "D", "text": "影片觀賞法"}
+      ],
+      "answer": ["B"],
+      "explanation": "示範法由講師實際操作示範，學習者觀摩後模仿練習，最適合用於教授實作技能，如安全帽正確佩戴、滅火器使用等。講述法適合知識傳授，閱讀法和影片觀賞法缺乏實作練習，均不適合技能教學。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之網路教學課程，其時數至多採認幾小時？",
+      "options": [
+        {"id": "A", "text": "1小時"},
+        {"id": "B", "text": "2小時"},
+        {"id": "C", "text": "3小時"},
+        {"id": "D", "text": "無限制"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之網路教學課程，勞工上網學習取得認證時數後，得採認為一般安全衛生教育訓練時數。但時數至多採認二小時。此規範確保教育訓練有一定比例的實體互動。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q010",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "在成人學習理論中，成人學習的特性與兒童學習最大的不同為何？",
+      "options": [
+        {"id": "A", "text": "成人完全不願意學習"},
+        {"id": "B", "text": "成人具有豐富的生活經驗，學習時期望與實務結合"},
+        {"id": "C", "text": "成人只能接受填鴨式教學"},
+        {"id": "D", "text": "成人的學習動機僅來自外部獎懲"}
+      ],
+      "answer": ["B"],
+      "explanation": "成人學習理論強調成人具有豐富的生活與工作經驗，學習時期望將新知識與實務結合，且學習動機多為內在驅動（如解決工作問題）。因此，安全衛生教育訓練應重視實務應用與問題解決，而非單純的知識灌輸。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U19-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第3條第3項規定，具備下列何種資格者，得免接受職業安全衛生業務主管之安全衛生教育訓練？",
+      "options": [
+        {"id": "A", "text": "領有丙級技術士證照者"},
+        {"id": "B", "text": "具有職業安全管理師、職業衛生管理師、職業安全衛生管理員資格者"},
+        {"id": "C", "text": "參加過任何安全衛生相關課程者"},
+        {"id": "D", "text": "工作年資滿三年者"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第3條第3項規定，具備下列資格之一者得免接受業務主管教育訓練：一、具有職業安全管理師、職業衛生管理師、職業安全衛生管理員資格；二、經上述人員教育訓練合格領有結業證書；三、接受上述人員教育訓練期滿並經測驗合格領有結業證書。A丙級技術士非屬上述資格。",
+      "references": [{"title": "職業安全衛生教育訓練規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=3"}]
+    },
+    {
+      "id": "U19-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條第2項規定，勞工健康服務護理人員之在職教育訓練課程及講師資格，依何法規辦理？",
+      "options": [
+        {"id": "A", "text": "職業安全衛生設施規則"},
+        {"id": "B", "text": "勞工健康保護規則"},
+        {"id": "C", "text": "勞動基準法"},
+        {"id": "D", "text": "職業安全衛生管理辦法"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第2項規定，第三款教育訓練（勞工健康服務護理人員及相關人員）之課程及講師資格，依勞工健康保護規則之規定。此為跨法規的援引規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "在教學設計的ADDIE模型中，字母「A」代表的是哪一個階段？",
+      "options": [
+        {"id": "A", "text": "Assessment（評估）"},
+        {"id": "B", "text": "Analysis（分析）"},
+        {"id": "C", "text": "Application（應用）"},
+        {"id": "D", "text": "Adjustment（調整）"}
+      ],
+      "answer": ["B"],
+      "explanation": "ADDIE模型為教學設計的標準流程：A（Analysis，分析階段，分析學習者需求與目標）、D（Design，設計）、D（Development，發展）、I（Implementation，實施）、E（Evaluation，評鑑）。分析階段是教學設計的起點。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "在教學方法中，「講述法」最主要的優點為何？",
+      "options": [
+        {"id": "A", "text": "能在短時間內傳達大量資訊給多數學習者"},
+        {"id": "B", "text": "能確保學習者都會實際操作"},
+        {"id": "C", "text": "能確保學習者都完全理解"},
+        {"id": "D", "text": "不需要任何準備"}
+      ],
+      "answer": ["A"],
+      "explanation": "講述法的主要優點是能在短時間內有系統地傳達大量資訊給多數學習者，適合知識性內容的教學。但其缺點是學習者較為被動，缺乏互動，且無法確保每個學習者都理解或會操作。講述法仍需充分準備。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條第1項規定，在職勞工於變更工作前，雇主應使其接受一般安全衛生教育訓練。但有何情形者不在此限？",
+      "options": [
+        {"id": "A", "text": "勞工年資滿五年"},
+        {"id": "B", "text": "工作環境、工作性質與變更前相當者"},
+        {"id": "C", "text": "勞工自願放棄"},
+        {"id": "D", "text": "雇主認為不必要"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第1項但書規定，在職勞工於變更工作前應接受一般安全衛生教育訓練，但其工作環境、工作性質與變更前相當者，不在此限。此為合理免除重複訓練的規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，有害作業主管之在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每二年至少六小時"},
+        {"id": "C", "text": "每三年至少三小時"},
+        {"id": "D", "text": "每三年至少六小時"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第四款至第六款之勞工（包括高壓氣體作業主管、營造作業主管及有害作業主管），安全衛生在職教育訓練每三年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，危險性機械或設備操作人員之在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每三年至少三小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第七款至第十三款之勞工（包括具有危險性之機械及設備操作人員、特殊作業人員、急救人員、各級業務主管、委員會成員、一般勞工等），安全衛生在職教育訓練每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第18條規定，下列何者不屬於應接受安全衛生在職教育訓練之人員？",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管"},
+        {"id": "B", "text": "各級管理、指揮、監督之業務主管"},
+        {"id": "C", "text": "職業安全衛生委員會成員"},
+        {"id": "D", "text": "純粹到廠區參觀的外部人員"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第18條第1項列舉應接受在職教育訓練之人員共十四款，包括業務主管、管理人員、各級業務主管、委員會成員、一般勞工等。純粹參觀的外部人員不從事勞動，不在列舉範圍內。",
+      "references": [{"title": "職業安全衛生教育訓練規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=18"}]
+    },
+    {
+      "id": "U19-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第19條第3項規定，中央主管機關指定之安全衛生在職教育訓練數位學習課程，其採認方式為何？",
+      "options": [
+        {"id": "A", "text": "不得採認任何時數"},
+        {"id": "B", "text": "勞工上網學習取得認證時數後，得採認為在職教育訓練時數"},
+        {"id": "C", "text": "僅能採認一半時數"},
+        {"id": "D", "text": "需經雇主同意後方可採認"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第3項規定，中央主管機關指定之安全衛生在職教育訓練數位學習課程，事業單位之勞工上網學習，取得認證時數後，得採認為第一項之時數。此規定與第17條網路教學課程採認規定類似，但適用於在職教育訓練。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q020",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "在安全衛生教育訓練中，下列何種教學方法最能促進學習者的主動思考與參與？",
+      "options": [
+        {"id": "A", "text": "單向講述法"},
+        {"id": "B", "text": "討論法"},
+        {"id": "C", "text": "播放影片"},
+        {"id": "D", "text": "朗讀法規"}
+      ],
+      "answer": ["B"],
+      "explanation": "討論法讓學習者就特定安全衛生議題進行討論與交流，能促進主動思考與參與，適合用於分析安全衛生問題、探討改善方案等。講述法、播放影片、朗讀法規均為較被動的學習方式，學習者參與度較低。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第5條之1規定，雇主應使安全衛生組織人員及各級主管接受安全衛生教育訓練，且其執行應如何處理？",
+      "options": [
+        {"id": "A", "text": "僅需口頭報告"},
+        {"id": "B", "text": "應作成紀錄備查"},
+        {"id": "C", "text": "不需任何紀錄"},
+        {"id": "D", "text": "僅需保存一個月"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法第5條之1第3項規定，前二項安全衛生管理、教育訓練之執行，應作成紀錄備查。此確保教育訓練有書面紀錄可供查核，是教學管理的重要環節。",
+      "references": [{"title": "職業安全衛生管理辦法第5條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+    },
+    {
+      "id": "U19-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第17條第2項規定，下列何者應接受一般安全衛生教育訓練？",
+      "options": [
+        {"id": "A", "text": "僅有正式僱用之勞工"},
+        {"id": "B", "text": "無一定雇主之勞工或其他受工作場所負責人指揮或監督從事勞動之人員"},
+        {"id": "C", "text": "僅有管理階層"},
+        {"id": "D", "text": "僅有新進人員"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第2項規定，無一定雇主之勞工或其他受工作場所負責人指揮或監督從事勞動之人員，應接受一般安全衛生教育訓練。此擴大了教育訓練的適用對象，與職安法第2條「工作者」的廣義定義一致。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "在教學評量中，下列何者屬於「形成性評量」的目的？",
+      "options": [
+        {"id": "A", "text": "僅在課程結束後給予最終成績"},
+        {"id": "B", "text": "在教學過程中持續檢視學習成效，及時調整教學策略"},
+        {"id": "C", "text": "決定學習者是否可以結業"},
+        {"id": "D", "text": "比較不同班級的成績排名"}
+      ],
+      "answer": ["B"],
+      "explanation": "形成性評量是在教學過程中持續進行的評量，目的在於及時了解學習者的學習狀況，據以調整教學策略，幫助學習者改善。相對地，總結性評量是在課程結束後進行，用於評定最終成績或是否結業。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，勞工健康服務護理人員及相關人員之在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第三款之勞工（勞工健康服務護理人員及勞工健康服務相關人員），安全衛生在職教育訓練每三年至少十二小時。其課程及講師資格依勞工健康保護規則之規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，下列哪些人員之在職教育訓練為每二年至少一次？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管（每二年至少六小時）"},
+        {"id": "B", "text": "職業安全衛生管理人員（每二年至少十二小時）"},
+        {"id": "C", "text": "一般勞工（每三年至少三小時）"},
+        {"id": "D", "text": "有害作業主管（每三年至少六小時）"}
+      ],
+      "answer": ["A", "B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定：第一款業務主管每二年至少六小時（A）；第二款管理人員每二年至少十二小時（B）。一般勞工為每三年至少三小時（C），有害作業主管為每三年至少六小時（D），均非每二年。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "在安全衛生教育訓練中，下列哪些為常用的教學方法？（複選）",
+      "options": [
+        {"id": "A", "text": "講述法：系統性傳達知識"},
+        {"id": "B", "text": "示範法：實際操作示範供學習者觀摩"},
+        {"id": "C", "text": "討論法：促進學習者主動思考與交流"},
+        {"id": "D", "text": "放任法：不提供任何指導"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "安全衛生教育訓練常用的教學方法包括：講述法（知識傳授）、示範法（技能教學）、討論法（促進思考）等。D放任法不提供指導，不屬於有效的教學方法，且可能導致安全衛生知識的嚴重不足。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第18條第1項規定，下列哪些人員應接受安全衛生在職教育訓練？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管"},
+        {"id": "B", "text": "急救人員"},
+        {"id": "C", "text": "各級管理、指揮、監督之業務主管"},
+        {"id": "D", "text": "一般勞工"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第18條第1項列舉應接受在職教育訓練之人員，包括：業務主管（第1款）、急救人員（第9款）、各級業務主管（第10款）、一般勞工（第13款）等。四個選項均為法定應接受在職教育訓練之人員。",
+      "references": [{"title": "職業安全衛生教育訓練規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=18"}]
+    },
+    {
+      "id": "U19-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "在教學設計的ADDIE模型中，包含下列哪些階段？（複選）",
+      "options": [
+        {"id": "A", "text": "分析（Analysis）"},
+        {"id": "B", "text": "設計（Design）"},
+        {"id": "C", "text": "發展（Development）"},
+        {"id": "D", "text": "評鑑（Evaluation）"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "ADDIE模型包含五個階段：A（Analysis，分析）、D（Design，設計）、D（Development，發展）、I（Implementation，實施）、E（Evaluation，評鑑）。四個選項均為ADDIE模型的階段，此外尚有實施（Implementation）階段。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法及教育訓練規則規定，關於安全衛生教育訓練，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練"},
+        {"id": "B", "text": "勞工對安全衛生教育及訓練，有接受之義務"},
+        {"id": "C", "text": "雇主對新僱勞工應使其接受一般安全衛生教育訓練"},
+        {"id": "D", "text": "教育訓練可由勞工自行決定是否參加"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "A正確（職安法第32條第1項）；B正確（職安法第32條第3項）；C正確（教育訓練規則第17條第1項）。D錯誤，勞工對教育訓練有接受之義務，不可自行決定是否參加。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U19-Q030",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，下列哪些人員之在職教育訓練為每三年至少一次？（複選）",
+      "options": [
+        {"id": "A", "text": "勞工健康服務護理人員（每三年至少十二小時）"},
+        {"id": "B", "text": "有害作業主管（每三年至少六小時）"},
+        {"id": "C", "text": "危險性機械或設備操作人員（每三年至少三小時）"},
+        {"id": "D", "text": "職業安全衛生業務主管（每二年至少六小時）"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "A正確（第三款，每三年至少十二小時）；B正確（第四至六款，每三年至少六小時）；C正確（第七至十三款，每三年至少三小時）。D為每二年，非每三年。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "在安全衛生教育訓練的教學評量中，下列哪些屬於有效的評量方式？（複選）",
+      "options": [
+        {"id": "A", "text": "筆試測驗：檢測知識理解程度"},
+        {"id": "B", "text": "實作測驗：檢測技能操作能力"},
+        {"id": "C", "text": "課堂參與觀察：評估學習態度與投入程度"},
+        {"id": "D", "text": "不評量：相信學習者自我判斷"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "有效的評量方式包括筆試測驗（知識評量）、實作測驗（技能評量）、課堂參與觀察（態度評量）等多元方式。D不評量無法確認學習成效，不符合教育訓練品質管理的要求。職安法第32條規定雇主應施以教育訓練，評量是確保訓練效果的重要環節。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U19-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則規定，下列哪些情形可採認數位學習時數？（複選）",
+      "options": [
+        {"id": "A", "text": "中央主管機關認可之網路教學課程，得採認為一般安全衛生教育訓練時數，至多二小時"},
+        {"id": "B", "text": "中央主管機關指定之在職教育訓練數位學習課程，勞工取得認證時數後得採認"},
+        {"id": "C", "text": "任何未經認可的網路課程均可採認"},
+        {"id": "D", "text": "勞工自行觀看的 YouTube 影片均可採認"}
+      ],
+      "answer": ["A", "B"],
+      "explanation": "A正確（第17條第4項，網路教學至多採認二小時）；B正確（第19條第3項，在職教育訓練數位學習課程取得認證時數得採認）。C及D錯誤，僅中央主管機關認可或指定的課程方可採認，未經認可的網路課程或自行觀看的影片不得採認。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法規定，雇主對擔任職業安全衛生業務主管之勞工，應於事前使其接受安全衛生教育訓練。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第3條第1項明文規定，雇主對擔任職業安全衛生業務主管之勞工，應於「事前」使其接受職業安全衛生業務主管之安全衛生教育訓練。注意是事前，非事後。",
+      "references": [{"title": "職業安全衛生教育訓練規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=3"}]
+    },
+    {
+      "id": "U19-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則規定，一般勞工之安全衛生在職教育訓練為每二年至少三小時。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，一般勞工之在職教育訓練為每「三年」至少三小時，並非每二年。每二年至少六小時為業務主管的規定，不可混淆。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "在成人學習中，學習者通常期望將所學與實務工作結合，因此安全衛生教育訓練應重視實務應用。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "成人學習理論強調成人具有豐富的經驗，學習動機多與解決工作問題相關，因此期望將所學與實務結合。安全衛生教育訓練應重視實務應用與問題解決，而非僅灌輸理論知識。職安法第32條規定教育訓練應為「從事工作與預防災變所必要」者，正體現了實務導向的精神。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U19-Q036",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "示範法適合用於教授安全衛生操作的實作技能，如滅火器使用、安全帽佩戴等。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "示範法由講師實際操作示範，學習者觀摩後模仿練習，最適合用於教授實作技能，如滅火器使用、安全帽正確佩戴、急救操作等。講述法適合知識傳授，但對技能教學效果有限。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則規定，中央主管機關認可之網路教學課程時數，可全數採認為一般安全衛生教育訓練時數，無上限限制。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，網路教學課程時數至多採認二小時，並非無上限。此規範確保教育訓練有一定比例的實體互動教學，避免完全以線上學習取代。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第3條規定，雇主對擔任職業安全衛生業務主管之勞工，應於________使其接受安全衛生教育訓練。",
+      "answer": ["事前"],
+      "explanation": "職業安全衛生教育訓練規則第3條第1項規定，雇主對擔任職業安全衛生業務主管之勞工，應於「事前」使其接受職業安全衛生業務主管之安全衛生教育訓練。雇主或其代理人擔任業務主管者，亦同。",
+      "references": [{"title": "職業安全衛生教育訓練規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=3"}]
+    },
+    {
+      "id": "U19-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生業務主管之在職教育訓練為每二年至少________小時。",
+      "answer": ["6", "六"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第一款之勞工（職業安全衛生業務主管），安全衛生在職教育訓練每二年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生管理人員之在職教育訓練為每二年至少________小時。",
+      "answer": ["12", "十二"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第二款之勞工（職業安全衛生管理人員），安全衛生在職教育訓練每二年至少十二小時。時數為業務主管的二倍。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之網路教學課程，其時數至多採認________小時。",
+      "answer": ["2", "二"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之職業安全衛生教育訓練網路教學課程，其時數至多採認二小時，得採認為一般安全衛生教育訓練時數。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "在教學設計的ADDIE模型中，五個階段分別為分析、設計、發展、________、評鑑。",
+      "answer": ["實施", "Implementation"],
+      "explanation": "ADDIE模型包含五個階段：A（Analysis，分析）、D（Design，設計）、D（Development，發展）、I（Implementation，實施）、E（Evaluation，評鑑）。實施階段是將設計發展完成的教學方案實際執行。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位有職業安全衛生業務主管1人、管理人員1人、一般勞工20人。依職業安全衛生教育訓練規則第19條規定，請問該單位每二年至少應安排多少小時之在職教育訓練？（僅計算業務主管及管理人員）",
+      "answer": {"value": 18, "unit": "小時", "tolerance": 0},
+      "explanation": "業務主管每二年至少6小時，管理人員每二年至少12小時。每二年合計：6+12=18小時。一般勞工為每三年至少3小時，非每二年，故不計入此計算。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位有30名一般勞工，依職業安全衛生教育訓練規則第19條規定，一般勞工每三年至少三小時在職教育訓練。若其中有5名勞工以中央主管機關認可之網路教學課程採認時數（至多2小時），請問該單位每三年至少需安排多少小時之實體課程？（僅計算一般勞工部分）",
+      "answer": {"value": 80, "unit": "小時", "tolerance": 0},
+      "explanation": "一般勞工每人每三年至少3小時。25名未用網路課程者：25×3=75小時。5名使用網路課程者：網路採認2小時，實體需3-2=1小時，5×1=5小時。實體課程合計：75+5=80小時。職業安全衛生教育訓練規則第17條第4項規定網路教學時數至多採認二小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某事業單位辦理安全衛生在職教育訓練，應對2名職業安全衛生業務主管及2名管理人員進行在職教育訓練。依規定業務主管每二年至少6小時、管理人員每二年至少12小時。請問該事業單位每二年合計至少應辦理多少小時之在職教育訓練？",
+      "answer": {"value": 36, "unit": "小時", "tolerance": 0},
+      "explanation": "2名業務主管：2×6=12小時。2名管理人員：2×12=24小時。合計：12+24=36小時。職業安全衛生教育訓練規則第19條第1項規定業務主管每二年至少六小時、管理人員每二年至少十二小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列教學方法與其主要適用情境正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "講述法"},
+        {"id": "L2", "text": "示範法"},
+        {"id": "L3", "text": "討論法"},
+        {"id": "L4", "text": "角色扮演法"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "系統性傳達知識，適合法規解說"},
+        {"id": "R2", "text": "實際操作示範，適合技能教學如滅火器使用"},
+        {"id": "R3", "text": "促進主動思考與交流，適合安全衛生問題分析"},
+        {"id": "R4", "text": "模擬實際情境，適合應變演練如急救處置"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "講述法適合知識性內容的系統傳達（如法規解說）；示範法適合實作技能教學（如滅火器使用）；討論法適合促進思考與交流（如問題分析）；角色扮演法適合模擬實際情境的應變演練（如急救處置）。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列人員與其在職安全衛生教育訓練時數規定正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "職業安全衛生業務主管"},
+        {"id": "L2", "text": "職業安全衛生管理人員"},
+        {"id": "L3", "text": "勞工健康服務護理人員"},
+        {"id": "L4", "text": "一般勞工"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每二年至少六小時"},
+        {"id": "R2", "text": "每二年至少十二小時"},
+        {"id": "R3", "text": "每三年至少十二小時"},
+        {"id": "R4", "text": "每三年至少三小時"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定：業務主管每二年至少六小時；管理人員每二年至少十二小時；勞工健康服務護理人員每三年至少十二小時；一般勞工每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U19-Q048",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將教學設計ADDIE模型的各階段與其主要任務正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "分析（Analysis）"},
+        {"id": "L2", "text": "設計（Design）"},
+        {"id": "L3", "text": "發展（Development）"},
+        {"id": "L4", "text": "評鑑（Evaluation）"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "分析學習者需求、學習目標與教學環境"},
+        {"id": "R2", "text": "規劃教學策略、內容架構與評量方式"},
+        {"id": "R3", "text": "製作教學教材與相關資源"},
+        {"id": "R4", "text": "檢視教學成效，據以修正改善"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "ADDIE模型：分析階段分析學習者需求與目標；設計階段規劃教學策略與內容架構；發展階段製作教材資源；評鑑階段檢視成效並修正改善。此外尚有實施（Implementation）階段，即實際執行教學。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依教學設計ADDIE模型的實施順序排列下列階段：",
+      "items": [
+        {"id": "I1", "text": "分析（Analysis）：分析學習者需求與目標"},
+        {"id": "I2", "text": "設計（Design）：規劃教學策略與內容架構"},
+        {"id": "I3", "text": "發展（Development）：製作教學教材"},
+        {"id": "I4", "text": "實施（Implementation）：執行教學活動"},
+        {"id": "I5", "text": "評鑑（Evaluation）：檢視成效並修正"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "explanation": "ADDIE模型依序為：分析→設計→發展→實施→評鑑。先分析學習者需求，再設計教學策略，接著發展製作教材，然後實施教學，最後評鑑成效並據以修正。此為循環改善的教學設計流程。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U19-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依安全衛生教育訓練的實施流程，排列下列步驟的正確順序：",
+      "items": [
+        {"id": "I1", "text": "分析訓練需求：確認勞工所需之安全衛生知識與技能"},
+        {"id": "I2", "text": "設計訓練計畫：規劃課程內容、時數、講師與評量方式"},
+        {"id": "I3", "text": "實施教育訓練：依計畫執行教學活動"},
+        {"id": "I4", "text": "評量訓練成效：檢測學習者之知識與技能"},
+        {"id": "I5", "text": "紀錄與改善：作成紀錄備查，並依成效檢討改善"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "explanation": "安全衛生教育訓練的實施流程為：先分析訓練需求，再設計訓練計畫，接著實施教育訓練，然後評量訓練成效，最後作成紀錄備查並依成效檢討改善。管理辦法第5條之1規定教育訓練之執行應作成紀錄備查，為最後步驟的法源依據。",
+      "references": [{"title": "職業安全衛生管理辦法第5條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+    }
+  ]
+}

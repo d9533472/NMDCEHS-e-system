@@ -1,0 +1,732 @@
+{
+  "unitId": "U32",
+  "unitTitle": "墜落災害防止相關法規",
+  "unitNumber": 32,
+  "questions": [
+    {
+      "id": "U32-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則，雇主對於高度在幾公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有適當強度之圍欄、握把、覆蓋等防護設備？",
+      "options": [
+        {"id": "A", "text": "1公尺"},
+        {"id": "B", "text": "1.5公尺"},
+        {"id": "C", "text": "2公尺"},
+        {"id": "D", "text": "3公尺"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第224條規定，雇主對於高度在二公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有適當強度之圍欄、握把、覆蓋等防護設備。2公尺是法規規定之基準高度，1公尺、1.5公尺、3公尺均非此條規定之正確數值。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，高度2公尺以上之工作場所邊緣若設置圍欄、覆蓋等防護設備顯有困難時，雇主得採行何種替代措施？",
+      "options": [
+        {"id": "A", "text": "僅以口頭警告勞工注意即可"},
+        {"id": "B", "text": "使勞工佩掛安全帶、設置安全網或加設護管等防護設備"},
+        {"id": "C", "text": "縮短勞工作業時間即可，不需其他防護"},
+        {"id": "D", "text": "由勞工自行判斷是否需要防護"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第224條但書規定，設置圍欄等防護設備顯有困難時，得採設置使勞工佩掛安全帶、設置安全網、加設護管等防護設備。口頭警告或縮短時間均不足以保障勞工安全，不能取代實質防護設備。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第225條，雇主對於高度2公尺以上之場所，勞工有墜落之虞者，原則上應以何種方式提供作業台？",
+      "options": [
+        {"id": "A", "text": "以移動梯提供作業台"},
+        {"id": "B", "text": "以施工架或其他方法設置作業台"},
+        {"id": "C", "text": "以合梯提供作業台"},
+        {"id": "D", "text": "以一般椅子墊高即可"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第225條規定，雇主對於在高度2公尺以上之處所作業，勞工有墜落之虞者，應以施工架等設置作業台。若作業台之設置有困難時，得採安全網、安全帶等方式。移動梯、合梯均非作業台之設置方式。",
+      "references": [{"title": "職業安全衛生設施規則第225條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=225"}]
+    },
+    {
+      "id": "U32-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於高度2公尺以上之場所作業，遇有何種情形時應停止作業以防墜落危險？",
+      "options": [
+        {"id": "A", "text": "氣溫過高時"},
+        {"id": "B", "text": "強風、大雨等惡劣氣候，有墜落危險之虞時"},
+        {"id": "C", "text": "勞工人數不足時"},
+        {"id": "D", "text": "作業時間超過2小時時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第226條規定，雇主對於高度2公尺以上之場所作業，遇強風、大雨等惡劣氣候，致勞工有墜落危險之虞時，應使勞工停止作業。氣溫、人數或作業時間非本條停止作業之事由。",
+      "references": [{"title": "職業安全衛生設施規則第226條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=226"}]
+    },
+    {
+      "id": "U32-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於於屋頂作業時，為防止勞工踏穿屋頂墜落，應設置堅固之踏板，其寬度至少為多少公分？",
+      "options": [
+        {"id": "A", "text": "20公分"},
+        {"id": "B", "text": "25公分"},
+        {"id": "C", "text": "30公分"},
+        {"id": "D", "text": "40公分"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第227條規定，雇主對於於石綿板、鐵皮板、瓦、木板、茅草、塑膠等材料構築之屋頂從事作業時，為防止勞工踏穿墜落，應設置適當強度且寬度在30公分以上之踏板。20、25、40公分均非法規規定之數值。",
+      "references": [{"title": "職業安全衛生設施規則第227條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=227"}]
+    },
+    {
+      "id": "U32-Q006",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則，雇主對於勞工於作業位置之高低差超過多少公尺時，應設置使勞工安全上下之設備？",
+      "options": [
+        {"id": "A", "text": "1公尺"},
+        {"id": "B", "text": "1.5公尺"},
+        {"id": "C", "text": "2公尺"},
+        {"id": "D", "text": "3公尺"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第228條規定，雇主對於勞工於作業位置或在通行位置之高低差超過1.5公尺時，應設置使勞工安全上下之設備。注意此處為1.5公尺，與墜落防護基準之2公尺不同。",
+      "references": [{"title": "職業安全衛生設施規則第228條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=228"}]
+    },
+    {
+      "id": "U32-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於移動梯之設置，其寬度應在多少公分以上？",
+      "options": [
+        {"id": "A", "text": "25公分"},
+        {"id": "B", "text": "30公分"},
+        {"id": "C", "text": "35公分"},
+        {"id": "D", "text": "40公分"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第229條規定，雇主對於移動梯之寬度應在30公分以上，並應有適當之強度，且須採取防止滑移或轉動之必要措施。25、35、40公分均非法規規定之數值。",
+      "references": [{"title": "職業安全衛生設施規則第229條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=229"}]
+    },
+    {
+      "id": "U32-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於合梯（梯椅）之使用，其梯腳與地面之角度不得超過多少度？",
+      "options": [
+        {"id": "A", "text": "60度"},
+        {"id": "B", "text": "65度"},
+        {"id": "C", "text": "75度"},
+        {"id": "D", "text": "90度"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第230條規定，雇主對於合梯之使用，其梯腳與地面之角度應在75度以內，且兩梯腳間應有金屬等繫材扣牢。角度過大（如90度）易造成合梯不穩傾倒，過小則不便使用。",
+      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+    },
+    {
+      "id": "U32-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，梯式施工架之立梯如須連接以增加長度時，其重疊部分應在多少公尺以上？",
+      "options": [
+        {"id": "A", "text": "1公尺"},
+        {"id": "B", "text": "1.5公尺"},
+        {"id": "C", "text": "2公尺"},
+        {"id": "D", "text": "3公尺"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第231條規定，梯式施工架之立梯如須連接以增加長度時，其重疊部分應在1.5公尺以上，且須確實綁紮牢固。1、2、3公尺均非法規規定之重疊長度。",
+      "references": [{"title": "職業安全衛生設施規則第231條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=231"}]
+    },
+    {
+      "id": "U32-Q010",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第281條，雇主對於高度2公尺以上之處所作業，勞工有墜落之虞者，應使勞工使用下列何者？",
+      "options": [
+        {"id": "A", "text": "僅需安全帽"},
+        {"id": "B", "text": "安全帶、安全帽及其他必要之防護具"},
+        {"id": "C", "text": "僅需安全鞋"},
+        {"id": "D", "text": "僅需工作手套"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第281條規定，雇主對於高度2公尺以上之處所，勞工有墜落之虞者，應使勞工使用安全帶、安全帽及其他必要之防護具。但已採安全網等設施者不在此限。僅使用單一防護具不足以保障安全。",
+      "references": [{"title": "職業安全衛生設施規則第281條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=281"}]
+    },
+    {
+      "id": "U32-Q011",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第281條，雇主對於鋼構建築之組配作業等特定高空作業，應使勞工使用符合CNS國家標準之何種防護具？",
+      "options": [
+        {"id": "A", "text": "一般安全帶即可"},
+        {"id": "B", "text": "全身式安全帶及安全母索等"},
+        {"id": "C", "text": "僅需安全帽"},
+        {"id": "D", "text": "僅需安全網"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第281條第2項規定，對於鋼構建築之組配、屋頂、模板支撐等特定高空或傾斜面作業，應使勞工使用符合CNS國家標準之全身式安全帶、安全母索、安全索及其他必要之防護具。一般安全帶不足以因應高危險作業之需求。",
+      "references": [{"title": "職業安全衛生設施規則第281條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=281"}]
+    },
+    {
+      "id": "U32-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於自高度多少公尺以上之場所投下物體時，應設置適當之滑槽或承受設備？",
+      "options": [
+        {"id": "A", "text": "1.5公尺"},
+        {"id": "B", "text": "2公尺"},
+        {"id": "C", "text": "3公尺"},
+        {"id": "D", "text": "5公尺"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第237條規定，雇主對於自高度3公尺以上之場所投下物體，有危及勞工之虞時，應置適當之滑槽或承受設備，並指定監視人員。3公尺是法規規定之基準高度。",
+      "references": [{"title": "職業安全衛生設施規則第237條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=237"}]
+    },
+    {
+      "id": "U32-Q013",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則，雇主對於有物體飛落危險之工作場所，應如何處理？",
+      "options": [
+        {"id": "A", "text": "設置防止物體飛落之設備，並供給安全帽等防護具"},
+        {"id": "B", "text": "僅設警告標語即可"},
+        {"id": "C", "text": "僅需設置圍籬"},
+        {"id": "D", "text": "不需要任何措施"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第238條規定，雇主對於有物體飛落之虞之工作場所，應設置防止物體飛落之設備，並供給安全帽等防護具，使勞工確實戴用。僅設警告標語或圍籬不足以保障勞工安全。",
+      "references": [{"title": "職業安全衛生設施規則第238條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=238"}]
+    },
+    {
+      "id": "U32-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於有墜落危險之虞之場所，應設置何種標示，並禁止與作業無關之人員進入？",
+      "options": [
+        {"id": "A", "text": "禁止通行標示"},
+        {"id": "B", "text": "警告標示"},
+        {"id": "C", "text": "方向指示標示"},
+        {"id": "D", "text": "禁止飲食標示"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第232條規定，雇主對於有墜落危險之虞之場所，應設置警告標示，並禁止與作業無關之人員進入。警告標示可提醒勞工及非作業人員注意危險，防止意外發生。",
+      "references": [{"title": "職業安全衛生設施規則第232條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=232"}]
+    },
+    {
+      "id": "U32-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第227條，雇主對於屋頂作業，應指定何種人員從事指揮或監督？",
+      "options": [
+        {"id": "A", "text": "安全衛生管理員"},
+        {"id": "B", "text": "屋頂作業主管"},
+        {"id": "C", "text": "工地主任"},
+        {"id": "D", "text": "作業勞工自行監督"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第227條規定，雇主對於屋頂作業應指定屋頂作業主管，從事指揮或監督。屋頂作業主管為法規規定之專門監督人員，須接受相關安全衛生教育訓練，以確保作業安全。",
+      "references": [{"title": "職業安全衛生設施規則第227條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=227"}]
+    },
+    {
+      "id": "U32-Q016",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第227-1條，對於新建或修建工廠之鋼結構屋頂，其邊緣及屋頂突出物應設置高度多少以上之女兒牆或護欄？",
+      "options": [
+        {"id": "A", "text": "75公分"},
+        {"id": "B", "text": "90公分"},
+        {"id": "C", "text": "100公分"},
+        {"id": "D", "text": "120公分"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第227-1條規定，對於新建或增建、改建或修建工廠之鋼結構屋頂，其邊緣及屋頂突出物應設置高度90公分以上之女兒牆或護欄。此為鋼構屋頂之特別規定，與一般護欄高度一致。",
+      "references": [{"title": "職業安全衛生設施規則第227-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=227-1"}]
+    },
+    {
+      "id": "U32-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，固定梯長度超過多少公尺時，應每隔不超過多少公尺設一平台？",
+      "options": [
+        {"id": "A", "text": "超過3公尺，每隔6公尺設一平台"},
+        {"id": "B", "text": "超過6公尺，每隔9公尺設一平台"},
+        {"id": "C", "text": "超過5公尺，每隔5公尺設一平台"},
+        {"id": "D", "text": "超過10公尺，每隔10公尺設一平台"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第37條規定，固定梯長度超過6公尺時，應每隔不超過9公尺設置一平台，並自離梯底2公尺以上部分設置護籠或其他同等之防護裝置。此規定旨在防止勞工攀爬過長之梯子時墜落。",
+      "references": [{"title": "職業安全衛生設施規則第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=37"}]
+    },
+    {
+      "id": "U32-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於高架作業之通道及機械防護橋，其坡度原則上不得超過多少度？",
+      "options": [
+        {"id": "A", "text": "15度"},
+        {"id": "B", "text": "20度"},
+        {"id": "C", "text": "30度"},
+        {"id": "D", "text": "45度"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第36條規定，雇主對於高架通道及機械防護橋之坡度，原則上不得超過30度。超過15度時應設置階梯或防滑設施。坡度過大易導致滑倒或墜落。",
+      "references": [{"title": "職業安全衛生設施規則第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=36"}]
+    },
+    {
+      "id": "U32-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，高架通道有墜落危險之虞者，應設置堅固之扶手，其高度至少為多少公分？",
+      "options": [
+        {"id": "A", "text": "75公分"},
+        {"id": "B", "text": "90公分"},
+        {"id": "C", "text": "100公分"},
+        {"id": "D", "text": "110公分"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第36條規定，高架通道及機械防護橋如有墜落危險之虞者，應設置堅固之扶手，其高度須在75公分以上。注意此處扶手高度與護欄高度（90公分）不同，適用不同條文。",
+      "references": [{"title": "職業安全衛生設施規則第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=36"}]
+    },
+    {
+      "id": "U32-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第225條，當高度2公尺以上作業台設置困難時，安全帶之固定端或安全母索應具有何種特性？",
+      "options": [
+        {"id": "A", "text": "固定端不須有特別強度要求"},
+        {"id": "B", "text": "應具有充分之強度"},
+        {"id": "C", "text": "可使用一般繩索替代"},
+        {"id": "D", "text": "由勞工自行選擇固定方式"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第225條規定，當作業台設置困難而使用安全帶時，安全帶之固定端或安全母索應具有充分之強度，以承受墜落時之衝擊力。一般繩索強度不足，不能替代安全母索。",
+      "references": [{"title": "職業安全衛生設施規則第225條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=225"}]
+    },
+    {
+      "id": "U32-Q021",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，雇主對於合梯之使用，下列何者正確？",
+      "options": [
+        {"id": "A", "text": "可作為兩工作面間之通路使用"},
+        {"id": "B", "text": "勞工可站在頂板作業"},
+        {"id": "C", "text": "不得作為兩工作面間之通路使用，勞工亦不得站於頂板上作業"},
+        {"id": "D", "text": "角度無限制"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第230條規定，合梯不得作為兩工作面間之通路使用，勞工亦不得站於頂板上作業。此外，合梯梯腳與地面之角度應在75度以內。頂板強度不足以承受人員重量，易造成傾倒墜落。",
+      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+    },
+    {
+      "id": "U32-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於堆放物料之場所，其作業位置高低差超過多少公尺時，應設置使勞工安全上下之設備？",
+      "options": [
+        {"id": "A", "text": "1公尺"},
+        {"id": "B", "text": "1.5公尺"},
+        {"id": "C", "text": "2公尺"},
+        {"id": "D", "text": "3公尺"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第161條規定，雇主對於堆放物料之場所，其作業位置之高低差超過1.5公尺時，應設置使勞工安全上下之設備。但物料之堆放本身已可供安全上下者不在此限。1.5公尺為安全上下設備之設置基準。",
+      "references": [{"title": "職業安全衛生設施規則第161條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=161"}]
+    },
+    {
+      "id": "U32-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，雇主對於高度2公尺以上之堆積物拆垛作業，下列規定何者正確？",
+      "options": [
+        {"id": "A", "text": "可自中間抽取物料"},
+        {"id": "B", "text": "不得自中間抽取物料，袋裝物料應以階段式拆垛"},
+        {"id": "C", "text": "可自底部抽取物料"},
+        {"id": "D", "text": "拆垛方式無限制"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第163條規定，高度2公尺以上之堆積物拆垛時，不得自中間抽取物料。袋裝物料之拆垛應以階段式為之，各階除最下層外，高度不得超過1.5公尺。自中間或底部抽取物料會造成堆積物倒塌，危及勞工安全。",
+      "references": [{"title": "職業安全衛生設施規則第163條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=163"}]
+    },
+    {
+      "id": "U32-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第128-1條，使用高空工作車於作業台上作業之勞工，應戴用何種防護具？",
+      "options": [
+        {"id": "A", "text": "僅需安全帽"},
+        {"id": "B", "text": "安全帽及符合CNS 14253-1標準之全身式安全帶"},
+        {"id": "C", "text": "僅需全身式安全帶"},
+        {"id": "D", "text": "僅需工作手套"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第128-1條第7款規定，於高空工作車之作業台上作業之勞工，應戴用安全帽及符合CNS 14253-1或同等以上標準之全身式安全帶。兩者均為必要，缺一不可。",
+      "references": [{"title": "職業安全衛生設施規則第128-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=128-1"}]
+    },
+    {
+      "id": "U32-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，下列哪些是雇主對於高度2公尺以上邊緣及開口部分之墜落防護措施？（複選）",
+      "options": [
+        {"id": "A", "text": "設置圍欄"},
+        {"id": "B", "text": "設置覆蓋（護蓋）"},
+        {"id": "C", "text": "設置安全網"},
+        {"id": "D", "text": "使勞工佩掛安全帶"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第224條規定，雇主對於高度2公尺以上之工作場所邊緣及開口部分，勞工有墜落危險之虞者，應設有適當強度之圍欄、握把、覆蓋等防護設備；設置困難時，得使勞工佩掛安全帶、設置安全網或加設護管。四項均為法規允許之防護措施。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第281條，下列哪些作業屬於應使用全身式安全帶及安全母索等防護具之特定高空作業？（複選）",
+      "options": [
+        {"id": "A", "text": "鋼構建築之組配作業"},
+        {"id": "B", "text": "屋頂作業"},
+        {"id": "C", "text": "施工架之組配及拆除作業"},
+        {"id": "D", "text": "辦公室文書作業"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第281條第2項列舉之特定高空作業包括鋼構建築之組配、屋頂、模板支撐、施工架之組配及拆除、作業台之組配及拆除、管道維護等。辦公室文書作業非屬高空作業，不適用此規定。",
+      "references": [{"title": "職業安全衛生設施規則第281條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=281"}]
+    },
+    {
+      "id": "U32-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，關於合梯之使用規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "梯腳與地面之角度應在75度以內"},
+        {"id": "B", "text": "兩梯腳間應有金屬等繫材扣牢"},
+        {"id": "C", "text": "不得作為兩工作面間之通路使用"},
+        {"id": "D", "text": "勞工可站在頂板上作業"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第230條規定，合梯梯腳與地面之角度應在75度以內，兩梯腳間應有金屬等繫材扣牢，不得作為兩工作面間之通路，勞工亦不得站於頂板上作業。選項D錯誤，頂板非供站立之用。",
+      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+    },
+    {
+      "id": "U32-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，下列哪些是雇主對於防止墜落災害應採取之措施？（複選）",
+      "options": [
+        {"id": "A", "text": "高度2公尺以上邊緣設置護欄"},
+        {"id": "B", "text": "遇強風大雨等惡劣氣候時停止高空作業"},
+        {"id": "C", "text": "屋頂作業設置30公分以上之踏板"},
+        {"id": "D", "text": "以口頭警告代替安全帶使用"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "第224條規定高度2公尺以上設護欄，第226條規定惡劣氣候停止作業，第227條規定屋頂作業設30公分以上踏板。口頭警告不能取代安全帶之實質防護，第281條明確要求應使用安全帶等防護具。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，關於移動梯之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "應具有適當之強度"},
+        {"id": "B", "text": "寬度應在30公分以上"},
+        {"id": "C", "text": "應採取防止滑移或轉動之必要措施"},
+        {"id": "D", "text": "無損傷或腐蝕之顧慮"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第229條規定，移動梯應堅固，其寬度應在30公分以上，並應採取防止滑移或轉動之必要措施，且不得有顯著之損傷及腐蝕。四項均為法規規定之要件。",
+      "references": [{"title": "職業安全衛生設施規則第229條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=229"}]
+    },
+    {
+      "id": "U32-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些情形屬於職業安全衛生設施規則第226條規定應停止高度2公尺以上作業之氣候條件？（複選）",
+      "options": [
+        {"id": "A", "text": "強風"},
+        {"id": "B", "text": "大雨"},
+        {"id": "C", "text": "其他惡劣氣候致有墜落危險之虞"},
+        {"id": "D", "text": "氣溫28度之晴天"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第226條規定，遇強風、大雨等惡劣氣候，致勞工有墜落危險之虞時，應使勞工停止作業。氣溫28度之晴天非屬惡劣氣候，不構成停止作業之事由。",
+      "references": [{"title": "職業安全衛生設施規則第226條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=226"}]
+    },
+    {
+      "id": "U32-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，關於固定梯之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "應堅固固定"},
+        {"id": "B", "text": "踏腳應保持均等間距"},
+        {"id": "C", "text": "與牆面應保持16.5公分以上之淨距"},
+        {"id": "D", "text": "長度超過6公尺時應每隔不超過9公尺設一平台"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第37條規定，固定梯應堅固固定、踏腳保持均等間距、與牆面保持16.5公分以上之淨距、長度超過6公尺時應每隔不超過9公尺設置一平台，並自離梯底2公尺以上部分設置護籠。四項均正確。",
+      "references": [{"title": "職業安全衛生設施規則第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=37"}]
+    },
+    {
+      "id": "U32-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第227條，雇主對於屋頂作業之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "應設置寬度30公分以上之堅固踏板"},
+        {"id": "B", "text": "應於適當處所設置防止墜落之護網或安全網"},
+        {"id": "C", "text": "應指定屋頂作業主管從事指揮或監督"},
+        {"id": "D", "text": "可不設踏板，僅以口頭提醒勞工注意腳下"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第227條規定，雇主對於石綿板、鐵皮板等易踏穿材料構築之屋頂作業，應設置30公分以上之堅固踏板、適當處所設置護網或安全網，並指定屋頂作業主管。選項D以口頭提醒無法防止踏穿屋頂之實質危險，違反法規。",
+      "references": [{"title": "職業安全衛生設施規則第227條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=227"}]
+    },
+    {
+      "id": "U32-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則，高度2公尺以上之工作場所邊緣及開口部分，勞工有墜落危險之虞者，雇主應設有適當強度之圍欄、握把、覆蓋等防護設備。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第224條明確規定，高度2公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有適當強度之圍欄、握把、覆蓋等防護設備。此為防止墜落災害之基本規定。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，高度2公尺以上之作業遇強風大雨時，雇主仍可要求勞工繼續作業，只要勞工有佩戴安全帽即可。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第226條規定，遇強風、大雨等惡劣氣候，致勞工有墜落危險之虞時，應使勞工停止作業。佩戴安全帽不能取代惡劣氣候下停止作業之法定要求。",
+      "references": [{"title": "職業安全衛生設施規則第226條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=226"}]
+    },
+    {
+      "id": "U32-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，合梯可作為兩工作面間之通路使用。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第230條明確規定，合梯不得作為兩工作面間之通路使用，勞工亦不得站於頂板上作業。合梯之結構不適合作為通路，易造成傾倒墜落。",
+      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+    },
+    {
+      "id": "U32-Q036",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於勞工作業位置高低差超過1.5公尺時，應設置使勞工安全上下之設備。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第228條規定，雇主對於勞工於作業位置或在通行位置之高低差超過1.5公尺時，應設置使勞工安全上下之設備。1.5公尺為法定基準。",
+      "references": [{"title": "職業安全衛生設施規則第228條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=228"}]
+    },
+    {
+      "id": "U32-Q037",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，自高度3公尺以上之場所投下物體有危及勞工之虞時，應置適當之滑槽或承受設備，並指定監視人員。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第237條規定，雇主對於自高度3公尺以上之場所投下物體，有危及勞工之虞時，應置適當之滑槽或承受設備，並指定監視人員。3公尺為法定之基準高度。",
+      "references": [{"title": "職業安全衛生設施規則第237條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=237"}]
+    },
+    {
+      "id": "U32-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第224條，雇主對於高度在________公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有適當強度之圍欄、握把、覆蓋等防護設備。",
+      "answer": ["2", "二"],
+      "explanation": "職業安全衛生設施規則第224條規定之基準高度為2公尺。此為墜落防護設備設置之基本門檻。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，合梯之梯腳與地面之角度應在________度以內。",
+      "answer": ["75", "七十五"],
+      "explanation": "職業安全衛生設施規則第230條規定，合梯之梯腳與地面之角度應在75度以內，且兩梯腳間應有金屬等繫材扣牢，以確保穩固。",
+      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+    },
+    {
+      "id": "U32-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於屋頂作業為防止勞工踏穿墜落，應設置寬度在________公分以上之堅固踏板。",
+      "answer": ["30", "三十"],
+      "explanation": "職業安全衛生設施規則第227條規定，屋頂作業為防止勞工踏穿墜落，應設置適當強度且寬度在30公分以上之堅固踏板。",
+      "references": [{"title": "職業安全衛生設施規則第227條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=227"}]
+    },
+    {
+      "id": "U32-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，雇主對於勞工作業位置之高低差超過________公尺時，應設置使勞工安全上下之設備。",
+      "answer": ["1.5", "一點五"],
+      "explanation": "職業安全衛生設施規則第228條規定，高低差超過1.5公尺時應設置安全上下之設備。注意此基準與墜落防護之2公尺基準不同。",
+      "references": [{"title": "職業安全衛生設施規則第228條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=228"}]
+    },
+    {
+      "id": "U32-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則，移動梯之寬度應在________公分以上。",
+      "answer": ["30", "三十"],
+      "explanation": "職業安全衛生設施規則第229條規定，移動梯之寬度應在30公分以上，並應具有適當之強度，採取防止滑移或轉動之必要措施。",
+      "references": [{"title": "職業安全衛生設施規則第229條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=229"}]
+    },
+    {
+      "id": "U32-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工地需在高架通道設置扶手，依職業安全衛生設施規則第36條規定，有墜落危險之虞者應設置堅固之扶手，其高度須在75公分以上。若某承包商設置之扶手高度為70公分，則此扶手高度與法定最低標準相差多少公分？",
+      "answer": {"value": 5, "unit": "公分", "tolerance": 0},
+      "explanation": "法定最低高度為75公分，實際設置高度為70公分，相差75-70=5公分。此扶手不符合法規要求，須增高至少5公分。",
+      "references": [{"title": "職業安全衛生設施規則第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=36"}]
+    },
+    {
+      "id": "U32-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第37條，固定梯長度超過6公尺時，應每隔不超過9公尺設置一平台。某工廠有一固定梯長度為24公尺，自底部起算，除起點外至少需設置幾處平台？（含頂端平台，不含起點）",
+      "answer": {"value": 2, "unit": "處", "tolerance": 0},
+      "explanation": "固定梯長度24公尺，每隔不超過9公尺設一平台。第一處平台應在離底6公尺以上設置（不超過9公尺），第二處平台可在18公尺處設置（距第一處平台不超過9公尺），頂端24公尺處為作業平台。因此至少需設置2處中間平台。",
+      "references": [{"title": "職業安全衛生設施規則第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=37"}]
+    },
+    {
+      "id": "U32-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第230條，合梯之梯腳與地面之角度不得超過75度。某合梯之梯腳與地面夾角為80度，則此角度超出法定上限多少度？",
+      "answer": {"value": 5, "unit": "度", "tolerance": 0},
+      "explanation": "法定上限為75度，實際角度為80度，超出80-75=5度。此合梯不符合法規規定，角度過大易造成合梯不穩傾倒。",
+      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+    },
+    {
+      "id": "U32-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列墜落防護相關規定與其對應之法規條文正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "高度2公尺以上邊緣設護欄"},
+        {"id": "L2", "text": "惡劣氣候停止高空作業"},
+        {"id": "L3", "text": "屋頂作業設30公分踏板"},
+        {"id": "L4", "text": "合梯角度75度以內"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "第224條"},
+        {"id": "R2", "text": "第226條"},
+        {"id": "R3", "text": "第227條"},
+        {"id": "R4", "text": "第230條"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "第224條規定高度2公尺以上設護欄；第226條規定惡劣氣候停止作業；第227條規定屋頂作業踏板30公分以上；第230條規定合梯角度75度以內。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U32-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列高度基準與其對應之防護規定正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "2公尺以上"},
+        {"id": "L2", "text": "1.5公尺以上"},
+        {"id": "L3", "text": "3公尺以上"},
+        {"id": "L4", "text": "6公尺以上"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "應設置安全上下之設備（高低差）"},
+        {"id": "R2", "text": "邊緣及開口應設護欄等防護設備"},
+        {"id": "R3", "text": "投下物體應設滑槽或承受設備"},
+        {"id": "R4", "text": "固定梯應每隔不超過9公尺設一平台"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R1"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "第224條：2公尺以上設護欄；第228條：高低差1.5公尺以上設安全上下設備；第237條：3公尺以上投下物體設滑槽；第37條：固定梯超過6公尺每隔9公尺設平台。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U32-Q048",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依職業安全衛生設施規則，將下列墜落防護基準高度由低到高排列：",
+      "items": [
+        {"id": "I1", "text": "高低差應設安全上下設備之基準（1.5公尺）"},
+        {"id": "I2", "text": "邊緣設護欄之基準（2公尺）"},
+        {"id": "I3", "text": "投下物體設滑槽之基準（3公尺）"},
+        {"id": "I4", "text": "固定梯設平台之基準（6公尺）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "墜落防護各項基準高度由低到高為：1.5公尺（高低差設安全上下設備）→2公尺（邊緣設護欄）→3公尺（投下物體設滑槽）→6公尺（固定梯設平台）。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U32-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依墜落防護之優先順序（由先至後），排列雇主應採取之防護措施層級：",
+      "items": [
+        {"id": "I1", "text": "設置護欄、護蓋等工程控制設施"},
+        {"id": "I2", "text": "設置安全網等防護設備"},
+        {"id": "I3", "text": "使勞工佩掛安全帶等個人防護具"},
+        {"id": "I4", "text": "設置警告標示並禁止無關人員進入"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "依職業安全衛生設施規則第224條及第225條之規定邏輯，墜落防護應優先設置護欄、護蓋等工程控制（第224條），其次設置安全網等防護設備，再使勞工佩掛安全帶等個人防護具，最後設置警告標示。工程控制優於行政管理及個人防護具。",
+      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+    },
+    {
+      "id": "U32-Q050",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "某營造工地進行鋼構屋頂施工，請將下列作業情境與其依法應設置之防護設備正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "鋼構屋頂邊緣及突出物"},
+        {"id": "L2", "text": "高度2公尺以上邊緣及開口"},
+        {"id": "L3", "text": "高度2公尺以上作業台設置困難時"},
+        {"id": "L4", "text": "屋頂作業防止踏穿墜落"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "高度90公分以上之女兒牆或護欄（第227-1條）"},
+        {"id": "R2", "text": "圍欄、握把、覆蓋等防護設備（第224條）"},
+        {"id": "R3", "text": "安全帶、安全網等防護設備（第225條）"},
+        {"id": "R4", "text": "寬度30公分以上之堅固踏板（第227條）"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "依職業安全衛生設施規則：第227-1條規定鋼構屋頂邊緣及突出物應設90公分以上護欄；第224條規定高度2公尺以上邊緣設圍欄等；第225條規定作業台設置困難時使用安全帶、安全網等；第227條規定屋頂作業設30公分以上踏板。雇主未設置防護設備僅口頭要求勞工注意安全，明顯違反法規。",
+      "references": [{"title": "職業安全衛生設施規則第227-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=227-1"}]
+    }
+  ]
+}

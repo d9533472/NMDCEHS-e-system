@@ -1,0 +1,722 @@
+{
+  "unitId": "U28",
+  "unitTitle": "通風與換氣相關法規規定、工業通風原理",
+  "unitNumber": 28,
+  "questions": [
+    {
+      "id": "U28-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則規定，雇主對於勞工經常作業之室內作業場所，除設備及自地面算起高度超過幾公尺以上之空間不計外，每一勞工原則上應有十立方公尺以上之空間？",
+      "options": [
+        {"id": "A", "text": "3公尺"},
+        {"id": "B", "text": "4公尺"},
+        {"id": "C", "text": "5公尺"},
+        {"id": "D", "text": "6公尺"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，勞工經常作業之室內作業場所，除設備及自地面算起高度超過四公尺以上之空間不計外，每一勞工原則上應有十立方公尺以上之空間。3、5、6公尺均非正確高度。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=309"}]
+    },
+    {
+      "id": "U28-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第310條規定，雇主對坑內或儲槽內部作業，應設置適當之機械通風設備。但何種情形不在此限？",
+      "options": [
+        {"id": "A", "text": "坑內作業場所以自然換氣能充分供應必要之空氣量者"},
+        {"id": "B", "text": "所有情形均需設置機械通風"},
+        {"id": "C", "text": "儲槽作業一律不需機械通風"},
+        {"id": "D", "text": "有勞工二人以上時"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第310條規定，雇主對坑內或儲槽內部作業，應設置適當之機械通風設備。但坑內作業場所以自然換氣能充分供應必要之空氣量者，不在此限。B、C、D均不正確。",
+      "references": [{"title": "職業安全衛生設施規則第310條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=310"}]
+    },
+    {
+      "id": "U28-Q003",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第311條規定，雇主對於勞工經常作業之室內作業場所，其窗戶及其他開口部分等可直接與大氣相通之開口部分面積，應為地板面積之多少以上？",
+      "options": [
+        {"id": "A", "text": "十分之一"},
+        {"id": "B", "text": "二十分之一"},
+        {"id": "C", "text": "三十分之一"},
+        {"id": "D", "text": "五十分之一"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第311條規定，開口部分面積應為地板面積之二十分之一以上。但設置具有充分換氣能力之機械通風設備者，不在此限。十分之一、三十分之一、五十分之一均非正確比例。",
+      "references": [{"title": "職業安全衛生設施規則第311條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=311"}]
+    },
+    {
+      "id": "U28-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第311條規定，雇主對於室內作業場所之氣溫在攝氏幾度以下換氣時，不得使勞工暴露於每秒一公尺以上之氣流中？",
+      "options": [
+        {"id": "A", "text": "攝氏5度"},
+        {"id": "B", "text": "攝氏10度"},
+        {"id": "C", "text": "攝氏15度"},
+        {"id": "D", "text": "攝氏20度"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第311條第2項規定，室內作業場所之氣溫在攝氏十度以下換氣時，不得使勞工暴露於每秒一公尺以上之氣流中，以避免勞工受寒。5度、15度、20度均非正確溫度。",
+      "references": [{"title": "職業安全衛生設施規則第311條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=311"}]
+    },
+    {
+      "id": "U28-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，工作場所每一勞工所佔空間未滿5.7立方公尺者，每分鐘每一勞工所需之新鮮空氣為多少立方公尺以上？",
+      "options": [
+        {"id": "A", "text": "0.14以上"},
+        {"id": "B", "text": "0.3以上"},
+        {"id": "C", "text": "0.4以上"},
+        {"id": "D", "text": "0.6以上"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生設施規則第312條規定之換氣標準：未滿5.7立方公尺者需0.6以上；5.7以上未滿14.2者需0.4以上；14.2以上未滿28.3者需0.3以上；28.3以上者需0.14以上。空間越小所需新鮮空氣越多。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，工作場所每一勞工所佔空間在28.3立方公尺以上者，每分鐘每一勞工所需之新鮮空氣為多少立方公尺以上？",
+      "options": [
+        {"id": "A", "text": "0.14以上"},
+        {"id": "B", "text": "0.3以上"},
+        {"id": "C", "text": "0.4以上"},
+        {"id": "D", "text": "0.6以上"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第312條規定，28.3立方公尺以上者，每分鐘每一勞工所需新鮮空氣為0.14立方公尺以上。空間越大，每人所需新鮮空氣量越少。0.3、0.4、0.6為較小空間之需求。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則第6條規定，於室內作業場所或儲槽等之作業場所，從事有關第一種有機溶劑或其混存物之作業，應設置何種控制設備？",
+      "options": [
+        {"id": "A", "text": "僅需整體換氣裝置"},
+        {"id": "B", "text": "密閉設備或局部排氣裝置"},
+        {"id": "C", "text": "不需任何控制設備"},
+        {"id": "D", "text": "僅需自然通風"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則第6條規定，第一種有機溶劑作業應設置密閉設備或局部排氣裝置。第一種有機溶劑危害最高，不允許僅用整體換氣裝置替代。僅整體換氣、不需控制、僅自然通風均不符規定。",
+      "references": [{"title": "有機溶劑中毒預防規則第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=6"}]
+    },
+    {
+      "id": "U28-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則第6條規定，於室內作業場所或儲槽等之作業場所，從事有關第二種有機溶劑或其混存物之作業，應設置何種控制設備？",
+      "options": [
+        {"id": "A", "text": "僅需密閉設備"},
+        {"id": "B", "text": "僅需局部排氣裝置"},
+        {"id": "C", "text": "密閉設備、局部排氣裝置或整體換氣裝置"},
+        {"id": "D", "text": "不需任何控制設備"}
+      ],
+      "answer": ["C"],
+      "explanation": "有機溶劑中毒預防規則第6條規定，第二種有機溶劑作業應設置密閉設備、局部排氣裝置或整體換氣裝置，三項擇一即可。第二種有機溶劑危害較第一種低，允許以整體換氣裝置替代。僅密閉、僅局部排氣均不完整，不需控制更屬違法。",
+      "references": [{"title": "有機溶劑中毒預防規則第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=6"}]
+    },
+    {
+      "id": "U28-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則第7條規定，以噴布方式從事有機溶劑作業時，應設置何種控制設備？",
+      "options": [
+        {"id": "A", "text": "整體換氣裝置即可"},
+        {"id": "B", "text": "密閉設備或局部排氣裝置"},
+        {"id": "C", "text": "不需控制設備"},
+        {"id": "D", "text": "僅需自然通風"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則第7條規定，以噴布方式從事有機溶劑作業時，不論何種有機溶劑，均應設置密閉設備或局部排氣裝置。噴布作業危害較大，不得以整體換氣裝置替代。",
+      "references": [{"title": "有機溶劑中毒預防規則第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=7"}]
+    },
+    {
+      "id": "U28-Q010",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則第15條規定，雇主設置之整體換氣裝置，其換氣能力依有機溶劑種類計算。第一種有機溶劑或其混存物，每分鐘換氣量之計算公式為何？",
+      "options": [
+        {"id": "A", "text": "每分鐘換氣量＝一小時作業時間內之消費量×0.3"},
+        {"id": "B", "text": "每分鐘換氣量＝一小時作業時間內之消費量×0.04"},
+        {"id": "C", "text": "每分鐘換氣量＝一小時作業時間內之消費量×0.01"},
+        {"id": "D", "text": "每分鐘換氣量＝一小時作業時間內之消費量×0.5"}
+      ],
+      "answer": ["A"],
+      "explanation": "有機溶劑中毒預防規則第15條規定：第一種有機溶劑×0.3；第二種有機溶劑×0.04；第三種有機溶劑×0.01。第一種有機溶劑危害最高，換氣量需求最大。0.04為第二種，0.01為第三種，0.5非正確係數。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q011",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則第15條規定，第二種有機溶劑或其混存物之整體換氣裝置換氣能力，每分鐘換氣量之計算係數為何？",
+      "options": [
+        {"id": "A", "text": "0.3"},
+        {"id": "B", "text": "0.04"},
+        {"id": "C", "text": "0.01"},
+        {"id": "D", "text": "0.5"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則第15條規定，第二種有機溶劑之換氣量係數為0.04。0.3為第一種，0.01為第三種，0.5非正確係數。係數越大表示所需換氣量越多，危害也越高。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則第15條規定，第三種有機溶劑或其混存物之整體換氣裝置換氣能力，每分鐘換氣量之計算係數為何？",
+      "options": [
+        {"id": "A", "text": "0.3"},
+        {"id": "B", "text": "0.04"},
+        {"id": "C", "text": "0.01"},
+        {"id": "D", "text": "0.1"}
+      ],
+      "answer": ["C"],
+      "explanation": "有機溶劑中毒預防規則第15條規定，第三種有機溶劑之換氣量係數為0.01。0.3為第一種，0.04為第二種，0.1非正確係數。第三種有機溶劑危害最低，換氣量需求最小。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則第14條規定，雇主設置之局部排氣裝置及吹吸型換氣裝置，應於作業時間內有效運轉，降低空氣中有機溶劑蒸氣濃度至何種標準以下？",
+      "options": [
+        {"id": "A", "text": "勞工作業場所容許暴露標準以下"},
+        {"id": "B", "text": "零 ppm"},
+        {"id": "C", "text": "環境空氣品質標準以下"},
+        {"id": "D", "text": "偵測儀器最低偵測限度以下"}
+      ],
+      "answer": ["A"],
+      "explanation": "有機溶劑中毒預防規則第14條規定，局部排氣裝置及吹吸型換氣裝置應於作業時間內有效運轉，降低空氣中有機溶劑蒸氣濃度至勞工作業場所容許暴露標準以下。零ppm不切實際，環境空氣品質標準及偵測限度均非法定標準。",
+      "references": [{"title": "有機溶劑中毒預防規則第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=14"}]
+    },
+    {
+      "id": "U28-Q014",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準規定，雇主對散布有丙類物質之氣體、蒸氣或粉塵之室內作業場所，應於各該發生源設置何種控制設備？",
+      "options": [
+        {"id": "A", "text": "密閉設備或局部排氣裝置"},
+        {"id": "B", "text": "僅需整體換氣裝置"},
+        {"id": "C", "text": "不需控制設備"},
+        {"id": "D", "text": "僅需自然通風"}
+      ],
+      "answer": ["A"],
+      "explanation": "特定化學物質危害預防標準第16條規定，散布有丙類物質之氣體、蒸氣或粉塵之室內作業場所，應於各該發生源設置密閉設備或局部排氣裝置。但設置該項設備顯有困難或為臨時性作業者，不在此限。",
+      "references": [{"title": "特定化學物質危害預防標準第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=16"}]
+    },
+    {
+      "id": "U28-Q015",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準規定，局部排氣裝置之控制風速，對於氣態有害物（氣體、蒸氣）應為多少以上？",
+      "options": [
+        {"id": "A", "text": "0.3公尺/秒"},
+        {"id": "B", "text": "0.5公尺/秒"},
+        {"id": "C", "text": "1.0公尺/秒"},
+        {"id": "D", "text": "1.5公尺/秒"}
+      ],
+      "answer": ["B"],
+      "explanation": "依特定化學物質危害預防標準，控制風速：氣態有害物（氣體、蒸氣）為0.5公尺/秒以上；粒狀有害物（粉塵、纖維、燻煙、霧滴）為1.0公尺/秒以上。0.3、1.5均非正確值。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U28-Q016",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準規定，局部排氣裝置之控制風速，對於粒狀有害物（粉塵、纖維、燻煙、霧滴）應為多少以上？",
+      "options": [
+        {"id": "A", "text": "0.3公尺/秒"},
+        {"id": "B", "text": "0.5公尺/秒"},
+        {"id": "C", "text": "1.0公尺/秒"},
+        {"id": "D", "text": "1.5公尺/秒"}
+      ],
+      "answer": ["C"],
+      "explanation": "依特定化學物質危害預防標準，粒狀有害物之控制風速為1.0公尺/秒以上，較氣態有害物之0.5公尺/秒為高，因粒狀物較重需較大風速才能有效捕集。0.3、0.5、1.5均非正確值。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U28-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準規定，雇主設置局部排氣裝置時，應指派或委託經中央主管機關訓練合格之專業人員設計，並製作局部排氣裝置設計報告書。設置完成後應實施原始性能測試，相關文件、紀錄應保存多少年？",
+      "options": [
+        {"id": "A", "text": "3年"},
+        {"id": "B", "text": "5年"},
+        {"id": "C", "text": "10年"},
+        {"id": "D", "text": "15年"}
+      ],
+      "answer": ["C"],
+      "explanation": "特定化學物質危害預防標準第38條規定，局部排氣裝置設置完成後應實施原始性能測試，並製作原始性能測試報告書，其相關文件、紀錄應保存十年。3年、5年、15年均非正確期限。",
+      "references": [{"title": "特定化學物質危害預防標準第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=38"}]
+    },
+    {
+      "id": "U28-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主使勞工從事局限空間作業，有危害勞工之虞者，應設置適當通風換氣設備，並確認維持連續有效運轉。前項確認應由專人辦理，其紀錄應保存多少年？",
+      "options": [
+        {"id": "A", "text": "1年"},
+        {"id": "B", "text": "2年"},
+        {"id": "C", "text": "3年"},
+        {"id": "D", "text": "5年"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則規定，局限空間作業之通風換氣確認應由專人辦理，其紀錄應保存三年。1年、2年、5年均非正確期限。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U28-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依鉛中毒預防規則規定，雇主使勞工於通風不充分之場所從事鉛合金軟焊之作業，其設置整體換氣裝置之換氣量，應為每一從事鉛作業勞工平均每分鐘多少立方公尺以上？",
+      "options": [
+        {"id": "A", "text": "1.0立方公尺/分"},
+        {"id": "B", "text": "1.67立方公尺/分"},
+        {"id": "C", "text": "2.0立方公尺/分"},
+        {"id": "D", "text": "3.0立方公尺/分"}
+      ],
+      "answer": ["B"],
+      "explanation": "依鉛中毒預防規則第32條規定，通風不充分之場所從事鉛合金軟焊作業，整體換氣裝置之換氣量應為每一從事鉛作業勞工平均1.67立方公尺/分以上。1.0、2.0、3.0均非正確值。",
+      "references": [{"title": "鉛中毒預防規則第32條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060018"}]
+    },
+    {
+      "id": "U28-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則規定，雇主設置之局部排氣裝置之氣罩，應依下列何種規定設置？",
+      "options": [
+        {"id": "A", "text": "氣罩應設置於每一有機溶劑蒸氣發生源"},
+        {"id": "B", "text": "氣罩可設置於作業場所任意位置"},
+        {"id": "C", "text": "氣罩只需設置一個即可涵蓋全場"},
+        {"id": "D", "text": "氣罩不需接近發生源"}
+      ],
+      "answer": ["A"],
+      "explanation": "有機溶劑中毒預防規則規定，氣罩應設置於每一有機溶劑蒸氣發生源，外裝型氣罩應儘量接近有機溶劑蒸氣發生源。B、C、D均不符規定，氣罩須對應每一發生源設置。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U28-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則規定，雇主使勞工於儲槽之內部從事有機溶劑作業時，應送入或吸出多少倍於儲槽容積之空氣，或以水灌滿儲槽後予以全部排出？",
+      "options": [
+        {"id": "A", "text": "1倍"},
+        {"id": "B", "text": "2倍"},
+        {"id": "C", "text": "3倍"},
+        {"id": "D", "text": "5倍"}
+      ],
+      "answer": ["C"],
+      "explanation": "有機溶劑中毒預防規則規定，儲槽內部從事有機溶劑作業時，應送入或吸出三倍於儲槽容積之空氣，或以水灌滿儲槽後予以全部排出，以確保儲槽內有害物濃度降至安全範圍。1倍、2倍、5倍均非正確倍數。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U28-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則規定，雇主使勞工戴用輸氣管面罩之連續作業時間，每次不得超過多少？",
+      "options": [
+        {"id": "A", "text": "30分鐘"},
+        {"id": "B", "text": "1小時"},
+        {"id": "C", "text": "2小時"},
+        {"id": "D", "text": "4小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則規定，雇主使勞工戴用輸氣管面罩之連續作業時間，每次不得超過一小時，以避免勞工長時間配戴造成不適及確保安全。30分鐘、2小時、4小時均非正確限制。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U28-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，雇主對於勞工工作場所應使空氣充分流通，必要時應以機械通風設備換氣。其換氣標準中，工作場所每一勞工所佔空間在5.7以上未滿14.2立方公尺者，每分鐘每一勞工所需之新鮮空氣為多少？",
+      "options": [
+        {"id": "A", "text": "0.14以上"},
+        {"id": "B", "text": "0.3以上"},
+        {"id": "C", "text": "0.4以上"},
+        {"id": "D", "text": "0.6以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第312條規定：5.7以上未滿14.2立方公尺者需0.4以上。0.14為28.3以上者，0.3為14.2以上未滿28.3者，0.6為未滿5.7者。各空間大小對應不同換氣需求。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，工作場所每一勞工所佔空間在14.2以上未滿28.3立方公尺者，每分鐘每一勞工所需之新鮮空氣為多少立方公尺以上？",
+      "options": [
+        {"id": "A", "text": "0.14以上"},
+        {"id": "B", "text": "0.3以上"},
+        {"id": "C", "text": "0.4以上"},
+        {"id": "D", "text": "0.6以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第312條規定，14.2以上未滿28.3立方公尺者需0.3以上。0.14為28.3以上者，0.4為5.7以上未滿14.2者，0.6為未滿5.7者。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則第6條規定，於室內作業場所或儲槽等之作業場所，從事有關第三種有機溶劑或其混存物之作業，應設置哪些控制設備？（複選）",
+      "options": [
+        {"id": "A", "text": "密閉設備"},
+        {"id": "B", "text": "局部排氣裝置"},
+        {"id": "C", "text": "整體換氣裝置"},
+        {"id": "D", "text": "不需任何控制設備"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "有機溶劑中毒預防規則第6條規定，第三種有機溶劑作業應設置密閉設備、局部排氣裝置或整體換氣裝置，三項擇一。第三種有機溶劑危害最低，但仍需設置控制設備，不需任何控制設備之選項錯誤。",
+      "references": [{"title": "有機溶劑中毒預防規則第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=6"}]
+    },
+    {
+      "id": "U28-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，雇主對於勞工工作場所應使空氣充分流通，必要時以機械通風設備換氣，其規定包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "應足以調節新鮮空氣、溫度及降低有害物濃度"},
+        {"id": "B", "text": "依工作場所每一勞工所佔空間大小決定換氣量"},
+        {"id": "C", "text": "空間越小所需新鮮空氣越多"},
+        {"id": "D", "text": "所有工作場所均需相同換氣量"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第312條規定：應足以調節新鮮空氣、溫度及降低有害物濃度；依勞工所佔空間大小分級決定換氣量；空間越小所需新鮮空氣越多。D所有場所相同換氣量不正確，應依空間大小分級。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則第15條規定，有機溶劑整體換氣裝置之換氣能力計算係數，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "第一種有機溶劑：×0.3"},
+        {"id": "B", "text": "第二種有機溶劑：×0.04"},
+        {"id": "C", "text": "第三種有機溶劑：×0.01"},
+        {"id": "D", "text": "第一種有機溶劑：×0.01"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "有機溶劑中毒預防規則第15條規定：第一種×0.3、第二種×0.04、第三種×0.01。D第一種為0.3非0.01，故錯誤。係數越大表示危害越高、換氣需求越大。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準規定，局部排氣裝置之控制風速規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "氣態有害物（氣體、蒸氣）：0.5公尺/秒以上"},
+        {"id": "B", "text": "粒狀有害物（粉塵、纖維、燻煙、霧滴）：1.0公尺/秒以上"},
+        {"id": "C", "text": "若氣罩外側空氣中所測得之濃度低於抑制濃度標準亦可"},
+        {"id": "D", "text": "所有有害物均為0.5公尺/秒以上"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "特定化學物質危害預防標準規定：氣態有害物0.5公尺/秒以上、粒狀有害物1.0公尺/秒以上，若氣罩外側測得濃度低於抑制濃度標準亦可。D所有有害物均0.5不正確，粒狀物需1.0公尺/秒。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U28-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則規定，雇主使勞工於儲槽之內部從事有機溶劑作業時，應依下列哪些規定辦理？（複選）",
+      "options": [
+        {"id": "A", "text": "派遣有機溶劑作業主管從事監督作業"},
+        {"id": "B", "text": "應送入或吸出三倍於儲槽容積之空氣，或以水灌滿儲槽後予以全部排出"},
+        {"id": "C", "text": "應以測定方法確認儲槽之內部之有機溶劑濃度未超過容許濃度"},
+        {"id": "D", "text": "應置備適當的救難設施"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "有機溶劑中毒預防規則規定，儲槽內部從事有機溶劑作業應：派遣作業主管監督、送入或吸出三倍容積空氣或水灌滿排出、測定確認濃度未超過容許濃度、置備適當救難設施等。四項均為法定規定。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U28-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，關於室內作業場所通風換氣之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "每一勞工原則上應有十立方公尺以上之空間（高度超過四公尺以上空間不計）"},
+        {"id": "B", "text": "開口部分面積應為地板面積之二十分之一以上"},
+        {"id": "C", "text": "氣溫在攝氏十度以下換氣時，不得使勞工暴露於每秒一公尺以上之氣流中"},
+        {"id": "D", "text": "坑內或儲槽內部作業一律不需機械通風設備"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "A為第309條規定；B為第311條規定；C為第311條第2項規定。D錯誤，第310條規定坑內或儲槽內部作業應設置機械通風設備，僅自然換氣充分者可不在此限。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U28-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準規定，雇主設置局部排氣裝置時，應依下列哪些規定辦理？（複選）",
+      "options": [
+        {"id": "A", "text": "應指派或委託經中央主管機關訓練合格之專業人員設計"},
+        {"id": "B", "text": "應製作局部排氣裝置設計報告書"},
+        {"id": "C", "text": "設置完成後應實施原始性能測試"},
+        {"id": "D", "text": "相關文件、紀錄應保存十年"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "特定化學物質危害預防標準第38條規定，局部排氣裝置應由專業人員設計、製作設計報告書、設置完成後實施原始性能測試、相關文件紀錄保存十年。四項均為法定規定。",
+      "references": [{"title": "特定化學物質危害預防標準第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=38"}]
+    },
+    {
+      "id": "U28-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則規定，雇主設置局部排氣裝置之氣罩應依下列哪些規定？（複選）",
+      "options": [
+        {"id": "A", "text": "氣罩應設置於每一有機溶劑蒸氣發生源"},
+        {"id": "B", "text": "外裝型氣罩應儘量接近有機溶劑蒸氣發生源"},
+        {"id": "C", "text": "氣罩可設置於遠離發生源之位置"},
+        {"id": "D", "text": "為充分發揮功效，氣罩應針對各單一發生源設置"}
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "有機溶劑中毒預防規則規定，氣罩應設置於每一發生源、外裝型氣罩應儘量接近發生源、應針對各單一發生源設置。C氣罩可設於遠離發生源位置不正確，應儘量接近發生源。",
+      "references": [{"title": "有機溶劑中毒預防規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060017"}]
+    },
+    {
+      "id": "U28-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第311條規定，雇主對於勞工經常作業之室內作業場所，其窗戶及其他開口部分等可直接與大氣相通之開口部分面積，應為地板面積之二十分之一以上。但設置具有充分換氣能力之機械通風設備者，不在此限。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第311條確實規定，開口部分面積應為地板面積之二十分之一以上，但設置具有充分換氣能力之機械通風設備者可不在此限。",
+      "references": [{"title": "職業安全衛生設施規則第311條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=311"}]
+    },
+    {
+      "id": "U28-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依有機溶劑中毒預防規則第6條規定，於室內作業場所從事第一種有機溶劑作業，可以僅設置整體換氣裝置即可符合規定。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "有機溶劑中毒預防規則第6條規定，第一種有機溶劑作業應設置密閉設備或局部排氣裝置，不得僅以整體換氣裝置替代。第一種有機溶劑危害最高，需更嚴格之控制設備。第二、三種才允許以整體換氣裝置替代。",
+      "references": [{"title": "有機溶劑中毒預防規則第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=6"}]
+    },
+    {
+      "id": "U28-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依特定化學物質危害預防標準規定，局部排氣裝置對於粒狀有害物之控制風速應為0.5公尺/秒以上。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "特定化學物質危害預防標準規定，粒狀有害物之控制風速應為1.0公尺/秒以上，非0.5公尺/秒。0.5公尺/秒為氣態有害物之控制風速。粒狀物較重，需較大風速才能有效捕集。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U28-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準第38條規定，局部排氣裝置設置完成後應實施原始性能測試，相關文件、紀錄應保存十年。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "特定化學物質危害預防標準第38條確實規定，局部排氣裝置設置完成後應實施原始性能測試，並依測試結果製作原始性能測試報告書，其相關文件、紀錄應保存十年。",
+      "references": [{"title": "特定化學物質危害預防標準第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=38"}]
+    },
+    {
+      "id": "U28-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，工作場所每一勞工所佔空間越小，每分鐘每一勞工所需之新鮮空氣量越少。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第312條規定，空間越小所需新鮮空氣量越多。未滿5.7立方公尺需0.6以上，28.3立方公尺以上僅需0.14以上。空間越小，空氣品質越容易惡化，需更多新鮮空氣補充。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第311條規定，室內作業場所之開口部分面積應為地板面積之________分之一以上。",
+      "answer": ["20", "二十"],
+      "explanation": "職業安全衛生設施規則第311條規定，開口部分面積應為地板面積之二十分之一以上。但設置具有充分換氣能力之機械通風設備者，不在此限。",
+      "references": [{"title": "職業安全衛生設施規則第311條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=311"}]
+    },
+    {
+      "id": "U28-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，工作場所每一勞工所佔空間未滿5.7立方公尺者，每分鐘每一勞工所需之新鮮空氣為________立方公尺以上。",
+      "answer": ["0.6"],
+      "explanation": "職業安全衛生設施規則第312條規定，未滿5.7立方公尺者需0.6以上，為各級中最高之新鮮空氣需求量。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q040",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則第15條規定，第一種有機溶劑或其混存物之整體換氣裝置換氣能力，每分鐘換氣量＝一小時作業時間內之消費量×________。",
+      "answer": ["0.3"],
+      "explanation": "有機溶劑中毒預防規則第15條規定，第一種有機溶劑之換氣量係數為0.3。第二種為0.04，第三種為0.01。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準規定，局部排氣裝置對於氣態有害物（氣體、蒸氣）之控制風速應為________公尺/秒以上。",
+      "answer": ["0.5"],
+      "explanation": "特定化學物質危害預防標準規定，氣態有害物之控制風速為0.5公尺/秒以上，粒狀有害物為1.0公尺/秒以上。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U28-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依特定化學物質危害預防標準第38條規定，局部排氣裝置設置完成後應實施原始性能測試，相關文件、紀錄應保存________年。",
+      "answer": ["10", "十"],
+      "explanation": "特定化學物質危害預防標準第38條規定，局部排氣裝置之原始性能測試報告書及相關文件、紀錄應保存十年。",
+      "references": [{"title": "特定化學物質危害預防標準第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060015&flno=38"}]
+    },
+    {
+      "id": "U28-Q043",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某作業場所使用第一種有機溶劑，一小時作業時間內之消費量為200公克，依有機溶劑中毒預防規則第15條規定，請計算整體換氣裝置每分鐘所需之換氣量為多少立方公尺？",
+      "answer": {"value": 60, "unit": "立方公尺/分", "tolerance": 0.01},
+      "explanation": "依有機溶劑中毒預防規則第15條，第一種有機溶劑每分鐘換氣量＝一小時消費量×0.3＝200×0.3＝60立方公尺/分。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某作業場所使用第二種有機溶劑，一小時作業時間內之消費量為500公克，依有機溶劑中毒預防規則第15條規定，請計算整體換氣裝置每分鐘所需之換氣量為多少立方公尺？",
+      "answer": {"value": 20, "unit": "立方公尺/分", "tolerance": 0.01},
+      "explanation": "依有機溶劑中毒預防規則第15條，第二種有機溶劑每分鐘換氣量＝一小時消費量×0.04＝500×0.04＝20立方公尺/分。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工作場所有10位勞工，每位勞工所佔空間為4立方公尺（未滿5.7立方公尺），依職業安全衛生設施規則第312條規定，請計算該工作場所每分鐘所需之新鮮空氣總量為多少立方公尺？",
+      "answer": {"value": 6, "unit": "立方公尺/分", "tolerance": 0.01},
+      "explanation": "依職業安全衛生設施規則第312條，未滿5.7立方公尺者每分鐘每人需0.6立方公尺。10位勞工×0.6＝6立方公尺/分。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列有機溶劑種類與整體換氣裝置換氣量計算係數正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "第一種有機溶劑或其混存物"},
+        {"id": "L2", "text": "第二種有機溶劑或其混存物"},
+        {"id": "L3", "text": "第三種有機溶劑或其混存物"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "×0.3"},
+        {"id": "R2", "text": "×0.04"},
+        {"id": "R3", "text": "×0.01"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"}
+      ],
+      "explanation": "有機溶劑中毒預防規則第15條規定：第一種×0.3（危害最高）、第二種×0.04、第三種×0.01（危害最低）。係數越大表示所需換氣量越多、危害越高。",
+      "references": [{"title": "有機溶劑中毒預防規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=15"}]
+    },
+    {
+      "id": "U28-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列工作場所空間大小與每分鐘每一勞工所需新鮮空氣量正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "未滿5.7立方公尺"},
+        {"id": "L2", "text": "5.7以上未滿14.2立方公尺"},
+        {"id": "L3", "text": "14.2以上未滿28.3立方公尺"},
+        {"id": "L4", "text": "28.3立方公尺以上"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "0.6以上"},
+        {"id": "R2", "text": "0.4以上"},
+        {"id": "R3", "text": "0.3以上"},
+        {"id": "R4", "text": "0.14以上"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "職業安全衛生設施規則第312條規定之換氣標準：空間越小所需新鮮空氣越多。未滿5.7需0.6、5.7~14.2需0.4、14.2~28.3需0.3、28.3以上需0.14。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q048",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列有害物狀態與局部排氣裝置控制風速正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "氣態有害物（氣體、蒸氣）"},
+        {"id": "L2", "text": "粒狀有害物（粉塵、纖維、燻煙、霧滴）"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "0.5公尺/秒以上"},
+        {"id": "R2", "text": "1.0公尺/秒以上"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"}
+      ],
+      "explanation": "依特定化學物質危害預防標準，氣態有害物控制風速為0.5公尺/秒以上，粒狀有害物為1.0公尺/秒以上。粒狀物較重需較大風速捕集。",
+      "references": [{"title": "特定化學物質危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060015"}]
+    },
+    {
+      "id": "U28-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第312條規定，請依工作場所每一勞工所佔空間由小到大排列，並對應每分鐘每一勞工所需新鮮空氣量由多到少：",
+      "items": [
+        {"id": "I1", "text": "未滿5.7立方公尺（0.6以上）"},
+        {"id": "I2", "text": "5.7以上未滿14.2立方公尺（0.4以上）"},
+        {"id": "I3", "text": "14.2以上未滿28.3立方公尺（0.3以上）"},
+        {"id": "I4", "text": "28.3立方公尺以上（0.14以上）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "空間由小到大排列：未滿5.7→5.7~14.2→14.2~28.3→28.3以上。對應新鮮空氣需求由多到少：0.6→0.4→0.3→0.14。空間越小所需新鮮空氣越多。",
+      "references": [{"title": "職業安全衛生設施規則第312條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=312"}]
+    },
+    {
+      "id": "U28-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依有機溶劑中毒預防規則第6條規定，請依有機溶劑危害程度由高到低排列，並對應其控制設備要求之嚴格程度：",
+      "items": [
+        {"id": "I1", "text": "第一種有機溶劑（僅可密閉設備或局部排氣裝置）"},
+        {"id": "I2", "text": "第二種有機溶劑（密閉設備、局部排氣或整體換氣裝置）"},
+        {"id": "I3", "text": "第三種有機溶劑（密閉設備、局部排氣或整體換氣裝置）"}
+      ],
+      "answer": ["I1", "I2", "I3"],
+      "explanation": "有機溶劑危害程度：第一種最高（僅可密閉或局部排氣，不可用整體換氣）、第二種次之（三項擇一）、第三種最低（三項擇一）。第一種限制最嚴格，因危害最高。",
+      "references": [{"title": "有機溶劑中毒預防規則第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060017&flno=6"}]
+    }
+  ]
+}

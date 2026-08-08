@@ -1,0 +1,733 @@
+{
+  "unitId": "U01",
+  "unitTitle": "勞動法簡介",
+  "unitNumber": 1,
+  "questions": [
+    {
+      "id": "U01-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "《勞動基準法》的主要功能為何？",
+      "options": [
+        {"id": "A", "text": "規定所有公司的產品價格"},
+        {"id": "B", "text": "規定勞動條件最低標準"},
+        {"id": "C", "text": "只處理職業病診斷"},
+        {"id": "D", "text": "只處理勞工退休金"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第1條規定，為規定勞動條件最低標準，保障勞工權益，加強勞雇關係，促進社會與經濟發展，特制定本法。",
+      "references": [{"title": "勞動基準法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=1"}]
+    },
+    {
+      "id": "U01-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "下列何者最符合《勞動基準法》所稱的勞工？",
+      "options": [
+        {"id": "A", "text": "單純到公司拜訪的客戶"},
+        {"id": "B", "text": "受雇主僱用從事工作並獲致工資者"},
+        {"id": "C", "text": "未受雇主指揮的路人"},
+        {"id": "D", "text": "公司的股東一律都是勞工"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第2條第1款規定，勞工謂受雇主僱用從事工作獲致工資者。判斷重點在於受僱關係、從事工作及獲致工資。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者通常屬於工資的判斷重點？",
+      "options": [
+        {"id": "A", "text": "公司給付名稱是否好聽"},
+        {"id": "B", "text": "是否因工作而獲得，並具有經常性或制度性"},
+        {"id": "C", "text": "是否由現金支付"},
+        {"id": "D", "text": "是否一定叫作本薪"}
+      ],
+      "answer": ["B"],
+      "explanation": "工資認定不能只看名稱，要看是否為勞工因工作而獲得之報酬，且具有經常性給與的性質。即使公司稱之為「福利金」或「獎勵」，若具工作對價性與經常性，仍可能屬於工資。",
+      "references": [{"title": "勞動基準法第2條第3款", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q004",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "中央勞動主管機關為何？",
+      "options": [
+        {"id": "A", "text": "行政院"},
+        {"id": "B", "text": "勞動部"},
+        {"id": "C", "text": "內政部"},
+        {"id": "D", "text": "司法院"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第4條規定，主管機關在中央為勞動部；在直轄市為直轄市政府；在縣（市）為縣（市）政府。",
+      "references": [{"title": "勞動基準法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=4"}]
+    },
+    {
+      "id": "U01-Q005",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "現行正常工作時間原則上為何？",
+      "options": [
+        {"id": "A", "text": "每日6小時、每週36小時"},
+        {"id": "B", "text": "每日7小時、每週35小時"},
+        {"id": "C", "text": "每日8小時、每週40小時"},
+        {"id": "D", "text": "每日10小時、每週50小時"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞動基準法第30條規定，勞工正常工作時間每日不得超過8小時，每週不得超過40小時。",
+      "references": [{"title": "勞動基準法第30條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30"}]
+    },
+    {
+      "id": "U01-Q006",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "雇主應將勞工出勤紀錄記載到何種程度？",
+      "options": [
+        {"id": "A", "text": "記載到月份"},
+        {"id": "B", "text": "記載到日期即可"},
+        {"id": "C", "text": "記載到小時即可"},
+        {"id": "D", "text": "記載到分鐘"}
+      ],
+      "answer": ["D"],
+      "explanation": "勞動基準法第30條之1規定，雇主應置備勞工出勤紀錄，逐日記載勞工出勤情形至分鐘為止。",
+      "references": [{"title": "勞動基準法第30條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30-1"}]
+    },
+    {
+      "id": "U01-Q007",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "出勤紀錄原則上應保存多久？",
+      "options": [
+        {"id": "A", "text": "1年"},
+        {"id": "B", "text": "2年"},
+        {"id": "C", "text": "3年"},
+        {"id": "D", "text": "5年"}
+      ],
+      "answer": ["D"],
+      "explanation": "勞動基準法第30條之1規定，出勤紀錄應保存5年。",
+      "references": [{"title": "勞動基準法第30條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30-1"}]
+    },
+    {
+      "id": "U01-Q008",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "《職業安全衛生法》的主要目的為何？",
+      "options": [
+        {"id": "A", "text": "管理公司商標"},
+        {"id": "B", "text": "防止職業災害，保障工作者安全與健康"},
+        {"id": "C", "text": "規定商品售價"},
+        {"id": "D", "text": "管理國民教育"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第1條規定，為防止職業災害，保障工作者安全及健康，特制定本法。",
+      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+    },
+    {
+      "id": "U01-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者對職安法中「工作者」的理解較正確？",
+      "options": [
+        {"id": "A", "text": "只有正式員工"},
+        {"id": "B", "text": "只有按月領薪的勞工"},
+        {"id": "C", "text": "包括勞工、自營作業者及受指揮監督從事勞動之人員"},
+        {"id": "D", "text": "只有公司主管"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生法第2條第2款規定，工作者指勞工、自營作業者及其他受工作場所負責人指揮或監督從事勞動之人員。其範圍較勞基法的「勞工」更廣。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U01-Q010",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "勞動契約與工作規則的共同限制為何？",
+      "options": [
+        {"id": "A", "text": "都可以低於法律規定"},
+        {"id": "B", "text": "都不能低於法律最低標準"},
+        {"id": "C", "text": "只有勞工可以修改"},
+        {"id": "D", "text": "只能用口頭方式訂定"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動契約、工作規則或團體協約，如低於勞動基準法所定的最低標準，其低於部分無效。法律設定的是底線保障。",
+      "references": [{"title": "勞動基準法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=1"}]
+    },
+    {
+      "id": "U01-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "勞工在同一雇主或事業單位工作滿6個月以上、未滿1年，依法有幾日特別休假？",
+      "options": [
+        {"id": "A", "text": "1日"},
+        {"id": "B", "text": "3日"},
+        {"id": "C", "text": "5日"},
+        {"id": "D", "text": "7日"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第38條規定，勞工在同一雇主或事業單位繼續工作滿一定期間者，6個月以上1年未滿者為3日。注意不要與滿1年的7日混淆。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "工作滿1年以上、未滿2年，依法有幾日特別休假？",
+      "options": [
+        {"id": "A", "text": "3日"},
+        {"id": "B", "text": "5日"},
+        {"id": "C", "text": "7日"},
+        {"id": "D", "text": "10日"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞動基準法第38條規定，1年以上2年未滿者為7日特別休假。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "工作滿3年以上、未滿5年，依法每年有幾日特別休假？",
+      "options": [
+        {"id": "A", "text": "10日"},
+        {"id": "B", "text": "14日"},
+        {"id": "C", "text": "15日"},
+        {"id": "D", "text": "20日"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第38條規定，3年以上5年未滿者，每年特別休假14日。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q014",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "工作滿10年以上，依法每年特別休假如何計算？",
+      "options": [
+        {"id": "A", "text": "固定15日"},
+        {"id": "B", "text": "固定20日"},
+        {"id": "C", "text": "每年20日，不再增加"},
+        {"id": "D", "text": "每滿1年增加1日，加至30日為止"}
+      ],
+      "answer": ["D"],
+      "explanation": "勞動基準法第38條規定，滿10年以上者，每滿1年加給1日，加至30日為止。不是固定天數，而是逐年遞增。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "平均工資原則上以何者計算？",
+      "options": [
+        {"id": "A", "text": "最後一個月工資除以30"},
+        {"id": "B", "text": "前六個月工資總額除以前六個月總日數"},
+        {"id": "C", "text": "年薪除以實際出勤日數"},
+        {"id": "D", "text": "基本工資除以8"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第2條第4款規定，平均工資謂計算事由發生之當日前六個月內所得工資總額除以該期間之總日數所得之金額。工作未滿六個月者，以實際工作期間計算。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者屬於勞基法所稱「雇主」的範圍？",
+      "options": [
+        {"id": "A", "text": "僅限公司董事長"},
+        {"id": "B", "text": "僅限人資部門主管"},
+        {"id": "C", "text": "僱用勞工之事業主、事業經營負責人及代表事業主處理勞工事務之人"},
+        {"id": "D", "text": "僅限登記負責人"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞動基準法第2條第2款規定，雇主謂僱用勞工之事業主、事業經營之負責人或代表事業主處理勞工事務之人。範圍不僅限於公司負責人。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "勞動基準法的適用範圍為何？",
+      "options": [
+        {"id": "A", "text": "僅適用於製造業勞工"},
+        {"id": "B", "text": "僅適用於公務員"},
+        {"id": "C", "text": "原則上適用於一切勞雇關係，但法律另有排除者依其規定"},
+        {"id": "D", "text": "完全不適用外籍勞工"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞動基準法第3條規定，本法於一切勞雇關係均適用之。但因經營型態、管理制度及工作特性等因素適用確有窒礙難行者，得由中央主管機關指定公告不適用。",
+      "references": [{"title": "勞動基準法第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=3"}]
+    },
+    {
+      "id": "U01-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者不屬於職業安全衛生法所稱的「職業災害」原因？",
+      "options": [
+        {"id": "A", "text": "建築物、機械、設備"},
+        {"id": "B", "text": "化學品、氣體、蒸氣、粉塵"},
+        {"id": "C", "text": "通勤途中的交通事故"},
+        {"id": "D", "text": "作業活動及其他職業上原因"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生法第2條第5款規定，職業災害指因建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵、作業活動或其他職業上原因引起之工作者疾病、傷害、失能或死亡。通勤交通事故屬勞基法的職災補償範疇，但不屬於職安法所定義之職業災害原因。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U01-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "下列關於勞動基準法與職業安全衛生法之比較，何者正確？",
+      "options": [
+        {"id": "A", "text": "兩者的主管機關不同"},
+        {"id": "B", "text": "勞基法的保護對象範圍較廣"},
+        {"id": "C", "text": "職安法的「工作者」範圍通常比勞基法的「勞工」廣"},
+        {"id": "D", "text": "勞基法只管安全，職安法只管工資"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法的工作者包括勞工、自營作業者及其他受工作場所負責人指揮監督從事勞動之人員，範圍較勞基法的勞工（受僱從事工作獲致工資者）更廣。兩者中央主管機關均為勞動部。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U01-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "某勞工與雇主約定每日正常工作時間為9小時，每週45小時，此約定效力如何？",
+      "options": [
+        {"id": "A", "text": "有效，因為勞工已簽名同意"},
+        {"id": "B", "text": "超過法定正常工時部分無效，應以每日8小時、每週40小時為準"},
+        {"id": "C", "text": "完全有效，因為契約自由原則"},
+        {"id": "D", "text": "需經工會同意才有效"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法所定正常工作時間每日不得超過8小時、每週不得超過40小時，此為強制規定。約定超過部分無效，雇主不得以契約自由或勞工同意為由排除。",
+      "references": [{"title": "勞動基準法第30條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30"}]
+    },
+    {
+      "id": "U01-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "工作滿5年以上、未滿10年，依法每年特別休假為何？",
+      "options": [
+        {"id": "A", "text": "10日"},
+        {"id": "B", "text": "14日"},
+        {"id": "C", "text": "15日"},
+        {"id": "D", "text": "20日"}
+      ],
+      "answer": ["C"],
+      "explanation": "勞動基準法第38條規定，5年以上10年未滿者，每年特別休假15日。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "下列何者屬於勞基法所稱的「經常性給與」，可能被認定為工資？",
+      "options": [
+        {"id": "A", "text": "端午節發放的獎金"},
+        {"id": "B", "text": "按月固定發放的全勤獎金"},
+        {"id": "C", "text": "公司倒閉時發放的資遣費"},
+        {"id": "D", "text": "因公出差之差旅費"}
+      ],
+      "answer": ["B"],
+      "explanation": "按月固定發放的全勤獎金具有經常性及制度性，且與勞工提供勞務有關，可能被認定為工資。三節獎金、差旅費等非經常性給與通常不計入工資。",
+      "references": [{"title": "勞動基準法第2條第3款", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "工作滿2年以上、未滿3年，依法有幾日特別休假？",
+      "options": [
+        {"id": "A", "text": "7日"},
+        {"id": "B", "text": "10日"},
+        {"id": "C", "text": "14日"},
+        {"id": "D", "text": "15日"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動基準法第38條規定，2年以上3年未滿者，每年特別休假10日。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "某公司以「承攬契約」名義聘用勞工，但該勞工每天固定時間到班、接受主管指揮監督、按月領取固定報酬。此關係應如何認定？",
+      "options": [
+        {"id": "A", "text": "承攬關係，不適用勞基法"},
+        {"id": "B", "text": "勞動契約，適用勞基法"},
+        {"id": "C", "text": "委任關係"},
+        {"id": "D", "text": "視契約名稱決定"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞動契約的認定不以契約名稱為準，而應實質判斷是否有從屬關係（指揮監督、固定時間到班、固定報酬等）。本案具有勞動契約的實質特徵，應認定為勞動契約。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些屬於勞動基準法所規範的內容？（複選）",
+      "options": [
+        {"id": "A", "text": "勞動契約"},
+        {"id": "B", "text": "工資"},
+        {"id": "C", "text": "工作時間與休假"},
+        {"id": "D", "text": "職業災害補償"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "勞動基準法涵蓋勞動契約、工資、工作時間、休息與休假、童工與女工、退休、職業災害補償、工作規則、監督與檢查及罰則等。",
+      "references": [{"title": "勞動基準法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0030001"}]
+    },
+    {
+      "id": "U01-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "關於工資的認定，下列哪些叙述正確？（複選）",
+      "options": [
+        {"id": "A", "text": "工資不應只看給付名稱來判斷"},
+        {"id": "B", "text": "固定按月發放的職務津貼可能屬於工資"},
+        {"id": "C", "text": "工資必須以現金支付才算"},
+        {"id": "D", "text": "工資是勞工因工作而獲得的報酬"}
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "工資認定應看實質內容：是否因工作而獲得、是否具經常性或制度性。支付方式不限於現金。固定按月發放的津貼因具經常性，可能屬於工資。",
+      "references": [{"title": "勞動基準法第2條第3款", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "下列哪些項目通常不屬於勞基法所稱的「工資」？（複選）",
+      "options": [
+        {"id": "A", "text": "按件計酬的報酬"},
+        {"id": "B", "text": "雇主因故終止契約時發給之資遣費"},
+        {"id": "C", "text": "因公出差之差旅費"},
+        {"id": "D", "text": "三節節金（非按月固定發放）"}
+      ],
+      "answer": ["B", "C", "D"],
+      "explanation": "資遣費、差旅費、三節節金（非經常性給與）通常不屬於工資範圍。按件計酬的報酬屬於工資。勞基法施行細則第10條列舉了不屬於工資的項目。",
+      "references": [{"title": "勞動基準法施行細則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030002&flno=10"}]
+    },
+    {
+      "id": "U01-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "關於出勤紀錄的規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "雇主應置備勞工出勤紀錄"},
+        {"id": "B", "text": "應逐日記載至分鐘為止"},
+        {"id": "C", "text": "應保存5年"},
+        {"id": "D", "text": "只在發生勞資爭議時才需要記錄"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞基法第30條之1規定雇主應置備出勤紀錄，逐日記載至分鐘，保存5年。不是只有爭議時才需記錄，而是平時就應持續記錄。",
+      "references": [{"title": "勞動基準法第30條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30-1"}]
+    },
+    {
+      "id": "U01-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "下列哪些屬於職業安全衛生法所稱「工作者」的範圍？（複選）",
+      "options": [
+        {"id": "A", "text": "受僱從事工作獲致工資的勞工"},
+        {"id": "B", "text": "自營作業者"},
+        {"id": "C", "text": "受工作場所負責人指揮監督從事勞動之人員"},
+        {"id": "D", "text": "純粹到工廠參觀的訪客"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職安法第2條第2款規定，工作者指勞工、自營作業者及其他受工作場所負責人指揮或監督從事勞動之人員。純粹參觀的訪客不受指揮監督從事勞動，不屬於工作者。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U01-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "關於勞動基準法所稱的「雇主」，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "僱用勞工之事業主"},
+        {"id": "B", "text": "事業經營之負責人"},
+        {"id": "C", "text": "代表事業主處理勞工事務之人"},
+        {"id": "D", "text": "只有公司登記負責人才是雇主"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞基法第2條第2款規定，雇主包括僱用勞工之事業主、事業經營之負責人或代表事業主處理勞工事務之人。不只限於登記負責人。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "關於勞動基準法所定勞動條件最低標準的性質，下列哪些叙述正確？（複選）",
+      "options": [
+        {"id": "A", "text": "雇主與勞工可以約定優於法律的勞動條件"},
+        {"id": "B", "text": "勞工簽名同意後，低於法律的條件仍屬無效"},
+        {"id": "C", "text": "工作規則不能低於法律最低標準"},
+        {"id": "D", "text": "勞動契約可以完全排除勞基法的適用"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞基法為強制規定，所定最低標準不得以契約、工作規則或任何方式排除。低於標準的部分無效，但可以約定優於標準的條件。",
+      "references": [{"title": "勞動基準法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=1"}]
+    },
+    {
+      "id": "U01-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些是職業安全衛生法所稱「職業災害」可能造成的结果？（複選）",
+      "options": [
+        {"id": "A", "text": "工作者疾病"},
+        {"id": "B", "text": "工作者傷害"},
+        {"id": "C", "text": "工作者失能"},
+        {"id": "D", "text": "工作者死亡"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安法第2條第5款規定，職業災害指因各種職業上原因引起之工作者疾病、傷害、失能或死亡。四種結果均屬之。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U01-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "勞動基準法所定的是勞動條件最低標準，因此雇主與勞工可以約定更優於法律的條件。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞基法設定的是最低標準，雇主與勞工可以約定更好的條件，只是不能低於法定標準。",
+      "references": [{"title": "勞動基準法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=1"}]
+    },
+    {
+      "id": "U01-Q034",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "只要勞工在契約上簽名同意，低於勞動基準法的條件就一定有效。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞基法為強制規定，低於法定最低標準的約定即使勞工簽名同意也無效。",
+      "references": [{"title": "勞動基準法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=1"}]
+    },
+    {
+      "id": "U01-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "職業安全衛生法的「工作者」範圍可能比勞動基準法的「勞工」廣。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法的工作者包括勞工、自營作業者及受指揮監督從事勞動之人員，範圍較勞基法的勞工更廣。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U01-Q036",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "工資是否屬於工資，只要看公司在薪資單上的名稱即可判斷。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "工資認定不能只看名稱，要看給付的實質原因、是否具有經常性、是否為工作之對價。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q037",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "正常工作時間原則上每日不得超過8小時、每週不得超過40小時。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞基法第30條規定的正常工作時間為每日不得超過8小時、每週不得超過40小時。",
+      "references": [{"title": "勞動基準法第30條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30"}]
+    },
+    {
+      "id": "U01-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "勞動基準法所稱主管機關，在中央為________。（請填機關名稱）",
+      "answer": ["勞動部"],
+      "explanation": "勞基法第4條規定，主管機關在中央為勞動部；在直轄市為直轄市政府；在縣（市）為縣（市）政府。",
+      "references": [{"title": "勞動基準法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=4"}]
+    },
+    {
+      "id": "U01-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "雇主應置備勞工出勤紀錄，逐日記載勞工出勤情形至________為止。",
+      "answer": ["分鐘"],
+      "explanation": "勞基法第30條之1規定，出勤紀錄應逐日記載至分鐘為止，並保存5年。",
+      "references": [{"title": "勞動基準法第30條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30-1"}]
+    },
+    {
+      "id": "U01-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "勞工出勤紀錄應保存________年。",
+      "answer": ["5", "五"],
+      "explanation": "勞基法第30條之1規定出勤紀錄應保存5年。",
+      "references": [{"title": "勞動基準法第30條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30-1"}]
+    },
+    {
+      "id": "U01-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "勞工在同一雇主或事業單位繼續工作滿6個月以上未滿1年者，特別休假為________日。",
+      "answer": ["3", "三"],
+      "explanation": "勞基法第38條規定，6個月以上1年未滿者，特別休假3日。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "勞工在同一雇主繼續工作滿10年以上者，每滿1年加給1日特別休假，加至________日為止。",
+      "answer": ["30", "三十"],
+      "explanation": "勞基法第38條規定，滿10年以上者，每滿1年加給1日，加至30日為止。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某勞工計算事由發生前六個月所得工資總額為360,000元，該期間總日數為180日，請計算其平均工資為多少元？",
+      "answer": {"value": 2000, "unit": "元", "tolerance": 0.01},
+      "explanation": "平均工資＝前六個月工資總額÷總日數＝360,000÷180＝2,000元。",
+      "references": [{"title": "勞動基準法第2條第4款", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某勞工前六個月工資總額為420,000元，該期間總日數為183日（含例假日），請計算其平均工資為多少元？（四捨五入至整數）",
+      "answer": {"value": 2295, "unit": "元", "tolerance": 1},
+      "explanation": "平均工資＝420,000÷183≈2,295.08，四捨五入至整數為2,295元。注意總日數應包含例假日在內的所有日數。",
+      "references": [{"title": "勞動基準法第2條第4款", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某勞工每週工作5天，每天正常工作8小時，每週正常工作時間合計為多少小時？此是否符合勞基法的規定？（請輸入每週正常工作時數）",
+      "answer": {"value": 40, "unit": "小時", "tolerance": 0},
+      "explanation": "5天×8小時＝40小時。勞基法規定每週正常工作時間不得超過40小時，故符合規定。",
+      "references": [{"title": "勞動基準法第30條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=30"}]
+    },
+    {
+      "id": "U01-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列法律與其主要目的正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "勞動基準法"},
+        {"id": "L2", "text": "職業安全衛生法"},
+        {"id": "L3", "text": "勞工保險條例"},
+        {"id": "L4", "text": "性別工作平等法"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "規定勞動條件最低標準"},
+        {"id": "R2", "text": "防止職業災害，保障工作者安全與健康"},
+        {"id": "R3", "text": "提供勞工保險保障"},
+        {"id": "R4", "text": "保障性別工作平等"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "各法律的核心目的：勞基法管勞動條件最低標準、職安法管安全健康、勞保條例管保險、性平法管性別平等。",
+      "references": [{"title": "各法規第1條", "url": "https://law.moj.gov.tw/"}]
+    },
+    {
+      "id": "U01-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列特別休假年資與天數正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "滿6個月未滿1年"},
+        {"id": "L2", "text": "滿1年未滿2年"},
+        {"id": "L3", "text": "滿2年未滿3年"},
+        {"id": "L4", "text": "滿3年未滿5年"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "7日"},
+        {"id": "R2", "text": "3日"},
+        {"id": "R3", "text": "14日"},
+        {"id": "R4", "text": "10日"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R1"},
+        {"left": "L3", "right": "R4"},
+        {"left": "L4", "right": "R3"}
+      ],
+      "explanation": "特休天數：6個月～1年=3日、1年～2年=7日、2年～3年=10日、3年～5年=14日。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q048",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依特別休假天數由少到多排列下列年資區間：",
+      "items": [
+        {"id": "I1", "text": "滿6個月以上未滿1年（3日）"},
+        {"id": "I2", "text": "滿1年以上未滿2年（7日）"},
+        {"id": "I3", "text": "滿2年以上未滿3年（10日）"},
+        {"id": "I4", "text": "滿3年以上未滿5年（14日）"},
+        {"id": "I5", "text": "滿5年以上未滿10年（15日）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "explanation": "特休天數由少到多：3日→7日→10日→14日→15日，對應年資遞增。",
+      "references": [{"title": "勞動基準法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=38"}]
+    },
+    {
+      "id": "U01-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依勞動基準法第2條，將下列名詞依法條款項順序排列：",
+      "items": [
+        {"id": "I1", "text": "勞工（第1款）"},
+        {"id": "I2", "text": "雇主（第2款）"},
+        {"id": "I3", "text": "工資（第3款）"},
+        {"id": "I4", "text": "平均工資（第4款）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "勞基法第2條依序定義：第1款勞工、第2款雇主、第3款工資、第4款平均工資。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    },
+    {
+      "id": "U01-Q050",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列勞動法規名詞與其定義正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "工資"},
+        {"id": "L2", "text": "平均工資"},
+        {"id": "L3", "text": "勞工"},
+        {"id": "L4", "text": "雇主"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "受雇主僱用從事工作獲致工資者"},
+        {"id": "R2", "text": "勞工因工作而獲得之報酬"},
+        {"id": "R3", "text": "僱用勞工之事業主或代表事業主處理勞工事務之人"},
+        {"id": "R4", "text": "計算事由發生前六個月所得工資總額除以總日數"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R4"},
+        {"left": "L3", "right": "R1"},
+        {"left": "L4", "right": "R3"}
+      ],
+      "explanation": "勞基法第2條定義：勞工為受僱從事工作獲致工資者；雇主為僱用勞工之事業主、事業經營負責人或代表事業主處理勞工事務之人；工資為勞工因工作而獲得之報酬；平均工資為計算事由發生前六個月所得工資總額除以該期間總日數所得之金額。",
+      "references": [{"title": "勞動基準法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0030001&flno=2"}]
+    }
+  ]
+}

@@ -1,0 +1,716 @@
+{
+  "unitId": "U29",
+  "unitTitle": "危險性機械設備安全管理",
+  "unitNumber": 29,
+  "questions": [
+    {
+      "id": "U29-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第16條規定，雇主對於經中央主管機關指定具有危險性之機械或設備，非經何種程序，不得使用？",
+      "options": [
+        {"id": "A", "text": "檢查合格"},
+        {"id": "B", "text": "員工訓練"},
+        {"id": "C", "text": "主管批准"},
+        {"id": "D", "text": "環境評估"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第16條規定，雇主對於經中央主管機關指定具有危險性之機械或設備，非經檢查機構或中央主管機關指定之檢查代行機構檢查合格，不得使用。員工訓練、主管批准、環境評估均非法定使用前程序。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U29-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，下列何者不屬於危險性機械？",
+      "options": [
+        {"id": "A", "text": "固定式起重機（吊升荷重三公噸以上）"},
+        {"id": "B", "text": "移動式起重機（吊升荷重三公噸以上）"},
+        {"id": "C", "text": "動力衝剪機械"},
+        {"id": "D", "text": "吊籠"}
+      ],
+      "answer": ["C"],
+      "explanation": "依職業安全衛生法施行細則第22條，危險性機械包括：固定式起重機、移動式起重機、人字臂起重機（以上均三公噸以上）、斯達卡式起重機（一公噸以上）、營建用升降機、營建用提升機（高度二十公尺以上）、吊籠。動力衝剪機械不在此列。動力衝剪機械雖具危險性但非屬危險性機械。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，固定式起重機需達吊升荷重多少公噸以上，方屬危險性機械？",
+      "options": [
+        {"id": "A", "text": "一公噸以上"},
+        {"id": "B", "text": "二公噸以上"},
+        {"id": "C", "text": "三公噸以上"},
+        {"id": "D", "text": "五公噸以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生法施行細則第22條規定，固定式起重機吊升荷重三公噸以上方屬危險性機械。斯達卡式起重機則為一公噸以上。一、二、五公噸均非固定式起重機之門檻。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，斯達卡式起重機需達吊升荷重多少公噸以上，方屬危險性機械？",
+      "options": [
+        {"id": "A", "text": "一公噸以上"},
+        {"id": "B", "text": "二公噸以上"},
+        {"id": "C", "text": "三公噸以上"},
+        {"id": "D", "text": "五公噸以上"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法施行細則第22條規定，斯達卡式起重機吊升荷重一公噸以上即屬危險性機械，門檻較固定式起重機之三公噸為低。二、三、五公噸均非斯達卡式起重機之門檻。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，營建用提升機需達高度多少公尺以上，方屬危險性機械？",
+      "options": [
+        {"id": "A", "text": "十公尺以上"},
+        {"id": "B", "text": "十五公尺以上"},
+        {"id": "C", "text": "二十公尺以上"},
+        {"id": "D", "text": "三十公尺以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生法施行細則第22條規定，營建用提升機高度二十公尺以上方屬危險性機械。十、十五、三十公尺均非正確門檻。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，下列何者不屬於危險性設備？",
+      "options": [
+        {"id": "A", "text": "鍋爐"},
+        {"id": "B", "text": "壓力容器"},
+        {"id": "C", "text": "高壓氣體特定設備"},
+        {"id": "D", "text": "動力衝剪機械"}
+      ],
+      "answer": ["D"],
+      "explanation": "依職業安全衛生法施行細則第23條，危險性設備包括：鍋爐、壓力容器、高壓氣體特定設備、高壓氣體容器。動力衝剪機械不在此列。動力衝剪機械雖需安全防護，但非屬危險性設備。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U29-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，鍋爐屬於危險性設備，其認定標準為何？",
+      "options": [
+        {"id": "A", "text": "最高使用壓力達每平方公分一公斤以上或傳熱面積達一平方公尺以上"},
+        {"id": "B", "text": "最高使用壓力達每平方公分五公斤以上"},
+        {"id": "C", "text": "傳熱面積達十平方公尺以上"},
+        {"id": "D", "text": "最高使用壓力達每平方公分十公斤以上"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生法施行細則第23條，鍋爐之認定標準為最高使用壓力達每平方公分一公斤以上，或傳熱面積達一平方公尺以上（貫流式鍋爐為傳熱面積十平方公尺以上）。B、C、D之數值均非正確標準。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U29-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，第一種壓力容器屬於危險性設備，其認定標準為何？",
+      "options": [
+        {"id": "A", "text": "最高使用壓力達每平方公分一公斤以上且內容積達零點二立方公尺以上"},
+        {"id": "B", "text": "最高使用壓力達每平方公分五公斤以上"},
+        {"id": "C", "text": "內容積達一立方公尺以上"},
+        {"id": "D", "text": "最高使用壓力達每平方公分十公斤以上"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生法施行細則第23條，第一種壓力容器之認定標準為最高使用壓力達每平方公分一公斤以上，且內容積達零點二立方公尺以上。B、C、D之數值均非正確標準。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U29-Q009",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依危險性機械及設備安全檢查規則規定，下列何者為起重機使用鋼索作為吊掛用具時，其安全係數之最低標準？",
+      "options": [
+        {"id": "A", "text": "四以上"},
+        {"id": "B", "text": "五以上"},
+        {"id": "C", "text": "六以上"},
+        {"id": "D", "text": "八以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "依危險性機械及設備安全檢查規則，起重機使用鋼索作為吊升用具時，其安全係數應在六以上。吊鏈為五以上，吊鉤為四以上。鋼索承受較大應力，安全係數要求最高。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q010",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於起重機之吊鏈，其安全係數應在多少以上？",
+      "options": [
+        {"id": "A", "text": "四以上"},
+        {"id": "B", "text": "五以上"},
+        {"id": "C", "text": "六以上"},
+        {"id": "D", "text": "八以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "依起重升降機具安全規則，起重機吊鏈之安全係數應在五以上。鋼索為六以上，吊鉤為四以上。吊鏈之安全係數介於鋼索與吊鉤之間。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q011",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於起重機之吊鉤，其安全係數應在多少以上？",
+      "options": [
+        {"id": "A", "text": "四以上"},
+        {"id": "B", "text": "五以上"},
+        {"id": "C", "text": "六以上"},
+        {"id": "D", "text": "八以上"}
+      ],
+      "answer": ["A"],
+      "explanation": "依起重升降機具安全規則，起重機吊鉤之安全係數應在四以上。鋼索為六以上，吊鏈為五以上。吊鉤之安全係數要求最低，但仍須達四以上。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於固定式起重機，應設置過捲預防裝置。所謂過捲預防裝置，其作用為當吊鉤等到達捲胴多少距離時，能自動使動力切斷？",
+      "options": [
+        {"id": "A", "text": "非直動式為0.25公尺、直動式為0.05公尺"},
+        {"id": "B", "text": "非直動式為0.5公尺、直動式為0.1公尺"},
+        {"id": "C", "text": "非直動式為0.25公尺、直動式為0.1公尺"},
+        {"id": "D", "text": "非直動式為0.5公尺、直動式為0.05公尺"}
+      ],
+      "answer": ["A"],
+      "explanation": "依起重升降機具安全規則，過捲預防裝置：非直動式為吊鉤等到達捲胻0.25公尺時自動切斷動力，直動式為0.05公尺。B、C、D之距離均非正確值。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q013",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於起重機之過負荷預防裝置，應在負荷達額定荷重之多少百分比時發出警報？",
+      "options": [
+        {"id": "A", "text": "百分之八十"},
+        {"id": "B", "text": "百分之八十五"},
+        {"id": "C", "text": "百分之九十"},
+        {"id": "D", "text": "百分之九十五"}
+      ],
+      "answer": ["C"],
+      "explanation": "依起重升降機具安全規則，過負荷預防裝置應在負荷達額定荷重百分之九十時發出警報，達百分之百時自動切斷動力。八十、八十五、九十五均非正確百分比。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q014",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於起重機之過負荷預防裝置，應在負荷達額定荷重之多少百分比時自動切斷動力？",
+      "options": [
+        {"id": "A", "text": "百分之九十"},
+        {"id": "B", "text": "百分之九十五"},
+        {"id": "C", "text": "百分之百"},
+        {"id": "D", "text": "百分之一百一十"}
+      ],
+      "answer": ["C"],
+      "explanation": "依起重升降機具安全規則，過負荷預防裝置在負荷達額定荷重百分之九十時發出警報，達百分之百時自動切斷動力。九十為警報百分比，九十五、百分之一百一十均非正確。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q015",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於移動式起重機，應實施荷重試驗，其試驗荷重為額定荷重之多少倍？",
+      "options": [
+        {"id": "A", "text": "1.1倍"},
+        {"id": "B", "text": "1.25倍"},
+        {"id": "C", "text": "1.27倍"},
+        {"id": "D", "text": "1.5倍"}
+      ],
+      "answer": ["B"],
+      "explanation": "依起重升降機具安全規則，荷重試驗之試驗荷重為額定荷重之一點二五倍。1.27倍為安定性試驗之倍數。1.1、1.5均非正確倍數。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q016",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於移動式起重機，應實施安定性試驗，其試驗荷重為額定荷重之多少倍？",
+      "options": [
+        {"id": "A", "text": "1.1倍"},
+        {"id": "B", "text": "1.25倍"},
+        {"id": "C", "text": "1.27倍"},
+        {"id": "D", "text": "1.5倍"}
+      ],
+      "answer": ["C"],
+      "explanation": "依起重升降機具安全規則，安定性試驗之試驗荷重為額定荷重之一點二七倍。1.25倍為荷重試驗之倍數。1.1、1.5均非正確倍數。安定性試驗倍數略高於荷重試驗。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，雇主對於危險性機械或設備之檢查，下列何者屬於使用前應實施之檢查類型？",
+      "options": [
+        {"id": "A", "text": "型式檢查"},
+        {"id": "B", "text": "定期檢查"},
+        {"id": "C", "text": "重新檢查"},
+        {"id": "D", "text": "變更檢查"}
+      ],
+      "answer": ["A"],
+      "explanation": "依危險性機械及設備安全檢查規則，型式檢查為製造或設置前之檢查。定期檢查為使用中之定期檢查，重新檢查為停用後恢復使用之檢查，變更檢查為變更主要構造時之檢查。型式檢查屬使用前之初始檢查。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，雇主對於固定式起重機，應多久實施定期檢查一次？",
+      "options": [
+        {"id": "A", "text": "每半年"},
+        {"id": "B", "text": "每年"},
+        {"id": "C", "text": "每二年"},
+        {"id": "D", "text": "每三年"}
+      ],
+      "answer": ["B"],
+      "explanation": "依危險性機械及設備安全檢查規則，固定式起重機應每年實施定期檢查一次。每半年、每二年、每三年均非正確期限。定期檢查為使用中持續性之安全確認。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，雇主對於鍋爐，應多久實施定期檢查一次？",
+      "options": [
+        {"id": "A", "text": "每半年"},
+        {"id": "B", "text": "每年"},
+        {"id": "C", "text": "每二年"},
+        {"id": "D", "text": "每三年"}
+      ],
+      "answer": ["B"],
+      "explanation": "依危險性機械及設備安全檢查規則，鍋爐應每年實施定期檢查一次。每半年、每二年、每三年均非正確期限。鍋爐為高壓設備，每年定期檢查以確保安全。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，雇主對於第一種壓力容器，應多久實施定期檢查一次？",
+      "options": [
+        {"id": "A", "text": "每半年"},
+        {"id": "B", "text": "每年"},
+        {"id": "C", "text": "每二年"},
+        {"id": "D", "text": "每三年"}
+      ],
+      "answer": ["B"],
+      "explanation": "依危險性機械及設備安全檢查規則，第一種壓力容器應每年實施定期檢查一次。每半年、每二年、每三年均非正確期限。壓力容器與鍋爐同為高壓設備，每年定期檢查。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，雇主對於起重機經檢查不合格者，其改善期限為何？",
+      "options": [
+        {"id": "A", "text": "一個月內"},
+        {"id": "B", "text": "二個月內"},
+        {"id": "C", "text": "三個月內"},
+        {"id": "D", "text": "六個月內"}
+      ],
+      "answer": ["C"],
+      "explanation": "依危險性機械及設備安全檢查規則，檢查不合格者應於三個月內完成改善。一個月、二個月、六個月均非正確改善期限。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，雇主對於起重機之運轉，應規定不得超過額定荷重。所謂額定荷重，係指起重機在何種條件下所能吊升之最大荷重？",
+      "options": [
+        {"id": "A", "text": "在設計條件下所能吊升之最大荷重"},
+        {"id": "B", "text": "在最佳條件下所能吊升之最大荷重"},
+        {"id": "C", "text": "在正常使用狀態下所能吊升之最大荷重"},
+        {"id": "D", "text": "在試驗條件下所能吊升之最大荷重"}
+      ],
+      "answer": ["C"],
+      "explanation": "依職業安全衛生設施規則，額定荷重係指起重機在正常使用狀態下所能吊升之最大荷重。設計條件、最佳條件、試驗條件均非正確定義。額定荷重為日常操作之安全上限。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U29-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第16條第2項規定，檢查機構或中央主管機關指定之檢查代行機構對於檢查合格之危險性機械或設備，應核發何種文件？",
+      "options": [
+        {"id": "A", "text": "檢查合格證"},
+        {"id": "B", "text": "使用許可證"},
+        {"id": "C", "text": "安全合格證"},
+        {"id": "D", "text": "操作執照"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生法第16條第2項規定，檢查合格者應核發檢查合格證。使用許可證、安全合格證、操作執照均非法定文件名稱。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U29-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，高壓氣體容器屬於危險性設備，其認定標準為何？",
+      "options": [
+        {"id": "A", "text": "內容積達五百公升以上"},
+        {"id": "B", "text": "內容積達一千公升以上"},
+        {"id": "C", "text": "內容積達二千公升以上"},
+        {"id": "D", "text": "內容積達五千公升以上"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生法施行細則第23條，高壓氣體容器之認定標準為內容積達五百公升以上。一千、二千、五千公升均非正確標準。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U29-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，下列哪些屬於危險性機械？（複選）",
+      "options": [
+        {"id": "A", "text": "固定式起重機（吊升荷重三公噸以上）"},
+        {"id": "B", "text": "人字臂起重機（吊升荷重三公噸以上）"},
+        {"id": "C", "text": "營建用升降機"},
+        {"id": "D", "text": "吊籃"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "依職業安全衛生法施行細則第22條，危險性機械包括六種：固定式起重機、移動式起重機、人字臂起重機（以上三公噸以上）、斯達卡式起重機（一公噸以上）、營建用升降機、營建用提升機（二十公尺以上）、吊籠。四項均屬危險性機械。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，下列哪些屬於危險性設備？（複選）",
+      "options": [
+        {"id": "A", "text": "鍋爐"},
+        {"id": "B", "text": "壓力容器"},
+        {"id": "C", "text": "高壓氣體特定設備"},
+        {"id": "D", "text": "高壓氣體容器"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "依職業安全衛生法施行細則第23條，危險性設備包括四種：鍋爐、壓力容器、高壓氣體特定設備、高壓氣體容器。四項均屬危險性設備。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U29-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，起重機之安全裝置包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "過捲預防裝置"},
+        {"id": "B", "text": "過負荷預防裝置"},
+        {"id": "C", "text": "防止起重機互撞裝置"},
+        {"id": "D", "text": "煞車裝置"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "依起重升降機具安全規則，起重機之安全裝置包括：過捲預防裝置、過負荷預防裝置、防止起重機互撞裝置、煞車裝置等。四項均為法定安全裝置。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q028",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於起重機之吊掛用具，其安全係數規定下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "鋼索：六以上"},
+        {"id": "B", "text": "吊鏈：五以上"},
+        {"id": "C", "text": "吊鉤：四以上"},
+        {"id": "D", "text": "吊鉤：六以上"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依起重升降機具安全規則，鋼索安全係數六以上、吊鏈五以上、吊鉤四以上。D吊鉤為四以上非六以上，故錯誤。鋼索承受最大應力，安全係數最高。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q029",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，危險性機械及設備之檢查類型包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "型式檢查"},
+        {"id": "B", "text": "竣工檢查"},
+        {"id": "C", "text": "定期檢查"},
+        {"id": "D", "text": "變更檢查"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "依危險性機械及設備安全檢查規則，檢查類型包括：型式檢查、竣工檢查、定期檢查、使用檢查、變更檢查、重新檢查、熔接檢查、構造檢查等。四項均為法定檢查類型。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，下列哪些危險性機械或設備應每年實施定期檢查？（複選）",
+      "options": [
+        {"id": "A", "text": "固定式起重機"},
+        {"id": "B", "text": "移動式起重機"},
+        {"id": "C", "text": "鍋爐"},
+        {"id": "D", "text": "第一種壓力容器"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "依危險性機械及設備安全檢查規則，固定式起重機、移動式起重機、鍋爐、第一種壓力容器均應每年實施定期檢查一次。四項均為每年定期檢查之對象。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    },
+    {
+      "id": "U29-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，雇主對於起重機之過負荷預防裝置，下列規定哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "負荷達額定荷重百分之九十時發出警報"},
+        {"id": "B", "text": "負荷達額定荷重百分之百時自動切斷動力"},
+        {"id": "C", "text": "負荷達額定荷重百分之八十時發出警報"},
+        {"id": "D", "text": "負荷達額定荷重百分之一百一十時切斷動力"}
+      ],
+      "answer": ["A", "B"],
+      "explanation": "依起重升降機具安全規則，過負荷預防裝置在百分之九十時發出警報，百分之百時切斷動力。C百分之八十、D百分之一百一十均非正確百分比。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第16條及施行細則規定，下列哪些為雇主使用危險性機械或設備之法定義務？（複選）",
+      "options": [
+        {"id": "A", "text": "非經檢查合格不得使用"},
+        {"id": "B", "text": "應依規定實施定期檢查"},
+        {"id": "C", "text": "檢查合格者應核發檢查合格證"},
+        {"id": "D", "text": "可自行決定是否檢查"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依職業安全衛生法第16條及施行細則，雇主應確保危險性機械或設備經檢查合格方得使用、應實施定期檢查、合格者核發檢查合格證。D可自行決定是否檢查明顯違法。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U29-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第16條規定，雇主對於經中央主管機關指定具有危險性之機械或設備，非經檢查機構或中央主管機關指定之檢查代行機構檢查合格，不得使用。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第16條確實規定，危險性機械或設備非經檢查合格不得使用，以確保設備安全性，防止職業災害發生。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U29-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，動力衝剪機械屬於危險性機械。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "動力衝剪機械雖具危險性，但依職業安全衛生法施行細則第22條，並不屬於法定六種危險性機械之一。危險性機械為：固定式起重機、移動式起重機、人字臂起重機、斯達卡式起重機、營建用升降機、營建用提升機、吊籠。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q035",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，起重機之鋼索安全係數應在六以上，吊鏈安全係數應在五以上，吊鉤安全係數應在四以上。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "起重升降機具安全規則確實規定：鋼索安全係數六以上、吊鏈五以上、吊鉤四以上。鋼索承受最大應力故要求最高，吊鉤為鑄鍛件故要求較低。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，起重機之過負荷預防裝置應在負荷達額定荷重百分之九十時發出警報，達百分之百時自動切斷動力。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "起重升降機具安全規則確實規定，過負荷預防裝置在百分之九十時警報、百分之百時切斷動力，以防止超載造成傾覆或斷裂事故。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，鍋爐之認定標準為最高使用壓力達每平方公分一公斤以上或傳熱面積達一平方公尺以上。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法施行細則第23條確實規定，鍋爐之認定標準為最高使用壓力達每平方公分一公斤以上或傳熱面積達一平方公尺以上（貫流式鍋爐為傳熱面積十平方公尺以上）。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U29-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，固定式起重機需達吊升荷重________公噸以上，方屬危險性機械。",
+      "answer": ["3", "三"],
+      "explanation": "固定式起重機吊升荷重三公噸以上方屬危險性機械。斯達卡式起重機為一公噸以上，門檻較低。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q039",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，起重機使用鋼索作為吊升用具時，其安全係數應在________以上。",
+      "answer": ["6", "六"],
+      "explanation": "起重機鋼索安全係數應在六以上。吊鏈為五以上，吊鉤為四以上。鋼索承受最大應力，安全係數要求最高。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q040",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，起重機之荷重試驗，其試驗荷重為額定荷重之________倍。",
+      "answer": ["1.25"],
+      "explanation": "荷重試驗之試驗荷重為額定荷重之1.25倍。安定性試驗為1.27倍。荷重試驗驗證結構強度，安定性試驗驗證抗傾覆能力。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，起重機之安定性試驗，其試驗荷重為額定荷重之________倍。",
+      "answer": ["1.27"],
+      "explanation": "安定性試驗之試驗荷重為額定荷重之1.27倍。荷重試驗為1.25倍。安定性試驗倍數略高，驗證起重機不致傾覆。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q042",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，營建用提升機需達高度________公尺以上，方屬危險性機械。",
+      "answer": ["20", "二十"],
+      "explanation": "營建用提升機高度二十公尺以上方屬危險性機械。高度越高，提升機之危險性越大，故設定高度門檻。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U29-Q043",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某固定式起重機之額定荷重為10公噸，依起重升降機具安全規則規定，請計算荷重試驗之試驗荷重為多少公噸？",
+      "answer": {"value": 12.5, "unit": "公噸", "tolerance": 0.01},
+      "explanation": "荷重試驗之試驗荷重＝額定荷重×1.25＝10×1.25＝12.5公噸。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某移動式起重機之額定荷重為20公噸，依起重升降機具安全規則規定，請計算安定性試驗之試驗荷重為多少公噸？",
+      "answer": {"value": 25.4, "unit": "公噸", "tolerance": 0.01},
+      "explanation": "安定性試驗之試驗荷重＝額定荷重×1.27＝20×1.27＝25.4公噸。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某起重機之額定荷重為8公噸，依起重升降機具安全規則規定，過負荷預防裝置應在負荷達額定荷重百分之九十時發出警報。請計算警報時之荷重為多少公噸？",
+      "answer": {"value": 7.2, "unit": "公噸", "tolerance": 0.01},
+      "explanation": "警報荷重＝額定荷重×90%＝8×0.9＝7.2公噸。達百分之百（8公噸）時自動切斷動力。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q046",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列起重機吊掛用具與其安全係數最低標準正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "鋼索"},
+        {"id": "L2", "text": "吊鏈"},
+        {"id": "L3", "text": "吊鉤"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "六以上"},
+        {"id": "R2", "text": "五以上"},
+        {"id": "R3", "text": "四以上"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"}
+      ],
+      "explanation": "依起重升降機具安全規則：鋼索安全係數六以上（承受最大應力）、吊鏈五以上、吊鉤四以上。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列試驗類型與其試驗荷重倍數正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "荷重試驗"},
+        {"id": "L2", "text": "安定性試驗"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "額定荷重之1.25倍"},
+        {"id": "R2", "text": "額定荷重之1.27倍"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"}
+      ],
+      "explanation": "荷重試驗為額定荷重之1.25倍，驗證結構強度。安定性試驗為額定荷重之1.27倍，驗證抗傾覆能力。安定性試驗倍數略高於荷重試驗。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列過負荷預防裝置之荷重百分比與其動作正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "額定荷重之90%"},
+        {"id": "L2", "text": "額定荷重之100%"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "發出警報"},
+        {"id": "R2", "text": "自動切斷動力"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"}
+      ],
+      "explanation": "過負荷預防裝置：達額定荷重90%時發出警報，達100%時自動切斷動力，以防止超載造成傾覆或斷裂。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依起重升降機具安全規則規定，請依起重機吊掛用具安全係數由高到低排列：",
+      "items": [
+        {"id": "I1", "text": "鋼索（六以上）"},
+        {"id": "I2", "text": "吊鏈（五以上）"},
+        {"id": "I3", "text": "吊鉤（四以上）"}
+      ],
+      "answer": ["I1", "I2", "I3"],
+      "explanation": "安全係數由高到低：鋼索六以上＞吊鏈五以上＞吊鉤四以上。鋼索承受最大應力故要求最高安全係數。",
+      "references": [{"title": "起重升降機具安全規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060040"}]
+    },
+    {
+      "id": "U29-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依危險性機械及設備安全檢查規則規定，請依危險性機械設備之檢查流程排列（由設置前到使用中）：",
+      "items": [
+        {"id": "I1", "text": "型式檢查（設置前）"},
+        {"id": "I2", "text": "竣工檢查（設置完成後）"},
+        {"id": "I3", "text": "定期檢查（使用中每年）"},
+        {"id": "I4", "text": "變更檢查（變更主要構造時）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "檢查流程：型式檢查（設置前）→竣工檢查（設置完成後）→定期檢查（使用中每年）→變更檢查（變更構造時）。型式檢查為初始，定期檢查為常態，變更檢查為特殊情形。",
+      "references": [{"title": "危險性機械及設備安全檢查規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060039"}]
+    }
+  ]
+}

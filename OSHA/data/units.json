@@ -1,0 +1,69 @@
+{
+  "examTitle": "乙級職業安全衛生管理員 題庫練習系統",
+  "examSubtitle": "依官方技能規範與現行法規自編練習題",
+  "disclaimer": "本題庫為依官方技能規範與現行法規自編之練習題，非官方題庫。法規如有修正，以最新公布為準。",
+  "parts": [
+    {
+      "id": "P1",
+      "name": "職業安全衛生相關法規",
+      "unitRange": [1, 8]
+    },
+    {
+      "id": "P2",
+      "name": "職業安全衛生計畫及管理",
+      "unitRange": [9, 16]
+    },
+    {
+      "id": "P3",
+      "name": "專業課程",
+      "unitRange": [17, 30]
+    },
+    {
+      "id": "P4",
+      "name": "職業道德",
+      "unitRange": [31, 40]
+    }
+  ],
+  "units": [
+    { "id": "U01", "part": "P1", "number": 1, "title": "勞動法簡介" },
+    { "id": "U02", "part": "P1", "number": 2, "title": "職業安全衛生法及其施行細則" },
+    { "id": "U03", "part": "P1", "number": 3, "title": "職業安全衛生設施規則" },
+    { "id": "U04", "part": "P1", "number": 4, "title": "職業安全衛生管理辦法" },
+    { "id": "U05", "part": "P1", "number": 5, "title": "職業安全衛生教育訓練規則" },
+    { "id": "U06", "part": "P1", "number": 6, "title": "勞工健康保護規則" },
+    { "id": "U07", "part": "P1", "number": 7, "title": "危險性工作場所審查及檢查辦法" },
+    { "id": "U08", "part": "P1", "number": 8, "title": "其他職業安全衛生相關法規" },
+    { "id": "U09", "part": "P2", "number": 9, "title": "職業安全衛生管理規章" },
+    { "id": "U10", "part": "P2", "number": 10, "title": "職業安全衛生管理計畫" },
+    { "id": "U11", "part": "P2", "number": 11, "title": "職業安全衛生管理系統" },
+    { "id": "U12", "part": "P2", "number": 12, "title": "勞工健康服務計畫" },
+    { "id": "U13", "part": "P2", "number": 13, "title": "自動檢查計畫" },
+    { "id": "U14", "part": "P2", "number": 14, "title": "安全衛生教育訓練計畫" },
+    { "id": "U15", "part": "P2", "number": 15, "title": "安全衛生工作守則" },
+    { "id": "U16", "part": "P2", "number": 16, "title": "工作安全分析與安全觀察相關知識" },
+    { "id": "U17", "part": "P3", "number": 17, "title": "組織協調與溝通技巧" },
+    { "id": "U18", "part": "P3", "number": 18, "title": "人性管理與自主活動相關知識" },
+    { "id": "U19", "part": "P3", "number": 19, "title": "教學技巧相關知識" },
+    { "id": "U20", "part": "P3", "number": 20, "title": "職業安全與職業傷害預防概論" },
+    { "id": "U21", "part": "P3", "number": 21, "title": "職業衛生與職業病預防概論" },
+    { "id": "U22", "part": "P3", "number": 22, "title": "職業災害調查處理與統計相關法規" },
+    { "id": "U23", "part": "P3", "number": 23, "title": "安全衛生測定儀器" },
+    { "id": "U24", "part": "P3", "number": 24, "title": "機械、設備或器具安全相關法規" },
+    { "id": "U25", "part": "P3", "number": 25, "title": "電氣安全相關法規" },
+    { "id": "U26", "part": "P3", "number": 26, "title": "危害性化學品標示、通識、管制及分級管理相關法規" },
+    { "id": "U27", "part": "P3", "number": 27, "title": "個人防護具種類及使用" },
+    { "id": "U28", "part": "P3", "number": 28, "title": "通風與換氣相關法規規定、工業通風原理" },
+    { "id": "U29", "part": "P3", "number": 29, "title": "危險性機械設備安全管理" },
+    { "id": "U30", "part": "P3", "number": 30, "title": "物料處置相關法規" },
+    { "id": "U31", "part": "P4", "number": 31, "title": "各種急救概念" },
+    { "id": "U32", "part": "P4", "number": 32, "title": "墜落災害防止相關法規" },
+    { "id": "U33", "part": "P4", "number": 33, "title": "火災、爆炸相關知識" },
+    { "id": "U34", "part": "P4", "number": 34, "title": "物理性危害預防" },
+    { "id": "U35", "part": "P4", "number": 35, "title": "化學性危害預防" },
+    { "id": "U36", "part": "P4", "number": 36, "title": "人因性危害預防" },
+    { "id": "U37", "part": "P4", "number": 37, "title": "異常工作負荷" },
+    { "id": "U38", "part": "P4", "number": 38, "title": "母性勞工健康保護" },
+    { "id": "U39", "part": "P4", "number": 39, "title": "敬業精神" },
+    { "id": "U40", "part": "P4", "number": 40, "title": "職業素養" }
+  ]
+}
