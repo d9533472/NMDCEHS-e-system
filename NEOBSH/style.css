@@ -285,6 +285,17 @@ main { flex: 1; width: 100%; }
 .mode-card:hover { border-color: var(--color-primary); box-shadow: var(--shadow-sm); }
 .mode-card h4 { font-size: var(--text-base); margin-bottom: var(--space-1); }
 .mode-card p { font-size: var(--text-sm); color: var(--color-text-muted); }
+.mode-card-review { border-color: var(--color-warning, #d97706); }
+.mode-card-review h4 { color: var(--color-warning, #d97706); }
+.mode-card-review.disabled { opacity: 0.55; cursor: not-allowed; border-color: var(--color-border); }
+.mode-card-review.disabled h4 { color: var(--color-text-muted); }
+.mode-card-review.disabled:hover { border-color: var(--color-border); box-shadow: none; }
+
+.empty-state {
+  background: var(--color-surface); border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg); padding: var(--space-8);
+  text-align: center; color: var(--color-text-muted); line-height: 1.7;
+}
 
 /* Quiz question card */
 .quiz-summary {

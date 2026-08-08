@@ -4,12 +4,13 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const Anthropic = require('@anthropic-ai/sdk');
+const Database = require('better-sqlite3');
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
@@ -17,6 +18,63 @@ app.use((req, res, next) => {
 
 const client = new Anthropic();
 const MODEL = 'claude_sonnet_4_6';
+
+// ---- Wrong-question bank (persisted in SQLite so it survives page reloads / server restarts) ----
+const db = new Database(path.join(__dirname, 'data.db'));
+db.exec(`CREATE TABLE IF NOT EXISTS wrong_questions (
+  element_number INTEGER NOT NULL,
+  question_id INTEGER NOT NULL,
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (element_number, question_id)
+)`);
+
+const stmtInsertWrong = db.prepare('INSERT OR REPLACE INTO wrong_questions (element_number, question_id, updated_at) VALUES (?, ?, ?)');
+const stmtDeleteWrong = db.prepare('DELETE FROM wrong_questions WHERE element_number = ? AND question_id = ?');
+const stmtListByElement = db.prepare('SELECT question_id FROM wrong_questions WHERE element_number = ? ORDER BY updated_at DESC');
+const stmtCountsAll = db.prepare('SELECT element_number, COUNT(*) as cnt FROM wrong_questions GROUP BY element_number');
+const stmtClearElement = db.prepare('DELETE FROM wrong_questions WHERE element_number = ?');
+
+app.get('/api/wrong-questions', (req, res) => {
+  const rows = stmtCountsAll.all();
+  const counts = {};
+  let total = 0;
+  for (const r of rows) { counts[r.element_number] = r.cnt; total += r.cnt; }
+  res.json({ counts, total });
+});
+
+app.get('/api/wrong-questions/:elementNumber', (req, res) => {
+  const num = Number(req.params.elementNumber);
+  if (!Number.isFinite(num)) return res.status(400).json({ error: 'Invalid element number.' });
+  const ids = stmtListByElement.all(num).map((r) => r.question_id);
+  res.json({ elementNumber: num, questionIds: ids });
+});
+
+app.post('/api/wrong-questions/:elementNumber/sync', (req, res) => {
+  const num = Number(req.params.elementNumber);
+  const results = (req.body && req.body.results) || [];
+  if (!Number.isFinite(num) || !Array.isArray(results)) {
+    return res.status(400).json({ error: 'Invalid payload.' });
+  }
+  const now = new Date().toISOString();
+  const txn = db.transaction((items) => {
+    for (const item of items) {
+      const qid = Number(item.questionId);
+      if (!Number.isFinite(qid)) continue;
+      if (item.wrong) stmtInsertWrong.run(num, qid, now);
+      else stmtDeleteWrong.run(num, qid);
+    }
+  });
+  txn(results);
+  const ids = stmtListByElement.all(num).map((r) => r.question_id);
+  res.json({ elementNumber: num, questionIds: ids, count: ids.length });
+});
+
+app.delete('/api/wrong-questions/:elementNumber', (req, res) => {
+  const num = Number(req.params.elementNumber);
+  if (!Number.isFinite(num)) return res.status(400).json({ error: 'Invalid element number.' });
+  stmtClearElement.run(num);
+  res.json({ elementNumber: num, cleared: true });
+});
 
 // Load all element data files once at startup (used to fetch scenario + model answer as grading rubric)
 const DATA_DIR = path.join(__dirname, '..', 'data');

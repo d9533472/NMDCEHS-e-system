@@ -10,7 +10,9 @@
     lang: 'bilingual',
     scores: {},          // elementNum -> {score,total}
     quizState: {},       // elementNum -> { answers: {qId: idx}, submitted: bool, questions: [sampled 10 mcq] }
-    scenarioState: {}    // elementNum -> { currentId, answerText, grading: bool, result: {...} }
+    scenarioState: {},   // elementNum -> { currentId, answerText, grading: bool, result: {...} }
+    reviewState: {},     // elementNum -> { answers, submitted, questions, loading, empty }
+    wrongCounts: {}      // elementNum(string) -> count of wrong questions saved on the server
   };
 
   var API_BASE = 'port/8000'.indexOf('__') === 0 ? 'http://localhost:8000' : 'port/8000';
@@ -36,6 +38,31 @@
       pool = list.filter(function (s) { return s.id !== excludeId; });
     }
     return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  /* ---------------- Wrong-question bank (persisted server-side via SQLite) ---------------- */
+  function fetchWrongCounts(onDone) {
+    fetch(API_BASE + '/api/wrong-questions')
+      .then(function (res) { return res.ok ? res.json() : { counts: {} }; })
+      .then(function (data) {
+        state.wrongCounts = data.counts || {};
+        if (onDone) onDone();
+      })
+      .catch(function () { if (onDone) onDone(); });
+  }
+
+  function syncWrongQuestions(num, questions, answers) {
+    var results = questions.map(function (q) {
+      return { questionId: q.id, wrong: answers[q.id] !== q.correct_index };
+    });
+    fetch(API_BASE + '/api/wrong-questions/' + num + '/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ results: results })
+    }).then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (data) state.wrongCounts[num] = data.count;
+      }).catch(function () {});
   }
 
   var root = document.getElementById('view-root');
@@ -83,7 +110,11 @@
 
   /* ---------------- Router ---------------- */
   window.addEventListener('hashchange', render);
-  window.addEventListener('DOMContentLoaded', function () { applyTheme(); render(); });
+  window.addEventListener('DOMContentLoaded', function () {
+    applyTheme();
+    render();
+    fetchWrongCounts(function () { render(); });
+  });
 
   function parseHash() {
     var h = location.hash.replace(/^#\//, '');
@@ -102,6 +133,8 @@
       renderUnitPage(parts[1]);
     } else if (parts[0] === 'element' && parts[1] && parts[2] === 'quiz') {
       renderQuizPage(findElement(parts[1]));
+    } else if (parts[0] === 'element' && parts[1] && parts[2] === 'review') {
+      renderReviewPage(findElement(parts[1]));
     } else if (parts[0] === 'element' && parts[1] && parts[2] === 'scenario') {
       renderScenarioPage(findElement(parts[1]));
     } else if (parts[0] === 'element' && parts[1]) {
@@ -206,6 +239,10 @@
   function renderElementPage(e) {
     if (!e) { renderHome(); return; }
     var color = e.unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+    var wrongCount = state.wrongCounts[e.element_number] || 0;
+    var reviewCard = wrongCount > 0
+      ? '<button class="mode-card mode-card-review" data-go="#/element/' + e.element_number + '/review"><h4>🔁 錯題複習(' + wrongCount + ' 題待複習)</h4><p>只重複練習你之前答錯的題目,答對後會自動從錯題本移除</p></button>'
+      : '<button class="mode-card mode-card-review disabled" disabled><h4>🔁 錯題複習</h4><p>目前沒有錯題紀錄,先完成一次選擇題測驗吧!</p></button>';
     root.innerHTML =
       '<div class="page-header" style="--pg-color:' + color + '">' +
         backLink('#/unit/' + e.unit, '返回 ' + e.unit + ' 單元列表') +
@@ -215,6 +252,7 @@
         '<div class="mode-switch">' +
           '<button class="mode-card" data-go="#/element/' + e.element_number + '/quiz"><h4>選擇題測驗(題庫 ' + e.mcq.length + ' 題,隨機抽 ' + QUIZ_SAMPLE_SIZE + ' 題)</h4><p>快速自我測驗本單元知識點,附詳解</p></button>' +
           '<button class="mode-card" data-go="#/element/' + e.element_number + '/scenario"><h4>情境練習(題庫 ' + e.scenario_questions.length + ' 題,隨機抽 1 題)</h4><p>模擬情境問答,可自行對照參考答案,也可送出讓 AI 評分給回饋</p></button>' +
+          reviewCard +
         '</div>' +
       '</div>';
     bindGoButtons();
@@ -324,6 +362,7 @@
         submitBtn.addEventListener('click', function () {
           if (Object.keys(qs.answers).length < total) return;
           qs.submitted = true;
+          syncWrongQuestions(num, questions, qs.answers);
           renderQuizPage(e);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -334,6 +373,181 @@
         retakeBtn.addEventListener('click', function () {
           state.quizState[num] = { answers: {}, submitted: false, questions: sampleQuestions(e.mcq, QUIZ_SAMPLE_SIZE) };
           renderQuizPage(e);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    }
+  }
+
+  /* ---------------- Wrong-question Review Page ---------------- */
+  function loadReviewQuestions(e, cb) {
+    var num = e.element_number;
+    fetch(API_BASE + '/api/wrong-questions/' + num)
+      .then(function (res) { return res.ok ? res.json() : { questionIds: [] }; })
+      .then(function (data) {
+        var ids = data.questionIds || [];
+        state.wrongCounts[num] = ids.length;
+        if (!ids.length) {
+          state.reviewState[num] = { status: 'empty' };
+        } else {
+          var pool = e.mcq.filter(function (q) { return ids.indexOf(q.id) !== -1; });
+          state.reviewState[num] = {
+            status: 'ready',
+            answers: {},
+            submitted: false,
+            questions: sampleQuestions(pool, QUIZ_SAMPLE_SIZE)
+          };
+        }
+        if (cb) cb();
+      })
+      .catch(function () {
+        state.reviewState[num] = { status: 'empty' };
+        if (cb) cb();
+      });
+  }
+
+  function renderReviewPage(e) {
+    if (!e) { renderHome(); return; }
+    var num = e.element_number;
+    var color = e.unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+
+    if (!state.reviewState[num]) {
+      state.reviewState[num] = { status: 'loading' };
+      loadReviewQuestions(e, function () { renderReviewPage(e); });
+    }
+    var rs = state.reviewState[num];
+
+    if (rs.status === 'loading') {
+      root.innerHTML =
+        '<div class="page-header" style="--pg-color:' + color + '">' +
+          backLink('#/element/' + num, '返回單元頁面') +
+          '<span class="tag">' + e.unit + ' · Element ' + num + ' · 錯題複習</span>' +
+          '<h1>' + esc(e.title_zh) + '</h1>' +
+        '</div>' +
+        '<div class="empty-state">載入錯題中... Loading your wrong-question set...</div>';
+      bindGoButtons();
+      return;
+    }
+
+    if (rs.status === 'empty') {
+      root.innerHTML =
+        '<div class="page-header" style="--pg-color:' + color + '">' +
+          backLink('#/element/' + num, '返回單元頁面') +
+          '<span class="tag">' + e.unit + ' · Element ' + num + ' · 錯題複習</span>' +
+          '<h1>' + esc(e.title_zh) + '</h1>' +
+        '</div>' +
+        '<div class="empty-state">🎉 太棒了,這個單元目前沒有待複習的錯題!先去做一次選擇題測驗,答錯的題目會自動收進這裡。<br/>Great job — no wrong questions saved for this element yet. Take a quiz first and any mistakes will be collected here automatically.' +
+          '<div style="margin-top:16px;"><button class="btn btn-primary" data-go="#/element/' + num + '/quiz">前往選擇題測驗</button></div>' +
+        '</div>';
+      bindGoButtons();
+      return;
+    }
+
+    var questions = rs.questions;
+    var questionsHtml = questions.map(function (q, idx) {
+      var selected = rs.answers[q.id];
+      var optionsHtml = q.options.map(function (opt, oi) {
+        var cls = 'option-item';
+        var icon = '';
+        if (rs.submitted) {
+          if (oi === q.correct_index) { cls += ' correct'; icon = ICONS.check; }
+          else if (oi === selected) { cls += ' incorrect'; icon = ICONS.cross; }
+        } else if (selected === oi) {
+          cls += ' selected';
+        }
+        return (
+          '<div class="' + cls + '" data-el="' + num + '" data-q="' + q.id + '" data-opt="' + oi + '">' +
+            '<span class="option-radio">' + icon + '</span>' +
+            '<span class="option-text">' +
+              (showEn() ? '<div class="en">' + esc(opt.en) + '</div>' : '') +
+              (showZh() ? '<div class="zh">' + esc(opt.zh) + '</div>' : '') +
+            '</span>' +
+          '</div>'
+        );
+      }).join('');
+
+      var explanation = rs.submitted ? (
+        '<div class="explanation-box show">' +
+          '<div class="label">詳解 Explanation</div>' +
+          (showEn() ? '<div class="en">' + esc(q.explanation_en) + '</div>' : '') +
+          (showZh() ? '<div class="zh">' + esc(q.explanation_zh) + '</div>' : '') +
+        '</div>'
+      ) : '';
+
+      return (
+        '<div class="question-card">' +
+          '<div class="question-num">Question ' + (idx + 1) + ' / ' + questions.length + '</div>' +
+          (showEn() ? '<div class="question-text">' + esc(q.question_en) + '</div>' : '') +
+          (showZh() ? '<div class="question-text-zh">' + esc(q.question_zh) + '</div>' : '') +
+          '<div class="option-list">' + optionsHtml + '</div>' +
+          explanation +
+        '</div>'
+      );
+    }).join('');
+
+    var answeredCount = Object.keys(rs.answers).length;
+    var total = questions.length;
+
+    var summaryHtml = '';
+    if (rs.submitted) {
+      var score = questions.reduce(function (acc, q) { return acc + (rs.answers[q.id] === q.correct_index ? 1 : 0); }, 0);
+      var pct = Math.round((score / total) * 100);
+      summaryHtml =
+        '<div class="quiz-summary show">' +
+          '<div class="score">' + score + ' / ' + total + '</div>' +
+          '<div class="score-label">答對率 ' + pct + '% — 答對的題目已從錯題本移除,答錯的會繼續留著下次複習</div>' +
+          '<div class="quiz-summary-actions">' +
+            '<button class="btn btn-outline" data-retake-review="' + num + '">再複習一輪</button>' +
+            '<button class="btn btn-primary" data-go="#/element/' + num + '">返回單元頁面</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    root.innerHTML =
+      '<div class="page-header" style="--pg-color:' + color + '">' +
+        backLink('#/element/' + num, '返回單元頁面') +
+        '<span class="tag">' + e.unit + ' · Element ' + num + ' · 錯題複習(從 ' + total + ' 題錯題中抽取)</span>' +
+        '<h1>' + esc(e.title_zh) + '</h1>' +
+        (showEn() ? '<div class="en-title">' + esc(e.title_en) + '</div>' : '') +
+      '</div>' +
+      summaryHtml +
+      questionsHtml +
+      (rs.submitted ? '' :
+        '<div class="sticky-bar">' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + (total ? (answeredCount / total * 100) : 0) + '%"></div></div>' +
+          '<span class="progress-text">已作答 ' + answeredCount + ' / ' + total + '</span>' +
+          '<button class="btn btn-primary" id="submit-review" ' + (answeredCount < total ? 'disabled style="opacity:.5;cursor:not-allowed;"' : '') + '>提交複習</button>' +
+        '</div>'
+      );
+
+    bindGoButtons();
+
+    if (!rs.submitted) {
+      Array.prototype.forEach.call(root.querySelectorAll('.option-item'), function (opt) {
+        opt.addEventListener('click', function () {
+          var qid = Number(opt.dataset.q);
+          var oi = Number(opt.dataset.opt);
+          rs.answers[qid] = oi;
+          renderReviewPage(e);
+        });
+      });
+      var submitBtn = document.getElementById('submit-review');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function () {
+          if (Object.keys(rs.answers).length < total) return;
+          rs.submitted = true;
+          syncWrongQuestions(num, questions, rs.answers);
+          renderReviewPage(e);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    } else {
+      var retakeBtn = root.querySelector('[data-retake-review]');
+      if (retakeBtn) {
+        retakeBtn.addEventListener('click', function () {
+          state.reviewState[num] = { status: 'loading' };
+          renderReviewPage(e);
+          loadReviewQuestions(e, function () { renderReviewPage(e); });
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
       }

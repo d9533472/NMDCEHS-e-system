@@ -1,0 +1,11 @@
+{
+  "name": "nebosh-quiz-backend",
+  "version": "1.0.0",
+  "private": true,
+  "main": "server.js",
+  "dependencies": {
+    "express": "*",
+    "@anthropic-ai/sdk": "*",
+    "better-sqlite3": "*"
+  }
+}
