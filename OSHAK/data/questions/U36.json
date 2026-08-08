@@ -1,0 +1,732 @@
+{
+  "unitId": "U36",
+  "unitTitle": "人因性危害預防",
+  "unitNumber": 36,
+  "questions": [
+    {
+      "id": "U36-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第6條第2項，雇主對於下列何種危害應採取預防措施？",
+      "options": [
+        {"id": "A", "text": "僅噪音危害"},
+        {"id": "B", "text": "重複作業等促發肌肉骨骼疾病之危害"},
+        {"id": "C", "text": "僅化學性危害"},
+        {"id": "D", "text": "僅火災爆炸危害"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第6條第2項第3款規定，雇主對於重複作業等促發肌肉骨骼疾病之危害，應採取必要之預防措施。人因性危害如重複動作、不良姿勢、過度施力等，可能导致肌肉骨骼疾病，雇主有法定預防義務。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項，雇主對於何種作業應採取預防措施以防止勞工異常工作負荷？",
+      "options": [
+        {"id": "A", "text": "僅夜間作業"},
+        {"id": "B", "text": "輪班、夜間工作、長時間工作等異常工作負荷"},
+        {"id": "C", "text": "僅日間作業"},
+        {"id": "D", "text": "僅室外作業"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第6條第2項第2款規定，雇主對於輪班、夜間工作、長時間工作等異常工作負荷，應採取必要之預防措施。異常工作負荷可能導致過勞、心血管疾病等健康危害，雇主應採取適當之預防措施。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項，雇主對於何種作業應採取預防措施以保障勞工身心健康？",
+      "options": [
+        {"id": "A", "text": "僅高危險作業"},
+        {"id": "B", "text": "執行職務因遭受不法侵害（如職場暴力）"},
+        {"id": "C", "text": "僅化學作業"},
+        {"id": "D", "text": "僅高空作業"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第6條第2項第4款規定，雇主對於執行職務因他人行為遭受身體或精神不法侵害之危害（如職場暴力、霸凌等），應採取必要之預防措施。此為保障勞工身心健康之重要規定。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q004",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "下列何者屬於人因性危害之類型？",
+      "options": [
+        {"id": "A", "text": "噪音"},
+        {"id": "B", "text": "不良作業姿勢、重複動作、過度施力"},
+        {"id": "C", "text": "游離輻射"},
+        {"id": "D", "text": "有機溶劑蒸氣"}
+      ],
+      "answer": ["B"],
+      "explanation": "人因性危害指因工作設計、作業方式、環境配置不當等因素，造成勞工身體負擔過大之危害，包括不良作業姿勢、重複動作、過度施力、搬運重物等。噪音屬物理性危害，游離輻射亦屬物理性危害，有機溶劑屬化學性危害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "人因工程中最常見之肌肉骨骼疾病（MSDs）好發於人體哪個部位？",
+      "options": [
+        {"id": "A", "text": "頭部"},
+        {"id": "B", "text": "下背部（腰部）及上肢（肩頸、手腕）"},
+        {"id": "C", "text": "下肢腳趾"},
+        {"id": "D", "text": "腹部內臟"}
+      ],
+      "answer": ["B"],
+      "explanation": "肌肉骨骼疾病（MSDs）最常好發於下背部（腰部）及上肢（肩頸、手腕），如椎間盤突出、腕隧道症候群、肩旋轉肌袖病變等。這些部位承受較多之重複性負荷及不良姿勢壓力，是人因性危害之主要受害區域。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於勞工以人力搬運重物時，應如何處理？",
+      "options": [
+        {"id": "A", "text": "無特別規定，由勞工自行決定"},
+        {"id": "B", "text": "應儘量以機械設備代替，並考量勞工之負荷能力"},
+        {"id": "C", "text": "僅需提供手套即可"},
+        {"id": "D", "text": "提高搬運速度以縮短作業時間"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，雇主對於物料之搬運，應儘量以機械設備代替人力，並應考量勞工之體能負荷能力。以機械代替人力可降低人因性危害，考量勞工負荷能力可預防肌肉骨骼疾病。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於座椅之設置，下列何者正確？",
+      "options": [
+        {"id": "A", "text": "作業性質許可時，應使勞工以坐姿作業，並設置適當之座椅"},
+        {"id": "B", "text": "所有作業均須站立進行"},
+        {"id": "C", "text": "座椅無尺寸規定"},
+        {"id": "D", "text": "僅主管可使用座椅"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則規定，雇主對於作業性質許可時，應使勞工以坐姿作業，並設置適當之座椅。坐姿作業可減少下肢負擔及疲勞，適當之座椅應可調整高度、具備靠背等，以符合人因工程原則。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者為預防人因性危害之最優先措施？",
+      "options": [
+        {"id": "A", "text": "佩戴護腰帶"},
+        {"id": "B", "text": "從源頭改善工作設計，消除或減少危害因子"},
+        {"id": "C", "text": "實施健康檢查"},
+        {"id": "D", "text": "縮短工作時間"}
+      ],
+      "answer": ["B"],
+      "explanation": "預防人因性危害之最優先措施為從源頭改善工作設計，消除或減少危害因子，如改善作業姿勢、減輕搬運重量、調整工作台高度等。工程控制優於行政管理及個人防護具，護腰帶等個人防護具僅為輔助措施，不能取代源頭改善。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q009",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第6條第2項規定，雇主應採取預防措施之人因性危害共有幾項？",
+      "options": [
+        {"id": "A", "text": "2項"},
+        {"id": "B", "text": "3項"},
+        {"id": "C", "text": "4項"},
+        {"id": "D", "text": "5項"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生法第6條第2項規定之預防措施共4項：(1)母性健康保護、(2)輪班夜間長時間工作等異常工作負荷、(3)重複作業等促發肌肉骨骼疾病之危害、(4)執行職務遭受不法侵害。四項均為雇主應預防之人因及身心健康危害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何種作業姿勢對人體之負擔最大，最易造成肌肉骨骼疾病？",
+      "options": [
+        {"id": "A", "text": "坐姿作業，工作台高度適當"},
+        {"id": "B", "text": "立姿作業，工作台高度適當"},
+        {"id": "C", "text": "彎腰、扭轉、蹲跪等不自然姿勢"},
+        {"id": "D", "text": "坐立交替作業"}
+      ],
+      "answer": ["C"],
+      "explanation": "彎腰、扭轉、蹲跪等不自然姿勢對人體之負擔最大，最易造成肌肉骨骼疾病。不自然姿勢使脊椎、關節及肌肉承受異常壓力，長期累積可導致椎間盤突出、肌腱炎等。工作台高度適當之坐姿或立姿作業負擔較小。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "人因工程中，工作台之高度設計應依何種因素調整？",
+      "options": [
+        {"id": "A", "text": "僅依美觀考量"},
+        {"id": "B", "text": "依作業性質（精密作業或重負荷作業）及勞工身高調整"},
+        {"id": "C", "text": "固定高度不須調整"},
+        {"id": "D", "text": "依雇主喜好決定"}
+      ],
+      "answer": ["B"],
+      "explanation": "工作台高度應依作業性質及勞工身高調整。精密作業（如組裝、檢驗）之工作台高度應較高，可使勞工接近坐姿或微彎角度操作；重負荷作業（如搬運）之工作台高度應較低，約在手指尖至肘部之間，以減少彎腰負擔。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "腕隧道症候群最可能與下列何種作業有關？",
+      "options": [
+        {"id": "A", "text": "長時間搬運重物"},
+        {"id": "B", "text": "重複性手腕動作（如鍵盤打字、組裝作業）"},
+        {"id": "C", "text": "長時間站立"},
+        {"id": "D", "text": "噪音作業"}
+      ],
+      "answer": ["B"],
+      "explanation": "腕隧道症候群是正中神經在手腕處受壓迫所致，最常見於從事重複性手腕動作之作業，如鍵盤打字、電子組裝、包裝等。重複性手腕屈伸及施力使腕隧道內壓力增加，壓迫正中神經，造成手指麻木、疼痛等症狀。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於物料搬運，如無法以機械設備代替時，應採取何種措施？",
+      "options": [
+        {"id": "A", "text": "無須任何措施"},
+        {"id": "B", "text": "應考量勞工之體能負荷，並使勞工接受適當之教育訓練"},
+        {"id": "C", "text": "提高搬運重量以增加效率"},
+        {"id": "D", "text": "僅由新進人員搬運"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，雇主對於物料搬運如無法以機械設備代替時，應考量勞工之體能負荷能力，並使勞工接受適當之安全衛生教育訓練，教導正確搬運姿勢及方法，以預防肌肉骨骼疾病。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "人因工程改善之基本原則中，下列何者最為重要？",
+      "options": [
+        {"id": "A", "text": "使工作適合人，而非使人適應工作"},
+        {"id": "B", "text": "使人適應工作環境"},
+        {"id": "C", "text": "增加工作強度以提高產能"},
+        {"id": "D", "text": "減少休息時間"}
+      ],
+      "answer": ["A"],
+      "explanation": "人因工程之基本原則為「使工作適合人，而非使人適應工作」。透過工作設計、環境配置、工具選擇等方式，使作業方式符合人體之生理結構及能力限制，以減少疲勞及傷害，提升效率與安全。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q015",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "下列何者不是人因性危害之常見症狀？",
+      "options": [
+        {"id": "A", "text": "肌肉酸痛"},
+        {"id": "B", "text": "關節疼痛"},
+        {"id": "C", "text": "手腕麻木"},
+        {"id": "D", "text": "聽力損失"}
+      ],
+      "answer": ["D"],
+      "explanation": "人因性危害之常見症狀包括肌肉酸痛、關節疼痛、手腕麻木、下背痛等肌肉骨骼系統症狀。聽力損失屬於噪音危害之症狀，非人因性危害之症狀。人因性危害主要影響肌肉骨骼系統。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q016",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "人工物料搬運時，下列何種搬運姿勢最為正確？",
+      "options": [
+        {"id": "A", "text": "彎腰搬運，以腰部施力"},
+        {"id": "B", "text": "屈膝蹲下，保持背部直立，以腿部力量搬運"},
+        {"id": "C", "text": "扭轉腰部搬運"},
+        {"id": "D", "text": "單手搬運重物"}
+      ],
+      "answer": ["B"],
+      "explanation": "正確之人工搬運姿勢為屈膝蹲下、保持背部直立、以腿部力量（大腿肌肉）搬運，而非彎腰以腰部施力。彎腰搬運使腰椎承受極大壓力，易導致椎間盤突出；扭轉腰部及單手搬運亦會造成不均勻之脊椎壓力，增加受傷風險。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項第3款，雇主對於重複作業等促發肌肉骨骼疾病之危害，應採取之預防措施，其適用範圍由何者公告？",
+      "options": [
+        {"id": "A", "text": "由雇主自行決定"},
+        {"id": "B", "text": "由中央主管機關公告"},
+        {"id": "C", "text": "由各縣市政府決定"},
+        {"id": "D", "text": "由勞工決定"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第6條第2項第3款規定，雇主對於重複作業等促發肌肉骨骼疾病之危害，應採取必要之預防措施，其適用範圍由中央主管機關（勞動部）公告之。中央主管機關依據各行業之特性及危害程度訂定適用範圍。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者為人因性危害預防之行政管理措施？",
+      "options": [
+        {"id": "A", "text": "調整工作台高度"},
+        {"id": "B", "text": "實施工作輪調，減少重複動作之暴露時間"},
+        {"id": "C", "text": "設計符合人因工程之工具"},
+        {"id": "D", "text": "安裝機械搬運設備"}
+      ],
+      "answer": ["B"],
+      "explanation": "工作輪調屬於行政管理措施，透過變換作業內容，減少特定重複動作之暴露時間，可降低肌肉骨骼疾病之風險。調整工作台高度、設計人因工具及安裝機械設備均屬工程控制措施。行政管理為工程控制之外之補充措施。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "NIOSH搬運公式中，建議重量極限（RWL）之計算主要考量哪些因素？",
+      "options": [
+        {"id": "A", "text": "僅考量搬運重量"},
+        {"id": "B", "text": "考量搬運位置（水平距離、垂直高度）、搬運距離、頻率、握把及對稱性等因素"},
+        {"id": "C", "text": "僅考量勞工性別"},
+        {"id": "D", "text": "僅考量搬運頻率"}
+      ],
+      "answer": ["B"],
+      "explanation": "NIOSH搬運公式中建議重量極限（RWL）之計算考量多項因素，包括水平距離因子、垂直高度因子、搬運距離因子、不對稱因子、頻率因子及握把因子等。這些因子反映搬運作業對人體各部位之負荷程度，以計算安全之搬運重量極限。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於勞工從事作業時，為減少疲勞及危害，應注意何事？",
+      "options": [
+        {"id": "A", "text": "儘量增加作業時間以提高產量"},
+        {"id": "B", "text": "使勞工之作業姿勢及動作符合人因工程原則，並給予適當休息"},
+        {"id": "C", "text": "減少休息時間以增加效率"},
+        {"id": "D", "text": "無須考量勞工疲勞"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，雇主應使勞工之作業姿勢及動作符合人因工程原則，並給予適當之休息時間，以減少疲勞及危害。適當之休息可使肌肉恢復，減少累積性傷害之發生。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q021",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "下列何種工作設計原則可有效預防人因性危害？",
+      "options": [
+        {"id": "A", "text": "增加單一動作之重複次數"},
+        {"id": "B", "text": "工作豐富化，避免單調重複之作業，允許姿勢變換"},
+        {"id": "C", "text": "固定工作姿勢不可變換"},
+        {"id": "D", "text": "提高搬運重量"}
+      ],
+      "answer": ["B"],
+      "explanation": "工作豐富化（job enrichment）可避免單調重複之作業，允許勞工變換姿勢及動作，減少特定肌肉群之持續負荷，有效預防人因性危害。增加重複次數或固定姿勢反而會增加危害。工作設計應兼顧效率與人體負荷。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "下列何者為電腦作業常見之人因性危害？",
+      "options": [
+        {"id": "A", "text": "化學中毒"},
+        {"id": "B", "text": "腕隧道症候群、頸肩腕症候群"},
+        {"id": "C", "text": "聽力損失"},
+        {"id": "D", "text": "塵肺病"}
+      ],
+      "answer": ["B"],
+      "explanation": "電腦作業因長時間維持固定姿勢及重複性手指手腕動作，常導致腕隧道症候群、頸肩腕症候群等人因性危害。化學中毒、聽力損失及塵肺病分別屬化學性、物理性危害，與電腦作業無直接關係。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第6條第2項第2款，下列何者不屬於「異常工作負荷」之範疇？",
+      "options": [
+        {"id": "A", "text": "輪班作業"},
+        {"id": "B", "text": "夜間工作"},
+        {"id": "C", "text": "長時間工作"},
+        {"id": "D", "text": "日間正常8小時工作"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生法第6條第2項第2款所稱異常工作負荷包括輪班、夜間工作、長時間工作等。日間正常8小時工作屬正常工作負荷，不構成異常工作負荷。異常工作負荷可能導致生理時鐘紊亂、過勞等健康危害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則，雇主對於座椅之設計，下列何者符合人因工程原則？",
+      "options": [
+        {"id": "A", "text": "座椅高度固定不可調整"},
+        {"id": "B", "text": "座椅應可調整高度，並具適當之靠背支撐腰部"},
+        {"id": "C", "text": "無靠背以促進挺直坐姿"},
+        {"id": "D", "text": "座椅越軟越好"}
+      ],
+      "answer": ["B"],
+      "explanation": "符合人因工程原則之座椅應可調整高度（配合勞工腿長及工作台高度），並具備適當之靠背以支撐腰部（腰椎前凸弧度）。可調整之座椅適應不同體型之勞工，靠背支撐可減少下背部負擔，預防腰背疼痛。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項，雇主應採取預防措施之危害包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "重複作業等促發肌肉骨骼疾病之危害"},
+        {"id": "B", "text": "輪班、夜間工作、長時間工作等異常工作負荷"},
+        {"id": "C", "text": "執行職務遭受不法侵害"},
+        {"id": "D", "text": "母性健康保護"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生法第6條第2項規定之4項預防措施：母性健康保護、異常工作負荷、重複作業促發肌肉骨骼疾病、執行職務遭受不法侵害。四項均為雇主應預防之人因及身心健康相關危害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些屬於人因性危害之危險因子？（複選）",
+      "options": [
+        {"id": "A", "text": "不良作業姿勢"},
+        {"id": "B", "text": "重複性動作"},
+        {"id": "C", "text": "過度施力"},
+        {"id": "D", "text": "振動"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "人因性危害之危險因子包括不良作業姿勢、重複性動作、過度施力、振動、長時間固定姿勢等。這些因子單獨或合併存在時，可能導致肌肉骨骼疾病。振動（如使用動力手工具）也是重要之人因性危害因子。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "下列哪些為預防人因性危害之工程控制措施？（複選）",
+      "options": [
+        {"id": "A", "text": "調整工作台高度至適當位置"},
+        {"id": "B", "text": "以機械搬運設備代替人工搬運"},
+        {"id": "C", "text": "設計符合人因工程之工具"},
+        {"id": "D", "text": "實施工作輪調"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "工程控制措施包括調整工作台高度、以機械代替人工搬運、設計人因工程工具等，從源頭改善作業環境及設備。工作輪調屬於行政管理措施，非工程控制。工程控制為預防人因性危害之最優先措施。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些為人因性危害可能導致之疾病或症狀？（複選）",
+      "options": [
+        {"id": "A", "text": "腕隧道症候群"},
+        {"id": "B", "text": "下背痛"},
+        {"id": "C", "text": "頸肩腕症候群"},
+        {"id": "D", "text": "椎間盤突出"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "人因性危害可導致多種肌肉骨骼疾病：腕隧道症候群（重複手腕動作）、下背痛（搬運或久坐）、頸肩腕症候群（長時間固定姿勢）、椎間盤突出（不良搬運姿勢）。四項均為人因性危害之常見結果。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第6條第2項，下列哪些屬於「異常工作負荷」？（複選）",
+      "options": [
+        {"id": "A", "text": "輪班作業"},
+        {"id": "B", "text": "夜間工作"},
+        {"id": "C", "text": "長時間工作"},
+        {"id": "D", "text": "日間正常工時作業"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生法第6條第2項第2款所稱異常工作負荷包括輪班、夜間工作、長時間工作。日間正常工時作業屬正常工作負荷。異常工作負荷可能導致生理時鐘紊亂、疲勞累積、心血管疾病等健康危害，雇主應採取預防措施。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些為人工搬運時應注意之事項？（複選）",
+      "options": [
+        {"id": "A", "text": "屈膝蹲下，保持背部直立"},
+        {"id": "B", "text": "搬運重量應在勞工體能負荷範圍內"},
+        {"id": "C", "text": "避免扭轉腰部"},
+        {"id": "D", "text": "儘量以彎腰方式搬運以提高速度"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "正確之人工搬運應屈膝蹲下、保持背部直立、以腿部力量搬運；搬運重量應在體能負荷範圍內；避免扭轉腰部以減少脊椎壓力。彎腰搬運使腰椎承受極大壓力，易導致椎間盤突出，為錯誤之作法。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "下列哪些為預防電腦作業人因性危害之措施？（複選）",
+      "options": [
+        {"id": "A", "text": "調整螢幕高度與視線平齊或略低"},
+        {"id": "B", "text": "鍵盤及滑鼠放置於適當高度，手腕保持自然"},
+        {"id": "C", "text": "座椅可調整高度且有靠背"},
+        {"id": "D", "text": "連續作業不休息以增加產量"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "預防電腦作業人因性危害之措施包括：螢幕高度與視線平齊或略低（減少頸部負擔）、鍵盤滑鼠高度適當使手腕自然（預防腕隧道症候群）、座椅可調高度且有靠背（減少下背負擔）。連續不休息會增加疲勞及累積性傷害風險。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "下列哪些屬於人因工程改善之基本原則？（複選）",
+      "options": [
+        {"id": "A", "text": "使工作適合人，而非使人適應工作"},
+        {"id": "B", "text": "減少不自然姿勢及重複動作"},
+        {"id": "C", "text": "以機械代替人力搬運"},
+        {"id": "D", "text": "增加單一動作之重複次數"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "人因工程改善原則包括：使工作適合人、減少不自然姿勢及重複動作、以機械代替人力搬運等。增加重複次數會增加肌肉骨骼疾病風險，違背人因工程原則。應以工作豐富化及姿勢變換來減少重複暴露。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第6條第2項，雇主對於重複作業等促發肌肉骨骼疾病之危害，應採取必要之預防措施。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第6條第2項第3款明確規定，雇主對於重複作業等促發肌肉骨骼疾病之危害，應採取必要之預防措施。此為雇主之法定義務，適用範圍由中央主管機關公告。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項，雇主對於輪班、夜間工作、長時間工作等異常工作負荷，應採取必要之預防措施。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第6條第2項第2款規定，雇主對於輪班、夜間工作、長時間工作等異常工作負荷，應採取必要之預防措施。異常工作負荷可能導致過勞等健康危害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "人工搬運重物時，應以彎腰方式搬運，以腰部力量將重物抬起。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "正確之人工搬運姿勢應為屈膝蹲下、保持背部直立、以腿部力量搬運，而非彎腰以腰部力量搬運。彎腰搬運使腰椎承受極大壓力，易導致椎間盤突出及下背痛，為錯誤之搬運方式。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q036",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "人因工程之基本原則是「使工作適合人，而非使人適應工作」。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "人因工程之基本原則為「使工作適合人，而非使人適應工作」。透過工作設計、環境配置、工具選擇等方式，使作業符合人體之生理結構及能力限制，減少疲勞及傷害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q037",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第6條第2項，雇主對於勞工執行職務因他人行為遭受身體或精神不法侵害之危害，應採取預防措施。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第6條第2項第4款規定，雇主對於執行職務因他人行為遭受身體或精神不法侵害之危害（如職場暴力、霸凌），應採取必要之預防措施。此為保障勞工身心健康之重要規定。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項第3款，雇主對於________作業等促發肌肉骨骼疾病之危害，應採取必要之預防措施。",
+      "answer": ["重複", "重複性"],
+      "explanation": "職業安全衛生法第6條第2項第3款規定，雇主對於重複作業等促發肌肉骨骼疾病之危害，應採取必要之預防措施。重複性動作是人因性危害之重要危險因子。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項第2款，雇主對於輪班、夜間工作、長時間工作等________工作負荷，應採取預防措施。",
+      "answer": ["異常"],
+      "explanation": "職業安全衛生法第6條第2項第2款規定，雇主對於輪班、夜間工作、長時間工作等異常工作負荷，應採取必要之預防措施。異常工作負荷可能導致過勞、心血管疾病等健康危害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "人因工程之基本原則是「使工作適合________，而非使人適應工作」。",
+      "answer": ["人", "人類"],
+      "explanation": "人因工程之基本原則為「使工作適合人，而非使人適應工作」。透過工作設計使作業方式符合人體之生理結構及能力限制，減少疲勞及傷害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第6條第2項規定，雇主應採取預防措施之危害共有________項（含母性健康保護、異常工作負荷、肌肉骨骼疾病、不法侵害）。",
+      "answer": ["4", "四"],
+      "explanation": "職業安全衛生法第6條第2項規定之預防措施共4項：母性健康保護、異常工作負荷、重複作業促發肌肉骨骼疾病、執行職務遭受不法侵害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "腕隧道症候群主要影響手腕處之________神經，造成手指麻木及疼痛。",
+      "answer": ["正中", "正中神經"],
+      "explanation": "腕隧道症候群是正中神經在手腕腕隧道處受壓迫所致，造成拇指、食指、中指及無名指橈側麻木、疼痛及無力。重複性手腕動作是主要之危險因子。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項規定，雇主應採取預防措施之危害共有4項。若其中屬於人因性危害（肌肉骨骼疾病）及異常工作負荷2項，請問人因相關項目佔全部第2項規定項目之百分比為多少？",
+      "answer": {"value": 50, "unit": "%", "tolerance": 0.1},
+      "explanation": "人因相關項目（肌肉骨骼疾病及異常工作負荷）共2項，全部第2項規定共4項。百分比=2÷4×100%=50%。第6條第2項中有半數項目與人因性危害直接相關。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某勞工每日工作8小時，其中6小時從事重複性組裝作業。依人因工程原則，建議每小時至少休息10分鐘以變換姿勢。若該勞工在6小時組裝作業中均未休息，則其缺失之休息時間共多少分鐘？",
+      "answer": {"value": 60, "unit": "分鐘", "tolerance": 0},
+      "explanation": "建議每小時休息10分鐘，6小時應休息6×10=60分鐘。該勞工均未休息，故缺失之休息時間為60分鐘。適當休息可使肌肉恢復，減少累積性傷害之風險。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工作台高度為80公分，而勞工肘部高度為100公分。依人因工程原則，輕負荷作業之工作台高度宜在肘部高度以下約10至15公分。該工作台與建議高度上限（肘高減10公分）相差多少公分？",
+      "answer": {"value": 10, "unit": "公分", "tolerance": 0},
+      "explanation": "建議高度上限=肘部高度100-10=90公分。工作台高度80公分，與建議上限90公分相差90-80=10公分。工作台偏低10公分，應適當墊高以符合人因工程原則。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列職業安全衛生法第6條第2項之預防項目與其對應之條款正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "母性健康保護"},
+        {"id": "L2", "text": "異常工作負荷"},
+        {"id": "L3", "text": "肌肉骨骼疾病"},
+        {"id": "L4", "text": "不法侵害"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "第2項第1款"},
+        {"id": "R2", "text": "第2項第2款"},
+        {"id": "R3", "text": "第2項第3款"},
+        {"id": "R4", "text": "第2項第4款"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "職業安全衛生法第6條第2項各款規定：第1款母性健康保護、第2款異常工作負荷、第3款重複作業促發肌肉骨骼疾病、第4款執行職務遭受不法侵害。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列人因性危害之危險因子與其可能導致之疾病正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "重複性手腕動作"},
+        {"id": "L2", "text": "彎腰搬運重物"},
+        {"id": "L3", "text": "長時間固定坐姿"},
+        {"id": "L4", "text": "長時間電腦作業"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "腕隧道症候群"},
+        {"id": "R2", "text": "椎間盤突出"},
+        {"id": "R3", "text": "下背痛"},
+        {"id": "R4", "text": "頸肩腕症候群"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "重複性手腕動作導致腕隧道症候群；彎腰搬運重物導致椎間盤突出；長時間固定坐姿導致下背痛；長時間電腦作業導致頸肩腕症候群。不同危險因子影響不同部位，預防措施亦不同。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q048",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依人因性危害防護之控制層級，由最優先到最後排列：",
+      "items": [
+        {"id": "I1", "text": "工程控制（調整工作台、機械代替人力等）"},
+        {"id": "I2", "text": "行政管理（工作輪調、休息時間安排）"},
+        {"id": "I3", "text": "個人防護具（護腰帶等輔助用品）"},
+        {"id": "I4", "text": "健康檢查與追蹤"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "人因性危害防護之優先順序為：工程控制（源頭改善工作設計）→行政管理（工作輪調、休息安排）→個人防護具（護腰帶等輔助）→健康檢查追蹤。工程控制為最根本之方法，個人防護具僅為輔助措施。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U36-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依對人體負擔由小到大排列下列作業姿勢：",
+      "items": [
+        {"id": "I1", "text": "坐姿作業，工作台高度適當"},
+        {"id": "I2", "text": "立姿作業，工作台高度適當"},
+        {"id": "I3", "text": "坐立交替作業"},
+        {"id": "I4", "text": "彎腰、蹲跪等不自然姿勢"}
+      ],
+      "answer": ["I1", "I3", "I2", "I4"],
+      "explanation": "作業姿勢對人體負擔由小到大：坐姿作業（負擔最小）→坐立交替（允許姿勢變換，負擔次小）→立姿作業（下肢負擔較大）→彎腰蹲跪等不自然姿勢（負擔最大，最易造成肌肉骨骼疾病）。作業性質許可時應優先採坐姿。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U36-Q050",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "某電子組裝工廠勞工每日連續8小時從事重複性手腕組裝動作，多名勞工出現手腕麻木症狀。請將下列人因性危害防護措施與其對應之控制層級正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "調整工作台高度及工具設計"},
+        {"id": "L2", "text": "實施工作輪調及安排適當休息時間"},
+        {"id": "L3", "text": "提供護腰帶等輔助用品"},
+        {"id": "L4", "text": "實施肌肉骨骼疾病健康檢查與追蹤"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "工程控制"},
+        {"id": "R2", "text": "行政管理"},
+        {"id": "R3", "text": "個人防護具"},
+        {"id": "R4", "text": "健康管理"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "依職業安全衛生法第6條第2項第3款，雇主應採取多重措施預防肌肉骨骼疾病：工程控制（調整工作台、工具設計）為最優先→行政管理（工作輪調、休息安排）→個人防護具（護腰帶等輔助）→健康管理（健康檢查追蹤）。僅發放護腕不足以解決根本問題，須多重措施並行。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    }
+  ]
+}

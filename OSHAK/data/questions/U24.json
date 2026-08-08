@@ -1,0 +1,732 @@
+{
+  "unitId": "U24",
+  "unitTitle": "機械、設備或器具安全相關法規",
+  "unitNumber": 24,
+  "questions": [
+    {
+      "id": "U24-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法規定，製造者、輸入者、供應者或雇主，對於中央主管機關指定之機械、設備或器具，其構造、性能及防護非符合何者，不得產製運出廠場、輸入、租賃、供應或設置？",
+      "options": [
+        {"id": "A", "text": "國家標準"},
+        {"id": "B", "text": "安全標準"},
+        {"id": "C", "text": "企業標準"},
+        {"id": "D", "text": "國際標準"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第7條第1項規定，對於中央主管機關指定之機械、設備或器具，其構造、性能及防護非符合安全標準者，不得產製運出廠場、輸入、租賃、供應或設置。安全標準由中央主管機關定之。",
+      "references": [{"title": "職業安全衛生法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+    },
+    {
+      "id": "U24-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法規定，製造者或輸入者對於符合安全標準之機械、設備或器具，應於中央主管機關指定之資訊申報網站登錄，並於產品明顯處張貼什麼？",
+      "options": [
+        {"id": "A", "text": "商標"},
+        {"id": "B", "text": "安全標示"},
+        {"id": "C", "text": "產地標籤"},
+        {"id": "D", "text": "價格標籤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第7條第3項規定，製造者或輸入者對於符合安全標準之機械、設備或器具，應於指定資訊申報網站登錄，並於產品明顯處張貼安全標示，以供識別。但屬於公告列入型式驗證之產品，應依第8條及第9條規定辦理。",
+      "references": [{"title": "職業安全衛生法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+    },
+    {
+      "id": "U24-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第8條規定，製造者或輸入者對於公告列入型式驗證之機械、設備或器具，非經何者實施型式驗證合格及張貼合格標章，不得產製運出廠場或輸入？",
+      "options": [
+        {"id": "A", "text": "中央主管機關認可之驗證機構"},
+        {"id": "B", "text": "經濟部標準檢驗局"},
+        {"id": "C", "text": "勞動檢查機構"},
+        {"id": "D", "text": "消保會"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第8條第1項規定，製造者或輸入者對於公告列入型式驗證之機械、設備或器具，非經中央主管機關認可之驗證機構實施型式驗證合格及張貼合格標章，不得產製運出廠場或輸入。",
+      "references": [{"title": "職業安全衛生法第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=8"}]
+    },
+    {
+      "id": "U24-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第16條規定，雇主對於經中央主管機關指定具有危險性之機械或設備，非經何者檢查合格，不得使用？",
+      "options": [
+        {"id": "A", "text": "勞動檢查機構或中央主管機關指定之代行檢查機構"},
+        {"id": "B", "text": "經濟部"},
+        {"id": "C", "text": "工會"},
+        {"id": "D", "text": "環保署"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第16條第1項規定，雇主對於經中央主管機關指定具有危險性之機械或設備，非經勞動檢查機構或中央主管機關指定之代行檢查機構檢查合格，不得使用；其使用超過規定期間者，非經再檢查合格，不得繼續使用。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U24-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則規定，下列何者不屬於具有危險性之機械？",
+      "options": [
+        {"id": "A", "text": "固定式起重機"},
+        {"id": "B", "text": "移動式起重機"},
+        {"id": "C", "text": "吊籠"},
+        {"id": "D", "text": "手推車"}
+      ],
+      "answer": ["D"],
+      "explanation": "職安法施行細則第22條規定，具有危險性之機械包括：固定式起重機、移動式起重機、人字臂起重桿、營建用升降機、營建用提升機、吊籠等。手推車不屬於危險性機械。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U24-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第23條規定，下列何者屬於具有危險性之設備？",
+      "options": [
+        {"id": "A", "text": "鍋爐"},
+        {"id": "B", "text": "壓力容器"},
+        {"id": "C", "text": "高壓氣體特定設備"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "職安法施行細則第23條規定，具有危險性之設備包括：鍋爐、壓力容器、高壓氣體特定設備、高壓氣體容器等。三者均屬之。",
+      "references": [{"title": "職業安全衛生法施行細則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=23"}]
+    },
+    {
+      "id": "U24-Q007",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依危險性機械及設備安全檢查規則規定，固定式起重機之吊升荷重須在多少公噸以上，才屬於危險性機械？",
+      "options": [
+        {"id": "A", "text": "一公噸以上"},
+        {"id": "B", "text": "二公噸以上"},
+        {"id": "C", "text": "三公噸以上"},
+        {"id": "D", "text": "五公噸以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，固定式起重機：吊升荷重在三公噸以上之固定式起重機或一公噸以上之斯達卡式起重機，方屬危險性機械。注意斯達卡式起重機之門檻為一公噸。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q008",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依危險性機械及設備安全檢查規則規定，移動式起重機之吊升荷重須在多少公噸以上，才屬於危險性機械？",
+      "options": [
+        {"id": "A", "text": "一公噸以上"},
+        {"id": "B", "text": "二公噸以上"},
+        {"id": "C", "text": "三公噸以上"},
+        {"id": "D", "text": "五公噸以上"}
+      ],
+      "answer": ["C"],
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，移動式起重機：吊升荷重在三公噸以上之移動式起重機，方屬危險性機械。與固定式起重機之門檻相同。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於下列何者應使其具安全構造，並依機械設備器具安全標準之規定辦理？",
+      "options": [
+        {"id": "A", "text": "動力衝剪機械"},
+        {"id": "B", "text": "手推刨床"},
+        {"id": "C", "text": "木材加工用圓盤鋸"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生設施規則第41條規定，雇主對於動力衝剪機械、手推刨床、木材加工用圓盤鋸、動力堆高機、研磨機、研磨輪、防爆電氣設備等，應使其具安全構造，並依機械設備器具安全標準之規定辦理。",
+      "references": [{"title": "職業安全衛生設施規則第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=41"}]
+    },
+    {
+      "id": "U24-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於機械之原動機、轉軸、齒輪、帶輪、飛輪、傳動輪、傳動帶等有危害勞工之虞之部分，應有何種設備？",
+      "options": [
+        {"id": "A", "text": "護罩、護圍、套胴、跨橋等設備"},
+        {"id": "B", "text": "僅需標示警告標語"},
+        {"id": "C", "text": "不需任何防護"},
+        {"id": "D", "text": "僅需口頭告知勞工"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第43條規定，雇主對於機械之原動機、轉軸、齒輪、帶輪、飛輪、傳動輪、傳動帶等有危害勞工之虞之部分，應有護罩、護圍、套胴、跨橋等設備。附屬固定具應為埋頭型或設置護罩。",
+      "references": [{"title": "職業安全衛生設施規則第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=43"}]
+    },
+    {
+      "id": "U24-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主應於每一具機械分別設置何種裝置，以遮斷動力？",
+      "options": [
+        {"id": "A", "text": "緊急停止按鈕"},
+        {"id": "B", "text": "開關、離合器、移帶裝置等動力遮斷裝置"},
+        {"id": "C", "text": "安全閥"},
+        {"id": "D", "text": "壓力表"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第45條規定，雇主應於每一具機械分別設置開關、離合器、移帶裝置等動力遮斷裝置。但連成一體之機械，置有共同動力遮斷裝置，且在工作中途無須以人力供應原料者，不在此限。",
+      "references": [{"title": "職業安全衛生設施規則第45條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=45"}]
+    },
+    {
+      "id": "U24-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於使用動力運轉之機械，具有顯著危險者，應於適當位置設置有何種功能之緊急制動裝置？",
+      "options": [
+        {"id": "A", "text": "僅能減速之功能"},
+        {"id": "B", "text": "立即遮斷動力並與制動系統連動，能於緊急時快速停止機械運轉"},
+        {"id": "C", "text": "僅能切斷電源"},
+        {"id": "D", "text": "僅能發出警報"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第47條規定，雇主對於使用動力運轉之機械，具有顯著危險者，應於適當位置設置有明顯標誌之緊急制動裝置，立即遮斷動力並與制動系統連動，能於緊急時快速停止機械之運轉。",
+      "references": [{"title": "職業安全衛生設施規則第47條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=47"}]
+    },
+    {
+      "id": "U24-Q013",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，雇主對於機械、設備及其相關配件之掃除、上油、檢查、修理或調整有導致危害勞工之虞者，應如何處理？",
+      "options": [
+        {"id": "A", "text": "可在運轉中直接進行"},
+        {"id": "B", "text": "應停止相關機械運轉及送料，並採上鎖或設置標示等措施"},
+        {"id": "C", "text": "僅需口頭告知即可"},
+        {"id": "D", "text": "由勞工自行決定是否停機"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第56條規定，雇主對於機械、設備及其相關配件之掃除、上油、檢查、修理或調整有導致危害勞工之虞者，應停止相關機械運轉及送料。為防止他人操作起動裝置或誤送料，應採上鎖或設置標示等措施。此即「上鎖掛牌」（LOTO）程序。",
+      "references": [{"title": "職業安全衛生設施規則第56條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=56"}]
+    },
+    {
+      "id": "U24-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於離心機械，應裝置何種裝置？",
+      "options": [
+        {"id": "A", "text": "僅覆蓋即可"},
+        {"id": "B", "text": "覆蓋及連鎖裝置，使覆蓋未完全關閉時無法啟動"},
+        {"id": "C", "text": "僅連鎖裝置"},
+        {"id": "D", "text": "不需任何裝置"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，雇主對於離心機械，應裝置覆蓋及連鎖裝置。連鎖裝置應使覆蓋未完全關閉時無法啟動，確保操作人員在機械啟動前已關閉覆蓋，防止捲入危害。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U24-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於射出成型機、鑄鋼造形機、打模機等加壓成型之機械，有危害勞工之虞者，應設置何種安全裝置？",
+      "options": [
+        {"id": "A", "text": "安全門、雙手操作式安全裝置、感應式安全裝置或其他安全裝置"},
+        {"id": "B", "text": "僅需護罩"},
+        {"id": "C", "text": "僅需標示"},
+        {"id": "D", "text": "不需任何裝置"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則規定，雇主對於射出成型機等加壓成型之機械，有危害勞工之虞者，應設置安全門、雙手操作式安全裝置、感應式安全裝置或其他安全裝置。安全門應具有非關閉狀態即無法起動機械之性能。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U24-Q016",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依機械設備器具安全標準規定，衝剪機械之安全裝置應具有何種功能？",
+      "options": [
+        {"id": "A", "text": "僅能防止手指通過"},
+        {"id": "B", "text": "能防止勞工身體之一部分介入滑塊等動作之危險區域"},
+        {"id": "C", "text": "僅能發出警報"},
+        {"id": "D", "text": "僅能減速"}
+      ],
+      "answer": ["B"],
+      "explanation": "機械設備器具安全標準規定，衝剪機械之安全裝置應能防止勞工身體之一部分介入滑塊等動作之危險區域。安全裝置包括連鎖護圍式、雙手操作式、感應式、拉開式或推出式等。",
+      "references": [{"title": "機械設備器具安全標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060034"}]
+    },
+    {
+      "id": "U24-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依機械設備器具安全資訊申報登錄辦法規定，申報者宣告產品安全時，佐證方式不包括下列何者？",
+      "options": [
+        {"id": "A", "text": "委託經中央主管機關認可之檢定機構實施型式檢定合格"},
+        {"id": "B", "text": "委託經國內外認證組織認證之產品驗證機構審驗合格"},
+        {"id": "C", "text": "製造者完成自主檢測及產品製程一致性查核"},
+        {"id": "D", "text": "自行口頭宣告符合安全標準"}
+      ],
+      "answer": ["D"],
+      "explanation": "機械設備器具安全資訊申報登錄辦法規定，申報者應採三種佐證方式之一：委託認可檢定機構型式檢定、委託認證驗證機構審驗、或完成自主檢測及製程一致性查核。口頭宣告不屬於合法佐證方式。",
+      "references": [{"title": "機械設備器具安全資訊申報登錄辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060056"}]
+    },
+    {
+      "id": "U24-Q018",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依安全標示與驗證合格標章使用及管理辦法規定，安全標示之格式由什麼組成？",
+      "options": [
+        {"id": "A", "text": "僅圖式"},
+        {"id": "B", "text": "圖式及識別號碼，識別號碼由字軌TD及指定代碼組成"},
+        {"id": "C", "text": "僅文字"},
+        {"id": "D", "text": "僅條碼"}
+      ],
+      "answer": ["B"],
+      "explanation": "安全標示與驗證合格標章使用及管理辦法規定，安全標示之格式由圖式及識別號碼組成；識別號碼應緊鄰圖式之右方或下方，且由字軌TD及指定代碼組成。驗證合格標章則由字軌TC、指定代碼及發證機構代號組成。",
+      "references": [{"title": "安全標示與驗證合格標章使用及管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060058"}]
+    },
+    {
+      "id": "U24-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依機械設備器具安全資訊申報登錄辦法規定，登錄效期由中央主管機關依產品種類，於多少期限範圍內分別規定？",
+      "options": [
+        {"id": "A", "text": "一年以上三年以下"},
+        {"id": "B", "text": "三年以上七年以下"},
+        {"id": "C", "text": "五年以上十年以下"},
+        {"id": "D", "text": "永久有效"}
+      ],
+      "answer": ["B"],
+      "explanation": "機械設備器具安全資訊申報登錄辦法規定，登錄效期由中央主管機關依產品之種類別，於三年以上七年以下之期限範圍內分別規定。申報者所附測試驗證之證明文件效期屆滿者，其登錄失其效力。",
+      "references": [{"title": "機械設備器具安全資訊申報登錄辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060056"}]
+    },
+    {
+      "id": "U24-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於轉軸之離地多少公尺以內有接觸危險者，應有適當之圍柵、掩蓋護網或套管？",
+      "options": [
+        {"id": "A", "text": "一公尺"},
+        {"id": "B", "text": "二公尺"},
+        {"id": "C", "text": "三公尺"},
+        {"id": "D", "text": "五公尺"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第52條規定，離地二公尺以內之轉軸或附近有勞工工作或通行而有接觸之危險者，應有適當之圍柵、掩蓋護網或套管。因位置關係勞工於通行時必須跨越轉軸者，應裝置跨橋或掩蓋。",
+      "references": [{"title": "職業安全衛生設施規則第52條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=52"}]
+    },
+    {
+      "id": "U24-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於鑽孔機、截角機等旋轉刃具作業，勞工手指有觸及之虞者，應如何處理？",
+      "options": [
+        {"id": "A", "text": "可以配戴手套作業"},
+        {"id": "B", "text": "應明確告知及標示勞工不得使用手套，並使勞工確實遵守"},
+        {"id": "C", "text": "不需任何處理"},
+        {"id": "D", "text": "應配戴防護眼鏡即可"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第55條規定，雇主對於鑽孔機、截角機等旋轉刃具作業，勞工手指有觸及之虞者，應明確告知及標示勞工不得使用手套，並使勞工確實遵守。因手套可能被旋轉刃具捲入造成更大傷害。",
+      "references": [{"title": "職業安全衛生設施規則第55條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=55"}]
+    },
+    {
+      "id": "U24-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第24條規定，雇主對於指定具有危險性機械或設備之操作人員，應僱用何種人員？",
+      "options": [
+        {"id": "A", "text": "任何人均可操作"},
+        {"id": "B", "text": "經中央主管機關認可訓練或經技能檢定合格之人員"},
+        {"id": "C", "text": "僅需年滿18歲即可"},
+        {"id": "D", "text": "僅需高中畢業即可"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第24條規定，雇主對於經中央主管機關指定具有危險性機械或設備之操作人員，應僱用經中央主管機關認可訓練或經技能檢定合格之人員。確保操作人員具備必要之安全知識與技能。",
+      "references": [{"title": "職業安全衛生法第24條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=24"}]
+    },
+    {
+      "id": "U24-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於粉碎機及混合機之開口部分，為防止勞工墜落，應有何種設備？",
+      "options": [
+        {"id": "A", "text": "覆蓋、護圍、高度在90公分以上之圍柵等必要設備"},
+        {"id": "B", "text": "僅需標示"},
+        {"id": "C", "text": "不需任何設備"},
+        {"id": "D", "text": "僅需口頭告知"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則規定，為防止勞工有自粉碎機及混合機之開口部分墜落之虞，雇主應有覆蓋、護圍、高度在90公分以上之圍柵等必要設備。但設置有困難且勞工佩戴安全帶或安全索者，不在此限。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U24-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依機械設備器具安全資訊申報登錄辦法規定，申報者應保存所登錄之產品符合性聲明書及相關技術文件，至該產品停產後至少多久？",
+      "options": [
+        {"id": "A", "text": "三年"},
+        {"id": "B", "text": "五年"},
+        {"id": "C", "text": "十年"},
+        {"id": "D", "text": "永久"}
+      ],
+      "answer": ["C"],
+      "explanation": "機械設備器具安全資訊申報登錄辦法規定，申報者應保存所登錄之產品符合性聲明書及相關技術文件，至該產品停產後至少十年。確保產品安全資訊之可追溯性。",
+      "references": [{"title": "機械設備器具安全資訊申報登錄辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060056"}]
+    },
+    {
+      "id": "U24-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法施行細則第22條規定，下列哪些屬於具有危險性之機械？（複選）",
+      "options": [
+        {"id": "A", "text": "固定式起重機"},
+        {"id": "B", "text": "移動式起重機"},
+        {"id": "C", "text": "人字臂起重桿"},
+        {"id": "D", "text": "吊籃"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安法施行細則第22條規定，危險性機械包括：固定式起重機、移動式起重機、人字臂起重桿、營建用升降機、營建用提升機、吊籠及其他經指定公告者。四項均屬之。",
+      "references": [{"title": "職業安全衛生法施行細則第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=22"}]
+    },
+    {
+      "id": "U24-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第41條規定，下列哪些機械、設備或器具，雇主應使其具安全構造？（複選）",
+      "options": [
+        {"id": "A", "text": "動力衝剪機械"},
+        {"id": "B", "text": "手推刨床"},
+        {"id": "C", "text": "研磨機"},
+        {"id": "D", "text": "動力堆高機"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安設施規則第41條列舉之機械設備包括：動力衝剪機械、手推刨床、木材加工用圓盤鋸、動力堆高機、研磨機、研磨輪、防爆電氣設備、動力衝剪機械之光電式安全裝置等。四項均屬之。",
+      "references": [{"title": "職業安全衛生設施規則第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=41"}]
+    },
+    {
+      "id": "U24-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依機械設備器具安全標準規定，衝剪機械之安全裝置包括下列哪些類型？（複選）",
+      "options": [
+        {"id": "A", "text": "連鎖護圍式安全裝置"},
+        {"id": "B", "text": "雙手操作式安全裝置"},
+        {"id": "C", "text": "感應式安全裝置"},
+        {"id": "D", "text": "拉開式或推出式安全裝置"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "機械設備器具安全標準規定，衝剪機械之安全裝置包括連鎖護圍式、雙手操作式、感應式、拉開式或推出式等四種類型。感應式安全裝置應為光電式安全裝置、雷射感應式安全裝置或同等以上性能者。",
+      "references": [{"title": "機械設備器具安全標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060034"}]
+    },
+    {
+      "id": "U24-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法規定，關於機械設備器具之安全管理，下列哪些叙述正確？（複選）",
+      "options": [
+        {"id": "A", "text": "製造者或輸入者應於資訊申報網站登錄安全資訊"},
+        {"id": "B", "text": "符合安全標準者應張貼安全標示"},
+        {"id": "C", "text": "型式驗證產品須張貼驗證合格標章"},
+        {"id": "D", "text": "所有機械均可不經任何程序直接銷售"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職安法第7條規定應登錄安全資訊並張貼安全標示；第8條規定型式驗證產品須張貼合格標章。D錯誤，指定之機械設備非符合安全標準不得產製運出廠場或輸入。",
+      "references": [{"title": "職業安全衛生法第7、8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+    },
+    {
+      "id": "U24-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第44條規定，下列哪些違規行為處新臺幣20萬元以上200萬元以下罰鍰？（複選）",
+      "options": [
+        {"id": "A", "text": "違反第7條第1項（不符安全標準仍產製運出）"},
+        {"id": "B", "text": "違反第8條第1項（未經型式驗證合格即產製運出）"},
+        {"id": "C", "text": "違反第13條第1項（新化學物質未經核准登記）"},
+        {"id": "D", "text": "違反第14條第1項（管制性化學品未經許可即製造）"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安法第44條第2項規定，違反第7條第1項、第8條第1項、第13條第1項或第14條第1項者，均處新臺幣20萬元以上200萬元以下罰鍰，並得限期停止輸入、產製、製造或供應。四項均正確。",
+      "references": [{"title": "職業安全衛生法第44條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=44"}]
+    },
+    {
+      "id": "U24-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於機械之動力傳動裝置，應有哪些防護措施？（複選）",
+      "options": [
+        {"id": "A", "text": "原動機、轉軸、齒輪等有危害之虞部分應有護罩、護圍等"},
+        {"id": "B", "text": "傳動帶之接頭不得使用突出之固定具"},
+        {"id": "C", "text": "應於每一具機械分別設置動力遮斷裝置"},
+        {"id": "D", "text": "具有顯著危險者應設置緊急制動裝置"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職安設施規則第43條（護罩護圍）、第45條（動力遮斷裝置）、第47條（緊急制動裝置）及傳動帶接頭規定，四項均為機械動力傳動裝置之必要防護措施。",
+      "references": [{"title": "職業安全衛生設施規則第43-47條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=43"}]
+    },
+    {
+      "id": "U24-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依機械設備器具安全資訊申報登錄辦法規定，申報者宣告產品安全時，可採哪些佐證方式？（複選）",
+      "options": [
+        {"id": "A", "text": "委託經中央主管機關認可之檢定機構實施型式檢定合格"},
+        {"id": "B", "text": "委託經國內外認證組織認證之產品驗證機構審驗合格"},
+        {"id": "C", "text": "製造者完成自主檢測及產品製程一致性查核，確認符合安全標準"},
+        {"id": "D", "text": "自行口頭宣告符合"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "機械設備器具安全資訊申報登錄辦法規定三種合法佐證方式：型式檢定、產品驗證機構審驗、自主檢測及製程一致性查核。D錯誤，口頭宣告非合法方式。注意防爆燈具等特定產品以第一種方式為限。",
+      "references": [{"title": "機械設備器具安全資訊申報登錄辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060056"}]
+    },
+    {
+      "id": "U24-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，下列哪些屬於該規則適用之危險性機械？（複選）",
+      "options": [
+        {"id": "A", "text": "吊升荷重3公噸以上之固定式起重機"},
+        {"id": "B", "text": "吊升荷重3公噸以上之移動式起重機"},
+        {"id": "C", "text": "吊升荷重3公噸以上之人字臂起重桿"},
+        {"id": "D", "text": "載人用吊籃"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，固定式起重機（3公噸以上）、移動式起重機（3公噸以上）、人字臂起重桿（3公噸以上）、營建用升降機、營建用提升機（20公尺以上）及載人用吊籠均屬之。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "雇主對於經中央主管機關指定具有危險性之機械或設備，非經勞動檢查機構或代行檢查機構檢查合格，不得使用。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第16條第1項明確規定，危險性機械或設備非經檢查合格不得使用；使用超過規定期間者，非經再檢查合格，不得繼續使用。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U24-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "機械設備器具安全資訊申報登錄之效期，由中央主管機關依產品種類於三年以上七年以下之期限範圍內分別規定。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "機械設備器具安全資訊申報登錄辦法明確規定，登錄效期由中央主管機關依產品種類別，於三年以上七年以下之期限範圍內分別規定。測試驗證證明文件效期屆滿者，登錄失其效力。",
+      "references": [{"title": "機械設備器具安全資訊申報登錄辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060056"}]
+    },
+    {
+      "id": "U24-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "雇主對於機械、設備之掃除、上油、檢查、修理或調整有危害之虞者，可在運轉中進行，只需告知勞工注意安全。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安設施規則第56條規定，應停止相關機械運轉及送料，並採上鎖或設置標示等措施防止他人誤操作。不得在運轉中進行，口頭告知不足以確保安全。",
+      "references": [{"title": "職業安全衛生設施規則第56條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=56"}]
+    },
+    {
+      "id": "U24-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "安全標示之格式由圖式及識別號碼組成，識別號碼由字軌TD及指定代碼組成；驗證合格標章則由字軌TC、指定代碼及發證機構代號組成。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "安全標示與驗證合格標章使用及管理辦法規定，安全標示由圖式及識別號碼（字軌TD＋指定代碼）組成；驗證合格標章由圖式及識別號碼（字軌TC＋指定代碼＋發證機構代號）組成。兩者字軌不同：安全標示為TD，驗證合格標章為TC。",
+      "references": [{"title": "安全標示與驗證合格標章使用及管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060058"}]
+    },
+    {
+      "id": "U24-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "雇主對於鑽孔機、截角機等旋轉刃具作業，勞工手指有觸及之虞者，應使勞工配戴手套以防護。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安設施規則第55條規定，雇主應明確告知及標示勞工不得使用手套。因旋轉刃具作業中，手套可能被捲入旋轉部位，造成更嚴重之捲入傷害，故應禁止使用手套。",
+      "references": [{"title": "職業安全衛生設施規則第55條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=55"}]
+    },
+    {
+      "id": "U24-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法規定，製造者或輸入者對於符合安全標準之指定機械設備，應於產品明顯處張貼________，以供識別。",
+      "answer": ["安全標示"],
+      "explanation": "職安法第7條第3項規定，製造者或輸入者應於產品明顯處張貼安全標示，以供識別。型式驗證產品則應張貼驗證合格標章。",
+      "references": [{"title": "職業安全衛生法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+    },
+    {
+      "id": "U24-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依危險性機械及設備安全檢查規則規定，固定式起重機之吊升荷重須在________公噸以上，方屬於危險性機械。",
+      "answer": ["3", "三"],
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，固定式起重機吊升荷重在三公噸以上者屬危險性機械。但斯達卡式起重機之門檻為一公噸。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q040",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依安全標示與驗證合格標章使用及管理辦法規定，安全標示之識別號碼由字軌________及指定代碼組成。",
+      "answer": ["TD"],
+      "explanation": "安全標示之識別號碼由字軌TD及指定代碼組成；驗證合格標章之識別號碼則由字軌TC、指定代碼及發證機構代號組成。TD與TC分別代表安全標示與驗證合格標章。",
+      "references": [{"title": "安全標示與驗證合格標章使用及管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060058"}]
+    },
+    {
+      "id": "U24-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於離地________公尺以內之轉軸有接觸危險者，應有適當之圍柵、掩蓋護網或套管。",
+      "answer": ["2", "二"],
+      "explanation": "職安設施規則第52條規定，離地二公尺以內之轉軸或附近有勞工工作或通行而有接觸之危險者，應有適當之圍柵、掩蓋護網或套管。",
+      "references": [{"title": "職業安全衛生設施規則第52條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=52"}]
+    },
+    {
+      "id": "U24-Q042",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依機械設備器具安全資訊申報登錄辦法規定，申報者應保存產品符合性聲明書及相關技術文件，至該產品停產後至少________年。",
+      "answer": ["10", "十"],
+      "explanation": "機械設備器具安全資訊申報登錄辦法規定，申報者應保存所登錄之產品符合性聲明書及相關技術文件，至該產品停產後至少十年，確保產品安全資訊之可追溯性。",
+      "references": [{"title": "機械設備器具安全資訊申報登錄辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060056"}]
+    },
+    {
+      "id": "U24-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工廠使用一台固定式起重機，其吊升荷重為2.5公噸。依危險性機械及設備安全檢查規則，該起重機是否屬於危險性機械？（輸入1表示是，0表示否）",
+      "answer": {"value": 0, "unit": "", "tolerance": 0},
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，固定式起重機之吊升荷重須在三公噸以上方屬危險性機械。2.5公噸未達三公噸之標準，故不屬於危險性機械，不受該規則之檢查要求。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某工廠使用一台斯達卡式起重機，其吊升荷重為1.5公噸。依危險性機械及設備安全檢查規則，該起重機是否屬於危險性機械？（輸入1表示是，0表示否）",
+      "answer": {"value": 1, "unit": "", "tolerance": 0},
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，斯達卡式起重機之吊升荷重在一公噸以上即屬危險性機械（門檻較一般固定式起重機之三公噸為低）。1.5公噸超過一公噸，故屬於危險性機械。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工廠之營建用提升機，其導軌或升降路高度為25公尺。依危險性機械及設備安全檢查規則第3條，該提升機是否屬於危險性機械？（營建用提升機之門檻為20公尺以上）（輸入1表示是，0表示否）",
+      "answer": {"value": 1, "unit": "", "tolerance": 0},
+      "explanation": "危險性機械及設備安全檢查規則第3條規定，營建用提升機：導軌或升降路高度在20公尺以上者屬危險性機械。25公尺超過20公尺，故屬於危險性機械。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列危險性機械與其適用之吊升荷重門檻正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "固定式起重機"},
+        {"id": "L2", "text": "斯達卡式起重機"},
+        {"id": "L3", "text": "移動式起重機"},
+        {"id": "L4", "text": "人字臂起重桿"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "3公噸以上"},
+        {"id": "R2", "text": "1公噸以上"},
+        {"id": "R3", "text": "3公噸以上"},
+        {"id": "R4", "text": "3公噸以上"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "固定式起重機、移動式起重機及人字臂起重桿之門檻均為3公噸以上；斯達卡式起重機之門檻較低，為1公噸以上。",
+      "references": [{"title": "危險性機械及設備安全檢查規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060039&flno=3"}]
+    },
+    {
+      "id": "U24-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列標示類型與其組成要素正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "安全標示"},
+        {"id": "L2", "text": "驗證合格標章"},
+        {"id": "L3", "text": "職業安全衛生標示"},
+        {"id": "L4", "text": "機械安全標示"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "圖式＋字軌TD＋指定代碼"},
+        {"id": "R2", "text": "圖式＋字軌TC＋指定代碼＋發證機構代號"},
+        {"id": "R3", "text": "禁止、警告、注意標示等"},
+        {"id": "R4", "text": "型號、製造商、製造日期等"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "安全標示由圖式及字軌TD＋指定代碼組成；驗證合格標章由圖式及字軌TC＋指定代碼＋發證機構代號組成；職安標示包括禁止、警告、注意標示；機械安全標示包括型號、製造商、製造日期等資訊。",
+      "references": [{"title": "安全標示與驗證合格標章使用及管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060058"}]
+    },
+    {
+      "id": "U24-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列職安法條文與其主要內容正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "第7條"},
+        {"id": "L2", "text": "第8條"},
+        {"id": "L3", "text": "第16條"},
+        {"id": "L4", "text": "第24條"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "安全標準與安全標示"},
+        {"id": "R2", "text": "型式驗證與合格標章"},
+        {"id": "R3", "text": "危險性機械設備檢查"},
+        {"id": "R4", "text": "操作人員資格"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "第7條規定安全標準與安全標示；第8條規定型式驗證與合格標章；第16條規定危險性機械設備之檢查；第24條規定操作人員之資格要求。",
+      "references": [{"title": "職業安全衛生法第7、8、16、24條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+    },
+    {
+      "id": "U24-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依機械設備從製造到使用之安全管理流程排列：",
+      "items": [
+        {"id": "I1", "text": "製造者或輸入者確認符合安全標準"},
+        {"id": "I2", "text": "於資訊申報網站登錄安全資訊（或實施型式驗證）"},
+        {"id": "I3", "text": "張貼安全標示（或驗證合格標章）"},
+        {"id": "I4", "text": "雇主對危險性機械設備經檢查合格後使用"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "機械設備安全管理流程依序為：確認符合安全標準→登錄安全資訊或型式驗證→張貼標示或標章→雇主經檢查合格後使用。每一步驟均為下一步驟之前提。",
+      "references": [{"title": "職業安全衛生法第7、8、16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+    },
+    {
+      "id": "U24-Q050",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依職業安全衛生設施規則第56條規定，將機械設備維修保養之上鎖掛牌（LOTO）步驟依正確順序排列：",
+      "items": [
+        {"id": "I1", "text": "停止相關機械運轉及送料"},
+        {"id": "I2", "text": "切斷動力來源（動力遮斷裝置）"},
+        {"id": "I3", "text": "上鎖或設置標示防止他人誤操作"},
+        {"id": "I4", "text": "執行掃除、檢查、修理或調整作業"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "依職安設施規則第56條，上鎖掛牌程序依序為：停止機械運轉送料→切斷動力來源→上鎖或標示防止誤操作→執行維修作業。確保在動力完全隔離狀態下安全作業。",
+      "references": [{"title": "職業安全衛生設施規則第56條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=56"}]
+    }
+  ]
+}

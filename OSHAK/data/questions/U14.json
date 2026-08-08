@@ -1,0 +1,729 @@
+{
+  "unitId": "U14",
+  "unitTitle": "安全衛生教育訓練計畫",
+  "unitNumber": 14,
+  "questions": [
+    {
+      "id": "U14-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依《職業安全衛生法》規定，雇主對勞工應施以從事工作與預防災變所必要之何種教育及訓練？",
+      "options": [
+        {"id": "A", "text": "安全衛生教育及訓練"},
+        {"id": "B", "text": "職業技能訓練"},
+        {"id": "C", "text": "管理才能訓練"},
+        {"id": "D", "text": "語文能力訓練"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第32條第1項規定，雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練。此為雇主之法定義務，與職業技能或管理才能訓練不同。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U14-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生法》規定，勞工對於雇主施以之安全衛生教育及訓練，有何義務？",
+      "options": [
+        {"id": "A", "text": "得自行選擇是否參加"},
+        {"id": "B", "text": "有接受之義務"},
+        {"id": "C", "text": "僅在職災發生後才須接受"},
+        {"id": "D", "text": "可委由他人代為接受"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第32條第3項規定，勞工對於第一項之安全衛生教育及訓練，有接受之義務。安全衛生教育訓練為勞工之法定義務，不得自行選擇不參加或委由他人代受。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U14-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，本規則之安全衛生教育訓練分類共有幾類？",
+      "options": [
+        {"id": "A", "text": "十類"},
+        {"id": "B", "text": "十一類"},
+        {"id": "C", "text": "十二類"},
+        {"id": "D", "text": "十五類"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生教育訓練規則第2條規定，安全衛生教育訓練分為十二類，包括業務主管、管理人員、作業環境監測人員、施工及製程安全評估人員、各類作業主管、危險性機械設備操作人員、特殊作業人員、健康服務護理人員、急救人員、一般安全衛生教育訓練、在職教育訓練及其他經指定者。",
+      "references": [{"title": "職業安全衛生教育訓練規則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=2"}]
+    },
+    {
+      "id": "U14-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對擔任職業安全衛生業務主管之勞工，應於何時使其接受教育訓練？",
+      "options": [
+        {"id": "A", "text": "任職後一年內"},
+        {"id": "B", "text": "事前使其接受"},
+        {"id": "C", "text": "發生職災後"},
+        {"id": "D", "text": "視情況而定"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第3條規定，雇主對擔任職業安全衛生業務主管之勞工，應於事前使其接受職業安全衛生業務主管之安全衛生教育訓練。雇主或其代理人擔任業務主管者，亦同。即應於擔任該職務之前完成訓練。",
+      "references": [{"title": "職業安全衛生教育訓練規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=3"}]
+    },
+    {
+      "id": "U14-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對新僱勞工或在職勞工於變更工作前，應使其接受何種教育訓練？",
+      "options": [
+        {"id": "A", "text": "特殊作業安全衛生教育訓練"},
+        {"id": "B", "text": "一般安全衛生教育訓練"},
+        {"id": "C", "text": "急救人員教育訓練"},
+        {"id": "D", "text": "管理系統教育訓練"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條規定，雇主對新僱勞工或在職勞工於變更工作前，應使其接受適於各該工作必要之一般安全衛生教育訓練。但工作環境、工作性質與變更前相當者，不在此限。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U14-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，職業安全衛生業務主管之安全衛生在職教育訓練，其時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少三小時"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第1款規定，職業安全衛生業務主管之在職教育訓練為每二年至少六小時。管理人員為每二年至少十二小時，兩者不同，須注意區分。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，職業安全衛生管理人員之安全衛生在職教育訓練，其時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少十二小時"},
+        {"id": "D", "text": "每三年至少三小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第2款規定，職業安全衛生管理人員之在職教育訓練為每二年至少十二小時。業務主管為每二年至少六小時，一般勞工為每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，具有危險性之機械及設備操作人員、特殊作業人員、急救人員及一般勞工等之安全衛生在職教育訓練，其時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每三年至少三小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第5款規定，第七款至第十三款之勞工（包括危險性機械設備操作人員、特殊作業人員、急救人員、各級業務主管、委員會成員及一般勞工等），每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，勞工健康服務護理人員及勞工健康服務相關人員之安全衛生在職教育訓練，其時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少十二小時"},
+        {"id": "D", "text": "每三年至少六小時"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第3款規定，勞工健康服務護理人員及勞工健康服務相關人員之在職教育訓練為每三年至少十二小時。此與勞工健康保護規則第8條之規定一致。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，高壓氣體作業主管、營造作業主管及有害作業主管之安全衛生在職教育訓練，其時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每三年至少三小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第4款規定，第四款至第六款之勞工（作業環境監測人員、施工及製程安全評估人員、高壓氣體作業主管、營造作業主管及有害作業主管），每三年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對工作場所急救人員，應使其接受急救人員之安全衛生教育訓練，其課程時數為何？",
+      "options": [
+        {"id": "A", "text": "八小時"},
+        {"id": "B", "text": "十二小時"},
+        {"id": "C", "text": "十六小時"},
+        {"id": "D", "text": "二十四小時"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生教育訓練規則第16條規定，雇主對工作場所急救人員，應使其接受急救人員之安全衛生教育訓練，課程及時數依附表十三之規定，為十六小時。但醫護人員及緊急醫療救護法所定之救護技術員不在此限。",
+      "references": [{"title": "職業安全衛生教育訓練規則第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=16"}]
+    },
+    {
+      "id": "U14-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，中央主管機關認可之職業安全衛生教育訓練網路教學課程，事業單位之勞工上網學習取得認證時數，得採認為一般安全衛生教育訓練時數。但其時數至多採認多少小時？",
+      "options": [
+        {"id": "A", "text": "一小時"},
+        {"id": "B", "text": "二小時"},
+        {"id": "C", "text": "三小時"},
+        {"id": "D", "text": "六小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，中央主管機關指定之網路教學課程，勞工上網學習取得認證時數後，得採認為一般安全衛生教育訓練時數。但認可之網路教學課程，其時數至多採認二小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U14-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對擔任下列何者之勞工，應於事前使其接受具有危險性之機械操作人員之安全衛生教育訓練？",
+      "options": [
+        {"id": "A", "text": "吊升荷重在三公噸以上之固定式起重機操作人員"},
+        {"id": "B", "text": "一般文書人員"},
+        {"id": "C", "text": "清潔人員"},
+        {"id": "D", "text": "警衛人員"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第12條規定，雇主對擔任吊升荷重在三公噸以上之固定式起重機、移動式起重機、人字臂起重桿操作人員，及營建用提升機、吊籠操作人員等，應於事前使其接受具有危險性之機械操作人員之安全衛生教育訓練。",
+      "references": [{"title": "職業安全衛生教育訓練規則第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=12"}]
+    },
+    {
+      "id": "U14-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對擔任鍋爐操作人員之勞工，應於事前使其接受何種教育訓練？",
+      "options": [
+        {"id": "A", "text": "具有危險性之機械操作人員教育訓練"},
+        {"id": "B", "text": "具有危險性之設備操作人員教育訓練"},
+        {"id": "C", "text": "特殊作業安全衛生教育訓練"},
+        {"id": "D", "text": "一般安全衛生教育訓練"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第13條規定，雇主對擔任鍋爐操作人員、第一種壓力容器操作人員、高壓氣體特定設備操作人員、高壓氣體容器操作人員等，應於事前使其接受具有危險性之設備操作人員之安全衛生教育訓練。鍋爐屬危險性設備，非機械。",
+      "references": [{"title": "職業安全衛生教育訓練規則第13條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=13"}]
+    },
+    {
+      "id": "U14-Q015",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對擔任荷重在一公噸以上之堆高機操作人員，應使其接受何種教育訓練？",
+      "options": [
+        {"id": "A", "text": "具有危險性之機械操作人員教育訓練"},
+        {"id": "B", "text": "特殊作業安全衛生教育訓練"},
+        {"id": "C", "text": "一般安全衛生教育訓練"},
+        {"id": "D", "text": "有害作業主管教育訓練"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第14條規定，荷重在一公噸以上之堆高機操作人員屬特殊作業，應接受特殊作業安全衛生教育訓練。注意堆高機（一公噸以上）屬特殊作業，而非危險性機械操作人員訓練。",
+      "references": [{"title": "職業安全衛生教育訓練規則第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=14"}]
+    },
+    {
+      "id": "U14-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對擔任營造作業主管之勞工，應於事前使其接受營造作業主管之安全衛生教育訓練。下列何者不屬於營造作業主管之範圍？",
+      "options": [
+        {"id": "A", "text": "擋土支撐作業主管"},
+        {"id": "B", "text": "露天開挖作業主管"},
+        {"id": "C", "text": "施工架組配作業主管"},
+        {"id": "D", "text": "有機溶劑作業主管"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第10條規定之營造作業主管包括擋土支撐、露天開挖、模板支撐、隧道挖掘、隧道襯砌、施工架組配、鋼構組配、屋頂作業等作業主管。有機溶劑作業主管屬第11條之有害作業主管，非營造作業主管。",
+      "references": [{"title": "職業安全衛生教育訓練規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=10"}]
+    },
+    {
+      "id": "U14-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理第三條至第十六條之教育訓練，應將規定文件於教育訓練結束後多少日內做成電子檔，至少保存十年？",
+      "options": [
+        {"id": "A", "text": "五日內"},
+        {"id": "B", "text": "十日內"},
+        {"id": "C", "text": "十五日內"},
+        {"id": "D", "text": "三十日內"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第29條規定，訓練單位對於第三條至第十六條之教育訓練，應將規定文件及學員簽到紀錄、點名紀錄、成績冊、結業證書核發清冊等，於教育訓練結束後十日內做成電子檔，至少保存十年。",
+      "references": [{"title": "職業安全衛生教育訓練規則第29條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=29"}]
+    },
+    {
+      "id": "U14-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理第十七條及第十八條之教育訓練（一般及在職教育訓練），應將訓練教材、課程表、受訓人員名冊、簽到紀錄等實施資料保存多少年？",
+      "options": [
+        {"id": "A", "text": "一年"},
+        {"id": "B", "text": "三年"},
+        {"id": "C", "text": "五年"},
+        {"id": "D", "text": "十年"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第31條第1項規定，訓練單位辦理第十七條及第十八條之教育訓練，應將訓練教材、課程表、受訓人員名冊、簽到紀錄、課程內容等實施資料保存三年。此與第29條第三至十六條訓練之十年保存期限不同。",
+      "references": [{"title": "職業安全衛生教育訓練規則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=31"}]
+    },
+    {
+      "id": "U14-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位對受訓學員缺課時數達課程總時數多少以上者，應通知其退訓？",
+      "options": [
+        {"id": "A", "text": "十分之一以上"},
+        {"id": "B", "text": "五分之一以上"},
+        {"id": "C", "text": "三分之一以上"},
+        {"id": "D", "text": "二分之一以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第33條第2項規定，訓練單位對受訓學員缺課時數達課程總時數五分之一以上者，應通知其退訓；受訓學員請假超過三小時或曠課者，應通知其補足全部課程。",
+      "references": [{"title": "職業安全衛生教育訓練規則第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=33"}]
+    },
+    {
+      "id": "U14-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理教育訓練，學科、術科每日上課時數不得逾多少小時？",
+      "options": [
+        {"id": "A", "text": "六小時"},
+        {"id": "B", "text": "八小時"},
+        {"id": "C", "text": "十小時"},
+        {"id": "D", "text": "十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第25條第2項規定，訓練課程之學科、術科每日上課時數，不得逾八小時，術科實習應於日間實施，學科得於夜間辦理。夜間上課每日以三小時為原則，不得超過午後十時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第25條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=25"}]
+    },
+    {
+      "id": "U14-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理第三條至第十六條之教育訓練前，應填具場所報備書及檢附文件，報請何機關核定？",
+      "options": [
+        {"id": "A", "text": "中央主管機關（勞動部）"},
+        {"id": "B", "text": "直轄市、縣（市）政府（地方主管機關）"},
+        {"id": "C", "text": "經濟部"},
+        {"id": "D", "text": "內政部"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第23條規定，訓練單位辦理第三條至第十六條之教育訓練前，應填具教育訓練場所報備書並檢附文件，報請直轄市、縣（市）政府（即地方主管機關）核定；變更時亦同。",
+      "references": [{"title": "職業安全衛生教育訓練規則第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=23"}]
+    },
+    {
+      "id": "U14-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理第三條至第十六條之教育訓練，應於多少日前檢附教育訓練計畫報備書、課程表、講師概況、學員名冊等，報請地方主管機關備查？",
+      "options": [
+        {"id": "A", "text": "五日前"},
+        {"id": "B", "text": "十日前"},
+        {"id": "C", "text": "十五日前"},
+        {"id": "D", "text": "三十日前"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生教育訓練規則第25條第1項規定，訓練單位辦理第三條至第十六條之教育訓練者，應於十五日前檢附教育訓練計畫報備書、課程表、講師概況、學員名冊及專責輔導員名單，報請地方主管機關備查。",
+      "references": [{"title": "職業安全衛生教育訓練規則第25條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=25"}]
+    },
+    {
+      "id": "U14-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，專責輔導員應具何種資格？其接受中央主管機關指定之講習，每二年至少多少小時？",
+      "options": [
+        {"id": "A", "text": "職業安全衛生管理員資格；每二年至少六小時"},
+        {"id": "B", "text": "醫師資格；每二年至少三小時"},
+        {"id": "C", "text": "律師資格；每三年至少六小時"},
+        {"id": "D", "text": "任何資格均可；無須講習"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第33條規定，專責輔導員應具職業安全衛生管理員資格（辦理急救人員訓練者得由醫護人員或救護技術員擔任）。訓練單位應使其專責輔導員接受指定講習，每二年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=33"}]
+    },
+    {
+      "id": "U14-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生法》規定，雇主違反第32條第1項（未對勞工施以安全衛生教育訓練），經通知限期改善，屆期未改善者，其罰則為何？",
+      "options": [
+        {"id": "A", "text": "處三千元以下罰鍰"},
+        {"id": "B", "text": "處三萬元以上十五萬元以下罰鍰"},
+        {"id": "C", "text": "處一年以下有期徒刑"},
+        {"id": "D", "text": "無罰則"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第45條第1項第1款規定，違反第32條第1項規定，經通知限期改善，屆期未改善者，處新臺幣三萬元以上十五萬元以下罰鍰。另依第46條，勞工違反第32條第3項（不接受教育訓練）者，處三千元以下罰鍰。",
+      "references": [{"title": "職業安全衛生法第45條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=45"}]
+    },
+    {
+      "id": "U14-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，下列哪些屬於安全衛生教育訓練之分類？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管之安全衛生教育訓練"},
+        {"id": "B", "text": "具有危險性之機械或設備操作人員之安全衛生教育訓練"},
+        {"id": "C", "text": "急救人員之安全衛生教育訓練"},
+        {"id": "D", "text": "一般安全衛生教育訓練"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第2條將教育訓練分為十二類，包括業務主管、管理人員、作業環境監測人員、施工及製程安全評估人員、各類作業主管、危險性機械設備操作人員、特殊作業人員、健康服務護理人員、急救人員、一般安全衛生教育訓練、在職教育訓練等。四個選項均屬之。",
+      "references": [{"title": "職業安全衛生教育訓練規則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=2"}]
+    },
+    {
+      "id": "U14-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》第19條規定，下列哪些人員之安全衛生在職教育訓練為每二年至少六小時？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管"},
+        {"id": "B", "text": "職業安全衛生管理人員"},
+        {"id": "C", "text": "專責輔導員"},
+        {"id": "D", "text": "急救人員"}
+      ],
+      "answer": ["A", "C"],
+      "explanation": "業務主管之在職教育訓練為每二年至少六小時（第19條第1項第1款）。專責輔導員講習為每二年至少六小時（第33條第4項）。管理人員為每二年至少十二小時；急救人員屬第七至十三款，每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條、第33條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060010"}]
+    },
+    {
+      "id": "U14-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，下列哪些人員之安全衛生在職教育訓練為每三年至少三小時？（複選）",
+      "options": [
+        {"id": "A", "text": "特殊作業人員"},
+        {"id": "B", "text": "急救人員"},
+        {"id": "C", "text": "各級管理、指揮、監督之業務主管"},
+        {"id": "D", "text": "一般勞工"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第5款規定，第七款至第十三款之勞工，包括危險性機械設備操作人員、特殊作業人員、急救人員、各級業務主管、委員會成員、第十二款作業人員及一般勞工，每三年至少三小時。四個選項均屬之。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，安全衛生之教育訓練得由下列哪些單位辦理？（複選）",
+      "options": [
+        {"id": "A", "text": "勞工主管機關、衛生主管機關或勞動檢查機構"},
+        {"id": "B", "text": "依法設立之非營利法人"},
+        {"id": "C", "text": "依法組織之雇主團體或勞工團體"},
+        {"id": "D", "text": "事業單位"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第20條規定，安全衛生教育訓練得由勞工主管機關等政府機關、依法設立之非營利法人、雇主團體、勞工團體、醫院評鑑合格者或大專校院、急救訓練單位、大專校院相關科系、事業單位及其他經核可者辦理。四個選項均屬之。",
+      "references": [{"title": "職業安全衛生教育訓練規則第20條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=20"}]
+    },
+    {
+      "id": "U14-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主應依工作性質使勞工接受安全衛生在職教育訓練之對象，包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管及管理人員"},
+        {"id": "B", "text": "具有危險性之機械及設備操作人員"},
+        {"id": "C", "text": "各級管理、指揮、監督之業務主管"},
+        {"id": "D", "text": "前述各款以外之一般勞工"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第18條第1項列舉在職教育訓練對象共十四款，包括業務主管、管理人員、健康服務護理人員、監測人員、評估人員、各類作業主管、危險性機械設備操作人員、特殊作業人員、急救人員、各級業務主管、委員會成員、特定作業人員、一般勞工等。四個選項均屬之。",
+      "references": [{"title": "職業安全衛生教育訓練規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=18"}]
+    },
+    {
+      "id": "U14-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，下列哪些屬於有害作業主管之安全衛生教育訓練對象？（複選）",
+      "options": [
+        {"id": "A", "text": "有機溶劑作業主管"},
+        {"id": "B", "text": "鉛作業主管"},
+        {"id": "C", "text": "缺氧作業主管"},
+        {"id": "D", "text": "粉塵作業主管"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第11條規定之有害作業主管包括：有機溶劑作業主管、鉛作業主管、四烷基鉛作業主管、缺氧作業主管、特定化學物質作業主管、粉塵作業主管、高壓室內作業主管、潛水作業主管等。四個選項均屬之。",
+      "references": [{"title": "職業安全衛生教育訓練規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=11"}]
+    },
+    {
+      "id": "U14-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生法施行細則》第31條規定，職業安全衛生管理計畫包括安全衛生教育訓練。關於教育訓練計畫之內容，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "教育訓練為職業安全衛生管理計畫之事項之一"},
+        {"id": "B", "text": "雇主對新僱勞工應施以一般安全衛生教育訓練"},
+        {"id": "C", "text": "勞工對安全衛生教育訓練有接受之義務"},
+        {"id": "D", "text": "教育訓練完全由勞工自行負擔費用"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生法施行細則第31條第9款將安全衛生教育訓練列為管理計畫事項。職安法第32條規定雇主對勞工應施以安全衛生教育訓練，勞工有接受之義務。教育訓練為雇主義務，費用由雇主負擔，非勞工自行負擔。",
+      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+    },
+    {
+      "id": "U14-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生管理辦法》第12條規定，職業安全衛生委員會應審議之事項包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "審議安全、衛生教育訓練實施計畫"},
+        {"id": "B", "text": "審議事業單位自動檢查及安全衛生稽核事項"},
+        {"id": "C", "text": "考核現場安全衛生管理績效"},
+        {"id": "D", "text": "審議職業災害調查報告"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生管理辦法第12條規定委員會應辦理十二項事項，包括審議教育訓練實施計畫（第3款）、審議自動檢查及稽核事項（第7款）、考核現場管理績效（第10款）、審議職業災害調查報告（第9款）等。四個選項均屬之。",
+      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+    },
+    {
+      "id": "U14-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依《職業安全衛生法》規定，勞工對於安全衛生教育及訓練，有接受之義務。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第32條第3項明定，勞工對於第一項之安全衛生教育及訓練，有接受之義務。違反者依第46條可處三千元以下罰鍰。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U14-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，職業安全衛生管理人員之在職教育訓練為每二年至少十二小時。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第2款規定，職業安全衛生管理人員之在職教育訓練為每二年至少十二小時。業務主管為每二年至少六小時，二者週期相同但時數不同。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，雇主對新僱勞工應使其接受一般安全衛生教育訓練，但其工作環境、工作性質與變更前相當者，不在此限。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第17條第1項規定，雇主對新僱勞工或在職勞工於變更工作前，應使其接受一般安全衛生教育訓練。但其工作環境、工作性質與變更前相當者，不在此限。以避免重複訓練。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U14-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理第三條至第十六條教育訓練之相關文件，應至少保存十年。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第29條規定，訓練單位對於第三條至第十六條之教育訓練，應將學員簽到紀錄、點名紀錄、成績冊、結業證書核發清冊等文件，於教育訓練結束後十日內做成電子檔，至少保存十年。但一般及在職教育訓練實施資料為保存三年（第31條）。",
+      "references": [{"title": "職業安全衛生教育訓練規則第29條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=29"}]
+    },
+    {
+      "id": "U14-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，受訓學員缺課時數達課程總時數三分之一以上者，應通知其退訓。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第33條第2項規定，受訓學員缺課時數達課程總時數「五分之一」以上者，應通知其退訓，非三分之一。請假超過三小時或曠課者，應通知其補足全部課程。",
+      "references": [{"title": "職業安全衛生教育訓練規則第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=33"}]
+    },
+    {
+      "id": "U14-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生法》第32條規定，雇主對勞工應施以從事工作與預防災變所必要之________教育及訓練。",
+      "answer": ["安全衛生"],
+      "explanation": "職業安全衛生法第32條第1項規定，雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U14-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，職業安全衛生業務主管之在職教育訓練為每________年至少六小時。",
+      "answer": ["2", "二"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項第1款規定，職業安全衛生業務主管之在職教育訓練為每二年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依《職業安全衛生教育訓練規則》規定，急救人員之安全衛生教育訓練課程時數為________小時。",
+      "answer": ["16", "十六"],
+      "explanation": "職業安全衛生教育訓練規則第16條及附表十三規定，急救人員之安全衛生教育訓練課程時數為十六小時。但醫護人員及緊急醫療救護法所定之救護技術員不在此限。",
+      "references": [{"title": "職業安全衛生教育訓練規則第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=16"}]
+    },
+    {
+      "id": "U14-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，受訓學員缺課時數達課程總時數________分之一以上者，應通知其退訓。",
+      "answer": ["五", "5"],
+      "explanation": "職業安全衛生教育訓練規則第33條第2項規定，訓練單位對受訓學員缺課時數達課程總時數五分之一以上者，應通知其退訓；請假超過三小時或曠課者，應通知其補足全部課程。",
+      "references": [{"title": "職業安全衛生教育訓練規則第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=33"}]
+    },
+    {
+      "id": "U14-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依《職業安全衛生教育訓練規則》規定，訓練單位辦理第三條至第十六條之教育訓練，應將相關文件至少保存________年。",
+      "answer": ["10", "十"],
+      "explanation": "職業安全衛生教育訓練規則第29條規定，訓練單位對於第三條至第十六條之教育訓練，應將學員簽到紀錄、點名紀錄、成績冊、結業證書核發清冊等文件，於教育訓練結束後十日內做成電子檔，至少保存十年。",
+      "references": [{"title": "職業安全衛生教育訓練規則第29條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=29"}]
+    },
+    {
+      "id": "U14-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位有職業安全衛生業務主管2人、職業安全衛生管理人員3人。依《職業安全衛生教育訓練規則》第19條規定，業務主管每二年至少六小時，管理人員每二年至少十二小時。請問二年期間內，該事業單位此5人合計至少應接受多少小時之在職教育訓練？",
+      "answer": {"value": 48, "unit": "小時", "tolerance": 0},
+      "explanation": "業務主管2人×6小時=12小時；管理人員3人×12小時=36小時。合計12+36=48小時。業務主管與管理人員的在職教育訓練時數不同，須分別計算。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位有一般勞工50人。依《職業安全衛生教育訓練規則》第19條規定，一般勞工之在職教育訓練為每三年至少三小時。請問三年期間內，該50名一般勞工合計至少應接受多少小時之在職教育訓練？",
+      "answer": {"value": 150, "unit": "小時", "tolerance": 0},
+      "explanation": "一般勞工之在職教育訓練為每三年至少三小時。50人×3小時=150小時。一般勞工屬第19條第1項第七款至第十三款之範圍，每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某訓練課程總時數為40小時，依《職業安全衛生教育訓練規則》第33條規定，受訓學員缺課時數達課程總時數五分之一以上者應通知退訓。請問該學員最多可缺課多少小時而不被退訓？（即未達退訓標準之最大缺課時數，請輸入整數）",
+      "answer": {"value": 7, "unit": "小時", "tolerance": 0},
+      "explanation": "課程總時數40小時，五分之一為40×(1/5)=8小時。缺課時數達8小時（含）以上即達退訓標準。故最多可缺課7小時而不被退訓（7<8）。",
+      "references": [{"title": "職業安全衛生教育訓練規則第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=33"}]
+    },
+    {
+      "id": "U14-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列人員與其安全衛生在職教育訓練時數正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "職業安全衛生業務主管"},
+        {"id": "L2", "text": "職業安全衛生管理人員"},
+        {"id": "L3", "text": "勞工健康服務護理人員"},
+        {"id": "L4", "text": "一般勞工"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每二年至少六小時"},
+        {"id": "R2", "text": "每二年至少十二小時"},
+        {"id": "R3", "text": "每三年至少十二小時"},
+        {"id": "R4", "text": "每三年至少三小時"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "業務主管每二年至少6小時；管理人員每二年至少12小時；健康服務護理人員每三年至少12小時；一般勞工每三年至少3小時。各類人員之週期與時數均不同。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列教育訓練類別與其適用條文正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "職業安全衛生業務主管教育訓練"},
+        {"id": "L2", "text": "具有危險性之機械操作人員教育訓練"},
+        {"id": "L3", "text": "急救人員教育訓練"},
+        {"id": "L4", "text": "一般安全衛生教育訓練"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "第3條"},
+        {"id": "R2", "text": "第12條"},
+        {"id": "R3", "text": "第16條"},
+        {"id": "R4", "text": "第17條"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "業務主管教育訓練為第3條；危險性機械操作人員為第12條；急救人員為第16條（16小時）；一般安全衛生教育訓練為第17條。",
+      "references": [{"title": "職業安全衛生教育訓練規則第2條至第17條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060010"}]
+    },
+    {
+      "id": "U14-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列危險性機械設備操作人員與其教育訓練類別正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "鍋爐操作人員"},
+        {"id": "L2", "text": "吊升荷重三公噸以上之固定式起重機操作人員"},
+        {"id": "L3", "text": "荷重一公噸以上之堆高機操作人員"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "具有危險性之機械操作人員教育訓練"},
+        {"id": "R2", "text": "具有危險性之設備操作人員教育訓練"},
+        {"id": "R3", "text": "特殊作業安全衛生教育訓練"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R1"},
+        {"left": "L3", "right": "R3"}
+      ],
+      "explanation": "鍋爐屬危險性設備，操作人員應受第13條之危險性設備操作人員訓練；固定式起重機三公噸以上屬危險性機械，應受第12條之危險性機械操作人員訓練；堆高機一公噸以上屬特殊作業，應受第14條之特殊作業教育訓練。",
+      "references": [{"title": "職業安全衛生教育訓練規則第12條至第14條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060010"}]
+    },
+    {
+      "id": "U14-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依在職教育訓練時數由多到少排列下列人員（以三年為比較基準）：",
+      "items": [
+        {"id": "I1", "text": "職業安全衛生管理人員（每二年12小時，三年約18小時）"},
+        {"id": "I2", "text": "勞工健康服務護理人員（每三年12小時）"},
+        {"id": "I3", "text": "職業安全衛生業務主管（每二年6小時，三年約9小時）"},
+        {"id": "I4", "text": "一般勞工（每三年3小時）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "以三年為基準換算：管理人員每二年12小時，三年約18小時最多；健康服務護理人員每三年12小時次之；業務主管每二年6小時，三年約9小時再次；一般勞工每三年3小時最少。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U14-Q050",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依雇主辦理安全衛生教育訓練之流程，排列下列步驟之先後順序：",
+      "items": [
+        {"id": "I1", "text": "辨識勞工所需接受之教育訓練類別"},
+        {"id": "I2", "text": "安排勞工於事前或適當時間接受教育訓練"},
+        {"id": "I3", "text": "實施結訓測驗並發給結業證書"},
+        {"id": "I4", "text": "保存教育訓練相關紀錄"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "教育訓練辦理流程：先辨識所需訓練類別（依第2條分類）→安排勞工於事前接受訓練（第3條等規定應於事前）→實施結訓測驗發給結業證書（第28條）→保存教育訓練相關紀錄（第29條、第31條）。",
+      "references": [{"title": "職業安全衛生教育訓練規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060010"}]
+    }
+  ]
+}

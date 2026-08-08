@@ -1,0 +1,1658 @@
+{
+  "unitId": "U11",
+  "unitTitle": "職業安全衛生管理系統",
+  "unitNumber": 11,
+  "questions": [
+    {
+      "id": "U11-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生管理辦法第12條之2，實施職業安全衛生管理系統之事業單位，應參照什麼標準建置？",
+      "options": [
+        {
+          "id": "A",
+          "text": "ISO 9001"
+        },
+        {
+          "id": "B",
+          "text": "CNS 45001 國家標準"
+        },
+        {
+          "id": "C",
+          "text": "ISO 14001"
+        },
+        {
+          "id": "D",
+          "text": "ISO 27001"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第12條之2第1項，實施職安管理系統之事業單位，應參照中央主管機關公告之職業安全衛生管理系統指引（即CNS 45001國家標準）建置，或建立同等以上之職安管理系統。CNS 45001與ISO 45001內容一致。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，下列何者非屬應實施職安管理系統之事業單位？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一類事業勞工人數200人以上"
+        },
+        {
+          "id": "B",
+          "text": "第二類事業勞工人數500人以上"
+        },
+        {
+          "id": "C",
+          "text": "石油裂解之石油化學工業"
+        },
+        {
+          "id": "D",
+          "text": "第一類事業勞工人數50人以上"
+        }
+      ],
+      "answer": [
+        "D"
+      ],
+      "explanation": "依第12條之2第1項第1款至第3款，應實施管理系統者為：(1)第一類事業勞工人數200人以上、(2)第二類事業勞工人數500人以上、(3)石油裂解之石油化學工業工作場所。D「50人以上」未達200人之門檻。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2第1項第4款，從事何種物質之製造、處置或使用達中央主管機關規定量以上者，應實施職安管理系統？",
+      "options": [
+        {
+          "id": "A",
+          "text": "危害性化學品"
+        },
+        {
+          "id": "B",
+          "text": "一般清潔劑"
+        },
+        {
+          "id": "C",
+          "text": "食品添加物"
+        },
+        {
+          "id": "D",
+          "text": "建築材料"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之2第1項第4款，從事危害性化學品之製造、處置或使用，達中央主管機關規定之量以上者，應實施職安管理系統。危險性化學品量大時風險高，需系統性管理。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2第2項，實施職安管理系統之事業單位，其執行紀錄應保存多少年？",
+      "options": [
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "二年"
+        },
+        {
+          "id": "C",
+          "text": "三年"
+        },
+        {
+          "id": "D",
+          "text": "五年"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第12條之2第2項，職安管理系統之執行，應作成紀錄，並保存3年。管理系統紀錄之保存期限與管理計畫、自動檢查紀錄相同，均為3年。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 職業安全衛生管理系統標準採用之管理循環為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "PDCA循環"
+        },
+        {
+          "id": "B",
+          "text": "5S管理"
+        },
+        {
+          "id": "C",
+          "text": "六標準差"
+        },
+        {
+          "id": "D",
+          "text": "精實管理"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018採用PDCA管理循環（Plan-Do-Check-Act）。Plan為規劃、Do為實施、Check為檢查（績效評估）、Act為改善。PDCA持續改善之管理循環是ISO管理系統標準之核心。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 的第4條規定之內容為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "領導與工作者參與"
+        },
+        {
+          "id": "B",
+          "text": "組織背景"
+        },
+        {
+          "id": "C",
+          "text": "規劃"
+        },
+        {
+          "id": "D",
+          "text": "支援"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "ISO 45001:2018第4條為「組織背景（Context of the organization）」，要求組織瞭解其內外部議題、工作者之需求及期望，並界定管理系統之範圍。A為第5條、C為第6條、D為第7條。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中「領導與工作者參與」為第幾條之規定？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第3條"
+        },
+        {
+          "id": "B",
+          "text": "第4條"
+        },
+        {
+          "id": "C",
+          "text": "第5條"
+        },
+        {
+          "id": "D",
+          "text": "第6條"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "ISO 45001:2018第5條為「領導與工作者參與（Leadership and worker participation）」。強調最高管理階層之領導承諾及工作者之參與，是ISO 45001之重要特色。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 共有10個條文，採用何種結構？",
+      "options": [
+        {
+          "id": "A",
+          "text": "高階結構（High-Level Structure, HLS）"
+        },
+        {
+          "id": "B",
+          "text": "矩陣結構"
+        },
+        {
+          "id": "C",
+          "text": "線性結構"
+        },
+        {
+          "id": "D",
+          "text": "階層結構"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018採用Annex SL之高階結構（HLS），與ISO 9001:2015、ISO 14001:2015等管理系統標準共用相同之10條框架。條文4-10為PDCA之具體展開，便於整合管理系統。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中，第9條規定之內容為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "營運"
+        },
+        {
+          "id": "B",
+          "text": "績效評估"
+        },
+        {
+          "id": "C",
+          "text": "改善"
+        },
+        {
+          "id": "D",
+          "text": "規劃"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "ISO 45001:2018第9條為「績效評估（Performance evaluation）」，包括監督、量測、分析及評估、內部稽核、管理審查。對應PDCA循環之Check（檢查）階段。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中，第10條規定之內容為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "營運"
+        },
+        {
+          "id": "B",
+          "text": "績效評估"
+        },
+        {
+          "id": "C",
+          "text": "改善"
+        },
+        {
+          "id": "D",
+          "text": "支援"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "ISO 45001:2018第10條為「改善（Improvement）」，包括事件、不符合及矯正措施、持續改善。對應PDCA循環之Act（行動/改善）階段，強調持續改善之精神。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中，第7條規定之內容為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "支援"
+        },
+        {
+          "id": "B",
+          "text": "營運"
+        },
+        {
+          "id": "C",
+          "text": "規劃"
+        },
+        {
+          "id": "D",
+          "text": "組織背景"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018第7條為「支援（Support）」，包括資源、適任性、認知、溝通、文件化資訊。涵蓋管理系統運作所需之資源、能力、溝通及文件支援。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中，第8條規定之內容為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "支援"
+        },
+        {
+          "id": "B",
+          "text": "營運"
+        },
+        {
+          "id": "C",
+          "text": "績效評估"
+        },
+        {
+          "id": "D",
+          "text": "改善"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "ISO 45001:2018第8條為「營運（Operation）」，包括作業規劃及控制、管理變更、採購、承包商、外包、緊急準備及應變。對應PDCA循環之Do（實施）階段。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之3，實施管理系統之事業單位於引進或修改製程前，應評估什麼風險？",
+      "options": [
+        {
+          "id": "A",
+          "text": "職業災害之風險"
+        },
+        {
+          "id": "B",
+          "text": "投資風險"
+        },
+        {
+          "id": "C",
+          "text": "匯率風險"
+        },
+        {
+          "id": "D",
+          "text": "營運風險"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之3第1項，實施管理系統之事業單位，於引進或修改製程、作業程序、材料及設備前，應評估其職業災害之風險，並採取適當之預防措施。變更管理（Management of Change）是管理系統之重要功能。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-3"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之3第2項，實施管理系統之事業單位變更製程等時，應使何人充分知悉並接受教育訓練？",
+      "options": [
+        {
+          "id": "A",
+          "text": "勞工"
+        },
+        {
+          "id": "B",
+          "text": "股東"
+        },
+        {
+          "id": "C",
+          "text": "客戶"
+        },
+        {
+          "id": "D",
+          "text": "供應商"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之3第2項，前項變更，應使勞工充分知悉及接受教育訓練。確保勞工瞭解變更之內容及安全注意事項，是變更管理之關鍵步驟。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-3"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之4，實施管理系統之事業單位，採購契約內容應有符合什麼之職安衛具體規範？",
+      "options": [
+        {
+          "id": "A",
+          "text": "法令及實際需要"
+        },
+        {
+          "id": "B",
+          "text": "國際慣例"
+        },
+        {
+          "id": "C",
+          "text": "客戶要求"
+        },
+        {
+          "id": "D",
+          "text": "工會意見"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之4第1項，機械、設備等之採購、租賃，其契約內容應有符合法令及實際需要之職業安全衛生具體規範，並於驗收、使用前確認其符合規定。採購管理是源頭管控之重要機制。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-4"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之7，實施管理系統之事業單位應建立什麼制度，對表現優良者予以表彰？",
+      "options": [
+        {
+          "id": "A",
+          "text": "績效評估及獎懲制度"
+        },
+        {
+          "id": "B",
+          "text": "薪資調整制度"
+        },
+        {
+          "id": "C",
+          "text": "升遷制度"
+        },
+        {
+          "id": "D",
+          "text": "考核制度"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之7，實施管理系統之事業單位，應建立職業安全衛生績效評估及獎懲制度，對於推動及執行安全衛生績效優良者，予以表彰。績效管理是管理系統之激勵機制。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-7"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 強調何人之參與是管理系統成功之關鍵？",
+      "options": [
+        {
+          "id": "A",
+          "text": "工作者"
+        },
+        {
+          "id": "B",
+          "text": "股東"
+        },
+        {
+          "id": "C",
+          "text": "客戶"
+        },
+        {
+          "id": "D",
+          "text": "供應商"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018第5條為「領導與工作者參與」，強調工作者之諮詢與參與是管理系統成功之關鍵。最高管理階層應展現領導承諾，並確保工作者參與管理系統之發展、實施及持續改善。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 第6條「規劃」中，要求組織應識別什麼並評估其風險？",
+      "options": [
+        {
+          "id": "A",
+          "text": "危害及風險"
+        },
+        {
+          "id": "B",
+          "text": "市場機會"
+        },
+        {
+          "id": "C",
+          "text": "競爭對手"
+        },
+        {
+          "id": "D",
+          "text": "技術趨勢"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018第6條「規劃」包括危害識別、職安衛風險評估及機會之決定、法規要求事項之決定、目標之建立及達成計畫。危害辨識及風險評估是規劃階段之核心。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中「內部稽核」屬於第幾條之規定？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第7條"
+        },
+        {
+          "id": "B",
+          "text": "第8條"
+        },
+        {
+          "id": "C",
+          "text": "第9條"
+        },
+        {
+          "id": "D",
+          "text": "第10條"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "ISO 45001:2018第9條「績效評估」包括三個子條：(1)監督、量測、分析及評估、(2)內部稽核、(3)管理審查。內部稽核是Check階段之重要工具，確保系統有效性。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q020",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018 中「管理審查」屬於第幾條之規定？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第7條"
+        },
+        {
+          "id": "B",
+          "text": "第8條"
+        },
+        {
+          "id": "C",
+          "text": "第9條"
+        },
+        {
+          "id": "D",
+          "text": "第10條"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "ISO 45001:2018第9條「績效評估」之第三個子條為「管理審查（Management review）」。最高管理階層應依規劃之時間間隔審查管理系統，確保其持續之適切性、適足性及有效性。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "PDCA循環中，「P」代表什麼？",
+      "options": [
+        {
+          "id": "A",
+          "text": "Plan（規劃）"
+        },
+        {
+          "id": "B",
+          "text": "Process（流程）"
+        },
+        {
+          "id": "C",
+          "text": "Policy（政策）"
+        },
+        {
+          "id": "D",
+          "text": "Prevent（預防）"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "PDCA循環中P=Plan（規劃）、D=Do（實施）、C=Check（檢查）、A=Act（改善）。Plan階段包括組織背景分析、風險評估、目標設定等，是管理系統之起點。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "PDCA循環中「Do」對應ISO 45001:2018的哪些條文？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第4條及第5條"
+        },
+        {
+          "id": "B",
+          "text": "第7條及第8條"
+        },
+        {
+          "id": "C",
+          "text": "第9條"
+        },
+        {
+          "id": "D",
+          "text": "第10條"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "PDCA對應ISO 45001條文：Plan→第4,5,6條（組織背景、領導、規劃）；Do→第7,8條（支援、營運）；Check→第9條（績效評估）；Act→第10條（改善）。Do階段包括資源支援及營運執行。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第12條之2，中央主管機關得對實施管理系統之事業單位實施什麼？",
+      "options": [
+        {
+          "id": "A",
+          "text": "績效評估及驗證"
+        },
+        {
+          "id": "B",
+          "text": "財務補助"
+        },
+        {
+          "id": "C",
+          "text": "免稅優惠"
+        },
+        {
+          "id": "D",
+          "text": "人力支援"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之2第3項，中央主管機關得對實施管理系統之事業單位，實施績效評估及驗證。透過第三方驗證確保管理系統之有效性，也提供事業單位改善之參考。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "ISO 45001:2018 取代了下列哪一標準？",
+      "options": [
+        {
+          "id": "A",
+          "text": "OHSAS 18001"
+        },
+        {
+          "id": "B",
+          "text": "ISO 9001"
+        },
+        {
+          "id": "C",
+          "text": "ISO 14001"
+        },
+        {
+          "id": "D",
+          "text": "ILO-OSH 2001"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018於2018年3月發布，取代了OHSAS 18001。OHSAS 18001之轉換期限為2021年3月。ISO 45001是第一個由ISO發布的職安衛管理系統國際標準。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，應實施職安管理系統之事業單位包括哪些？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一類事業勞工人數200人以上"
+        },
+        {
+          "id": "B",
+          "text": "第二類事業勞工人數500人以上"
+        },
+        {
+          "id": "C",
+          "text": "石油裂解之石油化學工業"
+        },
+        {
+          "id": "D",
+          "text": "危害性化學品製造處置使用達規定量以上"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第12條之2第1項第1至4款，四項均為應實施管理系統之情形。A為第1款；B為第2款；C為第3款；D為第4款。這些事業單位因風險較高或規模較大，需系統性管理職安。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依ISO 45001:2018，PDCA循環中「Plan」階段對應哪些條文？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "第4條 組織背景"
+        },
+        {
+          "id": "B",
+          "text": "第5條 領導與工作者參與"
+        },
+        {
+          "id": "C",
+          "text": "第6條 規劃"
+        },
+        {
+          "id": "D",
+          "text": "第9條 績效評估"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "Plan對應第4,5,6條：組織背景(4)、領導與工作者參與(5)、規劃(6)。D第9條績效評估屬Check階段。Plan階段建立管理系統之方向和框架，是後續執行之基礎。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之3至第12條之7，實施管理系統之事業單位應執行哪些管理功能？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "變更管理（第12條之3）"
+        },
+        {
+          "id": "B",
+          "text": "採購管理（第12條之4）"
+        },
+        {
+          "id": "C",
+          "text": "承攬管理（第12條之5）"
+        },
+        {
+          "id": "D",
+          "text": "績效評估及獎懲（第12條之7）"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "第12條之3為變更管理；第12條之4為採購管理；第12條之5為承攬管理；第12條之6為緊急應變；第12條之7為績效評估及獎懲。四個選項均為管理系統之重要功能，加上緊急應變共五大功能。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-3"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依ISO 45001:2018第9條「績效評估」，包括哪些子條款？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "監督、量測、分析及評估"
+        },
+        {
+          "id": "B",
+          "text": "內部稽核"
+        },
+        {
+          "id": "C",
+          "text": "管理審查"
+        },
+        {
+          "id": "D",
+          "text": "持續改善"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "ISO 45001第9條績效評估包括三個子條：9.1監督量測分析及評估、9.2內部稽核、9.3管理審查。D持續改善屬第10條「改善」。績效評估是PDCA之Check階段。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依ISO 45001:2018第5條，最高管理階層應展現之領導承諾包括哪些？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "確保職安衛管理系統之建立與實施"
+        },
+        {
+          "id": "B",
+          "text": "確保職安衛政策及目標之建立"
+        },
+        {
+          "id": "C",
+          "text": "確保資源之可用性"
+        },
+        {
+          "id": "D",
+          "text": "確保工作者之諮詢與參與"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "ISO 45001第5條規定最高管理階層之領導承諾包括：建立及實施管理系統、建立政策與目標、確保資源、工作者諮詢與參與、整合至業務流程、持續改善等。四個選項均屬領導承諾之範疇。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依ISO 45001:2018第8條「營運」，包括哪些子條款？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "作業規劃及控制"
+        },
+        {
+          "id": "B",
+          "text": "管理變更"
+        },
+        {
+          "id": "C",
+          "text": "採購、承包商及外包"
+        },
+        {
+          "id": "D",
+          "text": "緊急準備及應變"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "ISO 45001第8條營運包括四個子條：8.1作業規劃及控制、8.2管理變更、8.3採購(含承包商及外包)、8.4緊急準備及應變。對應PDCA之Do階段，涵蓋日常營運之所有安全衛生管理。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之5，承攬管理計畫應包括哪些事項？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "承攬人之安全衛生管理能力"
+        },
+        {
+          "id": "B",
+          "text": "危險作業管制"
+        },
+        {
+          "id": "C",
+          "text": "緊急應變"
+        },
+        {
+          "id": "D",
+          "text": "安全衛生績效評估"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第12條之5，承攬管理計畫應包括六項：(1)承攬人之安全衛生管理能力、(2)職業災害通報、(3)危險作業管制、(4)教育訓練、(5)緊急應變、(6)安全衛生績效評估。四個選項均屬之。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-5"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "關於ISO 45001:2018與OHSAS 18001之比較，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "ISO 45001採用高階結構(HLS)，與其他ISO管理標準一致"
+        },
+        {
+          "id": "B",
+          "text": "ISO 45001強調工作者參與"
+        },
+        {
+          "id": "C",
+          "text": "ISO 45001強調組織背景分析"
+        },
+        {
+          "id": "D",
+          "text": "ISO 45001取代OHSAS 18001"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "ISO 45001:2018與OHSAS 18001之主要差異：採用HLS高階結構(A)、強調工作者參與(B)、增加組織背景分析(C)、取代OHSAS 18001(D)。四項均正確。ISO 45001更注重領導承諾及風險導向。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生管理辦法第12條之2，實施職安管理系統之事業單位，應參照CNS 45001國家標準建置。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之2第1項，應參照中央主管機關公告之職業安全衛生管理系統指引建置。CNS 45001為國家標準，與ISO 45001內容一致，是建置管理系統之參考依據。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018採用PDCA管理循環，其中Check階段對應第9條績效評估。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "PDCA對應ISO 45001條文：Plan→第4,5,6條、Do→第7,8條、Check→第9條績效評估、Act→第10條改善。Check階段包括監督量測、內部稽核及管理審查。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，中央主管機關得對實施管理系統之事業單位實施績效評估及驗證。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之2第3項，中央主管機關得對實施管理系統之事業單位，實施績效評估及驗證。透過驗證確保管理系統之有效性，並提供事業單位改善之參考。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q036",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018強調最高管理階層之領導承諾及工作者之參與。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "ISO 45001:2018第5條「領導與工作者參與」是重要特色。最高管理階層應展現領導承諾，確保工作者之諮詢與參與。這是ISO 45001相較於OHSAS 18001之重要強化。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之7，實施管理系統之事業單位應建立績效評估及獎懲制度。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之7，實施管理系統之事業單位應建立職業安全衛生績效評估及獎懲制度，對績效優良者予以表彰。績效管理是管理系統之激勵機制，促進持續改善。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-7"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，實施職安管理系統之事業單位，應參照CNS ________國家標準建置。",
+      "answer": [
+        "45001"
+      ],
+      "explanation": "依第12條之2第1項，應參照中央主管機關公告之職業安全衛生管理系統指引（即CNS 45001）建置。CNS 45001與ISO 45001:2018內容一致，是台灣之國家標準。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018的管理循環為P________ D C A。",
+      "answer": [
+        "Plan"
+      ],
+      "explanation": "PDCA循環：Plan（規劃）、Do（實施）、Check（檢查）、Act（改善）。Plan對應第4,5,6條，是管理系統之規劃階段。PDCA是ISO管理標準之核心循環。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，實施職安管理系統之事業單位，其執行紀錄應保存________年。",
+      "answer": [
+        "3",
+        "三"
+      ],
+      "explanation": "依第12條之2第2項，職安管理系統之執行，應作成紀錄，並保存3年。與管理計畫、自動檢查紀錄之保存期限一致，均為3年。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，第一類事業勞工人數達________人以上者，應實施職安管理系統。",
+      "answer": [
+        "200",
+        "二百"
+      ],
+      "explanation": "依第12條之2第1項第1款，第一類事業勞工人數200人以上者應實施管理系統。第二類事業則為500人以上。不同風險等級之事業適用不同之人數門檻。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "ISO 45001:2018於2018年發布，取代了________ 18001標準。",
+      "answer": [
+        "OHSAS"
+      ],
+      "explanation": "ISO 45001:2018取代了OHSAS 18001。OHSAS 18001之轉換期限為2021年3月。ISO 45001是第一個由ISO正式發布的職安衛管理系統國際標準。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之2，第一類事業200人以上、第二類事業500人以上應實施管理系統。某事業單位屬第一類事業，有3個廠區分別僱用80人、75人、60人，請問該事業單位是否應實施職安管理系統？應計算總人數為多少人？",
+      "answer": {
+        "value": 215,
+        "unit": "人",
+        "tolerance": 0
+      },
+      "explanation": "總人數=80+75+60=215人。第一類事業200人以上應實施管理系統，215人超過200人門檻，故應實施。人數計算以事業單位整體為準，非個別廠區。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "ISO 45001:2018共有10個條文（條文1至10），其中條文4至10對應PDCA循環。已知Plan對應3個條文（4,5,6），Do對應2個條文（7,8），Check對應1個條文（9），Act對應1個條文（10）。請問PDCA四階段共對應多少個條文？",
+      "answer": {
+        "value": 7,
+        "unit": "個",
+        "tolerance": 0
+      },
+      "explanation": "Plan(3)+Do(2)+Check(1)+Act(1)=7個條文。條文1-3為範圍、引用文件、名詞定義，不對應PDCA。PDCA對應條文4-10共7個條文。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第12條之2，管理系統執行紀錄應保存3年。某事業單位每月產生10份管理系統執行紀錄，請問3年期間共需保存多少份紀錄？",
+      "answer": {
+        "value": 360,
+        "unit": "份",
+        "tolerance": 0
+      },
+      "explanation": "每月10份×12個月=120份/年。3年共120×3=360份。依第12條之2第2項，管理系統之執行紀錄應保存3年，3年後需保存360份紀錄。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將PDCA循環各階段與對應之ISO 45001:2018條文正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "Plan（規劃）"
+        },
+        {
+          "id": "L2",
+          "text": "Do（實施）"
+        },
+        {
+          "id": "L3",
+          "text": "Check（檢查）"
+        },
+        {
+          "id": "L4",
+          "text": "Act（改善）"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "第4, 5, 6條（組織背景、領導、規劃）"
+        },
+        {
+          "id": "R2",
+          "text": "第7, 8條（支援、營運）"
+        },
+        {
+          "id": "R3",
+          "text": "第9條（績效評估）"
+        },
+        {
+          "id": "R4",
+          "text": "第10條（改善）"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "Plan→第4,5,6條；Do→第7,8條；Check→第9條；Act→第10條。PDCA是ISO管理系統標準之核心循環，確保持續改善。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列管理功能與其法規依據正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "變更管理"
+        },
+        {
+          "id": "L2",
+          "text": "採購管理"
+        },
+        {
+          "id": "L3",
+          "text": "承攬管理"
+        },
+        {
+          "id": "L4",
+          "text": "緊急應變"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "管理辦法第12條之3"
+        },
+        {
+          "id": "R2",
+          "text": "管理辦法第12條之4"
+        },
+        {
+          "id": "R3",
+          "text": "管理辦法第12條之5"
+        },
+        {
+          "id": "R4",
+          "text": "管理辦法第12條之6"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "變更管理→第12條之3；採購管理→第12條之4；承攬管理→第12條之5；緊急應變→第12條之6。加上第12條之7績效評估及獎懲，共五大管理功能。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-3"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q048",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將ISO 45001:2018各條文與其名稱正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "第4條"
+        },
+        {
+          "id": "L2",
+          "text": "第6條"
+        },
+        {
+          "id": "L3",
+          "text": "第9條"
+        },
+        {
+          "id": "L4",
+          "text": "第10條"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "組織背景"
+        },
+        {
+          "id": "R2",
+          "text": "規劃"
+        },
+        {
+          "id": "R3",
+          "text": "績效評估"
+        },
+        {
+          "id": "R4",
+          "text": "改善"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "第4條=組織背景；第6條=規劃；第9條=績效評估；第10條=改善。完整10條為：1範圍、2引用文件、3名詞定義、4組織背景、5領導與工作者參與、6規劃、7支援、8營運、9績效評估、10改善。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "依ISO 45001:2018之條文順序，請由小到大排列下列條文名稱：",
+      "items": [
+        {
+          "id": "I1",
+          "text": "組織背景（第4條）"
+        },
+        {
+          "id": "I2",
+          "text": "領導與工作者參與（第5條）"
+        },
+        {
+          "id": "I3",
+          "text": "規劃（第6條）"
+        },
+        {
+          "id": "I4",
+          "text": "支援（第7條）"
+        }
+      ],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
+      "explanation": "ISO 45001:2018條文順序：第4條組織背景→第5條領導與工作者參與→第6條規劃→第7條支援→第8條營運→第9條績效評估→第10條改善。前四條依序排列為I1→I2→I3→I4。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    },
+    {
+      "id": "U11-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依ISO 45001:2018之PDCA循環，請依管理系統建置之邏輯順序排列：",
+      "items": [
+        {
+          "id": "I1",
+          "text": "規劃：危害辨識、風險評估、設定目標"
+        },
+        {
+          "id": "I2",
+          "text": "實施：作業規劃、變更管理、採購、緊急應變"
+        },
+        {
+          "id": "I3",
+          "text": "檢查：監督量測、內部稽核、管理審查"
+        },
+        {
+          "id": "I4",
+          "text": "改善：矯正措施、持續改善"
+        }
+      ],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
+      "explanation": "PDCA邏輯順序：Plan(規劃)→Do(實施)→Check(檢查)→Act(改善)。先規劃危害辨識及目標，再實施作業管理，然後檢查績效，最後改善不足。持續循環以達持續改善之目標。",
+      "references": [
+        {
+          "title": "ISO 45001:2018",
+          "url": "https://www.iso.org/standard/63787.html"
+        }
+      ]
+    }
+  ]
+}

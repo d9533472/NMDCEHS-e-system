@@ -1,0 +1,732 @@
+{
+  "unitId": "U27",
+  "unitTitle": "個人防護具種類及使用",
+  "unitNumber": 27,
+  "questions": [
+    {
+      "id": "U27-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第277條規定，雇主供給勞工使用之個人防護具或防護器具，應置備與作業勞工人數相同或以上之數量，並以何者為原則？",
+      "options": [
+        {"id": "A", "text": "輪流共用"},
+        {"id": "B", "text": "個人專用"},
+        {"id": "C", "text": "由主管保管"},
+        {"id": "D", "text": "集中存放"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第277條第1項第3款規定，個人使用之防護具應置備與作業勞工人數相同或以上之數量，並以個人專用為原則。A輪流共用易造成交叉感染，C由主管保管不符個人專用原則，D集中存放亦不符規定。",
+      "references": [{"title": "職業安全衛生設施規則第277條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"}]
+    },
+    {
+      "id": "U27-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "雇主使勞工使用呼吸防護具時，依職業安全衛生設施規則第277條之1規定，應指派專人採取呼吸防護措施，作成執行紀錄，並留存多少年？",
+      "options": [
+        {"id": "A", "text": "1年"},
+        {"id": "B", "text": "2年"},
+        {"id": "C", "text": "3年"},
+        {"id": "D", "text": "5年"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第277條之1規定，雇主使勞工使用呼吸防護具時，應指派專人採取呼吸防護措施，作成執行紀錄，並留存三年。1年、2年、5年均非正確規定。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條之1規定，事業單位勞工人數達多少以上者，雇主應依中央主管機關公告之相關指引，訂定呼吸防護計畫？",
+      "options": [
+        {"id": "A", "text": "100人"},
+        {"id": "B", "text": "200人"},
+        {"id": "C", "text": "300人"},
+        {"id": "D", "text": "500人"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第277條之1第2項規定，事業單位勞工人數達二百人以上者，雇主應訂定呼吸防護計畫並據以執行；勞工人數未滿二百人者，得以執行紀錄或文件代替。100、300、500均非正確門檻。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q004",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第278條規定，雇主對於搬運、置放、使用有刺角物、凸出物、腐蝕性物質、毒性物質或劇毒物質時，下列何者不屬於應置備之防護具？",
+      "options": [
+        {"id": "A", "text": "手套、圍裙、裹腿"},
+        {"id": "B", "text": "安全鞋、安全帽"},
+        {"id": "C", "text": "防護眼鏡、防毒口罩、安全面罩"},
+        {"id": "D", "text": "耳塞、耳罩"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生設施規則第278條規定應置備手套、圍裙、裹腿、安全鞋、安全帽、防護眼鏡、防毒口罩、安全面罩等。耳塞、耳罩屬於噪音防護具（第286條），非本條所列項目。",
+      "references": [{"title": "職業安全衛生設施規則第278條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=278"}]
+    },
+    {
+      "id": "U27-Q005",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第279條規定，雇主對於勞工操作或接近運轉中之原動機、動力傳動裝置、動力滾捲裝置，或動力運轉之機械，勞工之頭髮或衣服有被捲入危險之虞時，應使勞工確實著用適當之何種防護具？",
+      "options": [
+        {"id": "A", "text": "安全鞋"},
+        {"id": "B", "text": "衣帽"},
+        {"id": "C", "text": "護目鏡"},
+        {"id": "D", "text": "防毒面具"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第279條規定，應使勞工確實著用適當之衣帽，以防止頭髮或衣服被捲入機械。安全鞋、護目鏡、防毒面具非本條所要求之防護具。",
+      "references": [{"title": "職業安全衛生設施規則第279條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=279"}]
+    },
+    {
+      "id": "U27-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第281條規定，雇主對於在高度幾公尺以上之高處作業，勞工有墜落之虞者，應使勞工確實使用安全帶、安全帽及其他必要之防護具？",
+      "options": [
+        {"id": "A", "text": "1公尺"},
+        {"id": "B", "text": "1.5公尺"},
+        {"id": "C", "text": "2公尺"},
+        {"id": "D", "text": "3公尺"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第281條規定，在高度二公尺以上之高處作業，勞工有墜落之虞者，應使勞工確實使用安全帶、安全帽及其他必要之防護具。但雇主採安全網等措施者，不在此限。1公尺、1.5公尺、3公尺均非正確高度門檻。",
+      "references": [{"title": "職業安全衛生設施規則第281條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=281"}]
+    },
+    {
+      "id": "U27-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第281條規定，對於鋼構懸臂突出物、斜籬、二公尺以上未設護籠等保護裝置之垂直固定梯、局限空間、屋頂或施工架組拆、管線維修作業等高處或傾斜面移動，應採用符合國家標準CNS何種規定之全身背負式安全帶及捲揚式防墜器？",
+      "options": [
+        {"id": "A", "text": "CNS 14253-1"},
+        {"id": "B", "text": "CNS 14258"},
+        {"id": "C", "text": "CNS 13627"},
+        {"id": "D", "text": "CNS 13628"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第281條規定，應採用符合國家標準CNS 14253-1同等以上規定之全身背負式安全帶及捲揚式防墜器。CNS 14258為呼吸防護具標準，CNS 13627為升降機標準，CNS 13628為營建用提升機標準。",
+      "references": [{"title": "職業安全衛生設施規則第281條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=281"}]
+    },
+    {
+      "id": "U27-Q008",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第284條規定，雇主對於勞工以電焊、氣焊從事熔接、熔斷等作業時，應置備下列何種防護具？",
+      "options": [
+        {"id": "A", "text": "安全面罩、防護眼鏡及防護手套"},
+        {"id": "B", "text": "耳塞、耳罩"},
+        {"id": "C", "text": "防塵口罩"},
+        {"id": "D", "text": "救生衣"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第284條規定，電焊、氣焊作業應置備安全面罩、防護眼鏡及防護手套等，並使勞工確實戴用。耳塞、耳罩為噪音防護，防塵口罩為粉塵防護，救生衣為水上作業防護，均非本條所定。",
+      "references": [{"title": "職業安全衛生設施規則第284條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=284"}]
+    },
+    {
+      "id": "U27-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第286條規定，雇主為防止勞工暴露於強烈噪音之工作場所，應置備何種防護具並使勞工確實戴用？",
+      "options": [
+        {"id": "A", "text": "防護眼鏡"},
+        {"id": "B", "text": "耳塞、耳罩"},
+        {"id": "C", "text": "安全帽"},
+        {"id": "D", "text": "防毒面具"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第286條規定，為防止勞工暴露於強烈噪音之工作場所，應置備耳塞、耳罩等防護具。防護眼鏡、安全帽、防毒面具非噪音防護具。",
+      "references": [{"title": "職業安全衛生設施規則第286條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=286"}]
+    },
+    {
+      "id": "U27-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第287條規定，雇主對於勞工有暴露於高溫、低溫、非游離輻射線、生物病原體、有害氣體、蒸氣、粉塵或其他有害物之虞者，應置備何種防護具？",
+      "options": [
+        {"id": "A", "text": "僅需安全帽"},
+        {"id": "B", "text": "安全面罩、防塵口罩、防毒面具、防護眼鏡、防護衣等適當之防護具"},
+        {"id": "C", "text": "僅需耳塞耳罩"},
+        {"id": "D", "text": "僅需安全鞋"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第287條規定，應置備安全面罩、防塵口罩、防毒面具、防護眼鏡、防護衣等適當之防護具，並使勞工確實使用。僅安全帽、僅耳塞耳罩、僅安全鞋均不足以涵蓋多種危害之防護需求。",
+      "references": [{"title": "職業安全衛生設施規則第287條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=287"}]
+    },
+    {
+      "id": "U27-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第287條之1規定，雇主使勞工使用輸氣管面罩呼吸防護具時，下列何者正確？",
+      "options": [
+        {"id": "A", "text": "可以使用純氧供氣"},
+        {"id": "B", "text": "應確保其供氣及性能維持正常運作，並避免使用純氧供氣"},
+        {"id": "C", "text": "不需特別管理供氣"},
+        {"id": "D", "text": "可使用任何氣體供氣"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第287條之1規定，雇主使勞工使用輸氣管面罩呼吸防護具時，應確保其供氣及性能維持正常運作，並避免使用純氧供氣。純氧供氣有火災爆炸風險，A、C、D均不正確。",
+      "references": [{"title": "職業安全衛生設施規則第287條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=287-1"}]
+    },
+    {
+      "id": "U27-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第288條規定，雇主對於勞工在作業中使用之物質，有因接觸而傷害皮膚、感染、或經由皮膚滲透吸收而發生中毒等之虞時，應置備何種防護具？",
+      "options": [
+        {"id": "A", "text": "不浸透性防護衣、防護手套、防護靴、防護鞋等適當防護具"},
+        {"id": "B", "text": "僅需防護眼鏡"},
+        {"id": "C", "text": "僅需安全帽"},
+        {"id": "D", "text": "僅需耳塞"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第288條規定，應置備不浸透性防護衣、防護手套、防護靴、防護鞋等適當防護具，或提供必要之塗敷用防護膏。僅防護眼鏡、僅安全帽、僅耳塞均無法防止皮膚接觸危害。",
+      "references": [{"title": "職業安全衛生設施規則第288條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=288"}]
+    },
+    {
+      "id": "U27-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第290條規定，雇主對於從事電氣工作之勞工，應使其使用何種防護具？",
+      "options": [
+        {"id": "A", "text": "防塵口罩"},
+        {"id": "B", "text": "電工安全帽、絕緣防護具及其他必要之防護器具"},
+        {"id": "C", "text": "救生衣"},
+        {"id": "D", "text": "耳塞耳罩"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第290條規定，從事電氣工作之勞工應使用電工安全帽、絕緣防護具及其他必要之防護器具。防塵口罩、救生衣、耳塞耳罩非電氣作業防護具。",
+      "references": [{"title": "職業安全衛生設施規則第290條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=290"}]
+    },
+    {
+      "id": "U27-Q014",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每多少時間檢驗其性能一次？",
+      "options": [
+        {"id": "A", "text": "每3個月"},
+        {"id": "B", "text": "每6個月"},
+        {"id": "C", "text": "每年"},
+        {"id": "D", "text": "每2年"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點，不合格者應予更換。3個月、1年、2年均非正確期限。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q015",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第277條之1規定，下列何者不屬於呼吸防護措施之項目？",
+      "options": [
+        {"id": "A", "text": "危害辨識及暴露評估"},
+        {"id": "B", "text": "防護具之選擇"},
+        {"id": "C", "text": "防護具之採購議價"},
+        {"id": "D", "text": "成效評估及改善"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生設施規則第277條之1規定之呼吸防護措施包括：危害辨識及暴露評估、防護具之選擇、防護具之使用、防護具之維護及管理、呼吸防護教育訓練、成效評估及改善。採購議價非法定呼吸防護措施項目。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第238條規定，雇主對於工作場所有物體飛落之虞者，應設置防止物體飛落之設備，並供給何種防護具使勞工戴用？",
+      "options": [
+        {"id": "A", "text": "安全帽"},
+        {"id": "B", "text": "護目鏡"},
+        {"id": "C", "text": "防毒面具"},
+        {"id": "D", "text": "耳塞"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第238條規定，工作場所有物體飛落之虞者，應設置防止物體飛落之設備，並供給安全帽等防護具使勞工戴用。護目鏡、防毒面具、耳塞非防物體飛落之主要防護具。",
+      "references": [{"title": "職業安全衛生設施規則第238條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=238"}]
+    },
+    {
+      "id": "U27-Q017",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於從事地面下或隧道工程等作業，有物體飛落、有害物中毒、或缺氧危害之虞者，應使勞工確實使用安全帽，必要時應置備何種防護器材？",
+      "options": [
+        {"id": "A", "text": "空氣呼吸器、氧氣呼吸器、防毒面具、防塵面具等"},
+        {"id": "B", "text": "僅需安全帽即可"},
+        {"id": "C", "text": "僅需護目鏡"},
+        {"id": "D", "text": "僅需耳塞"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則規定，從事地面下或隧道工程等作業，有物體飛落、有害物中毒或缺氧危害之虞者，應使勞工確實使用安全帽，必要時應置備空氣呼吸器、氧氣呼吸器、防毒面具、防塵面具等防護器材。僅安全帽不足以應付中毒及缺氧危害。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q018",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，呼吸防護具使用時機不包括下列何者？",
+      "options": [
+        {"id": "A", "text": "採用工程控制及管理措施，仍無法將空氣中有害物濃度降低至容許暴露標準以下"},
+        {"id": "B", "text": "進行作業場所清掃及設備之維修、保養等臨時性作業"},
+        {"id": "C", "text": "緊急應變之處置（消防除外）"},
+        {"id": "D", "text": "作為工程控制之主要替代方案"}
+      ],
+      "answer": ["D"],
+      "explanation": "依呼吸防護具選用參考原則，個人防護具之使用為最後防線，應在工程控制及管理措施無法有效控制危害時才使用，非作為工程控制之主要替代方案。A、B、C均為正確之使用時機。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q019",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，淨氣式呼吸防護具中，防塵口罩之防護功能為何？",
+      "options": [
+        {"id": "A", "text": "防護氣體或蒸氣等氣狀有害物"},
+        {"id": "B", "text": "防護粉塵、霧滴、燻煙與煙霧等粒狀有害物"},
+        {"id": "C", "text": "供應清潔空氣"},
+        {"id": "D", "text": "提供氧氣"}
+      ],
+      "answer": ["B"],
+      "explanation": "依呼吸防護具選用參考原則，淨氣式呼吸防護具分為防塵口罩（防護粉塵、霧滴、燻煙與煙霧等粒狀有害物）及防毒面具（防護氣體或蒸氣等氣狀有害物）。供氣式則分為輸氣管面罩及自攜呼吸器。A為防毒面具功能，C、D為供氣式功能。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，確認工作場所中是否有缺氧狀況，氧氣濃度未滿多少時必須立即使用供氣式呼吸防護具？",
+      "options": [
+        {"id": "A", "text": "16%"},
+        {"id": "B", "text": "18%"},
+        {"id": "C", "text": "19.5%"},
+        {"id": "D", "text": "21%"}
+      ],
+      "answer": ["B"],
+      "explanation": "依呼吸防護具選用參考原則，確認工作場所中是否有缺氧狀況（氧氣濃度未滿18%）或立即致危濃度（必須立即使用供氣式呼吸防護具）。氧氣濃度低於18%即屬缺氧，必須使用供氣式呼吸防護具。16%、19.5%、21%均非正確門檻。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q021",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，選用呼吸防護具時應計算危害比（HR），其計算公式為何？",
+      "options": [
+        {"id": "A", "text": "HR＝有害物濃度÷容許暴露標準"},
+        {"id": "B", "text": "HR＝容許暴露標準÷有害物濃度"},
+        {"id": "C", "text": "HR＝有害物濃度×容許暴露標準"},
+        {"id": "D", "text": "HR＝容許暴露標準×防護係數"}
+      ],
+      "answer": ["A"],
+      "explanation": "依呼吸防護具選用參考原則，危害比（HR）＝有害物濃度÷容許暴露標準。確認防護係數（PF）時，PF建議值必須大於HR。B、C、D之計算方式均不正確。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q022",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於從事輸送腐蝕性物質之勞工，為防止腐蝕性物質之飛濺、漏洩或溢流致危害勞工，應使勞工使用何種防護具？",
+      "options": [
+        {"id": "A", "text": "適當之防護具"},
+        {"id": "B", "text": "僅需安全帽"},
+        {"id": "C", "text": "僅需耳塞"},
+        {"id": "D", "text": "不需使用防護具"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則規定，從事輸送腐蝕性物質之勞工，為防止腐蝕性物質之飛濺、漏洩或溢流致危害勞工，應使勞工使用適當之防護具。僅安全帽、僅耳塞不足以防護腐蝕性物質，不使用防護具更屬違法。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條規定，雇主供給勞工使用之個人防護具或防護器具，下列何者不屬於應依規定辦理之事項？",
+      "options": [
+        {"id": "A", "text": "保持清潔，並予必要之消毒"},
+        {"id": "B", "text": "經常檢查，保持其性能，不用時並妥予保存"},
+        {"id": "C", "text": "應置備與作業勞工人數相同或以上之數量，並以個人專用為原則"},
+        {"id": "D", "text": "每年辦理拍賣更新"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生設施規則第277條規定之四項為：保持清潔並消毒、經常檢查保持性能、置備足夠數量以個人專用為原則、有感染疾病之虞時置備個人專用防護器具。每年辦理拍賣更新非法定事項。",
+      "references": [{"title": "職業安全衛生設施規則第277條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"}]
+    },
+    {
+      "id": "U27-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，雇主使勞工從事局限空間作業，有致其缺氧或中毒之虞者，作業區域超出監視人員目視範圍者，應使勞工佩戴符合國家標準CNS 14253-1同等以上規定之何種安全帶？",
+      "options": [
+        {"id": "A", "text": "腰帶式安全帶"},
+        {"id": "B", "text": "全身背負式安全帶"},
+        {"id": "C", "text": "胸帶式安全帶"},
+        {"id": "D", "text": "簡易型安全帶"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則規定，局限空間作業有缺氧或中毒之虞，作業區域超出監視人員目視範圍者，應使勞工佩戴符合CNS 14253-1同等以上規定之全身背負式安全帶及可偵測人員活動情形之裝置。腰帶式、胸帶式、簡易型均不符規定。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條之1規定，雇主使勞工使用呼吸防護具時，應指派專人採取之呼吸防護措施包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "危害辨識及暴露評估"},
+        {"id": "B", "text": "防護具之選擇"},
+        {"id": "C", "text": "防護具之使用"},
+        {"id": "D", "text": "呼吸防護教育訓練"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第277條之1規定之呼吸防護措施共六項：危害辨識及暴露評估、防護具之選擇、防護具之使用、防護具之維護及管理、呼吸防護教育訓練、成效評估及改善。四選項均屬之。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第278條規定，雇主對於搬運、置放、使用有刺角物、凸出物、腐蝕性物質、毒性物質或劇毒物質時，應置備哪些防護具？（複選）",
+      "options": [
+        {"id": "A", "text": "手套、圍裙、裹腿"},
+        {"id": "B", "text": "安全鞋、安全帽"},
+        {"id": "C", "text": "防護眼鏡、防毒口罩、安全面罩"},
+        {"id": "D", "text": "耳塞、耳罩"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第278條規定應置備手套、圍裙、裹腿、安全鞋、安全帽、防護眼鏡、防毒口罩、安全面罩等。耳塞、耳罩屬噪音防護具（第286條），非本條規定項目。",
+      "references": [{"title": "職業安全衛生設施規則第278條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=278"}]
+    },
+    {
+      "id": "U27-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，呼吸防護具主要類型包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "淨氣式（防塵口罩、防毒面具）"},
+        {"id": "B", "text": "供氣式（輸氣管面罩）"},
+        {"id": "C", "text": "自攜呼吸器"},
+        {"id": "D", "text": "一般棉布口罩"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依呼吸防護具選用參考原則，呼吸防護具分為淨氣式（防塵口罩、防毒面具）及供氣式（輸氣管面罩、自攜呼吸器）。一般棉布口罩不具備法定呼吸防護功能，不屬於呼吸防護具。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，下列哪些作業情境應使勞工使用安全帽？（複選）",
+      "options": [
+        {"id": "A", "text": "作業中有物體飛落或飛散，致危害勞工之虞時"},
+        {"id": "B", "text": "從事地面下或隧道工程等作業，有物體飛落之虞者"},
+        {"id": "C", "text": "工作場所有物體飛落之虞者"},
+        {"id": "D", "text": "暴露於強烈噪音之工作場所"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "A為職安設施規則規定作業中有物體飛落或飛散應使用安全帽；B為地面下或隧道工程應使用安全帽；C為工作場所有物體飛落之虞應供給安全帽。D強烈噪音應置備耳塞、耳罩，非安全帽。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，影響呼吸防護具密合度的主要因素包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "面體與佩戴者面部無法密合"},
+        {"id": "B", "text": "進排氣閥洩漏"},
+        {"id": "C", "text": "面體或其他部位破損"},
+        {"id": "D", "text": "配件連結不當"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "依呼吸防護具選用參考原則，影響呼吸防護具密合度的主要因素包括：面體與佩戴者面部無法密合、進排氣閥洩漏、面體或其他部位破損、配件連結不當。四者均會影響密合度。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，下列哪些情況應使勞工使用安全帶？（複選）",
+      "options": [
+        {"id": "A", "text": "在高度二公尺以上之高處作業，勞工有墜落之虞者"},
+        {"id": "B", "text": "使勞工進入供儲存大量物料之槽桶時"},
+        {"id": "C", "text": "局限空間作業，有致其缺氧或中毒之虞，作業區域超出監視人員目視範圍者"},
+        {"id": "D", "text": "暴露於強烈噪音之工作場所"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "A為第281條規定高處作業應使用安全帶；B為第154條規定進入槽桶應佩掛安全帶及安全索；C為局限空間作業應佩戴安全帶。D強烈噪音應使用耳塞耳罩，非安全帶。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則規定，下列哪些情況應使勞工使用絕緣用防護具？（複選）",
+      "options": [
+        {"id": "A", "text": "勞工於低壓電路從事檢查、修理等活線作業時"},
+        {"id": "B", "text": "勞工從事高壓電路之檢查、修理等活線作業時"},
+        {"id": "C", "text": "從事電氣工作之勞工"},
+        {"id": "D", "text": "從事電焊、氣焊作業時"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "A低壓電路活線作業應戴用絕緣用防護具；B高壓電路活線作業應戴用絕緣用防護具；C從事電氣工作應使用電工安全帽、絕緣防護具。D電焊氣焊應使用安全面罩、防護眼鏡及防護手套，非絕緣用防護具。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條規定，雇主供給勞工使用之個人防護具或防護器具，應依下列哪些規定辦理？（複選）",
+      "options": [
+        {"id": "A", "text": "保持清潔，並予必要之消毒"},
+        {"id": "B", "text": "經常檢查，保持其性能，不用時並妥予保存"},
+        {"id": "C", "text": "個人使用之防護具應置備與作業勞工人數相同或以上之數量，並以個人專用為原則"},
+        {"id": "D", "text": "對勞工有感染疾病之虞時，應置備個人專用防護器具，或作預防感染疾病之措施"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生設施規則第277條第1項規定四款事項：保持清潔消毒、經常檢查保持性能、置備足夠數量以個人專用為原則、有感染疾病之虞時置備個人專用防護器具。四選項均正確。",
+      "references": [{"title": "職業安全衛生設施規則第277條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"}]
+    },
+    {
+      "id": "U27-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生設施規則第277條規定，個人使用之防護具應置備與作業勞工人數相同或以上之數量，並以個人專用為原則。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第277條第1項第3款明文規定，個人使用之防護具應置備與作業勞工人數相同或以上之數量，並以個人專用為原則，以避免交叉感染及確保防護效能。",
+      "references": [{"title": "職業安全衛生設施規則第277條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"}]
+    },
+    {
+      "id": "U27-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條之1規定，雇主使勞工使用呼吸防護具時，呼吸防護措施之執行紀錄應留存五年。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第277條之1規定，呼吸防護措施之執行紀錄應留存三年，非五年。五年為出勤紀錄之保存期限，非呼吸防護措施紀錄。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第287條之1規定，雇主使勞工使用輸氣管面罩呼吸防護具時，可以使用純氧供氣以確保供氣品質。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生設施規則第287條之1規定，雇主使勞工使用輸氣管面罩呼吸防護具時，應確保其供氣及性能維持正常運作，並避免使用純氧供氣。純氧有火災爆炸風險，不得使用。",
+      "references": [{"title": "職業安全衛生設施規則第287條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=287-1"}]
+    },
+    {
+      "id": "U27-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，個人防護具之使用為降低暴露危害的最後防線，應在工程控制及管理措施無法有效控制危害時才使用。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "依呼吸防護具選用參考原則，降低暴露危害之優先順序為：污染源減量→工程控制（密閉設備、局部排氣、整體換氣）→管理措施（安全作業程序、輪班、教育訓練）→個人防護具（最後防線）。個人防護具確為最後防線。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第286條規定，雇主為防止勞工暴露於強烈噪音之工作場所，應置備耳塞、耳罩等防護具，並使勞工確實戴用。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第286條明文規定，為防止勞工暴露於強烈噪音之工作場所，應置備耳塞、耳罩等防護具，並使勞工確實戴用。",
+      "references": [{"title": "職業安全衛生設施規則第286條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=286"}]
+    },
+    {
+      "id": "U27-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條之1規定，雇主使勞工使用呼吸防護具時，應指派專人採取呼吸防護措施，作成執行紀錄，並留存________年。",
+      "answer": ["3", "三"],
+      "explanation": "職業安全衛生設施規則第277條之1規定，呼吸防護措施之執行紀錄應留存三年。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第277條之1規定，事業單位勞工人數達________人以上者，雇主應依中央主管機關公告之相關指引，訂定呼吸防護計畫。",
+      "answer": ["200", "二百"],
+      "explanation": "職業安全衛生設施規則第277條之1規定，事業單位勞工人數達二百人以上者，應訂定呼吸防護計畫；未滿二百人者，得以執行紀錄或文件代替。",
+      "references": [{"title": "職業安全衛生設施規則第277條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277-1"}]
+    },
+    {
+      "id": "U27-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第281條規定，雇主對於在高度________公尺以上之高處作業，勞工有墜落之虞者，應使勞工確實使用安全帶、安全帽及其他必要之防護具。",
+      "answer": ["2", "二"],
+      "explanation": "職業安全衛生設施規則第281條規定，在高度二公尺以上之高處作業，勞工有墜落之虞者，應使勞工確實使用安全帶、安全帽及其他必要之防護具。",
+      "references": [{"title": "職業安全衛生設施規則第281條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=281"}]
+    },
+    {
+      "id": "U27-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，確認工作場所中是否有缺氧狀況，氧氣濃度未滿________%時，必須立即使用供氣式呼吸防護具。",
+      "answer": ["18", "十八"],
+      "explanation": "依呼吸防護具選用參考原則，氧氣濃度未滿18%即屬缺氧狀況，必須立即使用供氣式呼吸防護具。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q042",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每________個月檢驗其性能一次。",
+      "answer": ["6", "六"],
+      "explanation": "職業安全衛生設施規則規定，絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q043",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某作業場所空氣中有害物濃度為150 ppm，該有害物之容許暴露標準為50 ppm，請計算危害比（HR）為多少？",
+      "answer": {"value": 3, "unit": "", "tolerance": 0.01},
+      "explanation": "危害比（HR）＝有害物濃度÷容許暴露標準＝150÷50＝3。選用呼吸防護具時，防護係數（PF）建議值必須大於HR值3。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某作業場所空氣中有害物濃度為400 ppm，該有害物之容許暴露標準為100 ppm，請計算危害比（HR）為多少？選用呼吸防護具時，防護係數（PF）至少應大於多少？",
+      "answer": {"value": 4, "unit": "", "tolerance": 0.01},
+      "explanation": "危害比（HR）＝有害物濃度÷容許暴露標準＝400÷100＝4。防護係數（PF）建議值必須大於HR值，故PF至少應大於4。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位有勞工250人，依職業安全衛生設施規則第277條規定，個人使用之防護具應置備與作業勞工人數相同或以上之數量。若每位勞工需配置1套防塵口罩，請問雇主至少應置備多少套防塵口罩？",
+      "answer": {"value": 250, "unit": "套", "tolerance": 0},
+      "explanation": "職業安全衛生設施規則第277條規定，個人使用之防護具應置備與作業勞工人數相同或以上之數量，並以個人專用為原則。250位勞工每人1套，至少應置備250套。",
+      "references": [{"title": "職業安全衛生設施規則第277條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"}]
+    },
+    {
+      "id": "U27-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列作業類型與應使用之個人防護具正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "電焊、氣焊作業"},
+        {"id": "L2", "text": "強烈噪音作業場所"},
+        {"id": "L3", "text": "高處作業（2公尺以上）"},
+        {"id": "L4", "text": "電氣工作"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "安全面罩、防護眼鏡、防護手套"},
+        {"id": "R2", "text": "耳塞、耳罩"},
+        {"id": "R3", "text": "安全帶、安全帽"},
+        {"id": "R4", "text": "電工安全帽、絕緣防護具"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "電焊氣焊應使用安全面罩、防護眼鏡及防護手套（第284條）；強烈噪音應使用耳塞耳罩（第286條）；高處作業應使用安全帶安全帽（第281條）；電氣工作應使用電工安全帽及絕緣防護具（第290條）。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列呼吸防護具類型與其防護功能正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "防塵口罩"},
+        {"id": "L2", "text": "防毒面具"},
+        {"id": "L3", "text": "輸氣管面罩"},
+        {"id": "L4", "text": "自攜呼吸器"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "防護粉塵、霧滴、燻煙與煙霧等粒狀有害物"},
+        {"id": "R2", "text": "防護氣體或蒸氣等氣狀有害物"},
+        {"id": "R3", "text": "以輸氣管將清潔空氣自其他場所引至面罩中"},
+        {"id": "R4", "text": "配戴者自行攜帶清潔空氣呼吸器供應呼吸所需空氣"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "依呼吸防護具選用參考原則：防塵口罩防護粒狀有害物；防毒面具防護氣狀有害物；輸氣管面罩以輸氣管引清潔空氣；自攜呼吸器由配戴者自行攜帶清潔空氣。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列危害類型與應置備之適當防護具正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "物體飛落之虞"},
+        {"id": "L2", "text": "腐蝕性物質飛濺"},
+        {"id": "L3", "text": "有害物接觸皮膚"},
+        {"id": "L4", "text": "頭髮衣服被捲入機械"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "安全帽"},
+        {"id": "R2", "text": "適當之防護具"},
+        {"id": "R3", "text": "不浸透性防護衣、防護手套、防護靴"},
+        {"id": "R4", "text": "適當之衣帽"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "物體飛落應供給安全帽（第238條）；腐蝕性物質飛濺應使用適當防護具；皮膚接觸有害物應置備不浸透性防護衣等（第288條）；頭髮衣服被捲入應著用適當衣帽（第279條）。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U27-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依呼吸防護具選用參考原則，降低暴露危害之控制措施有優先順序，請依優先順序由先到後排列：",
+      "items": [
+        {"id": "I1", "text": "污染源減量"},
+        {"id": "I2", "text": "工程控制（密閉設備、局部排氣、整體換氣）"},
+        {"id": "I3", "text": "管理措施（安全作業程序、輪班、教育訓練）"},
+        {"id": "I4", "text": "個人防護具之使用（最後防線）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "依呼吸防護具選用參考原則，降低暴露危害之優先順序為：污染源減量→工程控制→管理措施→個人防護具（最後防線）。應優先從源頭控制，個人防護具為最後手段。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    },
+    {
+      "id": "U27-Q050",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "依呼吸防護具選用參考原則，選用呼吸防護具之步驟有先後順序，請依順序排列：",
+      "items": [
+        {"id": "I1", "text": "危害辨識（確認污染物存在與危害性）"},
+        {"id": "I2", "text": "確認是否有缺氧狀況或立即致危濃度"},
+        {"id": "I3", "text": "依有害物狀態及濃度選用適當類型呼吸防護具"},
+        {"id": "I4", "text": "挑選適合大小之面體，確認有效密合"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "依呼吸防護具選用參考原則，選用步驟為：危害辨識→確認缺氧或立即致危濃度→依有害物狀態及濃度選用類型→挑選適合面體確認密合。須循序進行，不可跳過危害辨識。",
+      "references": [{"title": "呼吸防護具選用參考原則", "url": "https://www.osha.gov.tw/media/2eig2ib1/%E4%BF%AE%E6%AD%A3%E5%91%BC%E5%90%B8%E9%98%B2%E8%AD%B7%E5%85%B7%E9%81%B8%E7%94%A8%E5%8E%9F%E5%89%87-%E6%9C%AC%E7%BD%B2%E6%8C%87%E5%BC%950803%E4%BF%AE%E6%94%B9%E7%89%88.pdf"}]
+    }
+  ]
+}

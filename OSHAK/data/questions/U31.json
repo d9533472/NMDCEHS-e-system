@@ -1,0 +1,726 @@
+{
+  "unitId": "U31",
+  "unitTitle": "各種急救概念",
+  "unitNumber": 31,
+  "questions": [
+    {
+      "id": "U31-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依勞工健康保護規則第15條規定，雇主對於工作場所急救人員之設置，每一班至少應設置幾人？",
+      "options": [
+        {"id": "A", "text": "一人"},
+        {"id": "B", "text": "二人"},
+        {"id": "C", "text": "三人"},
+        {"id": "D", "text": "四人"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞工健康保護規則第15條規定，每一班至少應設置急救人員一人。但每一輪班次勞工人數超過五十人者，每增五十人再增一人。二、三、四人非每班最低設置標準。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則第15條規定，每一輪班次勞工人數超過五十人者，每增多少人應再增設急救人員一人？",
+      "options": [
+        {"id": "A", "text": "每增三十人增一人"},
+        {"id": "B", "text": "每增五十人增一人"},
+        {"id": "C", "text": "每增一百人增一人"},
+        {"id": "D", "text": "每增二百人增一人"}
+      ],
+      "answer": ["B"],
+      "explanation": "勞工健康保護規則第15條規定，每一輪班次超過五十人者，每增五十人應再增設急救人員一人。三十、一百、二百人均非正確增量標準。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則規定，雇主對於急救藥品及器材，應多久定期檢查一次？",
+      "options": [
+        {"id": "A", "text": "每三個月"},
+        {"id": "B", "text": "每六個月"},
+        {"id": "C", "text": "每年"},
+        {"id": "D", "text": "每二年"}
+      ],
+      "answer": ["B"],
+      "explanation": "依勞工健康保護規則規定，急救藥品及器材應每六個月定期檢查一次，以確保藥品有效期及器材功能正常。三個月、一年、二年均非正確檢查頻率。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項第4款規定，雇主對於下列何種事項應有符合法令規定之必要安全衛生設備及措施？",
+      "options": [
+        {"id": "A", "text": "避難、急救、休息"},
+        {"id": "B", "text": "僅避難"},
+        {"id": "C", "text": "僅急救"},
+        {"id": "D", "text": "僅休息"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第6條第2項第4款規定，雇主對於避難、急救、休息等事項應有符合法令規定之必要安全衛生設備及措施。避難、急救、休息三者缺一不可。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U31-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條規定，事業單位工作場所發生職業災害，雇主應於多少小時內通報勞動檢查機構？",
+      "options": [
+        {"id": "A", "text": "二小時內"},
+        {"id": "B", "text": "四小時內"},
+        {"id": "C", "text": "八小時內"},
+        {"id": "D", "text": "二十四小時內"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生法第37條第2項規定，雇主應於八小時內通報勞動檢查機構。二、四、二十四小時均非正確通報期限。及時通報為法定義務，違者受罰。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條第1項規定，事業單位工作場所發生職業災害時，雇主應即採取何種措施？",
+      "options": [
+        {"id": "A", "text": "即採取必要之急救、搶救等措施"},
+        {"id": "B", "text": "立即撤離所有勞工"},
+        {"id": "C", "text": "立即關閉工廠"},
+        {"id": "D", "text": "立即通知媒體"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第37條第1項規定，雇主應即採取必要之急救、搶救等措施。立即急救搶救為首要義務，撤離、關廠、通知媒體非法定首務。但必要時亦應疏散人員。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第18條規定，工作場所有立即發生危險之虞時，雇主或工作場所負責人應即令勞工採取何種行動？",
+      "options": [
+        {"id": "A", "text": "停止作業，退至安全處所"},
+        {"id": "B", "text": "繼續作業至完成"},
+        {"id": "C", "text": "就地等待指示"},
+        {"id": "D", "text": "自行處理危險"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第18條規定，有立即危險之虞時，雇主或工作場所負責人應即令勞工停止作業，退至安全處所。繼續作業、等待指示、自行處理均不符安全原則。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U31-Q008",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，下列何者不得充任急救人員？",
+      "options": [
+        {"id": "A", "text": "經中央主管機關認可之急救訓練合格者"},
+        {"id": "B", "text": "醫護人員"},
+        {"id": "C", "text": "經中央衛生主管機關認可之救護技術員"},
+        {"id": "D", "text": "有聽力障礙以致無法正常溝通者"}
+      ],
+      "answer": ["D"],
+      "explanation": "依勞工健康保護規則規定，急救人員應無礙於執行急救之身心障礙，有聽力障礙無法正常溝通者不得充任。A、B、C均為合格之急救人員資格。急救人員需能有效溝通及執行急救。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則第286條規定，雇主對於工作場所應依何者設置職業災害搶救器材？",
+      "options": [
+        {"id": "A", "text": "依工作場所之危害性"},
+        {"id": "B", "text": "依勞工人數"},
+        {"id": "C", "text": "依工廠面積"},
+        {"id": "D", "text": "依作業時間"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第286條規定，雇主應依工作場所之危害性設置職業災害搶救器材。危害性不同所需搶救器材亦不同。勞工人數、面積、時間非主要考量。",
+      "references": [{"title": "職業安全衛生設施規則第286條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=286"}]
+    },
+    {
+      "id": "U31-Q010",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法規定，雇主對於勞工遭受職業災害時，應即採取必要之急救、搶救等措施。此規定之主要目的為何？",
+      "options": [
+        {"id": "A", "text": "減少勞工傷亡及損害擴大"},
+        {"id": "B", "text": "避免被處罰"},
+        {"id": "C", "text": "維持生產效率"},
+        {"id": "D", "text": "節省醫療費用"}
+      ],
+      "answer": ["A"],
+      "explanation": "雇主應即採取急救搶救之主要目的為減少勞工傷亡及防止損害擴大，保障勞工生命安全。避免處罰、維持效率、節省費用均非主要目的，雖未即時急救確實可能被處罰。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則規定，下列何者得充任急救人員？",
+      "options": [
+        {"id": "A", "text": "經中央主管機關認可之急救訓練合格者"},
+        {"id": "B", "text": "有失能狀況者"},
+        {"id": "C", "text": "有視力矯正後仍未達0.6者"},
+        {"id": "D", "text": "有任何身心障礙者"}
+      ],
+      "answer": ["A"],
+      "explanation": "依勞工健康保護規則規定，經中央主管機關認可之急救訓練合格者得充任急救人員。B失能、C視力未達0.6、D任何身心障礙者均可能不符資格。急救人員需有執行急救之身心能力。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q012",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，急救人員之視力（矯正後）不得低於多少？",
+      "options": [
+        {"id": "A", "text": "0.3"},
+        {"id": "B", "text": "0.5"},
+        {"id": "C", "text": "0.6"},
+        {"id": "D", "text": "1.0"}
+      ],
+      "answer": ["C"],
+      "explanation": "依勞工健康保護規則規定，急救人員之視力（矯正後）不得低於0.6。0.3、0.5低於標準，1.0非最低標準。急救人員需有足夠視力以執行急救任務。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q013",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法規定，下列何者為雇主應設置之必要安全衛生設備及措施之一？",
+      "options": [
+        {"id": "A", "text": "避難設備"},
+        {"id": "B", "text": "娛樂設施"},
+        {"id": "C", "text": "餐廳設備"},
+        {"id": "D", "text": "住宿設施"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第6條第2項第4款規定，雇主應設置避難、急救、休息等必要安全衛生設備及措施。避難設備為法定設備。娛樂、餐廳、住宿非法定安全衛生設備。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U31-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條第3項規定，勞動檢查機構接獲雇主通報職業災害後，應即派員前往何處檢查？",
+      "options": [
+        {"id": "A", "text": "災害現場"},
+        {"id": "B", "text": "雇主辦公室"},
+        {"id": "C", "text": "醫院"},
+        {"id": "D", "text": "勞工住所"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第37條第3項規定，勞動檢查機構接獲通報後應即派員前往災害現場檢查，以釐清災害原因。辦公室、醫院、住所非檢查地點。現場檢查為釐清災害原因之必要程序。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第18條第1項規定，工作場所有立即發生危險之虞時，雇主或工作場所負責人應即令勞工停止作業退至安全處所。勞工得在何種情形下自行停止作業？",
+      "options": [
+        {"id": "A", "text": "無需任何條件即可自行退避"},
+        {"id": "B", "text": "須經雇主同意後方可退避"},
+        {"id": "C", "text": "須經主管機關同意"},
+        {"id": "D", "text": "不得自行退避"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第18條第1項規定，勞工得在無需任何條件下自行停止作業及退避至安全處所。雇主不得要求勞工須經同意方可退避。退避權為勞工之法定權利。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U31-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生設施規則規定，雇主對於工作場所急救藥品及器材，應置於何處？",
+      "options": [
+        {"id": "A", "text": "置於便於取用之處"},
+        {"id": "B", "text": "鎖於倉庫中"},
+        {"id": "C", "text": "置於辦公室內"},
+        {"id": "D", "text": "置於管理人員家中"}
+      ],
+      "answer": ["A"],
+      "explanation": "依職業安全衛生設施規則，急救藥品及器材應置於便於取用之處，以確保緊急時能迅速取得使用。鎖於倉庫、辦公室、管理人員家中均不便於緊急取用。",
+      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+    },
+    {
+      "id": "U31-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，雇主使急救人員接受急救訓練，其訓練時數至少應為多少小時？",
+      "options": [
+        {"id": "A", "text": "12小時"},
+        {"id": "B", "text": "16小時"},
+        {"id": "C", "text": "18小時"},
+        {"id": "D", "text": "24小時"}
+      ],
+      "answer": ["C"],
+      "explanation": "依勞工健康保護規則規定，急救人員應接受至少18小時之急救訓練。12、16、24小時均非正確訓練時數。訓練內容包括基本救命術、心肺復甦術、自動體外去顫器使用等。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q018",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，急救人員之急救訓練合格證書有效期為多少年？期滿需辦理展延？",
+      "options": [
+        {"id": "A", "text": "一年"},
+        {"id": "B", "text": "二年"},
+        {"id": "C", "text": "三年"},
+        {"id": "D", "text": "五年"}
+      ],
+      "answer": ["C"],
+      "explanation": "依勞工健康保護規則規定，急救人員訓練合格證書有效期為三年，期滿應辦理展延。一、二、五年均非正確有效期限。定期展延確保急救人員技能更新。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條第2項規定，下列何種災害雇主應於八小時內通報勞動檢查機構？",
+      "options": [
+        {"id": "A", "text": "發生死亡災害"},
+        {"id": "B", "text": "發生罹災人數在三人以上之災害"},
+        {"id": "C", "text": "發生罹災人數在一人以上且需住院治療之災害"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生法第37條第2項規定，發生死亡災害、罹災人數三人以上、罹災一人以上需住院治療之災害，雇主均應於八小時內通報。A、B、C均為應通報情形，故選D。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第286條規定，雇主設置職業災害搶救器材時，除搶救器材外，並應標明何者？",
+      "options": [
+        {"id": "A", "text": "器材之使用方法及緊急聯絡電話"},
+        {"id": "B", "text": "器材之製造日期"},
+        {"id": "C", "text": "器材之購買價格"},
+        {"id": "D", "text": "器材之製造商名稱"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生設施規則第286條規定，搶救器材應標明使用方法及緊急聯絡電話，以便緊急時正確使用。製造日期、購買價格、製造商名稱非法定標示事項。",
+      "references": [{"title": "職業安全衛生設施規則第286條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=286"}]
+    },
+    {
+      "id": "U31-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第18條第2項規定，雇主不得對於自行停止作業退至安全處所之勞工採取何種行為？",
+      "options": [
+        {"id": "A", "text": "不得解僱、調職或不利待遇"},
+        {"id": "B", "text": "可以解僱"},
+        {"id": "C", "text": "可以調職"},
+        {"id": "D", "text": "可以扣薪"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第18條第2項規定，雇主不得對退避之勞工予以解僱、調職或不利待遇。退避權為勞工法定權利，雇主不得報復。可以解僱、調職、扣薪均屬違法。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U31-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，急救人員不得有下列何種情形？",
+      "options": [
+        {"id": "A", "text": "不得失聯"},
+        {"id": "B", "text": "視力矯正後未達0.6"},
+        {"id": "C", "text": "有失能狀況"},
+        {"id": "D", "text": "以上皆是"}
+      ],
+      "answer": ["D"],
+      "explanation": "依勞工健康保護規則規定，急救人員不得有失聯、視力矯正後未達0.6、失能等情形。A、B、C均為不得充任急救人員之情形，故選D。急救人員需有執行急救之身心能力。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條第2項規定，雇主於發生應通報之職業災害後，除應通報外，尚應如何處理災害現場？",
+      "options": [
+        {"id": "A", "text": "除因搶救或為避免災害擴大外，不得破壞或變更現場"},
+        {"id": "B", "text": "應立即清理恢復原狀"},
+        {"id": "C", "text": "可隨意變更現場"},
+        {"id": "D", "text": "應拆除所有設備"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第37條第2項規定，除因搶救或避免災害擴大外，不得破壞或變更災害現場，以保留證據供調查。立即清理、隨意變更、拆除設備均違反現場保全規定。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則規定，雇主對於工作場所應設置之急救箱，其內容物應包含下列何者？",
+      "options": [
+        {"id": "A", "text": "急救藥品及器材"},
+        {"id": "B", "text": "僅需繃帶"},
+        {"id": "C", "text": "僅需消毒水"},
+        {"id": "D", "text": "僅需止痛藥"}
+      ],
+      "answer": ["A"],
+      "explanation": "依勞工健康保護規則規定，急救箱應包含急救藥品及器材，內容包括消毒劑、繃帶、紗布、三角巾、剪刀、鑷子、手套等。僅繃帶、消毒水、止痛藥均不完整。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項規定，雇主對於下列哪些事項應有必要安全衛生設備及措施？（複選）",
+      "options": [
+        {"id": "A", "text": "避難"},
+        {"id": "B", "text": "急救"},
+        {"id": "C", "text": "休息"},
+        {"id": "D", "text": "娛樂"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生法第6條第2項第4款規定避難、急救、休息三項為法定必要安全衛生設備及措施。D娛樂非法定事項。三者均為保障勞工安全與健康之基本要求。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U31-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條第2項規定，雇主應於八小時內通報勞動檢查機構之職業災害包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "發生死亡災害"},
+        {"id": "B", "text": "罹災人數在三人以上之災害"},
+        {"id": "C", "text": "罹災人數一人以上需住院治療之災害"},
+        {"id": "D", "text": "輕微擦傷不需就醫"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生法第37條第2項規定：死亡災害、罹災三人以上、罹災一人以上需住院治療之災害，均應於八小時內通報。D輕微擦傷不需就醫非通報範圍。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，下列哪些人員得充任急救人員？（複選）",
+      "options": [
+        {"id": "A", "text": "醫護人員"},
+        {"id": "B", "text": "經中央主管機關認可之急救訓練合格者"},
+        {"id": "C", "text": "經中央衛生主管機關認可之救護技術員"},
+        {"id": "D", "text": "有失能狀況者"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依勞工健康保護規則規定，醫護人員、急救訓練合格者、救護技術員均得充任急救人員。D有失能狀況者不得充任。急救人員需有執行急救之身心能力。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q028",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，下列哪些情形之人員不得充任急救人員？（複選）",
+      "options": [
+        {"id": "A", "text": "有失聯情形者"},
+        {"id": "B", "text": "視力矯正後未達0.6者"},
+        {"id": "C", "text": "有失能狀況者"},
+        {"id": "D", "text": "經急救訓練合格者"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "依勞工健康保護規則規定，有失聯、視力矯正後未達0.6、失能狀況者不得充任急救人員。D經急救訓練合格者得充任急救人員，非排除對象。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q029",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條第1項規定，事業單位工作場所發生職業災害時，雇主應即採取哪些措施？（複選）",
+      "options": [
+        {"id": "A", "text": "必要之急救"},
+        {"id": "B", "text": "必要之搶救"},
+        {"id": "C", "text": "除搶救或避免災害擴大外不得破壞現場"},
+        {"id": "D", "text": "立即關閉工廠"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生法第37條規定，雇主應即採取必要之急救、搶救等措施，除搶救或避免災害擴大外不得破壞現場。D立即關閉工廠非法定必要措施，但必要時應疏散人員。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q030",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第18條規定，工作場所有立即發生危險之虞時，下列哪些敘述正確？（複選）",
+      "options": [
+        {"id": "A", "text": "雇主應即令勞工停止作業退至安全處所"},
+        {"id": "B", "text": "勞工得自行停止作業退至安全處所"},
+        {"id": "C", "text": "雇主不得對退避之勞工解僱或不利待遇"},
+        {"id": "D", "text": "勞工須經雇主同意方可退避"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生法第18條規定：雇主應令勞工停止作業退避、勞工得自行退避、雇主不得對退避勞工不利待遇。D須經雇主同意方可退避不正確，退避權為勞工法定權利。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U31-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則第15條規定，關於急救人員設置之規定，下列哪些正確？（複選）",
+      "options": [
+        {"id": "A", "text": "每一班至少設置一人"},
+        {"id": "B", "text": "每班超過五十人者每增五十人增一人"},
+        {"id": "C", "text": "急救藥品每六個月檢查一次"},
+        {"id": "D", "text": "急救人員無需任何訓練"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "勞工健康保護規則第15條規定：每班至少一人、超過五十人每增五十人增一人、急救藥品每六個月檢查。D急救人員無需訓練不正確，需經認可之急救訓練合格。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生設施規則第286條規定，雇主對於職業災害搶救器材之設置，下列哪些規定正確？（複選）",
+      "options": [
+        {"id": "A", "text": "應依工作場所之危害性設置"},
+        {"id": "B", "text": "應標明使用方法"},
+        {"id": "C", "text": "應標明緊急聯絡電話"},
+        {"id": "D", "text": "可置於任何位置"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生設施規則第286條規定：依危害性設置、標明使用方法、標明緊急聯絡電話。D可置於任何位置不正確，應置於便於取用之處。",
+      "references": [{"title": "職業安全衛生設施規則第286條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=286"}]
+    },
+    {
+      "id": "U31-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依勞工健康保護規則第15條規定，雇主對於工作場所急救人員之設置，每一班至少應設置一人。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "勞工健康保護規則第15條確實規定每一班至少設置急救人員一人，以確保任何時段均有急救人員可提供緊急協助。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條規定，事業單位工作場所發生職業災害時，雇主應於二十四小時內通報勞動檢查機構。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第37條規定，雇主應於八小時內通報，非二十四小時。二十四小時超過法定期限，八小時為法定通報期限。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第18條規定，工作場所有立即發生危險之虞時，勞工須經雇主同意方可停止作業退至安全處所。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第18條規定，勞工得自行停止作業退至安全處所，無需雇主同意。退避權為勞工法定權利，雇主不得干涉或對退避勞工不利待遇。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U31-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，急救藥品及器材應每六個月定期檢查一次。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "依勞工健康保護規則規定，急救藥品及器材確實應每六個月定期檢查一次，以確保藥品在有效期內且器材功能正常。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第6條第2項第4款規定，雇主對於避難、急救、休息等事項應有符合法令規定之必要安全衛生設備及措施。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第6條第2項第4款確實規定，雇主對於避難、急救、休息等事項應設置必要之安全衛生設備及措施，以保障勞工安全與健康。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U31-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第37條規定，雇主應於________小時內通報勞動檢查機構。",
+      "answer": ["8", "八"],
+      "explanation": "職業安全衛生法第37條規定，雇主應於八小時內通報勞動檢查機構。及時通報為法定義務，違者受罰。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則第15條規定，每一班至少應設置急救人員________人。",
+      "answer": ["1", "一"],
+      "explanation": "勞工健康保護規則第15條規定，每一班至少設置急救人員一人。超過五十人者每增五十人增一人。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依勞工健康保護規則第15條規定，每一輪班次勞工人數超過________人者，每增五十人應再增設急救人員一人。",
+      "answer": ["50", "五十"],
+      "explanation": "勞工健康保護規則第15條規定，每一輪班次超過五十人者，每增五十人應再增設急救人員一人。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q041",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，急救藥品及器材應每________個月定期檢查一次。",
+      "answer": ["6", "六"],
+      "explanation": "依勞工健康保護規則規定，急救藥品及器材應每六個月定期檢查一次，確保藥品有效及器材功能正常。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依勞工健康保護規則規定，急救人員之視力（矯正後）不得低於________。",
+      "answer": ["0.6"],
+      "explanation": "依勞工健康保護規則規定，急救人員之視力（矯正後）不得低於0.6，以確保能執行急救任務。",
+      "references": [{"title": "勞工健康保護規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060022"}]
+    },
+    {
+      "id": "U31-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工廠每班有120位勞工，依勞工健康保護規則第15條規定，請計算該工廠每班至少應設置幾名急救人員？",
+      "answer": {"value": 2, "unit": "人", "tolerance": 0},
+      "explanation": "依勞工健康保護規則第15條：每班至少1人，超過50人者每增50人增1人。120人＝1人（基本）+（120-50）÷50＝1+1.4，取整數1人，合計1+1＝2人。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某工廠每班有250位勞工，依勞工健康保護規則第15條規定，請計算該工廠每班至少應設置幾名急救人員？",
+      "answer": {"value": 5, "unit": "人", "tolerance": 0},
+      "explanation": "依勞工健康保護規則第15條：每班至少1人，超過50人者每增50人增1人。250人＝1人（基本）+（250-50）÷50＝1+4＝5人。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某工廠有三班制，每班各有80位勞工，依勞工健康保護規則第15條規定，請計算該工廠三班共至少應設置幾名急救人員？",
+      "answer": {"value": 6, "unit": "人", "tolerance": 0},
+      "explanation": "依勞工健康保護規則第15條：每班至少1人，超過50人每增50人增1人。80人＝1+（80-50）÷50取整＝1+1＝2人/班。三班共3×2＝6人。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列法規條文與其主要內容正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "職業安全衛生法第6條第2項第4款"},
+        {"id": "L2", "text": "職業安全衛生法第37條"},
+        {"id": "L3", "text": "職業安全衛生法第18條"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "避難、急救、休息之設備及措施"},
+        {"id": "R2", "text": "災害通報八小時及急救搶救"},
+        {"id": "R3", "text": "立即危險時停止作業退避"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"}
+      ],
+      "explanation": "職安法第6條為避難急救休息設備、第37條為災害通報及急救搶救、第18條為立即危險退避。三條文為急救相關之核心規定。",
+      "references": [{"title": "職業安全衛生法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"}]
+    },
+    {
+      "id": "U31-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列急救人員設置人數與勞工人數正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "50人以下"},
+        {"id": "L2", "text": "51~100人"},
+        {"id": "L3", "text": "101~150人"},
+        {"id": "L4", "text": "151~200人"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "1人"},
+        {"id": "R2", "text": "2人"},
+        {"id": "R3", "text": "3人"},
+        {"id": "R4", "text": "4人"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "依勞工健康保護規則第15條：50人以下1人，超過50人每增50人增1人。51~100人2人、101~150人3人、151~200人4人。",
+      "references": [{"title": "勞工健康保護規則第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060022&flno=15"}]
+    },
+    {
+      "id": "U31-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列法規名稱與其pcode正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "職業安全衛生法"},
+        {"id": "L2", "text": "職業安全衛生設施規則"},
+        {"id": "L3", "text": "勞工健康保護規則"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "N0060001"},
+        {"id": "R2", "text": "N0060009"},
+        {"id": "R3", "text": "N0060022"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"}
+      ],
+      "explanation": "職業安全衛生法pcode為N0060001、職業安全衛生設施規則為N0060009、勞工健康保護規則為N0060022。pcode為全國法規資料庫之法規代碼。",
+      "references": [{"title": "全國法規資料庫", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"}]
+    },
+    {
+      "id": "U31-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第37條規定，請依職業災害發生後雇主應採取之措施順序排列：",
+      "items": [
+        {"id": "I1", "text": "即採取必要之急救、搶救等措施"},
+        {"id": "I2", "text": "於八小時內通報勞動檢查機構"},
+        {"id": "I3", "text": "保留災害現場（除搶救或避免擴大外不得破壞）"},
+        {"id": "I4", "text": "配合勞動檢查機構派員檢查"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "職業災害發生後之處理順序：先急救搶救→八小時內通報→保留現場→配合檢查。急救搶救為首要，通報有時限要求，現場保全為釐清原因，配合檢查為法定義務。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U31-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法及勞工健康保護規則規定，請依雇主對於急救之準備與應變順序排列：",
+      "items": [
+        {"id": "I1", "text": "平時設置急救人員及急救藥品器材（每班至少1人，每6個月檢查）"},
+        {"id": "I2", "text": "依工作場所危害性設置職業災害搶救器材並標明使用方法"},
+        {"id": "I3", "text": "災害發生時即採取必要之急救搶救措施"},
+        {"id": "I4", "text": "八小時內通報勞動檢查機構並保留現場"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "急救準備與應變順序：平時設置急救人員及藥品器材→設置搶救器材並標明使用方法→災害發生時即採急救搶救→八小時內通報並保留現場。平時準備為基礎，災害應變為執行。",
+      "references": [{"title": "職業安全衛生法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"}]
+    }
+  ]
+}

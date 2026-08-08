@@ -1,0 +1,733 @@
+{
+  "unitId": "U18",
+  "unitTitle": "人性管理與自主活動相關知識",
+  "unitNumber": 18,
+  "questions": [
+    {
+      "id": "U18-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第23條規定，雇主應設置安全衛生組織、人員，實施安全衛生管理及自動檢查。此規定所體現的管理理念為何？",
+      "options": [
+        {"id": "A", "text": "僅由雇主單方面決定安全衛生事項"},
+        {"id": "B", "text": "透過組織化、系統化的方式落實安全衛生管理"},
+        {"id": "C", "text": "安全衛生管理僅為形式上的文書作業"},
+        {"id": "D", "text": "安全衛生管理可由勞工自行決定是否參與"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第23條規定雇主應設置安全衛生組織、人員，實施安全衛生管理及自動檢查，體現了透過組織化、系統化方式落實安全衛生管理的理念。安全衛生管理不僅是文書作業，而是需要組織與人員配合的實質管理活動。",
+      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+    },
+    {
+      "id": "U18-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第34條規定，安全衛生工作守則由雇主會同何者訂定？",
+      "options": [
+        {"id": "A", "text": "勞動檢查員"},
+        {"id": "B", "text": "勞工代表"},
+        {"id": "C", "text": "衛生主管機關"},
+        {"id": "D", "text": "職業安全衛生顧問"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第34條規定，雇主應依本法及有關規定會同勞工代表訂定適合其需要之安全衛生工作守則，報經勞動檢查機構備查後公告實施。會同勞工代表訂定，體現了人性管理中勞工參與的精神。",
+      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+    },
+    {
+      "id": "U18-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條規定，職業安全衛生委員會中勞工代表應佔委員人數之比例為何？",
+      "options": [
+        {"id": "A", "text": "四分之一以上"},
+        {"id": "B", "text": "三分之一以上"},
+        {"id": "C", "text": "二分之一以上"},
+        {"id": "D", "text": "三分之二以上"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法第11條第4項規定，勞工代表應佔委員人數三分之一以上。此規定確保勞工在安全衛生管理上有充分的參與權，是人性管理中勞工參與原則的體現。",
+      "references": [{"title": "職業安全衛生管理辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"}]
+    },
+    {
+      "id": "U18-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條規定，職業安全衛生委員會應至少多久開會一次？",
+      "options": [
+        {"id": "A", "text": "每月至少一次"},
+        {"id": "B", "text": "每二個月至少一次"},
+        {"id": "C", "text": "每三個月至少一次"},
+        {"id": "D", "text": "每半年至少一次"}
+      ],
+      "answer": ["C"],
+      "explanation": "職業安全衛生管理辦法第12條規定，委員會應每三個月至少開會一次。定期召開委員會議是讓勞工代表參與安全衛生決策的重要機制，體現了人性管理中持續溝通與參與的理念。",
+      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+    },
+    {
+      "id": "U18-Q005",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "在人性管理理念中，「自主活動」的核心精神為何？",
+      "options": [
+        {"id": "A", "text": "由雇主強制規定勞工必須遵守所有安全規定"},
+        {"id": "B", "text": "鼓勵勞工自發性參與安全衛生改善活動，發揮主動性與創造力"},
+        {"id": "C", "text": "由主管單方面決定所有安全衛生事項"},
+        {"id": "D", "text": "勞工不需參與安全衛生管理"}
+      ],
+      "answer": ["B"],
+      "explanation": "自主活動的核心精神是鼓勵勞工自發性參與安全衛生改善活動，發揮主動性與創造力。職安法第34條規定雇主會同勞工代表訂定工作守則，第11條規定委員會納入勞工代表，均體現了讓勞工自主參與的精神。",
+      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+    },
+    {
+      "id": "U18-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第32條規定，雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練。下列何者為勞工之義務？",
+      "options": [
+        {"id": "A", "text": "勞工可自由選擇是否接受安全衛生教育訓練"},
+        {"id": "B", "text": "勞工對於安全衛生教育及訓練，有接受之義務"},
+        {"id": "C", "text": "勞工僅需接受第一次的教育訓練"},
+        {"id": "D", "text": "勞工可委由他人代為接受教育訓練"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第32條第3項明文規定，勞工對於安全衛生教育及訓練，有接受之義務。此規定確保勞工必須參與教育訓練，是安全衛生管理中勞工配合義務的重要法源。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U18-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第34條第2項規定，勞工對於安全衛生工作守則應如何處理？",
+      "options": [
+        {"id": "A", "text": "可視個人喜好選擇性遵守"},
+        {"id": "B", "text": "應切實遵行"},
+        {"id": "C", "text": "由勞工自行修改後遵守"},
+        {"id": "D", "text": "僅需口頭同意即可"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第34條第2項規定，勞工對於安全衛生工作守則，應切實遵行。工作守則經勞動檢查機構備查後公告實施，勞工有遵行的義務，不可選擇性遵守。",
+      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+    },
+    {
+      "id": "U18-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條規定，雇主對新僱勞工或在職勞工於變更工作前，應使其接受何種教育訓練？",
+      "options": [
+        {"id": "A", "text": "特殊作業安全衛生教育訓練"},
+        {"id": "B", "text": "一般安全衛生教育訓練"},
+        {"id": "C", "text": "職業安全衛生業務主管教育訓練"},
+        {"id": "D", "text": "急救人員教育訓練"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第1項規定，雇主對新僱勞工或在職勞工於變更工作前，應使其接受適於各該工作必要之一般安全衛生教育訓練。但工作環境、工作性質與變更前相當者，不在此限。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U18-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生業務主管之安全衛生在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每二年至少六小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，職業安全衛生業務主管（第18條第1項第1款之勞工）之安全衛生在職教育訓練，每二年至少六小時。注意與職業安全衛生管理人員（每二年至少十二小時）不同。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生管理人員之安全衛生在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，職業安全衛生管理人員（第18條第1項第2款之勞工）之安全衛生在職教育訓練，每二年至少十二小時。管理人員因職責較重，時數要求高於業務主管的每二年六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，一般勞工之安全衛生在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每三年至少三小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第18條第1項第七款至第十三款之勞工（包括一般勞工），安全衛生在職教育訓練每三年至少三小時。此為一般勞工的基本在職教育訓練要求。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條規定，中央主管機關認可之職業安全衛生教育訓練網路教學課程，其時數至多採認幾小時？",
+      "options": [
+        {"id": "A", "text": "1小時"},
+        {"id": "B", "text": "2小時"},
+        {"id": "C", "text": "3小時"},
+        {"id": "D", "text": "不限制"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之職業安全衛生教育訓練網路教學課程，事業單位之勞工上網學習，取得認證時數後，得採認為一般安全衛生教育訓練時數。但網路教學時數至多採認二小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U18-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第5條之1規定，雇主應使安全衛生組織、人員及各級主管接受安全衛生教育訓練，且其執行應作成紀錄備查。此規定體現了何種管理理念？",
+      "options": [
+        {"id": "A", "text": "僅注重形式，不重視實質"},
+        {"id": "B", "text": "持續教育與紀錄管理並重，確保安全管理人員專業能力"},
+        {"id": "C", "text": "教育訓練可由人員自行決定是否參加"},
+        {"id": "D", "text": "紀錄僅供參考，不需保存"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法第5條之1第2項及第3項規定，雇主應使安全衛生人員接受教育訓練，且執行應作成紀錄備查。此體現了持續教育與紀錄管理並重的理念，確保安全管理人員維持專業能力。",
+      "references": [{"title": "職業安全衛生管理辦法第5條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+    },
+    {
+      "id": "U18-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第33條規定，雇主應負責宣導本法及有關安全衛生之規定，使勞工周知。此規定與人性管理中何種理念最為相關？",
+      "options": [
+        {"id": "A", "text": "資訊公開透明，讓勞工充分知曉安全衛生規定"},
+        {"id": "B", "text": "由勞工自行查詢法規"},
+        {"id": "C", "text": "僅告知主管即可"},
+        {"id": "D", "text": "安全衛生資訊屬機密，不公開"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第33條規定雇主應宣導安全衛生規定使勞工周知，體現了資訊公開透明的理念。讓勞工充分知曉安全衛生規定，是自主活動的基礎，勞工只有在充分了解規定的前提下，才能自發性地參與安全衛生改善。",
+      "references": [{"title": "職業安全衛生法第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=33"}]
+    },
+    {
+      "id": "U18-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第18條規定，下列何者不屬於雇主應使其接受安全衛生在職教育訓練之人員？",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管"},
+        {"id": "B", "text": "各級管理、指揮、監督之業務主管"},
+        {"id": "C", "text": "職業安全衛生委員會成員"},
+        {"id": "D", "text": "未實際從事作業之外部訪客"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第18條第1項列舉應接受在職教育訓練之人員，包括業務主管（第1款）、管理人員（第2款）、各級業務主管（第10款）、委員會成員（第11款）、一般勞工（第13款）等。未實際從事作業之外部訪客不在列舉範圍內。",
+      "references": [{"title": "職業安全衛生教育訓練規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=18"}]
+    },
+    {
+      "id": "U18-Q016",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，勞工健康服務護理人員及勞工健康服務相關人員之安全衛生在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少六小時"},
+        {"id": "B", "text": "每二年至少十二小時"},
+        {"id": "C", "text": "每三年至少六小時"},
+        {"id": "D", "text": "每三年至少十二小時"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第18條第1項第三款之勞工（勞工健康服務護理人員及勞工健康服務相關人員），安全衛生在職教育訓練每三年至少十二小時。其課程及講師資格依勞工健康保護規則之規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，有害作業主管之安全衛生在職教育訓練時數為何？",
+      "options": [
+        {"id": "A", "text": "每二年至少三小時"},
+        {"id": "B", "text": "每二年至少六小時"},
+        {"id": "C", "text": "每三年至少三小時"},
+        {"id": "D", "text": "每三年至少六小時"}
+      ],
+      "answer": ["D"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第18條第1項第四款至第六款之勞工（包括勞工作業環境監測人員、施工安全評估人員及製程安全評估人員、高壓氣體作業主管、營造作業主管及有害作業主管），安全衛生在職教育訓練每三年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "在推動安全衛生自主活動時，依職業安全衛生管理辦法第12條規定，職業安全衛生委員會得審議何種事項以促進勞工參與？",
+      "options": [
+        {"id": "A", "text": "僅審議預算分配"},
+        {"id": "B", "text": "審議安全、衛生教育訓練實施計畫及各項安全衛生提案"},
+        {"id": "C", "text": "僅審議人事任免"},
+        {"id": "D", "text": "僅審議生產計畫"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法第12條第1項規定，委員會應辦理事項包括審議安全、衛生教育訓練實施計畫（第3款）及審議各項安全衛生提案（第6款）。透過審議教育訓練計畫與安全衛生提案，促進勞工參與自主活動。",
+      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+    },
+    {
+      "id": "U18-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之1規定，雇主應依事業單位之規模、性質訂定職業安全衛生管理計畫，並要求何人執行？",
+      "options": [
+        {"id": "A", "text": "僅要求安全衛生人員執行"},
+        {"id": "B", "text": "要求各級主管及負責指揮、監督之有關人員執行"},
+        {"id": "C", "text": "僅要求勞工代表執行"},
+        {"id": "D", "text": "僅由雇主自行執行"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法第12條之1第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，要求各級主管及負責指揮、監督之有關人員執行。此規定體現了安全衛生管理是各級主管的共同責任，而非僅由安全衛生人員負責。",
+      "references": [{"title": "職業安全衛生管理辦法第12條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-1"}]
+    },
+    {
+      "id": "U18-Q020",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "在人性管理中，「零災害運動」或「安全自主活動」的主要目標為何？",
+      "options": [
+        {"id": "A", "text": "增加生產效率"},
+        {"id": "B", "text": "透過勞工自主參與，預防職業災害，達成零災害目標"},
+        {"id": "C", "text": "減少勞工薪資"},
+        {"id": "D", "text": "增加工作時間"}
+      ],
+      "answer": ["B"],
+      "explanation": "零災害運動及安全自主活動的主要目標是透過勞工自主參與安全衛生改善，預防職業災害，達成零災害的最終目標。職安法第1條揭示「為防止職業災害，保障工作者安全及健康」之立法目的，與零災害運動目標一致。",
+      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+    },
+    {
+      "id": "U18-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第5條之1規定，一級單位之職業安全衛生人員之職責為何？",
+      "options": [
+        {"id": "A", "text": "僅負責通報職業災害"},
+        {"id": "B", "text": "協助一級單位主管擬訂、規劃及推動所屬部門安全衛生管理事項，並指導有關人員實施"},
+        {"id": "C", "text": "代替雇主做所有安全衛生決策"},
+        {"id": "D", "text": "僅負責採購安全設備"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生管理辦法第5條之1第1項第7款規定，一級單位之職業安全衛生人員應協助一級單位主管擬訂、規劃及推動所屬部門安全衛生管理事項，並指導有關人員實施。此為各部門內安全衛生管理的協助角色。",
+      "references": [{"title": "職業安全衛生管理辦法第5條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+    },
+    {
+      "id": "U18-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第20條規定，勞工對於雇主施行之體格檢查及健康檢查，有何義務？",
+      "options": [
+        {"id": "A", "text": "可自由選擇是否接受"},
+        {"id": "B", "text": "有接受之義務"},
+        {"id": "C", "text": "可委託他人代為受檢"},
+        {"id": "D", "text": "僅需接受第一次檢查"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第20條第6項規定，勞工對於體格檢查及健康檢查，有接受之義務。此與第32條第3項規定勞工對教育訓練有接受之義務、第34條第2項規定勞工對工作守則應切實遵行，均為勞工在安全衛生管理中的配合義務。",
+      "references": [{"title": "職業安全衛生法第20條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=20"}]
+    },
+    {
+      "id": "U18-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第17條第2項規定，無一定雇主之勞工或其他受工作場所負責人指揮或監督從事勞動之人員，應接受何種教育訓練？",
+      "options": [
+        {"id": "A", "text": "不需接受任何教育訓練"},
+        {"id": "B", "text": "一般安全衛生教育訓練"},
+        {"id": "C", "text": "僅需接受書面測驗"},
+        {"id": "D", "text": "由勞工自行決定"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第17條第2項規定，無一定雇主之勞工或其他受工作場所負責人指揮或監督從事勞動之人員，應接受一般安全衛生教育訓練。此規定擴大了教育訓練的適用對象，確保所有工作者均接受必要之安全衛生教育。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U18-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條第2項規定，勞工健康服務護理人員之在職教育訓練課程及講師資格，依何法規之規定？",
+      "options": [
+        {"id": "A", "text": "職業安全衛生法"},
+        {"id": "B", "text": "勞工健康保護規則"},
+        {"id": "C", "text": "職業安全衛生設施規則"},
+        {"id": "D", "text": "勞動基準法"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第2項規定，第三款教育訓練（勞工健康服務護理人員及相關人員）之課程及講師資格，依勞工健康保護規則之規定。此為跨法規的援引規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法規定，下列哪些為勞工在安全衛生管理中的法定義務？（複選）",
+      "options": [
+        {"id": "A", "text": "接受安全衛生教育及訓練之義務"},
+        {"id": "B", "text": "接受體格檢查及健康檢查之義務"},
+        {"id": "C", "text": "切實遵行安全衛生工作守則之義務"},
+        {"id": "D", "text": "自行決定安全衛生管理方式之權利"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職安法第32條第3項規定勞工對教育訓練有接受之義務（A）；第20條第6項規定勞工對體格及健康檢查有接受之義務（B）；第34條第2項規定勞工對工作守則應切實遵行（C）。D錯誤，安全衛生管理方式由雇主依法訂定，非由勞工自行決定。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U18-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，下列哪些人員之安全衛生在職教育訓練為每二年至少一次？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管（每二年至少六小時）"},
+        {"id": "B", "text": "職業安全衛生管理人員（每二年至少十二小時）"},
+        {"id": "C", "text": "一般勞工（每三年至少三小時）"},
+        {"id": "D", "text": "有害作業主管（每三年至少六小時）"}
+      ],
+      "answer": ["A", "B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定：第一款業務主管每二年至少六小時（A）；第二款管理人員每二年至少十二小時（B）；第七款至第十三款（含一般勞工）每三年至少三小時（C非每二年）；第四款至第六款（含有害作業主管）每三年至少六小時（D非每二年）。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，下列哪些人員之安全衛生在職教育訓練為每三年至少一次？（複選）",
+      "options": [
+        {"id": "A", "text": "勞工健康服務護理人員（每三年至少十二小時）"},
+        {"id": "B", "text": "有害作業主管（每三年至少六小時）"},
+        {"id": "C", "text": "一般勞工（每三年至少三小時）"},
+        {"id": "D", "text": "職業安全衛生管理人員（每二年至少十二小時）"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定：第三款勞工健康服務護理人員每三年至少十二小時（A）；第四至六款有害作業主管每三年至少六小時（B）；第七至十三款一般勞工每三年至少三小時（C）。D為每二年，非每三年。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條規定，職業安全衛生委員會應辦理之事項中，與人性管理及自主活動直接相關者包括下列哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "對雇主擬訂之職業安全衛生政策提出建議"},
+        {"id": "B", "text": "審議安全、衛生教育訓練實施計畫"},
+        {"id": "C", "text": "考核現場安全衛生管理績效"},
+        {"id": "D", "text": "審議各項安全衛生提案"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生管理辦法第12條第1項規定委員會應辦理事項包括：對政策提出建議（第1款，勞工參與決策）、審議教育訓練計畫（第3款，提升勞工能力）、考核管理績效（第10款，績效回饋）、審議安全衛生提案（第6款，鼓勵自主提案）。四項均與人性管理及自主活動直接相關。",
+      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+    },
+    {
+      "id": "U18-Q029",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "在推動安全衛生自主活動時，下列哪些做法符合人性管理的理念？（複選）",
+      "options": [
+        {"id": "A", "text": "鼓勵勞工提出安全衛生改善提案"},
+        {"id": "B", "text": "讓勞工參與安全衛生委員會，表達意見"},
+        {"id": "C", "text": "以懲罰為主要手段，強制勞工遵守安全規定"},
+        {"id": "D", "text": "透過教育訓練提升勞工安全衛生知識與意識"}
+      ],
+      "answer": ["A", "B", "D"],
+      "explanation": "人性管理強調勞工的自主參與與能力提升：鼓勵提案（A，符合委員會審議提案之精神）、參與委員會表達意見（B，符合第11條勞工代表參與規定）、透過教育訓練提升知識（D，符合第32條教育訓練規定）。C以懲罰為主不符合人性管理理念，應以鼓勵參與為主。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U18-Q030",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第18條第1項規定，下列哪些人員應接受安全衛生在職教育訓練？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生業務主管"},
+        {"id": "B", "text": "各級管理、指揮、監督之業務主管"},
+        {"id": "C", "text": "職業安全衛生委員會成員"},
+        {"id": "D", "text": "一般勞工"}
+      ],
+      "answer": ["A", "B", "C", "D"],
+      "explanation": "職業安全衛生教育訓練規則第18條第1項列舉應接受在職教育訓練之人員，包括：業務主管（第1款）、管理人員（第2款）、各級業務主管（第10款）、委員會成員（第11款）、一般勞工（第13款）等。四個選項均為法定應接受在職教育訓練之人員。",
+      "references": [{"title": "職業安全衛生教育訓練規則第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=18"}]
+    },
+    {
+      "id": "U18-Q031",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第5條之1規定，下列哪些為雇主應使接受安全衛生教育訓練之人員？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生組織人員"},
+        {"id": "B", "text": "工作場所負責人"},
+        {"id": "C", "text": "各級主管"},
+        {"id": "D", "text": "純粹到廠參觀的外部訪客"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職業安全衛生管理辦法第5條之1第2項規定，雇主應使安全衛生組織、人員、工作場所負責人及各級主管接受安全衛生教育訓練。D純粹參觀的外部訪客不在規範範圍內，因其非受指揮監督從事勞動之人員。",
+      "references": [{"title": "職業安全衛生管理辦法第5條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+    },
+    {
+      "id": "U18-Q032",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法規定，下列哪些規定體現了勞工參與安全衛生管理的理念？（複選）",
+      "options": [
+        {"id": "A", "text": "第34條：雇主應會同勞工代表訂定安全衛生工作守則"},
+        {"id": "B", "text": "第23條：雇主應設置安全衛生組織、人員"},
+        {"id": "C", "text": "職安管理辦法第11條：委員會勞工代表應佔三分之一以上"},
+        {"id": "D", "text": "第32條：勞工有接受安全衛生教育訓練之義務"}
+      ],
+      "answer": ["A", "C"],
+      "explanation": "A（第34條會同勞工代表訂定守則）及C（管理辦法第11條委員會納入勞工代表）直接體現了勞工參與決策的理念。B（第23條設置組織人員）為雇主的組織建置義務，D（第32條教育訓練義務）為勞工的配合義務，二者雖與安全衛生管理相關，但非直接體現勞工「參與」決策的理念。",
+      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+    },
+    {
+      "id": "U18-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法規定，勞工對於安全衛生教育及訓練，有接受之義務。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生法第32條第3項明文規定，勞工對於第一項之安全衛生教育及訓練，有接受之義務。此為勞工在安全衛生管理中的法定配合義務之一。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U18-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則規定，職業安全衛生管理人員之安全衛生在職教育訓練為每三年至少六小時。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，職業安全衛生管理人員之在職教育訓練為每二年至少十二小時，並非每三年至少六小時。每三年至少六小時為有害作業主管等第四至六款人員之規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則規定，中央主管機關認可之網路教學課程，其時數至多採認二小時，得採認為一般安全衛生教育訓練時數。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之職業安全衛生教育訓練網路教學課程，勞工上網學習取得認證時數後，得採認為一般安全衛生教育訓練時數，但時數至多採認二小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U18-Q036",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "人性管理中的自主活動，強調由勞工被動接受管理，不需主動參與安全衛生改善。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "人性管理中的自主活動強調的是勞工「主動」參與安全衛生改善，發揮自主性與創造力，而非被動接受管理。職安法第34條會同勞工代表訂定工作守則、管理辦法第11條委員會納入勞工代表，均鼓勵勞工主動參與。",
+      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+    },
+    {
+      "id": "U18-Q037",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法規定，雇主應使安全衛生組織人員、工作場所負責人及各級主管接受安全衛生教育訓練，並作成紀錄備查。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職業安全衛生管理辦法第5條之1第2項及第3項規定，雇主應使前項人員接受安全衛生教育訓練，且安全衛生管理、教育訓練之執行，應作成紀錄備查。此確保各級人員持續接受教育訓練並留有紀錄。",
+      "references": [{"title": "職業安全衛生管理辦法第5條之1", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+    },
+    {
+      "id": "U18-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生業務主管之安全衛生在職教育訓練為每二年至少________小時。",
+      "answer": ["6", "六"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第一款之勞工（職業安全衛生業務主管），安全衛生在職教育訓練每二年至少六小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，職業安全衛生管理人員之安全衛生在職教育訓練為每二年至少________小時。",
+      "answer": ["12", "十二"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第二款之勞工（職業安全衛生管理人員），安全衛生在職教育訓練每二年至少十二小時。管理人員因職責較重，時數要求為業務主管的二倍。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，一般勞工之安全衛生在職教育訓練為每三年至少________小時。",
+      "answer": ["3", "三"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第七款至第十三款之勞工（包括一般勞工），安全衛生在職教育訓練每三年至少三小時。此為一般勞工的基本在職教育訓練要求。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生教育訓練規則第17條規定，中央主管機關認可之網路教學課程，其時數至多採認________小時。",
+      "answer": ["2", "二"],
+      "explanation": "職業安全衛生教育訓練規則第17條第4項規定，中央主管機關認可之職業安全衛生教育訓練網路教學課程，其時數至多採認二小時，得採認為一般安全衛生教育訓練時數。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U18-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生教育訓練規則第19條規定，勞工健康服務護理人員之安全衛生在職教育訓練為每三年至少________小時。",
+      "answer": ["12", "十二"],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定，第三款之勞工（勞工健康服務護理人員及勞工健康服務相關人員），安全衛生在職教育訓練每三年至少十二小時。其課程及講師資格依勞工健康保護規則之規定。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位有職業安全衛生管理人員2人，依職業安全衛生教育訓練規則第19條規定，每人每二年至少應接受十二小時在職教育訓練。請問該事業單位之職業安全衛生管理人員每二年合計至少應接受多少小時在職教育訓練？",
+      "answer": {"value": 24, "unit": "小時", "tolerance": 0},
+      "explanation": "每人每二年至少十二小時，2人合計：2×12=24小時。職業安全衛生教育訓練規則第19條第1項規定管理人員每二年至少十二小時，故2人合計至少24小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位辦理一般安全衛生教育訓練，依規定一般勞工每三年至少三小時。該單位有一般勞工50人，請問每三年合計至少應安排多少小時之教育訓練？（以每人接受之總時數計算）",
+      "answer": {"value": 150, "unit": "小時", "tolerance": 0},
+      "explanation": "每人每三年至少三小時，50人合計：50×3=150小時。職業安全衛生教育訓練規則第19條第1項規定一般勞工每三年至少三小時，故50人合計至少150小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某事業單位辦理一般安全衛生教育訓練，規劃以中央主管機關認可之網路教學課程採認時數。依規定網路教學時數至多採認二小時，若一般勞工每三年至少需三小時在職教育訓練，請問至少需以實體課程方式辦理多少小時？",
+      "answer": {"value": 1, "unit": "小時", "tolerance": 0},
+      "explanation": "一般勞工每三年至少需三小時在職教育訓練。網路教學至多採認二小時，故剩餘時數須以實體課程辦理：3-2=1小時。職業安全衛生教育訓練規則第17條第4項規定網路教學時數至多採認二小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=17"}]
+    },
+    {
+      "id": "U18-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列人員與其在職安全衛生教育訓練之時數規定正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "職業安全衛生業務主管"},
+        {"id": "L2", "text": "職業安全衛生管理人員"},
+        {"id": "L3", "text": "勞工健康服務護理人員"},
+        {"id": "L4", "text": "一般勞工"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "每二年至少六小時"},
+        {"id": "R2", "text": "每二年至少十二小時"},
+        {"id": "R3", "text": "每三年至少十二小時"},
+        {"id": "R4", "text": "每三年至少三小時"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "職業安全衛生教育訓練規則第19條第1項規定：業務主管每二年至少六小時；管理人員每二年至少十二小時；勞工健康服務護理人員每三年至少十二小時；一般勞工每三年至少三小時。",
+      "references": [{"title": "職業安全衛生教育訓練規則第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060010&flno=19"}]
+    },
+    {
+      "id": "U18-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列勞工法定義務與其法源依據正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "接受安全衛生教育及訓練之義務"},
+        {"id": "L2", "text": "接受體格檢查及健康檢查之義務"},
+        {"id": "L3", "text": "切實遵行安全衛生工作守則之義務"},
+        {"id": "L4", "text": "雇主宣導安全衛生規定使勞工周知"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "職業安全衛生法第32條第3項"},
+        {"id": "R2", "text": "職業安全衛生法第20條第6項"},
+        {"id": "R3", "text": "職業安全衛生法第34條第2項"},
+        {"id": "R4", "text": "職業安全衛生法第33條"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "職安法第32條第3項規定勞工對教育訓練有接受之義務；第20條第6項規定勞工對體格及健康檢查有接受之義務；第34條第2項規定勞工對工作守則應切實遵行；第33條規定雇主應宣導安全衛生規定使勞工周知。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U18-Q048",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列安全衛生管理理念與其相關法規規定正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "勞工參與決策"},
+        {"id": "L2", "text": "資訊公開周知"},
+        {"id": "L3", "text": "持續教育訓練"},
+        {"id": "L4", "text": "組織化系統化管理"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "職安法第34條：會同勞工代表訂定工作守則"},
+        {"id": "R2", "text": "職安法第33條：宣導安全衛生規定使勞工周知"},
+        {"id": "R3", "text": "職安法第32條：施以安全衛生教育及訓練"},
+        {"id": "R4", "text": "職安法第23條：設置安全衛生組織人員"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R3"},
+        {"left": "L4", "right": "R4"}
+      ],
+      "explanation": "勞工參與決策體現於第34條會同勞工代表訂定守則；資訊公開周知體現於第33條宣導規定使勞工周知；持續教育訓練體現於第32條施以教育訓練；組織化系統化管理體現於第23條設置組織人員。四項均為人性管理與自主活動的重要法源。",
+      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+    },
+    {
+      "id": "U18-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依馬斯洛需求層次理論，由低到高排列人類需求層次：",
+      "items": [
+        {"id": "I1", "text": "生理需求（最基本）"},
+        {"id": "I2", "text": "安全需求"},
+        {"id": "I3", "text": "社會需求（歸屬感與愛）"},
+        {"id": "I4", "text": "尊嚴需求（自尊與受人尊重）"},
+        {"id": "I5", "text": "自我實現需求（最高層次）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "explanation": "馬斯洛需求層次理論由低到高為：生理需求→安全需求→社會需求→尊嚴需求→自我實現需求。在職業安全衛生管理中，安全需求是基本需求層次，雇主應透過安全衛生管理滿足勞工的安全需求，進而促進更高層次的需求滿足與自主活動。",
+      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+    },
+    {
+      "id": "U18-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依推動安全衛生自主活動的邏輯順序，排列下列實施步驟：",
+      "items": [
+        {"id": "I1", "text": "宣導安全衛生規定，使勞工周知（職安法第33條）"},
+        {"id": "I2", "text": "施以安全衛生教育訓練，提升勞工知識（職安法第32條）"},
+        {"id": "I3", "text": "會同勞工代表訂定工作守則，建立共同規範（職安法第34條）"},
+        {"id": "I4", "text": "透過委員會審議提案，鼓勵勞工自主參與改善（管理辦法第12條）"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "推動自主活動的邏輯順序為：先宣導周知（第33條）讓勞工了解規定，再施以教育訓練（第32條）提升知識能力，接著會同勞工代表訂定守則（第34條）建立共同規範，最後透過委員會審議提案（管理辦法第12條）鼓勵勞工持續自主參與改善。此流程體現了由知曉→能力提升→參與建制→自主改善的漸進過程。",
+      "references": [{"title": "職業安全衛生法第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=33"}]
+    }
+  ]
+}

@@ -1,0 +1,1656 @@
+{
+  "unitId": "U09",
+  "unitTitle": "職業安全衛生管理規章",
+  "unitNumber": 9,
+  "questions": [
+    {
+      "id": "U09-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生法第23條，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，並設置什麼？",
+      "options": [
+        {
+          "id": "A",
+          "text": "品質管理組織及人員"
+        },
+        {
+          "id": "B",
+          "text": "安全衛生組織及人員"
+        },
+        {
+          "id": "C",
+          "text": "環境管理組織及人員"
+        },
+        {
+          "id": "D",
+          "text": "人力資源管理組織"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "職安法第23條第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫；並設置安全衛生組織、人員，實施安全衛生管理及自動檢查。其他選項均非本條所規定。",
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q002",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之1，勞工人數在多少以上的事業單位，應另訂定職業安全衛生管理規章？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三十人以上"
+        },
+        {
+          "id": "B",
+          "text": "五十人以上"
+        },
+        {
+          "id": "C",
+          "text": "一百人以上"
+        },
+        {
+          "id": "D",
+          "text": "三百人以上"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依職業安全衛生管理辦法第12條之1第3項，勞工人數在100人以上之事業單位，應另訂定職業安全衛生管理規章。30人以下得以執行紀錄代替管理計畫。所有規模均需訂定管理計畫，但規章僅100人以上才需訂定。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q003",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之1，勞工人數在多少以下之事業單位，得以安全衛生管理執行紀錄或文件代替職業安全衛生管理計畫？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三十人以下"
+        },
+        {
+          "id": "B",
+          "text": "五十人以下"
+        },
+        {
+          "id": "C",
+          "text": "一百人以下"
+        },
+        {
+          "id": "D",
+          "text": "三百人以下"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條之1第2項，勞工人數在30人以下之事業單位，得以安全衛生管理執行紀錄或文件代替職業安全衛生管理計畫。這是小規模事業單位的簡化規定，但100人以上仍需另訂管理規章。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法，事業依危害風險之不同區分為三類，下列何者正確？",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一類：具顯著風險；第二類：具中度風險；第三類：具低度風險"
+        },
+        {
+          "id": "B",
+          "text": "第一類：具低度風險；第二類：具中度風險；第三類：具顯著風險"
+        },
+        {
+          "id": "C",
+          "text": "第一類：具中度風險；第二類：具顯著風險；第三類：具低度風險"
+        },
+        {
+          "id": "D",
+          "text": "三類均為相同風險等級"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第2條，事業依危害風險區分為：第一類事業（具顯著風險者）、第二類事業（具中度風險者）、第三類事業（具低度風險者）。各類事業之例示如附表一。風險越高，管理要求越嚴格。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q005",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第2條之1，第一類事業之事業單位勞工人數在多少以上者，應設直接隸屬雇主之專責一級管理單位？",
+      "options": [
+        {
+          "id": "A",
+          "text": "五十人以上"
+        },
+        {
+          "id": "B",
+          "text": "一百人以上"
+        },
+        {
+          "id": "C",
+          "text": "二百人以上"
+        },
+        {
+          "id": "D",
+          "text": "三百人以上"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第2條之1第1項第1款，第一類事業之事業單位勞工人數在100人以上者，應設直接隸屬雇主之專責一級管理單位。第二類事業勞工人數在300人以上者，應設直接隸屬雇主之一級管理單位（非專責）。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第3條，第一類事業之事業單位勞工人數在多少以上者，所置管理人員應為專職？",
+      "options": [
+        {
+          "id": "A",
+          "text": "五十人以上"
+        },
+        {
+          "id": "B",
+          "text": "一百人以上"
+        },
+        {
+          "id": "C",
+          "text": "二百人以上"
+        },
+        {
+          "id": "D",
+          "text": "三百人以上"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第3條第2項，第一類事業之事業單位勞工人數在100人以上者，所置管理人員應為專職；第二類事業勞工人數在300人以上者，所置管理人員應至少1人為專職。專職人員不得兼任其他法令所定專責人員或從事與職安無關之工作。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第4條，事業單位勞工人數未滿多少者，雇主或其代理人經職業安全衛生業務主管安全衛生教育訓練合格，得擔任該事業單位職業安全衛生業務主管？",
+      "options": [
+        {
+          "id": "A",
+          "text": "未滿十人"
+        },
+        {
+          "id": "B",
+          "text": "未滿二十人"
+        },
+        {
+          "id": "C",
+          "text": "未滿三十人"
+        },
+        {
+          "id": "D",
+          "text": "未滿五十人"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第4條第1項，事業單位勞工人數未滿30人者，雇主或其代理人經職業安全衛生業務主管安全衛生教育訓練合格，得擔任該事業單位職業安全衛生業務主管。但屬第二類及第三類事業且勞工人數在5人以下者，得由經丁種業務主管教育訓練合格者擔任。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法，職業安全衛生人員因故未能執行職務時，雇主應即指定適當代理人，其代理期間不得超過多久？",
+      "options": [
+        {
+          "id": "A",
+          "text": "一個月"
+        },
+        {
+          "id": "B",
+          "text": "二個月"
+        },
+        {
+          "id": "C",
+          "text": "三個月"
+        },
+        {
+          "id": "D",
+          "text": "六個月"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第8條第1項，職業安全衛生人員因故未能執行職務時，雇主應即指定適當代理人。其代理期間不得超過三個月。另勞工人數在30人以上之事業單位，其職安人員離職時應即報當地勞動檢查機構備查。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第10條，哪些事業單位應設職業安全衛生委員會？",
+      "options": [
+        {
+          "id": "A",
+          "text": "所有事業單位均應設置"
+        },
+        {
+          "id": "B",
+          "text": "適用第2條之1及第6條第2項規定之事業單位"
+        },
+        {
+          "id": "C",
+          "text": "僅第一類事業需設置"
+        },
+        {
+          "id": "D",
+          "text": "勞工人數50人以上之事業單位"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第10條，適用第2條之1（設專責一級管理單位）及第6條第2項（總機構設管理單位）規定之事業單位，應設職業安全衛生委員會。並非所有事業單位都需設置，僅達一定規模者才需要。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q010",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條，職業安全衛生委員會置委員多少人以上？勞工代表應佔委員人數多少以上？",
+      "options": [
+        {
+          "id": "A",
+          "text": "委員5人以上，勞工代表佔三分之一以上"
+        },
+        {
+          "id": "B",
+          "text": "委員7人以上，勞工代表佔三分之一以上"
+        },
+        {
+          "id": "C",
+          "text": "委員7人以上，勞工代表佔二分之一以上"
+        },
+        {
+          "id": "D",
+          "text": "委員9人以上，勞工代表佔三分之一以上"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第11條，委員會置委員7人以上，由雇主為當然委員及主任委員，勞工代表應佔委員人數三分之一以上。委員任期為2年。勞工代表由工會推派、勞資會議勞方代表推選或勞工共同推選。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條，職業安全衛生委員會應每幾個月至少開會一次？",
+      "options": [
+        {
+          "id": "A",
+          "text": "每一個月"
+        },
+        {
+          "id": "B",
+          "text": "每二個月"
+        },
+        {
+          "id": "C",
+          "text": "每三個月"
+        },
+        {
+          "id": "D",
+          "text": "每六個月"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第12條第1項，委員會應每3個月至少開會1次，辦理12項安全衛生事項之審議、協調及建議。會議由主任委員（雇主）擔任主席，必要時得召開臨時會議。審議紀錄應保存3年。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條，委員會審議、協調及建議安全衛生相關事項之紀錄，應保存多少年？",
+      "options": [
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "二年"
+        },
+        {
+          "id": "C",
+          "text": "三年"
+        },
+        {
+          "id": "D",
+          "text": "五年"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第12條第2項，委員會審議、協調及建議安全衛生相關事項，應作成紀錄，並保存3年。管理計畫執行紀錄亦應保存3年（第12條之1）。多數職安管理紀錄保存期限均為3年。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q013",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條，職業安全衛生委員會之委員任期為幾年？",
+      "options": [
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "二年"
+        },
+        {
+          "id": "C",
+          "text": "三年"
+        },
+        {
+          "id": "D",
+          "text": "四年"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第11條第3項，委員任期為2年，並以雇主為主任委員，綜理會務。委員會由主任委員指定1人為秘書，輔助其綜理會務。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第34條，雇主應會同何人訂定安全衛生工作守則，報請勞動檢查機構備查後公告實施？",
+      "options": [
+        {
+          "id": "A",
+          "text": "全體股東"
+        },
+        {
+          "id": "B",
+          "text": "勞工代表"
+        },
+        {
+          "id": "C",
+          "text": "工會理事長"
+        },
+        {
+          "id": "D",
+          "text": "政府代表"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依職安法第34條第1項，雇主應依本法及有關法令規定，會同勞工代表訂定適合其需要之安全衛生工作守則，報請勞動檢查機構備查後公告實施。勞工對於安全衛生工作守則應切實遵行。",
+      "references": [
+        {
+          "title": "職業安全衛生法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第5條之1，職業安全衛生管理單位之職責為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "擬訂、規劃、督導及推動安全衛生管理事項，並指導有關部門實施"
+        },
+        {
+          "id": "B",
+          "text": "僅負責採購安全設備"
+        },
+        {
+          "id": "C",
+          "text": "負責勞工薪資核算"
+        },
+        {
+          "id": "D",
+          "text": "僅負責事故後之善後處理"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第5條之1第1項第1款，職業安全衛生管理單位之職責為擬訂、規劃、督導及推動安全衛生管理事項，並指導有關部門實施。這是主動性的管理職責，而非僅為事後處理或採購。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第5條之1，職業安全衛生委員會之職責為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "直接執行現場安全衛生作業"
+        },
+        {
+          "id": "B",
+          "text": "對雇主擬訂之安全衛生政策提出建議，並審議、協調及建議安全衛生相關事項"
+        },
+        {
+          "id": "C",
+          "text": "制定國家安全衛生法規"
+        },
+        {
+          "id": "D",
+          "text": "處理勞資糾紛"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第5條之1第1項第2款，職業安全衛生委員會之職責為對雇主擬訂之安全衛生政策提出建議，並審議、協調及建議安全衛生相關事項。委員會是審議、協調及建議角色，非直接執行單位。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第6條，事業設有總機構者，第一類事業勞工人數在多少以上者，應於總機構或其地區事業單位設綜理全事業之職業安全衛生事務之專責一級管理單位？",
+      "options": [
+        {
+          "id": "A",
+          "text": "三百人以上"
+        },
+        {
+          "id": "B",
+          "text": "五百人以上"
+        },
+        {
+          "id": "C",
+          "text": "一千人以上"
+        },
+        {
+          "id": "D",
+          "text": "三千人以上"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第6條第2項第1款，第一類事業勞工人數在500人以上者，應設直接隸屬雇主之專責一級管理單位。第二類事業500人以上應設一級管理單位。第三類事業3000人以上應設管理單位。總機構之門檻為500人（第一類）。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第86條，勞工人數在多少以上之事業單位，設管理單位或置管理人員時，應依規定登錄陳報勞動檢查機構備查？",
+      "options": [
+        {
+          "id": "A",
+          "text": "十人以上"
+        },
+        {
+          "id": "B",
+          "text": "二十人以上"
+        },
+        {
+          "id": "C",
+          "text": "三十人以上"
+        },
+        {
+          "id": "D",
+          "text": "五十人以上"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第86條，勞工人數在30人以上之事業單位，依第2條之1至第3條之1、第6條規定設管理單位或置管理人員時，應依中央主管機關公告之內容及方式登錄，陳報勞動檢查機構備查。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第86條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=86"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第7條，下列何者為職業安全管理師之資格之一？",
+      "options": [
+        {
+          "id": "A",
+          "text": "領有職業安全管理甲級技術士證照"
+        },
+        {
+          "id": "B",
+          "text": "領有職業安全衛生管理乙級技術士證照"
+        },
+        {
+          "id": "C",
+          "text": "高中畢業即可"
+        },
+        {
+          "id": "D",
+          "text": "曾任勞動檢查員1年以上"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第7條第2項第1款，職業安全管理師資格包括：(1)高等考試職業安全衛生類科錄取或具有工業安全技師資格、(2)領有職業安全管理甲級技術士證照、(3)曾任勞動檢查員具有職業安全檢查工作經驗3年以上等。B為管理員資格；D年限應為3年非1年。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=7"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第3條之2，事業單位勞工人數之計算，包含下列哪些人員？",
+      "options": [
+        {
+          "id": "A",
+          "text": "僅原事業單位之勞工"
+        },
+        {
+          "id": "B",
+          "text": "僅承攬人之勞工"
+        },
+        {
+          "id": "C",
+          "text": "原事業單位及其承攬人、再承攬人之勞工及其他受指揮監督從事勞動之人員，於同一期間同一工作場所作業時之總人數"
+        },
+        {
+          "id": "D",
+          "text": "僅計算正式員工"
+        }
+      ],
+      "answer": [
+        "C"
+      ],
+      "explanation": "依第3條之2第1項，事業單位勞工人數之計算，包含原事業單位及其承攬人、再承攬人之勞工及其他受工作場所負責人指揮或監督從事勞動之人員，於同一期間、同一工作場所作業時之總人數。這確保承攬人之勞工也被納入計算。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3-2"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第3條之1，營造業之事業單位對於橋樑、道路、隧道或輸配電等距離較長之工程，應於每多少公里內增置營造業丙種職業安全衛生業務主管1人？",
+      "options": [
+        {
+          "id": "A",
+          "text": "每5公里"
+        },
+        {
+          "id": "B",
+          "text": "每10公里"
+        },
+        {
+          "id": "C",
+          "text": "每15公里"
+        },
+        {
+          "id": "D",
+          "text": "每20公里"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第3條之1第2項，營造業之事業單位對於橋樑、道路、隧道或輸配電等距離較長之工程，應於每10公里內增置營造業丙種職業安全衛生業務主管1人。這是針對線型工程之特殊規定。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第6條之1，第一類事業單位已實施何種管理制度且管理績效經中央主管機關審查通過者，得不受專責一級管理單位及職安業務主管應為專職之限制？",
+      "options": [
+        {
+          "id": "A",
+          "text": "ISO 9001品質管理系統"
+        },
+        {
+          "id": "B",
+          "text": "第12條之2職業安全衛生管理系統"
+        },
+        {
+          "id": "C",
+          "text": "ISO 14001環境管理系統"
+        },
+        {
+          "id": "D",
+          "text": "TQM全面品質管理"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第6條之1，第一類事業單位或其總機構已實施第12條之2職業安全衛生管理系統相關管理制度，管理績效並經中央主管機關審查通過者，得不受第2條之1、第3條及第6條有關專責及專職之限制。這是對已建置管理系統者之放寬規定。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q023",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第34條，勞工對於安全衛生工作守則，應如何處理？",
+      "options": [
+        {
+          "id": "A",
+          "text": "可選擇性遵守"
+        },
+        {
+          "id": "B",
+          "text": "應切實遵行"
+        },
+        {
+          "id": "C",
+          "text": "由工會決定是否遵守"
+        },
+        {
+          "id": "D",
+          "text": "僅需口頭同意即可"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依職安法第34條第2項，勞工對於安全衛生工作守則，應切實遵行。工作守則經報請勞動檢查機構備查後公告實施，對勞工具有拘束力，勞工不得選擇性遵守。",
+      "references": [
+        {
+          "title": "職業安全衛生法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q024",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第5條之1，工作場所負責人及各級主管之職責為何？",
+      "options": [
+        {
+          "id": "A",
+          "text": "僅負責行政文書工作"
+        },
+        {
+          "id": "B",
+          "text": "依職權指揮、監督所屬執行安全衛生管理事項，並協調及指導有關人員實施"
+        },
+        {
+          "id": "C",
+          "text": "僅負責事故調查"
+        },
+        {
+          "id": "D",
+          "text": "不負安全衛生管理責任"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依第5條之1第1項第6款，工作場所負責人及各級主管之職責為依職權指揮、監督所屬執行安全衛生管理事項，並協調及指導有關人員實施。安全衛生管理是各級主管的法定職責，並非僅安衛人員之責任。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條，職業安全衛生委員會應辦理之事項包括下列哪些？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "對雇主擬訂之職業安全衛生政策提出建議"
+        },
+        {
+          "id": "B",
+          "text": "協調、建議職業安全衛生管理計畫"
+        },
+        {
+          "id": "C",
+          "text": "審議安全、衛生教育訓練實施計畫"
+        },
+        {
+          "id": "D",
+          "text": "考核現場安全衛生管理績效"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第12條第1項，委員會應辦理12項事項，包括A(第1款)、B(第2款)、C(第3款)、D(第10款)。此外還包括審議作業環境監測、健康管理、自動檢查、職災調查報告、承攬管理等。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條，職業安全衛生委員會之委員組成包括下列哪些？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "雇主（當然委員及主任委員）"
+        },
+        {
+          "id": "B",
+          "text": "職業安全衛生人員"
+        },
+        {
+          "id": "C",
+          "text": "從事勞工健康服務之醫護人員"
+        },
+        {
+          "id": "D",
+          "text": "勞工代表"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第11條第1項，委員由雇主（當然委員）及下列人員組成：(1)職業安全衛生人員、(2)事業內各部門之主管監督指揮人員、(3)與職業安全衛生有關之工程技術人員、(4)從事勞工健康服務之醫護人員、(5)勞工代表。四個選項均為委員組成之一。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q027",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條，關於勞工代表之推選，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "勞工代表應佔委員人數三分之一以上"
+        },
+        {
+          "id": "B",
+          "text": "事業單位設有工會者，由工會推派之"
+        },
+        {
+          "id": "C",
+          "text": "無工會組織而有勞資會議者，由勞方代表推選之"
+        },
+        {
+          "id": "D",
+          "text": "無工會且無勞資會議者，由勞工共同推選之"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第11條第4項，勞工代表應佔委員人數三分之一以上，推選順序為：有工會者由工會推派、無工會有勞資會議者由勞方代表推選、無工會且無勞資會議者由勞工共同推選。四個選項均正確。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q028",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第12條之1，關於職業安全衛生管理計畫及規章之規定，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "雇主應依事業單位之規模、性質訂定職業安全衛生管理計畫"
+        },
+        {
+          "id": "B",
+          "text": "勞工人數30人以下得以執行紀錄或文件代替管理計畫"
+        },
+        {
+          "id": "C",
+          "text": "勞工人數100人以上應另訂定職業安全衛生管理規章"
+        },
+        {
+          "id": "D",
+          "text": "管理事項之執行紀錄應保存3年"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第12條之1，A為第1項（所有規模均需訂定計畫）；B為第2項（30人以下可代替）；C為第3項（100人以上另訂規章）；D為第4項（紀錄保存3年）。四個選項均正確。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q029",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法第5條之1，下列哪些人員之職責叙述正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "職業安全衛生管理單位：擬訂、規劃、督導及推動安全衛生管理事項"
+        },
+        {
+          "id": "B",
+          "text": "職業安全衛生委員會：對雇主擬訂之安全衛生政策提出建議"
+        },
+        {
+          "id": "C",
+          "text": "職業安全衛生管理師：擬訂、規劃及推動安全衛生管理事項，並指導有關部門實施"
+        },
+        {
+          "id": "D",
+          "text": "工作場所負責人及各級主管：依職權指揮、監督所屬執行安全衛生管理事項"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第5條之1第1項：管理單位(第1款)、委員會(第2款)、管理師/管理員(第5款)、工作場所負責人及各級主管(第6款)。四個選項均正確描述了各角色之職責。前項人員雇主應使其接受安全衛生教育訓練。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q030",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法，關於職業安全衛生管理單位之設置規定，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "第一類事業勞工100人以上應設直接隸屬雇主之專責一級管理單位"
+        },
+        {
+          "id": "B",
+          "text": "第二類事業勞工300人以上應設直接隸屬雇主之一級管理單位"
+        },
+        {
+          "id": "C",
+          "text": "總機構第一類事業500人以上應設專責一級管理單位"
+        },
+        {
+          "id": "D",
+          "text": "所有事業不論規模均需設專責一級管理單位"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "A為第2條之1第1項第1款；B為第2條之1第1項第2款（注意第二類為一級管理單位，非專責）；C為第6條第2項第1款。D錯誤，並非所有事業均需設專責一級管理單位，需達一定規模。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第7條，職業安全衛生管理員之資格包括下列哪些？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "具有職業安全管理師或職業衛生管理師資格"
+        },
+        {
+          "id": "B",
+          "text": "領有職業安全衛生管理乙級技術士證照"
+        },
+        {
+          "id": "C",
+          "text": "曾任勞動檢查員，具有職業安全衛生檢查工作經驗2年以上"
+        },
+        {
+          "id": "D",
+          "text": "普通考試職業安全衛生類科錄取"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "explanation": "依第7條第2項第3款，管理員資格有五種：(1)具有管理師資格、(2)領有乙級技術士證照、(3)曾任檢查員2年以上、(4)修畢18學分以上並大專相關科系畢業、(5)普考職安衛類科錄取。四個選項均為管理員資格。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=7"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法及管理辦法，關於安全衛生工作守則與管理規章之比較，下列哪些正確？（複選）",
+      "options": [
+        {
+          "id": "A",
+          "text": "安全衛生工作守則應會同勞工代表訂定，報請勞動檢查機構備查"
+        },
+        {
+          "id": "B",
+          "text": "職業安全衛生管理規章適用於勞工人數100人以上之事業單位"
+        },
+        {
+          "id": "C",
+          "text": "工作守則對勞工具有拘束力，勞工應切實遵行"
+        },
+        {
+          "id": "D",
+          "text": "管理規章與工作守則是相同的文件"
+        }
+      ],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "A為職安法第34條；B為管理辦法第12條之1第3項；C為職安法第34條第2項。D錯誤，管理規章（雇主訂定之內部管理規範，100人以上）與工作守則（會同勞工代表訂定，報檢查機構備查）是不同的文件。",
+      "references": [
+        {
+          "title": "職業安全衛生法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職業安全衛生管理辦法，事業依危害風險之不同分為三類，第一類為具顯著風險者。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第2條，第一類事業為具顯著風險者、第二類為具中度風險者、第三類為具低度風險者。各類事業之例示如附表一。風險等級越高，安全衛生管理要求越嚴格。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法，職業安全衛生委員會應每三個月至少開會一次，且委員任期為二年。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第12條第1項，委員會應每3個月至少開會1次。依第11條第3項，委員任期為2年，以雇主為主任委員。兩項規定均正確。必要時得召開臨時會議。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生法第34條，安全衛生工作守則由雇主單方面訂定後即可實施，無需會同勞工代表。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "B"
+      ],
+      "explanation": "依職安法第34條第1項，雇主應會同勞工代表訂定安全衛生工作守則，報請勞動檢查機構備查後公告實施。不能由雇主單方面訂定，必須會同勞工代表參與，且需報請備查。",
+      "references": [
+        {
+          "title": "職業安全衛生法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q036",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法，專職職業安全衛生人員不得兼任其他法令所定專責人員或從事其他與職業安全衛生無關之工作。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第3條第3項，依規定所置專職管理人員，應常駐廠場執行業務，不得兼任其他法令所定專責（任）人員或從事其他與職業安全衛生無關之工作。確保專職人員能專心執行職安業務。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q037",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生管理辦法，勞工人數在30人以上之事業單位，其職業安全衛生人員離職時，應即報當地勞動檢查機構備查。",
+      "options": [
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
+      ],
+      "answer": [
+        "A"
+      ],
+      "explanation": "依第8條第2項，勞工人數在30人以上之事業單位，其職業安全衛生人員離職時，應即報當地勞動檢查機構備查。這是確保持續有人員執行職安管理之規定。人員因故未能執行職務時，代理期間不得超過3個月。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之1，勞工人數在________人以上之事業單位，應另訂定職業安全衛生管理規章。",
+      "answer": [
+        "100",
+        "一百"
+      ],
+      "explanation": "依第12條之1第3項，勞工人數在100人以上之事業單位，應另訂定職業安全衛生管理規章。所有規模均需訂定管理計畫，但規章僅100人以上才需要。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法，職業安全衛生委員會應每________個月至少開會一次。",
+      "answer": [
+        "3",
+        "三"
+      ],
+      "explanation": "依第12條第1項，委員會應每3個月至少開會1次。由主任委員（雇主）擔任主席，必要時得召開臨時會議。審議紀錄應保存3年。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條，職業安全衛生委員會之勞工代表應佔委員人數________分之一以上。",
+      "answer": [
+        "3",
+        "三"
+      ],
+      "explanation": "依第11條第4項，勞工代表應佔委員人數三分之一以上。委員會置委員7人以上，由雇主為主任委員。勞工代表確保勞工在安全衛生事務上之參與權。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第8條，職業安全衛生人員因故未能執行職務時，雇主應指定適當代理人，其代理期間不得超過________個月。",
+      "answer": [
+        "3",
+        "三"
+      ],
+      "explanation": "依第8條第1項，職業安全衛生人員因故未能執行職務時，雇主應即指定適當代理人。其代理期間不得超過3個月。超過3個月需正式補派人员。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=8"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q042",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第11條，職業安全衛生委員會之委員任期為________年。",
+      "answer": [
+        "2",
+        "二"
+      ],
+      "explanation": "依第11條第3項，委員任期為2年，並以雇主為主任委員，綜理會務。委員會由主任委員指定1人為秘書，輔助其綜理會務。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某第一類事業之事業單位勞工人數為95人，依職業安全衛生管理辦法第2條之1，該事業單位是否需要設直接隸屬雇主之專責一級管理單位？若需要，則尚差多少人？",
+      "answer": {
+        "value": 5,
+        "unit": "人",
+        "tolerance": 0
+      },
+      "explanation": "依第2條之1第1項第1款，第一類事業勞工人數在100人以上者，應設專責一級管理單位。95人<100人，目前不需要。尚差100-95=5人即達到門檻。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q044",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位設有職業安全衛生委員會共7名委員（含雇主），依規定勞工代表應佔委員人數三分之一以上。請問至少應有幾名勞工代表？",
+      "answer": {
+        "value": 3,
+        "unit": "人",
+        "tolerance": 0
+      },
+      "explanation": "依第11條第4項，勞工代表應佔委員人數三分之一以上。7人×1/3=2.33，取整數至少需3人（因不能少於三分之一，須向上取整）。實際上7×1/3=2.33，最少需3名勞工代表才能超過三分之一。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q045",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "某營造業事業單位承包一條25公里長的道路工程，依職業安全衛生管理辦法第3條之1，應於每10公里內增置營造業丙種職業安全衛生業務主管1人。請問該工程至少需增置幾名丙種業務主管？",
+      "answer": {
+        "value": 3,
+        "unit": "人",
+        "tolerance": 0
+      },
+      "explanation": "依第3條之1第2項，每10公里內增置1人。25公里÷10=2.5，取整數需3名（0-10km第1名，10-20km第2名，20-25km第3名）。故至少需增置3名丙種業務主管。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列職業安全衛生管理角色與其職責正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "職業安全衛生管理單位"
+        },
+        {
+          "id": "L2",
+          "text": "職業安全衛生委員會"
+        },
+        {
+          "id": "L3",
+          "text": "職業安全衛生管理師"
+        },
+        {
+          "id": "L4",
+          "text": "工作場所負責人及各級主管"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "擬訂、規劃、督導及推動安全衛生管理事項，指導有關部門"
+        },
+        {
+          "id": "R2",
+          "text": "對安全衛生政策提出建議，審議、協調及建議相關事項"
+        },
+        {
+          "id": "R3",
+          "text": "擬訂、規劃及推動安全衛生管理事項，指導有關部門實施"
+        },
+        {
+          "id": "R4",
+          "text": "依職權指揮、監督所屬執行安全衛生管理事項"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "依第5條之1：管理單位(第1款)、委員會(第2款)、管理師/管理員(第5款)、工作場所負責人及各級主管(第6款)。各角色職責各有不同，管理單位職責最廣（含督導），委員會為審議建議角色。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q047",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列事業風險分類與其對應之管理單位設置門檻正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "第一類事業（顯著風險）"
+        },
+        {
+          "id": "L2",
+          "text": "第二類事業（中度風險）"
+        },
+        {
+          "id": "L3",
+          "text": "第三類事業總機構"
+        },
+        {
+          "id": "L4",
+          "text": "第一類事業總機構"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "勞工100人以上設專責一級管理單位"
+        },
+        {
+          "id": "R2",
+          "text": "勞工300人以上設一級管理單位"
+        },
+        {
+          "id": "R3",
+          "text": "勞工3000人以上設管理單位"
+        },
+        {
+          "id": "R4",
+          "text": "勞工500人以上設專責一級管理單位"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "依第2條之1及第6條：第一類100人以上設專責一級管理單位；第二類300人以上設一級管理單位；總機構第一類500人以上設專責一級管理單位；總機構第三類3000人以上設管理單位。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列人員資格與其對應之職位正確配對：",
+      "leftItems": [
+        {
+          "id": "L1",
+          "text": "領有職業安全管理甲級技術士證照"
+        },
+        {
+          "id": "L2",
+          "text": "領有職業安全衛生管理乙級技術士證照"
+        },
+        {
+          "id": "L3",
+          "text": "曾任勞動檢查員，具有職業安全檢查經驗3年以上"
+        },
+        {
+          "id": "L4",
+          "text": "普通考試職業安全衛生類科錄取"
+        }
+      ],
+      "rightItems": [
+        {
+          "id": "R1",
+          "text": "職業安全管理師"
+        },
+        {
+          "id": "R2",
+          "text": "職業安全衛生管理員"
+        },
+        {
+          "id": "R3",
+          "text": "職業安全管理師"
+        },
+        {
+          "id": "R4",
+          "text": "職業安全衛生管理員"
+        }
+      ],
+      "answer": [
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
+      ],
+      "explanation": "依第7條：甲級技術士證照→管理師；乙級技術士證照→管理員；曾任檢查員3年以上→管理師；普考錄取→管理員。管理師資格要求高於管理員。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=7"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q049",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "依職業安全衛生管理辦法第12條之1，請依事業規模由小到大排列其管理要求：",
+      "items": [
+        {
+          "id": "I1",
+          "text": "勞工30人以下：得以執行紀錄代替管理計畫"
+        },
+        {
+          "id": "I2",
+          "text": "所有規模：應訂定職業安全衛生管理計畫"
+        },
+        {
+          "id": "I3",
+          "text": "勞工100人以上：應另訂定職業安全衛生管理規章"
+        }
+      ],
+      "answer": [
+        "I1",
+        "I2",
+        "I3"
+      ],
+      "explanation": "規模由小到大：(1)30人以下可簡化以執行紀錄代替→(2)所有規模均需訂定管理計畫→(3)100人以上另需訂定管理規章。規模越大，管理要求越嚴格。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-1"
+        }
+      ]
+    },
+    {
+      "id": "U09-Q050",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "依職業安全衛生法第34條，請依安全衛生工作守則訂定之正確流程排列：",
+      "items": [
+        {
+          "id": "I1",
+          "text": "雇主會同勞工代表訂定安全衛生工作守則"
+        },
+        {
+          "id": "I2",
+          "text": "報請勞動檢查機構備查"
+        },
+        {
+          "id": "I3",
+          "text": "公告實施"
+        },
+        {
+          "id": "I4",
+          "text": "勞工切實遵行"
+        }
+      ],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
+      "explanation": "正確流程：(1)雇主會同勞工代表訂定→(2)報請勞動檢查機構備查→(3)公告實施→(4)勞工切實遵行。不能跳過備查程序直接實施，且勞工必須遵行已備查之工作守則。",
+      "references": [
+        {
+          "title": "職業安全衛生法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"
+        }
+      ]
+    }
+  ]
+}

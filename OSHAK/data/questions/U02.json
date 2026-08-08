@@ -1,0 +1,731 @@
+{
+  "unitId": "U02",
+  "unitTitle": "職業安全衛生法及其施行細則",
+  "unitNumber": 2,
+  "questions": [
+    {
+      "id": "U02-Q001",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "《職業安全衛生法》的立法目的為何？",
+      "options": [
+        {"id": "A", "text": "規範勞工退休金制度"},
+        {"id": "B", "text": "防止職業災害，保障工作者安全及健康"},
+        {"id": "C", "text": "管理勞工工資最低標準"},
+        {"id": "D", "text": "規範勞資爭議處理程序"}
+      ],
+      "answer": ["B"],
+      "explanation": "職業安全衛生法第1條明確規定，為防止職業災害，保障工作者安全及健康，特制定本法。其他法律有特別規定者，從其規定。選項A屬勞工退休金條例，C屬勞動基準法，D屬勞資爭議處理法之範疇。",
+      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+    },
+    {
+      "id": "U02-Q002",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "依職安法第2條，下列何者不屬於「工作者」的範圍？",
+      "options": [
+        {"id": "A", "text": "受僱從事工作獲致工資的勞工"},
+        {"id": "B", "text": "獨立從事勞動獲致報酬的自營作業者"},
+        {"id": "C", "text": "受工作場所負責人指揮監督從事勞動之人員"},
+        {"id": "D", "text": "純粹到工廠參觀的訪客"}
+      ],
+      "answer": ["D"],
+      "explanation": "職安法第2條第1款規定，工作者指勞工、自營作業者及其他受工作場所負責人指揮或監督從事勞動之人員。純粹參觀的訪客不受指揮監督從事勞動，不屬於工作者。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U02-Q003",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "職安法所稱「雇主」，依第2條規定是指？",
+      "options": [
+        {"id": "A", "text": "僅限公司登記負責人"},
+        {"id": "B", "text": "僅限人資部門主管"},
+        {"id": "C", "text": "事業主或事業之經營負責人"},
+        {"id": "D", "text": "僱用勞工之任何人均可"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第2條第3款規定，雇主指事業主或事業之經營負責人。與勞基法第2條第2款相比，職安法的雇主定義較為簡潔，不包含「代表事業主處理勞工事務之人」。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U02-Q004",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "職安法所稱「職業災害」，依第2條第5款規定，下列何者不屬於引起職業災害的原因？",
+      "options": [
+        {"id": "A", "text": "建築物、機械、設備"},
+        {"id": "B", "text": "化學品、氣體、蒸氣、粉塵"},
+        {"id": "C", "text": "通勤途中的交通事故"},
+        {"id": "D", "text": "作業活動及其他職業上原因"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第2條第5款規定，職業災害指因勞動場所之建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵等或作業活動及其他職業上原因引起之工作者疾病、傷害、失能或死亡。通勤交通事故屬勞基法職災補償範疇，不屬職安法定義之職業災害原因。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U02-Q005",
+      "type": "single_choice",
+      "difficulty": "basic",
+      "stem": "職安法的主管機關，在中央為何？",
+      "options": [
+        {"id": "A", "text": "行政院"},
+        {"id": "B", "text": "勞動部"},
+        {"id": "C", "text": "經濟部"},
+        {"id": "D", "text": "內政部"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第3條規定，主管機關在中央為勞動部；在直轄市為直轄市政府；在縣（市）為縣（市）政府。有關衛生事項，中央主管機關應會商中央衛生主管機關辦理。",
+      "references": [{"title": "職業安全衛生法第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=3"}]
+    },
+    {
+      "id": "U02-Q006",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第5條，雇主使勞工從事工作，應在何種範圍內採取必要之預防設備或措施？",
+      "options": [
+        {"id": "A", "text": "經濟可行範圍"},
+        {"id": "B", "text": "合理可行範圍"},
+        {"id": "C", "text": "技術可行範圍"},
+        {"id": "D", "text": "法律強制範圍"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第5條第1項規定，雇主使勞工從事工作，應在合理可行範圍內，採取必要之預防設備或措施，使勞工免於發生職業災害。施行細則第8條進一步說明「合理可行範圍」之意義。",
+      "references": [{"title": "職業安全衛生法第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=5"}]
+    },
+    {
+      "id": "U02-Q007",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第8條，本法第5條第1項所稱「合理可行範圍」是指？",
+      "options": [
+        {"id": "A", "text": "雇主財力所能負擔之範圍"},
+        {"id": "B", "text": "依安全衛生法令、指引、實務規範或一般社會通念，雇主明知或可得而知勞工工作有危害之虞，並可採取預防設備或措施者"},
+        {"id": "C", "text": "中央主管機關公告之範圍"},
+        {"id": "D", "text": "勞工同意之範圍"}
+      ],
+      "answer": ["B"],
+      "explanation": "施行細則第8條規定，合理可行範圍指依本法及有關安全衛生法令、指引、實務規範或一般社會通念，雇主明知或可得而知勞工所從事之工作，有致其生命、身體及健康受危害之虞，並可採取必要之預防設備或措施者。",
+      "references": [{"title": "職業安全衛生法施行細則第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=8"}]
+    },
+    {
+      "id": "U02-Q008",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第6條，雇主應有符合規定之必要安全衛生設備及措施之事項，下列何者不屬之？",
+      "options": [
+        {"id": "A", "text": "防止機械、設備或器具等引起之危害"},
+        {"id": "B", "text": "防止高壓氣體引起之危害"},
+        {"id": "C", "text": "防止勞工通勤交通事故"},
+        {"id": "D", "text": "防止輻射、高溫、低溫、超音波、噪音、振動或異常氣壓等引起之危害"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第6條第1項列舉了14款雇主應有安全衛生設備及措施之事項，並不包含通勤交通事故之防止。通勤交通事故非屬職安法規範之職業災害原因。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U02-Q009",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第6條第2項，雇主應妥為規劃及採取必要之安全衛生措施之事項，下列何者不屬之？",
+      "options": [
+        {"id": "A", "text": "重複性作業等促發肌肉骨骼疾病之預防"},
+        {"id": "B", "text": "輪班、夜間工作、長時間工作等異常工作負荷促發疾病之預防"},
+        {"id": "C", "text": "執行職務因他人行為遭受身體或精神不法侵害之預防"},
+        {"id": "D", "text": "勞工退休金之提繳"}
+      ],
+      "answer": ["D"],
+      "explanation": "職安法第6條第2項列舉了4款事項：重複性作業促發肌肉骨骼疾病之預防、異常工作負荷促發疾病之預防、執行職務遭受不法侵害之預防、避難急救等保護勞工身心健康之事項。退休金提繳屬勞工退休金條例之範疇。",
+      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+    },
+    {
+      "id": "U02-Q010",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第10條，雇主對於具有危害性之化學品，應採取下列何種措施？",
+      "options": [
+        {"id": "A", "text": "僅需標示即可"},
+        {"id": "B", "text": "僅需製備清單即可"},
+        {"id": "C", "text": "應予標示、製備清單及揭示安全資料表，並採取必要之通識措施"},
+        {"id": "D", "text": "僅需口頭告知勞工即可"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第10條第1項規定，雇主對於具有危害性之化學品，應予標示、製備清單及揭示安全資料表，並採取必要之通識措施。四項措施均須辦理，非僅其中一項。施行細則第14條說明危害性化學品指危險物或有害物。",
+      "references": [{"title": "職業安全衛生法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"}]
+    },
+    {
+      "id": "U02-Q011",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第12條，雇主對於經中央主管機關指定之作業場所，應訂定作業環境監測計畫，並設置或委託由誰實施監測？",
+      "options": [
+        {"id": "A", "text": "由雇主自行監測即可"},
+        {"id": "B", "text": "由中央主管機關認可之作業環境監測機構實施監測"},
+        {"id": "C", "text": "由勞工自行監測"},
+        {"id": "D", "text": "由工會監測"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第12條第3項規定，雇主應設置或委託由中央主管機關認可之作業環境監測機構實施監測。但中央主管機關指定免經監測機構分析之監測項目，得僱用合格監測人員辦理之。",
+      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+    },
+    {
+      "id": "U02-Q012",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第16條，雇主對於經中央主管機關指定具有危險性之機械或設備，使用前應經何者檢查合格？",
+      "options": [
+        {"id": "A", "text": "雇主自行檢查"},
+        {"id": "B", "text": "勞工檢查"},
+        {"id": "C", "text": "勞動檢查機構或中央主管機關指定之代行檢查機構檢查合格"},
+        {"id": "D", "text": "工會檢查"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第16條第1項規定，雇主對於經中央主管機關指定具有危險性之機械或設備，非經勞動檢查機構或中央主管機關指定之代行檢查機構檢查合格，不得使用；使用超過規定期間者，非經再檢查合格，不得繼續使用。",
+      "references": [{"title": "職業安全衛生法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=16"}]
+    },
+    {
+      "id": "U02-Q013",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第18條，工作場所有立即發生危險之虞時，勞工得自行停止作業及退避至安全場所，並應立即向誰報告？",
+      "options": [
+        {"id": "A", "text": "向勞動檢查機構報告"},
+        {"id": "B", "text": "向直屬主管報告"},
+        {"id": "C", "text": "向中央主管機關報告"},
+        {"id": "D", "text": "向工會報告"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第18條第2項規定，勞工執行職務發現有立即發生危險之虞時，得在不危及其他工作者安全情形下，自行停止作業及退避至安全場所，並立即向直屬主管報告。雇主不得對該勞工予以解僱、調職、不給付停止作業期間工資或其他不利之處分。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U02-Q014",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第20條，雇主於僱用勞工時應施行何種檢查？",
+      "options": [
+        {"id": "A", "text": "一般健康檢查"},
+        {"id": "B", "text": "特殊健康檢查"},
+        {"id": "C", "text": "體格檢查"},
+        {"id": "D", "text": "特定對象健康檢查"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第20條第1項規定，雇主於僱用勞工時，應施行體格檢查；對在職勞工應施行一般健康檢查、特殊健康檢查及特定對象健康檢查。體格檢查是僱用時實施，健康檢查是在職期間實施。",
+      "references": [{"title": "職業安全衛生法第20條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=20"}]
+    },
+    {
+      "id": "U02-Q015",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第22條，事業單位勞工人數在多少人以上者，應僱用或特約醫護人員，辦理勞工健康保護事項？",
+      "options": [
+        {"id": "A", "text": "三十人"},
+        {"id": "B", "text": "五十人"},
+        {"id": "C", "text": "一百人"},
+        {"id": "D", "text": "三百人"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第22條第1項規定，事業單位勞工人數在五十人以上者，應僱用或特約醫護人員，辦理健康管理、職業病預防及健康促進等勞工健康保護事項。中央主管機關得依規模、性質分階段公告適用日期。",
+      "references": [{"title": "職業安全衛生法第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=22"}]
+    },
+    {
+      "id": "U02-Q016",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第23條，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，並應設置什麼？",
+      "options": [
+        {"id": "A", "text": "僅設置安全衛生人員"},
+        {"id": "B", "text": "僅設置安全衛生組織"},
+        {"id": "C", "text": "設置安全衛生組織、人員，實施安全衛生管理及自動檢查"},
+        {"id": "D", "text": "僅實施自動檢查"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第23條第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫；並設置安全衛生組織、人員，實施安全衛生管理及自動檢查。三者均須辦理。",
+      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+    },
+    {
+      "id": "U02-Q017",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第25條，事業單位以其事業招人承攬時，關於職業災害補償，原事業單位與承攬人負何種責任？",
+      "options": [
+        {"id": "A", "text": "原事業單位單獨負責"},
+        {"id": "B", "text": "承攬人單獨負責"},
+        {"id": "C", "text": "連帶責任"},
+        {"id": "D", "text": "不負任何責任"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第25條第1項規定，事業單位以其事業招人承攬時，其承攬人就承攬部分負本法所定雇主之責任；原事業單位就職業災害補償仍應與承攬人負連帶責任。再承攬者亦同。",
+      "references": [{"title": "職業安全衛生法第25條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=25"}]
+    },
+    {
+      "id": "U02-Q018",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第27條，事業單位與承攬人、再承攬人分別僱用勞工共同作業時，原事業單位應採取之必要措施，下列何者不屬之？",
+      "options": [
+        {"id": "A", "text": "設置協議組織，並指定工作場所負責人"},
+        {"id": "B", "text": "工作之連繫與調整"},
+        {"id": "C", "text": "工作場所之巡視"},
+        {"id": "D", "text": "支付承攬人工程款"}
+      ],
+      "answer": ["D"],
+      "explanation": "職安法第27條第1項列舉5款必要措施：設置協議組織並指定工作場所負責人、工作之連繫與調整、工作場所之巡視、相關承攬事業間之安全衛生教育之指導及協助、其他為防止職業災害之必要事項。支付工程款不屬安全衛生管理措施。",
+      "references": [{"title": "職業安全衛生法第27條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=27"}]
+    },
+    {
+      "id": "U02-Q019",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第29條，雇主不得使未滿幾歲者從事危險性或有害性工作？",
+      "options": [
+        {"id": "A", "text": "十六歲"},
+        {"id": "B", "text": "十八歲"},
+        {"id": "C", "text": "二十歲"},
+        {"id": "D", "text": "十五歲"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第29條第1項規定，雇主不得使未滿十八歲者從事下列危險性或有害性工作，包括坑內工作、處理爆炸性物質之工作等15款。此與勞基法童工保護年齡一致。",
+      "references": [{"title": "職業安全衛生法第29條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=29"}]
+    },
+    {
+      "id": "U02-Q020",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第32條，雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練。勞工對此有何義務？",
+      "options": [
+        {"id": "A", "text": "勞工可自由選擇是否接受"},
+        {"id": "B", "text": "勞工有接受之義務"},
+        {"id": "C", "text": "僅新進勞工有接受義務"},
+        {"id": "D", "text": "勞工可付費委託他人代為接受"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第32條第3項明確規定，勞工對於第1項之安全衛生教育及訓練，有接受之義務。此為法律課予勞工之義務，非可自由選擇。",
+      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+    },
+    {
+      "id": "U02-Q021",
+      "type": "single_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法第34條，雇主應會同何人訂定安全衛生工作守則，報經勞動檢查機構備查後公告實施？",
+      "options": [
+        {"id": "A", "text": "會同工會代表"},
+        {"id": "B", "text": "會同勞工代表"},
+        {"id": "C", "text": "會同安全衛生人員"},
+        {"id": "D", "text": "雇主自行訂定即可"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第34條第1項規定，雇主應依本法及有關規定會同勞工代表訂定適合其需要之安全衛生工作守則，報經勞動檢查機構備查後，公告實施。施行細則第43條說明勞工代表之產生方式。",
+      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+    },
+    {
+      "id": "U02-Q022",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第37條第2項，事業單位發生何種職業災害時，雇主應於八小時內通報勞動檢查機構？下列何者不屬之？",
+      "options": [
+        {"id": "A", "text": "發生死亡災害"},
+        {"id": "B", "text": "發生災害之罹災人數在三人以上"},
+        {"id": "C", "text": "發生災害之罹災人數在一人以上，且需住院治療"},
+        {"id": "D", "text": "勞工輕微擦傷不需就醫"}
+      ],
+      "answer": ["D"],
+      "explanation": "職安法第37條第2項規定應於八小時內通報之4種情形：死亡災害、罹災3人以上、罹災1人以上且需住院治療、其他經中央主管機關指定公告之災害。輕微擦傷不需就醫者不屬之。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U02-Q023",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第40條，違反第6條第1項或第16條第1項之規定，致發生第37條第2項第1款之災害（死亡災害）者，處罰為何？",
+      "options": [
+        {"id": "A", "text": "處新臺幣三萬元以上三十萬元以下罰鍰"},
+        {"id": "B", "text": "處三年以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金"},
+        {"id": "C", "text": "處一年以下有期徒刑"},
+        {"id": "D", "text": "予以警告"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第40條第1項規定，違反第6條第1項或第16條第1項之規定，致發生第37條第2項第1款之災害（死亡災害）者，處三年以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金。法人犯前項之罪者，除處罰其負責人外，對該法人亦科以前項之罰金。",
+      "references": [{"title": "職業安全衛生法第40條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+    },
+    {
+      "id": "U02-Q024",
+      "type": "single_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第36條，勞工於停工期間之工資應由誰照給？",
+      "options": [
+        {"id": "A", "text": "由勞動檢查機構給付"},
+        {"id": "B", "text": "由中央主管機關給付"},
+        {"id": "C", "text": "由雇主照給工資"},
+        {"id": "D", "text": "勞工自行承擔"}
+      ],
+      "answer": ["C"],
+      "explanation": "職安法第36條第1項規定，中央主管機關及勞動檢查機構得通知其部分或全部停工。勞工於停工期間應由雇主照給工資。此為保障勞工因停工不致損失薪資之規定。",
+      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+    },
+    {
+      "id": "U02-Q025",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第2條，本法所稱「自營作業者」之要件包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "獨立從事勞動或技藝工作"},
+        {"id": "B", "text": "獲致報酬"},
+        {"id": "C", "text": "未僱用有酬人員幫同工作"},
+        {"id": "D", "text": "必須具有專業技術士證照"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "施行細則第2條規定，自營作業者指獨立從事勞動或技藝工作，獲致報酬，且未僱用有酬人員幫同工作者。不要求具有專業技術士證照。",
+      "references": [{"title": "職業安全衛生法施行細則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=2"}]
+    },
+    {
+      "id": "U02-Q026",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第5條，本法所稱「勞動場所」包括下列哪些場所？（複選）",
+      "options": [
+        {"id": "A", "text": "勞動契約存續中，由雇主所提示使勞工履行契約提供勞務之場所"},
+        {"id": "B", "text": "自營作業者實際從事勞動之場所"},
+        {"id": "C", "text": "其他受工作場所負責人指揮或監督從事勞動之人員實際從事勞動之場所"},
+        {"id": "D", "text": "勞工自家住宅"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "施行細則第5條第1項規定，勞動場所包括三類場所：勞工履行契約提供勞務之場所、自營作業者實際從事勞動之場所、受指揮監督從事勞動人員實際從事勞動之場所。勞工自家住宅不屬之。",
+      "references": [{"title": "職業安全衛生法施行細則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=5"}]
+    },
+    {
+      "id": "U02-Q027",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法施行細則第25條，本法第18條所稱「有立即發生危險之虞時」，包括下列哪些情形？（複選）",
+      "options": [
+        {"id": "A", "text": "自設備洩漏大量危害性化學品，致有發生爆炸、火災或中毒等危險之虞時"},
+        {"id": "B", "text": "從事隧道等開挖作業，因落磐、出水、崩塌等致有發生危險之虞時"},
+        {"id": "C", "text": "於高度二公尺以上作業，未設置防墜設施及未使勞工使用適當之個人防護具，致有發生墜落危險之虞時"},
+        {"id": "D", "text": "勞工感到疲勞時"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "施行細則第25條列舉了9種有立即發生危險之虞之情形，包括化學品洩漏、隧道開挖落磐、高度2公尺以上未設防墜設施等。勞工感到疲勞不屬之。",
+      "references": [{"title": "職業安全衛生法施行細則第25條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=25"}]
+    },
+    {
+      "id": "U02-Q028",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第31條，職業安全衛生管理計畫包括下列哪些事項？（複選）",
+      "options": [
+        {"id": "A", "text": "工作環境或作業危害之辨識、評估及控制"},
+        {"id": "B", "text": "機械、設備或器具之管理"},
+        {"id": "C", "text": "安全衛生教育訓練"},
+        {"id": "D", "text": "勞工薪資之計算與發放"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "施行細則第31條列舉了16項職業安全衛生管理計畫之內容，包括危害辨識評估控制、機械設備管理、安全衛生教育訓練等。勞工薪資計算不屬安全衛生管理計畫範疇。",
+      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+    },
+    {
+      "id": "U02-Q029",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第32條，安全衛生組織包括下列哪些組織？（複選）",
+      "options": [
+        {"id": "A", "text": "職業安全衛生管理單位"},
+        {"id": "B", "text": "職業安全衛生委員會"},
+        {"id": "C", "text": "人力資源部門"},
+        {"id": "D", "text": "財務部門"}
+      ],
+      "answer": ["A", "B"],
+      "explanation": "施行細則第32條規定，安全衛生組織包括兩類：職業安全衛生管理單位（擬訂、規劃、推動及督導業務之組織）及職業安全衛生委員會（審議、協調及建議業務之組織）。人資及財務部門不屬之。",
+      "references": [{"title": "職業安全衛生法施行細則第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=32"}]
+    },
+    {
+      "id": "U02-Q030",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法施行細則第41條，安全衛生工作守則之內容應包括下列哪些事項？（複選）",
+      "options": [
+        {"id": "A", "text": "事業之安全衛生管理及各級之權責"},
+        {"id": "B", "text": "機械、設備或器具之維護及檢查"},
+        {"id": "C", "text": "急救及搶救"},
+        {"id": "D", "text": "勞工薪資結構"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "施行細則第41條列舉9項安全衛生工作守則之內容，包括安全衛生管理及各級權責、機械設備維護檢查、急救及搶救等。勞工薪資結構不屬之。",
+      "references": [{"title": "職業安全衛生法施行細則第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=41"}]
+    },
+    {
+      "id": "U02-Q031",
+      "type": "multiple_choice",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第43條，本法所稱「勞工代表」之產生方式包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "事業單位設有工會者，由工會推派之"},
+        {"id": "B", "text": "無工會組織而有勞資會議者，由勞方代表推選之"},
+        {"id": "C", "text": "無工會組織且無勞資會議者，由勞工共同推選之"},
+        {"id": "D", "text": "由雇主指定之"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "施行細則第43條規定勞工代表之產生方式有三種：設有工會者由工會推派、無工會有勞資會議者由勞方代表推選、無工會且無勞資會議者由勞工共同推選。不由雇主指定。",
+      "references": [{"title": "職業安全衛生法施行細則第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=43"}]
+    },
+    {
+      "id": "U02-Q032",
+      "type": "multiple_choice",
+      "difficulty": "advanced",
+      "stem": "依職安法第41條，有下列情形之一者，處一年以下有期徒刑、拘役或科或併科新臺幣十八萬元以下罰金，包括哪些？（複選）",
+      "options": [
+        {"id": "A", "text": "違反第6條第1項或第16條第1項規定，致發生第37條第2項第2款之災害"},
+        {"id": "B", "text": "違反第18條第1項、第29條第1項、第30條第1項、第2項或第37條第4項之規定"},
+        {"id": "C", "text": "違反中央主管機關或勞動檢查機構依第36條第1項所發停工之通知"},
+        {"id": "D", "text": "未依規定標示化學品"}
+      ],
+      "answer": ["A", "B", "C"],
+      "explanation": "職安法第41條第1項列舉3款處一年以下有期徒刑之情形：違反第6條或第16條致發生罹災3人以上災害、違反第18條或第29條或第30條或第37條第4項規定、違反停工通知。未依規定標示化學品屬第44條之行政罰，非刑事罰。",
+      "references": [{"title": "職業安全衛生法第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"}]
+    },
+    {
+      "id": "U02-Q033",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "職安法所稱「工作者」的範圍比勞基法所稱「勞工」更廣，包括自營作業者及受指揮監督從事勞動之人員。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第2條第1款規定，工作者指勞工、自營作業者及其他受工作場所負責人指揮或監督從事勞動之人員。範圍確實較勞基法之勞工（受僱從事工作獲致工資者）更廣。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U02-Q034",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職安法第18條規定，勞工自行停止作業及退避至安全場所時，雇主得對其予以解僱之處分。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["B"],
+      "explanation": "職安法第18條第3項明確規定，雇主不得對前項勞工予以解僱、調職、不給付停止作業期間工資或其他不利之處分。但雇主證明勞工濫用停止作業權，經報主管機關認定者不在此限。",
+      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+    },
+    {
+      "id": "U02-Q035",
+      "type": "true_false",
+      "difficulty": "intermediate",
+      "stem": "依職安法第26條規定，事業單位以其事業之全部或一部分交付承攬時，應於事前告知該承攬人有關其事業工作環境、危害因素及應採取之措施。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第26條第1項規定，事業單位以其事業之全部或一部分交付承攬時，應於事前告知該承攬人有關其事業工作環境、危害因素暨本法及有關安全衛生規定應採取之措施。承攬人再承攬時亦同。",
+      "references": [{"title": "職業安全衛生法第26條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=26"}]
+    },
+    {
+      "id": "U02-Q036",
+      "type": "true_false",
+      "difficulty": "advanced",
+      "stem": "依職安法第37條第4項規定，事業單位發生應通報之職業災害時，雇主非經司法機關或勞動檢查機構許可，不得移動或破壞現場，但必要之急救、搶救不在此限。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第37條第4項規定，事業單位發生第2項之災害，除必要之急救、搶救外，雇主非經司法機關或勞動檢查機構許可，不得移動或破壞現場。急救搶救為例外允許之情形。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U02-Q037",
+      "type": "true_false",
+      "difficulty": "basic",
+      "stem": "依職安法第4條規定，本法適用於各業，但因事業規模、性質及風險等因素，中央主管機關得指定公告其適用本法之部分規定。",
+      "options": [
+        {"id": "A", "text": "正確"},
+        {"id": "B", "text": "錯誤"}
+      ],
+      "answer": ["A"],
+      "explanation": "職安法第4條規定，本法適用於各業。但因事業規模、性質及風險等因素，中央主管機關得指定公告其適用本法之部分規定。此為授權主管機關依實際需要調整適用範圍之規定。",
+      "references": [{"title": "職業安全衛生法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=4"}]
+    },
+    {
+      "id": "U02-Q038",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職安法第37條第2項規定，事業單位發生死亡災害等重大職業災害時，雇主應於________小時內通報勞動檢查機構。",
+      "answer": ["8", "八"],
+      "explanation": "職安法第37條第2項規定，雇主應於八小時內通報勞動檢查機構。施行細則第47條進一步說明，八小時之計算自事業單位明知或可得而知已發生規定之職業災害事實起算。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U02-Q039",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職安法第22條規定，事業單位勞工人數在________人以上者，應僱用或特約醫護人員，辦理勞工健康保護事項。",
+      "answer": ["50", "五十"],
+      "explanation": "職安法第22條第1項規定，事業單位勞工人數在五十人以上者，應僱用或特約醫護人員，辦理健康管理、職業病預防及健康促進等勞工健康保護事項。",
+      "references": [{"title": "職業安全衛生法第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=22"}]
+    },
+    {
+      "id": "U02-Q040",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職安法施行細則第49條規定，本法第37條所稱「重傷之災害」，指造成罹災者肢體或器官嚴重受損，危及生命或造成其身體機能嚴重喪失，且須住院治療連續達________小時以上之災害者。",
+      "answer": ["24", "二十四"],
+      "explanation": "施行細則第49條第2項規定，重傷之災害指造成罹災者肢體或器官嚴重受損，危及生命或造成其身體機能嚴重喪失，且須住院治療連續達二十四小時以上之災害者。",
+      "references": [{"title": "職業安全衛生法施行細則第49條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=49"}]
+    },
+    {
+      "id": "U02-Q041",
+      "type": "fill_blank",
+      "difficulty": "intermediate",
+      "stem": "依職安法第35條規定，中央主管機關召開職業安全衛生諮詢會，其成員之任一性別不得少於________分之一。",
+      "answer": ["3", "三"],
+      "explanation": "職安法第35條規定，中央主管機關得聘請勞方、資方、政府機關代表、學者專家及職業災害勞工團體，召開職業安全衛生諮詢會，研議國家職業安全衛生政策，並提出建議；其成員之任一性別不得少於三分之一。",
+      "references": [{"title": "職業安全衛生法第35條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=35"}]
+    },
+    {
+      "id": "U02-Q042",
+      "type": "fill_blank",
+      "difficulty": "advanced",
+      "stem": "依職安法施行細則第45條規定，職業安全衛生諮詢會置委員________人至十五人，任期二年。",
+      "answer": ["9", "九"],
+      "explanation": "施行細則第45條規定，職業安全衛生諮詢會置委員九人至十五人，任期二年，由中央主管機關就勞工團體、雇主團體、職業災害勞工團體、有關機關代表及安全衛生學者專家遴聘之。",
+      "references": [{"title": "職業安全衛生法施行細則第45條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=45"}]
+    },
+    {
+      "id": "U02-Q043",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "某事業單位於上午9時發生死亡災害，雇主於上午10時得知此一事實。依職安法第37條第2項及施行細則第47條規定，雇主最遲應於何時通報勞動檢查機構？（請以24小時制計算，輸入時點，如18:00）",
+      "answer": {"value": "18:00", "unit": "時", "tolerance": 0},
+      "explanation": "施行細則第47條規定，八小時之計算自事業單位明知或可得而知已發生規定之職業災害事實起算。雇主於上午10時得知，故自10時起算8小時，最遲應於當日18時通報。",
+      "references": [{"title": "職業安全衛生法施行細則第47條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=47"}]
+    },
+    {
+      "id": "U02-Q044",
+      "type": "calculation",
+      "difficulty": "advanced",
+      "stem": "依職安法施行細則第48條，本法第37條第2項第2款所稱「發生災害之罹災人數在三人以上者」，指於勞動場所同一災害發生工作者永久全失能、永久部分失能及暫時全失能之總人數達三人以上者。某工廠同一災害造成2人永久全失能、1人永久部分失能、2人暫時部分失能，請問是否符合應通報之標準？（請輸入符合人數）",
+      "answer": {"value": 3, "unit": "人", "tolerance": 0},
+      "explanation": "依施行細則第48條，計算標準為永久全失能（2人）+永久部分失能（1人）+暫時全失能（0人）=3人。暫時部分失能不計入。總人數達3人，符合應通報標準。",
+      "references": [{"title": "職業安全衛生法施行細則第48條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=48"}]
+    },
+    {
+      "id": "U02-Q045",
+      "type": "calculation",
+      "difficulty": "intermediate",
+      "stem": "依職安法第40條，違反第6條第1項或第16條第1項規定致發生死亡災害者，處三年以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金。若某法人犯此罪，對該法人最高可科以多少罰金？（請輸入金額，單位：萬元）",
+      "answer": {"value": 30, "unit": "萬元", "tolerance": 0},
+      "explanation": "職安法第40條第2項規定，法人犯前項之罪者，除處罰其負責人外，對該法人亦科以前項之罰金。前項罰金為新臺幣三十萬元以下，故法人最高可被科以30萬元罰金。",
+      "references": [{"title": "職業安全衛生法第40條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+    },
+    {
+      "id": "U02-Q046",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列職安法名詞與其法條定義正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "工作者"},
+        {"id": "L2", "text": "雇主"},
+        {"id": "L3", "text": "職業災害"},
+        {"id": "L4", "text": "事業單位"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "事業主或事業之經營負責人"},
+        {"id": "R2", "text": "勞工、自營作業者及其他受指揮監督從事勞動之人員"},
+        {"id": "R3", "text": "本法適用範圍內僱用勞工從事工作之機構"},
+        {"id": "R4", "text": "因職業上原因引起之工作者疾病、傷害、失能或死亡"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R1"},
+        {"left": "L3", "right": "R4"},
+        {"left": "L4", "right": "R3"}
+      ],
+      "explanation": "依職安法第2條：工作者=勞工、自營作業者及受指揮監督人員；雇主=事業主或事業經營負責人；職業災害=因職業上原因引起之疾病傷害失能死亡；事業單位=僱用勞工從事工作之機構。",
+      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+    },
+    {
+      "id": "U02-Q047",
+      "type": "matching",
+      "difficulty": "advanced",
+      "stem": "請將下列職安法罰則條文與其處罰內容正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "第40條（致發生死亡災害）"},
+        {"id": "L2", "text": "第41條（致發生罹災3人以上災害等）"},
+        {"id": "L3", "text": "第43條（違反多項安全規定）"},
+        {"id": "L4", "text": "第46條（勞工拒絕接受檢查等）"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "處三年以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金"},
+        {"id": "R2", "text": "處一年以下有期徒刑、拘役或科或併科新臺幣十八萬元以下罰金"},
+        {"id": "R3", "text": "處新臺幣三千元以下罰鍰"},
+        {"id": "R4", "text": "處新臺幣三萬元以上三十萬元以下罰鍰"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R1"},
+        {"left": "L2", "right": "R2"},
+        {"left": "L3", "right": "R4"},
+        {"left": "L4", "right": "R3"}
+      ],
+      "explanation": "第40條為最重刑罰（3年以下徒刑），第41條次之（1年以下徒刑），第43條為行政罰（3-30萬罰鍰），第46條為最輕（3千元以下罰鍰）。",
+      "references": [{"title": "職業安全衛生法第40-46條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060001"}]
+    },
+    {
+      "id": "U02-Q048",
+      "type": "matching",
+      "difficulty": "intermediate",
+      "stem": "請將下列職安法施行細則之名詞與其意義正確配對：",
+      "leftItems": [
+        {"id": "L1", "text": "工作場所負責人"},
+        {"id": "L2", "text": "自營作業者"},
+        {"id": "L3", "text": "作業場所"},
+        {"id": "L4", "text": "風險評估"}
+      ],
+      "rightItems": [
+        {"id": "R1", "text": "獨立從事勞動或技藝工作，獲致報酬，且未僱用有酬人員幫同工作者"},
+        {"id": "R2", "text": "雇主或於該工作場所代表雇主從事管理、指揮或監督工作者從事勞動之人"},
+        {"id": "R3", "text": "辨識、分析及評量風險之程序"},
+        {"id": "R4", "text": "工作場所中，從事特定工作目的之場所"}
+      ],
+      "answer": [
+        {"left": "L1", "right": "R2"},
+        {"left": "L2", "right": "R1"},
+        {"left": "L3", "right": "R4"},
+        {"left": "L4", "right": "R3"}
+      ],
+      "explanation": "依施行細則：第3條工作場所負責人=代表雇主從事管理指揮監督之人；第2條自營作業者=獨立從事勞動獲致報酬未僱用人員者；第5條作業場所=從事特定工作目的之場所；第8條風險評估=辨識分析評量風險之程序。",
+      "references": [{"title": "職業安全衛生法施行細則第2-8條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060002"}]
+    },
+    {
+      "id": "U02-Q049",
+      "type": "ordering",
+      "difficulty": "advanced",
+      "stem": "請依職安法第37條第2項，將下列應於八小時內通報勞動檢查機構之職業災害，依其嚴重程度由重到輕排列：",
+      "items": [
+        {"id": "I1", "text": "發生死亡災害"},
+        {"id": "I2", "text": "發生災害之罹災人數在三人以上"},
+        {"id": "I3", "text": "發生災害之罹災人數在一人以上，且需住院治療"},
+        {"id": "I4", "text": "其他經中央主管機關指定公告之災害"}
+      ],
+      "answer": ["I1", "I2", "I3", "I4"],
+      "explanation": "依嚴重程度排列：死亡災害最嚴重，其次為罹災3人以上，再次為罹災1人以上需住院治療，最後為其他指定公告之災害。此順序亦反映職安法第37條第2項各款之排列順序。",
+      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+    },
+    {
+      "id": "U02-Q050",
+      "type": "ordering",
+      "difficulty": "intermediate",
+      "stem": "請依職安法施行細則第5條，將下列場所概念由大到小排列：",
+      "items": [
+        {"id": "I1", "text": "勞動場所（最廣義）"},
+        {"id": "I2", "text": "工作場所（接受雇主指示處理勞工事務之人所能支配管理之場所）"},
+        {"id": "I3", "text": "作業場所（從事特定工作目的之場所）"}
+      ],
+      "answer": ["I1", "I2", "I3"],
+      "explanation": "依施行細則第5條，三者範圍由大到小：勞動場所最廣（包括所有提供勞務之場所），工作場所次之（雇主所能支配管理之場所），作業場所最小（從事特定工作目的之場所）。",
+      "references": [{"title": "職業安全衛生法施行細則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=5"}]
+    }
+  ]
+}
