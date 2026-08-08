@@ -1,0 +1,467 @@
+(function () {
+  'use strict';
+
+  var DATA = window.NEBOSH_DATA || [];
+  var IG1 = DATA.filter(function (e) { return e.unit === 'IG1'; }).sort(function(a,b){return a.element_number-b.element_number;});
+  var IG2 = DATA.filter(function (e) { return e.unit === 'IG2'; }).sort(function(a,b){return a.element_number-b.element_number;});
+
+  var state = {
+    theme: matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+    lang: 'bilingual',
+    scores: {},          // elementNum -> {score,total}
+    quizState: {},       // elementNum -> { answers: {qId: idx}, submitted: bool, questions: [sampled 10 mcq] }
+    scenarioState: {}    // elementNum -> { currentId, answerText, grading: bool, result: {...} }
+  };
+
+  var API_BASE = 'port/8000'.indexOf('__') === 0 ? 'http://localhost:8000' : 'port/8000';
+
+  var QUIZ_SAMPLE_SIZE = 10;
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function sampleQuestions(mcqPool, n) {
+    return shuffleArray(mcqPool).slice(0, Math.min(n, mcqPool.length));
+  }
+
+  function pickRandomScenario(list, excludeId) {
+    var pool = list;
+    if (excludeId != null && list.length > 1) {
+      pool = list.filter(function (s) { return s.id !== excludeId; });
+    }
+    return pool[Math.floor(Math.random() * pool.length)];
+  }
+
+  var root = document.getElementById('view-root');
+  var html = document.documentElement;
+
+  /* ---------------- Theme & Lang ---------------- */
+  function applyTheme() {
+    html.setAttribute('data-theme', state.theme);
+    var btn = document.getElementById('theme-toggle');
+    btn.innerHTML = state.theme === 'dark'
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    btn.setAttribute('aria-label', state.theme === 'dark' ? '切換至淺色模式' : '切換至深色模式');
+  }
+  document.getElementById('theme-toggle').addEventListener('click', function () {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    applyTheme();
+  });
+  document.getElementById('brand-home').addEventListener('click', function(){ location.hash = '#/'; });
+
+  document.getElementById('lang-toggle').addEventListener('click', function (e) {
+    var btn = e.target.closest('button[data-lang]');
+    if (!btn) return;
+    state.lang = btn.getAttribute('data-lang');
+    Array.prototype.forEach.call(document.querySelectorAll('#lang-toggle button'), function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    render();
+  });
+
+  function showEn() { return state.lang === 'bilingual' || state.lang === 'en'; }
+  function showZh() { return state.lang === 'bilingual' || state.lang === 'zh'; }
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  var ICONS = {
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg>',
+    cross: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+  };
+
+  /* ---------------- Router ---------------- */
+  window.addEventListener('hashchange', render);
+  window.addEventListener('DOMContentLoaded', function () { applyTheme(); render(); });
+
+  function parseHash() {
+    var h = location.hash.replace(/^#\//, '');
+    var parts = h.split('/').filter(Boolean);
+    return parts;
+  }
+
+  function findElement(num) {
+    return DATA.find(function (e) { return e.element_number === Number(num); });
+  }
+
+  function render() {
+    var parts = parseHash();
+    window.scrollTo(0, 0);
+    if (parts[0] === 'unit' && parts[1]) {
+      renderUnitPage(parts[1]);
+    } else if (parts[0] === 'element' && parts[1] && parts[2] === 'quiz') {
+      renderQuizPage(findElement(parts[1]));
+    } else if (parts[0] === 'element' && parts[1] && parts[2] === 'scenario') {
+      renderScenarioPage(findElement(parts[1]));
+    } else if (parts[0] === 'element' && parts[1]) {
+      renderElementPage(findElement(parts[1]));
+    } else {
+      renderHome();
+    }
+  }
+
+  /* ---------------- Home ---------------- */
+  function renderHome() {
+    var totalMcq = DATA.reduce(function (a, e) { return a + e.mcq.length; }, 0);
+    var totalScenario = DATA.reduce(function (a, e) { return a + e.scenario_questions.length; }, 0);
+
+    root.innerHTML =
+      '<section class="hero">' +
+        '<span class="hero-eyebrow">NEBOSH International General Certificate</span>' +
+        '<h1>IG1 &amp; IG2 雙語模擬考練習中心</h1>' +
+        '<p>依照 NEBOSH 官方課綱(Element 1–11)自製的雙語練習題,涵蓋 IG1 管理單元與 IG2 風險評估單元,每單元皆有選擇題自我測驗與情境式問答練習。</p>' +
+        '<div class="stats-row">' +
+          '<div class="stat-card"><div class="stat-num">11</div><div class="stat-label">Elements 單元</div></div>' +
+          '<div class="stat-card"><div class="stat-num">' + totalMcq + '</div><div class="stat-label">選擇題</div></div>' +
+          '<div class="stat-card"><div class="stat-num">' + totalScenario + '</div><div class="stat-label">情境練習</div></div>' +
+        '</div>' +
+      '</section>' +
+      '<div class="unit-tabs">' +
+        unitTabHtml('IG1', 'Management of Health and Safety', '開卷情境式考試 · Element 1–4', IG1.length) +
+        unitTabHtml('IG2', 'Risk Assessment', '實地風險評估 · Element 5–11', IG2.length) +
+      '</div>';
+
+    Array.prototype.forEach.call(root.querySelectorAll('.unit-tab'), function (t) {
+      t.addEventListener('click', function () { location.hash = '#/unit/' + t.dataset.unit; });
+    });
+  }
+
+  function unitTabHtml(unit, enName, desc, count) {
+    var color = unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+    var hl = unit === 'IG1' ? 'var(--color-ig1-highlight)' : 'var(--color-ig2-highlight)';
+    return '<button class="unit-tab" data-unit="' + unit + '" style="--tab-color:' + color + ';--tab-highlight:' + hl + '">' +
+      '<span class="tag">' + unit + ' · ' + count + ' Elements</span>' +
+      '<span class="name">' + (unit === 'IG1' ? '管理健康與安全' : '風險評估') + '</span>' +
+      '<span class="desc">' + esc(enName) + ' — ' + esc(desc) + '</span>' +
+    '</button>';
+  }
+
+  /* ---------------- Unit list page ---------------- */
+  function renderUnitPage(unit) {
+    var list = unit === 'IG1' ? IG1 : IG2;
+    var color = unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+    var hl = unit === 'IG1' ? 'var(--color-ig1-highlight)' : 'var(--color-ig2-highlight)';
+    var subtitle = unit === 'IG1'
+      ? 'Element 1–4 · 正式考試為開卷情境式問答(本頁選擇題僅供自我檢測知識點)'
+      : 'Element 5–11 · 正式評估為實地工作場所風險評估報告(本頁選擇題僅供自我檢測知識點)';
+
+    var cards = list.map(function (e) {
+      var sc = state.scores[e.element_number];
+      var badge = sc ? '<span class="badge score-badge">上次成績 ' + sc.score + '/' + sc.total + '</span>' : '';
+      return (
+        '<div class="element-card">' +
+          '<span class="element-num" style="--card-color:' + color + ';--card-highlight:' + hl + '">' + e.element_number + '</span>' +
+          '<h3>' + esc(e.title_zh) + '</h3>' +
+          (showEn() ? '<div class="en">' + esc(e.title_en) + '</div>' : '') +
+          '<div class="element-badges">' +
+            '<span class="badge">' + e.mcq.length + ' 題庫 · 每次抽 ' + QUIZ_SAMPLE_SIZE + ' 題</span>' +
+            '<span class="badge">' + e.scenario_questions.length + ' 題庫 · 每次抽 1 題</span>' +
+            badge +
+          '</div>' +
+          '<div class="element-actions">' +
+            '<button class="btn btn-primary btn-block" data-go="#/element/' + e.element_number + '/quiz">選擇題測驗</button>' +
+            '<button class="btn btn-outline btn-block" data-go="#/element/' + e.element_number + '/scenario">情境練習</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    root.innerHTML =
+      '<div class="page-header" style="--pg-color:' + color + '">' +
+        backLink('#/', '返回首頁') +
+        '<span class="tag">Unit ' + unit + '</span>' +
+        '<h1>' + (unit === 'IG1' ? '管理健康與安全' : '風險評估') + '</h1>' +
+        '<div class="en-title">' + subtitle + '</div>' +
+      '</div>' +
+      '<div class="element-grid">' + cards + '</div>';
+
+    bindGoButtons();
+  }
+
+  function backLink(href, label) {
+    return '<a class="back-link" data-go="' + href + '" href="' + href + '">' + ICONS.back + ' ' + label + '</a>';
+  }
+
+  function bindGoButtons() {
+    Array.prototype.forEach.call(root.querySelectorAll('[data-go]'), function (el) {
+      el.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        location.hash = el.getAttribute('data-go');
+      });
+    });
+  }
+
+  /* ---------------- Element detail (mode select) ---------------- */
+  function renderElementPage(e) {
+    if (!e) { renderHome(); return; }
+    var color = e.unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+    root.innerHTML =
+      '<div class="page-header" style="--pg-color:' + color + '">' +
+        backLink('#/unit/' + e.unit, '返回 ' + e.unit + ' 單元列表') +
+        '<span class="tag">' + e.unit + ' · Element ' + e.element_number + '</span>' +
+        '<h1>' + esc(e.title_zh) + '</h1>' +
+        '<div class="en-title">' + esc(e.title_en) + '</div>' +
+        '<div class="mode-switch">' +
+          '<button class="mode-card" data-go="#/element/' + e.element_number + '/quiz"><h4>選擇題測驗(題庫 ' + e.mcq.length + ' 題,隨機抽 ' + QUIZ_SAMPLE_SIZE + ' 題)</h4><p>快速自我測驗本單元知識點,附詳解</p></button>' +
+          '<button class="mode-card" data-go="#/element/' + e.element_number + '/scenario"><h4>情境練習(題庫 ' + e.scenario_questions.length + ' 題,隨機抽 1 題)</h4><p>模擬情境問答,可自行對照參考答案,也可送出讓 AI 評分給回饋</p></button>' +
+        '</div>' +
+      '</div>';
+    bindGoButtons();
+  }
+
+  /* ---------------- Quiz Page ---------------- */
+  function renderQuizPage(e) {
+    if (!e) { renderHome(); return; }
+    var num = e.element_number;
+    var color = e.unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+    if (!state.quizState[num]) {
+      state.quizState[num] = { answers: {}, submitted: false, questions: sampleQuestions(e.mcq, QUIZ_SAMPLE_SIZE) };
+    }
+    var qs = state.quizState[num];
+    var questions = qs.questions;
+
+    var questionsHtml = questions.map(function (q, idx) {
+      var selected = qs.answers[q.id];
+      var optionsHtml = q.options.map(function (opt, oi) {
+        var cls = 'option-item';
+        var icon = '';
+        if (qs.submitted) {
+          if (oi === q.correct_index) { cls += ' correct'; icon = ICONS.check; }
+          else if (oi === selected) { cls += ' incorrect'; icon = ICONS.cross; }
+        } else if (selected === oi) {
+          cls += ' selected';
+        }
+        return (
+          '<div class="' + cls + '" data-el="' + num + '" data-q="' + q.id + '" data-opt="' + oi + '">' +
+            '<span class="option-radio">' + icon + '</span>' +
+            '<span class="option-text">' +
+              (showEn() ? '<div class="en">' + esc(opt.en) + '</div>' : '') +
+              (showZh() ? '<div class="zh">' + esc(opt.zh) + '</div>' : '') +
+            '</span>' +
+          '</div>'
+        );
+      }).join('');
+
+      var explanation = qs.submitted ? (
+        '<div class="explanation-box show">' +
+          '<div class="label">詳解 Explanation</div>' +
+          (showEn() ? '<div class="en">' + esc(q.explanation_en) + '</div>' : '') +
+          (showZh() ? '<div class="zh">' + esc(q.explanation_zh) + '</div>' : '') +
+        '</div>'
+      ) : '';
+
+      return (
+        '<div class="question-card">' +
+          '<div class="question-num">Question ' + (idx + 1) + ' / ' + questions.length + '</div>' +
+          (showEn() ? '<div class="question-text">' + esc(q.question_en) + '</div>' : '') +
+          (showZh() ? '<div class="question-text-zh">' + esc(q.question_zh) + '</div>' : '') +
+          '<div class="option-list">' + optionsHtml + '</div>' +
+          explanation +
+        '</div>'
+      );
+    }).join('');
+
+    var answeredCount = Object.keys(qs.answers).length;
+    var total = questions.length;
+
+    var summaryHtml = '';
+    if (qs.submitted) {
+      var score = questions.reduce(function (acc, q) { return acc + (qs.answers[q.id] === q.correct_index ? 1 : 0); }, 0);
+      state.scores[num] = { score: score, total: total };
+      var pct = Math.round((score / total) * 100);
+      summaryHtml =
+        '<div class="quiz-summary show">' +
+          '<div class="score">' + score + ' / ' + total + '</div>' +
+          '<div class="score-label">答對率 ' + pct + '% — ' + (pct >= 75 ? '表現優異,持續保持!' : pct >= 45 ? '及格水準,再加強細節就更好了' : '建議重新複習本單元課綱內容') + '</div>' +
+          '<div class="quiz-summary-actions">' +
+            '<button class="btn btn-outline" data-retake="' + num + '">換一組題目重新測驗</button>' +
+            '<button class="btn btn-primary" data-go="#/element/' + num + '">返回單元頁面</button>' +
+          '</div>' +
+        '</div>';
+    }
+
+    root.innerHTML =
+      '<div class="page-header" style="--pg-color:' + color + '">' +
+        backLink('#/element/' + num, '返回單元頁面') +
+        '<span class="tag">' + e.unit + ' · Element ' + num + ' · 選擇題測驗(本次從 ' + e.mcq.length + ' 題庫隨機抽取 ' + total + ' 題)</span>' +
+        '<h1>' + esc(e.title_zh) + '</h1>' +
+        (showEn() ? '<div class="en-title">' + esc(e.title_en) + '</div>' : '') +
+      '</div>' +
+      summaryHtml +
+      questionsHtml +
+      (qs.submitted ? '' :
+        '<div class="sticky-bar">' +
+          '<div class="progress-track"><div class="progress-fill" style="width:' + (total ? (answeredCount / total * 100) : 0) + '%"></div></div>' +
+          '<span class="progress-text">已作答 ' + answeredCount + ' / ' + total + '</span>' +
+          '<button class="btn btn-primary" id="submit-quiz" ' + (answeredCount < total ? 'disabled style="opacity:.5;cursor:not-allowed;"' : '') + '>提交測驗</button>' +
+        '</div>'
+      );
+
+    bindGoButtons();
+
+    if (!qs.submitted) {
+      Array.prototype.forEach.call(root.querySelectorAll('.option-item'), function (opt) {
+        opt.addEventListener('click', function () {
+          var qid = Number(opt.dataset.q);
+          var oi = Number(opt.dataset.opt);
+          qs.answers[qid] = oi;
+          renderQuizPage(e);
+        });
+      });
+      var submitBtn = document.getElementById('submit-quiz');
+      if (submitBtn) {
+        submitBtn.addEventListener('click', function () {
+          if (Object.keys(qs.answers).length < total) return;
+          qs.submitted = true;
+          renderQuizPage(e);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    } else {
+      var retakeBtn = root.querySelector('[data-retake]');
+      if (retakeBtn) {
+        retakeBtn.addEventListener('click', function () {
+          state.quizState[num] = { answers: {}, submitted: false, questions: sampleQuestions(e.mcq, QUIZ_SAMPLE_SIZE) };
+          renderQuizPage(e);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+    }
+  }
+
+  /* ---------------- Scenario Page ---------------- */
+  function renderScenarioPage(e) {
+    if (!e) { renderHome(); return; }
+    var num = e.element_number;
+    var color = e.unit === 'IG1' ? 'var(--color-ig1)' : 'var(--color-ig2)';
+    var list = e.scenario_questions;
+
+    if (!state.scenarioState[num]) {
+      var picked = pickRandomScenario(list);
+      state.scenarioState[num] = { currentId: picked.id, answerText: '', grading: false, result: null, error: null, revealed: false };
+    }
+    var ss = state.scenarioState[num];
+    var s = list.find(function (x) { return x.id === ss.currentId; }) || list[0];
+
+    var modelPointsEn = s.model_answer_points_en.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+    var modelPointsZh = s.model_answer_points_zh.map(function (p) { return '<li>' + esc(p) + '</li>'; }).join('');
+
+    var resultHtml = '';
+    if (ss.result) {
+      var r = ss.result;
+      var pct2 = r.max_score ? Math.round((r.score / r.max_score) * 100) : 0;
+      var coveredHtml = (r.covered_points_en || []).map(function (p) { return '<li class="covered">' + ICONS.check + '<span>' + esc(p) + '</span></li>'; }).join('');
+      var missedHtml = (r.missed_points_en || []).map(function (p) { return '<li class="missed">' + ICONS.cross + '<span>' + esc(p) + '</span></li>'; }).join('');
+      resultHtml =
+        '<div class="ai-result show">' +
+          '<div class="ai-result-header">' +
+            '<span class="ai-badge">AI 評分結果 · AI Grading</span>' +
+            '<span class="ai-score">' + r.score + ' / ' + r.max_score + '</span>' +
+          '</div>' +
+          '<div class="ai-feedback">' +
+            (showEn() ? '<div class="en">' + esc(r.feedback_en) + '</div>' : '') +
+            (showZh() ? '<div class="zh">' + esc(r.feedback_zh) + '</div>' : '') +
+          '</div>' +
+          (coveredHtml ? '<div class="ai-points-label">已涵蓋要點 Covered</div><ul class="ai-points">' + coveredHtml + '</ul>' : '') +
+          (missedHtml ? '<div class="ai-points-label">遺漏要點 Missed</div><ul class="ai-points">' + missedHtml + '</ul>' : '') +
+        '</div>';
+    } else if (ss.error) {
+      resultHtml = '<div class="ai-result show ai-error">' + esc(ss.error) + '</div>';
+    }
+
+    root.innerHTML =
+      '<div class="page-header" style="--pg-color:' + color + '">' +
+        backLink('#/element/' + num, '返回單元頁面') +
+        '<span class="tag">' + e.unit + ' · Element ' + num + ' · 情境練習(本次從 ' + list.length + ' 題庫隨機抽取)</span>' +
+        '<h1>' + esc(e.title_zh) + '</h1>' +
+        (showEn() ? '<div class="en-title">' + esc(e.title_en) + '</div>' : '') +
+      '</div>' +
+      '<div class="scenario-toolbar">' +
+        '<button class="btn btn-outline" id="shuffle-scenario">🔀 換一題</button>' +
+      '</div>' +
+      '<div class="scenario-card">' +
+        '<div class="scenario-label">Scenario 情境案例</div>' +
+        (showEn() ? '<div class="scenario-text">' + esc(s.scenario_en) + '</div>' : '') +
+        (showZh() ? '<div class="scenario-text scenario-text-zh">' + esc(s.scenario_zh) + '</div>' : '') +
+        '<div class="task-box">' +
+          (showEn() ? '<div class="en">' + esc(s.task_en) + '</div>' : '') +
+          (showZh() ? '<div class="zh">' + esc(s.task_zh) + '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<textarea class="answer-textarea" id="answer-textarea" placeholder="在這裡寫下你的作答,可以送出讓 AI 評分,也可以直接對照參考答案要點......">' + esc(ss.answerText) + '</textarea>' +
+      '<div class="scenario-actions">' +
+        '<button class="btn btn-primary" id="grade-answer"' + (ss.grading ? ' disabled' : '') + '>' + (ss.grading ? '評分中...' : '送出讓 AI 評分') + '</button>' +
+        '<button class="btn btn-outline" id="reveal-answer">' + (ss.revealed ? '隱藏參考答案要點' : '顯示參考答案要點') + '</button>' +
+      '</div>' +
+      resultHtml +
+      '<div class="model-answer' + (ss.revealed ? ' show' : '') + '" id="model-answer">' +
+        (showEn() ? '<div class="label">Model Answer Points</div><ul>' + modelPointsEn + '</ul>' : '') +
+        (showZh() ? '<div class="label zh-points-label">參考答案要點</div><ul class="zh-points">' + modelPointsZh + '</ul>' : '') +
+      '</div>';
+
+    bindGoButtons();
+
+    document.getElementById('shuffle-scenario').addEventListener('click', function () {
+      var next = pickRandomScenario(list, ss.currentId);
+      state.scenarioState[num] = { currentId: next.id, answerText: '', grading: false, result: null, error: null, revealed: false };
+      renderScenarioPage(e);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    var textarea = document.getElementById('answer-textarea');
+    textarea.addEventListener('input', function () { ss.answerText = textarea.value; });
+
+    var revealBtn = document.getElementById('reveal-answer');
+    var modelBox = document.getElementById('model-answer');
+    revealBtn.addEventListener('click', function () {
+      ss.revealed = !ss.revealed;
+      modelBox.classList.toggle('show', ss.revealed);
+      revealBtn.textContent = ss.revealed ? '隱藏參考答案要點' : '顯示參考答案要點';
+    });
+
+    var gradeBtn = document.getElementById('grade-answer');
+    gradeBtn.addEventListener('click', function () {
+      if (ss.grading) return;
+      var answerText = textarea.value.trim();
+      if (!answerText) {
+        ss.error = '請先輸入你的作答內容再送出評分。 Please write an answer before submitting for grading.';
+        renderScenarioPage(e);
+        return;
+      }
+      ss.grading = true;
+      ss.error = null;
+      ss.result = null;
+      renderScenarioPage(e);
+      fetch(API_BASE + '/api/grade-scenario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ elementNumber: num, scenarioId: s.id, userAnswer: answerText })
+      }).then(function (res) {
+        if (!res.ok) throw new Error('評分服務暫時無法使用,請稍後再試。');
+        return res.json();
+      }).then(function (data) {
+        ss.grading = false;
+        ss.result = data;
+        renderScenarioPage(e);
+        var resultEl = document.querySelector('.ai-result');
+        if (resultEl) resultEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }).catch(function (err) {
+        ss.grading = false;
+        ss.error = err.message || '評分失敗,請稍後再試。';
+        renderScenarioPage(e);
+      });
+    });
+  }
+
+})();
