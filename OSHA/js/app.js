@@ -792,12 +792,16 @@ const App = {
       body += `</div>`;
     }
 
-    const explanation = q.explanation ? `<div class="explanation-box" id="exp-${q.id}">
+    const explanation = q.explanation ? `<div class="explanation-box" id="exp-${q.id}" style="display:none">
       <div class="ex-label">解析</div>
       <div class="ex-answer" id="ans-${q.id}"></div>
       <div>${q.explanation}</div>
       ${q.references ? `<div class="ex-ref">${q.references.map(r => `<a href="${r.url}" target="_blank">📎 ${r.title}</a>`).join(' · ')}</div>` : ''}
     </div>` : '';
+
+    const submitBtn = (this.currentExam && this.currentExam.instantReview) 
+      ? `<button class="q-submit-btn" id="submitbtn-${q.id}" onclick="App.submitQuestion('${q.id}')">提交答案</button>` 
+      : '';
 
     return `
       <div class="question-card" id="qcard-${q.id}">
@@ -807,6 +811,7 @@ const App = {
           <div class="q-stem">${q.stem || q.question || ''}</div>
         </div>
         ${body}
+        ${submitBtn}
         ${explanation}
       </div>
     `;
@@ -840,9 +845,6 @@ const App = {
 
     this.updateAnsweredCount();
 
-    if (exam.instantReview || exam.showExplanations) {
-      this.showQuestionResult(qid);
-    }
   },
 
   setFillAnswer(qid, value) {
@@ -850,7 +852,6 @@ const App = {
     if (!exam) return;
     exam.answers[qid] = value.trim();
     this.updateAnsweredCount();
-    if (exam.instantReview) this.showQuestionResult(qid);
   },
 
   setCalcAnswer(qid, value) {
@@ -858,7 +859,6 @@ const App = {
     if (!exam) return;
     exam.answers[qid] = value.trim();
     this.updateAnsweredCount();
-    if (exam.instantReview) this.showQuestionResult(qid);
   },
 
   selectMatch(qid, side, itemId) {
@@ -903,13 +903,6 @@ const App = {
 
     if (ans.pairs && ans.pairs.length > 0) this.updateAnsweredCount();
 
-    if (exam.instantReview && ans.pairs && ans.pairs.length > 0) {
-      // Only check when all pairs made
-      const q = exam.questions.find(qq => qq.id === qid);
-      if (q && q.leftItems && ans.pairs.length >= q.leftItems.length) {
-        this.showQuestionResult(qid);
-      }
-    }
   },
 
   // ===== Drag & Drop for Ordering =====
@@ -938,7 +931,6 @@ const App = {
         if (this.currentExam) {
           this.currentExam.answers[qid] = order;
           this.updateAnsweredCount();
-          if (this.currentExam.instantReview) this.showQuestionResult(qid);
         }
       });
       
@@ -965,6 +957,38 @@ const App = {
       }
       return closest;
     }, { offset: -Infinity }).element;
+  },
+
+  // ===== Submit Question (per-question submit) =====
+  submitQuestion(qid) {
+    const exam = this.currentExam;
+    if (!exam) return;
+    
+    // Check if answer exists
+    const ans = exam.answers[qid];
+    if (!ans || (Array.isArray(ans) && ans.length === 0) || (typeof ans === 'string' && !ans.trim())) {
+      // Highlight the submit button to indicate answer needed
+      const btn = document.getElementById(`submitbtn-${qid}`);
+      if (btn) {
+        btn.classList.add('shake');
+        btn.textContent = '請先作答！';
+        setTimeout(() => {
+          btn.classList.remove('shake');
+          btn.textContent = '提交答案';
+        }, 1500);
+      }
+      return;
+    }
+
+    // Disable the submit button and show result
+    const btn = document.getElementById(`submitbtn-${qid}`);
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '已提交 ✓';
+      btn.classList.add('submitted');
+    }
+
+    this.showQuestionResult(qid);
   },
 
   // ===== Show Question Result =====
@@ -1034,6 +1058,7 @@ const App = {
     // Show explanation
     const expBox = document.getElementById(`exp-${qid}`);
     if (expBox) {
+      expBox.style.display = 'block';
       expBox.classList.add('show');
       const ansEl = document.getElementById(`ans-${qid}`);
       if (ansEl) {
