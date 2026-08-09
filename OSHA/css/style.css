@@ -262,6 +262,68 @@ body {
   font-size: 1rem;
 }
 
+/* ===== Login Tabs ===== */
+.login-tabs {
+  display: flex;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--border);
+}
+
+.login-tab {
+  flex: 1;
+  padding: 0.6rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-light);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.login-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.login-tab:hover:not(.active) {
+  color: var(--primary-light);
+}
+
+/* ===== Login Error ===== */
+.login-error {
+  color: var(--danger);
+  font-size: 0.85rem;
+  min-height: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ===== Sync Badge ===== */
+.login-sync-badge {
+  font-size: 0.75rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  background: #d5f5e3;
+  color: #196f3d;
+}
+
+.login-sync-badge.offline {
+  background: #fef9e7;
+  color: #7d6608;
+}
+
+/* ===== Login Form (Firebase) - also covers name-only login ===== */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
 /* ===== Login Prompt Banner ===== */
 .login-prompt-banner {
   background: linear-gradient(135deg, #eaf2f8 0%, #d6eaf8 100%);

@@ -33,6 +33,13 @@ const App = {
         this.userName = saved.userName || '使用者';
       }
     } catch(e) {}
+    // Initialize Google Sheets sync
+    if (window.Sync) {
+      await Sync.init();
+      if (Sync.isReady) {
+        this.usingCloud = true;
+      }
+    }
     this.parseHash();
     window.addEventListener('hashchange', () => this.parseHash());
     this.render();
@@ -76,6 +83,29 @@ const App = {
     const existing = document.getElementById('loginModal');
     if (existing) existing.remove();
 
+    const cloudReady = window.Sync && Sync.isReady;
+    const syncBadge = cloudReady 
+      ? '<div class="login-sync-badge">☁️ 雲端同步已啟用（Google Sheets）</div>' 
+      : '<div class="login-sync-badge offline">⚠️ 雲端未設定，資料僅存在本機</div>';
+
+    const formHtml = cloudReady ? `
+      <div class="login-tabs">
+        <button class="login-tab active" id="tabLogin" onclick="App.switchLoginTab('login')">登入</button>
+        <button class="login-tab" id="tabRegister" onclick="App.switchLoginTab('register')">註冊</button>
+      </div>
+      <div class="login-form">
+        <input type="email" id="loginEmailInput" class="login-input" placeholder="電子郵件" maxlength="50">
+        <input type="password" id="loginPasswordInput" class="login-input" placeholder="密碼（至少6碼）" maxlength="30" onkeydown="if(event.key==='Enter')App.doCloudAuth()">
+        <button class="btn btn-primary login-submit-btn" id="loginSubmitBtn" onclick="App.doCloudAuth()">登入</button>
+      </div>
+      <div class="login-error" id="loginError"></div>
+    ` : `
+      <div class="login-form">
+        <input type="text" id="loginNameInput" class="login-input" placeholder="請輸入姓名" maxlength="20" onkeydown="if(event.key==='Enter')App.doLogin()">
+        <button class="btn btn-primary login-submit-btn" onclick="App.doLogin()">登入</button>
+      </div>
+    `;
+
     const modal = document.createElement('div');
     modal.id = 'loginModal';
     modal.className = 'login-modal-overlay';
@@ -83,19 +113,80 @@ const App = {
       <div class="login-modal">
         <div class="login-modal-icon">🔐</div>
         <h2>登入後即可使用</h2>
-        <p class="login-modal-desc">請輸入您的姓名進行登入<br>登入後即可使用測驗、練習、計算題等全部功能</p>
-        <div class="login-form">
-          <input type="text" id="loginNameInput" class="login-input" placeholder="請輸入姓名" maxlength="20" onkeydown="if(event.key==='Enter')App.doLogin()">
-          <button class="btn btn-primary login-submit-btn" onclick="App.doLogin()">登入</button>
-        </div>
+        <p class="login-modal-desc">登入後即可使用測驗、練習、計算題等全部功能<br>錯題本與作答進度將自動同步到雲端</p>
+        ${formHtml}
+        ${syncBadge}
         <button class="login-close-btn" onclick="App.closeLoginModal()">先逛逛</button>
       </div>
     `;
     document.body.appendChild(modal);
     setTimeout(() => {
-      const input = document.getElementById('loginNameInput');
+      const input = document.getElementById('loginEmailInput') || document.getElementById('loginNameInput');
       if (input) input.focus();
     }, 100);
+  },
+
+  _loginTabMode: 'login',
+
+  switchLoginTab(mode) {
+    this._loginTabMode = mode;
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const btn = document.getElementById('loginSubmitBtn');
+    const pwInput = document.getElementById('loginPasswordInput');
+    
+    if (mode === 'register') {
+      tabLogin.classList.remove('active');
+      tabRegister.classList.add('active');
+      if (btn) btn.textContent = '註冊';
+    } else {
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      if (btn) btn.textContent = '登入';
+    }
+    const errEl = document.getElementById('loginError');
+    if (errEl) errEl.textContent = '';
+    if (pwInput) pwInput.onkeydown = (e) => { if (e.key === 'Enter') this.doCloudAuth(); };
+  },
+
+  async doCloudAuth() {
+    const email = document.getElementById('loginEmailInput')?.value.trim();
+    const password = document.getElementById('loginPasswordInput')?.value.trim();
+    const errEl = document.getElementById('loginError');
+    
+    if (!email || !password) {
+      if (errEl) errEl.textContent = '請填寫信箱和密碼';
+      return;
+    }
+
+    const btn = document.getElementById('loginSubmitBtn');
+    if (btn) { btn.textContent = '處理中...'; btn.disabled = true; }
+
+    let result;
+    if (this._loginTabMode === 'register') {
+      result = await Sync.register(email, password);
+    } else {
+      result = await Sync.login(email, password);
+    }
+
+    if (result.success) {
+      this.isLoggedIn = true;
+      this.userName = Sync.getDisplayName();
+      this.usingCloud = true;
+      try {
+        localStorage.setItem('osh_login', JSON.stringify({ loggedIn: true, userName: this.userName, cloud: true }));
+      } catch(e) {}
+      this.closeLoginModal();
+      this.render();
+      if (this._loginReturn) {
+        const ret = this._loginReturn;
+        this._loginReturn = null;
+        window.location.hash = ret;
+      }
+    } else {
+      if (errEl) errEl.textContent = result.error || '操作失敗';
+      if (btn) { btn.textContent = this._loginTabMode === 'register' ? '註冊' : '登入'; btn.disabled = false; }
+    }
   },
 
   doLogin() {
@@ -128,9 +219,11 @@ const App = {
   doLogout() {
     this.isLoggedIn = false;
     this.userName = '';
+    this.usingCloud = false;
     try { localStorage.removeItem('osh_login'); } catch(e) {}
     if (this.timer) { clearInterval(this.timer); this.timer = null; }
     this.currentExam = null;
+    if (window.Sync) Sync.logout();
     this.navigate('home');
   },
 
@@ -571,6 +664,7 @@ const App = {
   clearWrongBook() {
     if (confirm('確定要清空錯題本嗎？')) {
       localStorage.removeItem('osh_wrongbook');
+      if (window.Sync && Sync.isSyncActive()) Sync.saveWrongBook([]);
       this.renderWrongBook(document.getElementById('app'));
     }
   },
@@ -1154,6 +1248,7 @@ const App = {
 
   saveProgress(p) {
     try { localStorage.setItem('osh_progress', JSON.stringify(p)); } catch(e) {}
+    if (window.Sync && Sync.isSyncActive()) Sync.saveProgress(p);
   },
 
   saveUnitProgress(unitId, data) {
@@ -1172,6 +1267,7 @@ const App = {
     if (!wb.includes(qid)) {
       wb.push(qid);
       try { localStorage.setItem('osh_wrongbook', JSON.stringify(wb)); } catch(e) {}
+      if (window.Sync && Sync.isSyncActive()) Sync.saveWrongBook(wb);
     }
   },
 
@@ -1181,6 +1277,7 @@ const App = {
     if (idx >= 0) {
       wb.splice(idx, 1);
       try { localStorage.setItem('osh_wrongbook', JSON.stringify(wb)); } catch(e) {}
+      if (window.Sync && Sync.isSyncActive()) Sync.saveWrongBook(wb);
     }
   },
 
