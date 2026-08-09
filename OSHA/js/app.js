@@ -85,11 +85,10 @@ const App = {
         <h2>登入後即可使用</h2>
         <p class="login-modal-desc">請輸入您的姓名進行登入<br>登入後即可使用測驗、練習、計算題等全部功能</p>
         <div class="login-form">
-          <input type="text" id="loginNameInput" class="login-input" placeholder="請輸入您的姓名" maxlength="20" onkeydown="if(event.key==='Enter')App.doLogin()">
+          <input type="text" id="loginNameInput" class="login-input" placeholder="請輸入姓名" maxlength="20" onkeydown="if(event.key==='Enter')App.doLogin()">
           <button class="btn btn-primary login-submit-btn" onclick="App.doLogin()">登入</button>
         </div>
-        <div class="login-hint">※ 此為假登入，僅用於演示功能限制</div>
-        <button class="login-close-btn" onclick="App.closeLoginModal()">先看看就好</button>
+        <button class="login-close-btn" onclick="App.closeLoginModal()">先逛逛</button>
       </div>
     `;
     document.body.appendChild(modal);
