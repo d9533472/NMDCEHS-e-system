@@ -34,12 +34,25 @@
         <button data-lang="en">EN</button>
       </div>
       <button class="icon-btn" id="theme-toggle" aria-label="切換深色模式"></button>
+      <button class="login-btn" id="login-btn" type="button"></button>
     </div>
   </header>
 
   <main>
     <div class="container" id="view-root"></div>
   </main>
+
+  <div class="modal-overlay" id="login-modal">
+    <div class="modal-box">
+      <h3>登入 <span class="modal-en">Login</span></h3>
+      <p class="modal-desc">這是示範用的假登入,不會建立真實帳號、也不會驗證密碼,輸入你想顯示的名稱(可留空)即可解鎖作答功能。<br/>This is a demo login only — no real account is created or verified. Enter a display name (optional) to unlock quiz features.</p>
+      <input type="text" id="login-name-input" placeholder="你的名稱(可留空) · Your name (optional)" maxlength="20" autocomplete="off" />
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="login-cancel" type="button">取消</button>
+        <button class="btn btn-primary" id="login-submit" type="button">登入解鎖</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <p>本網站內容為依循 NEBOSH International General Certificate（2018 規範,Element 1-11）官方課綱自製之練習題,供自我複習使用,非 NEBOSH 官方教材或官方試題,正式考試請以 NEBOSH 官方資料與授課機構提供之教材為準。</p>

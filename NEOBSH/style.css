@@ -164,6 +164,55 @@ a { color: inherit; }
 .icon-btn:hover { background: var(--color-surface-offset-2); }
 .icon-btn svg { width: 18px; height: 18px; }
 
+.login-btn {
+  display: inline-flex; align-items: center; gap: var(--space-2);
+  padding: var(--space-1) var(--space-4); height: 38px; border-radius: var(--radius-full);
+  border: 1px solid var(--color-primary); background: var(--color-primary); color: #fff;
+  font-size: var(--text-sm); font-weight: 700; white-space: nowrap;
+  transition: all var(--transition-interactive);
+}
+.login-btn:hover { background: var(--color-primary-hover); }
+.login-btn.is-logged-in {
+  background: var(--color-surface-offset); color: var(--color-text); border-color: var(--color-border);
+}
+.login-btn.is-logged-in:hover { background: var(--color-surface-offset-2); }
+.login-btn .avatar-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--color-success);
+  display: inline-block; flex: none;
+}
+.login-btn .login-label-short { display: none; }
+
+/* ===================== Login Modal ===================== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(15, 15, 15, 0.55);
+  z-index: 100; align-items: center; justify-content: center; padding: var(--space-6);
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: var(--color-surface); border-radius: var(--radius-lg); border: 1px solid var(--color-border);
+  padding: var(--space-8); max-width: 420px; width: 100%; box-shadow: var(--shadow-md);
+}
+.modal-box h3 { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-3); }
+.modal-box .modal-en { color: var(--color-text-muted); font-weight: 500; font-size: var(--text-sm); }
+.modal-desc { font-size: var(--text-sm); color: var(--color-text-muted); line-height: 1.7; margin-bottom: var(--space-5); }
+.modal-box input[type="text"] {
+  width: 100%; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  border: 1px solid var(--color-border); background: var(--color-bg); color: var(--color-text);
+  font-size: var(--text-sm); margin-bottom: var(--space-5);
+}
+.modal-box input[type="text"]:focus { outline: none; border-color: var(--color-primary); }
+.modal-actions { display: flex; gap: var(--space-3); justify-content: flex-end; }
+
+/* Locked (logged-out) state for interactive elements */
+.locked-banner {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap;
+  background: var(--color-primary-highlight); border: 1px solid var(--color-primary);
+  border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); margin-bottom: var(--space-6);
+  color: var(--color-primary); font-size: var(--text-sm); font-weight: 600;
+}
+.option-item.locked, .scenario-card textarea.locked { cursor: not-allowed; opacity: 0.6; }
+.btn.locked { opacity: 0.5; cursor: not-allowed; }
+
 main { flex: 1; width: 100%; }
 
 .container { max-width: 1080px; margin: 0 auto; padding: 0 var(--space-6); }
@@ -463,4 +512,7 @@ main { flex: 1; width: 100%; }
   .lang-toggle button { padding: var(--space-1) var(--space-2); font-size: 10px; }
   .icon-btn { width: 32px; height: 32px; }
   .icon-btn svg { width: 15px; height: 15px; }
+  .login-btn { height: 32px; padding: 0 var(--space-3); font-size: var(--text-xs); flex-shrink: 0; }
+  .login-btn .login-label-full { display: none; }
+  .login-btn .login-label-short { display: inline; }
 }

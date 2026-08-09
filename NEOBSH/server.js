@@ -76,6 +76,34 @@ app.delete('/api/wrong-questions/:elementNumber', (req, res) => {
   res.json({ elementNumber: num, cleared: true });
 });
 
+// ---- Fake login state (persisted in SQLite; single-user app, single row) ----
+db.exec(`CREATE TABLE IF NOT EXISTS auth_state (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  logged_in INTEGER NOT NULL DEFAULT 0,
+  name TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL
+)`);
+db.prepare('INSERT OR IGNORE INTO auth_state (id, logged_in, name, updated_at) VALUES (1, 0, \'\', ?)').run(new Date().toISOString());
+
+const stmtGetAuth = db.prepare('SELECT logged_in, name FROM auth_state WHERE id = 1');
+const stmtSetAuth = db.prepare('UPDATE auth_state SET logged_in = ?, name = ?, updated_at = ? WHERE id = 1');
+
+app.get('/api/auth', (req, res) => {
+  const row = stmtGetAuth.get();
+  res.json({ loggedIn: !!(row && row.logged_in), name: (row && row.name) || '' });
+});
+
+app.post('/api/auth/login', (req, res) => {
+  const name = String((req.body && req.body.name) || '').trim().slice(0, 20);
+  stmtSetAuth.run(1, name, new Date().toISOString());
+  res.json({ loggedIn: true, name: name });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  stmtSetAuth.run(0, '', new Date().toISOString());
+  res.json({ loggedIn: false, name: '' });
+});
+
 // Load all element data files once at startup (used to fetch scenario + model answer as grading rubric)
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const elements = {};

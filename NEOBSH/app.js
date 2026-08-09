@@ -12,7 +12,8 @@
     quizState: {},       // elementNum -> { answers: {qId: idx}, submitted: bool, questions: [sampled 10 mcq] }
     scenarioState: {},   // elementNum -> { currentId, answerText, grading: bool, result: {...} }
     reviewState: {},     // elementNum -> { answers, submitted, questions, loading, empty }
-    wrongCounts: {}      // elementNum(string) -> count of wrong questions saved on the server
+    wrongCounts: {},     // elementNum(string) -> count of wrong questions saved on the server
+    auth: { loggedIn: false, name: '' }
   };
 
   var API_BASE = 'port/8000'.indexOf('__') === 0 ? 'http://localhost:8000' : 'port/8000';
@@ -96,6 +97,117 @@
   function showEn() { return state.lang === 'bilingual' || state.lang === 'en'; }
   function showZh() { return state.lang === 'bilingual' || state.lang === 'zh'; }
 
+  /* ---------------- Fake login gate ---------------- */
+  var loginBtn = document.getElementById('login-btn');
+  var loginModal = document.getElementById('login-modal');
+  var loginNameInput = document.getElementById('login-name-input');
+
+  function updateLoginUI() {
+    if (state.auth.loggedIn) {
+      loginBtn.className = 'login-btn is-logged-in';
+      var nameLabel = esc(state.auth.name || GUEST_LABEL);
+      loginBtn.innerHTML =
+        '<span class="avatar-dot"></span>' +
+        '<span class="login-label-full">' + nameLabel + ' · 登出</span>' +
+        '<span class="login-label-short">登出</span>';
+    } else {
+      loginBtn.className = 'login-btn';
+      loginBtn.innerHTML =
+        '<span class="login-label-full">🔒 登入以使用全部功能</span>' +
+        '<span class="login-label-short">🔒 登入</span>';
+    }
+  }
+  var GUEST_LABEL = '訪客';
+
+  function openLoginModal() {
+    loginNameInput.value = state.auth.name || '';
+    loginModal.classList.add('show');
+    setTimeout(function () { loginNameInput.focus(); }, 50);
+  }
+  function closeLoginModal() { loginModal.classList.remove('show'); }
+
+  function fetchAuthState(onDone) {
+    fetch(API_BASE + '/api/auth')
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        if (data) { state.auth.loggedIn = !!data.loggedIn; state.auth.name = data.name || ''; }
+        if (onDone) onDone();
+      })
+      .catch(function () { if (onDone) onDone(); });
+  }
+
+  loginBtn.addEventListener('click', function () {
+    if (state.auth.loggedIn) {
+      loginBtn.disabled = true;
+      fetch(API_BASE + '/api/auth/logout', { method: 'POST' })
+        .then(function () {})
+        .catch(function () {})
+        .then(function () {
+          loginBtn.disabled = false;
+          state.auth.loggedIn = false;
+          state.auth.name = '';
+          updateLoginUI();
+          render();
+        });
+    } else {
+      openLoginModal();
+    }
+  });
+  document.getElementById('login-cancel').addEventListener('click', closeLoginModal);
+  loginModal.addEventListener('click', function (e) { if (e.target === loginModal) closeLoginModal(); });
+  document.getElementById('login-submit').addEventListener('click', function () {
+    var submitBtn = document.getElementById('login-submit');
+    var name = loginNameInput.value.trim();
+    submitBtn.disabled = true;
+    submitBtn.textContent = '登入中...';
+    fetch(API_BASE + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name })
+    }).then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        state.auth.loggedIn = true;
+        state.auth.name = (data && data.name) || name;
+        updateLoginUI();
+        closeLoginModal();
+        render();
+      })
+      .catch(function () {
+        // Backend unreachable — still unlock locally so the demo login never hard-blocks usage.
+        state.auth.loggedIn = true;
+        state.auth.name = name;
+        updateLoginUI();
+        closeLoginModal();
+        render();
+      })
+      .then(function () {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '登入解鎖';
+      });
+  });
+  loginNameInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') document.getElementById('login-submit').click();
+  });
+
+  // Call before running any action that should be gated behind the fake login.
+  // Returns true if the action may proceed, false if it opened the login modal instead.
+  function requireLogin() {
+    if (state.auth.loggedIn) return true;
+    openLoginModal();
+    return false;
+  }
+
+  function lockedBannerHtml() {
+    return state.auth.loggedIn ? '' :
+      '<div class="locked-banner"><span>🔒 登入後才能作答、提交或送出讓 AI 評分,目前只能瀏覽題目內容。</span><button class="btn btn-primary btn-sm" id="locked-login-btn">立即登入</button></div>';
+  }
+  function bindLockedBanner() {
+    var b = document.getElementById('locked-login-btn');
+    if (b) b.addEventListener('click', openLoginModal);
+  }
+
+  updateLoginUI();
+
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
@@ -114,6 +226,7 @@
     applyTheme();
     render();
     fetchWrongCounts(function () { render(); });
+    fetchAuthState(function () { updateLoginUI(); render(); });
   });
 
   function parseHash() {
@@ -280,6 +393,7 @@
         } else if (selected === oi) {
           cls += ' selected';
         }
+        if (!qs.submitted && !state.auth.loggedIn) cls += ' locked';
         return (
           '<div class="' + cls + '" data-el="' + num + '" data-q="' + q.id + '" data-opt="' + oi + '">' +
             '<span class="option-radio">' + icon + '</span>' +
@@ -336,6 +450,7 @@
         '<h1>' + esc(e.title_zh) + '</h1>' +
         (showEn() ? '<div class="en-title">' + esc(e.title_en) + '</div>' : '') +
       '</div>' +
+      lockedBannerHtml() +
       summaryHtml +
       questionsHtml +
       (qs.submitted ? '' :
@@ -347,10 +462,12 @@
       );
 
     bindGoButtons();
+    bindLockedBanner();
 
     if (!qs.submitted) {
       Array.prototype.forEach.call(root.querySelectorAll('.option-item'), function (opt) {
         opt.addEventListener('click', function () {
+          if (!requireLogin()) return;
           var qid = Number(opt.dataset.q);
           var oi = Number(opt.dataset.opt);
           qs.answers[qid] = oi;
@@ -360,6 +477,7 @@
       var submitBtn = document.getElementById('submit-quiz');
       if (submitBtn) {
         submitBtn.addEventListener('click', function () {
+          if (!requireLogin()) return;
           if (Object.keys(qs.answers).length < total) return;
           qs.submitted = true;
           syncWrongQuestions(num, questions, qs.answers);
@@ -371,6 +489,7 @@
       var retakeBtn = root.querySelector('[data-retake]');
       if (retakeBtn) {
         retakeBtn.addEventListener('click', function () {
+          if (!requireLogin()) return;
           state.quizState[num] = { answers: {}, submitted: false, questions: sampleQuestions(e.mcq, QUIZ_SAMPLE_SIZE) };
           renderQuizPage(e);
           window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -455,6 +574,7 @@
         } else if (selected === oi) {
           cls += ' selected';
         }
+        if (!rs.submitted && !state.auth.loggedIn) cls += ' locked';
         return (
           '<div class="' + cls + '" data-el="' + num + '" data-q="' + q.id + '" data-opt="' + oi + '">' +
             '<span class="option-radio">' + icon + '</span>' +
@@ -510,6 +630,7 @@
         '<h1>' + esc(e.title_zh) + '</h1>' +
         (showEn() ? '<div class="en-title">' + esc(e.title_en) + '</div>' : '') +
       '</div>' +
+      lockedBannerHtml() +
       summaryHtml +
       questionsHtml +
       (rs.submitted ? '' :
@@ -521,10 +642,12 @@
       );
 
     bindGoButtons();
+    bindLockedBanner();
 
     if (!rs.submitted) {
       Array.prototype.forEach.call(root.querySelectorAll('.option-item'), function (opt) {
         opt.addEventListener('click', function () {
+          if (!requireLogin()) return;
           var qid = Number(opt.dataset.q);
           var oi = Number(opt.dataset.opt);
           rs.answers[qid] = oi;
@@ -534,6 +657,7 @@
       var submitBtn = document.getElementById('submit-review');
       if (submitBtn) {
         submitBtn.addEventListener('click', function () {
+          if (!requireLogin()) return;
           if (Object.keys(rs.answers).length < total) return;
           rs.submitted = true;
           syncWrongQuestions(num, questions, rs.answers);
@@ -545,6 +669,7 @@
       var retakeBtn = root.querySelector('[data-retake-review]');
       if (retakeBtn) {
         retakeBtn.addEventListener('click', function () {
+          if (!requireLogin()) return;
           state.reviewState[num] = { status: 'loading' };
           renderReviewPage(e);
           loadReviewQuestions(e, function () { renderReviewPage(e); });
@@ -601,6 +726,7 @@
         '<h1>' + esc(e.title_zh) + '</h1>' +
         (showEn() ? '<div class="en-title">' + esc(e.title_en) + '</div>' : '') +
       '</div>' +
+      lockedBannerHtml() +
       '<div class="scenario-toolbar">' +
         '<button class="btn btn-outline" id="shuffle-scenario">🔀 換一題</button>' +
       '</div>' +
@@ -613,7 +739,7 @@
           (showZh() ? '<div class="zh">' + esc(s.task_zh) + '</div>' : '') +
         '</div>' +
       '</div>' +
-      '<textarea class="answer-textarea" id="answer-textarea" placeholder="在這裡寫下你的作答,可以送出讓 AI 評分,也可以直接對照參考答案要點......">' + esc(ss.answerText) + '</textarea>' +
+      '<textarea class="answer-textarea' + (state.auth.loggedIn ? '' : ' locked') + '" id="answer-textarea" ' + (state.auth.loggedIn ? '' : 'readonly') + ' placeholder="在這裡寫下你的作答,可以送出讓 AI 評分,也可以直接對照參考答案要點......">' + esc(ss.answerText) + '</textarea>' +
       '<div class="scenario-actions">' +
         '<button class="btn btn-primary" id="grade-answer"' + (ss.grading ? ' disabled' : '') + '>' + (ss.grading ? '評分中...' : '送出讓 AI 評分') + '</button>' +
         '<button class="btn btn-outline" id="reveal-answer">' + (ss.revealed ? '隱藏參考答案要點' : '顯示參考答案要點') + '</button>' +
@@ -625,8 +751,10 @@
       '</div>';
 
     bindGoButtons();
+    bindLockedBanner();
 
     document.getElementById('shuffle-scenario').addEventListener('click', function () {
+      if (!requireLogin()) return;
       var next = pickRandomScenario(list, ss.currentId);
       state.scenarioState[num] = { currentId: next.id, answerText: '', grading: false, result: null, error: null, revealed: false };
       renderScenarioPage(e);
@@ -635,10 +763,12 @@
 
     var textarea = document.getElementById('answer-textarea');
     textarea.addEventListener('input', function () { ss.answerText = textarea.value; });
+    textarea.addEventListener('click', function () { if (!state.auth.loggedIn) requireLogin(); });
 
     var revealBtn = document.getElementById('reveal-answer');
     var modelBox = document.getElementById('model-answer');
     revealBtn.addEventListener('click', function () {
+      if (!requireLogin()) return;
       ss.revealed = !ss.revealed;
       modelBox.classList.toggle('show', ss.revealed);
       revealBtn.textContent = ss.revealed ? '隱藏參考答案要點' : '顯示參考答案要點';
@@ -646,6 +776,7 @@
 
     var gradeBtn = document.getElementById('grade-answer');
     gradeBtn.addEventListener('click', function () {
+      if (!requireLogin()) return;
       if (ss.grading) return;
       var answerText = textarea.value.trim();
       if (!answerText) {
