@@ -97,15 +97,17 @@
   function showEn() { return state.lang === 'bilingual' || state.lang === 'en'; }
   function showZh() { return state.lang === 'bilingual' || state.lang === 'zh'; }
 
-  /* ---------------- Fake login gate ---------------- */
+  /* ---------------- Login gate (real credential check against backend) ---------------- */
   var loginBtn = document.getElementById('login-btn');
   var loginModal = document.getElementById('login-modal');
-  var loginNameInput = document.getElementById('login-name-input');
+  var loginUsernameInput = document.getElementById('login-username-input');
+  var loginPasswordInput = document.getElementById('login-password-input');
+  var loginErrorEl = document.getElementById('login-error');
 
   function updateLoginUI() {
     if (state.auth.loggedIn) {
       loginBtn.className = 'login-btn is-logged-in';
-      var nameLabel = esc(state.auth.name || GUEST_LABEL);
+      var nameLabel = esc(state.auth.name || '');
       loginBtn.innerHTML =
         '<span class="avatar-dot"></span>' +
         '<span class="login-label-full">' + nameLabel + ' · 登出</span>' +
@@ -117,12 +119,13 @@
         '<span class="login-label-short">🔒 登入</span>';
     }
   }
-  var GUEST_LABEL = '訪客';
 
   function openLoginModal() {
-    loginNameInput.value = state.auth.name || '';
+    loginUsernameInput.value = '';
+    loginPasswordInput.value = '';
+    loginErrorEl.textContent = '';
     loginModal.classList.add('show');
-    setTimeout(function () { loginNameInput.focus(); }, 50);
+    setTimeout(function () { loginUsernameInput.focus(); }, 50);
   }
   function closeLoginModal() { loginModal.classList.remove('show'); }
 
@@ -157,39 +160,49 @@
   loginModal.addEventListener('click', function (e) { if (e.target === loginModal) closeLoginModal(); });
   document.getElementById('login-submit').addEventListener('click', function () {
     var submitBtn = document.getElementById('login-submit');
-    var name = loginNameInput.value.trim();
+    var username = loginUsernameInput.value.trim();
+    var password = loginPasswordInput.value;
+    if (!username || !password) {
+      loginErrorEl.textContent = '請輸入帳號與密碼。 Please enter both username and password.';
+      return;
+    }
+    loginErrorEl.textContent = '';
     submitBtn.disabled = true;
     submitBtn.textContent = '登入中...';
     fetch(API_BASE + '/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name })
-    }).then(function (res) { return res.ok ? res.json() : null; })
-      .then(function (data) {
+      body: JSON.stringify({ username: username, password: password })
+    }).then(function (res) {
+        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (result) {
+        if (!result.ok) {
+          loginErrorEl.textContent = (result.data && result.data.error) || '帳號或密碼錯誤。 Incorrect username or password.';
+          return;
+        }
         state.auth.loggedIn = true;
-        state.auth.name = (data && data.name) || name;
+        state.auth.name = (result.data && result.data.name) || username;
         updateLoginUI();
         closeLoginModal();
         render();
       })
       .catch(function () {
-        // Backend unreachable — still unlock locally so the demo login never hard-blocks usage.
-        state.auth.loggedIn = true;
-        state.auth.name = name;
-        updateLoginUI();
-        closeLoginModal();
-        render();
+        loginErrorEl.textContent = '登入服務暫時無法使用,請稍後再試。 Login service unavailable, please try again.';
       })
       .then(function () {
         submitBtn.disabled = false;
-        submitBtn.textContent = '登入解鎖';
+        submitBtn.textContent = '登入';
       });
   });
-  loginNameInput.addEventListener('keydown', function (e) {
+  loginPasswordInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') document.getElementById('login-submit').click();
   });
+  loginUsernameInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') loginPasswordInput.focus();
+  });
 
-  // Call before running any action that should be gated behind the fake login.
+  // Call before running any action that should be gated behind login.
   // Returns true if the action may proceed, false if it opened the login modal instead.
   function requireLogin() {
     if (state.auth.loggedIn) return true;

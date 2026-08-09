@@ -88,15 +88,23 @@ db.prepare('INSERT OR IGNORE INTO auth_state (id, logged_in, name, updated_at) V
 const stmtGetAuth = db.prepare('SELECT logged_in, name FROM auth_state WHERE id = 1');
 const stmtSetAuth = db.prepare('UPDATE auth_state SET logged_in = ?, name = ?, updated_at = ? WHERE id = 1');
 
+// Single fixed account for this personal-use site.
+const VALID_USERNAME = 'Paul';
+const VALID_PASSWORD = '7710182';
+
 app.get('/api/auth', (req, res) => {
   const row = stmtGetAuth.get();
   res.json({ loggedIn: !!(row && row.logged_in), name: (row && row.name) || '' });
 });
 
 app.post('/api/auth/login', (req, res) => {
-  const name = String((req.body && req.body.name) || '').trim().slice(0, 20);
-  stmtSetAuth.run(1, name, new Date().toISOString());
-  res.json({ loggedIn: true, name: name });
+  const username = String((req.body && req.body.username) || '').trim();
+  const password = String((req.body && req.body.password) || '');
+  if (username !== VALID_USERNAME || password !== VALID_PASSWORD) {
+    return res.status(401).json({ error: '帳號或密碼錯誤。 Incorrect username or password.' });
+  }
+  stmtSetAuth.run(1, username, new Date().toISOString());
+  res.json({ loggedIn: true, name: username });
 });
 
 app.post('/api/auth/logout', (req, res) => {

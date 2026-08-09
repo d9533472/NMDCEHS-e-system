@@ -45,11 +45,13 @@
   <div class="modal-overlay" id="login-modal">
     <div class="modal-box">
       <h3>登入 <span class="modal-en">Login</span></h3>
-      <p class="modal-desc">這是示範用的假登入,不會建立真實帳號、也不會驗證密碼,輸入你想顯示的名稱(可留空)即可解鎖作答功能。<br/>This is a demo login only — no real account is created or verified. Enter a display name (optional) to unlock quiz features.</p>
-      <input type="text" id="login-name-input" placeholder="你的名稱(可留空) · Your name (optional)" maxlength="20" autocomplete="off" />
+      <p class="modal-desc">請輸入帳號與密碼以解鎖完整作答功能。<br/>Please enter your account and password to unlock full quiz features.</p>
+      <input type="text" id="login-username-input" placeholder="帳號 · Username" maxlength="40" autocomplete="username" />
+      <input type="password" id="login-password-input" placeholder="密碼 · Password" maxlength="60" autocomplete="current-password" />
+      <p class="modal-error" id="login-error"></p>
       <div class="modal-actions">
         <button class="btn btn-outline" id="login-cancel" type="button">取消</button>
-        <button class="btn btn-primary" id="login-submit" type="button">登入解鎖</button>
+        <button class="btn btn-primary" id="login-submit" type="button">登入</button>
       </div>
     </div>
   </div>
