@@ -10,6 +10,8 @@ const App = {
   currentExam: null,
   timer: null,
   route: { page: 'home', params: {} },
+  isLoggedIn: false,
+  userName: '',
 
   async init() {
     try {
@@ -23,6 +25,14 @@ const App = {
     } catch(e) {
       console.error('Failed to load units.json:', e);
     }
+    // Restore login state
+    try {
+      const saved = JSON.parse(localStorage.getItem('osh_login') || '{}');
+      if (saved.loggedIn) {
+        this.isLoggedIn = true;
+        this.userName = saved.userName || '使用者';
+      }
+    } catch(e) {}
     this.parseHash();
     window.addEventListener('hashchange', () => this.parseHash());
     this.render();
@@ -51,7 +61,90 @@ const App = {
   },
 
   navigate(page, ...params) {
+    // Gate: require login for interactive features
+    const gatedPages = ['unit', 'mock', 'random', 'wrongbook', 'calc'];
+    if (gatedPages.includes(page) && !this.isLoggedIn) {
+      this.showLoginModal(page + '/' + params.join('/'));
+      return;
+    }
     window.location.hash = [page, ...params].join('/');
+  },
+
+  // ===== Login System =====
+  showLoginModal(returnRoute) {
+    this._loginReturn = returnRoute;
+    const existing = document.getElementById('loginModal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'loginModal';
+    modal.className = 'login-modal-overlay';
+    modal.innerHTML = `
+      <div class="login-modal">
+        <div class="login-modal-icon">🔐</div>
+        <h2>登入後即可使用</h2>
+        <p class="login-modal-desc">請輸入您的姓名進行登入<br>登入後即可使用測驗、練習、計算題等全部功能</p>
+        <div class="login-form">
+          <input type="text" id="loginNameInput" class="login-input" placeholder="請輸入您的姓名" maxlength="20" onkeydown="if(event.key==='Enter')App.doLogin()">
+          <button class="btn btn-primary login-submit-btn" onclick="App.doLogin()">登入</button>
+        </div>
+        <div class="login-hint">※ 此為假登入，僅用於演示功能限制</div>
+        <button class="login-close-btn" onclick="App.closeLoginModal()">先看看就好</button>
+      </div>
+    `;
+    document.body.appendChild(modal);
+    setTimeout(() => {
+      const input = document.getElementById('loginNameInput');
+      if (input) input.focus();
+    }, 100);
+  },
+
+  doLogin() {
+    const input = document.getElementById('loginNameInput');
+    const name = input ? input.value.trim() : '';
+    if (!name) {
+      input.style.borderColor = 'var(--danger)';
+      input.placeholder = '請輸入姓名才能登入喔！';
+      return;
+    }
+    this.isLoggedIn = true;
+    this.userName = name;
+    try {
+      localStorage.setItem('osh_login', JSON.stringify({ loggedIn: true, userName: name }));
+    } catch(e) {}
+    this.closeLoginModal();
+    this.render();
+    if (this._loginReturn) {
+      const ret = this._loginReturn;
+      this._loginReturn = null;
+      window.location.hash = ret;
+    }
+  },
+
+  closeLoginModal() {
+    const modal = document.getElementById('loginModal');
+    if (modal) modal.remove();
+  },
+
+  doLogout() {
+    this.isLoggedIn = false;
+    this.userName = '';
+    try { localStorage.removeItem('osh_login'); } catch(e) {}
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    this.currentExam = null;
+    this.navigate('home');
+  },
+
+  // Render login button or user info for header
+  renderHeaderLogin() {
+    if (this.isLoggedIn) {
+      return `<div class="header-user-area">
+        <span class="header-user-name">👤 ${this.userName}</span>
+        <button class="header-logout-btn" onclick="App.doLogout()">登出</button>
+      </div>`;
+    } else {
+      return `<button class="header-login-btn" onclick="App.showLoginModal()">登入</button>`;
+    }
   },
 
   render() {
@@ -103,6 +196,7 @@ const App = {
       <header class="app-header">
         <h1>${this.examTitle || '乙級職業安全衛生管理員 題庫練習系統'}</h1>
         <div class="subtitle">${this.examSubtitle || ''}</div>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
         <div class="hero-section">
@@ -110,6 +204,7 @@ const App = {
           <p>單選、複選、是非、填充、計算、配合、排序 — 全題型覆蓋</p>
         </div>
         <div class="disclaimer-box">${this.disclaimer || ''}</div>
+        ${!this.isLoggedIn ? '<div class="login-prompt-banner"><span class="login-prompt-icon">🔒</span> 目前為「瀏覽模式」，功能卡片上的鎖頭表示需登入才能使用。點擊右上角「登入」按鈕即可解鎖全部功能。</div>' : '<div class="welcome-banner"><span>👋 ' + this.userName + '，歡迎回來！全部功能已解鎖。</span></div>'}
         <div class="stats-bar">
           <div class="stat-card"><div class="num">40</div><div class="label">單元數</div></div>
           <div class="stat-card"><div class="num" id="totalQ">--</div><div class="label">總題數</div></div>
@@ -117,27 +212,27 @@ const App = {
           <div class="stat-card"><div class="num">${totalCorrect}</div><div class="label">答對數</div></div>
         </div>
         <div class="mode-cards">
-          <div class="mode-card" onclick="App.navigate('mock','subject')">
+          <div class="mode-card ${!this.isLoggedIn ? 'locked' : ''}" onclick="App.navigate('mock','subject')">
             <div class="icon">📝</div>
             <h3>學科模擬考</h3>
             <p>單選60題+複選20題<br>100分鐘</p>
           </div>
-          <div class="mode-card" onclick="App.navigate('mock','skill')">
+          <div class="mode-card ${!this.isLoggedIn ? 'locked' : ''}" onclick="App.navigate('mock','skill')">
             <div class="icon">🔧</div>
             <h3>術科模擬考</h3>
             <p>10題組<br>100分鐘</p>
           </div>
-          <div class="mode-card" onclick="App.navigate('random')">
+          <div class="mode-card ${!this.isLoggedIn ? 'locked' : ''}" onclick="App.navigate('random')">
             <div class="icon">🎲</div>
             <h3>隨機練習</h3>
             <p>全範圍隨機抽題<br>自選題數</p>
           </div>
-          <div class="mode-card" onclick="App.navigate('calc')">
+          <div class="mode-card ${!this.isLoggedIn ? 'locked' : ''}" onclick="App.navigate('calc')">
             <div class="icon">🧮</div>
             <h3>計算題專區</h3>
             <p>120題計算題<br>詳細解題流程</p>
           </div>
-          <div class="mode-card" onclick="App.navigate('wrongbook')">
+          <div class="mode-card ${!this.isLoggedIn ? 'locked' : ''}" onclick="App.navigate('wrongbook')">
             <div class="icon">📕</div>
             <h3>錯題本</h3>
             <p>複習答錯的題目<br>加強弱點</p>
@@ -161,7 +256,7 @@ const App = {
         else if (answered > 0) { badgeClass = 'in-progress'; badgeText = `${answered}/${total}`; }
 
         html += `
-          <div class="unit-card" onclick="App.navigate('unit','${unit.id}')">
+          <div class="unit-card ${!this.isLoggedIn ? 'locked' : ''}" onclick="App.navigate('unit','${unit.id}')">
             <div class="unit-num">第 ${unit.number} 單元</div>
             <div class="unit-title">${unit.title}</div>
             <div class="unit-meta">
@@ -228,6 +323,7 @@ const App = {
           <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
           <h1>第 ${unit.number} 單元</h1>
           <div class="subtitle">${unit.title}</div>
+          ${this.renderHeaderLogin()}
         </header>
         <div class="container">
           <div class="no-data-warning">
@@ -266,6 +362,7 @@ const App = {
         <header class="app-header">
           <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
           <h1>模擬考</h1>
+          ${this.renderHeaderLogin()}
         </header>
         <div class="container">
           <div class="no-data-warning">
@@ -322,6 +419,7 @@ const App = {
       <header class="app-header">
         <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
         <h1>隨機練習</h1>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
         <div class="loading-spinner"><div class="spinner"></div><p>載入題庫中...</p></div>
@@ -409,6 +507,7 @@ const App = {
         <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
         <h1>錯題本</h1>
         <div class="subtitle">${wrongQuestions.length} 題</div>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
     `;
@@ -490,6 +589,7 @@ const App = {
         <button class="nav-back" onclick="App.confirmExit()">← 返回</button>
         <h1>${headerTitle}</h1>
         <div class="subtitle">${exam.questions.length} 題 ${exam.isTimed ? '· 限時 100 分鐘' : ''}</div>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
         <div class="exam-info-bar">
@@ -973,6 +1073,7 @@ const App = {
       <header class="app-header">
         <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
         <h1>測驗結果</h1>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
         <div class="results-container">
@@ -1101,6 +1202,7 @@ const App = {
         <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
         <h1>🧮 計算題專區</h1>
         <div class="subtitle">120 題計算題 · 詳細解題流程</div>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
         <div class="loading-spinner"><div class="spinner"></div><p>載入計算題中...</p></div>
@@ -1136,6 +1238,7 @@ const App = {
         <button class="nav-back" onclick="App.navigate('home')">← 返回首頁</button>
         <h1>🧮 計算題專區</h1>
         <div class="subtitle">${calcData.length} 題計算題 · 詳細解題流程</div>
+        ${this.renderHeaderLogin()}
       </header>
       <div class="container">
         <div class="hero-section">
