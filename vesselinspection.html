@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v29';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v31';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -278,6 +278,7 @@ const T = {
     progSelf:'Self', progNmdc:'NMDC',
     vesselInfo:'Vessel Information', autoNo:'(auto-numbered on save)',
     contactName:'Inspection Contact Person 船檢聯絡人', contactPhone:'Contact Phone 聯絡電話', contactEmail:'Contact Email 電子信箱',
+    scopeLabel:'Scope 工作範疇',
     pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
     pdfFetchBig:(i,n)=>`Downloading large photos… ${i} / ${n}`,
     pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
@@ -403,6 +404,7 @@ const T = {
     progSelf:'自檢', progNmdc:'NMDC',
     vesselInfo:'船舶基本資料', autoNo:'(儲存後自動編號)',
     contactName:'船檢聯絡人 Contact Person', contactPhone:'聯絡電話 Contact Phone', contactEmail:'電子信箱 Contact Email',
+    scopeLabel:'工作範疇 Scope',
     pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
     pdfFetchBig:(i,n)=>`大圖下載壓縮中… ${i} / ${n} 張`,
     pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
@@ -869,7 +871,7 @@ function blankItem(cl) {
   return { id:'', vesselZh:'', vesselEn:'', mmsi:'', imo:'', tonnage:'', vesselClass:'',
     projectNo:'', location:'', inspectDate:todayStr(), status:'draft', selfDate:'', nmdcDate:'',
     progress:'0/'+total, nmdcProgress:'0/'+total, verdict:'', verdictDeadline:'', inspNo:'', folderUrl:'',
-    closed:'', closedDate:'',
+    closed:'', closedDate:'', scope:'',
     data:{ checklist: JSON.parse(JSON.stringify(cl)),   // ★ 快照:此紀錄使用的項目版本
            answers:{}, nmdcAnswers:{},
            contact:{ name:'', phone:'', email:'' },
@@ -1154,6 +1156,8 @@ function buildReportBlocks(o, cl, imgMap) {
     info.push(['船檢聯絡人 Contact Person', ct.name], ['聯絡電話 Contact Phone', ct.phone]);
     info.push(['電子信箱 Contact Email', ct.email]);
   }
+  const scp = o.scope || (o.data && o.data.scope) || '';
+  if (scp) info.push(['工作範疇 Scope', scp]);
   if (o.data && o.data.reOf) info.push(['🔁 複檢自 Re-inspection of', o.data.reOf]);
   let ir = '';
   const lcell = s => '<td style="background:#F0F4F8; color:#1D3D5C; font-weight:700; width:21%; padding:5px 9px; border:1px solid #E1E8EF; font-size:8.5px">'+s+'</td>';
@@ -1583,6 +1587,7 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
                   <td>
                     <div style={{fontWeight:700}}>{it.vesselZh || it.vesselEn || '—'}</div>
                     <div className="datesub">{it.vesselZh ? it.vesselEn : ''}{it.vesselClass ? ' · ' + it.vesselClass : ''}</div>
+                    {it.scope ? <div className="datesub" style={{color:'#7A6A45'}}>🛠 {it.scope}</div> : null}
                   </td>
                   <td><div>{it.mmsi || '—'}</div><div className="datesub">IMO {it.imo || '—'}</div></td>
                   <td>{it.inspectDate || '—'}</td>
@@ -1753,6 +1758,9 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
             <input disabled={!can} inputMode="tel" value={(item.data.contact||{}).phone||''} onChange={e=>setContact('phone', e.target.value)} placeholder="09xx-xxx-xxx" /></div>
           <div className="field"><label>{t.contactEmail}</label>
             <input disabled={!can} inputMode="email" value={(item.data.contact||{}).email||''} onChange={e=>setContact('email', e.target.value)} placeholder="name@example.com" /></div>
+          <div className="field"><label>{t.scopeLabel}</label>
+            <input disabled={!can} value={item.scope||''} placeholder="e.g. Subsea pipeline installation 海底管線鋪設"
+              onChange={e=>setField('scope', e.target.value)} /></div>
         </div>
       </div>
 
@@ -1886,6 +1894,7 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
     [t.tonnage, item.tonnage], [t.vClass, item.vesselClass], [t.projectNo, item.projectNo],
     [t.location, item.location], [t.inspectDate, item.inspectDate], [t.statusSelf, item.selfDate],
     [t.contactName, (item.data.contact||{}).name], [t.contactPhone, (item.data.contact||{}).phone], [t.contactEmail, (item.data.contact||{}).email],
+    [t.scopeLabel, item.scope],
   ];
   const setContactN = (k, v) => adminEdit && setItem(p =>
     Object.assign({}, p, { data: Object.assign({}, p.data, { contact: Object.assign({}, p.data.contact, {[k]: v}) }) }));
@@ -1928,6 +1937,8 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
               <input inputMode="tel" value={(item.data.contact||{}).phone||''} onChange={e=>setContactN('phone', e.target.value)} /></div>
             <div className="field"><label>{t.contactEmail}</label>
               <input inputMode="email" value={(item.data.contact||{}).email||''} onChange={e=>setContactN('email', e.target.value)} /></div>
+            <div className="field"><label>{t.scopeLabel}</label>
+              <input value={item.scope||''} onChange={e=>setField('scope', e.target.value)} /></div>
           </div>
         ) : (
           <div className="kv">
@@ -2469,6 +2480,7 @@ function App() {
     const rec1 = Object.assign(blankItem(cl), baseInfo('測試船 Alpha','TEST VESSEL ALPHA','416000001','9000001','3500','CR'),
       { status:'self_done', progress:total+'/'+total });
     rec1.data.contact = { name:'Capt. J. Hansen', phone:'0912-345-678', email:'alpha.master@example.com' };
+    rec1.scope = 'Subsea pipeline installation 海底管線鋪設';
     rec1.data.answers = mkAnswers(noC1, 'Waste bin near galley overflowing — cleared during inspection');
     rec1.data.signoff = {inspName:'', inspDate:'', verName:'', verDate:'', endName:'Capt. J. Hansen', endDate:todayStr()};
 
@@ -2543,6 +2555,7 @@ function App() {
     it.data.nmdcAnswers = it.data.nmdcAnswers || {};
     it.data.signoff = it.data.signoff || {};
     it.data.contact = it.data.contact || {};
+    if (!it.scope && it.data.scope) it.scope = it.data.scope;   // v30 過渡:scope 從 dataJson 升級為正式欄位
     it.attachments = it.attachments || [];
     return it;
   };
