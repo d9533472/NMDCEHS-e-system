@@ -263,7 +263,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v31';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v32';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -279,6 +279,14 @@ const T = {
     vesselInfo:'Vessel Information', autoNo:'(auto-numbered on save)',
     contactName:'Inspection Contact Person 船檢聯絡人', contactPhone:'Contact Phone 聯絡電話', contactEmail:'Contact Email 電子信箱',
     scopeLabel:'Scope 工作範疇',
+    histBtn:'🕘 History', histTitle:'Audit Log & Restore 歷程紀錄與還原',
+    histNote:'Every create / save / delete / upload is logged with role and device code (IP is not available on Google Apps Script). Entries with a snapshot can be restored in one click — deleted records are fully recovered (attachments retrieved from Drive trash).',
+    histAct:{ create:'Create', save:'Save', delete:'Delete', upload:'Upload', deleteFile:'Remove file', restore:'Restore', storePdf:'Export PDF', saveChecklist:'Edit checklist' },
+    histCols:['Time','Action','Record','Role','Device','Note',''],
+    histRestore:'↩ Restore', histEmpty:'No log entries yet.', histLoad:'Loading log…',
+    histRestoreT:'Restore this version?',
+    histRestoreP:(no, ts)=>`Record ${no || ''} will be restored to the ${ts} snapshot. The current state is also logged, so you can restore back if needed. Deleted records will be fully recovered.`,
+    histRestored:'Restored ✓',
     pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
     pdfFetchBig:(i,n)=>`Downloading large photos… ${i} / ${n}`,
     pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
@@ -405,6 +413,14 @@ const T = {
     vesselInfo:'船舶基本資料', autoNo:'(儲存後自動編號)',
     contactName:'船檢聯絡人 Contact Person', contactPhone:'聯絡電話 Contact Phone', contactEmail:'電子信箱 Contact Email',
     scopeLabel:'工作範疇 Scope',
+    histBtn:'🕘 歷程紀錄', histTitle:'歷程紀錄與還原 Audit Log & Restore',
+    histNote:'每次新增/儲存/刪除/上傳都會自動記錄(角色+裝置代碼;GAS 無法取得 IP,以此代替識別)。有快照的紀錄可一鍵還原 — 被刪除的紀錄會整筆救回,附件從 Drive 垃圾桶取回。',
+    histAct:{ create:'新增', save:'儲存', delete:'刪除', upload:'上傳附件', deleteFile:'刪附件', restore:'還原', storePdf:'匯出PDF', saveChecklist:'改檢查表' },
+    histCols:['時間','動作','紀錄','角色','裝置','附註',''],
+    histRestore:'↩ 還原', histEmpty:'尚無歷程紀錄。', histLoad:'歷程載入中…',
+    histRestoreT:'還原此版本?',
+    histRestoreP:(no, ts)=>`將把 ${no || '此紀錄'} 還原到 ${ts} 的快照內容;還原前的現況也會記錄一筆,隨時可再還原回來。若紀錄已被刪除將整筆救回。`,
+    histRestored:'已還原 ✓',
     pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
     pdfFetchBig:(i,n)=>`大圖下載壓縮中… ${i} / ${n} 張`,
     pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
@@ -786,8 +802,21 @@ function apiOnce(action, payload) {
   });
 }
 
+/* 🕘 歷程紀錄:寫入類動作自動附上操作者資訊(角色+裝置代碼+瀏覽器;GAS 拿不到 IP) */
+const WHO_ACTIONS = { save:1, delete:1, upload:1, deleteFile:1, storePdf:1, restore:1, saveChecklist:1 };
+function getWho() {
+  let dev = '';
+  try {
+    dev = localStorage.getItem('evis_dev') || '';
+    if (!dev) { dev = 'DV-' + Math.random().toString(36).slice(2, 8).toUpperCase(); localStorage.setItem('evis_dev', dev); }
+  } catch (e) {}
+  return { role: localStorage.getItem('evis_unlocked') === '1' ? 'NMDC' : 'Contractor',
+           device: dev, ua: navigator.userAgent };
+}
 function api(action, payload) {
-  if (LOCAL || TESTMODE) return localApi(action, payload || {});
+  payload = payload || {};
+  if (WHO_ACTIONS[action] && !payload.who) payload.who = getWho();
+  if (LOCAL || TESTMODE) return localApi(action, payload);
   const retries = (action === 'filesData' || action === 'fileData') ? 1   // 抓圖:批次本身可容錯,只重試 1 次
                 : READ_ACTIONS[action] ? 2 : 0;   // 讀取最多重試 2 次;寫入不重試(避免重複)
   const attempt = (n) => apiOnce(action, payload || {}).catch(err => {
@@ -808,6 +837,32 @@ function nowStr(){ return todayStr()+' '+new Date().toTimeString().slice(0,8); }
 function localApi(action, p) {
   const db = lsRead();
   const done = (o) => Promise.resolve(Object.assign({ ok: true }, o));
+  /* 🕘 本機/測試模式的歷程紀錄(同樣可練習還原) */
+  const logA = (act, o, note, snap) => {
+    db.audit = db.audit || [];
+    let sj = null;
+    if (snap) { try { const s = JSON.stringify(snap); if (s.length < 800000) sj = s; } catch (e) {} }
+    db.audit.push({ rowId: 'L' + Date.now() + Math.floor(Math.random() * 99), ts: nowStr(), action: act,
+      inspId: (o && o.id) || '', inspNo: (o && o.inspNo) || '', vessel: (o && (o.vesselEn || o.vesselZh)) || '',
+      role: (p.who && p.who.role) || '', device: (p.who && p.who.device) || '', ua: '',
+      note: note || '', snapJson: sj });
+    if (db.audit.length > 300) db.audit = db.audit.slice(-300);
+  };
+  if (action === 'auditList') {
+    return done({ rows: (db.audit || []).slice().reverse().map(r =>
+      Object.assign({}, r, { hasSnap: !!r.snapJson, snapJson: undefined })) });
+  }
+  if (action === 'restore') {
+    const en = (db.audit || []).find(x => x.rowId === p.rowId);
+    if (!en || !en.snapJson) return Promise.reject(new Error('此筆歷程沒有快照,無法還原'));
+    let snap; try { snap = JSON.parse(en.snapJson); } catch (e) { return Promise.reject(new Error('快照資料損毀')); }
+    const item = snap.item;
+    if (!item || !item.id) return Promise.reject(new Error('快照缺少內容'));
+    db.items[item.id] = item;
+    logA('restore', item, '還原自 ' + en.ts, { item });
+    lsWrite(db);
+    return done({ item });
+  }
   if (action === 'getChecklist') {
     try { return done({ checklist: JSON.parse(localStorage.getItem(clKey())) || null }); }
     catch(e){ return done({ checklist: null }); }
@@ -845,21 +900,30 @@ function localApi(action, p) {
     if (item.status === 'draft') { item.selfDate=''; item.nmdcDate=''; }
     if (item.status === 'self_done') item.nmdcDate='';
     item.attachments = (db.items[item.id] && db.items[item.id].attachments) || [];
-    db.items[item.id] = item; lsWrite(db);
+    const isNewL = !db.items[item.id];
+    db.items[item.id] = item;
+    logA(isNewL ? 'create' : 'save', item, item.status + (String(item.closed)==='1' ? '/closed' : ''), { item });
+    lsWrite(db);
     return done({ item });
   }
-  if (action === 'delete') { delete db.items[p.id]; lsWrite(db); return done({}); }
+  if (action === 'delete') {
+    const itD = db.items[p.id];
+    if (itD) logA('delete', itD, '', { item: itD });
+    delete db.items[p.id]; lsWrite(db); return done({});
+  }
   if (action === 'upload') {
     const it = db.items[p.inspId]; if (!it) return Promise.reject(new Error('not saved'));
     const att = { fileId:'local-'+Date.now()+Math.floor(Math.random()*99), inspId:p.inspId, itemCode:p.itemCode,
       name:(p.label||p.itemCode)+' & '+p.name, url:'data:'+(p.mimeType||'application/octet-stream')+';base64,'+p.base64,
       uploadedAt:nowStr(), size:Math.round(p.base64.length*0.75) };
     it.attachments = it.attachments || []; it.attachments.push(att);
+    logA('upload', it, att.name);
     try { lsWrite(db); } catch (e) { it.attachments.pop(); return Promise.reject(new Error('LSFULL')); }
     return done({ attachment: att });
   }
   if (action === 'deleteFile') {
     Object.values(db.items).forEach(it => { if (it.attachments) it.attachments = it.attachments.filter(a=>a.fileId!==p.fileId); });
+    logA('deleteFile', {}, String(p.fileId || ''));
     lsWrite(db); return done({});
   }
   return Promise.reject(new Error('unknown'));
@@ -1548,7 +1612,44 @@ function StatusBadge({ status, stage, dateSelf, dateNmdc, verdict, verdictDeadli
 }
 
 /* ---------------- 總表 Dashboard ---------------- */
-function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, onEditor, onRe }) {
+/* 🕘 歷程紀錄檢視:誰在何時新增/儲存/刪除/上傳,可一鍵還原快照 */
+function HistoryView({ t, rows, onBack, onRestore, editMode }) {
+  const actColor = { create:'#1C7A42', save:'#1D3D5C', delete:'#B03030', upload:'#8a5a00',
+                     deleteFile:'#B03030', restore:'#7A3FA0', storePdf:'#C77F0A', saveChecklist:'#556' };
+  const canRestore = r => editMode && r.hasSnap &&
+    (r.action === 'save' || r.action === 'create' || r.action === 'delete' || r.action === 'restore');
+  return (
+    <div className="card">
+      <h3>🕘 {t.histTitle}</h3>
+      <div className="banner blue">{t.histNote}</div>
+      {rows === null ? <div style={{color:'#8A94A0', padding:'8px 2px'}}>{t.histLoad}</div>
+       : rows.length === 0 ? <div style={{color:'#8A94A0', padding:'8px 2px'}}>{t.histEmpty}</div>
+       : <div style={{overflowX:'auto'}}>
+          <table style={{width:'100%', borderCollapse:'collapse'}}>
+            <thead><tr>{t.histCols.map((c,i)=>
+              <th key={i} style={{textAlign:'left', padding:'7px 9px', background:'#1D3D5C', color:'#fff', fontSize:12.5, whiteSpace:'nowrap'}}>{c}</th>)}</tr></thead>
+            <tbody>
+              {rows.map(r => (
+                <tr key={r.rowId} style={{borderBottom:'1px solid #E4EAF0'}}>
+                  <td style={{whiteSpace:'nowrap', fontSize:12.5, padding:'7px 9px', color:'#54626f'}}>{r.ts}</td>
+                  <td style={{padding:'7px 9px'}}>
+                    <span className="badge" style={{background:(actColor[r.action]||'#556'), color:'#fff'}}>{t.histAct[r.action] || r.action}</span></td>
+                  <td style={{padding:'7px 9px', fontSize:13, whiteSpace:'nowrap'}}><b>{r.inspNo || '—'}</b>{r.vessel ? ' · ' + r.vessel : ''}</td>
+                  <td style={{padding:'7px 9px', fontSize:12.5, whiteSpace:'nowrap'}}>{/NMDC/i.test(r.role) ? '🛠 NMDC' : (r.role ? '⛴ ' + r.role : '—')}</td>
+                  <td style={{padding:'7px 9px', fontSize:12, color:'#8A94A0', whiteSpace:'nowrap'}}>{r.device || '—'}</td>
+                  <td style={{padding:'7px 9px', fontSize:12, color:'#54626f', maxWidth:220, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap'}} title={r.note||''}>{r.note || ''}</td>
+                  <td style={{padding:'7px 9px', whiteSpace:'nowrap'}}>
+                    {canRestore(r) && <button className="btn btn-o btn-sm" onClick={()=>onRestore(r)}>{t.histRestore}</button>}</td>
+                </tr>))}
+            </tbody>
+          </table>
+         </div>}
+      <div style={{marginTop:14}}><button className="btn btn-o" onClick={onBack}>{t.back}</button></div>
+    </div>
+  );
+}
+
+function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, onEditor, onRe, onHistory }) {
   const nSelf = list.filter(i=>i.status==='self_done'||i.status==='nmdc_done').length;
   const nNmdc = list.filter(i=>i.status==='nmdc_done').length;
   return (
@@ -1561,7 +1662,8 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
           <span className="chip" style={{color:'#78828d', display:'inline-flex', alignItems:'center', gap:6}}>
             <span className="spinner" style={{width:14, height:14, borderWidth:2.5}}></span>{t.refreshing}</span>}
         <div style={{flex:1}}></div>
-        {canEdit && <button className="btn btn-o" onClick={onEditor}>{t.editChecklist}</button>}
+        {canEdit && <button className="btn btn-o" onClick={onEditor}>{t.editChecklist}</button>}{' '}
+        {canEdit && <button className="btn btn-o" onClick={onHistory}>{t.histBtn}</button>}
         <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>
       </div>
       <div className="tblscroll">
@@ -2579,6 +2681,21 @@ function App() {
 
   const highlightMissing = (miss) => setItem(p => Object.assign({}, p, { _miss: miss }));
 
+  /* 🕘 歷程紀錄與還原 */
+  const [histRows, setHistRows] = useState(null);
+  const openHistory = () => {
+    setView('history'); setHistRows(null); window.scrollTo(0, 0);
+    api('auditList').then(r => setHistRows(r.rows || []))
+      .catch(e => { setHistRows([]); showToast(String(e.message || e), true); });
+  };
+  const restoreLog = (row) => askConfirm(t.histRestoreT, t.histRestoreP(row.inspNo || row.vessel, row.ts), () => {
+    track(api('restore', { rowId: row.rowId }), t.working).then(() => {
+      showToast(t.histRestored);
+      api('list').then(x => setList(x.items || [])).catch(() => {});
+      api('auditList').then(r => setHistRows(r.rows || [])).catch(() => {});
+    }).catch(e => showToast(String(e.message || e), true));
+  });
+
   const bgChainRef = useRef(Promise.resolve());
   const doSave = (newStatus, extra) => {
     const cur = Object.assign({}, itemRef.current, extra || {});
@@ -2928,7 +3045,11 @@ function App() {
         {view === 'dash' &&
           <Dashboard t={t} list={list} loading={loading} canEdit={effEdit}
             onOpen={openItem} onNew={newItem} onDelete={deleteInsp} onPdf={exportById} onRe={reinspectById}
-            onEditor={()=>{ setView('editor'); window.scrollTo(0,0); }} />}
+            onEditor={()=>{ setView('editor'); window.scrollTo(0,0); }}
+            onHistory={openHistory} />}
+        {view === 'history' &&
+          <HistoryView t={t} rows={histRows} editMode={effEdit} onRestore={restoreLog}
+            onBack={()=>{ setView('dash'); window.scrollTo(0,0); }} />}
         {view === 'editor' &&
           <Editor t={t} checklist={checklist} onSave={saveChecklistFn} saving={saving}
             onBack={()=>{ setView('dash'); window.scrollTo(0,0); }} askConfirm={askConfirm} />}
