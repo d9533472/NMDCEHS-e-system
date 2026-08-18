@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>營建工程空污防制 有獎徵答 | Construction Air Pollution Control Quiz</title>
+<style>
+  :root{
+    --navy:#0b3d70; --navy2:#124f8c; --blue:#1a73c8; --sky:#e8f2fb;
+    --green:#1f8a4c; --amber:#f5a623; --red:#c0392b;
+    --ink:#1b2733; --muted:#5b6b7c; --line:#d6e3f0; --bg:#f4f8fc;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",Arial,sans-serif;
+    line-height:1.6;
+  }
+  .wrap{max-width:820px;margin:0 auto;padding:0 16px 60px;}
+  header{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 55%,var(--blue) 100%);
+    color:#fff;padding:22px 16px 26px;position:relative;
+  }
+  header .wrap{padding-bottom:0;}
+  h1{margin:0;font-size:24px;letter-spacing:1px;}
+  h1 small{display:block;font-size:13px;font-weight:400;opacity:.9;letter-spacing:0;margin-top:4px;}
+  .langbtn{
+    position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);
+    border:1px solid rgba(255,255,255,.5);color:#fff;border-radius:20px;
+    padding:6px 14px;font-size:13px;cursor:pointer;backdrop-filter:blur(2px);
+  }
+  .langbtn:hover{background:rgba(255,255,255,.28);}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:14px;
+    padding:20px 22px;margin-top:18px;box-shadow:0 2px 10px rgba(11,61,112,.06);
+  }
+  .card h2{margin:0 0 12px;font-size:18px;color:var(--navy);
+    border-left:5px solid var(--amber);padding-left:10px;}
+  ol.rules{margin:0;padding-left:22px;}
+  ol.rules li{margin-bottom:8px;}
+  .sub{color:var(--muted);font-size:13px;display:block;}
+  label{display:block;font-weight:600;margin:14px 0 6px;font-size:14px;}
+  input[type=text],input[type=password],select{
+    width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;
+    font-size:16px;font-family:inherit;background:#fff;
+  }
+  input:focus,select:focus{outline:2px solid var(--blue);border-color:var(--blue);}
+  .btn{
+    display:inline-block;background:var(--navy2);color:#fff;border:none;border-radius:8px;
+    padding:13px 26px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;
+  }
+  .btn:hover{background:var(--blue);}
+  .btn:disabled{background:#b9c6d3;cursor:not-allowed;}
+  .btn.ghost{background:transparent;color:var(--navy2);border:1px solid var(--navy2);}
+  .btn.ghost:hover{background:var(--sky);}
+  .btn-row{display:flex;gap:10px;justify-content:space-between;align-items:center;margin-top:20px;}
+  .msg{margin-top:12px;padding:10px 12px;border-radius:8px;font-size:14px;display:none;}
+  .msg.err{background:#fdecea;color:var(--red);border:1px solid #f5c6c0;display:block;}
+  .msg.ok{background:#e8f6ee;color:var(--green);border:1px solid #b9e2ca;display:block;}
+  .msg.warn{background:#fff6e5;color:#8a5a00;border:1px solid #f5dca6;display:block;}
+  .quizbar{display:flex;justify-content:space-between;align-items:center;
+    font-size:14px;color:var(--muted);margin-bottom:6px;}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;color:var(--navy);font-size:16px;}
+  .prog{height:8px;background:var(--sky);border-radius:6px;overflow:hidden;}
+  .prog > div{height:100%;background:var(--green);width:0;transition:width .25s;}
+  .qtext{font-size:19px;font-weight:700;margin:18px 0 4px;color:var(--navy);}
+  .qtext-en{font-size:14px;font-weight:400;color:var(--muted);margin-bottom:16px;}
+  .opt{
+    display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--line);
+    border-radius:10px;padding:13px 14px;margin-bottom:10px;cursor:pointer;background:#fff;
+    transition:.15s;
+  }
+  .opt:hover{border-color:var(--blue);background:var(--sky);}
+  .opt.sel{border-color:var(--navy2);background:var(--sky);box-shadow:0 0 0 2px rgba(18,79,140,.15);}
+  .opt .k{
+    flex:none;width:26px;height:26px;border-radius:50%;background:var(--navy2);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;
+  }
+  .opt.sel .k{background:var(--green);}
+  .opt .t{font-size:16px;}
+  .opt .t em{display:block;font-style:normal;font-size:13px;color:var(--muted);}
+  .score-hero{text-align:center;padding:10px 0 4px;}
+  .score-hero .big{font-size:56px;font-weight:800;color:var(--navy);line-height:1.1;}
+  .score-hero .big span{font-size:22px;color:var(--muted);font-weight:600;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px;}
+  .stat{background:var(--sky);border-radius:10px;padding:14px 10px;text-align:center;}
+  .stat b{display:block;font-size:22px;color:var(--navy);}
+  .stat span{font-size:12px;color:var(--muted);}
+  table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px;}
+  th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left;}
+  th{background:var(--sky);color:var(--navy);font-size:13px;}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+  .rank1{color:#b8860b;font-weight:800;} .rank2{color:#7d8a97;font-weight:800;} .rank3{color:#a0663b;font-weight:800;}
+  footer{text-align:center;color:var(--muted);font-size:12px;padding:26px 16px;}
+  footer a{color:var(--navy2);cursor:pointer;text-decoration:underline;}
+  .hide{display:none!important;}
+  .pill{display:inline-block;background:var(--amber);color:#4a3200;font-size:12px;
+    font-weight:700;border-radius:12px;padding:2px 10px;margin-left:8px;vertical-align:middle;}
+  @media(max-width:520px){ h1{font-size:20px;} .score-hero .big{font-size:46px;} .grid3{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <button class="langbtn" id="langBtn">English</button>
+  <div class="wrap">
+    <h1 id="hTitle">營建工程空污防制 有獎徵答
+      <small id="hSub">Construction Air Pollution Control — Prize Quiz</small>
+    </h1>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ HOME ============ -->
+  <section id="scHome">
+    <div class="card">
+      <h2 id="rulesTitle">活動辦法 Rules</h2>
+      <ol class="rules" id="rulesList"></ol>
+    </div>
+
+    <div class="card">
+      <h2 id="startTitle">開始作答 Start</h2>
+      <label id="lblName">姓名 Name</label>
+      <input type="text" id="inName" maxlength="20" autocomplete="off" placeholder="">
+      <label id="lblOffice">辦公室 Office</label>
+      <select id="inOffice">
+        <option value="">--</option>
+        <option value="Taipei">台北 Taipei</option>
+        <option value="Taichung">台中 Taichung</option>
+      </select>
+      <div class="msg" id="homeMsg"></div>
+      <div class="btn-row">
+        <span></span>
+        <button class="btn" id="btnStart">開始作答 Start</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="scQuiz" class="hide">
+    <div class="card">
+      <div class="quizbar">
+        <span id="qCount">第 1 / 10 題</span>
+        <span class="timer" id="qTimer">00:00</span>
+      </div>
+      <div class="prog"><div id="qProg"></div></div>
+      <div class="qtext" id="qTextZh"></div>
+      <div class="qtext-en" id="qTextEn"></div>
+      <div id="qOpts"></div>
+      <div class="msg" id="quizMsg"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="btnPrev">上一題 Back</button>
+        <button class="btn" id="btnNext">下一題 Next</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULT ============ -->
+  <section id="scResult" class="hide">
+    <div class="card">
+      <h2 id="resTitle">作答完成 Completed</h2>
+      <div class="score-hero">
+        <div id="resWho" class="sub"></div>
+        <div class="big" id="resTotal">0<span> / 100</span></div>
+        <div class="sub" id="resTotalLbl">總分 Total Score</div>
+      </div>
+      <div class="grid3">
+        <div class="stat"><b id="resTime">00:00</b><span id="resTimeLbl">作答時間 Time Used</span></div>
+        <div class="stat"><b id="resQuiz">0 / 70</b><span id="resQuizLbl">答題分數 Quiz Score (70%)</span></div>
+        <div class="stat"><b id="resTScore">0 / 30</b><span id="resTScoreLbl">時間分數 Time Score (30%)</span></div>
+      </div>
+      <div class="msg" id="resMsg"></div>
+      <div class="btn-row">
+        <span></span>
+        <button class="btn ghost" id="btnHome">回首頁 Home</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ADMIN ============ -->
+  <section id="scAdmin" class="hide">
+    <div class="card" id="adminLogin">
+      <h2 id="admTitle">管理者登入 Administrator</h2>
+      <label id="lblPwd">密碼 Password</label>
+      <input type="password" id="inPwd" autocomplete="off">
+      <div class="msg" id="admMsg"></div>
+      <div class="btn-row">
+        <button class="btn ghost" id="btnAdmBack">返回 Back</button>
+        <button class="btn" id="btnAdmLogin">登入 Login</button>
+      </div>
+    </div>
+
+    <div id="adminPanel" class="hide">
+      <div class="card">
+        <h2>台北 Taipei <span class="pill">TOP 10</span></h2>
+        <div id="tblTaipei"></div>
+      </div>
+      <div class="card">
+        <h2>台中 Taichung <span class="pill">TOP 10</span></h2>
+        <div id="tblTaichung"></div>
+      </div>
+      <div class="card">
+        <div class="btn-row">
+          <button class="btn ghost" id="btnAdmExit">登出 Logout</button>
+          <span>
+            <button class="btn ghost" id="btnAdmCsv">匯出 CSV</button>
+            <button class="btn" id="btnAdmRefresh">重新整理 Refresh</button>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span id="ftText">NMDC × 台灣電力公司通霄電廠二期更新改建計畫輸氣海管統包工程 · EHS 宣導</span><br>
+  <a id="lnkAdmin">管理者 Admin</a>
+</footer>
+
+<script>
+/* ================================================================
+   CONFIG — 部署後把 Apps Script 的 /exec 網址貼在這裡
+   留空 = 離線試玩模式（資料只存本機瀏覽器）
+================================================================ */
+const GAS_URL = "https://script.google.com/macros/s/AKfycbwbcM0y8jjeiPZcpEW5xwPXqnEM-VGHRxE1tlmDlFhSfoHhXWIKdCs7yx7yK8NGtSlc/exec";
+const ADMIN_PWD = "nmdc";
+const OFFLINE = !GAS_URL;
+
+/* ================= QUESTIONS ================= */
+const QUESTIONS = [
+ {zh:"工地周界圍籬高度應至少為多少？", en:"What is the minimum required height of the site perimeter fence?",
+  o:[["1.2 m","1.2 m"],["1.8 m","1.8 m"],["2.4 m","2.4 m"],["差不多就好","Roughly is fine"]], a:2},
+ {zh:"周界圍籬下方應設置什麼？", en:"What must be installed at the base of the perimeter fence?",
+  o:[["防溢座","Anti-spill kerb / base"],["花圃","Flower bed"],["路燈","Street lamp"],["魚池","Fish pond"]], a:0},
+ {zh:"車行路徑至少要覆蓋多少比例？", en:"What is the minimum required coverage ratio of vehicle haul routes?",
+  o:[["50%","50%"],["70%","70%"],["90% 以上","90% or above"],["看心情","Depends on the mood"]], a:2},
+ {zh:"裸露地表至少要覆蓋多少比例？", en:"What is the minimum required coverage ratio of exposed ground surfaces?",
+  o:[["50%","50%"],["70%","70%"],["90% 以上","90% or above"],["下雨再說","Wait until it rains"]], a:2},
+ {zh:"車輛出場前應清洗哪些部位？", en:"Which parts of a vehicle must be washed before leaving the site?",
+  o:[["車身及輪胎","Vehicle body and tyres"],["方向盤與座椅","Steering wheel and seats"],["車牌與後照鏡","Plate and mirrors"],["冷氣濾網","Air-conditioning filter"]], a:0},
+ {zh:"若無法經洗車台出場，應如何處理？", en:"What should be done if a vehicle cannot exit via the wheel-washing bay?",
+  o:[["高壓沖洗機清洗後才可出場","Clean with a high-pressure washer before leaving"],["直接加速離開","Simply accelerate away"],["等雨天再走","Wait for a rainy day"],["只洗輪胎就好","Wash the tyres only"]], a:0},
+ {zh:"砂石、土方等物料堆置時，可用什麼覆蓋？", en:"What may be used to cover stockpiles of aggregate and spoil?",
+  o:[["防塵布或防塵網","Dust sheet or dust net"],["透明膠帶","Clear adhesive tape"],["海報","A poster"],["不用覆蓋","No cover needed"]], a:0},
+ {zh:"載運逸散性物料的車輛應如何處理？", en:"How must vehicles hauling fugitive-dust materials be handled?",
+  o:[["密閉或緊密覆蓋","Fully enclosed or tightly covered"],["只蓋一半","Cover only half"],["晚上再載","Haul at night instead"],["開快一點","Drive faster"]], a:0},
+ {zh:"運輸車輛覆蓋邊緣應低於車斗上緣至少多少？", en:"The edge of the cover must sit at least how far below the top edge of the truck body?",
+  o:[["5 cm","5 cm"],["10 cm","10 cm"],["15 cm","15 cm"],["30 cm","30 cm"]], a:2},
+ {zh:"開挖、回填、裝卸等易揚塵作業前應先做什麼？", en:"What must be done before dust-generating works such as excavation, backfilling, loading and unloading?",
+  o:[["灑水","Water spraying"],["喝水","Drink water"],["開會","Hold a meeting"],["拍照","Take photos"]], a:0}
+];
+const PER_Q = 7, MAX_QUIZ = QUESTIONS.length * PER_Q, MAX_TIME = 30, MAX_ATTEMPTS = 2;
+
+/* ================= i18n ================= */
+const I18N = {
+ zh:{
+  title:"營建工程空污防制 有獎徵答", sub:"Construction Air Pollution Control — Prize Quiz",
+  langBtn:"English", rulesTitle:"活動辦法", startTitle:"開始作答",
+  lblName:"姓名", lblOffice:"辦公室", namePh:"請輸入姓名",
+  btnStart:"開始作答", btnPrev:"上一題", btnNext:"下一題", btnSubmit:"交卷",
+  qCount:(i,n)=>`第 ${i} / ${n} 題`,
+  errName:"請輸入姓名。", errOffice:"請選擇辦公室。",
+  errLimit:"此姓名與辦公室已達 2 次作答上限，無法再次作答。",
+  errPick:"請先選擇一個答案再繼續。",
+  checking:"查詢作答次數中…", submitting:"上傳成績中…",
+  resTitle:"作答完成，感謝參與！", resTotalLbl:"總分",
+  resTimeLbl:"作答時間", resQuizLbl:"答題分數（70%）", resTScoreLbl:"時間分數（30%）",
+  btnHome:"回首頁", saved:"成績已上傳，正確答案不予公布。",
+  savedLocal:"目前為離線試玩模式，成績僅存在本機瀏覽器。",
+  saveFail:"成績上傳失敗，請截圖本頁面並通知承辦人員。",
+  admTitle:"管理者登入", lblPwd:"密碼", btnAdmLogin:"登入", btnAdmBack:"返回",
+  errPwd:"密碼錯誤。", loading:"載入中…", noData:"目前尚無資料。",
+  thRank:"名次", thName:"姓名", thQuiz:"答題", thTime:"時間分", thTotal:"總分", thUsed:"用時", thWhen:"作答時間",
+  attemptLeft:(n)=>`（本次為第 ${n} 次作答）`,
+  ftText:"NMDC × 台灣電力公司通霄電廠二期更新改建計畫輸氣海管統包工程 · EHS 宣導",
+  admin:"管理者",
+  rules:[
+   "同一姓名最多只能填寫 <b>2 次</b>，以系統時間戳記為準。",
+   "填寫時間佔 <b>30%</b>，考試分數佔 <b>70%</b>。<br><span class=\"sub\">時間：1 分鐘內完成答題得 30 分，每隔 1 分鐘遞減 5 分；試題答對每題得 7 分。</span>"
+  ]
+ },
+ en:{
+  title:"Construction Air Pollution Control — Prize Quiz", sub:"營建工程空污防制 有獎徵答",
+  langBtn:"中文", rulesTitle:"Rules", startTitle:"Start",
+  lblName:"Name", lblOffice:"Office", namePh:"Enter your name",
+  btnStart:"Start Quiz", btnPrev:"Back", btnNext:"Next", btnSubmit:"Submit",
+  qCount:(i,n)=>`Question ${i} of ${n}`,
+  errName:"Please enter your name.", errOffice:"Please select your office.",
+  errLimit:"This name and office has already used the maximum of 2 attempts.",
+  errPick:"Please select an answer before continuing.",
+  checking:"Checking your attempts…", submitting:"Uploading your score…",
+  resTitle:"Completed — thank you for taking part!", resTotalLbl:"Total Score",
+  resTimeLbl:"Time Used", resQuizLbl:"Quiz Score (70%)", resTScoreLbl:"Time Score (30%)",
+  btnHome:"Home", saved:"Your score has been uploaded. Correct answers are not disclosed.",
+  savedLocal:"Offline demo mode — the score is stored in this browser only.",
+  saveFail:"Upload failed. Please screenshot this page and inform the organiser.",
+  admTitle:"Administrator Login", lblPwd:"Password", btnAdmLogin:"Login", btnAdmBack:"Back",
+  errPwd:"Incorrect password.", loading:"Loading…", noData:"No records yet.",
+  thRank:"Rank", thName:"Name", thQuiz:"Quiz", thTime:"Time Pts", thTotal:"Total", thUsed:"Used", thWhen:"Submitted",
+  attemptLeft:(n)=>`(attempt ${n} of 2)`,
+  ftText:"NMDC × Taipower Tongxiao Phase II Subsea Gas Pipeline EPC Project · EHS Awareness",
+  admin:"Admin",
+  rules:[
+   "Each name may enter a maximum of <b>2 times</b>, determined by the system timestamp.",
+   "Completion time counts for <b>30%</b> and the quiz for <b>70%</b>.<br><span class=\"sub\">Time: 30 points for finishing within 1 minute, minus 5 points for every additional minute. Each correct answer scores 7 points.</span>"
+  ]
+ }
+};
+let LANG = "zh";
+const T = () => I18N[LANG];
+
+/* ================= STATE ================= */
+let S = { name:"", office:"", answers:[], idx:0, t0:0, tick:null };
+
+/* ================= HELPERS ================= */
+const $ = id => document.getElementById(id);
+const fmt = s => String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0");
+
+function timeScore(sec){
+  const m = Math.max(1, Math.ceil(sec/60));      // 1st minute = 30 pts
+  return Math.max(0, MAX_TIME - (m-1)*5);
+}
+function quizScore(ans){
+  return ans.reduce((s,a,i)=> s + (a===QUESTIONS[i].a ? PER_Q : 0), 0);
+}
+function show(sec){
+  ["scHome","scQuiz","scResult","scAdmin"].forEach(id=>$(id).classList.add("hide"));
+  $(sec).classList.remove("hide");
+  window.scrollTo(0,0);
+}
+function setMsg(el,txt,cls){ const e=$(el); e.textContent=txt||""; e.className="msg"+(txt?" "+cls:""); }
+
+/* ============ BACKEND (GAS or localStorage) ============ */
+async function api(action,payload){
+  if(OFFLINE) return offlineApi(action,payload);
+  const res = await fetch(GAS_URL,{
+    method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(Object.assign({action},payload))
+  });
+  return await res.json();
+}
+function lsAll(){ try{ return JSON.parse(localStorage.getItem("nmdc_quiz")||"[]"); }catch(e){ return []; } }
+function lsSave(a){ localStorage.setItem("nmdc_quiz", JSON.stringify(a)); }
+function offlineApi(action,p){
+  const all = lsAll();
+  if(action==="check"){
+    const n = all.filter(r=> r.name===p.name && r.office===p.office).length;
+    return {ok:true, count:n, allowed:n<MAX_ATTEMPTS};
+  }
+  if(action==="submit"){
+    const n = all.filter(r=> r.name===p.name && r.office===p.office).length;
+    if(n>=MAX_ATTEMPTS) return {ok:false, error:"limit"};
+    all.push(Object.assign({ts:new Date().toISOString()},p)); lsSave(all);
+    return {ok:true, attempt:n+1};
+  }
+  if(action==="leaderboard"){
+    const best = {};
+    all.forEach(r=>{
+      const k = r.office+"||"+r.name;
+      if(!best[k] || r.total>best[k].total || (r.total===best[k].total && r.seconds<best[k].seconds)) best[k]=r;
+    });
+    const out = {Taipei:[],Taichung:[]};
+    Object.values(best).forEach(r=>{ if(out[r.office]) out[r.office].push(r); });
+    for(const k in out) out[k].sort((a,b)=> b.total-a.total || a.seconds-b.seconds).splice(10);
+    return {ok:true, data:out};
+  }
+  return {ok:false,error:"unknown"};
+}
+
+/* ================= RENDER ================= */
+function renderStatic(){
+  const t=T();
+  document.documentElement.lang = LANG==="zh" ? "zh-Hant" : "en";
+  $("hTitle").childNodes[0].nodeValue = t.title+" ";
+  $("hSub").textContent = t.sub;
+  $("langBtn").textContent = t.langBtn;
+  $("rulesTitle").textContent = t.rulesTitle;
+  $("startTitle").textContent = t.startTitle;
+  $("lblName").textContent = t.lblName;
+  $("lblOffice").textContent = t.lblOffice;
+  $("inName").placeholder = t.namePh;
+  $("btnStart").textContent = t.btnStart;
+  $("btnPrev").textContent = t.btnPrev;
+  $("resTitle").textContent = t.resTitle;
+  $("resTotalLbl").textContent = t.resTotalLbl;
+  $("resTimeLbl").textContent = t.resTimeLbl;
+  $("resQuizLbl").textContent = t.resQuizLbl;
+  $("resTScoreLbl").textContent = t.resTScoreLbl;
+  $("btnHome").textContent = t.btnHome;
+  $("admTitle").textContent = t.admTitle;
+  $("lblPwd").textContent = t.lblPwd;
+  $("btnAdmLogin").textContent = t.btnAdmLogin;
+  $("btnAdmBack").textContent = t.btnAdmBack;
+  $("ftText").textContent = t.ftText;
+  $("lnkAdmin").textContent = t.admin;
+  $("rulesList").innerHTML = t.rules.map(r=>`<li>${r}</li>`).join("");
+  if(!$("scQuiz").classList.contains("hide")) renderQ();
+}
+function renderQ(){
+  const t=T(), q=QUESTIONS[S.idx];
+  $("qCount").textContent = t.qCount(S.idx+1, QUESTIONS.length);
+  $("qProg").style.width = ((S.idx)/QUESTIONS.length*100)+"%";
+  $("qTextZh").textContent = (LANG==="zh"? q.zh : q.en);
+  $("qTextEn").textContent = (LANG==="zh"? q.en : q.zh);
+  $("qOpts").innerHTML = q.o.map((o,i)=>{
+    const sel = S.answers[S.idx]===i ? " sel":"";
+    const main = LANG==="zh"? o[0] : o[1], secd = LANG==="zh"? o[1] : o[0];
+    return `<div class="opt${sel}" data-i="${i}"><div class="k">${"ABCD"[i]}</div>
+            <div class="t">${main}<em>${secd}</em></div></div>`;
+  }).join("");
+  [...$("qOpts").children].forEach(el=> el.onclick = ()=>{
+    S.answers[S.idx] = +el.dataset.i; setMsg("quizMsg",""); renderQ();
+  });
+  $("btnPrev").style.visibility = S.idx===0 ? "hidden":"visible";
+  $("btnNext").textContent = (S.idx===QUESTIONS.length-1) ? t.btnSubmit : t.btnNext;
+}
+
+/* ================= FLOW ================= */
+$("langBtn").onclick = ()=>{ LANG = LANG==="zh"?"en":"zh"; renderStatic(); };
+
+$("btnStart").onclick = async ()=>{
+  const t=T();
+  const name = $("inName").value.trim().replace(/\s+/g," ");
+  const office = $("inOffice").value;
+  if(!name) return setMsg("homeMsg", t.errName, "err");
+  if(!office) return setMsg("homeMsg", t.errOffice, "err");
+  setMsg("homeMsg", t.checking, "warn");
+  $("btnStart").disabled = true;
+  try{
+    const r = await api("check",{name,office});
+    if(r.ok && !r.allowed){ $("btnStart").disabled=false; return setMsg("homeMsg", t.errLimit, "err"); }
+    setMsg("homeMsg", t.attemptLeft((r.count||0)+1), "ok");
+    S = {name, office, answers:new Array(QUESTIONS.length).fill(null), idx:0, t0:Date.now(), tick:null};
+    show("scQuiz"); renderQ();
+    $("qTimer").textContent = "00:00";
+    S.tick = setInterval(()=>{ $("qTimer").textContent = fmt(Math.floor((Date.now()-S.t0)/1000)); },500);
+  }catch(e){ setMsg("homeMsg", "Network error: "+e.message, "err"); }
+  $("btnStart").disabled = false;
+};
+
+$("btnPrev").onclick = ()=>{ if(S.idx>0){ S.idx--; setMsg("quizMsg",""); renderQ(); } };
+
+$("btnNext").onclick = async ()=>{
+  const t=T();
+  if(S.answers[S.idx]===null || S.answers[S.idx]===undefined) return setMsg("quizMsg", t.errPick, "err");
+  if(S.idx < QUESTIONS.length-1){ S.idx++; setMsg("quizMsg",""); renderQ(); return; }
+  clearInterval(S.tick);
+  const seconds = Math.max(1, Math.round((Date.now()-S.t0)/1000));
+  const qs = quizScore(S.answers), ts = timeScore(seconds), total = qs+ts;
+  const correct = S.answers.filter((a,i)=>a===QUESTIONS[i].a).length;
+  $("resWho").textContent = `${S.name} · ${S.office==="Taipei"?(LANG==="zh"?"台北":"Taipei"):(LANG==="zh"?"台中":"Taichung")}`;
+  $("resTotal").innerHTML = total+"<span> / 100</span>";
+  $("resTime").textContent = fmt(seconds);
+  $("resQuiz").textContent = qs+" / 70";
+  $("resTScore").textContent = ts+" / 30";
+  show("scResult");
+  setMsg("resMsg", t.submitting, "warn");
+  try{
+    const r = await api("submit",{name:S.name, office:S.office, seconds, correct,
+                                  quizScore:qs, timeScore:ts, total});
+    setMsg("resMsg", r.ok ? (OFFLINE ? t.savedLocal : t.saved) : t.saveFail, r.ok?"ok":"err");
+  }catch(e){ setMsg("resMsg", t.saveFail, "err"); }
+};
+
+$("btnHome").onclick = ()=>{ $("inName").value=""; $("inOffice").value=""; setMsg("homeMsg",""); show("scHome"); };
+
+/* ================= ADMIN ================= */
+$("lnkAdmin").onclick = ()=>{ $("adminPanel").classList.add("hide"); $("adminLogin").classList.remove("hide");
+  $("inPwd").value=""; setMsg("admMsg",""); show("scAdmin"); };
+$("btnAdmBack").onclick = ()=> show("scHome");
+$("btnAdmExit").onclick = ()=> show("scHome");
+$("btnAdmLogin").onclick = ()=>{
+  if($("inPwd").value !== ADMIN_PWD) return setMsg("admMsg", T().errPwd, "err");
+  setMsg("admMsg",""); $("adminLogin").classList.add("hide"); $("adminPanel").classList.remove("hide");
+  loadBoard();
+};
+$("inPwd").addEventListener("keydown", e=>{ if(e.key==="Enter") $("btnAdmLogin").click(); });
+$("btnAdmRefresh").onclick = loadBoard;
+
+let BOARD = {Taipei:[],Taichung:[]};
+async function loadBoard(){
+  const t=T();
+  $("tblTaipei").innerHTML = $("tblTaichung").innerHTML = `<p class="sub">${t.loading}</p>`;
+  try{
+    const r = await api("leaderboard",{});
+    BOARD = (r.ok && r.data) ? r.data : {Taipei:[],Taichung:[]};
+  }catch(e){ BOARD = {Taipei:[],Taichung:[]}; }
+  $("tblTaipei").innerHTML = tableHtml(BOARD.Taipei||[]);
+  $("tblTaichung").innerHTML = tableHtml(BOARD.Taichung||[]);
+}
+function tableHtml(rows){
+  const t=T();
+  if(!rows.length) return `<p class="sub">${t.noData}</p>`;
+  const body = rows.map((r,i)=>{
+    const cls = i<3 ? ` class="rank${i+1}"` : "";
+    const when = r.ts ? new Date(r.ts).toLocaleString(LANG==="zh"?"zh-TW":"en-GB") : "-";
+    return `<tr><td${cls}>${i+1}</td><td>${escapeHtml(r.name)}</td>
+      <td class="num">${r.quizScore}</td><td class="num">${r.timeScore}</td>
+      <td class="num"><b>${r.total}</b></td><td class="num">${fmt(r.seconds)}</td>
+      <td class="sub">${when}</td></tr>`;
+  }).join("");
+  return `<table><thead><tr><th>${t.thRank}</th><th>${t.thName}</th>
+    <th class="num">${t.thQuiz}</th><th class="num">${t.thTime}</th>
+    <th class="num">${t.thTotal}</th><th class="num">${t.thUsed}</th>
+    <th>${t.thWhen}</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+$("btnAdmCsv").onclick = ()=>{
+  const rows = [["Office","Rank","Name","QuizScore","TimeScore","Total","Seconds","Timestamp"]];
+  ["Taipei","Taichung"].forEach(off=>(BOARD[off]||[]).forEach((r,i)=>
+    rows.push([off,i+1,r.name,r.quizScore,r.timeScore,r.total,r.seconds,r.ts||""])));
+  const csv = "﻿"+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="quiz_leaderboard.csv"; a.click();
+};
+
+/* ================= INIT ================= */
+renderStatic();
+</script>
+</body>
+</html>
