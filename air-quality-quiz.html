@@ -114,6 +114,35 @@
   .msg.ok{background:#e9faf0;color:var(--green2);border:1px solid #b6ecca;display:block;}
   .msg.warn{background:#fff8e8;color:#8a5a00;border:1px solid #ffe3a8;display:block;}
 
+  /* ---------- 參與人數 ---------- */
+  .join-card{padding:16px 18px 14px;}
+  .join-head{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.5px;
+    text-align:center;margin-bottom:8px;}
+  .join-grid{display:flex;align-items:stretch;}
+  .join-cell{flex:1;text-align:center;padding:2px 4px;}
+  .join-div{width:1px;background:var(--line);margin:2px 6px;}
+  .join-off{font-size:14px;font-weight:800;color:var(--navy2);}
+  .join-num{font-size:38px;font-weight:900;line-height:1.15;
+    background:linear-gradient(135deg,var(--green2),var(--teal));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .join-unit{font-size:11.5px;color:var(--muted);}
+
+  /* ---------- 後台表格 ---------- */
+  .adm-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px;}
+  .adm-tools input{width:auto;flex:1;min-width:160px;padding:9px 12px;font-size:14px;}
+  .chip{display:inline-block;background:var(--sky);color:var(--navy2);border-radius:10px;
+    padding:2px 9px;font-size:11.5px;font-weight:700;}
+  .chip.win{background:#fff2d6;color:#8a5a00;}
+  .chip.cnt{background:#eef4fa;color:var(--muted);}
+  tr.sub-row td{background:#f8fbfe;font-size:13px;color:var(--muted);}
+  tr.sub-row td:first-child{padding-left:18px;}
+  .lnk{color:#c33a26;cursor:pointer;font-size:12.5px;font-weight:700;
+    border:1px solid #f3cdc6;background:#fff6f4;border-radius:8px;padding:3px 9px;
+    white-space:nowrap;display:inline-block;}
+  .lnk:hover{background:#fdeae6;}
+  .lnk.all{color:#8a3c2c;}
+  .best{font-weight:900;color:var(--navy);}
+
   /* ---------- prize ---------- */
   #prizeArt .card-wrap{position:relative;max-width:430px;margin:6px auto 10px;}
   #prizeArt .card-photo{width:100%;display:block;border-radius:15px;
@@ -233,6 +262,23 @@
 
   <!-- ============ HOME ============ -->
   <section id="scHome">
+    <div class="card join-card">
+      <div class="join-head" id="joinTitle">目前參與人數 Participants</div>
+      <div class="join-grid">
+        <div class="join-cell">
+          <div class="join-off" id="joinTP">台北 Taipei</div>
+          <div class="join-num" id="joinTPn">–</div>
+          <div class="join-unit" id="joinTPa">&nbsp;</div>
+        </div>
+        <div class="join-div"></div>
+        <div class="join-cell">
+          <div class="join-off" id="joinTC">台中 Taichung</div>
+          <div class="join-num" id="joinTCn">–</div>
+          <div class="join-unit" id="joinTCa">&nbsp;</div>
+        </div>
+      </div>
+    </div>
+
     <div class="card">
       <h2 id="rulesTitle">活動辦法 Rules</h2>
       <ol class="rules" id="rulesList"></ol>
@@ -325,11 +371,18 @@
 
     <div id="adminPanel" class="hide">
       <div class="card">
-        <h2>台北 Taipei <span class="pill">TOP 10</span></h2>
+        <div class="adm-tools">
+          <input type="text" id="admFind" placeholder="搜尋姓名 Search name" autocomplete="off">
+          <button class="btn ghost" id="btnAdmRefresh2">重新整理 Refresh</button>
+        </div>
+        <div class="msg" id="admInfo"></div>
+      </div>
+      <div class="card">
+        <h2>台北 Taipei <span class="pill" id="pillTP">–</span></h2>
         <div id="tblTaipei"></div>
       </div>
       <div class="card">
-        <h2>台中 Taichung <span class="pill">TOP 10</span></h2>
+        <h2>台中 Taichung <span class="pill" id="pillTC">–</span></h2>
         <div id="tblTaichung"></div>
       </div>
       <div class="card">
@@ -533,8 +586,18 @@ const I18N = {
   limitMsg:"已達 2 次作答上限，本次成績不列入排名。",
   admTitle:"管理者登入", lblPwd:"密碼", btnAdmLogin:"登入", btnAdmBack:"返回",
   errPwd:"密碼錯誤。", loading:"載入中…", noData:"目前尚無資料。",
+  confirmOne:(nm)=>`確定要刪除「${nm}」的這一筆作答紀錄嗎？此動作會同步刪除試算表中的該列，且無法復原。`,
+  confirmAll:(nm,c)=>`確定要刪除「${nm}」的全部 ${c} 筆作答紀錄嗎？此動作會同步刪除試算表中的資料，且無法復原。`,
   thRank:"名次", thName:"姓名", thQuiz:"答題", thTime:"時間分", thTotal:"總分", thUsed:"用時", thWhen:"作答時間",
   attemptLeft:(n)=>`（本次為第 ${n} 次作答）`,
+  joinTitle:"目前參與人數", joinTP:"台北 Taipei", joinTC:"台中 Taichung",
+  attempts:(n)=>`累計作答 ${n} 次`,
+  thAct:"操作", del:"刪除", delAll:"刪除全部",
+  counted:"計分", notCounted:"不計分", nth:(k)=>`第 ${k} 次作答`,
+  times:(n)=>`${n} 次`, winner:"得獎名額", nPeople:(n)=>`${n} 人`,
+  loaded:(n)=>`已載入 ${n} 筆紀錄。`, deleting:"刪除中…",
+  deleted:(d,s)=>`已刪除 ${d} 筆${s?`，${s} 筆略過（資料已變動，請重新整理）`:"，試算表已同步。"}`,
+  errPwdSrv:"後端密碼不符：請確認 Code.gs 的 ADMIN_PWD 與此處輸入的密碼一致。",
   ftText:"NMDC ENERGY × 台灣電力公司通霄電廠二期更新改建計畫輸氣海管統包工程 · EHS 宣導",
   admin:"管理者",
   rules:[
@@ -566,8 +629,18 @@ const I18N = {
   limitMsg:"Attempt limit reached; this result is not recorded.",
   admTitle:"Administrator Login", lblPwd:"Password", btnAdmLogin:"Login", btnAdmBack:"Back",
   errPwd:"Incorrect password.", loading:"Loading…", noData:"No records yet.",
+  confirmOne:(nm)=>`Delete this attempt by "${nm}"? The matching row will be removed from the spreadsheet. This cannot be undone.`,
+  confirmAll:(nm,c)=>`Delete all ${c} attempts by "${nm}"? The matching rows will be removed from the spreadsheet. This cannot be undone.`,
   thRank:"Rank", thName:"Name", thQuiz:"Quiz", thTime:"Time Pts", thTotal:"Total", thUsed:"Used", thWhen:"Submitted",
   attemptLeft:(n)=>`(attempt ${n} of 2)`,
+  joinTitle:"Participants so far", joinTP:"Taipei 台北", joinTC:"Taichung 台中",
+  attempts:(n)=>`${n} attempts in total`,
+  thAct:"Action", del:"Delete", delAll:"Delete all",
+  counted:"counted", notCounted:"not counted", nth:(k)=>`Attempt ${k}`,
+  times:(n)=>`${n}\u00d7`, winner:"prize slot", nPeople:(n)=>`${n} people`,
+  loaded:(n)=>`${n} records loaded.`, deleting:"Deleting…",
+  deleted:(d,s)=>`${d} deleted${s?`, ${s} skipped (data changed — please refresh)`:" — the sheet is in sync."}`,
+  errPwdSrv:"Backend password mismatch: make sure ADMIN_PWD in Code.gs matches what you typed.",
   ftText:"NMDC ENERGY × Taipower Tongxiao Phase II Subsea Gas Pipeline EPC Project · EHS Awareness",
   admin:"Admin",
   rules:[
@@ -640,6 +713,22 @@ function offlineApi(action,p){
     all.push(Object.assign({ts:new Date().toISOString()},p)); lsSave(all);
     return {ok:true, attempt:n+1};
   }
+  if(action==="stats" || action==="all"){
+    const st={Taipei:{people:0,attempts:0},Taichung:{people:0,attempts:0}}, seen={};
+    all.forEach(r=>{ if(!st[r.office]) return; st[r.office].attempts++;
+      const k=r.office+"||"+r.name.toLowerCase(); if(!seen[k]){seen[k]=1; st[r.office].people++;} });
+    if(action==="stats") return {ok:true, data:st};
+    return {ok:true, data: all.map((r,i)=>Object.assign({row:i+2},r)), stats:st};
+  }
+  if(action==="delete"){
+    const rows=new Set((p.items||[]).map(it=>+it.row));
+    const kept=all.filter((r,i)=>!rows.has(i+2));
+    const del=all.length-kept.length; lsSave(kept);
+    const st={Taipei:{people:0,attempts:0},Taichung:{people:0,attempts:0}}, seen={};
+    kept.forEach(r=>{ if(!st[r.office]) return; st[r.office].attempts++;
+      const k=r.office+"||"+r.name.toLowerCase(); if(!seen[k]){seen[k]=1; st[r.office].people++;} });
+    return {ok:true, deleted:del, skipped:0, data:kept.map((r,i)=>Object.assign({row:i+2},r)), stats:st};
+  }
   if(action==="leaderboard"){
     const best = {};
     all.forEach(r=>{
@@ -682,12 +771,17 @@ function renderStatic(){
   $("ftText").textContent = t.ftText;
   $("lnkAdmin").textContent = t.admin;
   $("rulesList").innerHTML = t.rules.map(r=>`<li>${r}</li>`).join("");
+  $("joinTitle").textContent = t.joinTitle;
+  $("joinTP").textContent = t.joinTP;
+  $("joinTC").textContent = t.joinTC;
+  paintStats(STATS);
   $("prizeTitle").textContent = t.prizeTitle;
   $("prizeArt").innerHTML = PRIZE_CARD;
   $("prizeText").innerHTML = t.prizeText +
     `<div class="quota"><span>${t.quotaTC} <b>10</b> ${t.quotaUnit}</span>
      <span>${t.quotaTP} <b>5</b> ${t.quotaUnit}</span></div>`;
   if(!$("scQuiz").classList.contains("hide")) renderQ();
+  if(!$("adminPanel").classList.contains("hide")) renderBoard();   // 後台表格同步換語言
 }
 function renderQ(){
   const t=T(), q=QUESTIONS[S.idx];
@@ -774,63 +868,176 @@ $("btnNext").onclick = async ()=>{
 
 $("btnHome").onclick = ()=>{
   $("inName").value=""; $("inOffice").value=""; setMsg("homeMsg","");
-  $("ringArc").style.strokeDashoffset = 452; show("scHome");
+  $("ringArc").style.strokeDashoffset = 452; show("scHome"); loadStats();
 };
 
 /* ================= ADMIN ================= */
+let ADMIN_TOKEN = "";                 // 登入時輸入的密碼，刪除時送給後端驗證
+let ALL = [];                         // 全部原始紀錄
+let STATS = null;
+
 $("lnkAdmin").onclick = ()=>{ $("adminPanel").classList.add("hide"); $("adminLogin").classList.remove("hide");
   $("inPwd").value=""; setMsg("admMsg",""); show("scAdmin"); };
 $("btnAdmBack").onclick = ()=> show("scHome");
-$("btnAdmExit").onclick = ()=> show("scHome");
+$("btnAdmExit").onclick = ()=>{ ADMIN_TOKEN=""; ALL=[]; show("scHome"); };
 $("btnAdmLogin").onclick = ()=>{
-  if($("inPwd").value !== ADMIN_PWD) return setMsg("admMsg", T().errPwd, "err");
+  const pwd = $("inPwd").value;
+  if(pwd !== ADMIN_PWD) return setMsg("admMsg", T().errPwd, "err");
+  ADMIN_TOKEN = pwd;
   setMsg("admMsg",""); $("adminLogin").classList.add("hide"); $("adminPanel").classList.remove("hide");
   loadBoard();
 };
 $("inPwd").addEventListener("keydown", e=>{ if(e.key==="Enter") $("btnAdmLogin").click(); });
 $("btnAdmRefresh").onclick = loadBoard;
+$("btnAdmRefresh2").onclick = loadBoard;
+$("admFind").addEventListener("input", renderBoard);
 
-let BOARD = {Taipei:[],Taichung:[]};
 async function loadBoard(){
   const t=T();
   $("tblTaipei").innerHTML = $("tblTaichung").innerHTML = `<p class="sub">${t.loading}</p>`;
+  setMsg("admInfo", t.loading, "warn");
   try{
-    const r = await api("leaderboard",{});
-    BOARD = (r.ok && r.data) ? r.data : {Taipei:[],Taichung:[]};
-  }catch(e){ BOARD = {Taipei:[],Taichung:[]}; }
-  $("tblTaipei").innerHTML = tableHtml(BOARD.Taipei||[]);
-  $("tblTaichung").innerHTML = tableHtml(BOARD.Taichung||[]);
+    const r = await api("all",{pwd:ADMIN_TOKEN});
+    if(!r.ok){
+      setMsg("admInfo", r.error==="badpwd" ? t.errPwdSrv : ("Error: "+(r.error||"unknown")), "err");
+      ALL=[]; STATS=null; renderBoard(); return;
+    }
+    ALL = r.data || []; STATS = r.stats || null;
+    setMsg("admInfo", t.loaded(ALL.length), "ok");
+  }catch(e){
+    ALL=[]; STATS=null; setMsg("admInfo", e.message, "err");
+  }
+  renderBoard(); paintStats(STATS);
 }
-function tableHtml(rows){
+
+/* 依「姓名＋辦公室」分組，計分那次為主列，其餘為關聯子列 */
+function groupPeople(rows, office){
+  const g = {};
+  rows.filter(r=>r.office===office).forEach(r=>{
+    const k = r.name.trim().toLowerCase();
+    (g[k] = g[k] || {name:r.name, office, tries:[]}).tries.push(r);
+  });
+  const people = Object.values(g);
+  people.forEach(p=>{
+    p.tries.sort((a,b)=> new Date(a.ts)-new Date(b.ts));          // 依作答時間排序
+    p.best = p.tries.reduce((m,r)=> (!m || r.total>m.total || (r.total===m.total && r.seconds<m.seconds)) ? r : m, null);
+  });
+  people.sort((a,b)=> b.best.total-a.best.total || a.best.seconds-b.best.seconds
+                    || a.name.localeCompare(b.name));
+  return people;
+}
+
+function renderBoard(){
+  const q = ($("admFind").value||"").trim().toLowerCase();
+  const rows = q ? ALL.filter(r=>r.name.toLowerCase().includes(q)) : ALL;
+  const tp = groupPeople(rows,"Taipei"), tc = groupPeople(rows,"Taichung");
+  $("tblTaipei").innerHTML   = rosterHtml(tp, 5);
+  $("tblTaichung").innerHTML = rosterHtml(tc, 10);
+  $("pillTP").textContent = T().nPeople(tp.length);
+  $("pillTC").textContent = T().nPeople(tc.length);
+  bindRowActions();
+}
+
+function rosterHtml(people, quota){
   const t=T();
-  if(!rows.length) return `<p class="sub">${t.noData}</p>`;
-  const body = rows.map((r,i)=>{
+  if(!people.length) return `<p class="sub">${t.noData}</p>`;
+  let html = "";
+  people.forEach((p,i)=>{
     const rk = i<3 ? `<span class="medal m${i+1}">${i+1}</span>` : (i+1);
-    const when = r.ts ? new Date(r.ts).toLocaleString(LANG==="zh"?"zh-TW":"en-GB") : "-";
-    return `<tr><td>${rk}</td><td>${escapeHtml(r.name)}</td>
-      <td class="num">${r.quizScore}</td><td class="num">${r.timeScore}</td>
-      <td class="num"><b>${r.total}</b></td><td class="num">${fmt(r.seconds)}</td>
-      <td class="sub">${when}</td></tr>`;
-  }).join("");
-  return `<div style="overflow-x:auto"><table><thead><tr><th>${t.thRank}</th><th>${t.thName}</th>
+    const win = i<quota ? ` <span class="chip win">${t.winner}</span>` : "";
+    const cnt = p.tries.length>1 ? ` <span class="chip cnt">${t.times(p.tries.length)}</span>` : "";
+    const b = p.best;
+    html += `<tr>
+      <td>${rk}</td>
+      <td><b>${escapeHtml(p.name)}</b>${win}${cnt}</td>
+      <td class="num">${b.quizScore}</td><td class="num">${b.timeScore}</td>
+      <td class="num best">${b.total}</td><td class="num">${fmt(b.seconds)}</td>
+      <td class="sub">${when(b.ts)}</td>
+      <td><span class="lnk all" data-del-person="${escapeHtml(p.name)}"
+           data-office="${p.office}">${t.delAll}</span></td></tr>`;
+    p.tries.forEach((r,k)=>{
+      const tag = r===b ? t.counted : t.notCounted;
+      html += `<tr class="sub-row">
+        <td>↳</td>
+        <td>${t.nth(k+1)} <span class="chip">${tag}</span></td>
+        <td class="num">${r.quizScore}</td><td class="num">${r.timeScore}</td>
+        <td class="num">${r.total}</td><td class="num">${fmt(r.seconds)}</td>
+        <td>${when(r.ts)}</td>
+        <td><span class="lnk" data-del-row="${r.row}"
+             data-name="${escapeHtml(r.name)}">${t.del}</span></td></tr>`;
+    });
+  });
+  return `<div style="overflow-x:auto"><table><thead><tr>
+    <th>${t.thRank}</th><th>${t.thName}</th>
     <th class="num">${t.thQuiz}</th><th class="num">${t.thTime}</th>
     <th class="num">${t.thTotal}</th><th class="num">${t.thUsed}</th>
-    <th>${t.thWhen}</th></tr></thead><tbody>${body}</tbody></table></div>`;
+    <th>${t.thWhen}</th><th>${t.thAct}</th></tr></thead><tbody>${html}</tbody></table></div>`;
 }
+
+function when(ts){ return ts ? new Date(ts).toLocaleString(LANG==="zh"?"zh-TW":"en-GB") : "-"; }
+
+function bindRowActions(){
+  document.querySelectorAll("[data-del-row]").forEach(el=> el.onclick = ()=>{
+    const row=+el.dataset.delRow, name=el.dataset.name;
+    if(confirm(T().confirmOne(name))) doDelete([{row,name}]);
+  });
+  document.querySelectorAll("[data-del-person]").forEach(el=> el.onclick = ()=>{
+    const name=el.dataset.delPerson, office=el.dataset.office;
+    const items = ALL.filter(r=>r.office===office && r.name.trim().toLowerCase()===name.trim().toLowerCase())
+                     .map(r=>({row:r.row, name:r.name}));
+    if(!items.length) return;
+    if(confirm(T().confirmAll(name, items.length))) doDelete(items);
+  });
+}
+
+async function doDelete(items){
+  const t=T();
+  setMsg("admInfo", t.deleting, "warn");
+  try{
+    const r = await api("delete",{pwd:ADMIN_TOKEN, items});
+    if(!r.ok){
+      setMsg("admInfo", r.error==="badpwd" ? t.errPwdSrv : ("Error: "+(r.error||"unknown")), "err");
+      return;
+    }
+    ALL = r.data || []; STATS = r.stats || null;
+    setMsg("admInfo", t.deleted(r.deleted, r.skipped), r.skipped ? "warn" : "ok");
+    renderBoard(); paintStats(STATS);
+  }catch(e){ setMsg("admInfo", e.message, "err"); }
+}
+
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 $("btnAdmCsv").onclick = ()=>{
-  const rows = [["Office","Rank","Name","QuizScore","TimeScore","Total","Seconds","Timestamp"]];
-  ["Taipei","Taichung"].forEach(off=>(BOARD[off]||[]).forEach((r,i)=>
-    rows.push([off,i+1,r.name,r.quizScore,r.timeScore,r.total,r.seconds,r.ts||""])));
+  const rows = [["Office","Name","Attempt","Counted","QuizScore","TimeScore","Total","Seconds","Timestamp","SheetRow"]];
+  ["Taipei","Taichung"].forEach(off=> groupPeople(ALL,off).forEach(p=>
+    p.tries.forEach((r,k)=> rows.push([off,p.name,k+1,(r===p.best?"Y":""),
+      r.quizScore,r.timeScore,r.total,r.seconds,r.ts||"",r.row]))));
   const csv = "﻿"+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
-  a.download="quiz_leaderboard.csv"; a.click();
+  a.download="quiz_records.csv"; a.click();
 };
+
+/* ================= 首頁參與人數 ================= */
+function paintStats(st){
+  const t=T();
+  const tp = st && st.Taipei ? st.Taipei : {people:0,attempts:0};
+  const tc = st && st.Taichung ? st.Taichung : {people:0,attempts:0};
+  $("joinTPn").textContent = tp.people;
+  $("joinTCn").textContent = tc.people;
+  $("joinTPa").textContent = t.attempts(tp.attempts);
+  $("joinTCa").textContent = t.attempts(tc.attempts);
+}
+async function loadStats(){
+  try{
+    const r = await api("stats",{});
+    if(r.ok){ STATS = r.data; paintStats(r.data); }
+  }catch(e){ /* 靜默失敗，不影響作答 */ }
+}
 
 /* ================= INIT ================= */
 renderStatic();
+loadStats();
 </script>
 </body>
 </html>
