@@ -114,6 +114,18 @@
   .msg.ok{background:#e9faf0;color:var(--green2);border:1px solid #b6ecca;display:block;}
   .msg.warn{background:#fff8e8;color:#8a5a00;border:1px solid #ffe3a8;display:block;}
 
+  /* ---------- 活動已結束 ---------- */
+  .closed-card{
+    background:linear-gradient(135deg,#0d2436 0%,#14405f 55%,#0f7a6e 120%);
+    border:none;text-align:center;padding:26px 22px 24px;
+  }
+  .closed-badge{
+    display:inline-block;background:var(--amber);color:#3d2600;font-size:11.5px;
+    font-weight:900;letter-spacing:2px;border-radius:20px;padding:3px 14px;margin-bottom:12px;
+  }
+  .closed-t{font-size:24px;font-weight:900;color:#fff;line-height:1.35;}
+  .closed-s{font-size:14px;color:#a9cede;margin-top:8px;}
+
   /* ---------- 參與人數 ---------- */
   .join-card{padding:16px 18px 14px;}
   .join-head{font-size:13px;font-weight:800;color:var(--muted);letter-spacing:.5px;
@@ -142,6 +154,36 @@
   .lnk:hover{background:#fdeae6;}
   .lnk.all{color:#8a3c2c;}
   .best{font-weight:900;color:var(--navy);}
+
+  /* ---------- 得獎公告 ---------- */
+  .aw-head{text-align:center;border-bottom:2px solid var(--line);padding-bottom:14px;margin-bottom:6px;}
+  .aw-head h3{margin:0;font-size:23px;color:var(--navy);font-weight:900;}
+  .aw-head .s{font-size:13px;color:var(--muted);margin-top:5px;}
+  .aw-sec{margin-top:20px;}
+  .aw-sec .t{font-size:16px;font-weight:900;color:var(--navy2);display:flex;
+    align-items:center;gap:8px;margin-bottom:10px;}
+  .aw-sec .t span{background:var(--sky);color:var(--navy2);border-radius:10px;
+    padding:1px 9px;font-size:12px;font-weight:700;}
+  .aw-list{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;}
+  .aw-item{display:flex;align-items:center;gap:10px;background:#f7fbfe;
+    border:1px solid var(--line);border-radius:10px;padding:9px 12px;}
+  .aw-item .r{flex:none;width:24px;height:24px;border-radius:50%;background:var(--green2);
+    color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .aw-item .n{flex:1;font-weight:800;font-size:15px;color:var(--navy);}
+  .aw-item .p{font-weight:900;color:var(--green2);font-size:15px;}
+  .aw-thanks{background:#f7fbfe;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;font-size:14px;line-height:2;color:var(--navy);}
+  .aw-foot{margin-top:18px;font-size:12.5px;color:var(--muted);text-align:center;
+    border-top:1px solid var(--line);padding-top:12px;}
+  .pickbox{width:17px;height:17px;accent-color:#0a8f3c;cursor:pointer;margin:0;}
+  @media print{
+    body{background:#fff;} body::before,body::after{display:none;}
+    header,footer,.no-print,.sticky{display:none!important;}
+    .wrap{padding:0;max-width:none;}
+    .card{box-shadow:none;border:none;margin:0;padding:0;}
+    .aw-list{grid-template-columns:1fr 1fr;}
+  }
+  @media(max-width:560px){ .aw-list{grid-template-columns:1fr;} }
 
   /* ---------- prize ---------- */
   #prizeArt .card-wrap{position:relative;max-width:430px;margin:6px auto 10px;}
@@ -279,6 +321,12 @@
       </div>
     </div>
 
+    <div class="card closed-card hide" id="closedCard">
+      <div class="closed-badge" id="closedBadge">CLOSED</div>
+      <div class="closed-t" id="closedT">有獎徵答已結束並停止作答</div>
+      <div class="closed-s" id="closedS">感謝各位同仁踴躍參與，得獎名單將另行公布。</div>
+    </div>
+
     <div class="card">
       <h2 id="rulesTitle">活動辦法 Rules</h2>
       <ol class="rules" id="rulesList"></ol>
@@ -290,7 +338,7 @@
       <div class="prize-note" id="prizeText"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="startCard">
       <h2 id="startTitle">開始作答 Start</h2>
       <label id="lblName">姓名 Name</label>
       <input type="text" id="inName" maxlength="20" autocomplete="off" placeholder="">
@@ -356,6 +404,20 @@
     </div>
   </section>
 
+  <!-- ============ AWARD ============ -->
+  <section id="scAward" class="hide">
+    <div class="card no-print">
+      <div class="adm-tools">
+        <button class="btn ghost" id="btnAwBack">返回後台 Back</button>
+        <span style="flex:1"></span>
+        <button class="btn ghost" id="btnAwCopy">複製文字 Copy</button>
+        <button class="btn" id="btnAwPrint">列印 / 存 PDF</button>
+      </div>
+      <div class="msg" id="awMsg"></div>
+    </div>
+    <div class="card" id="awardSheet"></div>
+  </section>
+
   <!-- ============ ADMIN ============ -->
   <section id="scAdmin" class="hide">
     <div class="card" id="adminLogin">
@@ -374,8 +436,10 @@
         <div class="adm-tools">
           <input type="text" id="admFind" placeholder="搜尋姓名 Search name" autocomplete="off">
           <button class="btn ghost" id="btnAdmRefresh2">重新整理 Refresh</button>
+          <button class="btn" id="btnAward">產生得獎名單</button>
         </div>
         <div class="msg" id="admInfo"></div>
+        <div class="sub" id="pickHint" style="margin-top:8px;"></div>
       </div>
       <div class="card">
         <h2>台北 Taipei <span class="pill" id="pillTP">–</span></h2>
@@ -411,6 +475,8 @@
 ================================================================ */
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzQ-n8yNbYo-RbXqt-CAxsoRKv115pp4ppTacYezxHbrtsZD0gW2dGtuvs9IVr0VoNL/exec";
 const ADMIN_PWD = "nmdc";
+/* 活動已結束？true = 首頁顯示結束公告並停止作答；要重新開放改成 false */
+const QUIZ_CLOSED = true;
 const OFFLINE = !GAS_URL;
 
 /* ================= 示意圖 (inline SVG，不含答案) ================= */
@@ -591,6 +657,19 @@ const I18N = {
   thRank:"名次", thName:"姓名", thQuiz:"答題", thTime:"時間分", thTotal:"總分", thUsed:"用時", thWhen:"作答時間",
   attemptLeft:(n)=>`（本次為第 ${n} 次作答）`,
   joinTitle:"目前參與人數", joinTP:"台北 Taipei", joinTC:"台中 Taichung",
+  closedBadge:"活動已結束",
+  closedT:"有獎徵答已結束並停止作答",
+  closedS:"感謝各位同仁踴躍參與，得獎名單將另行公布。",
+  thPick:"勾選得獎人", awMake:"產生得獎名單",
+  pickHint:(a,b)=>`已勾選得獎人：台北 <b>${a}</b> 位、台中 <b>${b}</b> 位（可自行增減，預設依名額帶入）`,
+  awBack:"返回後台", awCopy:"複製文字", awPrint:"列印 / 存 PDF",
+  awTitle:"營建工程空污防制 有獎徵答　得獎名單",
+  awSub:"NMDC ENERGY　EHS 宣導活動", pt:" 分",
+  nWinner:(n)=>`${n} 位得獎`, awNone:"本辦公室未勾選得獎人。",
+  awThanksT:"感謝以下同仁熱情參與", awNoOthers:"（無其他參與人員）",
+  awFoot:"恭喜以上得獎同仁，獎品為內含 500 元儲值金的 NMDC 悠遊卡，將由承辦人員另行聯繫發放。同分人數超過名額者已依系統隨機抽取決定，全程公正、公平、公開。",
+  awCopied:"已複製到剪貼簿，可直接貼到 Email 或通訊軟體。",
+  awCopyFail:"複製失敗，請手動選取文字複製。",
   attempts:(n)=>`累計作答 ${n} 次`,
   thAct:"操作", del:"刪除", delAll:"刪除全部",
   counted:"計分", notCounted:"不計分", nth:(k)=>`第 ${k} 次作答`,
@@ -634,6 +713,19 @@ const I18N = {
   thRank:"Rank", thName:"Name", thQuiz:"Quiz", thTime:"Time Pts", thTotal:"Total", thUsed:"Used", thWhen:"Submitted",
   attemptLeft:(n)=>`(attempt ${n} of 2)`,
   joinTitle:"Participants so far", joinTP:"Taipei 台北", joinTC:"Taichung 台中",
+  closedBadge:"CLOSED",
+  closedT:"The prize quiz has closed — entries are no longer accepted",
+  closedS:"Thank you all for taking part. The winners will be announced separately.",
+  thPick:"Select winners", awMake:"Generate winners list",
+  pickHint:(a,b)=>`Winners selected: <b>${a}</b> in Taipei, <b>${b}</b> in Taichung (pre-filled by prize quota — adjust as you wish)`,
+  awBack:"Back to admin", awCopy:"Copy text", awPrint:"Print / Save PDF",
+  awTitle:"Construction Air Pollution Control Prize Quiz — Winners",
+  awSub:"NMDC ENERGY · EHS Awareness Campaign", pt:" pts",
+  nWinner:(n)=>`${n} winners`, awNone:"No winners selected for this office.",
+  awThanksT:"Thank you to everyone who took part", awNoOthers:"(no other participants)",
+  awFoot:"Congratulations to the winners. The prize is an NMDC Easy Card preloaded with NT$500; the organiser will be in touch to hand these out. Where more participants tied than there were prizes, winners were drawn at random by the system — openly, fairly and impartially.",
+  awCopied:"Copied to the clipboard — paste it straight into an email or chat.",
+  awCopyFail:"Copy failed. Please select the text and copy it manually.",
   attempts:(n)=>`${n} attempts in total`,
   thAct:"Action", del:"Delete", delAll:"Delete all",
   counted:"counted", notCounted:"not counted", nth:(k)=>`Attempt ${k}`,
@@ -672,7 +764,7 @@ function quizScore(ans){
   return ans.reduce((s,a,i)=> s + (a===QUESTIONS[i].a ? PER_Q : 0), 0);
 }
 function show(sec){
-  ["scHome","scQuiz","scResult","scAdmin"].forEach(id=>$(id).classList.add("hide"));
+  ["scHome","scQuiz","scResult","scAdmin","scAward"].forEach(id=>$(id).classList.add("hide"));
   $(sec).classList.remove("hide");
   $("stickyBar").classList.toggle("hide", sec!=="scQuiz");
   window.scrollTo(0,0);
@@ -771,6 +863,15 @@ function renderStatic(){
   $("ftText").textContent = t.ftText;
   $("lnkAdmin").textContent = t.admin;
   $("rulesList").innerHTML = t.rules.map(r=>`<li>${r}</li>`).join("");
+  $("closedT").textContent = t.closedT;
+  $("closedS").textContent = t.closedS;
+  $("closedBadge").textContent = t.closedBadge;
+  $("closedCard").classList.toggle("hide", !QUIZ_CLOSED);
+  $("startCard").classList.toggle("hide", QUIZ_CLOSED);
+  $("btnAwBack").textContent  = t.awBack;
+  $("btnAwCopy").textContent  = t.awCopy;
+  $("btnAwPrint").textContent = t.awPrint;
+  $("btnAward").textContent   = t.awMake;
   $("joinTitle").textContent = t.joinTitle;
   $("joinTP").textContent = t.joinTP;
   $("joinTC").textContent = t.joinTC;
@@ -808,6 +909,7 @@ $("langBtn").onclick = ()=>{ LANG = LANG==="zh"?"en":"zh"; renderStatic(); };
 
 $("btnStart").onclick = async ()=>{
   const t=T();
+  if(QUIZ_CLOSED) return setMsg("homeMsg", t.closedT, "warn");
   const name = $("inName").value.trim().replace(/\s+/g," ");
   const office = $("inOffice").value;
   if(!name) return setMsg("homeMsg", t.errName, "err");
@@ -873,6 +975,8 @@ $("btnHome").onclick = ()=>{
 
 /* ================= ADMIN ================= */
 let ADMIN_TOKEN = "";                 // 登入時輸入的密碼，刪除時送給後端驗證
+let PICKED = null;                    // 已勾選的得獎人 Set（key = office||name小寫）
+const pkey = (office,name)=> office+"||"+String(name).trim().toLowerCase();
 let ALL = [];                         // 全部原始紀錄
 let STATS = null;
 
@@ -903,6 +1007,7 @@ async function loadBoard(){
       ALL=[]; STATS=null; renderBoard(); return;
     }
     ALL = r.data || []; STATS = r.stats || null;
+    seedPicks();
     setMsg("admInfo", t.loaded(ALL.length), "ok");
   }catch(e){
     ALL=[]; STATS=null; setMsg("admInfo", e.message, "err");
@@ -927,6 +1032,18 @@ function groupPeople(rows, office){
   return people;
 }
 
+/* 第一次載入時，依名額（台中 10、台北 5）預先勾選 */
+function seedPicks(){
+  PICKED = new Set();
+  [["Taipei",5],["Taichung",10]].forEach(([off,quota])=>
+    groupPeople(ALL,off).slice(0,quota).forEach(p=> PICKED.add(pkey(off,p.name))));
+}
+function paintPickHint(){
+  const t=T();
+  const c = off => [...PICKED].filter(k=>k.startsWith(off+"||")).length;
+  $("pickHint").innerHTML = t.pickHint(c("Taipei"), c("Taichung"));
+}
+
 function renderBoard(){
   const q = ($("admFind").value||"").trim().toLowerCase();
   const rows = q ? ALL.filter(r=>r.name.toLowerCase().includes(q)) : ALL;
@@ -936,6 +1053,7 @@ function renderBoard(){
   $("pillTP").textContent = T().nPeople(tp.length);
   $("pillTC").textContent = T().nPeople(tc.length);
   bindRowActions();
+  paintPickHint();
 }
 
 function rosterHtml(people, quota){
@@ -945,9 +1063,12 @@ function rosterHtml(people, quota){
   people.forEach((p,i)=>{
     const rk = i<3 ? `<span class="medal m${i+1}">${i+1}</span>` : (i+1);
     const win = i<quota ? ` <span class="chip win">${t.winner}</span>` : "";
+    const ck = PICKED.has(pkey(p.office,p.name)) ? " checked" : "";
     const cnt = p.tries.length>1 ? ` <span class="chip cnt">${t.times(p.tries.length)}</span>` : "";
     const b = p.best;
     html += `<tr>
+      <td><input type="checkbox" class="pickbox" data-pick="${escapeHtml(p.office)}"
+           data-pickname="${escapeHtml(p.name)}"${ck}></td>
       <td>${rk}</td>
       <td><b>${escapeHtml(p.name)}</b>${win}${cnt}</td>
       <td class="num">${b.quizScore}</td><td class="num">${b.timeScore}</td>
@@ -958,6 +1079,7 @@ function rosterHtml(people, quota){
     p.tries.forEach((r,k)=>{
       const tag = r===b ? t.counted : t.notCounted;
       html += `<tr class="sub-row">
+        <td></td>
         <td>↳</td>
         <td>${t.nth(k+1)} <span class="chip">${tag}</span></td>
         <td class="num">${r.quizScore}</td><td class="num">${r.timeScore}</td>
@@ -968,7 +1090,7 @@ function rosterHtml(people, quota){
     });
   });
   return `<div style="overflow-x:auto"><table><thead><tr>
-    <th>${t.thRank}</th><th>${t.thName}</th>
+    <th title="${t.thPick}">✓</th><th>${t.thRank}</th><th>${t.thName}</th>
     <th class="num">${t.thQuiz}</th><th class="num">${t.thTime}</th>
     <th class="num">${t.thTotal}</th><th class="num">${t.thUsed}</th>
     <th>${t.thWhen}</th><th>${t.thAct}</th></tr></thead><tbody>${html}</tbody></table></div>`;
@@ -977,6 +1099,11 @@ function rosterHtml(people, quota){
 function when(ts){ return ts ? new Date(ts).toLocaleString(LANG==="zh"?"zh-TW":"en-GB") : "-"; }
 
 function bindRowActions(){
+  document.querySelectorAll("[data-pick]").forEach(el=> el.onchange = ()=>{
+    const k = pkey(el.dataset.pick, el.dataset.pickname);
+    if(el.checked) PICKED.add(k); else PICKED.delete(k);
+    paintPickHint();
+  });
   document.querySelectorAll("[data-del-row]").forEach(el=> el.onclick = ()=>{
     const row=+el.dataset.delRow, name=el.dataset.name;
     if(confirm(T().confirmOne(name))) doDelete([{row,name}]);
@@ -1000,6 +1127,8 @@ async function doDelete(items){
       return;
     }
     ALL = r.data || []; STATS = r.stats || null;
+    const live = new Set(ALL.map(x=>pkey(x.office,x.name)));
+    [...PICKED].forEach(k=>{ if(!live.has(k)) PICKED.delete(k); });   // 已刪的人取消勾選
     setMsg("admInfo", t.deleted(r.deleted, r.skipped), r.skipped ? "warn" : "ok");
     renderBoard(); paintStats(STATS);
   }catch(e){ setMsg("admInfo", e.message, "err"); }
@@ -1017,6 +1146,85 @@ $("btnAdmCsv").onclick = ()=>{
   a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
   a.download="quiz_records.csv"; a.click();
 };
+
+/* ================= 得獎公告 ================= */
+$("btnAward").onclick = ()=>{ buildAward(); show("scAward"); };
+$("btnAwBack").onclick = ()=>{ show("scAdmin"); };
+
+function awardData(){
+  const out = {};
+  ["Taipei","Taichung"].forEach(off=>{
+    const people = groupPeople(ALL, off);
+    out[off] = {
+      win: people.filter(p=>PICKED.has(pkey(off,p.name)))
+                 .map(p=>({name:p.name, total:p.best.total, seconds:p.best.seconds})),
+      others: people.filter(p=>!PICKED.has(pkey(off,p.name))).map(p=>p.name)
+    };
+    out[off].win.sort((a,b)=> b.total-a.total || a.seconds-b.seconds);
+  });
+  return out;
+}
+
+function buildAward(){
+  const t=T(), d=awardData();
+  const sec = (off, label) => {
+    const w=d[off].win;
+    if(!w.length) return `<div class="aw-sec"><div class="t">${label}
+      <span>${t.nWinner(0)}</span></div><p class="sub">${t.awNone}</p></div>`;
+    return `<div class="aw-sec"><div class="t">${label}<span>${t.nWinner(w.length)}</span></div>
+      <div class="aw-list">${w.map((p,i)=>`<div class="aw-item">
+        <div class="r">${i+1}</div><div class="n">${escapeHtml(p.name)}</div>
+        <div class="p">${p.total}${t.pt}</div></div>`).join("")}</div></div>`;
+  };
+  const others = [...d.Taipei.others, ...d.Taichung.others];
+  const thanks = others.length
+    ? `<div class="aw-thanks">${others.map(escapeHtml).join("　·　")}</div>`
+    : `<p class="sub">${t.awNoOthers}</p>`;
+
+  $("awardSheet").innerHTML = `
+    <div class="aw-head">
+      <h3>${t.awTitle}</h3>
+      <div class="s">${t.awSub}　|　${new Date().toLocaleDateString(LANG==="zh"?"zh-TW":"en-GB")}</div>
+    </div>
+    ${sec("Taipei",  t.joinTP)}
+    ${sec("Taichung",t.joinTC)}
+    <div class="aw-sec"><div class="t">${t.awThanksT}
+      <span>${t.nPeople(others.length)}</span></div>${thanks}</div>
+    <div class="aw-foot">${t.awFoot}</div>`;
+  setMsg("awMsg","","");
+}
+
+function awardText(){
+  const t=T(), d=awardData(), L=[];
+  L.push(t.awTitle); L.push(t.awSub); L.push("");
+  ["Taipei","Taichung"].forEach(off=>{
+    const label = off==="Taipei" ? t.joinTP : t.joinTC;
+    L.push(`【${label}】`);
+    if(!d[off].win.length) L.push("　"+t.awNone);
+    d[off].win.forEach((p,i)=> L.push(`　${i+1}. ${p.name}　${p.total}${t.pt}`));
+    L.push("");
+  });
+  const others=[...d.Taipei.others, ...d.Taichung.others];
+  L.push(`【${t.awThanksT}】`);
+  L.push(others.length ? "　"+others.join("、") : "　"+t.awNoOthers);
+  L.push(""); L.push(t.awFoot);
+  return L.join("\n");
+}
+
+$("btnAwCopy").onclick = async ()=>{
+  const txt = awardText();
+  try{
+    await navigator.clipboard.writeText(txt);
+    setMsg("awMsg", T().awCopied, "ok");
+  }catch(e){
+    const ta=document.createElement("textarea");
+    ta.value=txt; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand("copy"); setMsg("awMsg", T().awCopied, "ok"); }
+    catch(_){ setMsg("awMsg", T().awCopyFail, "err"); }
+    ta.remove();
+  }
+};
+$("btnAwPrint").onclick = ()=> window.print();
 
 /* ================= 首頁參與人數 ================= */
 function paintStats(st){
