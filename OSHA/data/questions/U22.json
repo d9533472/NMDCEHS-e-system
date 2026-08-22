@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法規定，事業單位工作場所發生職業災害時，雇主應即採取必要之急救、搶救等措施，並會同何人實施調查、分析及作成紀錄？",
       "options": [
-        {"id": "A", "text": "職業安全衛生管理人員"},
-        {"id": "B", "text": "勞工代表"},
-        {"id": "C", "text": "勞動檢查員"},
-        {"id": "D", "text": "警察機關代表"}
+        {
+          "id": "A",
+          "text": "職業安全衛生管理人員"
+        },
+        {
+          "id": "B",
+          "text": "勞工代表"
+        },
+        {
+          "id": "C",
+          "text": "勞動檢查員"
+        },
+        {
+          "id": "D",
+          "text": "警察機關代表"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第37條第1項規定，雇主應即採取必要之急救、搶救等措施，並會同勞工代表實施調查、分析及作成紀錄。會同勞工代表之目的在於確保調查的客觀性與勞工權益。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "basic",
       "stem": "事業單位勞動場所發生死亡災害時，雇主應於多少時間內通報勞動檢查機構？",
       "options": [
-        {"id": "A", "text": "4小時內"},
-        {"id": "B", "text": "8小時內"},
-        {"id": "C", "text": "12小時內"},
-        {"id": "D", "text": "24小時內"}
+        {
+          "id": "A",
+          "text": "4小時內"
+        },
+        {
+          "id": "B",
+          "text": "8小時內"
+        },
+        {
+          "id": "C",
+          "text": "12小時內"
+        },
+        {
+          "id": "D",
+          "text": "24小時內"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第37條第2項規定，發生死亡災害、罹災人數3人以上、罹災1人以上且需住院治療，或其他經中央主管機關指定公告之災害，雇主應於8小時內通報勞動檢查機構。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法規定，下列何種情形雇主應於8小時內通報勞動檢查機構？",
       "options": [
-        {"id": "A", "text": "勞工受輕微擦傷，自行包紮後恢復工作"},
-        {"id": "B", "text": "發生災害之罹災人數在3人以上"},
-        {"id": "C", "text": "勞工請病假未到班"},
-        {"id": "D", "text": "機械設備故障未造成人員傷亡"}
+        {
+          "id": "A",
+          "text": "勞工受輕微擦傷，自行包紮後恢復工作"
+        },
+        {
+          "id": "B",
+          "text": "發生災害之罹災人數在3人以上"
+        },
+        {
+          "id": "C",
+          "text": "勞工請病假未到班"
+        },
+        {
+          "id": "D",
+          "text": "機械設備故障未造成人員傷亡"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第37條第2項規定應於8小時內通報的災害包括：死亡災害、罹災3人以上、罹災1人以上且需住院治療、其他經中央主管機關指定公告之災害。選項A的輕微擦傷及選項D的設備故障未造成人員傷亡，均非法定應通報情形。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "事業單位發生應通報之職業災害時，雇主非經何者許可，不得移動或破壞現場？",
       "options": [
-        {"id": "A", "text": "警察機關或消防機關"},
-        {"id": "B", "text": "司法機關或勞動檢查機構"},
-        {"id": "C", "text": "勞工保險局或衛生主管機關"},
-        {"id": "D", "text": "工會或勞工代表"}
+        {
+          "id": "A",
+          "text": "警察機關或消防機關"
+        },
+        {
+          "id": "B",
+          "text": "司法機關或勞動檢查機構"
+        },
+        {
+          "id": "C",
+          "text": "勞工保險局或衛生主管機關"
+        },
+        {
+          "id": "D",
+          "text": "工會或勞工代表"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第37條第4項規定，除必要之急救、搶救外，雇主非經司法機關或勞動檢查機構許可，不得移動或破壞現場。此規定係為保全災害現場證據，以利後續調查。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "basic",
       "stem": "中央主管機關指定之事業，雇主應依規定填載職業災害內容及統計，按多久報請勞動檢查機構備查，並公布於工作場所？",
       "options": [
-        {"id": "A", "text": "每週"},
-        {"id": "B", "text": "每旬"},
-        {"id": "C", "text": "按月"},
-        {"id": "D", "text": "每季"}
+        {
+          "id": "A",
+          "text": "每週"
+        },
+        {
+          "id": "B",
+          "text": "每旬"
+        },
+        {
+          "id": "C",
+          "text": "按月"
+        },
+        {
+          "id": "D",
+          "text": "每季"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生法第38條規定，中央主管機關指定之事業，雇主應依規定填載職業災害內容及統計，按月報請勞動檢查機構備查，並公布於工作場所。",
-      "references": [{"title": "職業安全衛生法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"
+        }
+      ]
     },
     {
       "id": "U22-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "勞動檢查機構接獲雇主通報職業災害後，應就何種災害派員檢查？",
       "options": [
-        {"id": "A", "text": "所有職業災害均須派員檢查"},
-        {"id": "B", "text": "僅死亡或重傷之災害"},
-        {"id": "C", "text": "僅三人以上罹災之災害"},
-        {"id": "D", "text": "僅雇主主動要求檢查之災害"}
+        {
+          "id": "A",
+          "text": "所有職業災害均須派員檢查"
+        },
+        {
+          "id": "B",
+          "text": "僅死亡或重傷之災害"
+        },
+        {
+          "id": "C",
+          "text": "僅三人以上罹災之災害"
+        },
+        {
+          "id": "D",
+          "text": "僅雇主主動要求檢查之災害"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第37條第3項規定，勞動檢查機構接獲報告後，應就工作場所發生死亡或重傷之災害派員檢查。非所有災害均須派員，僅限死亡或重傷者。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第40條，違反第6條第1項或第16條第1項，致發生死亡災害者，處多少刑罰？",
       "options": [
-        {"id": "A", "text": "一年以下有期徒刑"},
-        {"id": "B", "text": "三年以下有期徒刑、拘役或科或併科新臺幣30萬元以下罰金"},
-        {"id": "C", "text": "五年以下有期徒刑"},
-        {"id": "D", "text": "七年以下有期徒刑"}
+        {
+          "id": "A",
+          "text": "一年以下有期徒刑"
+        },
+        {
+          "id": "B",
+          "text": "三年以下有期徒刑、拘役或科或併科新臺幣30萬元以下罰金"
+        },
+        {
+          "id": "C",
+          "text": "五年以下有期徒刑"
+        },
+        {
+          "id": "D",
+          "text": "七年以下有期徒刑"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第40條第1項規定，違反第6條第1項或第16條第1項，致發生第37條第2項第1款死亡災害者，處三年以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金。法人犯罪時，對法人亦科以罰金。",
-      "references": [{"title": "職業安全衛生法第40條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第40條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"
+        }
+      ]
     },
     {
       "id": "U22-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第41條，違反第37條第4項（移動或破壞災害現場）者，處何種處罰？",
       "options": [
-        {"id": "A", "text": "新臺幣3萬元以上30萬元以下罰鍰"},
-        {"id": "B", "text": "一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金"},
-        {"id": "C", "text": "新臺幣6萬元以上30萬元以下罰鍰"},
-        {"id": "D", "text": "新臺幣20萬元以上200萬元以下罰鍰"}
+        {
+          "id": "A",
+          "text": "新臺幣3萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金"
+        },
+        {
+          "id": "C",
+          "text": "新臺幣6萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "D",
+          "text": "新臺幣20萬元以上200萬元以下罰鍰"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第41條第1項第2款規定，違反第37條第4項者，處一年以下有期徒刑、拘役或科或併科新臺幣十八萬元以下罰金。移動或破壞災害現場屬刑事處罰，顯示法律對保存現場之重視。",
-      "references": [{"title": "職業安全衛生法第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第41條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"
+        }
+      ]
     },
     {
       "id": "U22-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第43條，違反第37條第1項（未會同勞工代表調查分析）或第2項（未於8小時內通報）者，處多少罰鍰？",
       "options": [
-        {"id": "A", "text": "新臺幣3千元以下罰鍰"},
-        {"id": "B", "text": "新臺幣3萬元以上30萬元以下罰鍰"},
-        {"id": "C", "text": "新臺幣6萬元以上30萬元以下罰鍰"},
-        {"id": "D", "text": "新臺幣20萬元以上200萬元以下罰鍰"}
+        {
+          "id": "A",
+          "text": "新臺幣3千元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "新臺幣3萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "C",
+          "text": "新臺幣6萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "D",
+          "text": "新臺幣20萬元以上200萬元以下罰鍰"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第43條第1項第2款規定，違反第37條第1項或第2項者，處新臺幣三萬元以上三十萬元以下罰鍰。未依規定會同勞工代表調查分析或未於8小時內通報，均屬此範圍。",
-      "references": [{"title": "職業安全衛生法第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=43"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=43"
+        }
+      ]
     },
     {
       "id": "U22-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法規定，職業災害之定義為何？",
       "options": [
-        {"id": "A", "text": "僅指勞工在工作中受到的物理性傷害"},
-        {"id": "B", "text": "因勞動場所之建築物、機械、設備、化學品、作業活動或其他職業上原因引起之工作者疾病、傷害、失能或死亡"},
-        {"id": "C", "text": "僅指因機械故障造成的傷亡"},
-        {"id": "D", "text": "僅指因雇主疏忽造成的傷亡"}
+        {
+          "id": "A",
+          "text": "僅指勞工在工作中受到的物理性傷害"
+        },
+        {
+          "id": "B",
+          "text": "因勞動場所之建築物、機械、設備、化學品、作業活動或其他職業上原因引起之工作者疾病、傷害、失能或死亡"
+        },
+        {
+          "id": "C",
+          "text": "僅指因機械故障造成的傷亡"
+        },
+        {
+          "id": "D",
+          "text": "僅指因雇主疏忽造成的傷亡"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第2條第5款規定，職業災害指因勞動場所之建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵等或作業活動及其他職業上原因引起之工作者疾病、傷害、失能或死亡。範圍涵蓋甚廣，不限於物理性傷害。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U22-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "工作者發現事業單位違反職安法規定、疑似罹患職業病或遭受身心侵害時，得向何者申訴？",
       "options": [
-        {"id": "A", "text": "僅得向雇主申訴"},
-        {"id": "B", "text": "僅得向勞動檢查機構申訴"},
-        {"id": "C", "text": "得向雇主、主管機關或勞動檢查機構申訴"},
-        {"id": "D", "text": "僅得向工會申訴"}
+        {
+          "id": "A",
+          "text": "僅得向雇主申訴"
+        },
+        {
+          "id": "B",
+          "text": "僅得向勞動檢查機構申訴"
+        },
+        {
+          "id": "C",
+          "text": "得向雇主、主管機關或勞動檢查機構申訴"
+        },
+        {
+          "id": "D",
+          "text": "僅得向工會申訴"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生法第39條第1項規定，工作者發現事業單位違反本法或安全衛生規定、疑似罹患職業病，或身體、精神遭受侵害時，得向雇主、主管機關或勞動檢查機構申訴。申訴管道多元，保障勞工權益。",
-      "references": [{"title": "職業安全衛生法第39條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=39"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第39條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=39"
+        }
+      ]
     },
     {
       "id": "U22-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第39條規定，雇主對申訴之工作者不得為何種處分？",
       "options": [
-        {"id": "A", "text": "調職"},
-        {"id": "B", "text": "解僱"},
-        {"id": "C", "text": "其他不利處分"},
-        {"id": "D", "text": "以上皆是"}
+        {
+          "id": "A",
+          "text": "調職"
+        },
+        {
+          "id": "B",
+          "text": "解僱"
+        },
+        {
+          "id": "C",
+          "text": "其他不利處分"
+        },
+        {
+          "id": "D",
+          "text": "以上皆是"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生法第39條第4項規定，雇主不得對申訴之工作者予以解僱、調職或為其他不利處分。此為吹哨者保護條款，防止雇主對申訴勞工進行報復。",
-      "references": [{"title": "職業安全衛生法第39條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=39"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第39條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=39"
+        }
+      ]
     },
     {
       "id": "U22-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第49條規定，有下列情形之一者，得公布事業單位、雇主之名稱及負責人姓名。下列何者不屬之？",
       "options": [
-        {"id": "A", "text": "發生第37條第2項災害"},
-        {"id": "B", "text": "有第40條至第45條情形"},
-        {"id": "C", "text": "發生職業病"},
-        {"id": "D", "text": "未實施安全衛生教育訓練但未造成災害"}
+        {
+          "id": "A",
+          "text": "發生第37條第2項災害"
+        },
+        {
+          "id": "B",
+          "text": "有第40條至第45條情形"
+        },
+        {
+          "id": "C",
+          "text": "發生職業病"
+        },
+        {
+          "id": "D",
+          "text": "未實施安全衛生教育訓練但未造成災害"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生法第49條規定，發生第37條第2項災害、有第40條至第45條、第47條或第48條情形，或發生職業病者，得公布事業單位、雇主之名稱及負責人姓名。未實施教育訓練但未造成災害，不在此列。",
-      "references": [{"title": "職業安全衛生法第49條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=49"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第49條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=49"
+        }
+      ]
     },
     {
       "id": "U22-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第36條，主管機關或勞動檢查機構發現事業單位有不合規定者，應如何處理？",
       "options": [
-        {"id": "A", "text": "立即停工並處以罰鍰"},
-        {"id": "B", "text": "告知違反法令條款並通知限期改善"},
-        {"id": "C", "text": "直接移送法辦"},
-        {"id": "D", "text": "撤銷事業單位登記"}
+        {
+          "id": "A",
+          "text": "立即停工並處以罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "告知違反法令條款並通知限期改善"
+        },
+        {
+          "id": "C",
+          "text": "直接移送法辦"
+        },
+        {
+          "id": "D",
+          "text": "撤銷事業單位登記"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第36條第1項規定，中央主管機關及勞動檢查機構得檢查各事業單位勞動場所。不合規定者應告知違反法令條款並通知限期改善；屆期未改善、已發生職業災害或有發生之虞時，得通知部分或全部停工。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U22-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第36條規定，停工期間雇主對勞工工資應如何處理？",
       "options": [
-        {"id": "A", "text": "不須給付工資"},
-        {"id": "B", "text": "給付半薪"},
-        {"id": "C", "text": "應照給工資"},
-        {"id": "D", "text": "由勞工保險支付"}
+        {
+          "id": "A",
+          "text": "不須給付工資"
+        },
+        {
+          "id": "B",
+          "text": "給付半薪"
+        },
+        {
+          "id": "C",
+          "text": "應照給工資"
+        },
+        {
+          "id": "D",
+          "text": "由勞工保險支付"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生法第36條第2項規定，停工期間雇主應照給工資。此規定保障勞工在因雇主違規而被停工期間的經濟權益，避免勞工因非自身原因遭受收入損失。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U22-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "勞工發現工作場所有立即發生危險之虞時，在不危及他人安全之情況下，得採取何種行動？",
       "options": [
-        {"id": "A", "text": "必須等待雇主指示後方可行動"},
-        {"id": "B", "text": "得自行停止作業及退避至安全場所"},
-        {"id": "C", "text": "應繼續作業至下班"},
-        {"id": "D", "text": "僅可向工會報告"}
+        {
+          "id": "A",
+          "text": "必須等待雇主指示後方可行動"
+        },
+        {
+          "id": "B",
+          "text": "得自行停止作業及退避至安全場所"
+        },
+        {
+          "id": "C",
+          "text": "應繼續作業至下班"
+        },
+        {
+          "id": "D",
+          "text": "僅可向工會報告"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第18條第2項規定，勞工發現工作場所有立即發生危險之虞時，得在不危及他人安全之情況下，自行停止作業及退避至安全場所，並立即報告直屬主管。雇主不得因此解僱、調職或不給停工期間工資。",
-      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第18條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"
+        }
+      ]
     },
     {
       "id": "U22-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第41條規定，違反第18條第1項（工作場所可能立即發生危險時，未命令停止作業及退避）者，處何種處罰？",
       "options": [
-        {"id": "A", "text": "新臺幣3萬元以上30萬元以下罰鍰"},
-        {"id": "B", "text": "新臺幣6萬元以上30萬元以下罰鍰"},
-        {"id": "C", "text": "一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金"},
-        {"id": "D", "text": "三年以下有期徒刑"}
+        {
+          "id": "A",
+          "text": "新臺幣3萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "新臺幣6萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "C",
+          "text": "一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金"
+        },
+        {
+          "id": "D",
+          "text": "三年以下有期徒刑"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生法第41條第1項第2款規定，違反第18條第1項者，處一年以下有期徒刑、拘役或科或併科新臺幣十八萬元以下罰金。雇主未在危險情況下命令停工退避，屬刑事責任。",
-      "references": [{"title": "職業安全衛生法第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第41條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"
+        }
+      ]
     },
     {
       "id": "U22-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第42條，違反第15條規定，因危害性化學品洩漏或引起火災、爆炸致發生職業災害者，處多少罰鍰？",
       "options": [
-        {"id": "A", "text": "新臺幣3萬元以上30萬元以下罰鍰"},
-        {"id": "B", "text": "新臺幣30萬元以上300萬元以下罰鍰"},
-        {"id": "C", "text": "新臺幣6萬元以上30萬元以下罰鍰"},
-        {"id": "D", "text": "新臺幣20萬元以上200萬元以下罰鍰"}
+        {
+          "id": "A",
+          "text": "新臺幣3萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "新臺幣30萬元以上300萬元以下罰鍰"
+        },
+        {
+          "id": "C",
+          "text": "新臺幣6萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "D",
+          "text": "新臺幣20萬元以上200萬元以下罰鍰"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第42條第1項規定，違反第15條第1項或第2項，因危害性化學品洩漏或引起火災、爆炸致發生第37條第2項職業災害者，處新臺幣三十萬元以上三百萬元以下罰鍰。此罰鍰較一般違規為重，因涉及化學品災害。",
-      "references": [{"title": "職業安全衛生法第42條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=42"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第42條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=42"
+        }
+      ]
     },
     {
       "id": "U22-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第41條規定，違反主管機關或勞動檢查機構依第36條第1項發出之停工通知者，處何種處罰？",
       "options": [
-        {"id": "A", "text": "新臺幣3萬元以上30萬元以下罰鍰"},
-        {"id": "B", "text": "新臺幣6萬元以上30萬元以下罰鍰"},
-        {"id": "C", "text": "一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金"},
-        {"id": "D", "text": "三年以下有期徒刑"}
+        {
+          "id": "A",
+          "text": "新臺幣3萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "新臺幣6萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "C",
+          "text": "一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金"
+        },
+        {
+          "id": "D",
+          "text": "三年以下有期徒刑"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生法第41條第1項第3款規定，違反中央主管機關或勞動檢查機構依第36條第1項發出之停工通知者，處一年以下有期徒刑、拘役或科或併科新臺幣十八萬元以下罰金。違反停工命令屬刑事處罰。",
-      "references": [{"title": "職業安全衛生法第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第41條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"
+        }
+      ]
     },
     {
       "id": "U22-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "intermediate",
       "stem": "依勞工職業災害保險及保護法之規定，該法之立法目的為何？",
       "options": [
-        {"id": "A", "text": "保障遭遇職業災害勞工及其家屬之生活，加強職業災害預防及職業災害勞工重建"},
-        {"id": "B", "text": "僅提供職業災害保險給付"},
-        {"id": "C", "text": "僅規範勞工保險費率"},
-        {"id": "D", "text": "僅管理勞工退休金"}
+        {
+          "id": "A",
+          "text": "保障遭遇職業災害勞工及其家屬之生活，加強職業災害預防及職業災害勞工重建"
+        },
+        {
+          "id": "B",
+          "text": "僅提供職業災害保險給付"
+        },
+        {
+          "id": "C",
+          "text": "僅規範勞工保險費率"
+        },
+        {
+          "id": "D",
+          "text": "僅管理勞工退休金"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "勞工職業災害保險及保護法第1條規定，為保障遭遇職業災害勞工及其家屬之生活，加強職業災害預防及職業災害勞工重建，以促進社會安全，特制定本法。涵蓋保險給付、預防及重建三大面向。",
-      "references": [{"title": "勞工職業災害保險及保護法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050031&flno=1"}]
+      "references": [
+        {
+          "title": "勞工職業災害保險及保護法第1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0050031&flno=1"
+        }
+      ]
     },
     {
       "id": "U22-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "advanced",
       "stem": "依勞工職業災害保險及保護法規定，中央主管機關得於職業災害保險年度應收保險費百分之多少範圍內編列經費，辦理職業災害預防等事項？",
       "options": [
-        {"id": "A", "text": "百分之十"},
-        {"id": "B", "text": "百分之十五"},
-        {"id": "C", "text": "百分之二十"},
-        {"id": "D", "text": "百分之三十"}
+        {
+          "id": "A",
+          "text": "百分之十"
+        },
+        {
+          "id": "B",
+          "text": "百分之十五"
+        },
+        {
+          "id": "C",
+          "text": "百分之二十"
+        },
+        {
+          "id": "D",
+          "text": "百分之三十"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "勞工職業災害保險及保護法規定，中央主管機關得於職業災害保險年度應收保險費百分之二十及歷年經費執行賸餘額度之範圍內編列經費，辦理職業災害預防、預防職業病健康檢查、職業傷病通報等事項。",
-      "references": [{"title": "勞工職業災害保險及保護法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031"}]
+      "references": [
+        {
+          "title": "勞工職業災害保險及保護法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031"
+        }
+      ]
     },
     {
       "id": "U22-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "intermediate",
       "stem": "依勞工職業災害保險及保護法規定，直轄市、縣（市）主管機關應建立轄區內何種機制，以掌握職業災害勞工相關資訊？",
       "options": [
-        {"id": "A", "text": "通報及轉介機制"},
-        {"id": "B", "text": "罰款機制"},
-        {"id": "C", "text": "訴訟機制"},
-        {"id": "D", "text": "拍賣機制"}
+        {
+          "id": "A",
+          "text": "通報及轉介機制"
+        },
+        {
+          "id": "B",
+          "text": "罰款機制"
+        },
+        {
+          "id": "C",
+          "text": "訴訟機制"
+        },
+        {
+          "id": "D",
+          "text": "拍賣機制"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "勞工職業災害保險及保護法規定，直轄市、縣（市）主管機關應建立轄區內通報及轉介機制，以掌握職業災害勞工相關資訊，並應置專業服務人員，依職業災害勞工之需求，適時提供個案管理服務及家庭支持。",
-      "references": [{"title": "勞工職業災害保險及保護法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031"}]
+      "references": [
+        {
+          "title": "勞工職業災害保險及保護法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031"
+        }
+      ]
     },
     {
       "id": "U22-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第45條規定，違反第38條（未依規定填載職災內容及統計按月報請備查）者，處多少罰鍰？",
       "options": [
-        {"id": "A", "text": "新臺幣3千元以下罰鍰"},
-        {"id": "B", "text": "新臺幣3萬元以上15萬元以下罰鍰"},
-        {"id": "C", "text": "新臺幣3萬元以上30萬元以下罰鍰"},
-        {"id": "D", "text": "新臺幣6萬元以上30萬元以下罰鍰"}
+        {
+          "id": "A",
+          "text": "新臺幣3千元以下罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "新臺幣3萬元以上15萬元以下罰鍰"
+        },
+        {
+          "id": "C",
+          "text": "新臺幣3萬元以上30萬元以下罰鍰"
+        },
+        {
+          "id": "D",
+          "text": "新臺幣6萬元以上30萬元以下罰鍰"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第45條第1項第1款規定，違反第38條，經通知限期改善而屆期未改善者，處新臺幣三萬元以上十五萬元以下罰鍰。注意須「經通知限期改善而屆期未改善」才處罰。",
-      "references": [{"title": "職業安全衛生法第45條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=45"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第45條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=45"
+        }
+      ]
     },
     {
       "id": "U22-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依勞動檢查法第28條所定勞工有立即發生危險之虞認定標準，有立即發生危險之虞之類型不包括下列何者？",
       "options": [
-        {"id": "A", "text": "墜落"},
-        {"id": "B", "text": "感電"},
-        {"id": "C", "text": "火災、爆炸"},
-        {"id": "D", "text": "交通違規"}
+        {
+          "id": "A",
+          "text": "墜落"
+        },
+        {
+          "id": "B",
+          "text": "感電"
+        },
+        {
+          "id": "C",
+          "text": "火災、爆炸"
+        },
+        {
+          "id": "D",
+          "text": "交通違規"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條規定，有立即發生危險之虞之類型包括：墜落、感電、倒塌崩塌、火災爆炸、中毒缺氧等。交通違規不屬於職安法之立即危險類型。",
-      "references": [{"title": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=3"}]
+      "references": [
+        {
+          "title": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=3"
+        }
+      ]
     },
     {
       "id": "U22-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第37條第2項規定，下列哪些職業災害雇主應於8小時內通報勞動檢查機構？（複選）",
       "options": [
-        {"id": "A", "text": "發生死亡災害"},
-        {"id": "B", "text": "發生災害之罹災人數在3人以上"},
-        {"id": "C", "text": "發生災害之罹災人數在1人以上，且需住院治療"},
-        {"id": "D", "text": "其他經中央主管機關指定公告之災害"}
+        {
+          "id": "A",
+          "text": "發生死亡災害"
+        },
+        {
+          "id": "B",
+          "text": "發生災害之罹災人數在3人以上"
+        },
+        {
+          "id": "C",
+          "text": "發生災害之罹災人數在1人以上，且經門診治療後返家"
+        },
+        {
+          "id": "D",
+          "text": "其他經事業單位自行認定公告之災害"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法第37條第2項規定四種應於8小時內通報之情形：死亡災害、罹災3人以上、罹災1人以上且需住院治療、其他經中央主管機關指定公告之災害。四項均為正確。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生法第37條第2項規定四種應於8小時內通報之情形：死亡災害、罹災3人以上、罹災1人以上且需住院治療、其他經中央主管機關指定公告之災害。C錯誤，須為需住院治療，門診治療尚不符通報要件；D錯誤，應為經中央主管機關指定公告，非事業單位自行認定。",
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "intermediate",
       "stem": "關於職業安全衛生法第37條之職業災害調查，下列哪些叙述正確？（複選）",
       "options": [
-        {"id": "A", "text": "雇主應即採取必要之急救、搶救等措施"},
-        {"id": "B", "text": "雇主應會同勞工代表實施調查、分析及作成紀錄"},
-        {"id": "C", "text": "雇主可自行決定是否通報勞動檢查機構"},
-        {"id": "D", "text": "除必要之急救、搶救外，非經司法機關或勞動檢查機構許可，不得移動或破壞現場"}
+        {
+          "id": "A",
+          "text": "雇主應即採取必要之急救、搶救等措施"
+        },
+        {
+          "id": "B",
+          "text": "除必要之急救、搶救外，非經司法機關或勞動檢查機構許可，不得移動或破壞現場"
+        },
+        {
+          "id": "C",
+          "text": "雇主得自行實施調查、分析及作成紀錄，無須會同勞工代表"
+        },
+        {
+          "id": "D",
+          "text": "雇主可自行決定是否通報勞動檢查機構"
+        }
       ],
-      "answer": ["A", "B", "D"],
-      "explanation": "職安法第37條第1項規定雇主應採取急救搶救措施並會同勞工代表調查分析作成紀錄；第2項規定特定災害應於8小時內通報，非可自行決定；第4項規定非經許可不得移動破壞現場。選項C錯誤，通報為法定義務。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職安法第37條第1項規定雇主應即採取必要之急救、搶救等措施（A正確），並會同勞工代表實施調查、分析及作成紀錄；第4項規定除必要之急救、搶救外，非經司法機關或勞動檢查機構許可，不得移動或破壞現場（B正確）。C錯誤，調查應會同勞工代表實施，不得自行為之；第2項規定特定災害應於8小時內通報，非可自行決定，D錯誤。",
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q027",
@@ -399,14 +895,34 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法規定，下列哪些違規行為可處三年以下有期徒刑？（複選）",
       "options": [
-        {"id": "A", "text": "違反第6條第1項致發生死亡災害"},
-        {"id": "B", "text": "違反第16條第1項致發生死亡災害"},
-        {"id": "C", "text": "違反第37條第4項移動或破壞災害現場"},
-        {"id": "D", "text": "違反第18條第1項未命令停止作業退避"}
+        {
+          "id": "A",
+          "text": "違反第6條第1項致發生死亡災害"
+        },
+        {
+          "id": "B",
+          "text": "違反第16條第1項致發生死亡災害"
+        },
+        {
+          "id": "C",
+          "text": "違反第37條第4項移動或破壞災害現場"
+        },
+        {
+          "id": "D",
+          "text": "違反第18條第1項未命令停止作業退避"
+        }
       ],
-      "answer": ["A", "B"],
+      "answer": [
+        "A",
+        "B"
+      ],
       "explanation": "職安法第40條規定，違反第6條第1項或第16條第1項致發生死亡災害者，處三年以下有期徒刑。選項C和D依第41條規定處一年以下有期徒刑，非三年。",
-      "references": [{"title": "職業安全衛生法第40條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第40條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"
+        }
+      ]
     },
     {
       "id": "U22-Q028",
@@ -414,14 +930,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第49條，有下列情形之一者，得公布事業單位及負責人名稱。下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "發生第37條第2項災害"},
-        {"id": "B", "text": "有第40條至第45條情形"},
-        {"id": "C", "text": "發生職業病"},
-        {"id": "D", "text": "勞工遲到早退"}
+        {
+          "id": "A",
+          "text": "發生第37條第2項災害"
+        },
+        {
+          "id": "B",
+          "text": "勞工遲到早退"
+        },
+        {
+          "id": "C",
+          "text": "有第40條至第45條情形"
+        },
+        {
+          "id": "D",
+          "text": "發生職業病"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
       "explanation": "職安法第49條規定，發生第37條第2項災害、有第40條至第45條、第47條或第48條情形、或發生職業病者，得公布事業單位、雇主之名稱及負責人姓名。勞工遲到早退與此無關。",
-      "references": [{"title": "職業安全衛生法第49條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=49"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第49條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=49"
+        }
+      ]
     },
     {
       "id": "U22-Q029",
@@ -429,14 +966,35 @@
       "difficulty": "intermediate",
       "stem": "關於職業安全衛生法第36條之檢查與停工規定，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "主管機關及勞動檢查機構得檢查各事業單位勞動場所"},
-        {"id": "B", "text": "不合規定者應告知違反法令條款並通知限期改善"},
-        {"id": "C", "text": "屆期未改善或已發生職業災害者得通知部分或全部停工"},
-        {"id": "D", "text": "停工期間雇主不須給付工資"}
+        {
+          "id": "A",
+          "text": "主管機關及勞動檢查機構得檢查各事業單位勞動場所"
+        },
+        {
+          "id": "B",
+          "text": "不合規定者應告知違反法令條款並通知限期改善"
+        },
+        {
+          "id": "C",
+          "text": "屆期未改善或已發生職業災害者得通知部分或全部停工"
+        },
+        {
+          "id": "D",
+          "text": "停工期間雇主不須給付工資"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "職安法第36條規定主管機關得檢查事業單位（A正確）；不合規定者應告知違反條款並通知限期改善（B正確）；屆期未改善、已發生災害或有發生之虞時得通知停工（C正確）；但停工期間雇主應照給工資，D錯誤。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U22-Q030",
@@ -444,14 +1002,35 @@
       "difficulty": "advanced",
       "stem": "依勞工職業災害保險及保護法，中央主管機關得編列經費辦理下列哪些事項？（複選）",
       "options": [
-        {"id": "A", "text": "職業災害預防"},
-        {"id": "B", "text": "預防職業病健康檢查"},
-        {"id": "C", "text": "職業傷病通報、職業災害勞工轉介及個案服務"},
-        {"id": "D", "text": "職業災害勞工重建"}
+        {
+          "id": "A",
+          "text": "預防職業病健康檢查"
+        },
+        {
+          "id": "B",
+          "text": "職業災害預防"
+        },
+        {
+          "id": "C",
+          "text": "職業災害勞工重建"
+        },
+        {
+          "id": "D",
+          "text": "職業災害保險之失能及死亡給付核發"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "勞工職業災害保險及保護法規定，中央主管機關得於職業災害保險年度應收保險費百分之二十及歷年經費執行賸餘額度之範圍內編列經費，辦理職業災害預防、預防職業病健康檢查、職業傷病通報及個案服務、職業災害勞工重建、捐補助財團法人等事項。四項均正確。",
-      "references": [{"title": "勞工職業災害保險及保護法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "勞工職業災害保險及保護法規定，中央主管機關得於職業災害保險年度應收保險費百分之二十及歷年經費執行賸餘額度之範圍內編列經費，辦理職業災害預防、預防職業病健康檢查、職業傷病通報及個案服務、職業災害勞工重建、捐補助財團法人等事項。D錯誤，失能及死亡給付屬職業災害保險給付，非屬中央主管機關編列經費辦理之預防及重建事項。",
+      "references": [
+        {
+          "title": "勞工職業災害保險及保護法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0050031"
+        }
+      ]
     },
     {
       "id": "U22-Q031",
@@ -459,14 +1038,34 @@
       "difficulty": "intermediate",
       "stem": "依勞動檢查法第28條所定勞工有立即發生危險之虞認定標準，有立即發生危險之虞之類型包括哪些？（複選）",
       "options": [
-        {"id": "A", "text": "墜落"},
-        {"id": "B", "text": "感電"},
-        {"id": "C", "text": "倒塌、崩塌"},
-        {"id": "D", "text": "中毒、缺氧"}
+        {
+          "id": "A",
+          "text": "墜落"
+        },
+        {
+          "id": "B",
+          "text": "感電"
+        },
+        {
+          "id": "C",
+          "text": "振動危害"
+        },
+        {
+          "id": "D",
+          "text": "高氣壓危害"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條規定，有立即發生危險之虞之類型包括：墜落、感電、倒塌崩塌、火災爆炸、中毒缺氧等。四項均屬之。",
-      "references": [{"title": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=3"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條規定，有立即發生危險之虞之類型包括：墜落、感電、倒塌崩塌、火災爆炸、中毒缺氧等。振動危害及高氣壓危害雖為作業環境危害，但不屬於本標準所定有立即發生危險之虞之類型。",
+      "references": [
+        {
+          "title": "勞動檢查法第28條所定勞工有立即發生危險之虞認定標準第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=3"
+        }
+      ]
     },
     {
       "id": "U22-Q032",
@@ -474,14 +1073,36 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第41條，下列哪些行為可處一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金？（複選）",
       "options": [
-        {"id": "A", "text": "違反第6條第1項致發生罹災3人之災害"},
-        {"id": "B", "text": "違反第18條第1項（未命令停止作業退避）"},
-        {"id": "C", "text": "違反第37條第4項（移動破壞現場）"},
-        {"id": "D", "text": "違反停工通知"}
+        {
+          "id": "A",
+          "text": "違反第6條第1項致發生罹災3人之災害"
+        },
+        {
+          "id": "B",
+          "text": "違反第18條第1項（未命令停止作業退避）"
+        },
+        {
+          "id": "C",
+          "text": "違反第37條第4項（移動破壞現場）"
+        },
+        {
+          "id": "D",
+          "text": "違反停工通知"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "職安法第41條第1項規定：違反第6條第1項或第16條第1項致發生第37條第2項第2款災害（A正確）；違反第18條第1項、第29條第1項、第30條第1項、第2項或第37條第4項（B、C正確）；違反停工通知（D正確）。均處一年以下有期徒刑、拘役或科或併科新臺幣18萬元以下罰金。",
-      "references": [{"title": "職業安全衛生法第41條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第41條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=41"
+        }
+      ]
     },
     {
       "id": "U22-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "事業單位發生死亡災害時，雇主應於8小時內通報勞動檢查機構。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第37條第2項明確規定，發生死亡災害者，雇主應於8小時內通報勞動檢查機構。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "事業單位發生應通報之職業災害後，雇主未經司法機關或勞動檢查機構許可，不得移動或破壞現場，但必要之急救、搶救不在此限。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安法第37條第4項規定，除必要之急救、搶救外，雇主非經司法機關或勞動檢查機構許可，不得移動或破壞現場。急救搶救屬例外允許之情形。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "雇主對申訴之工作者予以解僱、調職或為其他不利處分，違反職業安全衛生法之規定。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安法第39條第4項明文禁止雇主對申訴之工作者予以解僱、調職或為其他不利處分，此為吹哨者保護規定。",
-      "references": [{"title": "職業安全衛生法第39條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=39"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第39條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=39"
+        }
+      ]
     },
     {
       "id": "U22-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "intermediate",
       "stem": "中央主管機關指定之事業，雇主應依規定填載職業災害內容及統計，按月報請勞動檢查機構備查，並公布於工作場所。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安法第38條規定，中央主管機關指定之事業，雇主應依規定填載職業災害內容及統計，按月報請勞動檢查機構備查，並公布於工作場所。此規定確保職災統計之即時性與透明性。",
-      "references": [{"title": "職業安全衛生法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"
+        }
+      ]
     },
     {
       "id": "U22-Q037",
@@ -541,84 +1214,162 @@
       "difficulty": "advanced",
       "stem": "勞工發現工作場所有立即發生危險之虞時，必須先經雇主同意方可停止作業及退避至安全場所。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安法第18條第2項規定，勞工得在不危及他人安全之情況下，自行停止作業及退避至安全場所，無須先經雇主同意，並應立即報告直屬主管。雇主不得因此為不利處分。",
-      "references": [{"title": "職業安全衛生法第18條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第18條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=18"
+        }
+      ]
     },
     {
       "id": "U22-Q038",
       "type": "fill_blank",
       "difficulty": "basic",
       "stem": "事業單位勞動場所發生死亡災害時，雇主應於________小時內通報勞動檢查機構。",
-      "answer": ["8", "八"],
+      "answer": [
+        "8",
+        "八"
+      ],
       "explanation": "職安法第37條第2項規定，發生死亡災害、罹災3人以上、罹災1人以上且需住院治療等情形，雇主應於8小時內通報勞動檢查機構。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "事業單位工作場所發生職業災害時，雇主應會同________實施調查、分析及作成紀錄。",
-      "answer": ["勞工代表"],
+      "answer": [
+        "勞工代表"
+      ],
       "explanation": "職安法第37條第1項規定，雇主應會同勞工代表實施調查、分析及作成紀錄，以確保調查之客觀公正。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "中央主管機關指定之事業，雇主應依規定填載職業災害內容及統計，按________報請勞動檢查機構備查。",
-      "answer": ["月", "月報"],
+      "answer": [
+        "月",
+        "月報"
+      ],
       "explanation": "職安法第38條規定，雇主應按月報請勞動檢查機構備查，並公布於工作場所。",
-      "references": [{"title": "職業安全衛生法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"
+        }
+      ]
     },
     {
       "id": "U22-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第40條，違反第6條第1項或第16條第1項致發生死亡災害者，處________以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金。",
-      "answer": ["三年", "3年"],
+      "answer": [
+        "三年",
+        "3年"
+      ],
       "explanation": "職安法第40條第1項規定，違反第6條第1項或第16條第1項致發生死亡災害者，處三年以下有期徒刑、拘役或科或併科新臺幣三十萬元以下罰金。",
-      "references": [{"title": "職業安全衛生法第40條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第40條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"
+        }
+      ]
     },
     {
       "id": "U22-Q042",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "事業單位發生應通報之職業災害時，除必要之急救、搶救外，雇主非經司法機關或________許可，不得移動或破壞現場。",
-      "answer": ["勞動檢查機構"],
+      "answer": [
+        "勞動檢查機構"
+      ],
       "explanation": "職安法第37條第4項規定，雇主非經司法機關或勞動檢查機構許可，不得移動或破壞現場，以保全災害證據。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某事業單位一年內共發生職業災害20件，其中需住院治療者5件、死亡災害1件。依職業安全衛生法第37條第2項規定，雇主應於8小時內通報勞動檢查機構的災害件數至少為多少件？（假設無其他經中央主管機關指定公告之災害）",
-      "answer": {"value": 6, "unit": "件", "tolerance": 0},
+      "answer": {
+        "value": 6,
+        "unit": "件",
+        "tolerance": 0
+      },
       "explanation": "職安法第37條第2項規定應通報之情形包括：死亡災害（1件）、罹災3人以上、罹災1人以上且需住院治療（5件）、其他指定公告之災害。故至少應通報1+5=6件。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "某事業單位年度總勞工數為200人，該年度共發生職業災害10件造成15人罹災，其中損失工作日數總計為300日。請計算該年度之失能傷害頻率（FR，即每百萬工時之失能傷害次數，假設年度總工時為400,000小時，10件災害均為失能傷害）。",
-      "answer": {"value": 25, "unit": "件/百萬工時", "tolerance": 0.5},
+      "answer": {
+        "value": 25,
+        "unit": "件/百萬工時",
+        "tolerance": 0.5
+      },
       "explanation": "失能傷害頻率(FR)=失能傷害件數×1,000,000÷總工時=10×1,000,000÷400,000=25件/百萬工時。",
-      "references": [{"title": "職業安全衛生法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"
+        }
+      ]
     },
     {
       "id": "U22-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某事業單位年度總工時為500,000小時，該年度失能傷害損失工作日數總計為250日。請計算失能傷害嚴重率（SR，即每百萬工時之損失工作日數）。",
-      "answer": {"value": 500, "unit": "日/百萬工時", "tolerance": 1},
+      "answer": {
+        "value": 500,
+        "unit": "日/百萬工時",
+        "tolerance": 1
+      },
       "explanation": "失能傷害嚴重率(SR)=損失工作日數×1,000,000÷總工時=250×1,000,000÷500,000=500日/百萬工時。",
-      "references": [{"title": "職業安全衛生法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=38"
+        }
+      ]
     },
     {
       "id": "U22-Q046",
@@ -626,25 +1377,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列職安法條文與其主要內容正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "第37條第1項"},
-        {"id": "L2", "text": "第37條第2項"},
-        {"id": "L3", "text": "第37條第4項"},
-        {"id": "L4", "text": "第38條"}
+        {
+          "id": "L1",
+          "text": "第37條第1項"
+        },
+        {
+          "id": "L2",
+          "text": "第37條第2項"
+        },
+        {
+          "id": "L3",
+          "text": "第37條第4項"
+        },
+        {
+          "id": "L4",
+          "text": "第38條"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "8小時內通報勞動檢查機構"},
-        {"id": "R2", "text": "會同勞工代表調查分析作成紀錄"},
-        {"id": "R3", "text": "不得移動或破壞災害現場"},
-        {"id": "R4", "text": "按月報請職災統計備查"}
+        {
+          "id": "R1",
+          "text": "8小時內通報勞動檢查機構"
+        },
+        {
+          "id": "R2",
+          "text": "會同勞工代表調查分析作成紀錄"
+        },
+        {
+          "id": "R3",
+          "text": "不得移動或破壞災害現場"
+        },
+        {
+          "id": "R4",
+          "text": "按月報請職災統計備查"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R2"},
-        {"left": "L2", "right": "R1"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R2"
+        },
+        {
+          "left": "L2",
+          "right": "R1"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "第37條第1項為會同勞工代表調查分析；第37條第2項為8小時內通報；第37條第4項為不得移動破壞現場；第38條為按月報請職災統計。",
-      "references": [{"title": "職業安全衛生法第37、38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37、38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q047",
@@ -652,25 +1444,66 @@
       "difficulty": "advanced",
       "stem": "請將職安法違規行為與其對應之罰則條文正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "違反第6條第1項致發生死亡災害"},
-        {"id": "L2", "text": "違反第37條第4項移動破壞現場"},
-        {"id": "L3", "text": "違反第38條未按月報職災統計"},
-        {"id": "L4", "text": "違反第37條第1項未會同調查分析"}
+        {
+          "id": "L1",
+          "text": "違反第6條第1項致發生死亡災害"
+        },
+        {
+          "id": "L2",
+          "text": "違反第37條第4項移動破壞現場"
+        },
+        {
+          "id": "L3",
+          "text": "違反第38條未按月報職災統計"
+        },
+        {
+          "id": "L4",
+          "text": "違反第37條第1項未會同調查分析"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "第40條（三年以下有期徒刑）"},
-        {"id": "R2", "text": "第41條（一年以下有期徒刑）"},
-        {"id": "R3", "text": "第45條（3萬至15萬罰鍰）"},
-        {"id": "R4", "text": "第43條（3萬至30萬罰鍰）"}
+        {
+          "id": "R1",
+          "text": "第40條（三年以下有期徒刑）"
+        },
+        {
+          "id": "R2",
+          "text": "第41條（一年以下有期徒刑）"
+        },
+        {
+          "id": "R3",
+          "text": "第45條（3萬至15萬罰鍰）"
+        },
+        {
+          "id": "R4",
+          "text": "第43條（3萬至30萬罰鍰）"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "違反第6條致死亡依第40條處三年以下有期徒刑；移動破壞現場依第41條處一年以下有期徒刑；未按月報統計依第45條處3至15萬罰鍰；未會同調查依第43條處3至30萬罰鍰。",
-      "references": [{"title": "職業安全衛生法第40-45條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第40-45條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"
+        }
+      ]
     },
     {
       "id": "U22-Q048",
@@ -678,25 +1511,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列職業災害類型與其對應之法律條文正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "勞工因機械夾傷致住院治療"},
-        {"id": "L2", "text": "勞工因墜落死亡"},
-        {"id": "L3", "text": "同一事故3人以上罹災"},
-        {"id": "L4", "text": "事業單位未按月報職災統計"}
+        {
+          "id": "L1",
+          "text": "勞工因機械夾傷致住院治療"
+        },
+        {
+          "id": "L2",
+          "text": "勞工因墜落死亡"
+        },
+        {
+          "id": "L3",
+          "text": "同一事故3人以上罹災"
+        },
+        {
+          "id": "L4",
+          "text": "事業單位未按月報職災統計"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "應於8小時內通報（第37條第2項第3款）"},
-        {"id": "R2", "text": "應於8小時內通報（第37條第2項第1款）"},
-        {"id": "R3", "text": "應於8小時內通報（第37條第2項第2款）"},
-        {"id": "R4", "text": "違反第38條按月報統計義務"}
+        {
+          "id": "R1",
+          "text": "應於8小時內通報（第37條第2項第3款）"
+        },
+        {
+          "id": "R2",
+          "text": "應於8小時內通報（第37條第2項第1款）"
+        },
+        {
+          "id": "R3",
+          "text": "應於8小時內通報（第37條第2項第2款）"
+        },
+        {
+          "id": "R4",
+          "text": "違反第38條按月報統計義務"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "住院治療屬第37條第2項第3款；死亡屬第1款；3人以上屬第2款；未按月報統計屬第38條義務。",
-      "references": [{"title": "職業安全衛生法第37、38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37、38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q049",
@@ -704,14 +1578,36 @@
       "difficulty": "advanced",
       "stem": "請依職業安全衛生法第37條規定，將事業單位發生職業災害後雇主的處理步驟依正確順序排列：",
       "items": [
-        {"id": "I1", "text": "採取必要之急救、搶救等措施"},
-        {"id": "I2", "text": "會同勞工代表實施調查、分析及作成紀錄"},
-        {"id": "I3", "text": "於8小時內通報勞動檢查機構"},
-        {"id": "I4", "text": "保持災害現場不被移動或破壞（除急救搶救外）"}
+        {
+          "id": "I1",
+          "text": "採取必要之急救、搶救等措施"
+        },
+        {
+          "id": "I2",
+          "text": "會同勞工代表實施調查、分析及作成紀錄"
+        },
+        {
+          "id": "I3",
+          "text": "於8小時內通報勞動檢查機構"
+        },
+        {
+          "id": "I4",
+          "text": "保持災害現場不被移動或破壞（除急救搶救外）"
+        }
       ],
-      "answer": ["I1", "I3", "I4", "I2"],
+      "answer": [
+        "I1",
+        "I3",
+        "I4",
+        "I2"
+      ],
       "explanation": "依職安法第37條，雇主應先採取急救搶救措施，同時於8小時內通報，並保持現場不被破壞，再會同勞工代表調查分析。急救搶救為最優先，通報為時限要求，現場保持為配合調查之準備，調查分析為最後步驟。",
-      "references": [{"title": "職業安全衛生法第37條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第37條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=37"
+        }
+      ]
     },
     {
       "id": "U22-Q050",
@@ -719,15 +1615,41 @@
       "difficulty": "intermediate",
       "stem": "請依職業安全衛生法罰則之嚴重程度由重至輕排列：",
       "items": [
-        {"id": "I1", "text": "第40條：三年以下有期徒刑（致死亡災害）"},
-        {"id": "I2", "text": "第41條：一年以下有期徒刑（移動破壞現場等）"},
-        {"id": "I3", "text": "第42條：30萬至300萬罰鍰（化學品災害）"},
-        {"id": "I4", "text": "第43條：3萬至30萬罰鍰（未通報等）"},
-        {"id": "I5", "text": "第46條：3千元以下罰鍰（輕微違規）"}
+        {
+          "id": "I1",
+          "text": "第40條：三年以下有期徒刑（致死亡災害）"
+        },
+        {
+          "id": "I2",
+          "text": "第41條：一年以下有期徒刑（移動破壞現場等）"
+        },
+        {
+          "id": "I3",
+          "text": "第42條：30萬至300萬罰鍰（化學品災害）"
+        },
+        {
+          "id": "I4",
+          "text": "第43條：3萬至30萬罰鍰（未通報等）"
+        },
+        {
+          "id": "I5",
+          "text": "第46條：3千元以下罰鍰（輕微違規）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4",
+        "I5"
+      ],
       "explanation": "依罰則嚴重程度：第40條三年有期徒刑最重，其次第41條一年有期徒刑，再來第42條30至300萬罰鍰，第43條3至30萬罰鍰，第46條3千元以下最輕。",
-      "references": [{"title": "職業安全衛生法第40-46條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第40-46條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=40"
+        }
+      ]
     }
   ]
 }

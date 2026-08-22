@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法第1條規定，本法之立法目的為何？",
       "options": [
-        {"id": "A", "text": "規定勞動條件最低標準"},
-        {"id": "B", "text": "防止職業災害，保障工作者安全及健康"},
-        {"id": "C", "text": "管理公司商標"},
-        {"id": "D", "text": "規定商品售價"}
+        {
+          "id": "A",
+          "text": "規定勞動條件最低標準"
+        },
+        {
+          "id": "B",
+          "text": "防止職業災害，保障工作者安全及健康"
+        },
+        {
+          "id": "C",
+          "text": "管理公司商標"
+        },
+        {
+          "id": "D",
+          "text": "規定商品售價"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第1條規定，為防止職業災害，保障工作者安全及健康，特制定本法。A為勞動基準法的立法目的。職安法的核心目標是透過預防職業災害來保障工作者的安全與健康。",
-      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"
+        }
+      ]
     },
     {
       "id": "U20-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法第2條第5款規定，「職業災害」之定義為何？",
       "options": [
-        {"id": "A", "text": "僅指勞工在工廠內受傷"},
-        {"id": "B", "text": "因建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵等或作業活動及其他職業上原因引起之工作者疾病、傷害、失能或死亡"},
-        {"id": "C", "text": "僅指化學品中毒"},
-        {"id": "D", "text": "僅指機械設備造成的傷害"}
+        {
+          "id": "A",
+          "text": "僅指勞工在工廠內受傷"
+        },
+        {
+          "id": "B",
+          "text": "因建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵等或作業活動及其他職業上原因引起之工作者疾病、傷害、失能或死亡"
+        },
+        {
+          "id": "C",
+          "text": "僅指化學品中毒"
+        },
+        {
+          "id": "D",
+          "text": "僅指機械設備造成的傷害"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第2條第5款規定，職業災害指因建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵等或作業活動及其他職業上原因引起之工作者疾病、傷害、失能或死亡。定義範圍廣泛，不限於特定原因或場所。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第2條第2款規定，「工作者」之範圍不包括下列何者？",
       "options": [
-        {"id": "A", "text": "勞工"},
-        {"id": "B", "text": "自營作業者"},
-        {"id": "C", "text": "受工作場所負責人指揮或監督從事勞動之人員"},
-        {"id": "D", "text": "純粹到工廠參觀的訪客"}
+        {
+          "id": "A",
+          "text": "勞工"
+        },
+        {
+          "id": "B",
+          "text": "自營作業者"
+        },
+        {
+          "id": "C",
+          "text": "受工作場所負責人指揮或監督從事勞動之人員"
+        },
+        {
+          "id": "D",
+          "text": "純粹到工廠參觀的訪客"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生法第2條第2款規定，工作者指勞工、自營作業者及其他受工作場所負責人指揮或監督從事勞動之人員。純粹參觀的訪客不受指揮監督從事勞動，不屬於工作者範圍。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第1項規定，雇主對於防止何種危害應有符合規定之必要安全衛生設備及措施？下列何者不屬之？",
       "options": [
-        {"id": "A", "text": "防止機械、設備或器具等引起之危害"},
-        {"id": "B", "text": "防止墜落、物體飛落或崩塌等之虞之作業場所引起之危害"},
-        {"id": "C", "text": "防止高壓氣體引起之危害"},
-        {"id": "D", "text": "防止勞工通勤途中交通事故之危害"}
+        {
+          "id": "A",
+          "text": "防止機械、設備或器具等引起之危害"
+        },
+        {
+          "id": "B",
+          "text": "防止墜落、物體飛落或崩塌等之虞之作業場所引起之危害"
+        },
+        {
+          "id": "C",
+          "text": "防止高壓氣體引起之危害"
+        },
+        {
+          "id": "D",
+          "text": "防止勞工通勤途中交通事故之危害"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生法第6條第1項列舉雇主應防止之危害共十四款，包括機械設備（第1款）、墜落物體飛落崩塌（第5款）、高壓氣體（第6款）等。通勤交通事故不屬於職安法第6條之防止危害範圍，屬勞基法職災補償範疇。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第2項規定，雇主對於下列何者應妥為規劃及採取必要之安全衛生措施？",
       "options": [
-        {"id": "A", "text": "重複性作業等促發肌肉骨骼疾病之預防"},
-        {"id": "B", "text": "產品定價策略"},
-        {"id": "C", "text": "員工薪資結構設計"},
-        {"id": "D", "text": "公司行銷計畫"}
+        {
+          "id": "A",
+          "text": "重複性作業等促發肌肉骨骼疾病之預防"
+        },
+        {
+          "id": "B",
+          "text": "產品定價策略"
+        },
+        {
+          "id": "C",
+          "text": "員工薪資結構設計"
+        },
+        {
+          "id": "D",
+          "text": "公司行銷計畫"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第6條第2項規定，雇主應妥為規劃及採取必要安全衛生措施之事項包括：重複性作業等促發肌肉骨骼疾病之預防（第1款）、輪班夜間工作長時間工作等異常工作負荷促發疾病之預防（第2款）、執行職務因他人行為遭受身體或精神不法侵害之預防（第3款）、避難急救休息等保護勞工身心健康之事項（第4款）。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第2項規定，下列何者屬於雇主應妥為規劃及採取必要安全衛生措施之事項？",
       "options": [
-        {"id": "A", "text": "輪班、夜間工作、長時間工作等異常工作負荷促發疾病之預防"},
-        {"id": "B", "text": "勞工薪資調整"},
-        {"id": "C", "text": "勞工退休金規劃"},
-        {"id": "D", "text": "公司年度預算編列"}
+        {
+          "id": "A",
+          "text": "輪班、夜間工作、長時間工作等異常工作負荷促發疾病之預防"
+        },
+        {
+          "id": "B",
+          "text": "勞工薪資調整"
+        },
+        {
+          "id": "C",
+          "text": "勞工退休金規劃"
+        },
+        {
+          "id": "D",
+          "text": "公司年度預算編列"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第6條第2項第2款規定，雇主對於輪班、夜間工作、長時間工作等異常工作負荷促發疾病之預防，應妥為規劃及採取必要之安全衛生措施。此為職安法新增之保護勞工身心健康的重要規定。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第23條規定，雇主應設置安全衛生組織、人員，實施安全衛生管理及下列何項？",
       "options": [
-        {"id": "A", "text": "績效考核"},
-        {"id": "B", "text": "自動檢查"},
-        {"id": "C", "text": "成本控制"},
-        {"id": "D", "text": "市場調查"}
+        {
+          "id": "A",
+          "text": "績效考核"
+        },
+        {
+          "id": "B",
+          "text": "自動檢查"
+        },
+        {
+          "id": "C",
+          "text": "成本控制"
+        },
+        {
+          "id": "D",
+          "text": "市場調查"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第23條第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，並設置安全衛生組織、人員，實施安全衛生管理及自動檢查。自動檢查是雇主自我管理、預防職業災害的重要機制。",
-      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
     },
     {
       "id": "U20-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第32條規定，雇主對勞工應施以從事工作與預防災變所必要之何種教育及訓練？",
       "options": [
-        {"id": "A", "text": "生產技術"},
-        {"id": "B", "text": "安全衛生"},
-        {"id": "C", "text": "行銷管理"},
-        {"id": "D", "text": "財務管理"}
+        {
+          "id": "A",
+          "text": "生產技術"
+        },
+        {
+          "id": "B",
+          "text": "安全衛生"
+        },
+        {
+          "id": "C",
+          "text": "行銷管理"
+        },
+        {
+          "id": "D",
+          "text": "財務管理"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第32條第1項規定，雇主對勞工應施以從事工作與預防災變所必要之安全衛生教育及訓練。安全衛生教育訓練是預防職業傷害的重要手段，透過教育訓練提升勞工的安全意識與技能。",
-      "references": [{"title": "職業安全衛生法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第32條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=32"
+        }
+      ]
     },
     {
       "id": "U20-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第34條規定，雇主應會同何者訂定安全衛生工作守則，報經勞動檢查機構備查後公告實施？",
       "options": [
-        {"id": "A", "text": "勞動檢查員"},
-        {"id": "B", "text": "勞工代表"},
-        {"id": "C", "text": "衛生主管機關"},
-        {"id": "D", "text": "工會理事長"}
+        {
+          "id": "A",
+          "text": "勞動檢查員"
+        },
+        {
+          "id": "B",
+          "text": "勞工代表"
+        },
+        {
+          "id": "C",
+          "text": "衛生主管機關"
+        },
+        {
+          "id": "D",
+          "text": "工會理事長"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第34條第1項規定，雇主應依本法及有關規定會同勞工代表訂定適合其需要之安全衛生工作守則，報經勞動檢查機構備查後，公告實施。工作守則是預防職業傷害的基礎規範。",
-      "references": [{"title": "職業安全衛生法第34條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第34條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=34"
+        }
+      ]
     },
     {
       "id": "U20-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第10條規定，雇主對於具有危害性之化學品，應採取下列何項措施？",
       "options": [
-        {"id": "A", "text": "僅需口頭告知勞工"},
-        {"id": "B", "text": "予以標示、製備清單及揭示安全資料表，並採取必要之通識措施"},
-        {"id": "C", "text": "不需任何標示"},
-        {"id": "D", "text": "僅需告知主管"}
+        {
+          "id": "A",
+          "text": "僅需口頭告知勞工"
+        },
+        {
+          "id": "B",
+          "text": "予以標示、製備清單及揭示安全資料表，並採取必要之通識措施"
+        },
+        {
+          "id": "C",
+          "text": "不需任何標示"
+        },
+        {
+          "id": "D",
+          "text": "僅需告知主管"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第10條第1項規定，雇主對於具有危害性之化學品，應予標示、製備清單及揭示安全資料表，並採取必要之通識措施。此為危害通識制度的核心規定，是預防化學性職業傷害的重要措施。",
-      "references": [{"title": "職業安全衛生法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"
+        }
+      ]
     },
     {
       "id": "U20-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第7條規定，製造者、輸入者、供應者或雇主，對於中央主管機關指定之機械、設備或器具，其構造、性能及防護非符合何種標準者，不得產製運出廠場、輸入、租賃、供應或設置？",
       "options": [
-        {"id": "A", "text": "國際標準"},
-        {"id": "B", "text": "安全標準"},
-        {"id": "C", "text": "品質標準"},
-        {"id": "D", "text": "環保標準"}
+        {
+          "id": "A",
+          "text": "國際標準"
+        },
+        {
+          "id": "B",
+          "text": "安全標準"
+        },
+        {
+          "id": "C",
+          "text": "品質標準"
+        },
+        {
+          "id": "D",
+          "text": "環保標準"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第7條第1項規定，製造者、輸入者、供應者或雇主，對於中央主管機關指定之機械、設備或器具，其構造、性能及防護非符合安全標準者，不得產製運出廠場、輸入、租賃、供應或設置。安全標準由中央主管機關定之。",
-      "references": [{"title": "職業安全衛生法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=7"
+        }
+      ]
     },
     {
       "id": "U20-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第12條規定，雇主對於中央主管機關定有容許暴露標準之作業場所，應確保勞工之危害暴露低於何者？",
       "options": [
-        {"id": "A", "text": "標準值"},
-        {"id": "B", "text": "標準值的二倍"},
-        {"id": "C", "text": "標準值的一半"},
-        {"id": "D", "text": "無需控制"}
+        {
+          "id": "A",
+          "text": "標準值"
+        },
+        {
+          "id": "B",
+          "text": "標準值的二倍"
+        },
+        {
+          "id": "C",
+          "text": "標準值的一半"
+        },
+        {
+          "id": "D",
+          "text": "無需控制"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第12條第1項規定，雇主對於中央主管機關定有容許暴露標準之作業場所，應確保勞工之危害暴露低於標準值。容許暴露標準由中央主管機關定之，是預防化學性、物理性危害的重要依據。",
-      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"
+        }
+      ]
     },
     {
       "id": "U20-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第12條第3項規定，雇主對於經中央主管機關指定之作業場所，應訂定作業環境監測計畫，並設置或委託由中央主管機關認可之何者實施監測？",
       "options": [
-        {"id": "A", "text": "顧問公司"},
-        {"id": "B", "text": "作業環境監測機構"},
-        {"id": "C", "text": "工程公司"},
-        {"id": "D", "text": "人力仲介公司"}
+        {
+          "id": "A",
+          "text": "顧問公司"
+        },
+        {
+          "id": "B",
+          "text": "作業環境監測機構"
+        },
+        {
+          "id": "C",
+          "text": "工程公司"
+        },
+        {
+          "id": "D",
+          "text": "人力仲介公司"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第12條第3項規定，雇主應訂定作業環境監測計畫，並設置或委託由中央主管機關認可之作業環境監測機構實施監測。但中央主管機關指定免經監測機構分析之監測項目，得僱用合格監測人員辦理之。",
-      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"
+        }
+      ]
     },
     {
       "id": "U20-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "在職業安全衛生管理中，所謂「4M分析」係指分析職業災害的四個要素，下列何者不屬於4M？",
       "options": [
-        {"id": "A", "text": "人（Man）"},
-        {"id": "B", "text": "機（Machine）"},
-        {"id": "C", "text": "市場（Market）"},
-        {"id": "D", "text": "管理（Management）"}
+        {
+          "id": "A",
+          "text": "人（Man）"
+        },
+        {
+          "id": "B",
+          "text": "機（Machine）"
+        },
+        {
+          "id": "C",
+          "text": "市場（Market）"
+        },
+        {
+          "id": "D",
+          "text": "管理（Management）"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "4M分析是指從四個面向分析職業災害原因：人（Man，勞工的不安全行為）、機（Machine，機械設備的不安全狀態）、環境（Media，作業環境的不安全條件）、管理（Management，管理制度缺陷）。市場（Market）不屬於4M要素。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第36條規定，勞動檢查機構對於事業單位勞動場所得實施檢查，其有不合規定者，應告知違反法令條款，並通知限期改善。如屆期未改善或已發生職業災害，或有發生職業災害之虞時，得通知其何種處分？",
       "options": [
-        {"id": "A", "text": "罰鍰"},
-        {"id": "B", "text": "部分或全部停工"},
-        {"id": "C", "text": "吊銷營業執照"},
-        {"id": "D", "text": "刑事起訴"}
+        {
+          "id": "A",
+          "text": "罰鍰"
+        },
+        {
+          "id": "B",
+          "text": "部分或全部停工"
+        },
+        {
+          "id": "C",
+          "text": "吊銷營業執照"
+        },
+        {
+          "id": "D",
+          "text": "刑事起訴"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第36條第1項規定，勞動檢查機構對於不合規定者，應通知限期改善；屆期未改善或已發生職業災害，或有發生職業災害之虞時，得通知其部分或全部停工。勞工於停工期間應由雇主照給工資。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U20-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第36條規定，勞工於停工期間應由雇主如何處理？",
       "options": [
-        {"id": "A", "text": "不給工資"},
-        {"id": "B", "text": "照給工資"},
-        {"id": "C", "text": "減半給薪"},
-        {"id": "D", "text": "由勞工自行承擔"}
+        {
+          "id": "A",
+          "text": "不給工資"
+        },
+        {
+          "id": "B",
+          "text": "照給工資"
+        },
+        {
+          "id": "C",
+          "text": "減半給薪"
+        },
+        {
+          "id": "D",
+          "text": "由勞工自行承擔"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第36條第1項規定，勞工於停工期間應由雇主照給工資。此規定保障勞工因雇主違規被令停工期間的工資權益，同時也增加雇主遵守安全衛生規定的誘因。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U20-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第33條規定，雇主應負責宣導本法及有關安全衛生之規定，使何人周知？",
       "options": [
-        {"id": "A", "text": "僅使主管周知"},
-        {"id": "B", "text": "使勞工周知"},
-        {"id": "C", "text": "僅使安全衛生人員周知"},
-        {"id": "D", "text": "僅使新進人員周知"}
+        {
+          "id": "A",
+          "text": "僅使主管周知"
+        },
+        {
+          "id": "B",
+          "text": "使勞工周知"
+        },
+        {
+          "id": "C",
+          "text": "僅使安全衛生人員周知"
+        },
+        {
+          "id": "D",
+          "text": "僅使新進人員周知"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第33條規定，雇主應負責宣導本法及有關安全衛生之規定，使勞工周知。此為雇主之宣導周知義務，是預防職業傷害的基礎工作，確保所有勞工知曉安全衛生規定。",
-      "references": [{"title": "職業安全衛生法第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=33"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第33條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=33"
+        }
+      ]
     },
     {
       "id": "U20-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則第1條規定，本規則為雇主使勞工從事工作之安全衛生設備及措施之何種標準？",
       "options": [
-        {"id": "A", "text": "最高標準"},
-        {"id": "B", "text": "最低標準"},
-        {"id": "C", "text": "建議標準"},
-        {"id": "D", "text": "參考標準"}
+        {
+          "id": "A",
+          "text": "最高標準"
+        },
+        {
+          "id": "B",
+          "text": "最低標準"
+        },
+        {
+          "id": "C",
+          "text": "建議標準"
+        },
+        {
+          "id": "D",
+          "text": "參考標準"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，本規則為雇主使勞工從事工作之安全衛生設備及措施之最低標準。雇主應在此最低標準之上提供安全衛生設備及措施，可以優於但不可低於此標準。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U20-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第6條第2項規定，下列何者屬於雇主應妥為規劃及採取必要安全衛生措施之事項？",
       "options": [
-        {"id": "A", "text": "執行職務因他人行為遭受身體或精神不法侵害之預防"},
-        {"id": "B", "text": "勞工旅遊活動規劃"},
-        {"id": "C", "text": "公司內部升遷制度"},
-        {"id": "D", "text": "員工餐廳菜單設計"}
+        {
+          "id": "A",
+          "text": "執行職務因他人行為遭受身體或精神不法侵害之預防"
+        },
+        {
+          "id": "B",
+          "text": "勞工旅遊活動規劃"
+        },
+        {
+          "id": "C",
+          "text": "公司內部升遷制度"
+        },
+        {
+          "id": "D",
+          "text": "員工餐廳菜單設計"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第6條第2項第3款規定，雇主對於執行職務因他人行為遭受身體或精神不法侵害之預防（即職場暴力預防），應妥為規劃及採取必要之安全衛生措施。此為職安法保障勞工身心健康的重要新增規定。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "intermediate",
       "stem": "在職業災害預防中，「三道防線」之觀念依序為何？",
       "options": [
-        {"id": "A", "text": "補償→工程改善→教育訓練"},
-        {"id": "B", "text": "工程改善→管理措施→個人防護具"},
-        {"id": "C", "text": "個人防護具→管理措施→工程改善"},
-        {"id": "D", "text": "管理措施→個人防護具→工程改善"}
+        {
+          "id": "A",
+          "text": "補償→工程改善→教育訓練"
+        },
+        {
+          "id": "B",
+          "text": "工程改善→管理措施→個人防護具"
+        },
+        {
+          "id": "C",
+          "text": "個人防護具→管理措施→工程改善"
+        },
+        {
+          "id": "D",
+          "text": "管理措施→個人防護具→工程改善"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業災害預防的三道防線依序為：第一道防線—工程改善（從源頭消除或降低危害）、第二道防線—管理措施（如標準作業程序、教育訓練、自動檢查等）、第三道防線—個人防護具（最後的保護手段）。應優先從工程改善著手。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第2項規定，下列何者屬於雇主應妥為規劃及採取必要安全衛生措施之事項？",
       "options": [
-        {"id": "A", "text": "避難、急救、休息或其他為保護勞工身心健康之事項"},
-        {"id": "B", "text": "員工旅遊安排"},
-        {"id": "C", "text": "辦公室裝修"},
-        {"id": "D", "text": "員工生日慶祝"}
+        {
+          "id": "A",
+          "text": "避難、急救、休息或其他為保護勞工身心健康之事項"
+        },
+        {
+          "id": "B",
+          "text": "員工旅遊安排"
+        },
+        {
+          "id": "C",
+          "text": "辦公室裝修"
+        },
+        {
+          "id": "D",
+          "text": "員工生日慶祝"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第6條第2項第4款規定，雇主對於避難、急救、休息或其他為保護勞工身心健康之事項，應妥為規劃及採取必要之安全衛生措施。此為保護勞工身心健康的重要規定。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第23條第2項規定，事業單位達一定規模以上或有第十五條第一項所定之工作場所者，應建置下列何者？",
       "options": [
-        {"id": "A", "text": "職業安全衛生管理計畫"},
-        {"id": "B", "text": "職業安全衛生管理系統"},
-        {"id": "C", "text": "安全衛生工作守則"},
-        {"id": "D", "text": "勞工健康服務計畫"}
+        {
+          "id": "A",
+          "text": "職業安全衛生管理計畫"
+        },
+        {
+          "id": "B",
+          "text": "職業安全衛生管理系統"
+        },
+        {
+          "id": "C",
+          "text": "安全衛生工作守則"
+        },
+        {
+          "id": "D",
+          "text": "勞工健康服務計畫"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第23條第2項規定，事業單位達一定規模以上或有第十五條第一項所定之工作場所（即危險性工作場所）者，應建置職業安全衛生管理系統。此為系統化安全衛生管理的法律依據。",
-      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
     },
     {
       "id": "U20-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第1項規定，雇主對於防止下列何者引起之危害應有符合規定之必要安全衛生設備及措施？",
       "options": [
-        {"id": "A", "text": "電、熱或其他之能"},
-        {"id": "B", "text": "勞工個人財務損失"},
-        {"id": "C", "text": "勞工通勤交通"},
-        {"id": "D", "text": "勞工家庭糾紛"}
+        {
+          "id": "A",
+          "text": "電、熱或其他之能"
+        },
+        {
+          "id": "B",
+          "text": "勞工個人財務損失"
+        },
+        {
+          "id": "C",
+          "text": "勞工通勤交通"
+        },
+        {
+          "id": "D",
+          "text": "勞工家庭糾紛"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第6條第1項第3款規定，雇主對於防止電、熱或其他之能引起之危害，應有符合規定之必要安全衛生設備及措施。電氣安全是職業安全的重要領域，職安法明確將其列為雇主應防止之危害。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第12條第4項規定，雇主對於作業環境監測計畫及監測結果應如何處理？",
       "options": [
-        {"id": "A", "text": "僅供內部參考，不需公開"},
-        {"id": "B", "text": "應公開揭示，並通報中央主管機關"},
-        {"id": "C", "text": "僅告知安全衛生人員"},
-        {"id": "D", "text": "僅告知勞工代表"}
+        {
+          "id": "A",
+          "text": "僅供內部參考，不需公開"
+        },
+        {
+          "id": "B",
+          "text": "應公開揭示，並通報中央主管機關"
+        },
+        {
+          "id": "C",
+          "text": "僅告知安全衛生人員"
+        },
+        {
+          "id": "D",
+          "text": "僅告知勞工代表"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第12條第4項規定，雇主對於監測計畫及監測結果，應公開揭示，並通報中央主管機關。中央主管機關或勞動檢查機構得實施查核。此規定確保作業環境監測資訊的透明公開。",
-      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"
+        }
+      ]
     },
     {
       "id": "U20-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第2條第5款規定，職業災害可能造成的結果包括下列哪些？（複選）",
       "options": [
-        {"id": "A", "text": "工作者疾病"},
-        {"id": "B", "text": "工作者傷害"},
-        {"id": "C", "text": "工作者失能"},
-        {"id": "D", "text": "工作者死亡"}
+        {
+          "id": "A",
+          "text": "工作者疾病"
+        },
+        {
+          "id": "B",
+          "text": "工作者傷害"
+        },
+        {
+          "id": "C",
+          "text": "工作者財物損失"
+        },
+        {
+          "id": "D",
+          "text": "工作者情緒低落"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法第2條第5款規定，職業災害指因各種職業上原因引起之工作者疾病、傷害、失能或死亡。四種結果均屬職業災害的範圍。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生法第2條第5款規定，職業災害指因各種職業上原因引起之工作者疾病、傷害、失能或死亡，A、B均屬之。C工作者財物損失及D工作者情緒低落均非本法所定職業災害之結果，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第2項規定，下列哪些屬於雇主應妥為規劃及採取必要安全衛生措施之事項？（複選）",
       "options": [
-        {"id": "A", "text": "重複性作業等促發肌肉骨骼疾病之預防"},
-        {"id": "B", "text": "輪班、夜間工作、長時間工作等異常工作負荷促發疾病之預防"},
-        {"id": "C", "text": "執行職務因他人行為遭受身體或精神不法侵害之預防"},
-        {"id": "D", "text": "避難、急救、休息或其他為保護勞工身心健康之事項"}
+        {
+          "id": "A",
+          "text": "避難、急救、休息或其他為保護勞工身心健康之事項"
+        },
+        {
+          "id": "B",
+          "text": "輪班、夜間工作、長時間工作等異常工作負荷促發疾病之預防"
+        },
+        {
+          "id": "C",
+          "text": "勞工薪資福利及年終獎金之發放"
+        },
+        {
+          "id": "D",
+          "text": "勞工退休金之提繳及請領事宜"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法第6條第2項列舉四款雇主應妥為規劃及採取安全衛生措施之事項：肌肉骨骼疾病預防（第1款）、異常工作負荷疾病預防（第2款）、職場不法侵害預防（第3款）、避難急救及保護身心健康事項（第4款）。四項均為法定事項。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生法第6條第2項列舉四款雇主應妥為規劃及採取安全衛生措施之事項：避難急救及保護勞工身心健康之事項(A,第4款)、異常工作負荷促發疾病之預防(B,第2款)。C薪資福利及年終獎金、D勞工退休金提繳均屬勞動條件或退休制度事項，非第6條第2項之安全衛生措施，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q027",
@@ -399,14 +895,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條第1項規定，下列哪些屬於雇主應有符合規定之必要安全衛生設備及措施之危害防止事項？（複選）",
       "options": [
-        {"id": "A", "text": "防止機械、設備或器具等引起之危害"},
-        {"id": "B", "text": "防止爆炸性或發火性等物質引起之危害"},
-        {"id": "C", "text": "防止高壓氣體引起之危害"},
-        {"id": "D", "text": "防止通道、地板或階梯等引起之危害"}
+        {
+          "id": "A",
+          "text": "防止爆炸性或發火性等物質引起之危害"
+        },
+        {
+          "id": "B",
+          "text": "防止機械、設備或器具等引起之危害"
+        },
+        {
+          "id": "C",
+          "text": "防止通道、地板或階梯等引起之危害"
+        },
+        {
+          "id": "D",
+          "text": "防止勞工上下班通勤交通事故之危害"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法第6條第1項列舉十四款危害防止事項，A為第1款、B為第2款、C為第6款、D為第13款。四項均為雇主應有符合規定之必要安全衛生設備及措施之法定事項。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "職業安全衛生法第6條第1項列舉十四款危害防止事項，A為第1款、B為第2款、C為第6款，均屬雇主應有符合規定之必要安全衛生設備及措施之法定事項。D防止勞工上下班通勤交通事故非屬第6條第1項工作場所設備及措施之危害防止事項（通勤災害屬職災認定議題），故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q028",
@@ -414,14 +931,34 @@
       "difficulty": "intermediate",
       "stem": "在職業災害預防的4M分析中，下列哪些屬於4M要素？（複選）",
       "options": [
-        {"id": "A", "text": "人（Man）：勞工的不安全行為"},
-        {"id": "B", "text": "機（Machine）：機械設備的不安全狀態"},
-        {"id": "C", "text": "環境（Media）：作業環境的不安全條件"},
-        {"id": "D", "text": "管理（Management）：管理制度缺陷"}
+        {
+          "id": "A",
+          "text": "環境（Media）：作業環境的不安全條件"
+        },
+        {
+          "id": "B",
+          "text": "管理（Management）：管理制度缺陷"
+        },
+        {
+          "id": "C",
+          "text": "材料（Material）：原物料品質缺陷"
+        },
+        {
+          "id": "D",
+          "text": "方法（Method）：作業流程之方法缺陷"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "4M分析是職業災害原因分析的四個面向：人（Man）分析勞工不安全行為、機（Machine）分析機械設備不安全狀態、環境（Media）分析作業環境不安全條件、管理（Management）分析管理制度缺陷。四項均為4M要素。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "4M分析是職業災害原因分析的四個面向：人(Man)、機(Machine)、環境(Media)、管理(Management)，A、B均為4M要素。C材料(Material)及D方法(Method)雖亦以M開頭且常見於其他管理分析框架，但非職業災害預防4M分析之要素，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q029",
@@ -429,14 +966,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法規定，下列哪些為雇主在職業安全衛生管理方面的法定義務？（複選）",
       "options": [
-        {"id": "A", "text": "設置安全衛生組織、人員，實施安全衛生管理及自動檢查"},
-        {"id": "B", "text": "對勞工施以安全衛生教育及訓練"},
-        {"id": "C", "text": "宣導安全衛生規定使勞工周知"},
-        {"id": "D", "text": "會同勞工代表訂定安全衛生工作守則"}
+        {
+          "id": "A",
+          "text": "設置安全衛生組織、人員，實施安全衛生管理及自動檢查"
+        },
+        {
+          "id": "B",
+          "text": "對勞工施以安全衛生教育及訓練"
+        },
+        {
+          "id": "C",
+          "text": "宣導安全衛生規定使勞工周知"
+        },
+        {
+          "id": "D",
+          "text": "全額負擔勞工之全民健康保險保費"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "A為職安法第23條；B為職安法第32條；C為職安法第33條；D為職安法第34條。四項均為雇主在職業安全衛生管理方面的法定義務，是預防職業傷害的基礎措施。",
-      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "A為職安法第23條、B為職安法第32條、C為職安法第33條，三項均為雇主在職業安全衛生管理方面的法定義務。D全民健康保險保費之負擔屬全民健康保險法規範，非職業安全衛生法之雇主義務，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
     },
     {
       "id": "U20-Q030",
@@ -444,14 +1002,34 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第6條第1項規定，下列哪些屬於雇主應防止之危害？（複選）",
       "options": [
-        {"id": "A", "text": "防止原料、材料、氣體、蒸氣、粉塵、溶劑、化學品等引起之危害"},
-        {"id": "B", "text": "防止輻射、高溫、低溫、超音波、噪音、振動或異常氣壓等引起之危害"},
-        {"id": "C", "text": "防止動物、植物或微生物等引起之危害"},
-        {"id": "D", "text": "防止水患、風災或火災等引起之危害"}
+        {
+          "id": "A",
+          "text": "防止輻射、高溫、低溫、超音波、噪音、振動或異常氣壓等引起之危害"
+        },
+        {
+          "id": "B",
+          "text": "防止動物、植物或微生物等引起之危害"
+        },
+        {
+          "id": "C",
+          "text": "防止勞工個人財物遭竊遺失"
+        },
+        {
+          "id": "D",
+          "text": "防止勞工罷工及勞資爭議影響生產"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法第6條第1項規定：A為第7款（化學性危害）、B為第8款（物理性危害）、C為第12款（生物性危害）、D為第11款（自然災害危害）。四項均為雇主應有符合規定之必要安全衛生設備及措施之法定危害防止事項。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生法第6條第1項規定雇主應防止之危害均為作業場所中之物理、化學、生物性危害，A為第7款、B為第8款，均屬之。C勞工個人財物遭竊遺失及D罷工勞資爭議均非第6條第1項所定作業場所危害防止事項，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q031",
@@ -459,14 +1037,36 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第36條規定，關於勞動檢查之規定，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "中央主管機關及勞動檢查機構得對事業單位勞動場所實施檢查"},
-        {"id": "B", "text": "有不合規定者，應告知違反法令條款，並通知限期改善"},
-        {"id": "C", "text": "屆期未改善或有發生職業災害之虞時，得通知部分或全部停工"},
-        {"id": "D", "text": "勞工於停工期間應由雇主照給工資"}
+        {
+          "id": "A",
+          "text": "中央主管機關及勞動檢查機構得對事業單位勞動場所實施檢查"
+        },
+        {
+          "id": "B",
+          "text": "有不合規定者，應告知違反法令條款，並通知限期改善"
+        },
+        {
+          "id": "C",
+          "text": "屆期未改善或有發生職業災害之虞時，得通知部分或全部停工"
+        },
+        {
+          "id": "D",
+          "text": "勞工於停工期間應由雇主照給工資"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "職業安全衛生法第36條第1項規定：中央主管機關及勞動檢查機構得實施檢查（A）；不合規定者應告知違反條款並通知限期改善（B）；屆期未改善或已發生職災或有發生之虞時得通知停工（C）；勞工於停工期間應由雇主照給工資（D）。四項均為正確規定。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U20-Q032",
@@ -474,14 +1074,35 @@
       "difficulty": "intermediate",
       "stem": "在職業災害預防的「三道防線」觀念中，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "第一道防線為工程改善，從源頭消除或降低危害"},
-        {"id": "B", "text": "第二道防線為管理措施，如標準作業程序、教育訓練"},
-        {"id": "C", "text": "第三道防線為個人防護具，是最後的保護手段"},
-        {"id": "D", "text": "三道防線的優先順序為個人防護具優先於工程改善"}
+        {
+          "id": "A",
+          "text": "第二道防線為管理措施，如標準作業程序、教育訓練"
+        },
+        {
+          "id": "B",
+          "text": "第一道防線為工程改善，從源頭消除或降低危害"
+        },
+        {
+          "id": "C",
+          "text": "三道防線的優先順序為個人防護具優先於工程改善"
+        },
+        {
+          "id": "D",
+          "text": "第三道防線為個人防護具，是最後的保護手段"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
       "explanation": "職業災害預防三道防線：第一道防線為工程改善（源頭控制）、第二道防線為管理措施（行政控制）、第三道防線為個人防護具（最後保護）。D錯誤，優先順序應為工程改善優先，個人防護具為最後手段。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法規定，職業災害僅指勞工在工廠內發生的機械傷害，不包括化學品中毒。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第2條第5款規定，職業災害指因建築物、機械、設備、原料、材料、化學品、氣體、蒸氣、粉塵等或作業活動及其他職業上原因引起之工作者疾病、傷害、失能或死亡。化學品中毒屬職業災害，不限於機械傷害，也不限於工廠內。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，該規則為雇主使勞工從事工作之安全衛生設備及措施之最低標準。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則明文規定，本規則為雇主使勞工從事工作之安全衛生設備及措施之最低標準。雇主可以提供優於此標準的設備及措施，但不可低於此標準。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U20-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法規定，勞工於停工期間應由雇主照給工資。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第36條第1項明文規定，勞工於停工期間應由雇主照給工資。此規定保障勞工在因雇主違規被令停工期間的工資權益。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U20-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "basic",
       "stem": "在職業災害預防的三道防線中，工程改善應優先於個人防護具。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業災害預防三道防線的優先順序為：工程改善（源頭控制）→管理措施（行政控制）→個人防護具（最後保護）。工程改善從源頭消除或降低危害，效果最為根本，應優先實施。個人防護具為最後的保護手段。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q037",
@@ -541,84 +1214,160 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法規定，雇主對於作業環境監測計畫及監測結果應公開揭示，並通報中央主管機關。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第12條第4項規定，雇主對於監測計畫及監測結果，應公開揭示，並通報中央主管機關。中央主管機關或勞動檢查機構得實施查核。此確保監測資訊透明公開。",
-      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"
+        }
+      ]
     },
     {
       "id": "U20-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第1條規定，本法之立法目的為防止職業災害，保障工作者________及健康。",
-      "answer": ["安全"],
+      "answer": [
+        "安全"
+      ],
       "explanation": "職業安全衛生法第1條規定，為防止職業災害，保障工作者安全及健康，特制定本法。「安全」與「健康」是職安法保障的兩大核心目標。",
-      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"
+        }
+      ]
     },
     {
       "id": "U20-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "在職業災害預防的三道防線中，第一道防線為________改善，從源頭消除或降低危害。",
-      "answer": ["工程"],
+      "answer": [
+        "工程"
+      ],
       "explanation": "職業災害預防三道防線依序為：第一道防線—工程改善（源頭控制）、第二道防線—管理措施（行政控制）、第三道防線—個人防護具。工程改善從源頭消除危害，效果最為根本。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "在職業災害原因分析的4M要素中，M分別代表人、機、________、管理。",
-      "answer": ["環境", "Media"],
+      "answer": [
+        "環境",
+        "Media"
+      ],
       "explanation": "4M分析的四個要素為：人（Man）、機（Machine）、環境（Media，作業環境）、管理（Management）。環境要素分析作業環境的不安全條件，如照明不足、通風不良、噪音等。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q041",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第12條規定，雇主對於中央主管機關定有容許暴露標準之作業場所，應確保勞工之危害暴露低於________值。",
-      "answer": ["標準"],
+      "answer": [
+        "標準"
+      ],
       "explanation": "職業安全衛生法第12條第1項規定，雇主應確保勞工之危害暴露低於標準值。容許暴露標準由中央主管機關定之，是預防化學性、物理性危害的重要依據。",
-      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"
+        }
+      ]
     },
     {
       "id": "U20-Q042",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第36條規定，勞工於停工期間應由雇主照給________。",
-      "answer": ["工資"],
+      "answer": [
+        "工資"
+      ],
       "explanation": "職業安全衛生法第36條第1項規定，勞工於停工期間應由雇主照給工資。此規定保障勞工在因雇主違規被令停工期間的工資權益。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U20-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某事業單位發生職業災害，經4M分析發現：不安全行為（人）2項、不安全狀態（機）3項、不安全環境條件（環境）1項、管理制度缺陷（管理）2項。請問本次災害分析共發現幾項原因？",
-      "answer": {"value": 8, "unit": "項", "tolerance": 0},
+      "answer": {
+        "value": 8,
+        "unit": "項",
+        "tolerance": 0
+      },
       "explanation": "4M分析合計：2（人）+3（機）+1（環境）+2（管理）=8項原因。4M分析從人、機、環境、管理四個面向全面分析職業災害原因，有助於找出所有潛在危害因素並制定改善對策。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q044",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某作業場所之作業環境監測結果顯示某化學物質濃度為4 ppm，該物質之容許暴露標準（PEL）為8 ppm。依職業安全衛生法第12條規定，雇主應確保勞工之危害暴露低於標準值。請問目前監測值與標準值之差為多少 ppm？是否符合規定？",
-      "answer": {"value": 4, "unit": "ppm", "tolerance": 0},
+      "answer": {
+        "value": 4,
+        "unit": "ppm",
+        "tolerance": 0
+      },
       "explanation": "標準值8 ppm - 監測值4 ppm = 4 ppm。監測值4 ppm < 標準值8 ppm，符合職業安全衛生法第12條第1項規定，雇主應確保勞工之危害暴露低於標準值。差值為4 ppm。",
-      "references": [{"title": "職業安全衛生法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=12"
+        }
+      ]
     },
     {
       "id": "U20-Q045",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "某事業單位勞工100人，依職業安全衛生法第23條規定，雇主應設置安全衛生組織、人員，實施安全衛生管理及自動檢查。該單位為第一類事業，依職業安全衛生管理辦法第2條之1規定，第一類事業勞工人數在100人以上者應設專責一級管理單位。若該單位實際勞工為99人（原事業單位80人、承攬人19人），請問依第3條之2規定計算後，該單位是否達到應設專責一級管理單位之門檻？應計人數為多少？",
-      "answer": {"value": 99, "unit": "人", "tolerance": 0},
+      "answer": {
+        "value": 99,
+        "unit": "人",
+        "tolerance": 0
+      },
       "explanation": "依職業安全衛生管理辦法第3條之2規定，勞工人數包含原事業單位及承攬人之勞工於同一期間同一工作場所作業之總人數：80+19=99人。第一類事業100人以上應設專責一級管理單位（第2條之1），99人未達100人門檻，故不需設專責一級管理單位。應計人數為99人。",
-      "references": [{"title": "職業安全衛生管理辦法第3條之2", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3-2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3條之2",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3-2"
+        }
+      ]
     },
     {
       "id": "U20-Q046",
@@ -626,25 +1375,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列職業安全衛生法規定與其法條正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "防止職業災害，保障工作者安全及健康"},
-        {"id": "L2", "text": "設置安全衛生組織、人員，實施自動檢查"},
-        {"id": "L3", "text": "施以安全衛生教育及訓練"},
-        {"id": "L4", "text": "會同勞工代表訂定安全衛生工作守則"}
+        {
+          "id": "L1",
+          "text": "防止職業災害，保障工作者安全及健康"
+        },
+        {
+          "id": "L2",
+          "text": "設置安全衛生組織、人員，實施自動檢查"
+        },
+        {
+          "id": "L3",
+          "text": "施以安全衛生教育及訓練"
+        },
+        {
+          "id": "L4",
+          "text": "會同勞工代表訂定安全衛生工作守則"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "職業安全衛生法第1條（立法目的）"},
-        {"id": "R2", "text": "職業安全衛生法第23條（安全衛生管理）"},
-        {"id": "R3", "text": "職業安全衛生法第32條（教育訓練）"},
-        {"id": "R4", "text": "職業安全衛生法第34條（工作守則）"}
+        {
+          "id": "R1",
+          "text": "職業安全衛生法第1條（立法目的）"
+        },
+        {
+          "id": "R2",
+          "text": "職業安全衛生法第23條（安全衛生管理）"
+        },
+        {
+          "id": "R3",
+          "text": "職業安全衛生法第32條（教育訓練）"
+        },
+        {
+          "id": "R4",
+          "text": "職業安全衛生法第34條（工作守則）"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "第1條為立法目的（防止職災保障安全健康）；第23條為安全衛生管理（設置組織人員及自動檢查）；第32條為教育訓練（施以安全衛生教育及訓練）；第34條為工作守則（會同勞工代表訂定）。四項均為職業安全與職業傷害預防的核心法條。",
-      "references": [{"title": "職業安全衛生法第1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=1"
+        }
+      ]
     },
     {
       "id": "U20-Q047",
@@ -652,25 +1442,66 @@
       "difficulty": "intermediate",
       "stem": "請將職業災害預防三道防線與其內容正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "第一道防線"},
-        {"id": "L2", "text": "第二道防線"},
-        {"id": "L3", "text": "第三道防線"},
-        {"id": "L4", "text": "三道防線之優先順序原則"}
+        {
+          "id": "L1",
+          "text": "第一道防線"
+        },
+        {
+          "id": "L2",
+          "text": "第二道防線"
+        },
+        {
+          "id": "L3",
+          "text": "第三道防線"
+        },
+        {
+          "id": "L4",
+          "text": "三道防線之優先順序原則"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "工程改善（從源頭消除或降低危害）"},
-        {"id": "R2", "text": "管理措施（標準作業程序、教育訓練、自動檢查）"},
-        {"id": "R3", "text": "個人防護具（最後的保護手段）"},
-        {"id": "R4", "text": "工程改善優先，個人防護具為最後手段"}
+        {
+          "id": "R1",
+          "text": "工程改善（從源頭消除或降低危害）"
+        },
+        {
+          "id": "R2",
+          "text": "管理措施（標準作業程序、教育訓練、自動檢查）"
+        },
+        {
+          "id": "R3",
+          "text": "個人防護具（最後的保護手段）"
+        },
+        {
+          "id": "R4",
+          "text": "工程改善優先，個人防護具為最後手段"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "三道防線：第一道為工程改善（源頭控制）、第二道為管理措施（行政控制）、第三道為個人防護具。優先順序為工程改善優先，因從源頭消除危害最為根本；個人防護具為最後手段，因無法消除危害本身。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U20-Q048",
@@ -678,25 +1509,66 @@
       "difficulty": "advanced",
       "stem": "請將4M分析要素與其對應的災害原因正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "人（Man）"},
-        {"id": "L2", "text": "機（Machine）"},
-        {"id": "L3", "text": "環境（Media）"},
-        {"id": "L4", "text": "管理（Management）"}
+        {
+          "id": "L1",
+          "text": "人（Man）"
+        },
+        {
+          "id": "L2",
+          "text": "機（Machine）"
+        },
+        {
+          "id": "L3",
+          "text": "環境（Media）"
+        },
+        {
+          "id": "L4",
+          "text": "管理（Management）"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "勞工的不安全行為，如未戴防護具、違規操作"},
-        {"id": "R2", "text": "機械設備的不安全狀態，如防護罩缺失"},
-        {"id": "R3", "text": "作業環境的不安全條件，如照明不足、通風不良"},
-        {"id": "R4", "text": "管理制度缺陷，如未實施自動檢查、教育訓練不足"}
+        {
+          "id": "R1",
+          "text": "勞工的不安全行為，如未戴防護具、違規操作"
+        },
+        {
+          "id": "R2",
+          "text": "機械設備的不安全狀態，如防護罩缺失"
+        },
+        {
+          "id": "R3",
+          "text": "作業環境的不安全條件，如照明不足、通風不良"
+        },
+        {
+          "id": "R4",
+          "text": "管理制度缺陷，如未實施自動檢查、教育訓練不足"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "4M分析：人—分析勞工不安全行為；機—分析機械設備不安全狀態；環境—分析作業環境不安全條件；管理—分析管理制度缺陷。透過4M全面分析，可找出災害的各層面原因並制定改善對策。",
-      "references": [{"title": "職業安全衛生法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=2"
+        }
+      ]
     },
     {
       "id": "U20-Q049",
@@ -704,14 +1576,36 @@
       "difficulty": "advanced",
       "stem": "請依職業安全衛生法第36條規定，排列勞動檢查機構處理不合規定事業單位的正確流程順序：",
       "items": [
-        {"id": "I1", "text": "實施檢查：中央主管機關或勞動檢查機構對事業單位勞動場所實施檢查"},
-        {"id": "I2", "text": "告知違規：發現不合規定者，告知違反法令條款"},
-        {"id": "I3", "text": "通知改善：通知限期改善"},
-        {"id": "I4", "text": "通知停工：屆期未改善或已發生職災或有發生之虞時，得通知部分或全部停工"}
+        {
+          "id": "I1",
+          "text": "實施檢查：中央主管機關或勞動檢查機構對事業單位勞動場所實施檢查"
+        },
+        {
+          "id": "I2",
+          "text": "告知違規：發現不合規定者，告知違反法令條款"
+        },
+        {
+          "id": "I3",
+          "text": "通知改善：通知限期改善"
+        },
+        {
+          "id": "I4",
+          "text": "通知停工：屆期未改善或已發生職災或有發生之虞時，得通知部分或全部停工"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "職業安全衛生法第36條第1項規定之流程為：先實施檢查發現問題，再告知違反之法令條款，接著通知限期改善，若屆期未改善或已發生職業災害或有發生之虞時，得通知部分或全部停工。勞工於停工期間應由雇主照給工資。",
-      "references": [{"title": "職業安全衛生法第36條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第36條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=36"
+        }
+      ]
     },
     {
       "id": "U20-Q050",
@@ -719,14 +1613,36 @@
       "difficulty": "advanced",
       "stem": "請依職業災害預防三道防線之優先順序，由最優先到最後手段排列：",
       "items": [
-        {"id": "I1", "text": "工程改善：從源頭消除或降低危害（如自動化、密閉化）"},
-        {"id": "I2", "text": "管理措施：採取行政管理控制（如標準作業程序、輪班安排）"},
-        {"id": "I3", "text": "教育訓練：提升勞工安全衛生知識與技能"},
-        {"id": "I4", "text": "個人防護具：使勞工佩戴防護具（如安全帽、防毒面具）"}
+        {
+          "id": "I1",
+          "text": "工程改善：從源頭消除或降低危害（如自動化、密閉化）"
+        },
+        {
+          "id": "I2",
+          "text": "管理措施：採取行政管理控制（如標準作業程序、輪班安排）"
+        },
+        {
+          "id": "I3",
+          "text": "教育訓練：提升勞工安全衛生知識與技能"
+        },
+        {
+          "id": "I4",
+          "text": "個人防護具：使勞工佩戴防護具（如安全帽、防毒面具）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "職業災害預防的優先順序為：工程改善（最根本，從源頭消除危害）→管理措施（行政控制，減少暴露）→教育訓練（提升勞工知識技能）→個人防護具（最後保護手段）。工程改善效果最為根本，個人防護具僅為最後的防線，無法消除危害本身。職安法第6條及第32條分別為工程改善、管理措施與教育訓練的法源依據。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     }
   ]
 }

@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則第3條，本規則所稱「高壓」係指超過多少伏特至二萬二千八百伏特之電壓？",
       "options": [
-        {"id": "A", "text": "三百伏特"},
-        {"id": "B", "text": "六百伏特"},
-        {"id": "C", "text": "一千伏特"},
-        {"id": "D", "text": "二百二十伏特"}
+        {
+          "id": "A",
+          "text": "三百伏特"
+        },
+        {
+          "id": "B",
+          "text": "六百伏特"
+        },
+        {
+          "id": "C",
+          "text": "一千伏特"
+        },
+        {
+          "id": "D",
+          "text": "二百二十伏特"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第3條規定：特高壓指超過二萬二千八百伏特之電壓；高壓指超過六百伏特至二萬二千八百伏特之電壓；低壓指六百伏特以下之電壓。故高壓起值為超過六百伏特。",
-      "references": [{"title": "職業安全衛生設施規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=3"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=3"
+        }
+      ]
     },
     {
       "id": "U03-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "basic",
       "stem": "依設施規則第2條，本規則之性質為何？",
       "options": [
-        {"id": "A", "text": "雇主使勞工從事工作之安全衛生設備及措施之最高標準"},
-        {"id": "B", "text": "雇主使勞工從事工作之安全衛生設備及措施之最低標準"},
-        {"id": "C", "text": "建議性質之指引"},
-        {"id": "D", "text": "僅適用於製造業"}
+        {
+          "id": "A",
+          "text": "雇主使勞工從事工作之安全衛生設備及措施之最高標準"
+        },
+        {
+          "id": "B",
+          "text": "雇主使勞工從事工作之安全衛生設備及措施之最低標準"
+        },
+        {
+          "id": "C",
+          "text": "建議性質之指引"
+        },
+        {
+          "id": "D",
+          "text": "僅適用於製造業"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第2條明確規定，本規則為雇主使勞工從事工作之安全衛生設備及措施之最低標準。雇主可採取更嚴格之標準，但不得低於本規則之要求。",
-      "references": [{"title": "職業安全衛生設施規則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=2"
+        }
+      ]
     },
     {
       "id": "U03-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第25條，雇主對於建築物之工作室，其樓地板至天花板淨高應在多少公尺以上？",
       "options": [
-        {"id": "A", "text": "一點五公尺"},
-        {"id": "B", "text": "一點八公尺"},
-        {"id": "C", "text": "二點一公尺"},
-        {"id": "D", "text": "二點五公尺"}
+        {
+          "id": "A",
+          "text": "一點五公尺"
+        },
+        {
+          "id": "B",
+          "text": "一點八公尺"
+        },
+        {
+          "id": "C",
+          "text": "二點一公尺"
+        },
+        {
+          "id": "D",
+          "text": "二點五公尺"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第25條規定，雇主對於建築物之工作室，其樓地板至天花板淨高應在二．一公尺以上。但建築法規另有規定者，從其規定。",
-      "references": [{"title": "職業安全衛生設施規則第25條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=25"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第25條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=25"
+        }
+      ]
     },
     {
       "id": "U03-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第31條，室內工作場所主要人行道之寬度不得小於多少？",
       "options": [
-        {"id": "A", "text": "六十公分"},
-        {"id": "B", "text": "八十公分"},
-        {"id": "C", "text": "一公尺"},
-        {"id": "D", "text": "一點二公尺"}
+        {
+          "id": "A",
+          "text": "六十公分"
+        },
+        {
+          "id": "B",
+          "text": "八十公分"
+        },
+        {
+          "id": "C",
+          "text": "一公尺"
+        },
+        {
+          "id": "D",
+          "text": "一點二公尺"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第31條第1項第1款規定，室內工作場所應有適應其用途之寬度，其主要人行道不得小於一公尺。各機械間或其他設備間通道不得小於八十公分。",
-      "references": [{"title": "職業安全衛生設施規則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=31"
+        }
+      ]
     },
     {
       "id": "U03-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第33條，雇主對車輛通行道寬度，應為最大車輛寬度之幾倍再加一公尺？",
       "options": [
-        {"id": "A", "text": "一倍"},
-        {"id": "B", "text": "一點五倍"},
-        {"id": "C", "text": "二倍"},
-        {"id": "D", "text": "三倍"}
+        {
+          "id": "A",
+          "text": "一倍"
+        },
+        {
+          "id": "B",
+          "text": "一點五倍"
+        },
+        {
+          "id": "C",
+          "text": "二倍"
+        },
+        {
+          "id": "D",
+          "text": "三倍"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第33條規定，雇主對車輛通行道寬度，應為最大車輛寬度之二倍再加一公尺，如係單行道則為最大車輛之寬度加一公尺。車輛通行道上並禁止放置物品。",
-      "references": [{"title": "職業安全衛生設施規則第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=33"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第33條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=33"
+        }
+      ]
     },
     {
       "id": "U03-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第155條，凡多少公斤以上物品，以人力車輛或工具搬運為原則？",
       "options": [
-        {"id": "A", "text": "三十公斤"},
-        {"id": "B", "text": "四十公斤"},
-        {"id": "C", "text": "五十公斤"},
-        {"id": "D", "text": "一百公斤"}
+        {
+          "id": "A",
+          "text": "三十公斤"
+        },
+        {
+          "id": "B",
+          "text": "四十公斤"
+        },
+        {
+          "id": "C",
+          "text": "五十公斤"
+        },
+        {
+          "id": "D",
+          "text": "一百公斤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第155條規定，雇主對於物料之搬運，應儘量利用機械以代替人力，凡四十公斤以上物品，以人力車輛或工具搬運為原則，五百公斤以上物品，以機動車輛或其他機械搬運為宜。",
-      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第155條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"
+        }
+      ]
     },
     {
       "id": "U03-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第224條，雇主對於高度在多少公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有護欄、護蓋等防護設備？",
       "options": [
-        {"id": "A", "text": "一公尺"},
-        {"id": "B", "text": "一點五公尺"},
-        {"id": "C", "text": "二公尺"},
-        {"id": "D", "text": "三公尺"}
+        {
+          "id": "A",
+          "text": "一公尺"
+        },
+        {
+          "id": "B",
+          "text": "一點五公尺"
+        },
+        {
+          "id": "C",
+          "text": "二公尺"
+        },
+        {
+          "id": "D",
+          "text": "三公尺"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第224條第1項規定，雇主對於高度在二公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有適當強度之護欄、護蓋等防護設備。二公尺為墜落防護之重要基準值。",
-      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第224條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"
+        }
+      ]
     },
     {
       "id": "U03-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第228條，雇主對勞工於高差超過多少公尺以上之場所作業時，應設置能使勞工安全上下之設備？",
       "options": [
-        {"id": "A", "text": "一公尺"},
-        {"id": "B", "text": "一點五公尺"},
-        {"id": "C", "text": "二公尺"},
-        {"id": "D", "text": "三公尺"}
+        {
+          "id": "A",
+          "text": "一公尺"
+        },
+        {
+          "id": "B",
+          "text": "一點五公尺"
+        },
+        {
+          "id": "C",
+          "text": "二公尺"
+        },
+        {
+          "id": "D",
+          "text": "三公尺"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第228條規定，雇主對勞工於高差超過一．五公尺以上之場所作業時，應設置能使勞工安全上下之設備。此與墜落防護之二公尺標準不同，須注意區別。",
-      "references": [{"title": "職業安全衛生設施規則第228條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=228"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第228條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=228"
+        }
+      ]
     },
     {
       "id": "U03-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "advanced",
       "stem": "依設施規則第300條，勞工工作場所因機械設備所發生之聲音超過多少分貝時，雇主應採取工程控制、減少勞工噪音暴露時間等措施？",
       "options": [
-        {"id": "A", "text": "八十分貝"},
-        {"id": "B", "text": "八十五分貝"},
-        {"id": "C", "text": "九十分貝"},
-        {"id": "D", "text": "一百分貝"}
+        {
+          "id": "A",
+          "text": "八十分貝"
+        },
+        {
+          "id": "B",
+          "text": "八十五分貝"
+        },
+        {
+          "id": "C",
+          "text": "九十分貝"
+        },
+        {
+          "id": "D",
+          "text": "一百分貝"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第300條第1款規定，勞工工作場所因機械設備所發生之聲音超過九十分貝時，雇主應採取工程控制、減少勞工噪音暴露時間等措施。超過八十五分貝時應使勞工戴用耳塞等防護具。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U03-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第309條，雇主對於勞工經常作業之室內作業場所，每一勞工原則上應有多少立方公尺以上之空間？",
       "options": [
-        {"id": "A", "text": "五立方公尺"},
-        {"id": "B", "text": "八立方公尺"},
-        {"id": "C", "text": "十立方公尺"},
-        {"id": "D", "text": "十五立方公尺"}
+        {
+          "id": "A",
+          "text": "五立方公尺"
+        },
+        {
+          "id": "B",
+          "text": "八立方公尺"
+        },
+        {
+          "id": "C",
+          "text": "十立方公尺"
+        },
+        {
+          "id": "D",
+          "text": "十五立方公尺"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第309條規定，雇主對於勞工經常作業之室內作業場所，除設備及自地面算起高度超過四公尺以上之空間不計外，每一勞工原則上應有十立方公尺以上之空間。",
-      "references": [{"title": "職業安全衛生設施規則第309條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=309"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第309條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=309"
+        }
+      ]
     },
     {
       "id": "U03-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第311條，雇主對於勞工經常作業之室內作業場所，其窗戶等可直接與大氣相通之開口部分面積，應為地板面積之多少以上？",
       "options": [
-        {"id": "A", "text": "十分之一"},
-        {"id": "B", "text": "二十分之一"},
-        {"id": "C", "text": "三十分之一"},
-        {"id": "D", "text": "五十分之一"}
+        {
+          "id": "A",
+          "text": "十分之一"
+        },
+        {
+          "id": "B",
+          "text": "二十分之一"
+        },
+        {
+          "id": "C",
+          "text": "三十分之一"
+        },
+        {
+          "id": "D",
+          "text": "五十分之一"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第311條第1項規定，開口部分面積應為地板面積之二十分之一以上。但設置具有充分換氣能力之機械通風設備者，不在此限。",
-      "references": [{"title": "職業安全衛生設施規則第311條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=311"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第311條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=311"
+        }
+      ]
     },
     {
       "id": "U03-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第308條，雇主對坑內之溫度，應保持在攝氏多少度以下？",
       "options": [
-        {"id": "A", "text": "攝氏三十度"},
-        {"id": "B", "text": "攝氏三十五度"},
-        {"id": "C", "text": "攝氏三十七度"},
-        {"id": "D", "text": "攝氏四十度"}
+        {
+          "id": "A",
+          "text": "攝氏三十度"
+        },
+        {
+          "id": "B",
+          "text": "攝氏三十五度"
+        },
+        {
+          "id": "C",
+          "text": "攝氏三十七度"
+        },
+        {
+          "id": "D",
+          "text": "攝氏四十度"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第308條規定，雇主對坑內之溫度，應保持在攝氏三十七度以下；溫度在攝氏三十七度以上時，應使勞工停止作業。但已採取防止高溫危害人體之措施或從事救護搶救作業者不在此限。",
-      "references": [{"title": "職業安全衛生設施規則第308條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=308"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第308條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=308"
+        }
+      ]
     },
     {
       "id": "U03-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "advanced",
       "stem": "依設施規則第243條，雇主為避免漏電而發生感電危害，應於何種狀況設置漏電斷路器？下列何者不屬之？",
       "options": [
-        {"id": "A", "text": "使用對地電壓在一百五十伏特以上移動式或攜帶式電動機具"},
-        {"id": "B", "text": "於潮濕場所或金屬板上使用移動式或攜帶式電動機具"},
-        {"id": "C", "text": "於建築或工程作業使用之臨時用電設備"},
-        {"id": "D", "text": "在絕緣台上使用之電動機具"}
+        {
+          "id": "A",
+          "text": "使用對地電壓在一百五十伏特以上移動式或攜帶式電動機具"
+        },
+        {
+          "id": "B",
+          "text": "於潮濕場所或金屬板上使用移動式或攜帶式電動機具"
+        },
+        {
+          "id": "C",
+          "text": "於建築或工程作業使用之臨時用電設備"
+        },
+        {
+          "id": "D",
+          "text": "在絕緣台上使用之電動機具"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "設施規則第244條第2款規定，在絕緣台上使用之電動機具不適用第243條之規定。雙重絕緣構造之電動機具亦免設漏電斷路器。",
-      "references": [{"title": "職業安全衛生設施規則第243-244條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=243"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第243-244條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=243"
+        }
+      ]
     },
     {
       "id": "U03-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第249條，雇主對於良導體機器設備內之檢修工作所用之手提式照明燈，其使用電壓不得超過多少伏特？",
       "options": [
-        {"id": "A", "text": "十二伏特"},
-        {"id": "B", "text": "二十四伏特"},
-        {"id": "C", "text": "三十六伏特"},
-        {"id": "D", "text": "一百一十伏特"}
+        {
+          "id": "A",
+          "text": "十二伏特"
+        },
+        {
+          "id": "B",
+          "text": "二十四伏特"
+        },
+        {
+          "id": "C",
+          "text": "三十六伏特"
+        },
+        {
+          "id": "D",
+          "text": "一百一十伏特"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第249條規定，雇主對於良導體機器設備內之檢修工作所用之手提式照明燈，其使用電壓不得超過二十四伏特，且導線須為耐磨損及有良好絕緣，並不得有接頭。",
-      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第249條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"
+        }
+      ]
     },
     {
       "id": "U03-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第272條，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每隔多久檢驗其性能一次？",
       "options": [
-        {"id": "A", "text": "三個月"},
-        {"id": "B", "text": "六個月"},
-        {"id": "C", "text": "一年"},
-        {"id": "D", "text": "二年"}
+        {
+          "id": "A",
+          "text": "三個月"
+        },
+        {
+          "id": "B",
+          "text": "六個月"
+        },
+        {
+          "id": "C",
+          "text": "一年"
+        },
+        {
+          "id": "D",
+          "text": "二年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第272條規定，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，工作人員應於每次使用前自行檢點，不合格者應予更換。",
-      "references": [{"title": "職業安全衛生設施規則第272條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=272"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第272條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=272"
+        }
+      ]
     },
     {
       "id": "U03-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第19-1條，本規則所稱「局限空間」之定義，下列何者正確？",
       "options": [
-        {"id": "A", "text": "供勞工經常性作業之密閉空間"},
-        {"id": "B", "text": "非供勞工在其內部從事經常性作業，勞工進出方法受限制，且無法以自然通風維持充分清淨空氣之空間"},
-        {"id": "C", "text": "所有室內作業場所"},
-        {"id": "D", "text": "所有有噪音之作業場所"}
+        {
+          "id": "A",
+          "text": "供勞工經常性作業之密閉空間"
+        },
+        {
+          "id": "B",
+          "text": "非供勞工在其內部從事經常性作業，勞工進出方法受限制，且無法以自然通風維持充分清淨空氣之空間"
+        },
+        {
+          "id": "C",
+          "text": "所有室內作業場所"
+        },
+        {
+          "id": "D",
+          "text": "所有有噪音之作業場所"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第19-1條規定，局限空間指非供勞工在其內部從事經常性作業，勞工進出方法受限制，且無法以自然通風來維持充分、清淨空氣之空間。如儲槽、人孔、隧道等。",
-      "references": [{"title": "職業安全衛生設施規則第19-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=19-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第19-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=19-1"
+        }
+      ]
     },
     {
       "id": "U03-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "advanced",
       "stem": "依設施規則第29-5條，雇主使勞工於有危害勞工之虞之局限空間從事作業時，其進入許可應由誰簽署後始得使勞工進入作業？",
       "options": [
-        {"id": "A", "text": "勞工自行簽署"},
-        {"id": "B", "text": "由雇主、工作場所負責人或現場作業主管簽署"},
-        {"id": "C", "text": "由勞動檢查員簽署"},
-        {"id": "D", "text": "由工會代表簽署"}
+        {
+          "id": "A",
+          "text": "勞工自行簽署"
+        },
+        {
+          "id": "B",
+          "text": "由雇主、工作場所負責人或現場作業主管簽署"
+        },
+        {
+          "id": "C",
+          "text": "由勞動檢查員簽署"
+        },
+        {
+          "id": "D",
+          "text": "由工會代表簽署"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第29-6條第1項規定，進入許可應由雇主、工作場所負責人或現場作業主管簽署後，始得使勞工進入作業。對勞工之進出，應予確認、點名登記，並作成紀錄保存三年。",
-      "references": [{"title": "職業安全衛生設施規則第29-6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-6"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第29-6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-6"
+        }
+      ]
     },
     {
       "id": "U03-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第299條，雇主應禁止非與從事作業有關之人員進入下列何種場所？下列何者不屬之？",
       "options": [
-        {"id": "A", "text": "處置大量高熱物體或顯著濕熱之場所"},
-        {"id": "B", "text": "氧氣濃度未達百分之十八之場所"},
-        {"id": "C", "text": "有害物超過容許暴露標準之場所"},
-        {"id": "D", "text": "一般辦公場所"}
+        {
+          "id": "A",
+          "text": "處置大量高熱物體或顯著濕熱之場所"
+        },
+        {
+          "id": "B",
+          "text": "氧氣濃度未達百分之十八之場所"
+        },
+        {
+          "id": "C",
+          "text": "有害物超過容許暴露標準之場所"
+        },
+        {
+          "id": "D",
+          "text": "一般辦公場所"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "設施規則第299條列舉7種應禁止非作業人員進入之場所，包括高溫場所、低溫場所、非游離輻射場所、氧氣不足場所、有害物超標場所、特殊有害物場所、生物病原體污染場所。一般辦公場所不屬之。",
-      "references": [{"title": "職業安全衛生設施規則第299條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=299"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第299條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=299"
+        }
+      ]
     },
     {
       "id": "U03-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第313條，雇主對於勞工工作場所之採光照明，下列何者正確？",
       "options": [
-        {"id": "A", "text": "各工作場所須有充分之光線"},
-        {"id": "B", "text": "光線應分佈均勻，明暗比並應適當"},
-        {"id": "C", "text": "應避免光線之刺目、眩耀現象"},
-        {"id": "D", "text": "以上皆是"}
+        {
+          "id": "A",
+          "text": "各工作場所須有充分之光線"
+        },
+        {
+          "id": "B",
+          "text": "光線應分佈均勻，明暗比並應適當"
+        },
+        {
+          "id": "C",
+          "text": "應避免光線之刺目、眩耀現象"
+        },
+        {
+          "id": "D",
+          "text": "以上皆是"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "設施規則第313條第1項第1至3款規定，各工作場所須有充分之光線、光線應分佈均勻且明暗比適當、應避免光線刺目眩耀現象。三者均為採光照明之基本要求。",
-      "references": [{"title": "職業安全衛生設施規則第313條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=313"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第313條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=313"
+        }
+      ]
     },
     {
       "id": "U03-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "advanced",
       "stem": "依設施規則第318條，雇主對於刺激物、腐蝕性物質或毒性物質污染之工作場所，每多少人應設置一個冷熱水沖淋設備？",
       "options": [
-        {"id": "A", "text": "五人"},
-        {"id": "B", "text": "十人"},
-        {"id": "C", "text": "十五人"},
-        {"id": "D", "text": "二十人"}
+        {
+          "id": "A",
+          "text": "五人"
+        },
+        {
+          "id": "B",
+          "text": "十人"
+        },
+        {
+          "id": "C",
+          "text": "十五人"
+        },
+        {
+          "id": "D",
+          "text": "二十人"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第318條第2項第1款規定，刺激物、腐蝕性物質或毒性物質污染之工作場所，每十五人應設置一個冷熱水沖淋設備。每五人應設置一個冷熱水盥洗設備。",
-      "references": [{"title": "職業安全衛生設施規則第318條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=318"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第318條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=318"
+        }
+      ]
     },
     {
       "id": "U03-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第177條，作業場所有易燃液體之蒸氣或可燃性氣體滯留時，蒸氣或氣體之濃度達爆炸下限值之多少以上時，應即刻使勞工退避至安全場所？",
       "options": [
-        {"id": "A", "text": "百分之十"},
-        {"id": "B", "text": "百分之二十"},
-        {"id": "C", "text": "百分之三十"},
-        {"id": "D", "text": "百分之五十"}
+        {
+          "id": "A",
+          "text": "百分之十"
+        },
+        {
+          "id": "B",
+          "text": "百分之二十"
+        },
+        {
+          "id": "C",
+          "text": "百分之三十"
+        },
+        {
+          "id": "D",
+          "text": "百分之五十"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第177條第1項第2款規定，蒸氣或氣體之濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所，並停止使用煙火及其他為點火源之虞之機具，並應加強通風。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U03-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依設施規則第29-5條，雇主使勞工於有危害勞工之虞之局限空間從事作業時，應設置適當通風換氣設備，其確認及紀錄應保存多久？",
       "options": [
-        {"id": "A", "text": "一年"},
-        {"id": "B", "text": "二年"},
-        {"id": "C", "text": "三年"},
-        {"id": "D", "text": "五年"}
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "二年"
+        },
+        {
+          "id": "C",
+          "text": "三年"
+        },
+        {
+          "id": "D",
+          "text": "五年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "設施規則第29-5條第2項規定，確認應由專人辦理，其紀錄應保存三年。同條亦規定進入許可之進出確認、點名登記紀錄亦應保存三年。",
-      "references": [{"title": "職業安全衛生設施規則第29-5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-5"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第29-5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-5"
+        }
+      ]
     },
     {
       "id": "U03-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第62條，雇主對於研磨機之使用，應於每日作業開始前試轉多少時間以上？",
       "options": [
-        {"id": "A", "text": "三十秒"},
-        {"id": "B", "text": "一分鐘"},
-        {"id": "C", "text": "三分鐘"},
-        {"id": "D", "text": "五分鐘"}
+        {
+          "id": "A",
+          "text": "三十秒"
+        },
+        {
+          "id": "B",
+          "text": "一分鐘"
+        },
+        {
+          "id": "C",
+          "text": "三分鐘"
+        },
+        {
+          "id": "D",
+          "text": "五分鐘"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第62條第1項第4款規定，研磨機使用應於每日作業開始前試轉一分鐘以上，研磨輪更換時應先檢驗有無裂痕，並在防護罩下試轉三分鐘以上。",
-      "references": [{"title": "職業安全衛生設施規則第62條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=62"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第62條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=62"
+        }
+      ]
     },
     {
       "id": "U03-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依設施規則第230條，雇主對於使用之合梯，梯腳與地面之角度應在多少度以內？",
       "options": [
-        {"id": "A", "text": "六十度"},
-        {"id": "B", "text": "七十五度"},
-        {"id": "C", "text": "八十度"},
-        {"id": "D", "text": "九十度"}
+        {
+          "id": "A",
+          "text": "六十度"
+        },
+        {
+          "id": "B",
+          "text": "七十五度"
+        },
+        {
+          "id": "C",
+          "text": "八十度"
+        },
+        {
+          "id": "D",
+          "text": "九十度"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第230條第1項第3款規定，合梯之梯腳與地面之角度應在七十五度以內，且兩梯腳間有金屬等硬質繫材扣牢，腳部有防滑絕緣腳座套。雇主不得使勞工以合梯當作二工作面之上下設備使用，並應禁止勞工站立於頂板作業。",
-      "references": [{"title": "職業安全衛生設施規則第230條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第230條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=230"
+        }
+      ]
     },
     {
       "id": "U03-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第43條，雇主對於機械之原動機、轉軸、齒輪、帶輪等有危害勞工之虞之部分，應有哪些防護設備？（複選）",
       "options": [
-        {"id": "A", "text": "護罩"},
-        {"id": "B", "text": "護圍"},
-        {"id": "C", "text": "套胴"},
-        {"id": "D", "text": "跨橋"}
+        {
+          "id": "A",
+          "text": "跨橋"
+        },
+        {
+          "id": "B",
+          "text": "護罩"
+        },
+        {
+          "id": "C",
+          "text": "潤滑油脂"
+        },
+        {
+          "id": "D",
+          "text": "操作手冊"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "設施規則第43條第1項規定，雇主對於機械之原動機、轉軸、齒輪、帶輪、飛輪、傳動輪、傳動帶等有危害勞工之虞之部分，應有護罩、護圍、套胴、跨橋等設備。四種防護設備均為法條所列。",
-      "references": [{"title": "職業安全衛生設施規則第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=43"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "設施規則第43條第1項規定，雇主對於機械之原動機、轉軸、齒輪、帶輪、飛輪、傳動輪、傳動帶等有危害勞工之虞之部分，應有護罩、護圍、套胴、跨橋等設備。本題中跨橋與護罩屬法定防護設備；潤滑油脂及操作手冊非屬物理性防護設備。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=43"
+        }
+      ]
     },
     {
       "id": "U03-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第277條，雇主供給勞工使用之個人防護具，應依哪些規定辦理？（複選）",
       "options": [
-        {"id": "A", "text": "保持清潔，並予必要之消毒"},
-        {"id": "B", "text": "經常檢查，保持其性能，不用時並妥予保存"},
-        {"id": "C", "text": "防護具應準備足夠使用之數量"},
-        {"id": "D", "text": "個人使用之防護具應以個人專用為原則"}
+        {
+          "id": "A",
+          "text": "個人使用之防護具應以個人專用為原則"
+        },
+        {
+          "id": "B",
+          "text": "防護具應準備足夠使用之數量"
+        },
+        {
+          "id": "C",
+          "text": "防護具損壞後始得更換"
+        },
+        {
+          "id": "D",
+          "text": "防護具無需消毒，僅須乾燥存放"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "設施規則第277條第1項列舉4款規定：保持清潔並消毒、經常檢查保持性能、準備足夠數量且個人防護具以個人專用為原則、對有感染疾病之虞時應置備個人專用防護具。四項均為法定要求。",
-      "references": [{"title": "職業安全衛生設施規則第277條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "設施規則第277條第1項列舉4款規定：保持清潔並消毒、經常檢查保持性能、準備足夠數量且個人防護具以個人專用為原則、對有感染疾病之虞時應置備個人專用防護具。本題中個人專用原則與數量充足屬法定要求；防護具應經常檢查保持性能並予以消毒，而非損壞後才更換或僅乾燥存放。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第277條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=277"
+        }
+      ]
     },
     {
       "id": "U03-Q027",
@@ -399,14 +895,34 @@
       "difficulty": "advanced",
       "stem": "依設施規則第29-1條，雇主使勞工於局限空間從事作業前，危害防止計畫應訂定哪些事項？（複選）",
       "options": [
-        {"id": "A", "text": "局限空間內危害之確認"},
-        {"id": "B", "text": "局限空間內氧氣、危險物、有害物濃度之測定"},
-        {"id": "C", "text": "通風換氣實施方式"},
-        {"id": "D", "text": "緊急應變處置措施"}
+        {
+          "id": "A",
+          "text": "局限空間內危害之確認"
+        },
+        {
+          "id": "B",
+          "text": "局限空間內氧氣、危險物、有害物濃度之測定"
+        },
+        {
+          "id": "C",
+          "text": "局限空間作業人員之薪資加給標準"
+        },
+        {
+          "id": "D",
+          "text": "局限空間工程之工期排程"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "設施規則第29-1條第2項列舉9項危害防止計畫應訂定之事項，包括危害確認、濃度測定、通風換氣、隔離措施、作業方法、進入許可程序、設備檢點維護、作業控制檢點、緊急應變處置。四項均屬之。",
-      "references": [{"title": "職業安全衛生設施規則第29-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-1"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "設施規則第29-1條第2項列舉9項危害防止計畫應訂定之事項，包括危害確認、濃度測定、通風換氣、隔離措施、作業方法、進入許可程序、設備檢點維護、作業控制檢點、緊急應變處置。本題中危害確認與濃度測定屬之；薪資加給標準與工期排程屬行政管理事項，非屬危害防止計畫範疇。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第29-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-1"
+        }
+      ]
     },
     {
       "id": "U03-Q028",
@@ -414,14 +930,34 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第159條，雇主對物料之堆放，應依哪些規定？（複選）",
       "options": [
-        {"id": "A", "text": "不得超過堆放地最大安全負荷"},
-        {"id": "B", "text": "不得影響照明"},
-        {"id": "C", "text": "不得阻礙交通或出入口"},
-        {"id": "D", "text": "不得妨礙消防器具之緊急使用"}
+        {
+          "id": "A",
+          "text": "不得超過堆放地最大安全負荷"
+        },
+        {
+          "id": "B",
+          "text": "不得影響照明"
+        },
+        {
+          "id": "C",
+          "text": "得暫時堆放於走道以利取用"
+        },
+        {
+          "id": "D",
+          "text": "得堆放於消防栓前方以集中管理"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "設施規則第159條列舉7款物料堆放之規定，包括不超過安全負荷、不影響照明、不妨礙機械操作、不阻礙交通出入口、不減少自動灑水器功能、不妨礙消防器具使用、不倚靠牆壁堆放。四項均屬之。",
-      "references": [{"title": "職業安全衛生設施規則第159條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "設施規則第159條列舉7款物料堆放之規定，包括不超過安全負荷、不影響照明、不妨礙機械操作、不阻礙交通出入口、不減少自動灑水器功能、不妨礙消防器具使用、不倚靠牆壁堆放。本題中不超過安全負荷與不影響照明屬法定要求；阻礙交通出入口及妨礙消防器具使用均為禁止事項，不得為之。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第159條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=159"
+        }
+      ]
     },
     {
       "id": "U03-Q029",
@@ -429,14 +965,35 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第276條，雇主為防止電氣災害，應依哪些規定辦理？（複選）",
       "options": [
-        {"id": "A", "text": "電力設備之裝設及維護保養，非合格之電氣技術人員不得擔任"},
-        {"id": "B", "text": "發電室、變電室或受電室，非工作人員不得任意進入"},
-        {"id": "C", "text": "拔卸電氣插頭時，應確實自插頭處拉出"},
-        {"id": "D", "text": "不得以濕手或濕操作棒操作開關"}
+        {
+          "id": "A",
+          "text": "電力設備之裝設及維護保養，非合格之電氣技術人員不得擔任"
+        },
+        {
+          "id": "B",
+          "text": "不得以濕手或濕操作棒操作開關"
+        },
+        {
+          "id": "C",
+          "text": "發電室、變電室或受電室，非工作人員不得任意進入"
+        },
+        {
+          "id": "D",
+          "text": "拔卸電氣插頭時，可直接拉扯電線拔出"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "設施規則第276條列舉12款防止電氣災害之規定，包括合格人員才能擔任電力設備裝設維護、非工作人員不得進入發變電室、拔卸插頭應自插頭處拉出、不得以濕手操作開關等。四項均屬之。",
-      "references": [{"title": "職業安全衛生設施規則第276條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "設施規則第276條列舉12款防止電氣災害之規定，包括合格人員才能擔任電力設備裝設維護、非工作人員不得進入發變電室、不得以濕手操作開關、拔卸插頭應自插頭處拉出等。本題前三項均屬之；拔卸插頭應自插頭處拉出，不得拉扯電線，以免損壞導致感電。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第276條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"
+        }
+      ]
     },
     {
       "id": "U03-Q030",
@@ -444,14 +1001,35 @@
       "difficulty": "advanced",
       "stem": "依設施規則第116條，雇主對於勞動場所作業之車輛機械，應使駕駛者或有關人員負責執行下列哪些事項？（複選）",
       "options": [
-        {"id": "A", "text": "除非所有人員已遠離該機械，否則不得起動"},
-        {"id": "B", "text": "車輛系營建機械及堆高機，除乘坐席位外，於作業時不得搭載勞工"},
-        {"id": "C", "text": "應依製造廠商規定之安全度及最大使用荷重等操作"},
-        {"id": "D", "text": "禁止停放於有滑落危險之虞之斜坡"}
+        {
+          "id": "A",
+          "text": "除非所有人員已遠離該機械，否則不得起動"
+        },
+        {
+          "id": "B",
+          "text": "車輛系營建機械及堆高機，除乘坐席位外，於作業時不得搭載勞工"
+        },
+        {
+          "id": "C",
+          "text": "應依製造廠商規定之安全度及最大使用荷重等操作"
+        },
+        {
+          "id": "D",
+          "text": "得於滑落危險之斜坡停放，僅需拉緊手煞車"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "設施規則第116條列舉15款車輛機械作業應注意事項，包括起動前確認人員遠離、不得搭載非乘坐席位人員、依規定荷重操作、禁止停放於危險斜坡等。四項均屬之。",
-      "references": [{"title": "職業安全衛生設施規則第116條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=116"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "設施規則第116條列舉15款車輛機械作業應注意事項，包括起動前確認人員遠離、不得搭載非乘坐席位人員、依規定荷重操作、禁止停放於危險斜坡等。本題前三項均屬之；有滑落危險之虞之斜坡禁止停放，縱拉緊手煞車亦不得為之。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第116條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=116"
+        }
+      ]
     },
     {
       "id": "U03-Q031",
@@ -459,14 +1037,36 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第292條，雇主對於有害氣體、蒸氣、粉塵等作業場所，應採取哪些措施？（複選）",
       "options": [
-        {"id": "A", "text": "採取密閉設備、局部排氣裝置、整體換氣裝置等措施"},
-        {"id": "B", "text": "使其不超過勞工作業場所容許暴露標準之規定"},
-        {"id": "C", "text": "勞工有發生中毒之虞者，應停止作業並採取緊急措施"},
-        {"id": "D", "text": "有害物工作場所應設置通風設備並使其有效運轉"}
+        {
+          "id": "A",
+          "text": "有害物工作場所應設置通風設備並使其有效運轉"
+        },
+        {
+          "id": "B",
+          "text": "採取密閉設備、局部排氣裝置、整體換氣裝置等措施"
+        },
+        {
+          "id": "C",
+          "text": "勞工有發生中毒之虞者，應停止作業並採取緊急措施"
+        },
+        {
+          "id": "D",
+          "text": "使其不超過勞工作業場所容許暴露標準之規定"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "設施規則第292條第1項列舉3款有害氣體蒸氣粉塵作業場所之規定，包括密閉排氣換氣措施、不超過容許暴露標準、有中毒之虞時停止作業。第3款規定有害物工作場所應依有害物危害預防法規設置通風設備。四項均屬之。",
-      "references": [{"title": "職業安全衛生設施規則第292條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=292"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第292條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=292"
+        }
+      ]
     },
     {
       "id": "U03-Q032",
@@ -474,14 +1074,36 @@
       "difficulty": "advanced",
       "stem": "依設施規則第190條，雇主對於金屬熔接、熔斷或加熱作業所須使用之可燃性氣體及氧氣容器，下列哪些規定正確？（複選）",
       "options": [
-        {"id": "A", "text": "保持容器之溫度於攝氏四十度以下"},
-        {"id": "B", "text": "容器應直立穩妥放置，防止傾倒危險"},
-        {"id": "C", "text": "搬運容器時應裝妥護蓋"},
-        {"id": "D", "text": "不得在地面滾動或撞擊容器"}
+        {
+          "id": "A",
+          "text": "保持容器之溫度於攝氏四十度以下"
+        },
+        {
+          "id": "B",
+          "text": "容器應直立穩妥放置，防止傾倒危險"
+        },
+        {
+          "id": "C",
+          "text": "搬運容器時應裝妥護蓋"
+        },
+        {
+          "id": "D",
+          "text": "不得在地面滾動或撞擊容器"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "設施規則第190條列舉12款容器管理規定，包括保持溫度40度以下、直立穩妥放置、搬運時裝妥護蓋、禁止地面滾動撞擊等。四項均屬法條所列之規定。",
-      "references": [{"title": "職業安全衛生設施規則第190條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=190"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第190條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=190"
+        }
+      ]
     },
     {
       "id": "U03-Q033",
@@ -489,12 +1111,25 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則第2條規定，本規則為雇主使勞工從事工作之安全衛生設備及措施之最低標準。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "設施規則第2條明確規定，本規則為雇主使勞工從事工作之安全衛生設備及措施之最低標準。雇主可採取更高標準，但不得低於本規則要求。",
-      "references": [{"title": "職業安全衛生設施規則第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=2"
+        }
+      ]
     },
     {
       "id": "U03-Q034",
@@ -502,12 +1137,25 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第224條，雇主對於高度在二公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有護欄、護蓋等防護設備。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "設施規則第224條第1項明確規定，高度在二公尺以上之工作場所邊緣及開口部分，勞工有遭受墜落危險之虞者，應設有適當強度之護欄、護蓋等防護設備。二公尺為墜落防護之基本基準。",
-      "references": [{"title": "職業安全衛生設施規則第224條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第224條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=224"
+        }
+      ]
     },
     {
       "id": "U03-Q035",
@@ -515,12 +1163,25 @@
       "difficulty": "intermediate",
       "stem": "依設施規則第272條，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每年檢驗其性能一次。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "設施規則第272條規定，雇主對於絕緣用防護裝備、防護具、活線作業用工具等，應每六個月檢驗其性能一次，並非每年一次。工作人員應於每次使用前自行檢點。",
-      "references": [{"title": "職業安全衛生設施規則第272條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=272"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第272條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=272"
+        }
+      ]
     },
     {
       "id": "U03-Q036",
@@ -528,12 +1189,25 @@
       "difficulty": "advanced",
       "stem": "依設施規則第29-6條，雇主使勞工進入局限空間從事動火作業（如焊接、切割）時，應指定專人確認無發生危害之虞，並由雇主、工作場所負責人或現場作業主管確認安全，簽署動火許可後始得作業。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "設施規則第29-6條第3項明確規定，雇主使勞工進入局限空間從事焊接、切割、燃燒及加熱等動火作業時，除應依進入許可規定辦理外，應指定專人確認無發生危害之虞，並簽署動火許可後始得作業。",
-      "references": [{"title": "職業安全衛生設施規則第29-6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-6"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第29-6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-6"
+        }
+      ]
     },
     {
       "id": "U03-Q037",
@@ -541,84 +1215,164 @@
       "difficulty": "basic",
       "stem": "依設施規則第155條，雇主對於物料之搬運，凡五百公斤以上物品，以機動車輛或其他機械搬運為宜。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "設施規則第155條規定，凡四十公斤以上物品以人力車輛或工具搬運為原則，五百公斤以上物品以機動車輛或其他機械搬運為宜。運輸路線應妥善規劃並作標示。",
-      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第155條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"
+        }
+      ]
     },
     {
       "id": "U03-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依設施規則第3條，本規則所稱「低壓」係指________伏特以下之電壓。",
-      "answer": ["600", "六百"],
+      "answer": [
+        "600",
+        "六百"
+      ],
       "explanation": "設施規則第3條規定：特高壓指超過二萬二千八百伏特之電壓；高壓指超過六百伏特至二萬二千八百伏特之電壓；低壓指六百伏特以下之電壓。",
-      "references": [{"title": "職業安全衛生設施規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=3"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=3"
+        }
+      ]
     },
     {
       "id": "U03-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依設施規則第300條，勞工八小時日時量平均音壓級超過________分貝時，雇主應使勞工戴用有效之耳塞、耳罩等防音防護具。",
-      "answer": ["85", "八十五"],
+      "answer": [
+        "85",
+        "八十五"
+      ],
       "explanation": "設施規則第300條第1款規定，勞工八小時日時量平均音壓級超過八十五分貝或暴露劑量超過百分之五十時，雇主應使勞工戴用有效之耳塞、耳罩等防音防護具。超過九十分貝時則應採取工程控制等措施。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U03-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依設施規則第299條，雇主應禁止非作業人員進入氧氣濃度未達百分之________之場所。",
-      "answer": ["18", "十八"],
+      "answer": [
+        "18",
+        "十八"
+      ],
       "explanation": "設施規則第299條第1項第4款規定，氧氣濃度未達百分之十八之場所，雇主應於明顯易見處所設置警告標示牌，並禁止非作業有關人員進入。正常空氣氧氣濃度約為百分之二十一。",
-      "references": [{"title": "職業安全衛生設施規則第299條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=299"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第299條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=299"
+        }
+      ]
     },
     {
       "id": "U03-Q041",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依設施規則第25條，雇主對於建築物之工作室，其樓地板至天花板淨高應在________公尺以上。",
-      "answer": ["2.1", "二點一"],
+      "answer": [
+        "2.1",
+        "二點一"
+      ],
       "explanation": "設施規則第25條規定，雇主對於建築物之工作室，其樓地板至天花板淨高應在二．一公尺以上。但建築法規另有規定者，從其規定。",
-      "references": [{"title": "職業安全衛生設施規則第25條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=25"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第25條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=25"
+        }
+      ]
     },
     {
       "id": "U03-Q042",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依設施規則第29-5條，雇主使勞工於有危害之虞之局限空間從事作業時，通風換氣確認及進出紀錄應保存________年。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "設施規則第29-5條第2項及第29-6條第1項均規定，確認及進出紀錄應保存三年。局限空間作業之各項紀錄保存期限均為三年。",
-      "references": [{"title": "職業安全衛生設施規則第29-5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-5"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第29-5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=29-5"
+        }
+      ]
     },
     {
       "id": "U03-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依設施規則第300條附表，勞工暴露於九十五分貝噪音環境中，其工作日容許暴露時間為多少小時？",
-      "answer": {"value": 4, "unit": "小時", "tolerance": 0},
+      "answer": {
+        "value": 4,
+        "unit": "小時",
+        "tolerance": 0
+      },
       "explanation": "依設施規則第300條第1款附表（一），九十分貝對應8小時、九十二分貝對應6小時、九十五分貝對應4小時、九十七分貝對應3小時。故九十五分貝之容許暴露時間為4小時。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U03-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "依設施規則第300條，某勞工於工作日暴露於二種連續性噪音：九十分貝4小時及九十五分貝2小時。請計算其暴露劑量是否超過容許標準？（請輸入暴露劑量計算值，若大於1則超標）",
-      "answer": {"value": 1, "unit": "", "tolerance": 0.01},
+      "answer": {
+        "value": 1,
+        "unit": "",
+        "tolerance": 0.01
+      },
       "explanation": "依設施規則第300條第1款（二）之計算公式：4÷8（90分貝容許8小時）+ 2÷4（95分貝容許4小時）= 0.5 + 0.5 = 1.0。其和等於1，未大於1，故未超出容許暴露劑量。若大於1則屬超標。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U03-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依設施規施規則第302條附表，某勞工每日使用防振把手從事局部振動作業3小時，請問其水平及垂直各方向局部振動最大加速度值不得超過多少m/s²？",
-      "answer": {"value": 6, "unit": "m/s²", "tolerance": 0},
+      "answer": {
+        "value": 6,
+        "unit": "m/s²",
+        "tolerance": 0
+      },
       "explanation": "依設施規則第302條附表：四小時以上未滿八小時為4 m/s²、二小時以上未滿四小時為6 m/s²、一小時以上未滿二小時為8 m/s²、未滿一小時為12 m/s²。3小時屬「二小時以上未滿四小時」，故為6 m/s²。",
-      "references": [{"title": "職業安全衛生設施規則第302條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=302"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第302條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=302"
+        }
+      ]
     },
     {
       "id": "U03-Q046",
@@ -626,22 +1380,54 @@
       "difficulty": "intermediate",
       "stem": "請將下列電壓分類與其電壓範圍正確配對（依設施規則第3條）：",
       "leftItems": [
-        {"id": "L1", "text": "低壓"},
-        {"id": "L2", "text": "高壓"},
-        {"id": "L3", "text": "特高壓"}
+        {
+          "id": "L1",
+          "text": "低壓"
+        },
+        {
+          "id": "L2",
+          "text": "高壓"
+        },
+        {
+          "id": "L3",
+          "text": "特高壓"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "超過二萬二千八百伏特之電壓"},
-        {"id": "R2", "text": "六百伏特以下之電壓"},
-        {"id": "R3", "text": "超過六百伏特至二萬二千八百伏特之電壓"}
+        {
+          "id": "R1",
+          "text": "超過二萬二千八百伏特之電壓"
+        },
+        {
+          "id": "R2",
+          "text": "六百伏特以下之電壓"
+        },
+        {
+          "id": "R3",
+          "text": "超過六百伏特至二萬二千八百伏特之電壓"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R2"},
-        {"left": "L2", "right": "R3"},
-        {"left": "L3", "right": "R1"}
+        {
+          "left": "L1",
+          "right": "R2"
+        },
+        {
+          "left": "L2",
+          "right": "R3"
+        },
+        {
+          "left": "L3",
+          "right": "R1"
+        }
       ],
       "explanation": "依設施規則第3條：低壓=六百伏特以下；高壓=超過六百伏特至二萬二千八百伏特；特高壓=超過二萬二千八百伏特。三者由低到高排列。",
-      "references": [{"title": "職業安全衛生設施規則第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=3"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=3"
+        }
+      ]
     },
     {
       "id": "U03-Q047",
@@ -649,25 +1435,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列噪音音壓級與其對應的工作日容許暴露時間正確配對（依設施規則第300條）：",
       "leftItems": [
-        {"id": "L1", "text": "九十分貝"},
-        {"id": "L2", "text": "九十五分貝"},
-        {"id": "L3", "text": "一百分貝"},
-        {"id": "L4", "text": "一百一十分貝"}
+        {
+          "id": "L1",
+          "text": "九十分貝"
+        },
+        {
+          "id": "L2",
+          "text": "九十五分貝"
+        },
+        {
+          "id": "L3",
+          "text": "一百分貝"
+        },
+        {
+          "id": "L4",
+          "text": "一百一十分貝"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "八小時"},
-        {"id": "R2", "text": "四小時"},
-        {"id": "R3", "text": "二小時"},
-        {"id": "R4", "text": "二分之一小時"}
+        {
+          "id": "R1",
+          "text": "八小時"
+        },
+        {
+          "id": "R2",
+          "text": "四小時"
+        },
+        {
+          "id": "R3",
+          "text": "二小時"
+        },
+        {
+          "id": "R4",
+          "text": "二分之一小時"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "依設施規則第300條附表：90分貝=8小時、92分貝=6小時、95分貝=4小時、97分貝=3小時、100分貝=2小時、105分貝=1小時、110分貝=0.5小時、115分貝=0.25小時。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U03-Q048",
@@ -675,22 +1502,54 @@
       "difficulty": "advanced",
       "stem": "請將下列物料搬運方式與其適用重量正確配對（依設施規則第155條）：",
       "leftItems": [
-        {"id": "L1", "text": "以人力車輛或工具搬運為原則"},
-        {"id": "L2", "text": "以機動車輛或其他機械搬運為宜"},
-        {"id": "L3", "text": "以人力搬運"}
+        {
+          "id": "L1",
+          "text": "以人力車輛或工具搬運為原則"
+        },
+        {
+          "id": "L2",
+          "text": "以機動車輛或其他機械搬運為宜"
+        },
+        {
+          "id": "L3",
+          "text": "以人力搬運"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "五百公斤以上"},
-        {"id": "R2", "text": "四十公斤以上"},
-        {"id": "R3", "text": "未滿四十公斤"}
+        {
+          "id": "R1",
+          "text": "五百公斤以上"
+        },
+        {
+          "id": "R2",
+          "text": "四十公斤以上"
+        },
+        {
+          "id": "R3",
+          "text": "未滿四十公斤"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R2"},
-        {"left": "L2", "right": "R1"},
-        {"left": "L3", "right": "R3"}
+        {
+          "left": "L1",
+          "right": "R2"
+        },
+        {
+          "left": "L2",
+          "right": "R1"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        }
       ],
       "explanation": "依設施規則第155條：四十公斤以上以人力車輛或工具搬運為原則，五百公斤以上以機動車輛或機械搬運為宜，未滿四十公斤可以人力搬運。",
-      "references": [{"title": "職業安全衛生設施規則第155條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第155條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=155"
+        }
+      ]
     },
     {
       "id": "U03-Q049",
@@ -698,14 +1557,36 @@
       "difficulty": "advanced",
       "stem": "依設施規則第300條，請依噪音音壓級由低到高排列下列工作日容許暴露時間：",
       "items": [
-        {"id": "I1", "text": "八小時（九十分貝）"},
-        {"id": "I2", "text": "四小時（九十五分貝）"},
-        {"id": "I3", "text": "二小時（一百分貝）"},
-        {"id": "I4", "text": "一小時（一百零五分貝）"}
+        {
+          "id": "I1",
+          "text": "八小時（九十分貝）"
+        },
+        {
+          "id": "I2",
+          "text": "四小時（九十五分貝）"
+        },
+        {
+          "id": "I3",
+          "text": "二小時（一百分貝）"
+        },
+        {
+          "id": "I4",
+          "text": "一小時（一百零五分貝）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依設施規則第300條附表，噪音音壓級越高，容許暴露時間越短：90分貝=8小時、95分貝=4小時、100分貝=2小時、105分貝=1小時。由低到高排列即為容許時間由長到短。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U03-Q050",
@@ -713,14 +1594,36 @@
       "difficulty": "intermediate",
       "stem": "依設施規則，請依局部振動作業每日容許暴露時間由短到長排列下列加速度值：",
       "items": [
-        {"id": "I1", "text": "12 m/s²（未滿一小時）"},
-        {"id": "I2", "text": "8 m/s²（一小時以上未滿二小時）"},
-        {"id": "I3", "text": "6 m/s²（二小時以上未滿四小時）"},
-        {"id": "I4", "text": "4 m/s²（四小時以上未滿八小時）"}
+        {
+          "id": "I1",
+          "text": "12 m/s²（未滿一小時）"
+        },
+        {
+          "id": "I2",
+          "text": "8 m/s²（一小時以上未滿二小時）"
+        },
+        {
+          "id": "I3",
+          "text": "6 m/s²（二小時以上未滿四小時）"
+        },
+        {
+          "id": "I4",
+          "text": "4 m/s²（四小時以上未滿八小時）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依設施規則第302條附表，暴露時間越短，容許加速度值越高：未滿1小時=12、1-2小時=8、2-4小時=6、4-8小時=4 m/s²。由短到長排列即加速度值由高到低。",
-      "references": [{"title": "職業安全衛生設施規則第302條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=302"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第302條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=302"
+        }
+      ]
     }
   ]
 }

@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法第10條規定，雇主對於危害性化學品之標示及通識，應依下列何者辦理？",
       "options": [
-        {"id": "A", "text": "僅依雇主自訂標準"},
-        {"id": "B", "text": "中央主管機關規定之標示及通識規則"},
-        {"id": "C", "text": "僅依國際標準"},
-        {"id": "D", "text": "僅依廠商建議"}
+        {
+          "id": "A",
+          "text": "僅依雇主自訂標準"
+        },
+        {
+          "id": "B",
+          "text": "中央主管機關規定之標示及通識規則"
+        },
+        {
+          "id": "C",
+          "text": "僅依國際標準"
+        },
+        {
+          "id": "D",
+          "text": "僅依廠商建議"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安法第10條第1項規定，雇主對於危害性化學品之標示及通識，應依中央主管機關規定之標示及通識規則辦理。即危害性化學品標示及通識規則。",
-      "references": [{"title": "職業安全衛生法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，雇主對裝有危害性化學品之容器，應標示下列哪些事項？",
       "options": [
-        {"id": "A", "text": "僅標示名稱即可"},
-        {"id": "B", "text": "危害圖式、警示語、危害警告訊息、危害防範措施及製造商或供應商之名稱、地址及電話"},
-        {"id": "C", "text": "僅標示價格"},
-        {"id": "D", "text": "僅標示製造日期"}
+        {
+          "id": "A",
+          "text": "僅標示名稱即可"
+        },
+        {
+          "id": "B",
+          "text": "危害圖式、警示語、危害警告訊息、危害防範措施及製造商或供應商之名稱、地址及電話"
+        },
+        {
+          "id": "C",
+          "text": "僅標示價格"
+        },
+        {
+          "id": "D",
+          "text": "僅標示製造日期"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則第5條規定，雇主對裝有危害性化學品之容器，應標示：危害圖式、警示語、危害警告訊息、危害防範措施、製造商或供應商之名稱、地址及電話等事項。",
-      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"
+        }
+      ]
     },
     {
       "id": "U26-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品標示及通識規則規定，危害圖式之形狀為何？",
       "options": [
-        {"id": "A", "text": "圓形"},
-        {"id": "B", "text": "正方形轉45度（菱形）"},
-        {"id": "C", "text": "三角形"},
-        {"id": "D", "text": "長方形"}
+        {
+          "id": "A",
+          "text": "圓形"
+        },
+        {
+          "id": "B",
+          "text": "正方形轉45度（菱形）"
+        },
+        {
+          "id": "C",
+          "text": "三角形"
+        },
+        {
+          "id": "D",
+          "text": "長方形"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則第7條規定，危害圖式為正方形旋轉45度之菱形，邊長最小為1公分。圖式為白底、紅色外框、黑色符號。此為GHS調和制度之標準圖式格式。",
-      "references": [{"title": "危害性化學品標示及通識規則第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=7"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，危害圖式之顏色為何？",
       "options": [
-        {"id": "A", "text": "黑底白字紅框"},
-        {"id": "B", "text": "白底紅框黑符號"},
-        {"id": "C", "text": "黃底黑符號"},
-        {"id": "D", "text": "藍底白符號"}
+        {
+          "id": "A",
+          "text": "黑底白字紅框"
+        },
+        {
+          "id": "B",
+          "text": "白底紅框黑符號"
+        },
+        {
+          "id": "C",
+          "text": "黃底黑符號"
+        },
+        {
+          "id": "D",
+          "text": "藍底白符號"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則第7條規定，危害圖式為白底、紅色外框、黑色符號。此為GHS制度之標準顏色規定，紅色外框表示危險，黑色符號易於辨識。",
-      "references": [{"title": "危害性化學品標示及通識規則第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=7"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品標示及通識規則第8條規定，下列何者得免標示？",
       "options": [
-        {"id": "A", "text": "任何化學品均可免標示"},
-        {"id": "B", "text": "有害性廢棄物、菸草或菸草製品、食品、飲料、藥物、化妝品等"},
-        {"id": "C", "text": "所有工業用化學品"},
-        {"id": "D", "text": "所有進口化學品"}
+        {
+          "id": "A",
+          "text": "任何化學品均可免標示"
+        },
+        {
+          "id": "B",
+          "text": "有害性廢棄物、菸草或菸草製品、食品、飲料、藥物、化妝品等"
+        },
+        {
+          "id": "C",
+          "text": "所有工業用化學品"
+        },
+        {
+          "id": "D",
+          "text": "所有進口化學品"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則第8條規定，有害性廢棄物、菸草或菸草製品、食品、飲料、藥物、化妝品等，已受其他法規管制，得免依本規則標示。但其他化學品仍須標示。",
-      "references": [{"title": "危害性化學品標示及通識規則第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=8"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=8"
+        }
+      ]
     },
     {
       "id": "U26-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，雇主應訂定危害通識計畫，並每多久更新一次？",
       "options": [
-        {"id": "A", "text": "每年"},
-        {"id": "B", "text": "每二年"},
-        {"id": "C", "text": "每三年"},
-        {"id": "D", "text": "每五年"}
+        {
+          "id": "A",
+          "text": "每年"
+        },
+        {
+          "id": "B",
+          "text": "每二年"
+        },
+        {
+          "id": "C",
+          "text": "每三年"
+        },
+        {
+          "id": "D",
+          "text": "每五年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "危害性化學品標示及通識規則第10條規定，雇主為推行危害通識制度，應訂定危害通識計畫，每三年評估一次。計畫應包含危害性化學品清單、安全資料表、標示及教育訓練等事項。",
-      "references": [{"title": "危害性化學品標示及通識規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，安全資料表（SDS）應包含多少項內容？",
       "options": [
-        {"id": "A", "text": "8項"},
-        {"id": "B", "text": "12項"},
-        {"id": "C", "text": "16項"},
-        {"id": "D", "text": "20項"}
+        {
+          "id": "A",
+          "text": "8項"
+        },
+        {
+          "id": "B",
+          "text": "12項"
+        },
+        {
+          "id": "C",
+          "text": "16項"
+        },
+        {
+          "id": "D",
+          "text": "20項"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "危害性化學品標示及通識規則規定，安全資料表（SDS）包含16項內容，包括：物品與廠商資料、危害辨識資料、成分辨識資料、急救措施、滅火措施、洩漏處理、處置與儲存、暴露預防、物理化學特性、安定性及反應性、毒性資料、生態資料、廢棄處置、運送資料、法規資料及其他資料等。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第11條規定，雇主對於危害性化學品，應依其健康危害、暴露及使用量等進行評估及分級管理，並依何者辦理？",
       "options": [
-        {"id": "A", "text": "僅依雇主自訂標準"},
-        {"id": "B", "text": "中央主管機關規定之辦法"},
-        {"id": "C", "text": "僅依國際標準"},
-        {"id": "D", "text": "僅依廠商建議"}
+        {
+          "id": "A",
+          "text": "僅依雇主自訂標準"
+        },
+        {
+          "id": "B",
+          "text": "中央主管機關規定之辦法"
+        },
+        {
+          "id": "C",
+          "text": "僅依國際標準"
+        },
+        {
+          "id": "D",
+          "text": "僅依廠商建議"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安法第11條規定，雇主對於危害性化學品，應依其健康危害、暴露及使用量等進行評估及分級管理，並依中央主管機關規定之辦法辦理。即危害性化學品評估及分級管理辦法。",
-      "references": [{"title": "職業安全衛生法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=11"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=11"
+        }
+      ]
     },
     {
       "id": "U26-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法第4條規定，雇主對於危害性化學品之分類，應依何者辦理？",
       "options": [
-        {"id": "A", "text": "美國NFPA標準"},
-        {"id": "B", "text": "歐盟CLP標準"},
-        {"id": "C", "text": "國家標準CNS15030化學品分類及標示"},
-        {"id": "D", "text": "日本GHS標準"}
+        {
+          "id": "A",
+          "text": "美國NFPA標準"
+        },
+        {
+          "id": "B",
+          "text": "歐盟CLP標準"
+        },
+        {
+          "id": "C",
+          "text": "國家標準CNS15030化學品分類及標示"
+        },
+        {
+          "id": "D",
+          "text": "日本GHS標準"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第4條規定，雇主對於危害性化學品之危害分類，應依國家標準CNS15030化學品分類及標示之規定辦理。CNS15030為我國採用GHS調和制度之國家標準。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=4"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=4"
+        }
+      ]
     },
     {
       "id": "U26-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品評估及分級管理辦法規定，雇主應多久實施一次評估？",
       "options": [
-        {"id": "A", "text": "每年"},
-        {"id": "B", "text": "每二年"},
-        {"id": "C", "text": "每三年"},
-        {"id": "D", "text": "每五年"}
+        {
+          "id": "A",
+          "text": "每年"
+        },
+        {
+          "id": "B",
+          "text": "每二年"
+        },
+        {
+          "id": "C",
+          "text": "每三年"
+        },
+        {
+          "id": "D",
+          "text": "每五年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第5條規定，雇主應每三年對危害性化學品實施一次評估。但作業場所使用之化學品、暴露量或製程條件變更時，應即重新評估。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=5"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=5"
+        }
+      ]
     },
     {
       "id": "U26-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法規定，暴露評估之頻率依分級結果而定，下列何者正確？",
       "options": [
-        {"id": "A", "text": "第一級每3年、第二級每1年、第三級每6個月、第四級每3個月"},
-        {"id": "B", "text": "所有分級均為每年一次"},
-        {"id": "C", "text": "所有分級均為每三年一次"},
-        {"id": "D", "text": "所有分級均為每半年一次"}
+        {
+          "id": "A",
+          "text": "第一級每3年、第二級每1年、第三級每6個月、第四級每3個月"
+        },
+        {
+          "id": "B",
+          "text": "所有分級均為每年一次"
+        },
+        {
+          "id": "C",
+          "text": "所有分級均為每三年一次"
+        },
+        {
+          "id": "D",
+          "text": "所有分級均為每半年一次"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第7條規定，暴露評估頻率依分級結果：第一級每3年至少1次、第二級每1年至少1次、第三級每6個月至少1次、第四級每3個月至少1次。危害等級越高，評估頻率越高。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法第9條規定，雇主對於評估結果屬第三級管理以上者，應採取哪些措施？",
       "options": [
-        {"id": "A", "text": "僅需口頭告知勞工"},
-        {"id": "B", "text": "應採取工程控制、行政管理及個人防護等三級管理措施"},
-        {"id": "C", "text": "不需任何措施"},
-        {"id": "D", "text": "僅需停止作業"}
+        {
+          "id": "A",
+          "text": "僅需口頭告知勞工"
+        },
+        {
+          "id": "B",
+          "text": "應採取工程控制、行政管理及個人防護等三級管理措施"
+        },
+        {
+          "id": "C",
+          "text": "不需任何措施"
+        },
+        {
+          "id": "D",
+          "text": "僅需停止作業"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第9條規定，雇主對評估結果屬第三級管理以上者，應採取工程控制（如局部排氣）、行政管理（如作業時間限制）及個人防護（如呼吸防護具）等三級管理措施。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第9條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=9"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第9條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=9"
+        }
+      ]
     },
     {
       "id": "U26-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第14條規定，製造者或輸入者對於中央主管機關公告之管制性化學品，非經何者許可，不得製造、輸入、供應或供工作者使用？",
       "options": [
-        {"id": "A", "text": "經濟部"},
-        {"id": "B", "text": "中央主管機關（勞動部）"},
-        {"id": "C", "text": "環保署"},
-        {"id": "D", "text": "消保會"}
+        {
+          "id": "A",
+          "text": "經濟部"
+        },
+        {
+          "id": "B",
+          "text": "中央主管機關（勞動部）"
+        },
+        {
+          "id": "C",
+          "text": "環保署"
+        },
+        {
+          "id": "D",
+          "text": "消保會"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安法第14條第1項規定，製造者或輸入者對於管制性化學品，非經中央主管機關許可，不得製造、輸入、供應或供工作者使用。中央主管機關為勞動部。",
-      "references": [{"title": "職業安全衛生法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=14"
+        }
+      ]
     },
     {
       "id": "U26-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "advanced",
       "stem": "依管制性化學品之指定及運作許可管理辦法規定，運作許可之有效期間為幾年？",
       "options": [
-        {"id": "A", "text": "3年"},
-        {"id": "B", "text": "5年"},
-        {"id": "C", "text": "7年"},
-        {"id": "D", "text": "10年"}
+        {
+          "id": "A",
+          "text": "3年"
+        },
+        {
+          "id": "B",
+          "text": "5年"
+        },
+        {
+          "id": "C",
+          "text": "7年"
+        },
+        {
+          "id": "D",
+          "text": "10年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管制性化學品之指定及運作許可管理辦法規定，運作許可之有效期間為5年。期滿需繼續運作者，應於期滿前3至6個月內申請展延，每次展延不得超過5年。",
-      "references": [{"title": "管制性化學品之指定及運作許可管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"}]
+      "references": [
+        {
+          "title": "管制性化學品之指定及運作許可管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"
+        }
+      ]
     },
     {
       "id": "U26-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第14條規定，雇主不得使勞工從事何種化學品之處置或使用？",
       "options": [
-        {"id": "A", "text": "一般化學品"},
-        {"id": "B", "text": "中央主管機關公告之優先管理化學品"},
-        {"id": "C", "text": "中央主管機關公告之管制性化學品"},
-        {"id": "D", "text": "所有化學品"}
+        {
+          "id": "A",
+          "text": "一般化學品"
+        },
+        {
+          "id": "B",
+          "text": "中央主管機關公告之優先管理化學品"
+        },
+        {
+          "id": "C",
+          "text": "中央主管機關公告之管制性化學品"
+        },
+        {
+          "id": "D",
+          "text": "所有化學品"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職安法第14條第2項規定，雇主不得使勞工處置或使用管制性化學品。但經中央主管機關許可者，不在此限。管制性化學品為具嚴重危害者，原則上禁止運作，例外經許可方可使用。",
-      "references": [{"title": "職業安全衛生法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=14"
+        }
+      ]
     },
     {
       "id": "U26-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依優先管理化學品之指定及運作管理辦法規定，製造者、輸入者、供應者或雇主對於優先管理化學品，應將相關運作資料報請下列何者備查？",
       "options": [
-        {"id": "A", "text": "經濟部"},
-        {"id": "B", "text": "中央主管機關（勞動部）"},
-        {"id": "C", "text": "環保署"},
-        {"id": "D", "text": "衛福部"}
+        {
+          "id": "A",
+          "text": "經濟部"
+        },
+        {
+          "id": "B",
+          "text": "中央主管機關（勞動部）"
+        },
+        {
+          "id": "C",
+          "text": "環保署"
+        },
+        {
+          "id": "D",
+          "text": "衛福部"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "優先管理化學品之指定及運作管理辦法規定，製造者、輸入者、供應者或雇主對於優先管理化學品，應將相關運作資料報請中央主管機關備查。優先管理化學品為需加強管理者，不同於管制性化學品之禁止運作。",
-      "references": [{"title": "優先管理化學品之指定及運作管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060064"}]
+      "references": [
+        {
+          "title": "優先管理化學品之指定及運作管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060064"
+        }
+      ]
     },
     {
       "id": "U26-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法規定，製造者或輸入者對於新化學物質，應向中央主管機關申報什麼後，始得製造或輸入？",
       "options": [
-        {"id": "A", "text": "價格"},
-        {"id": "B", "text": "新化學物質安全評估報告"},
-        {"id": "C", "text": "產地"},
-        {"id": "D", "text": "庫存數量"}
+        {
+          "id": "A",
+          "text": "價格"
+        },
+        {
+          "id": "B",
+          "text": "新化學物質安全評估報告"
+        },
+        {
+          "id": "C",
+          "text": "產地"
+        },
+        {
+          "id": "D",
+          "text": "庫存數量"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安法第13條第1項規定，製造者或輸入者對於新化學物質，應向中央主管機關申報新化學物質安全評估報告，經中央主管機關核准登記後，始得製造或輸入。新化學物質因缺乏既有危害資料，須進行安全評估。",
-      "references": [{"title": "職業安全衛生法第13條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=13"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第13條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=13"
+        }
+      ]
     },
     {
       "id": "U26-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，雇主應對勞工辦理危害通識教育訓練，訓練時數及內容依何者辦理？",
       "options": [
-        {"id": "A", "text": "僅依雇主自訂標準"},
-        {"id": "B", "text": "依職業安全衛生教育訓練規則之規定辦理"},
-        {"id": "C", "text": "不需辦理教育訓練"},
-        {"id": "D", "text": "僅需口頭說明"}
+        {
+          "id": "A",
+          "text": "僅依雇主自訂標準"
+        },
+        {
+          "id": "B",
+          "text": "依職業安全衛生教育訓練規則之規定辦理"
+        },
+        {
+          "id": "C",
+          "text": "不需辦理教育訓練"
+        },
+        {
+          "id": "D",
+          "text": "僅需口頭說明"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則規定，雇主應使勞工接受危害通識教育訓練，其訓練時數及內容依職業安全衛生教育訓練規則之規定辦理。教育訓練為危害通識制度之重要環節。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品標示及通識規則規定，下列何者為警示語之種類？",
       "options": [
-        {"id": "A", "text": "僅「危險」一種"},
-        {"id": "B", "text": "僅「警告」一種"},
-        {"id": "C", "text": "「危險」及「警告」兩種"},
-        {"id": "D", "text": "「極度危險」、「危險」、「警告」三種"}
+        {
+          "id": "A",
+          "text": "僅「危險」一種"
+        },
+        {
+          "id": "B",
+          "text": "僅「警告」一種"
+        },
+        {
+          "id": "C",
+          "text": "「危險」及「警告」兩種"
+        },
+        {
+          "id": "D",
+          "text": "「極度危險」、「危險」、「警告」三種"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "危害性化學品標示及通識規則規定，警示語分為「危險」（Danger）及「警告」（Warning）兩種。「危險」用於較嚴重之危害分級，「警告」用於較輕之危害分級。此為GHS制度之標準警示語分類。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則第11條規定，製造者、輸入者或供應者對於危害性化學品，應提供什麼資料給雇主？",
       "options": [
-        {"id": "A", "text": "僅需提供價格"},
-        {"id": "B", "text": "安全資料表（SDS）及標示內容"},
-        {"id": "C", "text": "僅需提供產地"},
-        {"id": "D", "text": "不需提供任何資料"}
+        {
+          "id": "A",
+          "text": "僅需提供價格"
+        },
+        {
+          "id": "B",
+          "text": "安全資料表（SDS）及標示內容"
+        },
+        {
+          "id": "C",
+          "text": "僅需提供產地"
+        },
+        {
+          "id": "D",
+          "text": "不需提供任何資料"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則第11條規定，製造者、輸入者或供應者對於危害性化學品，應提供安全資料表（SDS）及標示所需之相關資料給雇主，使雇主能確實執行危害通識制度。",
-      "references": [{"title": "危害性化學品標示及通識規則第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=11"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=11"
+        }
+      ]
     },
     {
       "id": "U26-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第44條規定，違反第14條第1項（管制性化學品未經許可即製造、輸入等）者，處新臺幣多少罰鍰？",
       "options": [
-        {"id": "A", "text": "3萬元以上30萬元以下"},
-        {"id": "B", "text": "20萬元以上200萬元以下"},
-        {"id": "C", "text": "50萬元以上500萬元以下"},
-        {"id": "D", "text": "100萬元以上1000萬元以下"}
+        {
+          "id": "A",
+          "text": "3萬元以上30萬元以下"
+        },
+        {
+          "id": "B",
+          "text": "20萬元以上200萬元以下"
+        },
+        {
+          "id": "C",
+          "text": "50萬元以上500萬元以下"
+        },
+        {
+          "id": "D",
+          "text": "100萬元以上1000萬元以下"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安法第44條規定，違反第14條第1項（管制性化學品未經許可即製造、輸入、供應或供工作者使用）者，處新臺幣20萬元以上200萬元以下罰鍰，並得限期停止輸入、產製、製造或供應。",
-      "references": [{"title": "職業安全衛生法第44條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=44"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第44條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=44"
+        }
+      ]
     },
     {
       "id": "U26-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品評估及分級管理辦法規定，雇主應建立危害性化學品清單及什麼資料？",
       "options": [
-        {"id": "A", "text": "價格清單"},
-        {"id": "B", "text": "安全資料表（SDS）"},
-        {"id": "C", "text": "庫存清單"},
-        {"id": "D", "text": "供應商名冊"}
+        {
+          "id": "A",
+          "text": "價格清單"
+        },
+        {
+          "id": "B",
+          "text": "安全資料表（SDS）"
+        },
+        {
+          "id": "C",
+          "text": "庫存清單"
+        },
+        {
+          "id": "D",
+          "text": "供應商名冊"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法規定，雇主應建立危害性化學品清單及安全資料表（SDS），並依此進行評估及分級管理。清單及SDS為分級管理之基礎資料。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"
+        }
+      ]
     },
     {
       "id": "U26-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法規定，暴露評估之方法為何？",
       "options": [
-        {"id": "A", "text": "僅需目視判斷"},
-        {"id": "B", "text": "得以作業環境監測、定量推估或其他有效方法為之"},
-        {"id": "C", "text": "僅需詢問勞工"},
-        {"id": "D", "text": "不需任何評估"}
+        {
+          "id": "A",
+          "text": "僅需目視判斷"
+        },
+        {
+          "id": "B",
+          "text": "得以作業環境監測、定量推估或其他有效方法為之"
+        },
+        {
+          "id": "C",
+          "text": "僅需詢問勞工"
+        },
+        {
+          "id": "D",
+          "text": "不需任何評估"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法規定，暴露評估得以作業環境監測、定量推估（如暴露模式推估）或其他有效方法為之。作業環境監測為較精確之方法，但推估方法可用於初步評估。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"
+        }
+      ]
     },
     {
       "id": "U26-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，安全資料表（SDS）更新時，製造者、輸入者或供應者應於多久內提供更新資料？",
       "options": [
-        {"id": "A", "text": "1個月內"},
-        {"id": "B", "text": "3個月內"},
-        {"id": "C", "text": "6個月內"},
-        {"id": "D", "text": "不需提供更新資料"}
+        {
+          "id": "A",
+          "text": "1個月內"
+        },
+        {
+          "id": "B",
+          "text": "3個月內"
+        },
+        {
+          "id": "C",
+          "text": "6個月內"
+        },
+        {
+          "id": "D",
+          "text": "不需提供更新資料"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品標示及通識規則規定，安全資料表（SDS）內容變更時，製造者、輸入者或供應者應於3個月內提供更新資料予雇主，確保雇主隨時掌握最新之危害資訊。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則第5條規定，雇主對裝有危害性化學品之容器應標示哪些事項？（複選）",
       "options": [
-        {"id": "A", "text": "危害圖式"},
-        {"id": "B", "text": "警示語"},
-        {"id": "C", "text": "危害警告訊息及危害防範措施"},
-        {"id": "D", "text": "製造商或供應商之名稱、地址及電話"}
+        {
+          "id": "A",
+          "text": "危害圖式"
+        },
+        {
+          "id": "B",
+          "text": "警示語"
+        },
+        {
+          "id": "C",
+          "text": "危害成分之化學文摘社登記號碼（CAS No.）"
+        },
+        {
+          "id": "D",
+          "text": "運輸時之聯合國編號（UN No.）"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "危害性化學品標示及通識規則第5條規定，容器應標示六大事項：危害圖式、警示語、危害警告訊息、危害防範措施、製造商或供應商之名稱地址及電話、產品名稱。四項均屬之。",
-      "references": [{"title": "危害性化學品標示及通識規則第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "危害性化學品標示及通識規則第5條規定，容器應標示六大事項：危害圖式、警示語、危害警告訊息、危害防範措施、製造商或供應商之名稱地址及電話、產品名稱。A、B均屬之故正確；C之CAS號碼及D之UN編號屬安全資料表或運輸之資訊，非容器標示之六大事項，故錯誤。",
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=5"
+        }
+      ]
     },
     {
       "id": "U26-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法第7條規定，暴露評估之頻率依分級結果而定，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "第一級每3年至少1次"},
-        {"id": "B", "text": "第二級每1年至少1次"},
-        {"id": "C", "text": "第三級每6個月至少1次"},
-        {"id": "D", "text": "第四級每3個月至少1次"}
+        {
+          "id": "A",
+          "text": "第二級每1年至少1次"
+        },
+        {
+          "id": "B",
+          "text": "第四級每3個月至少1次"
+        },
+        {
+          "id": "C",
+          "text": "第一級每5年至少1次"
+        },
+        {
+          "id": "D",
+          "text": "第三級每1年至少1次"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "危害性化學品評估及分級管理辦法第7條規定四級評估頻率：第一級每3年至少1次、第二級每1年至少1次、第三級每6個月至少1次、第四級每3個月至少1次。危害等級越高，評估頻率越高。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "危害性化學品評估及分級管理辦法第7條規定四級評估頻率：第一級每3年至少1次、第二級每1年至少1次、第三級每6個月至少1次、第四級每3個月至少1次。危害等級越高，評估頻率越高。A、B正確；C第一級應為每3年非每5年、D第三級應為每6個月非每1年，故均錯誤。",
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q027",
@@ -399,14 +895,34 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則第8條規定，下列哪些物品得免標示？（複選）",
       "options": [
-        {"id": "A", "text": "有害性廢棄物"},
-        {"id": "B", "text": "食品、飲料"},
-        {"id": "C", "text": "藥物、化妝品"},
-        {"id": "D", "text": "菸草或菸草製品"}
+        {
+          "id": "A",
+          "text": "藥物、化妝品"
+        },
+        {
+          "id": "B",
+          "text": "有害性廢棄物"
+        },
+        {
+          "id": "C",
+          "text": "工業用之有機溶劑"
+        },
+        {
+          "id": "D",
+          "text": "工業製程使用之化學原料"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "危害性化學品標示及通識規則第8條規定，有害性廢棄物、菸草或菸草製品、食品、飲料、藥物、化妝品等已受其他法規管制，得免依本規則標示。四項均屬免標示之範圍。",
-      "references": [{"title": "危害性化學品標示及通識規則第8條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=8"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "危害性化學品標示及通識規則第8條規定，有害性廢棄物、菸草或菸草製品、食品、飲料、藥物、化妝品等已受其他法規管制，得免依本規則標示。A、B均屬免標示範圍故正確；C有機溶劑及D工業製程化學原料仍應依本規則標示，非免標示範圍，故錯誤。",
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第8條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=8"
+        }
+      ]
     },
     {
       "id": "U26-Q028",
@@ -414,14 +930,34 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法規定，雇主對於危害性化學品之評估，應考量哪些因素？（複選）",
       "options": [
-        {"id": "A", "text": "健康危害"},
-        {"id": "B", "text": "暴露情形"},
-        {"id": "C", "text": "使用量"},
-        {"id": "D", "text": "勞工喜好"}
+        {
+          "id": "A",
+          "text": "勞工喜好"
+        },
+        {
+          "id": "B",
+          "text": "使用量"
+        },
+        {
+          "id": "C",
+          "text": "暴露情形"
+        },
+        {
+          "id": "D",
+          "text": "化學品之外觀顏色"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "職安法第11條及分級管理辦法規定，評估應考量健康危害、暴露情形及使用量等因素。D錯誤，勞工喜好非評估考量因素。評估結果作為分級管理之依據。",
-      "references": [{"title": "職業安全衛生法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=11"}]
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "職安法第11條及分級管理辦法規定，評估應考量健康危害、暴露情形及使用量等因素。評估結果作為分級管理之依據。B、C正確；A勞工喜好及D化學品外觀顏色均非評估考量因素，故錯誤。",
+      "references": [
+        {
+          "title": "職業安全衛生法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=11"
+        }
+      ]
     },
     {
       "id": "U26-Q029",
@@ -429,14 +965,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法規定，關於化學品管理之制度包括下列哪些？（複選）",
       "options": [
-        {"id": "A", "text": "標示及通識制度（第10條）"},
-        {"id": "B", "text": "評估及分級管理（第11條）"},
-        {"id": "C", "text": "新化學物質申報（第13條）"},
-        {"id": "D", "text": "管制性化學品許可（第14條）"}
+        {
+          "id": "A",
+          "text": "評估及分級管理（第11條）"
+        },
+        {
+          "id": "B",
+          "text": "標示及通識制度（第10條）"
+        },
+        {
+          "id": "C",
+          "text": "新化學物質申報（第13條）"
+        },
+        {
+          "id": "D",
+          "text": "化學品之進出口許可（第15條）"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職安法第10條（標示通識）、第11條（分級管理）、第13條（新化學物質）、第14條（管制性化學品）構成我國化學品管理之四大制度。四項均為職安法之化學品管理規定。",
-      "references": [{"title": "職業安全衛生法第10-14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "職安法第10條（標示通識）、第11條（分級管理）、第13條（新化學物質）、第14條（管制性化學品）構成我國化學品管理之四大制度。A、B、C均為職安法之化學品管理規定故正確；D化學品之進出口許可非職安法規定之化學品管理制度，故錯誤。",
+      "references": [
+        {
+          "title": "職業安全衛生法第10-14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q030",
@@ -444,14 +1001,35 @@
       "difficulty": "advanced",
       "stem": "依危害性化學品評估及分級管理辦法第9條規定，雇主對於第三級管理以上者，應採取哪些管理措施？（複選）",
       "options": [
-        {"id": "A", "text": "工程控制（如局部排氣裝置）"},
-        {"id": "B", "text": "行政管理（如作業時間限制）"},
-        {"id": "C", "text": "個人防護（如呼吸防護具）"},
-        {"id": "D", "text": "停止作業"}
+        {
+          "id": "A",
+          "text": "行政管理（如作業時間限制）"
+        },
+        {
+          "id": "B",
+          "text": "停止作業"
+        },
+        {
+          "id": "C",
+          "text": "個人防護（如呼吸防護具）"
+        },
+        {
+          "id": "D",
+          "text": "工程控制（如局部排氣裝置）"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第9條規定，第三級管理以上者應採工程控制、行政管理及個人防護三級管理。D錯誤，停止作業非分級管理辦法規定之措施，為其他法規之規定。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第9條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=9"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第9條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=9"
+        }
+      ]
     },
     {
       "id": "U26-Q031",
@@ -459,14 +1037,36 @@
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，安全資料表（SDS）之16項內容包括下列哪些？（複選）",
       "options": [
-        {"id": "A", "text": "物品與廠商資料"},
-        {"id": "B", "text": "危害辨識資料"},
-        {"id": "C", "text": "急救措施"},
-        {"id": "D", "text": "暴露預防措施"}
+        {
+          "id": "A",
+          "text": "暴露預防措施"
+        },
+        {
+          "id": "B",
+          "text": "危害辨識資料"
+        },
+        {
+          "id": "C",
+          "text": "急救措施"
+        },
+        {
+          "id": "D",
+          "text": "物品與廠商資料"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "安全資料表（SDS）16項內容包括：物品與廠商資料、危害辨識資料、成分辨識資料、急救措施、滅火措施、洩漏處理、處置與儲存、暴露預防措施等。四項均為SDS之內容項目。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q032",
@@ -474,14 +1074,35 @@
       "difficulty": "advanced",
       "stem": "依管制性化學品之指定及運作許可管理辦法規定，下列關於管制性化學品之叙述哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "運作許可有效期間為5年"},
-        {"id": "B", "text": "期滿需繼續運作者應於期滿前3至6個月申請展延"},
-        {"id": "D", "text": "每次展延不得超過5年"},
-        {"id": "D", "text": "許可有效期間為永久"}
+        {
+          "id": "A",
+          "text": "運作許可有效期間為5年"
+        },
+        {
+          "id": "B",
+          "text": "期滿需繼續運作者應於期滿前3至6個月申請展延"
+        },
+        {
+          "id": "C",
+          "text": "每次展延不得超過5年"
+        },
+        {
+          "id": "D",
+          "text": "許可有效期間為永久"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "管制性化學品之指定及運作許可管理辦法規定：運作許可有效期間為5年；期滿需繼續運作者應於期滿前3至6個月內申請展延；每次展延不得超過5年。D錯誤，非永久有效。",
-      "references": [{"title": "管制性化學品之指定及運作許可管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"}]
+      "references": [
+        {
+          "title": "管制性化學品之指定及運作許可管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"
+        }
+      ]
     },
     {
       "id": "U26-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "雇主對於危害性化學品之標示及通識，應依中央主管機關規定之標示及通識規則辦理。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安法第10條第1項明確規定，雇主對於危害性化學品之標示及通識，應依中央主管機關規定之標示及通識規則辦理，即危害性化學品標示及通識規則。",
-      "references": [{"title": "職業安全衛生法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "危害圖式為正方形轉45度之菱形，白底、紅色外框、黑色符號。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "危害性化學品標示及通識規則第7條規定，危害圖式為正方形旋轉45度之菱形，邊長最小1公分，白底、紅色外框、黑色符號。此為GHS調和制度之標準格式。",
-      "references": [{"title": "危害性化學品標示及通識規則第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=7"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "雇主應訂定危害通識計畫，並每三年評估一次。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "危害性化學品標示及通識規則第10條規定，雇主為推行危害通識制度，應訂定危害通識計畫，每三年評估一次，確保計畫之有效性及時效性。",
-      "references": [{"title": "危害性化學品標示及通識規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "advanced",
       "stem": "管制性化學品之運作許可有效期限為5年，期滿需繼續運作者應於期滿前3至6個月內申請展延。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管制性化學品之指定及運作許可管理辦法規定，運作許可有效期限為5年，期滿需繼續運作者應於期滿前3至6個月內申請展延，每次展延不得超過5年。確保管制性化學品之持續監管。",
-      "references": [{"title": "管制性化學品之指定及運作許可管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"}]
+      "references": [
+        {
+          "title": "管制性化學品之指定及運作許可管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"
+        }
+      ]
     },
     {
       "id": "U26-Q037",
@@ -541,84 +1214,163 @@
       "difficulty": "intermediate",
       "stem": "雇主對於危害性化學品之評估及分級管理，應每五年實施一次評估。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第5條規定，雇主應每三年（非五年）對危害性化學品實施一次評估。作業條件變更時，應即重新評估。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=5"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=5"
+        }
+      ]
     },
     {
       "id": "U26-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，警示語分為「________」及「警告」兩種。",
-      "answer": ["危險", "Danger"],
+      "answer": [
+        "危險",
+        "Danger"
+      ],
       "explanation": "危害性化學品標示及通識規則規定，警示語分為「危險」（Danger）及「警告」（Warning）兩種。「危險」用於較嚴重之危害分級，「警告」用於較輕之危害分級。此為GHS制度之標準。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，雇主應訂定危害通識計畫，每________年評估一次。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "危害性化學品標示及通識規則第10條規定，雇主應訂定危害通識計畫，每三年評估一次。計畫應包含危害性化學品清單、SDS、標示及教育訓練等事項。",
-      "references": [{"title": "危害性化學品標示及通識規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q040",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依管制性化學品之指定及運作許可管理辦法規定，運作許可之有效期間為________年。",
-      "answer": ["5", "五"],
+      "answer": [
+        "5",
+        "五"
+      ],
       "explanation": "管制性化學品之指定及運作許可管理辦法規定，運作許可之有效期間為5年。期滿需繼續運作者，應於期滿前3至6個月內申請展延，每次展延不得超過5年。",
-      "references": [{"title": "管制性化學品之指定及運作許可管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"}]
+      "references": [
+        {
+          "title": "管制性化學品之指定及運作許可管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"
+        }
+      ]
     },
     {
       "id": "U26-Q041",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依危害性化學品評估及分級管理辦法第4條規定，雇主對於危害性化學品之危害分類，應依國家標準________化學品分類及標示之規定辦理。",
-      "answer": ["CNS15030"],
+      "answer": [
+        "CNS15030"
+      ],
       "explanation": "危害性化學品評估及分級管理辦法第4條規定，雇主應依國家標準CNS15030化學品分類及標示之規定辦理危害分類。CNS15030為我國採用GHS調和制度之國家標準。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=4"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=4"
+        }
+      ]
     },
     {
       "id": "U26-Q042",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依危害性化學品標示及通識規則規定，安全資料表（SDS）包含________項內容。",
-      "answer": ["16", "十六"],
+      "answer": [
+        "16",
+        "十六"
+      ],
       "explanation": "安全資料表（SDS）包含16項內容：物品與廠商資料、危害辨識資料、成分辨識資料、急救措施、滅火措施、洩漏處理、處置與儲存、暴露預防、物理化學特性、安定性及反應性、毒性資料、生態資料、廢棄處置、運送資料、法規資料及其他資料等。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某工廠之危害通識計畫於2024年1月1日完成評估。依危害性化學品標示及通識規則第10條規定，下一次評估最遲應於幾年後完成？",
-      "answer": {"value": 3, "unit": "年", "tolerance": 0},
+      "answer": {
+        "value": 3,
+        "unit": "年",
+        "tolerance": 0
+      },
       "explanation": "危害性化學品標示及通識規則第10條規定，雇主應每三年對危害通識計畫評估一次。2024年1月1日完成後，下一次應於3年後（2027年1月1日前）完成。",
-      "references": [{"title": "危害性化學品標示及通識規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060054&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "某工廠之危害性化學品暴露評估結果為第四級管理。依危害性化學品評估及分級管理辦法第7條規定，下一次暴露評估應於幾個月內完成？",
-      "answer": {"value": 3, "unit": "個月", "tolerance": 0},
+      "answer": {
+        "value": 3,
+        "unit": "個月",
+        "tolerance": 0
+      },
       "explanation": "危害性化學品評估及分級管理辦法第7條規定，第四級管理者每3個月至少實施暴露評估1次。第四級為最高危害等級，評估頻率最密集，確保勞工暴露風險受控。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某公司之管制性化學品運作許可於2023年6月1日核發。依管制性化學品之指定及運作許可管理辦法規定，許可有效期至何年何月？以距核發日幾個月表示。",
-      "answer": {"value": 60, "unit": "個月", "tolerance": 1},
+      "answer": {
+        "value": 60,
+        "unit": "個月",
+        "tolerance": 1
+      },
       "explanation": "管制性化學品之指定及運作許可管理辦法規定，運作許可有效期間為5年（60個月）。2023年6月1日核發，有效期至2028年6月1日。期滿需繼續運作者應於期滿前3至6個月內申請展延。",
-      "references": [{"title": "管制性化學品之指定及運作許可管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"}]
+      "references": [
+        {
+          "title": "管制性化學品之指定及運作許可管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060068"
+        }
+      ]
     },
     {
       "id": "U26-Q046",
@@ -626,25 +1378,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列化學品管理制度與其法源依據正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "標示及通識制度"},
-        {"id": "L2", "text": "評估及分級管理"},
-        {"id": "L3", "text": "新化學物質申報"},
-        {"id": "L4", "text": "管制性化學品許可"}
+        {
+          "id": "L1",
+          "text": "標示及通識制度"
+        },
+        {
+          "id": "L2",
+          "text": "評估及分級管理"
+        },
+        {
+          "id": "L3",
+          "text": "新化學物質申報"
+        },
+        {
+          "id": "L4",
+          "text": "管制性化學品許可"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "職安法第10條"},
-        {"id": "R2", "text": "職安法第11條"},
-        {"id": "R3", "text": "職安法第13條"},
-        {"id": "R4", "text": "職安法第14條"}
+        {
+          "id": "R1",
+          "text": "職安法第10條"
+        },
+        {
+          "id": "R2",
+          "text": "職安法第11條"
+        },
+        {
+          "id": "R3",
+          "text": "職安法第13條"
+        },
+        {
+          "id": "R4",
+          "text": "職安法第14條"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "職安法第10條為標示通識、第11條為分級管理、第13條為新化學物質、第14條為管制性化學品。四項制度構成我國化學品管理之完整體系。",
-      "references": [{"title": "職業安全衛生法第10-14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第10-14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=10"
+        }
+      ]
     },
     {
       "id": "U26-Q047",
@@ -652,25 +1445,66 @@
       "difficulty": "advanced",
       "stem": "請將下列暴露評估分級與其評估頻率正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "第一級管理"},
-        {"id": "L2", "text": "第二級管理"},
-        {"id": "L3", "text": "第三級管理"},
-        {"id": "L4", "text": "第四級管理"}
+        {
+          "id": "L1",
+          "text": "第一級管理"
+        },
+        {
+          "id": "L2",
+          "text": "第二級管理"
+        },
+        {
+          "id": "L3",
+          "text": "第三級管理"
+        },
+        {
+          "id": "L4",
+          "text": "第四級管理"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "每3年至少1次"},
-        {"id": "R2", "text": "每1年至少1次"},
-        {"id": "R3", "text": "每6個月至少1次"},
-        {"id": "R4", "text": "每3個月至少1次"}
+        {
+          "id": "R1",
+          "text": "每3年至少1次"
+        },
+        {
+          "id": "R2",
+          "text": "每1年至少1次"
+        },
+        {
+          "id": "R3",
+          "text": "每6個月至少1次"
+        },
+        {
+          "id": "R4",
+          "text": "每3個月至少1次"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "危害性化學品評估及分級管理辦法第7條規定：第一級每3年、第二級每1年、第三級每6個月、第四級每3個月。危害等級越高，評估頻率越密集。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060070&flno=7"
+        }
+      ]
     },
     {
       "id": "U26-Q048",
@@ -678,25 +1512,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列化學品管理法規與其主要內容正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "危害性化學品標示及通識規則"},
-        {"id": "L2", "text": "危害性化學品評估及分級管理辦法"},
-        {"id": "L3", "text": "管制性化學品之指定及運作許可管理辦法"},
-        {"id": "L4", "text": "優先管理化學品之指定及運作管理辦法"}
+        {
+          "id": "L1",
+          "text": "危害性化學品標示及通識規則"
+        },
+        {
+          "id": "L2",
+          "text": "危害性化學品評估及分級管理辦法"
+        },
+        {
+          "id": "L3",
+          "text": "管制性化學品之指定及運作許可管理辦法"
+        },
+        {
+          "id": "L4",
+          "text": "優先管理化學品之指定及運作管理辦法"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "標示、SDS、危害通識計畫"},
-        {"id": "R2", "text": "分級管理、暴露評估"},
-        {"id": "R3", "text": "運作許可、有效期5年"},
-        {"id": "R4", "text": "運作資料報備查、加強管理"}
+        {
+          "id": "R1",
+          "text": "標示、SDS、危害通識計畫"
+        },
+        {
+          "id": "R2",
+          "text": "分級管理、暴露評估"
+        },
+        {
+          "id": "R3",
+          "text": "運作許可、有效期5年"
+        },
+        {
+          "id": "R4",
+          "text": "運作資料報備查、加強管理"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "標示通識規則規範標示及SDS等；分級管理辦法規範評估及分級；管制性化學品辦法規範運作許可（5年效期）；優先管理化學品辦法規範運作資料報備查。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     },
     {
       "id": "U26-Q049",
@@ -704,14 +1579,36 @@
       "difficulty": "advanced",
       "stem": "請依危害性化學品評估及分級管理辦法規定，將評估及管理之流程依正確順序排列：",
       "items": [
-        {"id": "I1", "text": "建立危害性化學品清單及安全資料表（SDS）"},
-        {"id": "I2", "text": "依CNS15030進行危害分類"},
-        {"id": "I3", "text": "進行暴露評估（作業環境監測或推估）"},
-        {"id": "I4", "text": "依評估結果分級並採取管理措施"}
+        {
+          "id": "I1",
+          "text": "建立危害性化學品清單及安全資料表（SDS）"
+        },
+        {
+          "id": "I2",
+          "text": "依CNS15030進行危害分類"
+        },
+        {
+          "id": "I3",
+          "text": "進行暴露評估（作業環境監測或推估）"
+        },
+        {
+          "id": "I4",
+          "text": "依評估結果分級並採取管理措施"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依危害性化學品評估及分級管理辦法，流程為：建立清單及SDS→依CNS15030危害分類→進行暴露評估→依評估結果分級並採取管理措施。每一步驟為下一步驟之基礎。",
-      "references": [{"title": "危害性化學品評估及分級管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"}]
+      "references": [
+        {
+          "title": "危害性化學品評估及分級管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060070"
+        }
+      ]
     },
     {
       "id": "U26-Q050",
@@ -719,14 +1616,36 @@
       "difficulty": "intermediate",
       "stem": "請依危害性化學品標示及通識規則規定，將危害通識制度之建立步驟依正確順序排列：",
       "items": [
-        {"id": "I1", "text": "製造者或供應者提供SDS及標示資料"},
-        {"id": "I2", "text": "雇主建立危害性化學品清單"},
-        {"id": "I3", "text": "雇主於容器張貼標示"},
-        {"id": "I4", "text": "雇主對勞工辦理危害通識教育訓練"}
+        {
+          "id": "I1",
+          "text": "製造者或供應者提供SDS及標示資料"
+        },
+        {
+          "id": "I2",
+          "text": "雇主建立危害性化學品清單"
+        },
+        {
+          "id": "I3",
+          "text": "雇主於容器張貼標示"
+        },
+        {
+          "id": "I4",
+          "text": "雇主對勞工辦理危害通識教育訓練"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依危害性化學品標示及通識規則，危害通識制度之建立順序為：製造者或供應者提供SDS及標示資料→雇主建立化學品清單→於容器張貼標示→對勞工辦理教育訓練。確保資訊傳遞之完整性。",
-      "references": [{"title": "危害性化學品標示及通識規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"}]
+      "references": [
+        {
+          "title": "危害性化學品標示及通識規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060054"
+        }
+      ]
     }
   ]
 }

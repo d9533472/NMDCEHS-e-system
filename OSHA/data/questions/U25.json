@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備裝設及作業，應依下列何者之規定辦理？",
       "options": [
-        {"id": "A", "text": "僅依雇主自訂標準"},
-        {"id": "B", "text": "電業法及電工技術法規"},
-        {"id": "C", "text": "僅依國際電工標準"},
-        {"id": "D", "text": "僅依廠商建議"}
+        {
+          "id": "A",
+          "text": "僅依雇主自訂標準"
+        },
+        {
+          "id": "B",
+          "text": "電業法及電工技術法規"
+        },
+        {
+          "id": "C",
+          "text": "僅依國際電工標準"
+        },
+        {
+          "id": "D",
+          "text": "僅依廠商建議"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第239條規定，雇主對於電氣設備之裝設、維護及操作，應依電業法及電工技術法規之規定辦理。電業法及電工技術法規為電氣安全之基本法規依據。",
-      "references": [{"title": "職業安全衛生設施規則第239條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=239"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第239條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=239"
+        }
+      ]
     },
     {
       "id": "U25-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於勞工作業場所之照明設備，其照明燈具距離地面多少公尺以下者，不得使用額定電壓超過多少伏特之燈具？",
       "options": [
-        {"id": "A", "text": "1.5公尺以下，不得超過110伏特"},
-        {"id": "B", "text": "2公尺以下，不得超過220伏特"},
-        {"id": "C", "text": "2.5公尺以下，不得超過24伏特"},
-        {"id": "D", "text": "3公尺以下，不得超過36伏特"}
+        {
+          "id": "A",
+          "text": "1.5公尺以下，不得超過110伏特"
+        },
+        {
+          "id": "B",
+          "text": "2公尺以下，不得超過220伏特"
+        },
+        {
+          "id": "C",
+          "text": "2.5公尺以下，不得超過24伏特"
+        },
+        {
+          "id": "D",
+          "text": "3公尺以下，不得超過36伏特"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第249條規定，雇主對於勞工工作場所之照明燈具距離地面二公尺以下者，不得使用額定電壓超過220伏特之燈具。潮濕或有導電性灰塵場所，則不得超過24伏特。",
-      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第249條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"
+        }
+      ]
     },
     {
       "id": "U25-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於勞工於良導體機器設備內或鋼架上等導電性良好場所作業時，其使用之照明燈具額定電壓不得超過多少伏特？",
       "options": [
-        {"id": "A", "text": "12伏特"},
-        {"id": "B", "text": "24伏特"},
-        {"id": "C", "text": "36伏特"},
-        {"id": "D", "text": "110伏特"}
+        {
+          "id": "A",
+          "text": "12伏特"
+        },
+        {
+          "id": "B",
+          "text": "24伏特"
+        },
+        {
+          "id": "C",
+          "text": "36伏特"
+        },
+        {
+          "id": "D",
+          "text": "110伏特"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第249條第2項規定，雇主對於勞工於良導體機器設備內或鋼架上等導電性良好場所作業時，其使用之照明燈具額定電壓不得超過24伏特。因導電性良好場所感電危險性高，故採用安全特低電壓。",
-      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第249條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"
+        }
+      ]
     },
     {
       "id": "U25-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電焊作業使用之電焊機，應設置何種裝置？",
       "options": [
-        {"id": "A", "text": "僅需接地即可"},
-        {"id": "B", "text": "自動電擊防止裝置"},
-        {"id": "C", "text": "僅需漏電斷路器"},
-        {"id": "D", "text": "不需任何裝置"}
+        {
+          "id": "A",
+          "text": "僅需接地即可"
+        },
+        {
+          "id": "B",
+          "text": "自動電擊防止裝置"
+        },
+        {
+          "id": "C",
+          "text": "僅需漏電斷路器"
+        },
+        {
+          "id": "D",
+          "text": "不需任何裝置"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第250條規定，雇主對於電焊作業使用之電焊機，應設置自動電擊防止裝置。但焊接機之一次側電壓在無載時之二次側電壓不超過規定值者，不在此限。",
-      "references": [{"title": "職業安全衛生設施規則第250條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=250"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第250條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=250"
+        }
+      ]
     },
     {
       "id": "U25-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備，為防止感電，應依下列何種方式辦理？",
       "options": [
-        {"id": "A", "text": "僅需口頭告知勞工注意"},
-        {"id": "B", "text": "電路設接地或裝設漏電斷路器，並採取適當防護措施"},
-        {"id": "C", "text": "僅需標示警告標語"},
-        {"id": "D", "text": "不需任何措施"}
+        {
+          "id": "A",
+          "text": "僅需口頭告知勞工注意"
+        },
+        {
+          "id": "B",
+          "text": "電路設接地或裝設漏電斷路器，並採取適當防護措施"
+        },
+        {
+          "id": "C",
+          "text": "僅需標示警告標語"
+        },
+        {
+          "id": "D",
+          "text": "不需任何措施"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於電氣設備，為防止勞工因接觸而感電，應將電路設接地或裝設漏電斷路器等裝置，並採取適當防護措施。此為防止感電之基本防護原則。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於停電作業，應確認下列何項後方可作業？",
       "options": [
-        {"id": "A", "text": "僅口頭確認停電即可"},
-        {"id": "B", "text": "以適當方法確認停電，並對開關加鎖或掛牌，標示警告標語"},
-        {"id": "C", "text": "僅需切斷開關即可"},
-        {"id": "D", "text": "僅需告知作業人員"}
+        {
+          "id": "A",
+          "text": "僅口頭確認停電即可"
+        },
+        {
+          "id": "B",
+          "text": "以適當方法確認停電，並對開關加鎖或掛牌，標示警告標語"
+        },
+        {
+          "id": "C",
+          "text": "僅需切斷開關即可"
+        },
+        {
+          "id": "D",
+          "text": "僅需告知作業人員"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第254條規定，雇主對於停電作業，應確認停電，並對開關加鎖或掛牌，標示「禁止送電」「有人工作」等警告標語。確認停電應以適當方法（如驗電筆）實際驗電。",
-      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第254條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"
+        }
+      ]
     },
     {
       "id": "U25-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於高壓電氣設備，應多久實施一次檢查？",
       "options": [
-        {"id": "A", "text": "每半年"},
-        {"id": "B", "text": "每一年"},
-        {"id": "C", "text": "每二年"},
-        {"id": "D", "text": "每三年"}
+        {
+          "id": "A",
+          "text": "每半年"
+        },
+        {
+          "id": "B",
+          "text": "每一年"
+        },
+        {
+          "id": "C",
+          "text": "每二年"
+        },
+        {
+          "id": "D",
+          "text": "每三年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第263條規定，雇主對於高壓電氣設備，應每年實施檢查一次。高壓電氣設備之定期檢查可及早發現潛在缺陷，防止電氣事故發生。",
-      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第263條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"
+        }
+      ]
     },
     {
       "id": "U25-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於低壓電氣設備，應多久實施一次定期檢查？",
       "options": [
-        {"id": "A", "text": "每半年"},
-        {"id": "B", "text": "每一年"},
-        {"id": "C", "text": "每二年"},
-        {"id": "D", "text": "每三年"}
+        {
+          "id": "A",
+          "text": "每半年"
+        },
+        {
+          "id": "B",
+          "text": "每一年"
+        },
+        {
+          "id": "C",
+          "text": "每二年"
+        },
+        {
+          "id": "D",
+          "text": "每三年"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於低壓電氣設備應每半年實施一次定期檢查。低壓設備雖電壓較低，但接觸機會多，故檢查頻率較高壓設備為高。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生管理辦法規定，雇主對於高壓電氣設備之定期檢查紀錄應保存多久？",
       "options": [
-        {"id": "A", "text": "一年"},
-        {"id": "B", "text": "二年"},
-        {"id": "C", "text": "三年"},
-        {"id": "D", "text": "五年"}
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "二年"
+        },
+        {
+          "id": "C",
+          "text": "三年"
+        },
+        {
+          "id": "D",
+          "text": "五年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法規定，雇主實施自動檢查之紀錄應保存三年。高壓電氣設備之定期檢查屬自動檢查之一環，其紀錄保存期限為三年。",
-      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U25-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則第276條規定，雇主為防止電氣災害，對於下列何項應採取必要措施？",
       "options": [
-        {"id": "A", "text": "僅防止感電"},
-        {"id": "B", "text": "僅防止電弧灼傷"},
-        {"id": "C", "text": "僅防止電氣火災"},
-        {"id": "D", "text": "防止感電、電弧灼傷、電氣火災及爆炸等12項"}
+        {
+          "id": "A",
+          "text": "僅防止感電"
+        },
+        {
+          "id": "B",
+          "text": "僅防止電弧灼傷"
+        },
+        {
+          "id": "C",
+          "text": "僅防止電氣火災"
+        },
+        {
+          "id": "D",
+          "text": "防止感電、電弧灼傷、電氣火災及爆炸等12項"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生設施規則第276條列舉了防止電氣災害之12項措施，包括：防止感電、電弧灼傷、電氣火災、爆炸等。涵蓋人員與設備之全面防護，非單一項目。",
-      "references": [{"title": "職業安全衛生設施規則第276條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第276條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"
+        }
+      ]
     },
     {
       "id": "U25-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於活線作業及活線接近作業，應使勞工使用下列何種防護具？",
       "options": [
-        {"id": "A", "text": "僅需安全帽"},
-        {"id": "B", "text": "僅需絕緣手套"},
-        {"id": "C", "text": "適當之防護具（絕緣用防護具、活線作業用器具等）"},
-        {"id": "D", "text": "不需任何防護具"}
+        {
+          "id": "A",
+          "text": "僅需安全帽"
+        },
+        {
+          "id": "B",
+          "text": "僅需絕緣手套"
+        },
+        {
+          "id": "C",
+          "text": "適當之防護具（絕緣用防護具、活線作業用器具等）"
+        },
+        {
+          "id": "D",
+          "text": "不需任何防護具"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於活線作業及活線接近作業，應使勞工使用適當之防護具，包括絕緣用防護具、活線作業用器具等，確保勞工在帶電狀態下之作業安全。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於勞工接近高壓電路作業時，其使用之移動電線或電氣器具，應有絕緣用防護裝置。所謂高壓係指多少伏特以上？",
       "options": [
-        {"id": "A", "text": "110伏特以上"},
-        {"id": "B", "text": "220伏特以上"},
-        {"id": "C", "text": "600伏特以上"},
-        {"id": "D", "text": "1000伏特以上"}
+        {
+          "id": "A",
+          "text": "110伏特以上"
+        },
+        {
+          "id": "B",
+          "text": "220伏特以上"
+        },
+        {
+          "id": "C",
+          "text": "600伏特以上"
+        },
+        {
+          "id": "D",
+          "text": "1000伏特以上"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "依電業法及電工技術法規規定，高壓係指600伏特以上之電壓。低壓為600伏特以下。職安設施規則亦以此為基準，區分高壓與低壓之防護要求。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "advanced",
       "stem": "依勞動檢查法第28條認定標準規定，勞工於高度多少公尺以上之高壓電路作業場所從事作業，屬於危險性工作場所？",
       "options": [
-        {"id": "A", "text": "1.5公尺以上"},
-        {"id": "B", "text": "2公尺以上"},
-        {"id": "C", "text": "3公尺以上"},
-        {"id": "D", "text": "5公尺以上"}
+        {
+          "id": "A",
+          "text": "1.5公尺以上"
+        },
+        {
+          "id": "B",
+          "text": "2公尺以上"
+        },
+        {
+          "id": "C",
+          "text": "3公尺以上"
+        },
+        {
+          "id": "D",
+          "text": "5公尺以上"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "勞動檢查法第28條認定標準第4條規定，勞工於高度2公尺以上之高壓電路作業場所從事作業，屬危險性工作場所，應向勞動檢查機構申報審查。2公尺為墜落危險與高壓感電雙重風險之門檻。",
-      "references": [{"title": "勞動檢查法第28條認定標準第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=4"}]
+      "references": [
+        {
+          "title": "勞動檢查法第28條認定標準第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=4"
+        }
+      ]
     },
     {
       "id": "U25-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備之外殺或鐵箱，有下列何種情形者應予接地？",
       "options": [
-        {"id": "A", "text": "僅高壓設備"},
-        {"id": "B", "text": "僅低壓設備"},
-        {"id": "C", "text": "高壓電氣設備之鐵箱、非帶電金屬部分等有因絕緣劣化而帶電之虞者"},
-        {"id": "D", "text": "所有設備均不需接地"}
+        {
+          "id": "A",
+          "text": "僅高壓設備"
+        },
+        {
+          "id": "B",
+          "text": "僅低壓設備"
+        },
+        {
+          "id": "C",
+          "text": "高壓電氣設備之鐵箱、非帶電金屬部分等有因絕緣劣化而帶電之虞者"
+        },
+        {
+          "id": "D",
+          "text": "所有設備均不需接地"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於高壓電氣設備之鐵箱、非帶電金屬部分等有因絕緣劣化致生危險之虞者，應予接地。接地可將漏電電流導入大地，降低接觸電壓，保護人員安全。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣作業，為防止電弧灼傷，應使勞工使用下列何種防護具？",
       "options": [
-        {"id": "A", "text": "僅需安全帽"},
-        {"id": "B", "text": "僅需手套"},
-        {"id": "C", "text": "防護面罩、防弧閃衣物等適當防護具"},
-        {"id": "D", "text": "不需任何防護具"}
+        {
+          "id": "A",
+          "text": "僅需安全帽"
+        },
+        {
+          "id": "B",
+          "text": "僅需手套"
+        },
+        {
+          "id": "C",
+          "text": "防護面罩、防弧閃衣物等適當防護具"
+        },
+        {
+          "id": "D",
+          "text": "不需任何防護具"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於電氣作業為防止電弧灼傷，應使勞工使用防護面罩、防弧閃衣物等適當防護具。電弧溫度可達數千度，單一防護具不足以提供完整保護。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備裝設場所或其外殼，有下列何種情形者應標示何種標語？",
       "options": [
-        {"id": "A", "text": "僅標示型號即可"},
-        {"id": "B", "text": "標示「危險」「高壓危險」等警告標語"},
-        {"id": "C", "text": "不需標示"},
-        {"id": "D", "text": "僅標示電壓值"}
+        {
+          "id": "A",
+          "text": "僅標示型號即可"
+        },
+        {
+          "id": "B",
+          "text": "標示「危險」「高壓危險」等警告標語"
+        },
+        {
+          "id": "C",
+          "text": "不需標示"
+        },
+        {
+          "id": "D",
+          "text": "僅標示電壓值"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於電氣設備之裝設場所或其外殼，應標示「危險」「高壓危險」等警告標語。標示應明顯且不易磨損，以提醒作業人員及非作業人員注意安全。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於從事電氣工作之勞工，應使其具備何種資格或能力？",
       "options": [
-        {"id": "A", "text": "任何人均可從事"},
-        {"id": "B", "text": "應使其具備從事該項工作所需之知識及技能，並使其確實遵守電氣安全規定"},
-        {"id": "C", "text": "僅需年滿18歲"},
-        {"id": "D", "text": "僅需體檢合格"}
+        {
+          "id": "A",
+          "text": "任何人均可從事"
+        },
+        {
+          "id": "B",
+          "text": "應使其具備從事該項工作所需之知識及技能，並使其確實遵守電氣安全規定"
+        },
+        {
+          "id": "C",
+          "text": "僅需年滿18歲"
+        },
+        {
+          "id": "D",
+          "text": "僅需體檢合格"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於從事電氣工作之勞工，應使其具備從事該項工作所需之知識及技能，並使其確實遵守電氣安全有關規定。電氣工作具高度危險性，須確保作業人員之專業能力。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣開關箱，下列何項正確？",
       "options": [
-        {"id": "A", "text": "可作為物品堆放場所"},
-        {"id": "B", "text": "箱內可放置工具雜物"},
-        {"id": "C", "text": "不得作為其他用途，並禁止放置雜物"},
-        {"id": "D", "text": "可任意修改開關箱結構"}
+        {
+          "id": "A",
+          "text": "可作為物品堆放場所"
+        },
+        {
+          "id": "B",
+          "text": "箱內可放置工具雜物"
+        },
+        {
+          "id": "C",
+          "text": "不得作為其他用途，並禁止放置雜物"
+        },
+        {
+          "id": "D",
+          "text": "可任意修改開關箱結構"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於電氣開關箱，不得作為其他用途，並禁止放置雜物。開關箱內應保持清潔，避免雜物影響開關操作或造成短路，確保電氣安全。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於配電盤及分電盤，為防止電弧或短路危害，應有什麼措施？",
       "options": [
-        {"id": "A", "text": "僅需標示電壓"},
-        {"id": "B", "text": "應有適當之防護，防止人員觸及帶電部分"},
-        {"id": "C", "text": "不需任何措施"},
-        {"id": "D", "text": "僅需口頭告知"}
+        {
+          "id": "A",
+          "text": "僅需標示電壓"
+        },
+        {
+          "id": "B",
+          "text": "應有適當之防護，防止人員觸及帶電部分"
+        },
+        {
+          "id": "C",
+          "text": "不需任何措施"
+        },
+        {
+          "id": "D",
+          "text": "僅需口頭告知"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於配電盤及分電盤，應有適當之防護，防止人員觸及帶電部分。防護方式包括設置護網、護罩或將配電盤設置於專用空間等。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於高壓或特別高壓用之開關，應採用何種型式？",
       "options": [
-        {"id": "A", "text": "任何型式均可"},
-        {"id": "B", "text": "應能從負載側遮斷，且具有足夠之啟斷容量"},
-        {"id": "C", "text": "僅需能切斷電源即可"},
-        {"id": "D", "text": "不需考慮啟斷容量"}
+        {
+          "id": "A",
+          "text": "任何型式均可"
+        },
+        {
+          "id": "B",
+          "text": "應能從負載側遮斷，且具有足夠之啟斷容量"
+        },
+        {
+          "id": "C",
+          "text": "僅需能切斷電源即可"
+        },
+        {
+          "id": "D",
+          "text": "不需考慮啟斷容量"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於高壓或特別高壓用之開關，應能從負載側遮斷，且具有足夠之啟斷容量。若啟斷容量不足，可能於遮斷時產生電弧無法熄滅，導致爆炸火災。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於臨時用電或臨時配線，應由何人負責管理？",
       "options": [
-        {"id": "A", "text": "由作業勞工自行管理"},
-        {"id": "B", "text": "由雇主指定專人負責管理，並使用合格之電線及器材"},
-        {"id": "C", "text": "不需管理"},
-        {"id": "D", "text": "由工會管理"}
+        {
+          "id": "A",
+          "text": "由作業勞工自行管理"
+        },
+        {
+          "id": "B",
+          "text": "由雇主指定專人負責管理，並使用合格之電線及器材"
+        },
+        {
+          "id": "C",
+          "text": "不需管理"
+        },
+        {
+          "id": "D",
+          "text": "由工會管理"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於臨時用電或臨時配線，應指定專人負責管理，使用合格之電線及器材，並於使用後迅速拆除。臨時配線常因管理不善而造成感電或火災事故。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於易燃性液體或可燃性氣體等危險物質之場所，其電氣設備應使用何種型式？",
       "options": [
-        {"id": "A", "text": "一般型電氣設備"},
-        {"id": "B", "text": "防爆型電氣設備"},
-        {"id": "C", "text": "任何型式均可"},
-        {"id": "D", "text": "僅需接地即可"}
+        {
+          "id": "A",
+          "text": "一般型電氣設備"
+        },
+        {
+          "id": "B",
+          "text": "防爆型電氣設備"
+        },
+        {
+          "id": "C",
+          "text": "任何型式均可"
+        },
+        {
+          "id": "D",
+          "text": "僅需接地即可"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於易燃性液體、可燃性氣體等危險物質之製造、儲存或處理場所，其電氣設備應使用防爆型電氣設備，防止電氣火花引燃危險物質造成爆炸火災。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備之操作，下列何項正確？",
       "options": [
-        {"id": "A", "text": "潮濕手部可操作電氣開關"},
-        {"id": "B", "text": "不可使勞工以潮濕手部操作電氣開關或接觸電氣設備"},
-        {"id": "C", "text": "可穿濕衣服操作電氣設備"},
-        {"id": "D", "text": "無特殊限制"}
+        {
+          "id": "A",
+          "text": "潮濕手部可操作電氣開關"
+        },
+        {
+          "id": "B",
+          "text": "不可使勞工以潮濕手部操作電氣開關或接觸電氣設備"
+        },
+        {
+          "id": "C",
+          "text": "可穿濕衣服操作電氣設備"
+        },
+        {
+          "id": "D",
+          "text": "無特殊限制"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主不可使勞工以潮濕手部操作電氣開關或接觸電氣設備。潮濕手部皮膚阻抗大幅降低，感電危險性顯著增加，為基本電氣安全規定。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備之裝設，其與可燃物之間應保持多少以上之距離或隔離？",
       "options": [
-        {"id": "A", "text": "不需保持距離"},
-        {"id": "B", "text": "應保持適當距離或設置不燃性隔板等隔離措施"},
-        {"id": "C", "text": "僅需標示即可"},
-        {"id": "D", "text": "可任意設置"}
+        {
+          "id": "A",
+          "text": "不需保持距離"
+        },
+        {
+          "id": "B",
+          "text": "應保持適當距離或設置不燃性隔板等隔離措施"
+        },
+        {
+          "id": "C",
+          "text": "僅需標示即可"
+        },
+        {
+          "id": "D",
+          "text": "可任意設置"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於電氣設備之裝設，其與可燃物之間應保持適當距離或設置不燃性隔板等隔離措施。防止電氣設備之高溫或火花引燃可燃物造成火災。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主為防止電氣災害，對於下列哪些事項應採取必要措施？（複選）",
       "options": [
-        {"id": "A", "text": "防止感電"},
-        {"id": "B", "text": "防止電弧灼傷"},
-        {"id": "C", "text": "防止電氣火災"},
-        {"id": "D", "text": "防止爆炸"}
+        {
+          "id": "A",
+          "text": "防止感電"
+        },
+        {
+          "id": "B",
+          "text": "防止電氣火災"
+        },
+        {
+          "id": "C",
+          "text": "防止機械夾捲"
+        },
+        {
+          "id": "D",
+          "text": "防止墜落災害"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職安設施規則第276條列舉防止電氣災害之12項措施，包括防止感電、電弧灼傷、電氣火災、爆炸等。四項均為防止電氣災害之必要措施。",
-      "references": [{"title": "職業安全衛生設施規則第276條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職安設施規則第276條列舉防止電氣災害之12項措施，包括防止感電、電弧灼傷、電氣火災、爆炸等。防止機械夾捲及防止墜落屬其他類型災害之預防，非屬本條所定防止電氣災害之措施。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第276條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"
+        }
+      ]
     },
     {
       "id": "U25-Q026",
@@ -384,14 +860,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備之防護措施，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "電路設接地"},
-        {"id": "B", "text": "裝設漏電斷路器"},
-        {"id": "C", "text": "標示「高壓危險」等警告標語"},
-        {"id": "D", "text": "禁止放置雜物於開關箱內"}
+        {
+          "id": "A",
+          "text": "裝設漏電斷路器"
+        },
+        {
+          "id": "B",
+          "text": "電路設接地"
+        },
+        {
+          "id": "C",
+          "text": "禁止放置雜物於開關箱內"
+        },
+        {
+          "id": "D",
+          "text": "電氣設備外殼應全面塗裝反光警示色"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職安設施規則規定，防止電氣災害之基本措施包括接地（第252條相關）、裝設漏電斷路器、標示警告標語、開關箱禁止放置雜物等。四項均為正確之電氣安全措施。",
-      "references": [{"title": "職業安全衛生設施規則第276條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "職安設施規則規定，防止電氣災害之基本措施包括接地、裝設漏電斷路器、開關箱禁止放置雜物、標示警告標語等。D錯誤，塗裝反光警示色非屬電氣設備防護之法定措施，應標示「高壓危險」等警告標語。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第276條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"
+        }
+      ]
     },
     {
       "id": "U25-Q027",
@@ -399,14 +896,34 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於停電作業，應採取哪些步驟？（複選）",
       "options": [
-        {"id": "A", "text": "確認停電（驗電）"},
-        {"id": "B", "text": "對開關加鎖"},
-        {"id": "C", "text": "標示「禁止送電」「有人工作」等警告標語"},
-        {"id": "D", "text": "可直接在帶電狀態下作業"}
+        {
+          "id": "A",
+          "text": "對開關加鎖"
+        },
+        {
+          "id": "B",
+          "text": "確認停電（驗電）"
+        },
+        {
+          "id": "C",
+          "text": "可直接在帶電狀態下作業"
+        },
+        {
+          "id": "D",
+          "text": "以手觸碰導體確認停電"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "職安設施規則第254條規定，停電作業應確認停電（驗電）、對開關加鎖或掛牌、標示警告標語。D錯誤，帶電作業屬活線作業，須有特殊防護措施，非一般停電作業程序。",
-      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職安設施規則第254條規定，停電作業應確認停電（驗電）、對開關加鎖或掛牌、標示警告標語。D錯誤，應以檢電器具確認停電，不得以手觸碰導體方式驗電；C錯誤，帶電作業屬活線作業，須有特殊防護措施，非一般停電作業程序。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第254條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"
+        }
+      ]
     },
     {
       "id": "U25-Q028",
@@ -414,14 +931,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，下列哪些場所之照明燈具額定電壓不得超過24伏特？（複選）",
       "options": [
-        {"id": "A", "text": "潮濕場所"},
-        {"id": "B", "text": "有導電性灰塵之場所"},
-        {"id": "C", "text": "良導體機器設備內部"},
-        {"id": "D", "text": "乾燥之辦公室"}
+        {
+          "id": "A",
+          "text": "乾燥之辦公室"
+        },
+        {
+          "id": "B",
+          "text": "潮濕場所"
+        },
+        {
+          "id": "C",
+          "text": "良導體機器設備內部"
+        },
+        {
+          "id": "D",
+          "text": "有導電性灰塵之場所"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "職安設施規則第249條規定，潮濕或有導電性灰塵之場所、良導體機器設備內或鋼架上等導電性良好場所，照明燈具額定電壓不得超過24伏特。D錯誤，乾燥辦公室無此限制。",
-      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第249條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"
+        }
+      ]
     },
     {
       "id": "U25-Q029",
@@ -429,14 +967,35 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則及相關規定，雇主對於活線作業及活線接近作業，應採取哪些措施？（複選）",
       "options": [
-        {"id": "A", "text": "使勞工使用適當之絕緣用防護具"},
-        {"id": "B", "text": "使用活線作業用器具"},
-        {"id": "C", "text": "設置監視人員"},
-        {"id": "D", "text": "可不採取任何措施直接作業"}
+        {
+          "id": "A",
+          "text": "設置監視人員"
+        },
+        {
+          "id": "B",
+          "text": "可不採取任何措施直接作業"
+        },
+        {
+          "id": "C",
+          "text": "使勞工使用適當之絕緣用防護具"
+        },
+        {
+          "id": "D",
+          "text": "使用活線作業用器具"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "C",
+        "D"
+      ],
       "explanation": "職安設施規則規定，活線作業及活線接近作業應使勞工使用適當防護具（絕緣手套、絕緣靴等）、活線作業用器具（絕緣桿等），並設置監視人員。D錯誤，活線作業具有高感電風險，必須採取防護措施。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q030",
@@ -444,14 +1003,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備之定期檢查，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "高壓電氣設備每年檢查一次"},
-        {"id": "B", "text": "低壓電氣設備每半年檢查一次"},
-        {"id": "C", "text": "檢查紀錄應保存三年"},
-        {"id": "D", "text": "不需保存檢查紀錄"}
+        {
+          "id": "A",
+          "text": "不需保存檢查紀錄"
+        },
+        {
+          "id": "B",
+          "text": "高壓電氣設備每年檢查一次"
+        },
+        {
+          "id": "C",
+          "text": "檢查紀錄應保存三年"
+        },
+        {
+          "id": "D",
+          "text": "低壓電氣設備每半年檢查一次"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "職安設施規則第263條規定高壓電氣設備每年檢查一次，低壓電氣設備每半年檢查一次。依職業安全衛生管理辦法，自動檢查紀錄應保存三年。D錯誤，紀錄必須保存。",
-      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第263條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"
+        }
+      ]
     },
     {
       "id": "U25-Q031",
@@ -459,14 +1039,34 @@
       "difficulty": "advanced",
       "stem": "依勞動檢查法第28條認定標準規定，下列哪些情形屬於危險性工作場所？（複選）",
       "options": [
-        {"id": "A", "text": "高度2公尺以上之高壓電路作業場所"},
-        {"id": "B", "text": "從事危險物或有機溶劑之製造場所"},
-        {"id": "C", "text": "從事特定化學物質之製造場所"},
-        {"id": "D", "text": "一般辦公室"}
+        {
+          "id": "A",
+          "text": "高度2公尺以上之高壓電路作業場所"
+        },
+        {
+          "id": "B",
+          "text": "從事危險物或有機溶劑之製造場所"
+        },
+        {
+          "id": "C",
+          "text": "一般機械組裝廠房"
+        },
+        {
+          "id": "D",
+          "text": "一般辦公室"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "勞動檢查法第28條認定標準規定，高度2公尺以上之高壓電路作業場所、危險物或有機溶劑製造場所、特定化學物質製造場所等均屬危險性工作場所。D錯誤，一般辦公室不屬之。",
-      "references": [{"title": "勞動檢查法第28條認定標準第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=4"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "勞動檢查法第28條認定標準規定，高度2公尺以上之高壓電路作業場所、危險物或有機溶劑製造場所、特定化學物質製造場所等均屬危險性工作場所。C錯誤，一般機械組裝廠房非屬危險性工作場所；D錯誤，一般辦公室不屬之。",
+      "references": [
+        {
+          "title": "勞動檢查法第28條認定標準第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=4"
+        }
+      ]
     },
     {
       "id": "U25-Q032",
@@ -474,14 +1074,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電氣設備之接地，下列哪些叙述正確？（複選）",
       "options": [
-        {"id": "A", "text": "高壓電氣設備之非帶電金屬部分應予接地"},
-        {"id": "B", "text": "接地之目的為將漏電電流導入大地"},
-        {"id": "C", "text": "接地可降低接觸電壓保護人員安全"},
-        {"id": "D", "text": "接地線可隨意拆除"}
+        {
+          "id": "A",
+          "text": "接地線可隨意拆除"
+        },
+        {
+          "id": "B",
+          "text": "高壓電氣設備之非帶電金屬部分應予接地"
+        },
+        {
+          "id": "C",
+          "text": "接地可降低接觸電壓保護人員安全"
+        },
+        {
+          "id": "D",
+          "text": "接地之目的為將漏電電流導入大地"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "職安設施規則規定，高壓電氣設備之非帶電金屬部分應予接地，目的為將漏電電流導入大地、降低接觸電壓保護人員。D錯誤，接地線不得隨意拆除，為電氣安全之重要措施。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "雇主對於電氣設備之裝設及作業，應依電業法及電工技術法規之規定辦理。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安設施規則第239條明確規定，雇主對於電氣設備之裝設、維護及操作，應依電業法及電工技術法規之規定辦理。此為電氣安全之基本法規依據。",
-      "references": [{"title": "職業安全衛生設施規則第239條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=239"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第239條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=239"
+        }
+      ]
     },
     {
       "id": "U25-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "雇主對於電焊機應設置自動電擊防止裝置，但焊接機之一次側電壓在無載時之二次側電壓不超過規定值者，不在此限。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安設施規則第250條規定，雇主對於電焊機應設置自動電擊防止裝置，但焊接機之二次側無載電壓不超過規定值者，因電壓已在安全範圍內，不在此限。",
-      "references": [{"title": "職業安全衛生設施規則第250條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=250"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第250條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=250"
+        }
+      ]
     },
     {
       "id": "U25-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "雇主對於停電作業，僅需切斷開關即可，不需確認停電或加鎖掛牌。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安設施規則第254條規定，停電作業應確認停電（驗電）、對開關加鎖或掛牌、標示警告標語。僅切斷開關不足以確保安全，可能因誤送電或殘餘電荷造成感電事故。",
-      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第254條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"
+        }
+      ]
     },
     {
       "id": "U25-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，高壓電氣設備應每年檢查一次，低壓電氣設備應每半年檢查一次。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職安設施規則第263條規定，高壓電氣設備應每年檢查一次；低壓電氣設備則應每半年檢查一次。低壓設備因接觸機會多，檢查頻率較高。",
-      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第263條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"
+        }
+      ]
     },
     {
       "id": "U25-Q037",
@@ -541,84 +1214,162 @@
       "difficulty": "intermediate",
       "stem": "雇主可使勞工以潮濕手部操作電氣開關，只要穿著絕緣鞋即可。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職安設施規則明確規定，雇主不可使勞工以潮濕手部操作電氣開關或接觸電氣設備。潮濕手部皮膚阻抗大幅降低，即使穿著絕緣鞋仍不足以防止感電，為基本電氣安全禁止事項。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於勞工於良導體機器設備內或鋼架上等導電性良好場所作業時，其使用之照明燈具額定電壓不得超過________伏特。",
-      "answer": ["24", "二十四"],
+      "answer": [
+        "24",
+        "二十四"
+      ],
       "explanation": "職安設施規則第249條第2項規定，導電性良好場所作業之照明燈具額定電壓不得超過24伏特。此為安全特低電壓（SELV），可有效防止感電事故。",
-      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第249條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"
+        }
+      ]
     },
     {
       "id": "U25-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於電焊作業使用之電焊機，應設置________裝置。",
-      "answer": ["自動電擊防止"],
+      "answer": [
+        "自動電擊防止"
+      ],
       "explanation": "職安設施規則第250條規定，雇主對於電焊作業使用之電焊機，應設置自動電擊防止裝置。該裝置可在不焊接時自動降低二次側電壓至安全值，防止感電。",
-      "references": [{"title": "職業安全衛生設施規則第250條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=250"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第250條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=250"
+        }
+      ]
     },
     {
       "id": "U25-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則規定，雇主對於高壓電氣設備，應每年實施檢查________次。",
-      "answer": ["1", "一"],
+      "answer": [
+        "1",
+        "一"
+      ],
       "explanation": "職安設施規則第263條規定，雇主對於高壓電氣設備，應每年實施檢查一次。定期檢查可及早發現絕緣劣化、接點鬆動等潛在缺陷，防止電氣事故。",
-      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第263條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"
+        }
+      ]
     },
     {
       "id": "U25-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則規定，雇主對於停電作業，應確認停電，並對開關加鎖或________，標示警告標語。",
-      "answer": ["掛牌"],
+      "answer": [
+        "掛牌"
+      ],
       "explanation": "職安設施規則第254條規定，停電作業應確認停電（驗電），並對開關加鎖或掛牌，標示「禁止送電」「有人工作」等警告標語。此為「上鎖掛牌」（LOTO）程序之核心要求。",
-      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第254條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"
+        }
+      ]
     },
     {
       "id": "U25-Q042",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依勞動檢查法第28條認定標準規定，勞工於高度________公尺以上之高壓電路作業場所從事作業，屬於危險性工作場所。",
-      "answer": ["2", "二"],
+      "answer": [
+        "2",
+        "二"
+      ],
       "explanation": "勞動檢查法第28條認定標準第4條規定，高度2公尺以上之高壓電路作業場所從事作業屬危險性工作場所。2公尺為墜落危險與高壓感電雙重風險之門檻，應向勞動檢查機構申報審查。",
-      "references": [{"title": "勞動檢查法第28條認定標準第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=4"}]
+      "references": [
+        {
+          "title": "勞動檢查法第28條認定標準第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0070016&flno=4"
+        }
+      ]
     },
     {
       "id": "U25-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某工廠之照明燈具距離地面1.8公尺，作業場所為乾燥環境。依職業安全衛生設施規則第249條，該燈具之額定電壓最高不得超過多少伏特？",
-      "answer": {"value": 220, "unit": "伏特", "tolerance": 0},
+      "answer": {
+        "value": 220,
+        "unit": "伏特",
+        "tolerance": 0
+      },
       "explanation": "職安設施規則第249條規定，照明燈具距地面二公尺以下者，不得使用額定電壓超過220伏特之燈具。1.8公尺在二公尺以下，乾燥環境適用220伏特之限制。潮濕或導電性良好場所則為24伏特。",
-      "references": [{"title": "職業安全衛生設施規則第249條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第249條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=249"
+        }
+      ]
     },
     {
       "id": "U25-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "某工廠之高壓電氣設備於2025年1月15日完成年度定期檢查。依職業安全衛生設施規則第263條規定，下一次定期檢查最遲應於何時完成？（以2025年起算第幾天表示，1月15日為第15天）",
-      "answer": {"value": 380, "unit": "天", "tolerance": 5},
+      "answer": {
+        "value": 380,
+        "unit": "天",
+        "tolerance": 5
+      },
       "explanation": "職安設施規則第263條規定高壓電氣設備應每年檢查一次。2025年1月15日完成後，下一次應於一年後（2026年1月15日前）完成。2025年非閏年有365天，1月15日為第15天，加365天約為第380天（2026年1月15日左右）。",
-      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第263條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"
+        }
+      ]
     },
     {
       "id": "U25-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某工廠之低壓電氣設備於2025年3月1日完成定期檢查。依職業安全衛生設施規則規定，低壓電氣設備每半年檢查一次。下一次定期檢查最遲應於幾個月後完成？",
-      "answer": {"value": 6, "unit": "個月", "tolerance": 0},
+      "answer": {
+        "value": 6,
+        "unit": "個月",
+        "tolerance": 0
+      },
       "explanation": "職安設施規則規定，低壓電氣設備應每半年檢查一次。2025年3月1日完成後，下一次應於6個月後（2025年9月1日前）完成。低壓設備因接觸機會多，檢查頻率較高壓設備（每年一次）為高。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q046",
@@ -626,25 +1377,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列電氣設備與其定期檢查頻率正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "高壓電氣設備"},
-        {"id": "L2", "text": "低壓電氣設備"},
-        {"id": "L3", "text": "化學設備"},
-        {"id": "L4", "text": "局部排氣裝置"}
+        {
+          "id": "L1",
+          "text": "高壓電氣設備"
+        },
+        {
+          "id": "L2",
+          "text": "低壓電氣設備"
+        },
+        {
+          "id": "L3",
+          "text": "化學設備"
+        },
+        {
+          "id": "L4",
+          "text": "局部排氣裝置"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "每年一次"},
-        {"id": "R2", "text": "每半年一次"},
-        {"id": "R3", "text": "每二年一次"},
-        {"id": "R4", "text": "每年一次"}
+        {
+          "id": "R1",
+          "text": "每年一次"
+        },
+        {
+          "id": "R2",
+          "text": "每半年一次"
+        },
+        {
+          "id": "R3",
+          "text": "每二年一次"
+        },
+        {
+          "id": "R4",
+          "text": "每年一次"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "依職安設施規則及職安管理辦法：高壓電氣設備每年一次、低壓電氣設備每半年一次、化學設備每二年一次、局部排氣裝置每年一次。各設備之檢查頻率因其危險性及使用特性而定。",
-      "references": [{"title": "職業安全衛生設施規則第263條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第263條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=263"
+        }
+      ]
     },
     {
       "id": "U25-Q047",
@@ -652,25 +1444,66 @@
       "difficulty": "advanced",
       "stem": "請將下列電氣安全法規條文與其主要內容正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "職安設施規則第239條"},
-        {"id": "L2", "text": "職安設施規則第249條"},
-        {"id": "L3", "text": "職安設施規則第250條"},
-        {"id": "L4", "text": "職安設施規則第254條"}
+        {
+          "id": "L1",
+          "text": "職安設施規則第239條"
+        },
+        {
+          "id": "L2",
+          "text": "職安設施規則第249條"
+        },
+        {
+          "id": "L3",
+          "text": "職安設施規則第250條"
+        },
+        {
+          "id": "L4",
+          "text": "職安設施規則第254條"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "電氣設備依電業法及電工法規辦理"},
-        {"id": "R2", "text": "照明燈具電壓限制"},
-        {"id": "R3", "text": "電焊機自動電擊防止裝置"},
-        {"id": "R4", "text": "停電作業確認停電及加鎖掛牌"}
+        {
+          "id": "R1",
+          "text": "電氣設備依電業法及電工法規辦理"
+        },
+        {
+          "id": "R2",
+          "text": "照明燈具電壓限制"
+        },
+        {
+          "id": "R3",
+          "text": "電焊機自動電擊防止裝置"
+        },
+        {
+          "id": "R4",
+          "text": "停電作業確認停電及加鎖掛牌"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "第239條為電氣設備基本法規依據；第249條規定照明燈具電壓限制（2公尺以下220V，導電場所24V）；第250條規定電焊機應設自動電擊防止裝置；第254條規定停電作業之上鎖掛牌程序。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q048",
@@ -678,25 +1511,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列電壓等級與其定義正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "低壓"},
-        {"id": "L2", "text": "高壓"},
-        {"id": "L3", "text": "安全特低電壓"},
-        {"id": "L4", "text": "特別高壓"}
+        {
+          "id": "L1",
+          "text": "低壓"
+        },
+        {
+          "id": "L2",
+          "text": "高壓"
+        },
+        {
+          "id": "L3",
+          "text": "安全特低電壓"
+        },
+        {
+          "id": "L4",
+          "text": "特別高壓"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "600伏特以下"},
-        {"id": "R2", "text": "600伏特以上"},
-        {"id": "R3", "text": "24伏特以下"},
-        {"id": "R4", "text": "10,000伏特以上"}
+        {
+          "id": "R1",
+          "text": "600伏特以下"
+        },
+        {
+          "id": "R2",
+          "text": "600伏特以上"
+        },
+        {
+          "id": "R3",
+          "text": "24伏特以下"
+        },
+        {
+          "id": "R4",
+          "text": "10,000伏特以上"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "依電業法及電工技術法規：低壓為600伏特以下、高壓為600伏特以上；安全特低電壓（SELV）為24伏特以下，用於潮濕或導電性良好場所；特別高壓為10,000伏特以上。",
-      "references": [{"title": "職業安全衛生設施規則", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060009"
+        }
+      ]
     },
     {
       "id": "U25-Q049",
@@ -704,14 +1578,36 @@
       "difficulty": "advanced",
       "stem": "請依職業安全衛生設施規則規定，將停電作業之正確步驟依順序排列：",
       "items": [
-        {"id": "I1", "text": "切斷電源開關"},
-        {"id": "I2", "text": "確認停電（驗電）"},
-        {"id": "I3", "text": "對開關加鎖或掛牌"},
-        {"id": "I4", "text": "標示「禁止送電」「有人工作」等警告標語"}
+        {
+          "id": "I1",
+          "text": "切斷電源開關"
+        },
+        {
+          "id": "I2",
+          "text": "確認停電（驗電）"
+        },
+        {
+          "id": "I3",
+          "text": "對開關加鎖或掛牌"
+        },
+        {
+          "id": "I4",
+          "text": "標示「禁止送電」「有人工作」等警告標語"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依職安設施規則第254條，停電作業程序為：切斷電源開關→確認停電（驗電）→對開關加鎖或掛牌→標示警告標語。每一步驟均為下一步驟之安全前提，缺一不可。",
-      "references": [{"title": "職業安全衛生設施規則第254條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第254條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=254"
+        }
+      ]
     },
     {
       "id": "U25-Q050",
@@ -719,14 +1615,36 @@
       "difficulty": "intermediate",
       "stem": "請將電氣災害防止措施之優先順序（由源頭控制到個人防護）依序排列：",
       "items": [
-        {"id": "I1", "text": "本質安全設計（如使用安全特低電壓）"},
-        {"id": "I2", "text": "工程控制（如接地、漏電斷路器）"},
-        {"id": "I3", "text": "行政管理（如標示警告、作業程序）"},
-        {"id": "I4", "text": "個人防護具（如絕緣手套、絕緣鞋）"}
+        {
+          "id": "I1",
+          "text": "本質安全設計（如使用安全特低電壓）"
+        },
+        {
+          "id": "I2",
+          "text": "工程控制（如接地、漏電斷路器）"
+        },
+        {
+          "id": "I3",
+          "text": "行政管理（如標示警告、作業程序）"
+        },
+        {
+          "id": "I4",
+          "text": "個人防護具（如絕緣手套、絕緣鞋）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "電氣災害防止之優先順序依危害控制層級：本質安全設計（消除危害源）→工程控制（隔離危害）→行政管理（管理行為）→個人防護具（最後防線）。此順序與職安衛體系之危害控制金字塔一致。",
-      "references": [{"title": "職業安全衛生設施規則第276條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第276條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=276"
+        }
+      ]
     }
   ]
 }

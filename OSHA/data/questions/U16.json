@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "工作安全分析（Job Safety Analysis, JSA）的首要步驟是什麼？",
       "options": [
-        {"id": "A", "text": "辨識危害因素"},
-        {"id": "B", "text": "將工作分解為若干步驟"},
-        {"id": "C", "text": "訂定安全作業標準"},
-        {"id": "D", "text": "實施安全觀察"}
+        {
+          "id": "A",
+          "text": "辨識危害因素"
+        },
+        {
+          "id": "B",
+          "text": "將工作分解為若干步驟"
+        },
+        {
+          "id": "C",
+          "text": "訂定安全作業標準"
+        },
+        {
+          "id": "D",
+          "text": "實施安全觀察"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "JSA的第一步是將工作分解為若干步驟，藉由逐步拆解作業流程，才能系統性地辨識每個步驟中潛在的危害。先分解步驟、再辨識危害、進而訂定對策，是JSA的標準流程。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "basic",
       "stem": "工作安全分析中，將工作分解為步驟後，接下來的步驟是什麼？",
       "options": [
-        {"id": "A", "text": "實施安全觀察"},
-        {"id": "B", "text": "辨識各步驟的潛在危害"},
-        {"id": "C", "text": "撰寫工作守則"},
-        {"id": "D", "text": "辦理教育訓練"}
+        {
+          "id": "A",
+          "text": "實施安全觀察"
+        },
+        {
+          "id": "B",
+          "text": "辨識各步驟的潛在危害"
+        },
+        {
+          "id": "C",
+          "text": "撰寫工作守則"
+        },
+        {
+          "id": "D",
+          "text": "辦理教育訓練"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "JSA的流程為：1.選定工作→2.將工作分解為步驟→3.辨識各步驟的潛在危害→4.訂定安全措施→5.依據分析結果訂定安全作業標準。分解步驟後即進行危害辨識。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，職業安全衛生管理計畫應包括之事項中，何者與工作安全分析直接相關？",
       "options": [
-        {"id": "A", "text": "第1款：危害辨識、評估及控制"},
-        {"id": "B", "text": "第3款：定期檢查、重點檢查、作業檢點及現場巡視"},
-        {"id": "C", "text": "第7款：安全衛生作業標準"},
-        {"id": "D", "text": "以上皆是"}
+        {
+          "id": "A",
+          "text": "第1款：危害辨識、評估及控制"
+        },
+        {
+          "id": "B",
+          "text": "第3款：定期檢查、重點檢查、作業檢點及現場巡視"
+        },
+        {
+          "id": "C",
+          "text": "第7款：安全衛生作業標準"
+        },
+        {
+          "id": "D",
+          "text": "以上皆是"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "施行細則第31條列舉管理計畫16項事項中，第1款危害辨識評估控制為JSA之核心，第3款定期檢查重點檢查作業檢點現場巡視與安全觀察相關，第7款安全衛生作業標準為JSA之產出。三者均與工作安全分析直接相關。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，下列何者為職業安全衛生管理計畫所列之安全衛生作業標準的相關規定？",
       "options": [
-        {"id": "A", "text": "為第7款規定，屬於管理計畫16項事項之一"},
-        {"id": "B", "text": "為第1款規定，屬於危害辨識"},
-        {"id": "C", "text": "為第3款規定，屬於現場巡視"},
-        {"id": "D", "text": "管理計畫中無此規定"}
+        {
+          "id": "A",
+          "text": "為第7款規定，屬於管理計畫16項事項之一"
+        },
+        {
+          "id": "B",
+          "text": "為第1款規定，屬於危害辨識"
+        },
+        {
+          "id": "C",
+          "text": "為第3款規定，屬於現場巡視"
+        },
+        {
+          "id": "D",
+          "text": "管理計畫中無此規定"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "施行細則第31條第7款規定「訂定安全作業標準」為管理計畫16項事項之一。JSA之最終產出即為安全作業標準，使勞工有可依循之作業規範。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，下列何者為管理計畫中有關現場巡視之規定？",
       "options": [
-        {"id": "A", "text": "第1款危害辨識"},
-        {"id": "B", "text": "第3款定期檢查、重點檢查、作業檢點及現場巡視"},
-        {"id": "C", "text": "第7款安全衛生作業標準"},
-        {"id": "D", "text": "第10款個人防護具之管理"}
+        {
+          "id": "A",
+          "text": "第1款危害辨識"
+        },
+        {
+          "id": "B",
+          "text": "第3款定期檢查、重點檢查、作業檢點及現場巡視"
+        },
+        {
+          "id": "C",
+          "text": "第7款安全衛生作業標準"
+        },
+        {
+          "id": "D",
+          "text": "第10款個人防護具之管理"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "施行細則第31條第3款規定「定期檢查、重點檢查、作業檢點及現場巡視」為管理計畫16項事項之一。現場巡視為安全觀察之重要手段，可發現不安全行為及不安全狀況。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "basic",
       "stem": "安全觀察主要的目的為何？",
       "options": [
-        {"id": "A", "text": "處罰違規勞工"},
-        {"id": "B", "text": "發現不安全行為及不安全狀況並加以改善"},
-        {"id": "C", "text": "考核勞工之工作效率"},
-        {"id": "D", "text": "記錄生產數據"}
+        {
+          "id": "A",
+          "text": "處罰違規勞工"
+        },
+        {
+          "id": "B",
+          "text": "發現不安全行為及不安全狀況並加以改善"
+        },
+        {
+          "id": "C",
+          "text": "考核勞工之工作效率"
+        },
+        {
+          "id": "D",
+          "text": "記錄生產數據"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "安全觀察之目的在於主動發現作業場所中之不安全行為（人的不安全動作）及不安全狀況（物與環境的不安全狀態），進一步分析原因並加以改善，以預防職業災害之發生，非為處罰或考核效率。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "在安全觀察中，下列何者屬於「不安全行為」？",
       "options": [
-        {"id": "A", "text": "地面有油污滑倒危險"},
-        {"id": "B", "text": "勞工未戴安全帽進入施工區"},
-        {"id": "C", "text": "走道堆積雜物"},
-        {"id": "D", "text": "防護罩損壞未修"}
+        {
+          "id": "A",
+          "text": "地面有油污滑倒危險"
+        },
+        {
+          "id": "B",
+          "text": "勞工未戴安全帽進入施工區"
+        },
+        {
+          "id": "C",
+          "text": "走道堆積雜物"
+        },
+        {
+          "id": "D",
+          "text": "防護罩損壞未修"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "不安全行為指人的不安全動作，如未戴安全帽、違規操作等。A地面油污、C走道堆積雜物、D防護罩損壞均屬不安全「狀況」（物與環境的不安全狀態），僅B為人的不安全行為。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "在安全觀察中，下列何者屬於「不安全狀況」？",
       "options": [
-        {"id": "A", "text": "勞工未穿著防護具作業"},
-        {"id": "B", "text": "勞工以不當姿勢搬運重物"},
-        {"id": "C", "text": "機械安全防護罩缺失"},
-        {"id": "D", "text": "勞工在禁菸區吸菸"}
+        {
+          "id": "A",
+          "text": "勞工未穿著防護具作業"
+        },
+        {
+          "id": "B",
+          "text": "勞工以不當姿勢搬運重物"
+        },
+        {
+          "id": "C",
+          "text": "機械安全防護罩缺失"
+        },
+        {
+          "id": "D",
+          "text": "勞工在禁菸區吸菸"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "不安全狀況指物與環境的不安全狀態，如機械防護罩缺失、地面濕滑等。A未穿防護具、B不當姿勢搬運、D禁菸區吸菸均屬不安全「行為」（人的不安全動作），僅C為物的不安全狀況。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，執行自動檢查。請問自動檢查紀錄應保存多少年？",
       "options": [
-        {"id": "A", "text": "一年"},
-        {"id": "B", "text": "三年"},
-        {"id": "C", "text": "五年"},
-        {"id": "D", "text": "七年"}
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "三年"
+        },
+        {
+          "id": "C",
+          "text": "五年"
+        },
+        {
+          "id": "D",
+          "text": "七年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第80條規定，雇主實施自動檢查時，應指定專人為之，並作成紀錄，保存三年。自動檢查紀錄之保存與管理計畫執行紀錄、委員會紀錄同為三年。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U16-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主實施自動檢查發現異常時，應如何處理？",
       "options": [
-        {"id": "A", "text": "可繼續使用，待下次定期檢查時處理"},
-        {"id": "B", "text": "立即修理或更換，並於有危害之虞時即報告上級"},
-        {"id": "C", "text": "僅記錄即可，無須處理"},
-        {"id": "D", "text": "報請勞動檢查機構決定"}
+        {
+          "id": "A",
+          "text": "可繼續使用，待下次定期檢查時處理"
+        },
+        {
+          "id": "B",
+          "text": "立即修理或更換，並於有危害之虞時即報告上級"
+        },
+        {
+          "id": "C",
+          "text": "僅記錄即可，無須處理"
+        },
+        {
+          "id": "D",
+          "text": "報請勞動檢查機構決定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第81條規定，雇主實施自動檢查發現異常時，應立即修理或更換，並於有危害勞工之虞時即報告上級，不得繼續使用。安全第一，不可延遲處理。",
-      "references": [{"title": "職業安全衛生管理辦法第81條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"
+        }
+      ]
     },
     {
       "id": "U16-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "工作安全分析（JSA）的輸出結果，通常用來制定何種文件？",
       "options": [
-        {"id": "A", "text": "薪資表"},
-        {"id": "B", "text": "安全衛生作業標準（安全作業標準書/SOP）"},
-        {"id": "C", "text": "員工出勤紀錄"},
-        {"id": "D", "text": "年度財務報表"}
+        {
+          "id": "A",
+          "text": "薪資表"
+        },
+        {
+          "id": "B",
+          "text": "安全衛生作業標準（安全作業標準書/SOP）"
+        },
+        {
+          "id": "C",
+          "text": "員工出勤紀錄"
+        },
+        {
+          "id": "D",
+          "text": "年度財務報表"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "JSA分析完成後，依據各步驟之危害辨識及安全措施訂定安全作業標準（SOP），使勞工有可依循之標準化作業規範。施行細則第31條第7款亦將訂定安全作業標準列為管理計畫事項之一。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》第5-1條規定，下列何者為各級主管及管理、指揮、監督人員之職責？",
       "options": [
-        {"id": "A", "text": "僅負責生產效率"},
-        {"id": "B", "text": "依職權指揮、監督所屬執行安全衛生管理事項"},
-        {"id": "C", "text": "僅負責人事考核"},
-        {"id": "D", "text": "僅負責財務管理"}
+        {
+          "id": "A",
+          "text": "僅負責生產效率"
+        },
+        {
+          "id": "B",
+          "text": "依職權指揮、監督所屬執行安全衛生管理事項"
+        },
+        {
+          "id": "C",
+          "text": "僅負責人事考核"
+        },
+        {
+          "id": "D",
+          "text": "僅負責財務管理"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第5-1條規定，各級主管及管理、指揮、監督人員均應依職權指揮、監督所屬執行安全衛生管理事項。安全衛生管理非僅安全衛生人員之責，各級主管均有參與之義務。",
-      "references": [{"title": "職業安全衛生管理辦法第5-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
     },
     {
       "id": "U16-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，管理計畫中第1款規定為何？",
       "options": [
-        {"id": "A", "text": "危害辨識、評估及控制"},
-        {"id": "B", "text": "安全衛生作業標準"},
-        {"id": "C", "text": "定期檢查及重點檢查"},
-        {"id": "D", "text": "緊急應變措施"}
+        {
+          "id": "A",
+          "text": "危害辨識、評估及控制"
+        },
+        {
+          "id": "B",
+          "text": "安全衛生作業標準"
+        },
+        {
+          "id": "C",
+          "text": "定期檢查及重點檢查"
+        },
+        {
+          "id": "D",
+          "text": "緊急應變措施"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "施行細則第31條第1款規定「危害辨識、風險評估及風險控制」為管理計畫16項事項之首。此為工作安全分析之核心概念，也是安全衛生管理的根本。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生法施行細則》第31條規定，管理計畫16項事項中，下列何者與安全觀察之關聯最為密切？",
       "options": [
-        {"id": "A", "text": "第1款危害辨識評估及控制"},
-        {"id": "B", "text": "第3款定期檢查、重點檢查、作業檢點及現場巡視"},
-        {"id": "C", "text": "第7款安全衛生作業標準"},
-        {"id": "D", "text": "第10款個人防護具之管理"}
+        {
+          "id": "A",
+          "text": "第1款危害辨識評估及控制"
+        },
+        {
+          "id": "B",
+          "text": "第3款定期檢查、重點檢查、作業檢點及現場巡視"
+        },
+        {
+          "id": "C",
+          "text": "第7款安全衛生作業標準"
+        },
+        {
+          "id": "D",
+          "text": "第10款個人防護具之管理"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "第3款「定期檢查、重點檢查、作業檢點及現場巡視」中，現場巡視為安全觀察之主要執行方式，透過巡視現場以觀察勞工作業行為及環境狀況，發現不安全行為與不安全狀況，與安全觀察關聯最為密切。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法》第23條規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，並執行下列何事項？",
       "options": [
-        {"id": "A", "text": "自動檢查"},
-        {"id": "B", "text": "財務稽核"},
-        {"id": "C", "text": "人事考核"},
-        {"id": "D", "text": "市場調查"}
+        {
+          "id": "A",
+          "text": "自動檢查"
+        },
+        {
+          "id": "B",
+          "text": "財務稽核"
+        },
+        {
+          "id": "C",
+          "text": "人事考核"
+        },
+        {
+          "id": "D",
+          "text": "市場調查"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第23條第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，並執行自動檢查。自動檢查為管理計畫之重要執行項目，與JSA及安全觀察密切相關。",
-      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
     },
     {
       "id": "U16-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法》規定，雇主應負責宣導本法及有關安全衛生之規定，使勞工周知。下列何者非屬使勞工周知之方式？",
       "options": [
-        {"id": "A", "text": "公告"},
-        {"id": "B", "text": "教育訓練"},
-        {"id": "C", "text": "書面文件分發"},
-        {"id": "D", "text": "私下告知特定勞工"}
+        {
+          "id": "A",
+          "text": "公告"
+        },
+        {
+          "id": "B",
+          "text": "教育訓練"
+        },
+        {
+          "id": "C",
+          "text": "書面文件分發"
+        },
+        {
+          "id": "D",
+          "text": "私下告知特定勞工"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生法第33條規定雇主應負責宣導安全衛生規定使勞工周知。周知之方式包括公告、教育訓練、書面分發等公開方式。「私下告知特定勞工」無法達到周知所有勞工之目的，非屬適當方式。",
-      "references": [{"title": "職業安全衛生法第33條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=33"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第33條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=33"
+        }
+      ]
     },
     {
       "id": "U16-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》第12-2條規定，事業單位導入職業安全衛生管理系統，可參考之標準為何？",
       "options": [
-        {"id": "A", "text": "CNS 45001 職業安全衛生管理系統標準"},
-        {"id": "B", "text": "ISO 9001 品質管理系統標準"},
-        {"id": "C", "text": "ISO 14001 環境管理系統標準"},
-        {"id": "D", "text": "CNS 13606 工業安全標準"}
+        {
+          "id": "A",
+          "text": "CNS 45001 職業安全衛生管理系統標準"
+        },
+        {
+          "id": "B",
+          "text": "ISO 9001 品質管理系統標準"
+        },
+        {
+          "id": "C",
+          "text": "ISO 14001 環境管理系統標準"
+        },
+        {
+          "id": "D",
+          "text": "CNS 13606 工業安全標準"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第12-2條規定，事業單位導入職業安全衛生管理系統，其驗證之標準為CNS 45001（職業安全衛生管理系統），非ISO 9001或ISO 14001。CNS 45001對應國際標準ISO 45001。",
-      "references": [{"title": "職業安全衛生管理辦法第12-2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
     },
     {
       "id": "U16-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主應依規定實施自動檢查，其中施工架之檢查頻率為何？",
       "options": [
-        {"id": "A", "text": "每日檢查"},
-        {"id": "B", "text": "每週檢查"},
-        {"id": "C", "text": "每月檢查"},
-        {"id": "D", "text": "每年檢查"}
+        {
+          "id": "A",
+          "text": "每日檢查"
+        },
+        {
+          "id": "B",
+          "text": "每週檢查"
+        },
+        {
+          "id": "C",
+          "text": "每月檢查"
+        },
+        {
+          "id": "D",
+          "text": "每年檢查"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第43條規定，雇主對於施工架，應每週依下列規定實施檢查。施工架因搭設於戶外，受天候及荷重影響大，故每週須實施檢查以確保安全。",
-      "references": [{"title": "職業安全衛生管理辦法第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"
+        }
+      ]
     },
     {
       "id": "U16-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對於鍋爐應實施何種自動檢查？",
       "options": [
-        {"id": "A", "text": "每週檢查"},
-        {"id": "B", "text": "每月檢查"},
-        {"id": "C", "text": "每半年檢查"},
-        {"id": "D", "text": "每年檢查"}
+        {
+          "id": "A",
+          "text": "每週檢查"
+        },
+        {
+          "id": "B",
+          "text": "每月檢查"
+        },
+        {
+          "id": "C",
+          "text": "每半年檢查"
+        },
+        {
+          "id": "D",
+          "text": "每年檢查"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第32條規定，雇主對於鍋爐，應每月依規定實施檢查。鍋爐屬危險性設備，操作壓力高，若故障可能造成爆炸，故須每月檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=32"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第32條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=32"
+        }
+      ]
     },
     {
       "id": "U16-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對於化學設備及其配管應實施何種自動檢查？",
       "options": [
-        {"id": "A", "text": "每半年檢查"},
-        {"id": "B", "text": "每年檢查"},
-        {"id": "C", "text": "每二年檢查"},
-        {"id": "D", "text": "每三年檢查"}
+        {
+          "id": "A",
+          "text": "每半年檢查"
+        },
+        {
+          "id": "B",
+          "text": "每年檢查"
+        },
+        {
+          "id": "C",
+          "text": "每二年檢查"
+        },
+        {
+          "id": "D",
+          "text": "每三年檢查"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法第38條規定，雇主對於化學設備及其配管，應每二年依規定實施檢查。化學設備涉及腐蝕性及毒性物質，每兩年檢查以確保設備完整性。",
-      "references": [{"title": "職業安全衛生管理辦法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"
+        }
+      ]
     },
     {
       "id": "U16-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對於車輛應多久實施檢點一次？",
       "options": [
-        {"id": "A", "text": "每日作業前實施檢點"},
-        {"id": "B", "text": "每週檢點"},
-        {"id": "C", "text": "每月檢查"},
-        {"id": "D", "text": "每年檢查"}
+        {
+          "id": "A",
+          "text": "每日作業前實施檢點"
+        },
+        {
+          "id": "B",
+          "text": "每週檢點"
+        },
+        {
+          "id": "C",
+          "text": "每月檢查"
+        },
+        {
+          "id": "D",
+          "text": "每年檢查"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第50條規定，雇主對於車輛，應每日作業前實施檢點。車輛每日使用前須檢查煞車、燈光等，確保行車安全。",
-      "references": [{"title": "職業安全衛生管理辦法第50條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=50"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第50條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=50"
+        }
+      ]
     },
     {
       "id": "U16-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》第44條規定，雇主對於自動檢查發現有腐蝕、劣化、損壞等情形時，應如何處理？",
       "options": [
-        {"id": "A", "text": "仍照原定期限檢查"},
-        {"id": "B", "text": "應縮短其自動檢查期限"},
-        {"id": "C", "text": "延長自動檢查期限"},
-        {"id": "D", "text": "無須改變"}
+        {
+          "id": "A",
+          "text": "仍照原定期限檢查"
+        },
+        {
+          "id": "B",
+          "text": "應縮短其自動檢查期限"
+        },
+        {
+          "id": "C",
+          "text": "延長自動檢查期限"
+        },
+        {
+          "id": "D",
+          "text": "無須改變"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第44條規定，雇主實施自動檢查發現有腐蝕、劣化、損壞或功能不全等情形時，應縮短其自動檢查期限，並作成紀錄。不能照原期限或延長，以確保安全。",
-      "references": [{"title": "職業安全衛生管理辦法第44條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第44條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"
+        }
+      ]
     },
     {
       "id": "U16-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》第79條規定，雇主應訂定何種計畫以實施自動檢查？",
       "options": [
-        {"id": "A", "text": "自動檢查計畫"},
-        {"id": "B", "text": "教育訓練計畫"},
-        {"id": "C", "text": "健康檢查計畫"},
-        {"id": "D", "text": "採購計畫"}
+        {
+          "id": "A",
+          "text": "自動檢查計畫"
+        },
+        {
+          "id": "B",
+          "text": "教育訓練計畫"
+        },
+        {
+          "id": "C",
+          "text": "健康檢查計畫"
+        },
+        {
+          "id": "D",
+          "text": "採購計畫"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第79條規定，雇主應訂定自動檢查計畫，以實施定期檢查、重點檢查及作業檢點。自動檢查計畫為JSA及安全觀察制度之基礎文件。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U16-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "在危害辨識方法中，將作業分解為步驟以系統性辨識危害的方法稱為什麼？",
       "options": [
-        {"id": "A", "text": "工作安全分析（JSA）"},
-        {"id": "B", "text": "失誤樹分析（FTA）"},
-        {"id": "C", "text": "危害與可操作性分析（HAZOP）"},
-        {"id": "D", "text": "故障模式與影響分析（FMEA）"}
+        {
+          "id": "A",
+          "text": "工作安全分析（JSA）"
+        },
+        {
+          "id": "B",
+          "text": "失誤樹分析（FTA）"
+        },
+        {
+          "id": "C",
+          "text": "危害與可操作性分析（HAZOP）"
+        },
+        {
+          "id": "D",
+          "text": "故障模式與影響分析（FMEA）"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "工作安全分析（JSA）為將作業分解為若干步驟，逐步辨識危害並訂定安全措施之方法。FTA為由上而下之邏輯推演分析、HAZOP為製程偏差分析、FMEA為設備故障分析，均與JSA之逐步分解方法不同。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，下列哪些屬於職業安全衛生管理計畫之事項？（複選）",
       "options": [
-        {"id": "A", "text": "危害辨識、評估及控制"},
-        {"id": "B", "text": "定期檢查、重點檢查、作業檢點及現場巡視"},
-        {"id": "C", "text": "安全衛生作業標準"},
-        {"id": "D", "text": "緊急應變措施"}
+        {
+          "id": "A",
+          "text": "緊急應變措施"
+        },
+        {
+          "id": "B",
+          "text": "安全衛生作業標準"
+        },
+        {
+          "id": "C",
+          "text": "勞工保險投保及理賠事宜"
+        },
+        {
+          "id": "D",
+          "text": "勞工退休金提撥及管理事宜"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "施行細則第31條規定管理計畫16項事項，包括第1款危害辨識評估控制、第3款定期檢查重點檢查作業檢點現場巡視、第7款安全衛生作業標準、第13款緊急應變措施。四項均屬之。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "施行細則第31條規定管理計畫16項事項，包括第7款安全衛生作業標準、第13款緊急應變措施，A、B均屬之。C勞工保險投保及理賠屬勞工保險條例規範，D勞工退休金提撥屬勞工退休金條例規範，均非職業安全衛生管理計畫之事項，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "intermediate",
       "stem": "工作安全分析（JSA）的基本步驟包括下列哪些？（複選）",
       "options": [
-        {"id": "A", "text": "選定要分析的工作"},
-        {"id": "B", "text": "將工作分解為若干步驟"},
-        {"id": "C", "text": "辨識各步驟之潛在危害"},
-        {"id": "D", "text": "訂定安全措施及作業標準"}
+        {
+          "id": "A",
+          "text": "選定要分析的工作"
+        },
+        {
+          "id": "B",
+          "text": "評估工作之經濟效益及成本"
+        },
+        {
+          "id": "C",
+          "text": "辨識各步驟之潛在危害"
+        },
+        {
+          "id": "D",
+          "text": "計算工作所需之工時及人力配置"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "JSA之標準流程為：1.選定要分析的工作→2.將工作分解為若干步驟→3.辨識各步驟之潛在危害→4.訂定安全措施→5.依據分析結果訂定安全作業標準。四項均為基本步驟。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "answer": [
+        "A",
+        "C"
+      ],
+      "explanation": "JSA之標準流程為：1.選定要分析的工作→2.將工作分解為若干步驟→3.辨識各步驟之潛在危害→4.訂定安全措施→5.依據分析結果訂定安全作業標準，A、C均為基本步驟。B評估經濟效益及成本、D計算工時及人力配置均屬工程或管理經濟考量，非JSA之安全分析步驟，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q027",
@@ -399,14 +895,35 @@
       "difficulty": "intermediate",
       "stem": "下列哪些屬於安全觀察中「不安全行為」之範例？（複選）",
       "options": [
-        {"id": "A", "text": "未戴安全帽進入施工區"},
-        {"id": "B", "text": "違規操作機械"},
-        {"id": "C", "text": "在禁菸區吸菸"},
-        {"id": "D", "text": "機械防護罩缺失"}
+        {
+          "id": "A",
+          "text": "未戴安全帽進入施工區"
+        },
+        {
+          "id": "B",
+          "text": "違規操作機械"
+        },
+        {
+          "id": "C",
+          "text": "在禁菸區吸菸"
+        },
+        {
+          "id": "D",
+          "text": "機械防護罩缺失"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "不安全行為指人的不安全動作，A未戴安全帽、B違規操作機械、C在禁菸區吸菸均為人之不安全行為。D機械防護罩缺失屬不安全「狀況」（物的不安全狀態），非行為。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q028",
@@ -414,14 +931,34 @@
       "difficulty": "intermediate",
       "stem": "下列哪些屬於安全觀察中「不安全狀況」之範例？（複選）",
       "options": [
-        {"id": "A", "text": "地面油污"},
-        {"id": "B", "text": "走道堆積雜物"},
-        {"id": "C", "text": "電線破損裸露"},
-        {"id": "D", "text": "未穿著防護具作業"}
+        {
+          "id": "A",
+          "text": "未穿著防護具作業"
+        },
+        {
+          "id": "B",
+          "text": "作業中以徒手調整運轉中之機械"
+        },
+        {
+          "id": "C",
+          "text": "走道堆積雜物"
+        },
+        {
+          "id": "D",
+          "text": "地面油污"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "不安全狀況指物與環境的不安全狀態，A地面油污、B走道堆積雜物、C電線破損裸露均屬之。D未穿防護具為人之不安全「行為」，非狀況。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "answer": [
+        "C",
+        "D"
+      ],
+      "explanation": "不安全狀況指物與環境的不安全狀態，C走道堆積雜物、D地面油污均屬之。A未穿著防護具作業為人之不安全「行為」，B以徒手調整運轉中機械亦為人之不安全「行為」，均非不安全狀況，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q029",
@@ -429,14 +966,35 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，下列哪些設備之自動檢查頻率及期限敘述正確？（複選）",
       "options": [
-        {"id": "A", "text": "鍋爐每月檢查"},
-        {"id": "B", "text": "施工架每週檢查"},
-        {"id": "C", "text": "化學設備每二年檢查"},
-        {"id": "D", "text": "車輛每日作業前檢點"}
+        {
+          "id": "A",
+          "text": "鍋爐每月檢查"
+        },
+        {
+          "id": "B",
+          "text": "施工架每週檢查"
+        },
+        {
+          "id": "C",
+          "text": "化學設備每二年檢查"
+        },
+        {
+          "id": "D",
+          "text": "車輛每半年定期檢查一次"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "管理辦法第32條鍋爐每月檢查、第43條施工架每週檢查、第38條化學設備每二年檢查、第50條車輛每日作業前檢點。四項均正確。",
-      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "管理辦法第32條鍋爐每月檢查(A)、第43條施工架每週檢查(B)、第38條化學設備每二年檢查(C)均正確。D錯誤，車輛依管理辦法第50條應每日作業前檢點，非每半年定期檢查，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U16-Q030",
@@ -444,14 +1002,36 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，關於自動檢查之實施，下列敘述哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "雇主應訂定自動檢查計畫"},
-        {"id": "B", "text": "應指定專人為之並作成紀錄"},
-        {"id": "C", "text": "紀錄應保存三年"},
-        {"id": "D", "text": "發現異常應立即修理或更換，有危害之虞時即報告上級"}
+        {
+          "id": "A",
+          "text": "雇主應訂定自動檢查計畫"
+        },
+        {
+          "id": "B",
+          "text": "應指定專人為之並作成紀錄"
+        },
+        {
+          "id": "C",
+          "text": "紀錄應保存三年"
+        },
+        {
+          "id": "D",
+          "text": "發現異常應立即修理或更換，有危害之虞時即報告上級"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "管理辦法第79條規定應訂定自動檢查計畫；第80條規定應指定專人為之並作成紀錄保存三年；第81條規定發現異常應立即修理或更換，有危害之虞時即報告上級。四項均正確。",
-      "references": [{"title": "職業安全衛生管理辦法第79條至第81條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條至第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U16-Q031",
@@ -459,14 +1039,34 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，下列哪些為管理計畫中與安全衛生管理直接相關的事項？（複選）",
       "options": [
-        {"id": "A", "text": "採購管理（採購或租賃安全衛生設備或機具）"},
-        {"id": "B", "text": "承攬管理"},
-        {"id": "C", "text": "個人防護具之管理"},
-        {"id": "D", "text": "職業災害、虛驚事故之調查處理及統計分析"}
+        {
+          "id": "A",
+          "text": "職業災害補償及勞工保險事宜"
+        },
+        {
+          "id": "B",
+          "text": "職業災害、虛驚事故之調查處理及統計分析"
+        },
+        {
+          "id": "C",
+          "text": "採購管理（採購或租賃安全衛生設備或機具）"
+        },
+        {
+          "id": "D",
+          "text": "安全衛生委員會議事規則之訂定"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "施行細則第31條規定管理計畫16項事項中，第4款採購管理（採購或租賃安全衛生設備或機具）、第5款承攬管理、第10款個人防護具管理、第14款職業災害虛驚事故調查處理及統計分析。四項均屬之。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "answer": [
+        "B",
+        "C"
+      ],
+      "explanation": "施行細則第31條規定管理計畫16項事項中，第4款採購管理(C)、第14款職業災害虛驚事故調查處理及統計分析(B)均屬之。A職業災害補償及勞工保險屬勞基法及職災保險法規範，D委員會議事規則屬管理辦法第12條規範，均非施行細則第31條管理計畫之事項，故不選。",
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q032",
@@ -474,14 +1074,35 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》第5-1條規定，各級人員在安全衛生管理上之職責包括下列哪些？（複選）",
       "options": [
-        {"id": "A", "text": "雇主綜理安全衛生管理"},
-        {"id": "B", "text": "各級主管依職權指揮監督所屬執行安全衛生管理事項"},
-        {"id": "C", "text": "管理、指揮、監督人員應執行職業安全衛生管理事項"},
-        {"id": "D", "text": "勞工應切實遵行安全衛生工作守則"}
+        {
+          "id": "A",
+          "text": "各級主管依職權指揮監督所屬執行安全衛生管理事項"
+        },
+        {
+          "id": "B",
+          "text": "雇主綜理安全衛生管理"
+        },
+        {
+          "id": "C",
+          "text": "勞工應切實遵行安全衛生工作守則"
+        },
+        {
+          "id": "D",
+          "text": "管理、指揮、監督人員應執行職業安全衛生管理事項"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
       "explanation": "管理辦法第5-1條規定雇主綜理、各級主管及管理指揮監督人員依職權指揮監督執行安全衛生管理事項。D選項勞工遵行工作守則為職安法第34條之規定，非第5-1條之內容，故不選。",
-      "references": [{"title": "職業安全衛生管理辦法第5-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5-1"
+        }
+      ]
     },
     {
       "id": "U16-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "工作安全分析（JSA）的第一步驟是將工作分解為若干步驟。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "JSA之標準流程為：1.選定工作→2.將工作分解為步驟→3.辨識危害→4.訂定安全措施→5.訂定安全作業標準。在選定工作後，第一步即將工作分解為若干步驟。本題敘述正確。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "安全觀察之主要目的為處罰違規勞工。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "安全觀察之目的為主動發現不安全行為及不安全狀況，分析原因並加以改善，以預防職業災害。其目的非為處罰違規勞工，而是透過觀察改善作業環境及行為，達到預防災害之效果。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，自動檢查紀錄應保存五年。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第80條規定，自動檢查紀錄應保存「三年」，非五年。須注意保存期限之正確數字。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U16-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主實施自動檢查發現異常時，應立即修理或更換，並於有危害勞工之虞時即報告上級。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第81條規定，雇主實施自動檢查發現異常時，應立即修理或更換，並於有危害勞工之虞時即報告上級。此為確保安全之重要規定。",
-      "references": [{"title": "職業安全衛生管理辦法第81條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"
+        }
+      ]
     },
     {
       "id": "U16-Q037",
@@ -541,84 +1214,162 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，自動檢查發現設備有腐蝕、劣化情形時，應延長其自動檢查期限。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第44條規定，發現有腐蝕、劣化、損壞或功能不全等情形時，應「縮短」其自動檢查期限，而非延長。須增加檢查頻率以確保安全。",
-      "references": [{"title": "職業安全衛生管理辦法第44條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第44條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"
+        }
+      ]
     },
     {
       "id": "U16-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，職業安全衛生管理計畫第1款為危害辨識、評估及________。",
-      "answer": ["控制"],
+      "answer": [
+        "控制"
+      ],
       "explanation": "施行細則第31條第1款規定為「危害辨識、風險評估及風險控制」。此為JSA之核心概念，也是安全衛生管理之根本。填入「控制」。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，自動檢查紀錄應保存________年。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "職業安全衛生管理辦法第80條規定，雇主實施自動檢查應作成紀錄，保存三年。保存期限與委員會紀錄、管理計畫執行紀錄相同。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U16-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "安全觀察中，人的不安全動作稱為不安全________，物與環境的不安全狀態稱為不安全________。",
-      "answer": ["行為", "狀況"],
+      "answer": [
+        "行為",
+        "狀況"
+      ],
       "explanation": "安全觀察將危害分為兩類：人的不安全動作稱為「不安全行為」（如未戴安全帽），物與環境的不安全狀態稱為「不安全狀況」（如防護罩缺失）。辨識兩者為安全觀察之核心。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對於施工架應每________實施檢查。",
-      "answer": ["週", "一週"],
+      "answer": [
+        "週",
+        "一週"
+      ],
       "explanation": "職業安全衛生管理辦法第43條規定，雇主對於施工架應每週實施檢查。施工架受天候及荷重影響，每週檢查以確保結構安全。",
-      "references": [{"title": "職業安全衛生管理辦法第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"
+        }
+      ]
     },
     {
       "id": "U16-Q042",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》第12-2條規定，事業單位導入職業安全衛生管理系統，其驗證標準為CNS________。",
-      "answer": ["45001"],
+      "answer": [
+        "45001"
+      ],
       "explanation": "職業安全衛生管理辦法第12-2條規定，事業單位導入職業安全衛生管理系統，其驗證之標準為CNS 45001。此標準對應國際標準ISO 45001職業安全衛生管理系統。",
-      "references": [{"title": "職業安全衛生管理辦法第12-2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12-2"
+        }
+      ]
     },
     {
       "id": "U16-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，施工架應每週實施檢查，鍋爐應每月實施檢查。請問一年（52週、12個月）內，施工架與鍋爐合計至少應實施幾次自動檢查？",
-      "answer": {"value": 64, "unit": "次", "tolerance": 0},
+      "answer": {
+        "value": 64,
+        "unit": "次",
+        "tolerance": 0
+      },
       "explanation": "施工架每週檢查：52週＝52次。鍋爐每月檢查：12個月＝12次。合計52+12=64次。",
-      "references": [{"title": "職業安全衛生管理辦法第32條、第43條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第32條、第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U16-Q044",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，化學設備應每二年實施檢查。某事業單位有5台化學設備，請問在6年期間內，該事業單位最少需對所有化學設備實施幾次自動檢查？",
-      "answer": {"value": 15, "unit": "次", "tolerance": 0},
+      "answer": {
+        "value": 15,
+        "unit": "次",
+        "tolerance": 0
+      },
       "explanation": "化學設備每二年檢查一次，6年期間內每台設備檢查次數為6÷2=3次。5台設備合計：5×3=15次。",
-      "references": [{"title": "職業安全衛生管理辦法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"
+        }
+      ]
     },
     {
       "id": "U16-Q045",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，自動檢查紀錄應保存三年。某事業單位自2020年1月1日起實施自動檢查並作成紀錄，每年檢查4次。請問至保存期滿（2022年12月31日），共需保存多少份檢查紀錄？",
-      "answer": {"value": 12, "unit": "份", "tolerance": 0},
+      "answer": {
+        "value": 12,
+        "unit": "份",
+        "tolerance": 0
+      },
       "explanation": "保存期三年，自2020年1月1日至2022年12月31日共3年。每年檢查4次，3年共4×3=12份紀錄。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U16-Q046",
@@ -626,25 +1377,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列JSA步驟與其內容正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "步驟一：選定工作"},
-        {"id": "L2", "text": "步驟二：分解工作"},
-        {"id": "L3", "text": "步驟三：辨識危害"},
-        {"id": "L4", "text": "步驟四：訂定措施"}
+        {
+          "id": "L1",
+          "text": "步驟一：選定工作"
+        },
+        {
+          "id": "L2",
+          "text": "步驟二：分解工作"
+        },
+        {
+          "id": "L3",
+          "text": "步驟三：辨識危害"
+        },
+        {
+          "id": "L4",
+          "text": "步驟四：訂定措施"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "選擇具危害性或高風險之作業進行分析"},
-        {"id": "R2", "text": "將作業分解為若干步驟"},
-        {"id": "R3", "text": "分析各步驟之潛在危害因素"},
-        {"id": "R4", "text": "針對危害訂定安全防護措施"}
+        {
+          "id": "R1",
+          "text": "選擇具危害性或高風險之作業進行分析"
+        },
+        {
+          "id": "R2",
+          "text": "將作業分解為若干步驟"
+        },
+        {
+          "id": "R3",
+          "text": "分析各步驟之潛在危害因素"
+        },
+        {
+          "id": "R4",
+          "text": "針對危害訂定安全防護措施"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "JSA流程：選定高風險工作→分解為步驟→辨識各步驟危害→訂定安全防護措施→產出安全作業標準。四個步驟依序配對。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q047",
@@ -652,25 +1444,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列設備與其自動檢查頻率正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "鍋爐"},
-        {"id": "L2", "text": "施工架"},
-        {"id": "L3", "text": "化學設備"},
-        {"id": "L4", "text": "車輛"}
+        {
+          "id": "L1",
+          "text": "鍋爐"
+        },
+        {
+          "id": "L2",
+          "text": "施工架"
+        },
+        {
+          "id": "L3",
+          "text": "化學設備"
+        },
+        {
+          "id": "L4",
+          "text": "車輛"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "每月檢查"},
-        {"id": "R2", "text": "每週檢查"},
-        {"id": "R3", "text": "每二年檢查"},
-        {"id": "R4", "text": "每日作業前檢點"}
+        {
+          "id": "R1",
+          "text": "每月檢查"
+        },
+        {
+          "id": "R2",
+          "text": "每週檢查"
+        },
+        {
+          "id": "R3",
+          "text": "每二年檢查"
+        },
+        {
+          "id": "R4",
+          "text": "每日作業前檢點"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "管理辦法第32條鍋爐每月、第43條施工架每週、第38條化學設備每二年、第50條車輛每日作業前檢點。四項依序配對。",
-      "references": [{"title": "職業安全衛生管理辦法", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U16-Q048",
@@ -678,25 +1511,66 @@
       "difficulty": "advanced",
       "stem": "請將下列安全觀察項目與其分類（行為/狀況）正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "未戴安全帽作業"},
-        {"id": "L2", "text": "地面油污"},
-        {"id": "L3", "text": "違規操作機械"},
-        {"id": "L4", "text": "電線破損裸露"}
+        {
+          "id": "L1",
+          "text": "未戴安全帽作業"
+        },
+        {
+          "id": "L2",
+          "text": "地面油污"
+        },
+        {
+          "id": "L3",
+          "text": "違規操作機械"
+        },
+        {
+          "id": "L4",
+          "text": "電線破損裸露"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "不安全行為"},
-        {"id": "R2", "text": "不安全狀況"},
-        {"id": "R3", "text": "不安全行為"},
-        {"id": "R4", "text": "不安全狀況"}
+        {
+          "id": "R1",
+          "text": "不安全行為"
+        },
+        {
+          "id": "R2",
+          "text": "不安全狀況"
+        },
+        {
+          "id": "R3",
+          "text": "不安全行為"
+        },
+        {
+          "id": "R4",
+          "text": "不安全狀況"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "未戴安全帽為人的不安全行為；地面油污為環境不安全狀況；違規操作機械為人的不安全行為；電線破損裸露為物的不安全狀況。行為-狀況-行為-狀況依序配對。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q049",
@@ -704,15 +1578,41 @@
       "difficulty": "intermediate",
       "stem": "請依工作安全分析（JSA）之實施步驟，排列下列步驟之先後順序：",
       "items": [
-        {"id": "I1", "text": "選定要分析的工作"},
-        {"id": "I2", "text": "將工作分解為若干步驟"},
-        {"id": "I3", "text": "辨識各步驟之潛在危害"},
-        {"id": "I4", "text": "訂定安全防護措施"},
-        {"id": "I5", "text": "訂定安全作業標準"}
+        {
+          "id": "I1",
+          "text": "選定要分析的工作"
+        },
+        {
+          "id": "I2",
+          "text": "將工作分解為若干步驟"
+        },
+        {
+          "id": "I3",
+          "text": "辨識各步驟之潛在危害"
+        },
+        {
+          "id": "I4",
+          "text": "訂定安全防護措施"
+        },
+        {
+          "id": "I5",
+          "text": "訂定安全作業標準"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4",
+        "I5"
+      ],
       "explanation": "JSA流程依序為：1.選定工作→2.分解步驟→3.辨識危害→4.訂定安全措施→5.訂定安全作業標準。最終產出為安全作業標準（SOP），供勞工依循。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U16-Q050",
@@ -720,14 +1620,36 @@
       "difficulty": "advanced",
       "stem": "請依自動檢查發現異常時之處理流程，排列下列步驟之先後順序：",
       "items": [
-        {"id": "I1", "text": "實施自動檢查"},
-        {"id": "I2", "text": "發現設備異常"},
-        {"id": "I3", "text": "立即修理或更換"},
-        {"id": "I4", "text": "有危害勞工之虞時即報告上級"}
+        {
+          "id": "I1",
+          "text": "實施自動檢查"
+        },
+        {
+          "id": "I2",
+          "text": "發現設備異常"
+        },
+        {
+          "id": "I3",
+          "text": "立即修理或更換"
+        },
+        {
+          "id": "I4",
+          "text": "有危害勞工之虞時即報告上級"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依職業安全衛生管理辦法第81條規定，處理流程為：實施自動檢查→發現異常→立即修理或更換→有危害勞工之虞時即報告上級。須立即處理，不可延遲。",
-      "references": [{"title": "職業安全衛生管理辦法第81條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"
+        }
+      ]
     }
   ]
 }

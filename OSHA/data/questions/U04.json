@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生管理辦法第2條，本辦法依職業安全衛生法第幾條訂定？",
       "options": [
-        {"id": "A", "text": "第二十三條"},
-        {"id": "B", "text": "第三十六條"},
-        {"id": "C", "text": "第二十三條第二項及第三十六條第三項"},
-        {"id": "D", "text": "第五十條"}
+        {
+          "id": "A",
+          "text": "第二十三條"
+        },
+        {
+          "id": "B",
+          "text": "第三十六條"
+        },
+        {
+          "id": "C",
+          "text": "第二十三條第二項及第三十六條第三項"
+        },
+        {
+          "id": "D",
+          "text": "第五十條"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第2條明確規定，本辦法依職業安全衛生法第二十三條第二項及第三十六條第三項規定訂定之。職安法第23條為安全衛生組織與人員，第36條為自動檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2"
+        }
+      ]
     },
     {
       "id": "U04-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第4條，事業單位勞工人數在多少人以上者，應設直接隸屬雇主之專責一級管理單位？",
       "options": [
-        {"id": "A", "text": "五十人以上"},
-        {"id": "B", "text": "一百人以上"},
-        {"id": "C", "text": "三百人以上"},
-        {"id": "D", "text": "五百人以上"}
+        {
+          "id": "A",
+          "text": "五十人以上"
+        },
+        {
+          "id": "B",
+          "text": "一百人以上"
+        },
+        {
+          "id": "C",
+          "text": "三百人以上"
+        },
+        {
+          "id": "D",
+          "text": "五百人以上"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第4條第1項規定，事業單位勞工人數在三百人以上者，應設直接隸屬雇主之專責一級管理單位。一百人以上未滿三百人者，應設專責一級管理單位。但不必直接隸屬雇主。",
-      "references": [{"title": "職業安全衛生管理辦法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"
+        }
+      ]
     },
     {
       "id": "U04-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第5條，未滿一百人之事業單位，應置職業安全衛生管理人員幾人以上？",
       "options": [
-        {"id": "A", "text": "一人以上"},
-        {"id": "B", "text": "二人以上"},
-        {"id": "C", "text": "三人以上"},
-        {"id": "D", "text": "由雇主自行擔任即可"}
+        {
+          "id": "A",
+          "text": "一人以上"
+        },
+        {
+          "id": "B",
+          "text": "二人以上"
+        },
+        {
+          "id": "C",
+          "text": "三人以上"
+        },
+        {
+          "id": "D",
+          "text": "由雇主自行擔任即可"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管理辦法第5條第1項規定，未滿一百人之事業單位，應置職業安全衛生管理人員一人以上。但符合第六-1條規定之小型事業單位，得由雇主自行擔任。",
-      "references": [{"title": "職業安全衛生管理辦法第5條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第5條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=5"
+        }
+      ]
     },
     {
       "id": "U04-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第6條，職業安全衛生業務主管依事業規模及風險分為幾種？",
       "options": [
-        {"id": "A", "text": "二種"},
-        {"id": "B", "text": "三種"},
-        {"id": "C", "text": "四種"},
-        {"id": "D", "text": "五種"}
+        {
+          "id": "A",
+          "text": "二種"
+        },
+        {
+          "id": "B",
+          "text": "三種"
+        },
+        {
+          "id": "C",
+          "text": "四種"
+        },
+        {
+          "id": "D",
+          "text": "五種"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第6條第1項規定，職業安全衛生業務主管分為甲種、乙種、丙種三種。甲種適用第一類事業且勞工人數一百人以上；乙種適用第一類未滿百人或第二類；丙種適用第三類事業。",
-      "references": [{"title": "職業安全衛生管理辦法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
     },
     {
       "id": "U04-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第6-1條，職業安全衛生管理人員分為幾種？",
       "options": [
-        {"id": "A", "text": "二種"},
-        {"id": "B", "text": "三種"},
-        {"id": "C", "text": "四種"},
-        {"id": "D", "text": "五種"}
+        {
+          "id": "A",
+          "text": "二種"
+        },
+        {
+          "id": "B",
+          "text": "三種"
+        },
+        {
+          "id": "C",
+          "text": "四種"
+        },
+        {
+          "id": "D",
+          "text": "五種"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第6-1條第1項規定，職業安全衛生管理人員分為職業安全衛生管理師、職業安全管理師、職業衛生管理師、職業安全衛生管理員四種。前三者為師級，後者為員級。",
-      "references": [{"title": "職業安全衛生管理辦法第6-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"
+        }
+      ]
     },
     {
       "id": "U04-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第12條，職業安全衛生委員會應至少每幾個月開會一次？",
       "options": [
-        {"id": "A", "text": "一個月"},
-        {"id": "B", "text": "二個月"},
-        {"id": "C", "text": "三個月"},
-        {"id": "D", "text": "六個月"}
+        {
+          "id": "A",
+          "text": "一個月"
+        },
+        {
+          "id": "B",
+          "text": "二個月"
+        },
+        {
+          "id": "C",
+          "text": "三個月"
+        },
+        {
+          "id": "D",
+          "text": "六個月"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第12條第1項規定，職業安全衛生委員會應至少每三個月開會一次。委員會應由雇主擔任主任委員，勞工人數在三十人以上者，工會或勞工選舉之代表應佔委員人數三分之一以上。",
-      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
     },
     {
       "id": "U04-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第11條，職業安全衛生委員會之主任委員由誰擔任？",
       "options": [
-        {"id": "A", "text": "職業安全衛生管理人員"},
-        {"id": "B", "text": "雇主"},
-        {"id": "C", "text": "廠長"},
-        {"id": "D", "text": "勞工代表"}
+        {
+          "id": "A",
+          "text": "職業安全衛生管理人員"
+        },
+        {
+          "id": "B",
+          "text": "雇主"
+        },
+        {
+          "id": "C",
+          "text": "廠長"
+        },
+        {
+          "id": "D",
+          "text": "勞工代表"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第11條第1項規定，職業安全衛生委員會置主任委員一人，由雇主擔任。委員七至十五人，包括副雇主、主管、工會或勞工選舉之代表、職業安全衛生人員等。",
-      "references": [{"title": "職業安全衛生管理辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
     },
     {
       "id": "U04-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第10條，雇主應使職業安全衛生管理人員會同有關部門人員，多久擬訂職業安全衛生管理計畫一次？",
       "options": [
-        {"id": "A", "text": "每半年"},
-        {"id": "B", "text": "每年"},
-        {"id": "C", "text": "每二年"},
-        {"id": "D", "text": "每三年"}
+        {
+          "id": "A",
+          "text": "每半年"
+        },
+        {
+          "id": "B",
+          "text": "每年"
+        },
+        {
+          "id": "C",
+          "text": "每二年"
+        },
+        {
+          "id": "D",
+          "text": "每三年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第10條第1項規定，雇主應使職業安全衛生管理人員會同有關部門人員，每年至少擬訂職業安全衛生管理計畫一次。勞工人數三十人以下者，得參考附表以安全衛生管理重點代替。",
-      "references": [{"title": "職業安全衛生管理辦法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"
+        }
+      ]
     },
     {
       "id": "U04-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第23條，雇主應多久對下列所列之臨時性、局部性或作業特殊之設備及作業實施重點檢查？",
       "options": [
-        {"id": "A", "text": "每日或每次作業前"},
-        {"id": "B", "text": "每週"},
-        {"id": "C", "text": "每月"},
-        {"id": "D", "text": "每半年"}
+        {
+          "id": "A",
+          "text": "每日或每次作業前"
+        },
+        {
+          "id": "B",
+          "text": "每週"
+        },
+        {
+          "id": "C",
+          "text": "每月"
+        },
+        {
+          "id": "D",
+          "text": "每半年"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管理辦法第23條第1項規定，雇主對臨時性、局部性或作業特殊之設備及作業，應於每日或每次作業前實施重點檢查。如異常振動、不正常溫度升降、不正常聲音等均應即刻檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=23"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=23"
+        }
+      ]
     },
     {
       "id": "U04-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第17條，雇主對起重機具之定期檢查，應多久實施一次？",
       "options": [
-        {"id": "A", "text": "每月"},
-        {"id": "B", "text": "每三個月"},
-        {"id": "C", "text": "每半年"},
-        {"id": "D", "text": "每年"}
+        {
+          "id": "A",
+          "text": "每月"
+        },
+        {
+          "id": "B",
+          "text": "每三個月"
+        },
+        {
+          "id": "C",
+          "text": "每半年"
+        },
+        {
+          "id": "D",
+          "text": "每年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第17條規定，雇主對起重機具應每年實施定期檢查一次。但固定式起重機之走行起重機及伸臂起重機每半年實施一次；移動式起重機及人字臂起重桿則每年一次。本题指固定式起重機走行及伸臂者為半年一次。",
-      "references": [{"title": "職業安全衛生管理辦法第17條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=17"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第17條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=17"
+        }
+      ]
     },
     {
       "id": "U04-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第16條，雇主對電氣設備之定期檢查應多久實施一次？",
       "options": [
-        {"id": "A", "text": "每月"},
-        {"id": "B", "text": "每三個月"},
-        {"id": "C", "text": "每半年"},
-        {"id": "D", "text": "每年"}
+        {
+          "id": "A",
+          "text": "每月"
+        },
+        {
+          "id": "B",
+          "text": "每三個月"
+        },
+        {
+          "id": "C",
+          "text": "每半年"
+        },
+        {
+          "id": "D",
+          "text": "每年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第16條規定，雇主對電氣設備應每半年實施定期檢查一次。高壓電氣設備亦同。但高壓電氣設備之特高壓用機器之定期檢查每年至少一次。",
-      "references": [{"title": "職業安全衛生管理辦法第16條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=16"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第16條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=16"
+        }
+      ]
     },
     {
       "id": "U04-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第14條，雇主對鍋爐之定期檢查應多久實施一次？",
       "options": [
-        {"id": "A", "text": "每月"},
-        {"id": "B", "text": "每半年"},
-        {"id": "C", "text": "每年"},
-        {"id": "D", "text": "每二年"}
+        {
+          "id": "A",
+          "text": "每月"
+        },
+        {
+          "id": "B",
+          "text": "每半年"
+        },
+        {
+          "id": "C",
+          "text": "每年"
+        },
+        {
+          "id": "D",
+          "text": "每二年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第14條第1項規定，雇主對鍋爐應每年實施定期檢查一次。鍋爐使用最高壓力達每平方公分十公斤以上者，其定期檢查每年至少一次。",
-      "references": [{"title": "職業安全衛生管理辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"
+        }
+      ]
     },
     {
       "id": "U04-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第15條，雇主對第一種壓力容器之定期檢查應多久實施一次？",
       "options": [
-        {"id": "A", "text": "每月"},
-        {"id": "B", "text": "每半年"},
-        {"id": "C", "text": "每年"},
-        {"id": "D", "text": "每二年"}
+        {
+          "id": "A",
+          "text": "每月"
+        },
+        {
+          "id": "B",
+          "text": "每半年"
+        },
+        {
+          "id": "C",
+          "text": "每年"
+        },
+        {
+          "id": "D",
+          "text": "每二年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第15條規定，雇主對第一種壓力容器應每年實施定期檢查一次。第二種壓力容器每二年至少應實施定期檢查一次。",
-      "references": [{"title": "職業安全衛生管理辦法第15條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=15"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第15條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=15"
+        }
+      ]
     },
     {
       "id": "U04-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第22條，雇主實施自動檢查發現有異常時，應立即採取何種措施？",
       "options": [
-        {"id": "A", "text": "繼續作業，等待下次檢查再處理"},
-        {"id": "B", "text": "立即修補，必要時停止作業"},
-        {"id": "C", "text": "報告主管即可"},
-        {"id": "D", "text": "由勞工自行決定是否繼續作業"}
+        {
+          "id": "A",
+          "text": "繼續作業，等待下次檢查再處理"
+        },
+        {
+          "id": "B",
+          "text": "立即修補，必要時停止作業"
+        },
+        {
+          "id": "C",
+          "text": "報告主管即可"
+        },
+        {
+          "id": "D",
+          "text": "由勞工自行決定是否繼續作業"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第22條規定，雇主實施自動檢查發現異常時，應立即修補，必要時應即停止作業。勞工發現作業場所及設備有發生危險之虞時，應立即停止作業並退避至安全處所。",
-      "references": [{"title": "職業安全衛生管理辦法第22條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=22"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第22條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=22"
+        }
+      ]
     },
     {
       "id": "U04-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第79條，雇主應保存自動檢查紀錄多少年？",
       "options": [
-        {"id": "A", "text": "一年"},
-        {"id": "B", "text": "二年"},
-        {"id": "C", "text": "三年"},
-        {"id": "D", "text": "五年"}
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "二年"
+        },
+        {
+          "id": "C",
+          "text": "三年"
+        },
+        {
+          "id": "D",
+          "text": "五年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第79條規定，雇主依本辦法實施之自動檢查，應做成紀錄，並至少保存三年。但鍋爐、第一種壓力容器、起重機等危險性設備之定期檢查紀錄應保存三年。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U04-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第6-2條，擔任職業安全衛生管理師者，應具備之資格為何？",
       "options": [
-        {"id": "A", "text": "高等考試職業安全衛生類科錄取"},
-        {"id": "B", "text": "領有職業安全管理師或職業衛生管理師結業證書"},
-        {"id": "C", "text": "曾任職業安全衛生管理工作三年以上"},
-        {"id": "D", "text": "以上皆是"}
+        {
+          "id": "A",
+          "text": "高等考試職業安全衛生類科錄取"
+        },
+        {
+          "id": "B",
+          "text": "領有職業安全管理師或職業衛生管理師結業證書"
+        },
+        {
+          "id": "C",
+          "text": "曾任職業安全衛生管理工作三年以上"
+        },
+        {
+          "id": "D",
+          "text": "以上皆是"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "管理辦法第6-2條第1項規定，職業安全衛生管理師之資格包括：高等考試職業安全衛生類科錄取、領有職業安全管理師或職業衛生管理師結業證書、曾任職業安全衛生管理工作三年以上等。以上均為法定資格。",
-      "references": [{"title": "職業安全衛生管理辦法第6-2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-2"
+        }
+      ]
     },
     {
       "id": "U04-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第3條，事業單位依其規模及性質分為第幾類風險？",
       "options": [
-        {"id": "A", "text": "二類"},
-        {"id": "B", "text": "三類"},
-        {"id": "C", "text": "四類"},
-        {"id": "D", "text": "五類"}
+        {
+          "id": "A",
+          "text": "二類"
+        },
+        {
+          "id": "B",
+          "text": "三類"
+        },
+        {
+          "id": "C",
+          "text": "四類"
+        },
+        {
+          "id": "D",
+          "text": "五類"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第3條附表規定，事業單位依其規模及性質分為第一類（危險性高）、第二類（危險性中等）、第三類（危險性低）三種風險等級。不同風險等級適用不同之管理規範。",
-      "references": [{"title": "職業安全衛生管理辦法第3條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第3條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=3"
+        }
+      ]
     },
     {
       "id": "U04-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第11條，職業安全衛生委員會之委員人數為多少？",
       "options": [
-        {"id": "A", "text": "五至十人"},
-        {"id": "B", "text": "七至十五人"},
-        {"id": "C", "text": "十至二十人"},
-        {"id": "D", "text": "由雇主決定，無限制"}
+        {
+          "id": "A",
+          "text": "五至十人"
+        },
+        {
+          "id": "B",
+          "text": "七至十五人"
+        },
+        {
+          "id": "C",
+          "text": "十至二十人"
+        },
+        {
+          "id": "D",
+          "text": "由雇主決定，無限制"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第11條第1項規定，職業安全衛生委員會置委員七人至十五人，由雇主擔任主任委員。勞工人數在三十人以上者，工會或勞工選舉之代表應佔委員人數三分之一以上。",
-      "references": [{"title": "職業安全衛生管理辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
     },
     {
       "id": "U04-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第24條，雇主應多久實施作業檢點一次？",
       "options": [
-        {"id": "A", "text": "每日"},
-        {"id": "B", "text": "每週"},
-        {"id": "C", "text": "每月"},
-        {"id": "D", "text": "每半年"}
+        {
+          "id": "A",
+          "text": "每日"
+        },
+        {
+          "id": "B",
+          "text": "每週"
+        },
+        {
+          "id": "C",
+          "text": "每月"
+        },
+        {
+          "id": "D",
+          "text": "每半年"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管理辦法第24條規定，雇主應使勞工對其作業中之機械設備、器具、交通工具及安全設備等，每日作業前實施檢點一次。但法規另有規定者，從其規定。",
-      "references": [{"title": "職業安全衛生管理辦法第24條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=24"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第24條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=24"
+        }
+      ]
     },
     {
       "id": "U04-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第6-2條，職業安全衛生管理員之資格為何？",
       "options": [
-        {"id": "A", "text": "領有職業安全衛生管理員結業證書"},
-        {"id": "B", "text": "普通考試職業安全衛生類科錄取"},
-        {"id": "C", "text": "曾任職業安全衛生管理工作一年以上"},
-        {"id": "D", "text": "以上皆是"}
+        {
+          "id": "A",
+          "text": "領有職業安全衛生管理員結業證書"
+        },
+        {
+          "id": "B",
+          "text": "普通考試職業安全衛生類科錄取"
+        },
+        {
+          "id": "C",
+          "text": "曾任職業安全衛生管理工作一年以上"
+        },
+        {
+          "id": "D",
+          "text": "以上皆是"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "管理辦法第6-2條第1項規定，職業安全衛生管理員之資格包括：領有職業安全衛生管理員結業證書、普通考試職業安全衛生類科錄取、曾任職業安全衛生管理工作一年以上等。以上均為法定資格。",
-      "references": [{"title": "職業安全衛生管理辦法第6-2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-2"
+        }
+      ]
     },
     {
       "id": "U04-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第7條，乙種職業安全衛生業務主管之訓練時數至少為多少小時？",
       "options": [
-        {"id": "A", "text": "三十五小時"},
-        {"id": "B", "text": "四十二小時"},
-        {"id": "C", "text": "五十小時"},
-        {"id": "D", "text": "一百零七小時"}
+        {
+          "id": "A",
+          "text": "三十五小時"
+        },
+        {
+          "id": "B",
+          "text": "四十二小時"
+        },
+        {
+          "id": "C",
+          "text": "五十小時"
+        },
+        {
+          "id": "D",
+          "text": "一百零七小時"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "依職業安全衛生教育訓練規則附表三規定，甲種業務主管107小時、乙種業務主管42小時、丙種業務主管35小時。乙種業務主管訓練時數為42小時。",
-      "references": [{"title": "職業安全衛生管理辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=7"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=7"
+        }
+      ]
     },
     {
       "id": "U04-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第6-1條，職業安全衛生管理師應於到職後多久期間內，使參加職業安全衛生管理師訓練？",
       "options": [
-        {"id": "A", "text": "一個月內"},
-        {"id": "B", "text": "三個月內"},
-        {"id": "C", "text": "六個月內"},
-        {"id": "D", "text": "一年內"}
+        {
+          "id": "A",
+          "text": "一個月內"
+        },
+        {
+          "id": "B",
+          "text": "三個月內"
+        },
+        {
+          "id": "C",
+          "text": "六個月內"
+        },
+        {
+          "id": "D",
+          "text": "一年內"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第6-1條第2項規定，雇主應於職業安全衛生管理師、職業安全管理師、職業衛生管理師及職業安全衛生管理員到職後三個月內，使其參加相關之職業安全衛生教育訓練。",
-      "references": [{"title": "職業安全衛生管理辦法第6-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"
+        }
+      ]
     },
     {
       "id": "U04-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第13條，雇主依規定設置之職業安全衛生委員會，應於多久期限內組成？",
       "options": [
-        {"id": "A", "text": "一個月"},
-        {"id": "B", "text": "二個月"},
-        {"id": "C", "text": "三個月"},
-        {"id": "D", "text": "六個月"}
+        {
+          "id": "A",
+          "text": "一個月"
+        },
+        {
+          "id": "B",
+          "text": "二個月"
+        },
+        {
+          "id": "C",
+          "text": "三個月"
+        },
+        {
+          "id": "D",
+          "text": "六個月"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "管理辦法第13條第1項規定，依本辦法規定應設職業安全衛生委員會之事業單位，應於符合設置標準之日起三個月內組成之。",
-      "references": [{"title": "職業安全衛生管理辦法第13條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=13"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第13條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=13"
+        }
+      ]
     },
     {
       "id": "U04-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第10條第1項，雇主應依事業之規模及內容，由職業安全衛生人員會同各有關部門人員擬訂職業安全衛生管理計畫，並至少多久檢討一次？",
       "options": [
-        {"id": "A", "text": "每半年檢討一次"},
-        {"id": "B", "text": "每年檢討一次"},
-        {"id": "C", "text": "每二年檢討一次"},
-        {"id": "D", "text": "每三年檢討一次"}
+        {
+          "id": "A",
+          "text": "每半年檢討一次"
+        },
+        {
+          "id": "B",
+          "text": "每年檢討一次"
+        },
+        {
+          "id": "C",
+          "text": "每二年檢討一次"
+        },
+        {
+          "id": "D",
+          "text": "每三年檢討一次"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第10條第1項規定，雇主應依事業之規模、勞工人數、工作環境危險性等因素，由職業安全衛生人員會同各有關部門人員擬訂職業安全衛生管理計畫，並至少每年檢討一次。管理計畫之內容應包括多項規定事項。",
-      "references": [{"title": "職業安全衛生管理辦法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"
+        }
+      ]
     },
     {
       "id": "U04-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第11條，職業安全衛生委員會之委員應包括哪些人員？（複選）",
       "options": [
-        {"id": "A", "text": "事業單位之副雇主或相當之代理人"},
-        {"id": "B", "text": "工會或勞工選舉之代表"},
-        {"id": "C", "text": "職業安全衛生人員"},
-        {"id": "D", "text": "各部門主管或其代理人"}
+        {
+          "id": "A",
+          "text": "工會或勞工選舉之代表"
+        },
+        {
+          "id": "B",
+          "text": "職業安全衛生人員"
+        },
+        {
+          "id": "C",
+          "text": "事業單位之股東代表"
+        },
+        {
+          "id": "D",
+          "text": "事業單位之客戶代表"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "管理辦法第11條第1項規定，委員會之委員應包括副雇主、各部門主管或其代理人、工會或勞工選舉之代表、職業安全衛生人員等。四項均為法定委員組成。",
-      "references": [{"title": "職業安全衛生管理辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "管理辦法第11條第1項規定，委員會之委員應包括副雇主、各部門主管或其代理人、工會或勞工選舉之代表、職業安全衛生人員等。本題中工會或勞工代表與職業安全衛生人員屬法定委員；股東代表及客戶代表非屬法定委員組成。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
     },
     {
       "id": "U04-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第10條第2項，職業安全衛生管理計畫應包括哪些項目？（複選）",
       "options": [
-        {"id": "A", "text": "工作環境或作業危害之辨識及評估"},
-        {"id": "B", "text": "機械設備或器具之管理"},
-        {"id": "C", "text": "採購管理、承攬管理"},
-        {"id": "D", "text": "緊急應變措施"}
+        {
+          "id": "A",
+          "text": "緊急應變措施"
+        },
+        {
+          "id": "B",
+          "text": "採購管理、承攬管理"
+        },
+        {
+          "id": "C",
+          "text": "勞工薪資結構之設計"
+        },
+        {
+          "id": "D",
+          "text": "產品行銷與市場調查"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "管理辦法第10條第2項列舉10項管理計畫應包括之項目，包括危害辨識評估、機械設備管理、採購承攬管理、作業環境監測、健康管理、安全衛生教育訓練、緊急應變措施等。四項均屬之。",
-      "references": [{"title": "職業安全衛生管理辦法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "管理辦法第10條第2項列舉10項管理計畫應包括之項目，包括危害辨識評估、機械設備管理、採購承攬管理、作業環境監測、健康管理、安全衛生教育訓練、緊急應變措施等。本題中緊急應變措施與採購承攬管理屬之；薪資結構設計與產品行銷均非職業安全衛生管理計畫範疇。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"
+        }
+      ]
     },
     {
       "id": "U04-Q027",
@@ -399,14 +895,34 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第6條，甲種職業安全衛生業務主管之適用範圍為何？（複選）",
       "options": [
-        {"id": "A", "text": "第一類事業且勞工人數一百人以上"},
-        {"id": "B", "text": "第一類事業且勞工人數未滿一百人者，僱用勞工人數五十人以上"},
-        {"id": "C", "text": "第二類事業且勞工人數三百人以上"},
-        {"id": "D", "text": "第三類事業且勞工人數三百人以上"}
+        {
+          "id": "A",
+          "text": "第一類事業且勞工人數一百人以上"
+        },
+        {
+          "id": "B",
+          "text": "第一類事業且勞工人數未滿一百人者，僱用勞工人數五十人以上"
+        },
+        {
+          "id": "C",
+          "text": "第二類事業且勞工人數三百人以上"
+        },
+        {
+          "id": "D",
+          "text": "第三類事業且勞工人數三百人以上"
+        }
       ],
-      "answer": ["A", "C"],
+      "answer": [
+        "A",
+        "C"
+      ],
       "explanation": "管理辦法第6條第1項規定：甲種業務主管適用第一類事業且勞工人數一百人以上，或第二類事業且勞工人數三百人以上者。乙種業務主管適用第一類未滿百人或第二類未滿三百人。丙種適用第三類事業。",
-      "references": [{"title": "職業安全衛生管理辦法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
     },
     {
       "id": "U04-Q028",
@@ -414,14 +930,34 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法，雇主應實施自動檢查的類型包括哪些？（複選）",
       "options": [
-        {"id": "A", "text": "定期檢查"},
-        {"id": "B", "text": "重點檢查"},
-        {"id": "C", "text": "作業檢點"},
-        {"id": "D", "text": "自動檢查（指定設備及作業）"}
+        {
+          "id": "A",
+          "text": "自動檢查（指定設備及作業）"
+        },
+        {
+          "id": "B",
+          "text": "作業檢點"
+        },
+        {
+          "id": "C",
+          "text": "勞工薪資查核"
+        },
+        {
+          "id": "D",
+          "text": "客戶滿意度調查"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "管理辦法將自動檢查分為定期檢查（第14-18條等）、重點檢查（第23條）、作業檢點（第24條）、及指定設備及作業之自動檢查（第25-77條等）。四種類型均為自動檢查體系之一環。",
-      "references": [{"title": "職業安全衛生管理辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "管理辦法將自動檢查分為定期檢查、重點檢查、作業檢點、及指定設備及作業之自動檢查。本題中指定設備及作業之自動檢查與作業檢點屬之；薪資查核與客戶滿意度調查非屬自動檢查體系。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"
+        }
+      ]
     },
     {
       "id": "U04-Q029",
@@ -429,14 +965,35 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第6-2條，下列哪些為職業安全衛生管理師之資格？（複選）",
       "options": [
-        {"id": "A", "text": "高等考試職業安全衛生類科錄取"},
-        {"id": "B", "text": "領有職業安全管理師結業證書"},
-        {"id": "C", "text": "領有職業衛生管理師結業證書"},
-        {"id": "D", "text": "曾任職業安全衛生管理工作三年以上"}
+        {
+          "id": "A",
+          "text": "領有職業衛生管理師結業證書"
+        },
+        {
+          "id": "B",
+          "text": "領有職業安全管理師結業證書"
+        },
+        {
+          "id": "C",
+          "text": "曾任職業安全衛生管理工作三年以上"
+        },
+        {
+          "id": "D",
+          "text": "具備任何科系之大學畢業證書即屬之"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "管理辦法第6-2條第1項列舉多種管理師資格，包括高普考錄取、領有結業證書、相關工作經驗等。四項均為法定之職業安全衛生管理師資格。",
-      "references": [{"title": "職業安全衛生管理辦法第6-2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-2"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "管理辦法第6-2條第1項列舉多種管理師資格，包括高普考錄取、領有結業證書、相關工作經驗等。本題前三項均屬法定資格；僅具大學畢業證書而未具其他法定要件者，尚不構成管理師資格。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-2"
+        }
+      ]
     },
     {
       "id": "U04-Q030",
@@ -444,14 +1001,35 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第12條，職業安全衛生委員會應審議下列哪些事項？（複選）",
       "options": [
-        {"id": "A", "text": "職業安全衛生管理計畫"},
-        {"id": "B", "text": "安全衛生教育訓練計畫"},
-        {"id": "C", "text": "工作場所安全衛生設施改善"},
-        {"id": "D", "text": "職業災害調查報告"}
+        {
+          "id": "A",
+          "text": "職業安全衛生管理計畫"
+        },
+        {
+          "id": "B",
+          "text": "安全衛生教育訓練計畫"
+        },
+        {
+          "id": "C",
+          "text": "工作場所安全衛生設施改善"
+        },
+        {
+          "id": "D",
+          "text": "勞工休假申請之審核"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "管理辦法第12條第2項列舉5項委員會應審議事項：職業安全衛生政策、職業安全衛生管理計畫、安全衛生教育訓練計畫、工作場所安全衛生設施改善、職業災害調查報告等。四項均屬之。",
-      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "管理辦法第12條第2項列舉5項委員會應審議事項：職業安全衛生政策、職業安全衛生管理計畫、安全衛生教育訓練計畫、工作場所安全衛生設施改善、職業災害調查報告等。本題前三項均屬之；勞工休假申請審核屬人事管理事項，非委員會應審議範圍。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
     },
     {
       "id": "U04-Q031",
@@ -459,14 +1037,36 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第79條及相關條文，自動檢查紀錄應包括哪些項目？（複選）",
       "options": [
-        {"id": "A", "text": "檢查日期及檢查方法"},
-        {"id": "B", "text": "檢查部分及檢查發現"},
-        {"id": "C", "text": "實施檢查者姓名及依附標準"},
-        {"id": "D", "text": "改善措施及結果"}
+        {
+          "id": "A",
+          "text": "改善措施及結果"
+        },
+        {
+          "id": "B",
+          "text": "實施檢查者姓名及依附標準"
+        },
+        {
+          "id": "C",
+          "text": "檢查部分及檢查發現"
+        },
+        {
+          "id": "D",
+          "text": "檢查日期及檢查方法"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "管理辦法第79條第1項規定自動檢查紀錄應包括：檢查日期、檢查方法、檢查部分、檢查發現、檢查者姓名、依附標準、改善措施及結果等。四項均為法定應記載項目。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U04-Q032",
@@ -474,14 +1074,34 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第4條，下列哪些事業單位應設專責一級管理單位？（複選）",
       "options": [
-        {"id": "A", "text": "第一類事業勞工人數三百人以上"},
-        {"id": "B", "text": "第二類事業勞工人數三百人以上"},
-        {"id": "C", "text": "第一類事業勞工人數一百人以上未滿三百人"},
-        {"id": "D", "text": "第三類事業勞工人數五百人以上"}
+        {
+          "id": "A",
+          "text": "第一類事業勞工人數三百人以上"
+        },
+        {
+          "id": "B",
+          "text": "第二類事業勞工人數三百人以上"
+        },
+        {
+          "id": "C",
+          "text": "第一類事業勞工人數一百人以上未滿三百人"
+        },
+        {
+          "id": "D",
+          "text": "第三類事業勞工人數五百人以上"
+        }
       ],
-      "answer": ["A", "B"],
+      "answer": [
+        "A",
+        "B"
+      ],
       "explanation": "管理辦法第4條第1項規定，第一類事業勞工人數三百人以上或第二類事業勞工人數三百人以上者，應設直接隸屬雇主之專責一級管理單位。一百人以上未滿三百人者亦應設專責一級管理單位，但不必直接隸屬雇主。第三類事業不適用此規定。",
-      "references": [{"title": "職業安全衛生管理辦法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"
+        }
+      ]
     },
     {
       "id": "U04-Q033",
@@ -489,12 +1109,25 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生管理辦法第2條，本辦法依職業安全衛生法第二十三條第二項及第三十六條第三項規定訂定之。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管理辦法第2條明確規定，本辦法依職業安全衛生法第二十三條第二項及第三十六條第三項規定訂定之。第23條涉及安全衛生組織與人員，第36條涉及自動檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第2條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第2條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=2"
+        }
+      ]
     },
     {
       "id": "U04-Q034",
@@ -502,12 +1135,25 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第12條，職業安全衛生委員會應至少每六個月開會一次。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第12條第1項規定，職業安全衛生委員會應至少每三個月開會一次，並非每六個月。委員會由雇主擔任主任委員，負責審議各項安全衛生事項。",
-      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
     },
     {
       "id": "U04-Q035",
@@ -515,12 +1161,25 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第6條，職業安全衛生業務主管分為甲種、乙種、丙種三種。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管理辦法第6條第1項規定，職業安全衛生業務主管分為甲種、乙種、丙種三種，依事業風險分類及勞工人數決定適用何種業務主管。",
-      "references": [{"title": "職業安全衛生管理辦法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
     },
     {
       "id": "U04-Q036",
@@ -528,12 +1187,25 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第6-1條，職業安全衛生管理人員分為職業安全衛生管理師、職業安全管理師、職業衛生管理師及職業安全衛生管理員四種。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "管理辦法第6-1條第1項規定，職業安全衛生管理人員分為職業安全衛生管理師、職業安全管理師、職業衛生管理師、職業安全衛生管理員四種。前三者為師級，最後為員級。",
-      "references": [{"title": "職業安全衛生管理辦法第6-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"
+        }
+      ]
     },
     {
       "id": "U04-Q037",
@@ -541,84 +1213,164 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法第79條，雇主依本辦法實施自動檢查之紀錄應至少保存五年。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "管理辦法第79條規定，自動檢查紀錄應至少保存三年，並非五年。紀錄應包括檢查日期、方法、部分、發現、改善措施等項目。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U04-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依管理辦法第4條，事業單位勞工人數在________人以上者，應設直接隸屬雇主之專責一級管理單位。",
-      "answer": ["300", "三百"],
+      "answer": [
+        "300",
+        "三百"
+      ],
       "explanation": "管理辦法第4條第1項規定，事業單位勞工人數在三百人以上者，應設直接隸屬雇主之專責一級管理單位。此為安全衛生組織設置之重要門檻。",
-      "references": [{"title": "職業安全衛生管理辦法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"
+        }
+      ]
     },
     {
       "id": "U04-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依管理辦法第12條，職業安全衛生委員會應至少每________個月開會一次。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "管理辦法第12條第1項規定，職業安全衛生委員會應至少每三個月開會一次。委員會由雇主擔任主任委員，負責審議安全衛生管理計畫等事項。",
-      "references": [{"title": "職業安全衛生管理辦法第12條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第12條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=12"
+        }
+      ]
     },
     {
       "id": "U04-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依管理辦法第79條，雇主依本辦法實施自動檢查之紀錄應至少保存________年。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "管理辦法第79條規定，自動檢查紀錄應至少保存三年。紀錄應包括檢查日期、方法、部分、發現、檢查者姓名、依附標準及改善措施等。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U04-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依管理辦法第6-1條，職業安全衛生管理人員分為________種。",
-      "answer": ["4", "四"],
+      "answer": [
+        "4",
+        "四"
+      ],
       "explanation": "管理辦法第6-1條規定，職業安全衛生管理人員分為四種：職業安全衛生管理師、職業安全管理師、職業衛生管理師、職業安全衛生管理員。",
-      "references": [{"title": "職業安全衛生管理辦法第6-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"
+        }
+      ]
     },
     {
       "id": "U04-Q042",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依管理辦法第6條，職業安全衛生業務主管分為甲種、乙種、丙種共________種。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "管理辦法第6條規定，職業安全衛生業務主管分為甲種、乙種、丙種三種。依事業風險分類及勞工人數決定適用何種業務主管。",
-      "references": [{"title": "職業安全衛生管理辦法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
     },
     {
       "id": "U04-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依管理辦法第4條，某第一類事業單位勞工人數為250人，依規定應設專責一級管理單位。請問該事業單位是否應設「直接隸屬雇主」之專責一級管理單位？若否，至少需多少人方須直接隸屬雇主？（請輸入需直接隸屬雇主之最低人數）",
-      "answer": {"value": 300, "unit": "人", "tolerance": 0},
+      "answer": {
+        "value": 300,
+        "unit": "人",
+        "tolerance": 0
+      },
       "explanation": "管理辦法第4條第1項規定，第一類事業勞工人數三百人以上者，應設直接隸屬雇主之專責一級管理單位。250人未達300人門檻，故須達300人方須直接隸屬雇主。",
-      "references": [{"title": "職業安全衛生管理辦法第4條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第4條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=4"
+        }
+      ]
     },
     {
       "id": "U04-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "依管理辦法第11條，某事業單位勞工人數為30人，依法設職業安全衛生委員會，委員7人。請問工會或勞工選舉之代表至少需幾人？",
-      "answer": {"value": 3, "unit": "人", "tolerance": 0},
+      "answer": {
+        "value": 3,
+        "unit": "人",
+        "tolerance": 0
+      },
       "explanation": "管理辦法第11條第1項規定，勞工人數在三十人以上者，工會或勞工選舉之代表應佔委員人數三分之一以上。委員7人，三分之一為7÷3=2.33，取整數至少3人。",
-      "references": [{"title": "職業安全衛生管理辦法第11條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第11條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=11"
+        }
+      ]
     },
     {
       "id": "U04-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依管理辦法第10條，雇主應至少每年擬訂及檢討職業安全衛生管理計畫一次。請問每年至少擬訂及檢討共幾次？",
-      "answer": {"value": 2, "unit": "次", "tolerance": 0},
+      "answer": {
+        "value": 2,
+        "unit": "次",
+        "tolerance": 0
+      },
       "explanation": "管理辦法第10條第1項規定，雇主應每年至少擬訂職業安全衛生管理計畫一次，並至少每年檢討一次。故每年至少擬訂1次及檢討1次，合計至少2次。",
-      "references": [{"title": "職業安全衛生管理辦法第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=10"
+        }
+      ]
     },
     {
       "id": "U04-Q046",
@@ -626,22 +1378,54 @@
       "difficulty": "intermediate",
       "stem": "請將下列職業安全衛生業務主管種類與其適用之事業類型正確配對（依管理辦法第6條）：",
       "leftItems": [
-        {"id": "L1", "text": "甲種業務主管"},
-        {"id": "L2", "text": "乙種業務主管"},
-        {"id": "L3", "text": "丙種業務主管"}
+        {
+          "id": "L1",
+          "text": "甲種業務主管"
+        },
+        {
+          "id": "L2",
+          "text": "乙種業務主管"
+        },
+        {
+          "id": "L3",
+          "text": "丙種業務主管"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "第三類事業"},
-        {"id": "R2", "text": "第一類事業且勞工人數一百人以上"},
-        {"id": "R3", "text": "第一類事業未滿百人或第二類事業"}
+        {
+          "id": "R1",
+          "text": "第三類事業"
+        },
+        {
+          "id": "R2",
+          "text": "第一類事業且勞工人數一百人以上"
+        },
+        {
+          "id": "R3",
+          "text": "第一類事業未滿百人或第二類事業"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R2"},
-        {"left": "L2", "right": "R3"},
-        {"left": "L3", "right": "R1"}
+        {
+          "left": "L1",
+          "right": "R2"
+        },
+        {
+          "left": "L2",
+          "right": "R3"
+        },
+        {
+          "left": "L3",
+          "right": "R1"
+        }
       ],
       "explanation": "管理辦法第6條規定：甲種業務主管適用第一類事業100人以上（或第二類事業300人以上）；乙種適用第一類未滿100人或第二類未滿300人；丙種適用第三類事業。",
-      "references": [{"title": "職業安全衛生管理辦法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
     },
     {
       "id": "U04-Q047",
@@ -649,25 +1433,66 @@
       "difficulty": "advanced",
       "stem": "請將下列設備與其實施自動檢查之週期正確配對（依管理辦法相關條文）：",
       "leftItems": [
-        {"id": "L1", "text": "電氣設備"},
-        {"id": "L2", "text": "鍋爐"},
-        {"id": "L3", "text": "作業檢點"},
-        {"id": "L4", "text": "臨時性設備重點檢查"}
+        {
+          "id": "L1",
+          "text": "電氣設備"
+        },
+        {
+          "id": "L2",
+          "text": "鍋爐"
+        },
+        {
+          "id": "L3",
+          "text": "作業檢點"
+        },
+        {
+          "id": "L4",
+          "text": "臨時性設備重點檢查"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "每日或每次作業前"},
-        {"id": "R2", "text": "每半年一次"},
-        {"id": "R3", "text": "每年一次"},
-        {"id": "R4", "text": "每日作業前"}
+        {
+          "id": "R1",
+          "text": "每日或每次作業前"
+        },
+        {
+          "id": "R2",
+          "text": "每半年一次"
+        },
+        {
+          "id": "R3",
+          "text": "每年一次"
+        },
+        {
+          "id": "R4",
+          "text": "每日作業前"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R2"},
-        {"left": "L2", "right": "R3"},
-        {"left": "L3", "right": "R4"},
-        {"left": "L4", "right": "R1"}
+        {
+          "left": "L1",
+          "right": "R2"
+        },
+        {
+          "left": "L2",
+          "right": "R3"
+        },
+        {
+          "left": "L3",
+          "right": "R4"
+        },
+        {
+          "left": "L4",
+          "right": "R1"
+        }
       ],
       "explanation": "依管理辦法：電氣設備每半年檢查一次（第16條）；鍋爐每年一次（第14條）；作業檢點每日作業前實施（第24條）；臨時性設備重點檢查每日或每次作業前（第23條）。",
-      "references": [{"title": "職業安全衛生管理辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"
+        }
+      ]
     },
     {
       "id": "U04-Q048",
@@ -675,25 +1500,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列職業安全衛生管理人員種類與其等級正確配對（依管理辦法第6-1條）：",
       "leftItems": [
-        {"id": "L1", "text": "職業安全衛生管理師"},
-        {"id": "L2", "text": "職業安全管理師"},
-        {"id": "L3", "text": "職業衛生管理師"},
-        {"id": "L4", "text": "職業安全衛生管理員"}
+        {
+          "id": "L1",
+          "text": "職業安全衛生管理師"
+        },
+        {
+          "id": "L2",
+          "text": "職業安全管理師"
+        },
+        {
+          "id": "L3",
+          "text": "職業衛生管理師"
+        },
+        {
+          "id": "L4",
+          "text": "職業安全衛生管理員"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "員級"},
-        {"id": "R2", "text": "師級"},
-        {"id": "R3", "text": "師級"},
-        {"id": "R4", "text": "師級"}
+        {
+          "id": "R1",
+          "text": "員級"
+        },
+        {
+          "id": "R2",
+          "text": "師級"
+        },
+        {
+          "id": "R3",
+          "text": "師級"
+        },
+        {
+          "id": "R4",
+          "text": "師級"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R2"},
-        {"left": "L2", "right": "R3"},
-        {"left": "L3", "right": "R4"},
-        {"left": "L4", "right": "R1"}
+        {
+          "left": "L1",
+          "right": "R2"
+        },
+        {
+          "left": "L2",
+          "right": "R3"
+        },
+        {
+          "left": "L3",
+          "right": "R4"
+        },
+        {
+          "left": "L4",
+          "right": "R1"
+        }
       ],
       "explanation": "管理辦法第6-1條規定，職業安全衛生管理師、職業安全管理師、職業衛生管理師三種為師級；職業安全衛生管理員為員級。師級資格要求高於員級。",
-      "references": [{"title": "職業安全衛生管理辦法第6-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6-1"
+        }
+      ]
     },
     {
       "id": "U04-Q049",
@@ -701,13 +1567,31 @@
       "difficulty": "advanced",
       "stem": "依管理辦法第6條，請依職業安全衛生業務主管適用之事業風險等級由高到低排列：",
       "items": [
-        {"id": "I1", "text": "甲種業務主管（第一類事業100人以上）"},
-        {"id": "I2", "text": "乙種業務主管（第一類未滿100人或第二類）"},
-        {"id": "I3", "text": "丙種業務主管（第三類事業）"}
+        {
+          "id": "I1",
+          "text": "甲種業務主管（第一類事業100人以上）"
+        },
+        {
+          "id": "I2",
+          "text": "乙種業務主管（第一類未滿100人或第二類）"
+        },
+        {
+          "id": "I3",
+          "text": "丙種業務主管（第三類事業）"
+        }
       ],
-      "answer": ["I1", "I2", "I3"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3"
+      ],
       "explanation": "管理辦法第6條依事業風險分類：第一類事業風險最高，適用甲種業務主管；第二類事業風險中等，適用乙種業務主管；第三類事業風險最低，適用丙種業務主管。由高到低為甲、乙、丙。",
-      "references": [{"title": "職業安全衛生管理辦法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=6"
+        }
+      ]
     },
     {
       "id": "U04-Q050",
@@ -715,14 +1599,36 @@
       "difficulty": "intermediate",
       "stem": "依管理辦法，請依自動檢查之實施頻率由短到長排列下列檢查類型：",
       "items": [
-        {"id": "I1", "text": "作業檢點（每日作業前）"},
-        {"id": "I2", "text": "電氣設備定期檢查（每半年）"},
-        {"id": "I3", "text": "鍋爐定期檢查（每年）"},
-        {"id": "I4", "text": "第二種壓力容器定期檢查（每二年）"}
+        {
+          "id": "I1",
+          "text": "作業檢點（每日作業前）"
+        },
+        {
+          "id": "I2",
+          "text": "電氣設備定期檢查（每半年）"
+        },
+        {
+          "id": "I3",
+          "text": "鍋爐定期檢查（每年）"
+        },
+        {
+          "id": "I4",
+          "text": "第二種壓力容器定期檢查（每二年）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依管理辦法：作業檢點每日（第24條），電氣設備每半年（第16條），鍋爐每年（第14條），第二種壓力容器每二年（第15條）。頻率由短到長為每日→半年→一年→二年。",
-      "references": [{"title": "職業安全衛生管理辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"
+        }
+      ]
     }
   ]
 }

@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依《職業安全衛生法》規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫，並設置安全衛生組織、人員，實施安全衛生管理及何種檢查？",
       "options": [
-        {"id": "A", "text": "自動檢查"},
-        {"id": "B", "text": "外部稽核"},
-        {"id": "C", "text": "客戶驗廠"},
-        {"id": "D", "text": "政府抽查"}
+        {
+          "id": "A",
+          "text": "自動檢查"
+        },
+        {
+          "id": "B",
+          "text": "外部稽核"
+        },
+        {
+          "id": "C",
+          "text": "客戶驗廠"
+        },
+        {
+          "id": "D",
+          "text": "政府抽查"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第23條第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫；並設置安全衛生組織、人員，實施安全衛生管理及自動檢查。自動檢查為事業單位自我實施之檢查，有別於政府勞動檢查機構之抽查。",
-      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
     },
     {
       "id": "U13-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主依第13條至第63條規定實施之自動檢查，應訂定何種計畫？",
       "options": [
-        {"id": "A", "text": "職業安全衛生管理計畫"},
-        {"id": "B", "text": "自動檢查計畫"},
-        {"id": "C", "text": "緊急應變計畫"},
-        {"id": "D", "text": "教育訓練計畫"}
+        {
+          "id": "A",
+          "text": "職業安全衛生管理計畫"
+        },
+        {
+          "id": "B",
+          "text": "自動檢查計畫"
+        },
+        {
+          "id": "C",
+          "text": "緊急應變計畫"
+        },
+        {
+          "id": "D",
+          "text": "教育訓練計畫"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第79條規定，雇主依第13條至第63條規定實施之自動檢查，應訂定自動檢查計畫。自動檢查計畫為落實自動檢查之依據，與職業安全衛生管理計畫不同，後者範圍更廣。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U13-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主依第13條至第49條規定實施之定期檢查、重點檢查紀錄，應保存多少年？",
       "options": [
-        {"id": "A", "text": "一年"},
-        {"id": "B", "text": "三年"},
-        {"id": "C", "text": "五年"},
-        {"id": "D", "text": "七年"}
+        {
+          "id": "A",
+          "text": "一年"
+        },
+        {
+          "id": "B",
+          "text": "三年"
+        },
+        {
+          "id": "C",
+          "text": "五年"
+        },
+        {
+          "id": "D",
+          "text": "七年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第80條規定，雇主依第13條至第49條規定實施之定期檢查、重點檢查應就檢查年月日、檢查方法、檢查部分、檢查結果、實施檢查者姓名、應採取改善措施等事項記錄，並保存三年。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U13-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主實施自動檢查發現有異常時，應如何處理？",
       "options": [
-        {"id": "A", "text": "等到下次定期檢查時再處理"},
-        {"id": "B", "text": "立即檢修及採取必要措施"},
-        {"id": "C", "text": "記錄後無須處理"},
-        {"id": "D", "text": "通報主管機關即可"}
+        {
+          "id": "A",
+          "text": "等到下次定期檢查時再處理"
+        },
+        {
+          "id": "B",
+          "text": "立即檢修及採取必要措施"
+        },
+        {
+          "id": "C",
+          "text": "記錄後無須處理"
+        },
+        {
+          "id": "D",
+          "text": "通報主管機關即可"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第81條第2項規定，雇主依第13條至第77條規定實施自動檢查，發現有異常時，應立即檢修及採取必要措施。不得延宕至下次檢查，亦非僅記錄或通報即可。",
-      "references": [{"title": "職業安全衛生管理辦法第81條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"
+        }
+      ]
     },
     {
       "id": "U13-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，勞工、主管人員及職業安全衛生管理人員實施檢查、檢點時，發現對勞工有危害之虞者，應如何處理？",
       "options": [
-        {"id": "A", "text": "立即停止作業並撤離"},
-        {"id": "B", "text": "應即報告上級主管"},
-        {"id": "C", "text": "自行處理無須報告"},
-        {"id": "D", "text": "等下班後再報告"}
+        {
+          "id": "A",
+          "text": "立即停止作業並撤離"
+        },
+        {
+          "id": "B",
+          "text": "應即報告上級主管"
+        },
+        {
+          "id": "C",
+          "text": "自行處理無須報告"
+        },
+        {
+          "id": "D",
+          "text": "等下班後再報告"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第81條第1項規定，勞工、主管人員及職業安全衛生管理人員實施檢查、檢點時，發現對勞工有危害之虞者，應即報告上級主管。以利及時採取改善措施，防止災害發生。",
-      "references": [{"title": "職業安全衛生管理辦法第81條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"
+        }
+      ]
     },
     {
       "id": "U13-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對一般車輛，應每隔多久就車輛各項安全性能定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每個月"},
-        {"id": "B", "text": "每三個月"},
-        {"id": "C", "text": "每半年"},
-        {"id": "D", "text": "每年"}
+        {
+          "id": "A",
+          "text": "每個月"
+        },
+        {
+          "id": "B",
+          "text": "每三個月"
+        },
+        {
+          "id": "C",
+          "text": "每半年"
+        },
+        {
+          "id": "D",
+          "text": "每年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第14條規定，雇主對一般車輛，應每三個月就車輛各項安全性能定期實施檢查一次。車輛頂高機亦應每三個月檢查一次以上，維持其安全性能。",
-      "references": [{"title": "職業安全衛生管理辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"
+        }
+      ]
     },
     {
       "id": "U13-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對鍋爐應每隔多久定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每個月"},
-        {"id": "B", "text": "每三個月"},
-        {"id": "C", "text": "每半年"},
-        {"id": "D", "text": "每年"}
+        {
+          "id": "A",
+          "text": "每個月"
+        },
+        {
+          "id": "B",
+          "text": "每三個月"
+        },
+        {
+          "id": "C",
+          "text": "每半年"
+        },
+        {
+          "id": "D",
+          "text": "每年"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第32條規定，雇主對鍋爐應每月依規定定期實施檢查一次，檢查項目包括鍋爐本體有無損傷、燃燒裝置、安全閥等。鍋爐屬高危險設備，故檢查頻率較高（每月一次）。",
-      "references": [{"title": "職業安全衛生管理辦法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=32"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第32條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=32"
+        }
+      ]
     },
     {
       "id": "U13-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對化學設備及其附屬設備，應每隔多久定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每年"},
-        {"id": "B", "text": "每二年"},
-        {"id": "C", "text": "每三年"},
-        {"id": "D", "text": "每五年"}
+        {
+          "id": "A",
+          "text": "每年"
+        },
+        {
+          "id": "B",
+          "text": "每二年"
+        },
+        {
+          "id": "C",
+          "text": "每三年"
+        },
+        {
+          "id": "D",
+          "text": "每五年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第38條規定，雇主對化學設備及其附屬設備，應就規定事項，每二年定期實施檢查一次。檢查項目包括內部是否造成爆炸或火災之虞、內外部損傷變形腐蝕、安全裝置性能等。",
-      "references": [{"title": "職業安全衛生管理辦法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"
+        }
+      ]
     },
     {
       "id": "U13-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對局部排氣裝置、空氣清淨裝置及吹吸型換氣裝置應每隔多久定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每個月"},
-        {"id": "B", "text": "每半年"},
-        {"id": "C", "text": "每年"},
-        {"id": "D", "text": "每二年"}
+        {
+          "id": "A",
+          "text": "每個月"
+        },
+        {
+          "id": "B",
+          "text": "每半年"
+        },
+        {
+          "id": "C",
+          "text": "每年"
+        },
+        {
+          "id": "D",
+          "text": "每二年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法規定，雇主對局部排氣裝置、空氣清淨裝置及吹吸型換氣裝置應每年定期實施檢查一次。檢查項目包括氣罩及導管之磨損腐蝕、塵埃聚積、排氣機注油潤滑、吸氣排氣能力等。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第二節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第二節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對施工架及施工構台，應每隔多久定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每日"},
-        {"id": "B", "text": "每週"},
-        {"id": "C", "text": "每月"},
-        {"id": "D", "text": "每半年"}
+        {
+          "id": "A",
+          "text": "每日"
+        },
+        {
+          "id": "B",
+          "text": "每週"
+        },
+        {
+          "id": "C",
+          "text": "每月"
+        },
+        {
+          "id": "D",
+          "text": "每半年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第43條規定，雇主對施工架及施工構台，應就架材損傷、立柱固定部分、固定材料腐蝕、扶手護欄狀況等事項，每週定期實施檢查一次。強風大雨等惡劣氣候、四級以上地震襲擊後及每次停工復工前，亦應實施檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"
+        }
+      ]
     },
     {
       "id": "U13-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對高壓電氣設備，應每隔多久定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每個月"},
-        {"id": "B", "text": "每半年"},
-        {"id": "C", "text": "每年"},
-        {"id": "D", "text": "每三年"}
+        {
+          "id": "A",
+          "text": "每個月"
+        },
+        {
+          "id": "B",
+          "text": "每半年"
+        },
+        {
+          "id": "C",
+          "text": "每年"
+        },
+        {
+          "id": "D",
+          "text": "每三年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法規定，雇主對高壓電氣設備，應於每年定期實施檢查一次。檢查項目包括高壓受電盤及分電盤之動作試驗等。但防爆電氣設備則應每月定期檢查一次。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第二節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第二節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對防爆電氣設備，應每隔多久定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每個月"},
-        {"id": "B", "text": "每半年"},
-        {"id": "C", "text": "每年"},
-        {"id": "D", "text": "每二年"}
+        {
+          "id": "A",
+          "text": "每個月"
+        },
+        {
+          "id": "B",
+          "text": "每半年"
+        },
+        {
+          "id": "C",
+          "text": "每年"
+        },
+        {
+          "id": "D",
+          "text": "每二年"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法規定，雇主對防爆電氣設備，應每月定期實施檢查一次。檢查項目包括本體有無損傷變形、配管配線有無損傷及異常、其他保持防爆性能之必要事項。防爆設備關係爆炸防護，故頻率較高。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第二節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第二節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對固定式起重機，應每隔多久就該機械之整體定期實施檢查一次？",
       "options": [
-        {"id": "A", "text": "每個月"},
-        {"id": "B", "text": "每半年"},
-        {"id": "C", "text": "每年"},
-        {"id": "D", "text": "每三年"}
+        {
+          "id": "A",
+          "text": "每個月"
+        },
+        {
+          "id": "B",
+          "text": "每半年"
+        },
+        {
+          "id": "C",
+          "text": "每年"
+        },
+        {
+          "id": "D",
+          "text": "每三年"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法規定，雇主對固定式起重機，應每年就該機械之整體定期實施檢查一次。另應每月就過捲預防裝置、警報裝置、制動器、鋼索及吊鏈等實施檢查一次。即每年整體檢查、每月局部檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第一節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第一節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對車輛機械，應於何時實施檢點？",
       "options": [
-        {"id": "A", "text": "每週作業前"},
-        {"id": "B", "text": "每日作業前"},
-        {"id": "C", "text": "每月作業前"},
-        {"id": "D", "text": "每季作業前"}
+        {
+          "id": "A",
+          "text": "每週作業前"
+        },
+        {
+          "id": "B",
+          "text": "每日作業前"
+        },
+        {
+          "id": "C",
+          "text": "每月作業前"
+        },
+        {
+          "id": "D",
+          "text": "每季作業前"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第50條規定，雇主對車輛機械，應每日作業前依規定實施檢點，檢查制動器、連結裝置、各種儀器、蓄電池、配線、控制裝置之有無異常。作業檢點為每日作業前之例行檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第50條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=50"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第50條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=50"
+        }
+      ]
     },
     {
       "id": "U13-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對機械、設備，應依本章第一節及第二節規定實施定期檢查。但雇主發現有腐蝕、劣化、損傷或堪用性之虞時，應如何處理？",
       "options": [
-        {"id": "A", "text": "維持原檢查期限"},
-        {"id": "B", "text": "延長檢查期限"},
-        {"id": "C", "text": "應實施安全評估，並縮短其檢查期限"},
-        {"id": "D", "text": "停止使用並報廢"}
+        {
+          "id": "A",
+          "text": "維持原檢查期限"
+        },
+        {
+          "id": "B",
+          "text": "延長檢查期限"
+        },
+        {
+          "id": "C",
+          "text": "應實施安全評估，並縮短其檢查期限"
+        },
+        {
+          "id": "D",
+          "text": "停止使用並報廢"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法第44條規定，雇主對於機械、設備，應依本章第一節及第二節規定實施定期檢查。但雇主發現有腐蝕、劣化、損傷或堪用性之虞，應實施安全評估，並縮短其檢查期限。亦即發現異常徵兆時，反而要縮短檢查週期以加強監控。",
-      "references": [{"title": "職業安全衛生管理辦法第44條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第44條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"
+        }
+      ]
     },
     {
       "id": "U13-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對第二種壓力容器及減壓艙，應於何時實施重點檢查？",
       "options": [
-        {"id": "A", "text": "每月定期實施"},
-        {"id": "B", "text": "初次使用前"},
-        {"id": "C", "text": "每年定期實施"},
-        {"id": "D", "text": "停工復工前"}
+        {
+          "id": "A",
+          "text": "每月定期實施"
+        },
+        {
+          "id": "B",
+          "text": "初次使用前"
+        },
+        {
+          "id": "C",
+          "text": "每年定期實施"
+        },
+        {
+          "id": "D",
+          "text": "停工復工前"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第45條規定，雇主對第二種壓力容器及減壓艙，應於初次使用前依規定實施重點檢查。重點檢查係於設備初次使用、改造、修理等特定時機實施，確認胴體端板厚度、安全閥吹洩量、耐壓試驗等。",
-      "references": [{"title": "職業安全衛生管理辦法第45條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=45"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第45條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=45"
+        }
+      ]
     },
     {
       "id": "U13-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主使勞工從事營造作業時，應使該勞工就其作業有關事項實施何種檢查？",
       "options": [
-        {"id": "A", "text": "定期檢查"},
-        {"id": "B", "text": "重點檢查"},
-        {"id": "C", "text": "作業檢點"},
-        {"id": "D", "text": "外部稽核"}
+        {
+          "id": "A",
+          "text": "定期檢查"
+        },
+        {
+          "id": "B",
+          "text": "重點檢查"
+        },
+        {
+          "id": "C",
+          "text": "作業檢點"
+        },
+        {
+          "id": "D",
+          "text": "外部稽核"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法第67條規定，雇主使勞工從事營造作業（如打樁、擋土支撐、露天開挖、隧道、混凝土、鋼架、施工架、模板支撐等）時，應使該勞工就其作業有關事項實施作業檢點。作業檢點由從事作業之勞工自行實施。",
-      "references": [{"title": "職業安全衛生管理辦法第67條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=67"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第67條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=67"
+        }
+      ]
     },
     {
       "id": "U13-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主依第50條至第56條及第58條至第77條實施之檢點，其檢點對象、內容應依實際需要訂定，以何種方式為之？",
       "options": [
-        {"id": "A", "text": "口頭報告"},
-        {"id": "B", "text": "檢點手冊或檢點表等為之"},
-        {"id": "C", "text": "電腦系統紀錄即可"},
-        {"id": "D", "text": "無須任何書面紀錄"}
+        {
+          "id": "A",
+          "text": "口頭報告"
+        },
+        {
+          "id": "B",
+          "text": "檢點手冊或檢點表等為之"
+        },
+        {
+          "id": "C",
+          "text": "電腦系統紀錄即可"
+        },
+        {
+          "id": "D",
+          "text": "無須任何書面紀錄"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第78條規定，雇主依第50條至第56條及第58條至第77條實施之檢點，其檢點對象、內容，應依實際需要訂定，以檢點手冊或檢點表等為之。使檢點作業標準化、書面化。",
-      "references": [{"title": "職業安全衛生管理辦法第78條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=78"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第78條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=78"
+        }
+      ]
     },
     {
       "id": "U13-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主使勞工從事下列有害物作業時，應使該勞工就其作業有關事項實施作業檢點。下列何者不屬之？",
       "options": [
-        {"id": "A", "text": "有機溶劑作業"},
-        {"id": "B", "text": "鉛作業"},
-        {"id": "C", "text": "粉塵作業"},
-        {"id": "D", "text": "一般文書處理作業"}
+        {
+          "id": "A",
+          "text": "有機溶劑作業"
+        },
+        {
+          "id": "B",
+          "text": "鉛作業"
+        },
+        {
+          "id": "C",
+          "text": "粉塵作業"
+        },
+        {
+          "id": "D",
+          "text": "一般文書處理作業"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生管理辦法第69條規定，雇主使勞工從事有害物作業（有機溶劑、鉛、四烷基鉛、特定化學物質、粉塵等作業）時，應使該勞工就其作業有關事項實施作業檢點。一般文書處理作業非屬有害物作業，不須實施此類作業檢點。",
-      "references": [{"title": "職業安全衛生管理辦法第69條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=69"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第69條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=69"
+        }
+      ]
     },
     {
       "id": "U13-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》規定，職業安全衛生管理計畫所包括之事項中，下列何者與自動檢查直接相關？",
       "options": [
-        {"id": "A", "text": "工作環境或作業危害之辨識、評估及控制"},
-        {"id": "B", "text": "定期檢查、重點檢查、作業檢點及現場巡視"},
-        {"id": "C", "text": "安全衛生教育訓練"},
-        {"id": "D", "text": "個人防護具之管理"}
+        {
+          "id": "A",
+          "text": "工作環境或作業危害之辨識、評估及控制"
+        },
+        {
+          "id": "B",
+          "text": "定期檢查、重點檢查、作業檢點及現場巡視"
+        },
+        {
+          "id": "C",
+          "text": "安全衛生教育訓練"
+        },
+        {
+          "id": "D",
+          "text": "個人防護具之管理"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法施行細則第31條第8款規定，職業安全衛生管理計畫包括定期檢查、重點檢查、作業檢點及現場巡視，此即自動檢查之核心內容。其他選項雖屬管理計畫事項，但與自動檢查無直接相關。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U13-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，自動檢查可分為定期檢查、重點檢查、作業檢點等類型。其中「重點檢查」主要於何種時機實施？",
       "options": [
-        {"id": "A", "text": "每日作業前"},
-        {"id": "B", "text": "按固定週期定期實施"},
-        {"id": "C", "text": "設備初次使用、改造、修理時"},
-        {"id": "D", "text": "發生職災後"}
+        {
+          "id": "A",
+          "text": "每日作業前"
+        },
+        {
+          "id": "B",
+          "text": "按固定週期定期實施"
+        },
+        {
+          "id": "C",
+          "text": "設備初次使用、改造、修理時"
+        },
+        {
+          "id": "D",
+          "text": "發生職災後"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "重點檢查係於設備初次使用前、改造、修理等特定時機實施，確認設備之安全性（如第45條第二種壓力容器初次使用前、第49條特定化學設備開始使用改造修理時）。定期檢查為按固定週期實施；作業檢點為每日作業前或作業中實施。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第三節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第三節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對高空工作車，應於每日作業前就何者實施檢點？",
       "options": [
-        {"id": "A", "text": "制動裝置、操作裝置及作業裝置之性能"},
-        {"id": "B", "text": "外觀清洗"},
-        {"id": "C", "text": "引擎機油更換"},
-        {"id": "D", "text": "輪胎品牌"}
+        {
+          "id": "A",
+          "text": "制動裝置、操作裝置及作業裝置之性能"
+        },
+        {
+          "id": "B",
+          "text": "外觀清洗"
+        },
+        {
+          "id": "C",
+          "text": "引擎機油更換"
+        },
+        {
+          "id": "D",
+          "text": "輪胎品牌"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第50-1條規定，雇主對高空工作車，應於每日作業前就其制動裝置、操作裝置及作業裝置之性能實施檢點。高空工作車亦應每年整體檢查一次、每月定期檢查一次，及每日作業前檢點。",
-      "references": [{"title": "職業安全衛生管理辦法第50-1條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=50-1"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第50-1條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=50-1"
+        }
+      ]
     },
     {
       "id": "U13-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對捲揚裝置應於何時就其制動裝置、安全裝置、控制裝置及鋼索通過部分狀況實施檢點？",
       "options": [
-        {"id": "A", "text": "每週作業前"},
-        {"id": "B", "text": "每日作業前"},
-        {"id": "C", "text": "每月作業前"},
-        {"id": "D", "text": "每季作業前"}
+        {
+          "id": "A",
+          "text": "每週作業前"
+        },
+        {
+          "id": "B",
+          "text": "每日作業前"
+        },
+        {
+          "id": "C",
+          "text": "每月作業前"
+        },
+        {
+          "id": "D",
+          "text": "每季作業前"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第51條規定，雇主對捲揚裝置應於每日作業前就其制動裝置、安全裝置、控制裝置及鋼索通過部分狀況實施檢點。捲揚裝置涉及吊掛安全，故須每日作業前實施檢點。",
-      "references": [{"title": "職業安全衛生管理辦法第51條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=51"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第51條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=51"
+        }
+      ]
     },
     {
       "id": "U13-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主使勞工從事缺氧危險或局限空間作業時，應使該勞工就其作業有關事項實施何種檢查？",
       "options": [
-        {"id": "A", "text": "定期檢查"},
-        {"id": "B", "text": "重點檢查"},
-        {"id": "C", "text": "作業檢點"},
-        {"id": "D", "text": "委外檢查"}
+        {
+          "id": "A",
+          "text": "定期檢查"
+        },
+        {
+          "id": "B",
+          "text": "重點檢查"
+        },
+        {
+          "id": "C",
+          "text": "作業檢點"
+        },
+        {
+          "id": "D",
+          "text": "委外檢查"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生管理辦法規定，雇主使勞工從事缺氧危險或局限空間作業時，應使該勞工就其作業有關事項實施作業檢點。缺氧及局限空間作業屬高危險作業，須由作業勞工於作業前及作業中實施檢點。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第五節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第五節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q025",
@@ -369,14 +825,34 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，自動檢查之類型包括下列哪些？（複選）",
       "options": [
-        {"id": "A", "text": "定期檢查"},
-        {"id": "B", "text": "重點檢查"},
-        {"id": "C", "text": "作業檢點"},
-        {"id": "D", "text": "現場巡視"}
+        {
+          "id": "A",
+          "text": "重點檢查"
+        },
+        {
+          "id": "B",
+          "text": "定期檢查"
+        },
+        {
+          "id": "C",
+          "text": "現場巡視"
+        },
+        {
+          "id": "D",
+          "text": "巡迴檢查"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "職業安全衛生管理辦法第四章自動檢查分為：第一節機械之定期檢查、第二節設備之定期檢查、第三節機械設備之重點檢查、第四節機械設備之作業檢點、第五節作業檢點。即定期檢查、重點檢查、作業檢點三大類。現場巡視屬管理計畫事項之一，但非自動檢查辦法所定之獨立檢查類型。",
-      "references": [{"title": "職業安全衛生管理辦法第四章", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生管理辦法第四章自動檢查分為定期檢查（B）、重點檢查（A）、作業檢點三大類。D巡迴檢查非屬自動檢查辦法所定之獨立檢查類型；C現場巡視屬管理計畫事項之一，亦非自動檢查之類型。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q026",
@@ -384,14 +860,34 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》第80條規定，定期檢查、重點檢查之紀錄應記載下列哪些事項？（複選）",
       "options": [
-        {"id": "A", "text": "檢查年月日"},
-        {"id": "B", "text": "檢查方法及檢查部分"},
-        {"id": "C", "text": "檢查結果"},
-        {"id": "D", "text": "依檢查結果應採取改善措施之內容"}
+        {
+          "id": "A",
+          "text": "依檢查結果應採取改善措施之內容"
+        },
+        {
+          "id": "B",
+          "text": "檢查年月日"
+        },
+        {
+          "id": "C",
+          "text": "檢查費用及預算編號"
+        },
+        {
+          "id": "D",
+          "text": "下次檢查之預定日期與負責人"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生管理辦法第80條規定，定期檢查、重點檢查應記錄六項事項：一、檢查年月日；二、檢查方法；三、檢查部分；四、檢查結果；五、實施檢查者之姓名；六、依檢查結果應採取改善措施之內容。四個選項均屬應記載事項。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生管理辦法第80條規定，定期檢查、重點檢查應記錄六項事項：一、檢查年月日（B）；二、檢查方法；三、檢查部分；四、檢查結果；五、實施檢查者之姓名；六、依檢查結果應採取改善措施之內容（A）。C檢查費用及D下次檢查預定日期非屬應記載事項。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U13-Q027",
@@ -399,14 +895,35 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，下列哪些設備之定期檢查頻率為每月一次？（複選）",
       "options": [
-        {"id": "A", "text": "鍋爐"},
-        {"id": "B", "text": "防爆電氣設備"},
-        {"id": "C", "text": "化學設備"},
-        {"id": "D", "text": "異常氣壓之再壓室或減壓艙"}
+        {
+          "id": "A",
+          "text": "化學設備"
+        },
+        {
+          "id": "B",
+          "text": "防爆電氣設備"
+        },
+        {
+          "id": "C",
+          "text": "異常氣壓之再壓室或減壓艙"
+        },
+        {
+          "id": "D",
+          "text": "鍋爐"
+        }
       ],
-      "answer": ["A", "B", "D"],
+      "answer": [
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "鍋爐每月檢查一次（第32條）；防爆電氣設備每月檢查一次；異常氣壓之再壓室或減壓艙每月檢查一次。化學設備及其附屬設備為每二年定期檢查一次（第38條），非每月。故化學設備不屬每月檢查之設備。",
-      "references": [{"title": "職業安全衛生管理辦法第四章", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q028",
@@ -414,14 +931,36 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主使勞工從事下列哪些作業時，應使該勞工就其作業有關事項實施作業檢點？（複選）",
       "options": [
-        {"id": "A", "text": "鍋爐之操作作業"},
-        {"id": "B", "text": "營造作業（如擋土支撐、露天開挖等）"},
-        {"id": "C", "text": "有機溶劑作業"},
-        {"id": "D", "text": "缺氧危險或局限空間作業"}
+        {
+          "id": "A",
+          "text": "缺氧危險或局限空間作業"
+        },
+        {
+          "id": "B",
+          "text": "營造作業（如擋土支撐、露天開挖等）"
+        },
+        {
+          "id": "C",
+          "text": "鍋爐之操作作業"
+        },
+        {
+          "id": "D",
+          "text": "有機溶劑作業"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
+      "answer": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
       "explanation": "職業安全衛生管理辦法第64條（危險性設備作業如鍋爐操作）、第67條（營造作業）、第69條（有害物作業如有機溶劑）及第五節（缺氧或局限空間作業）均規定應使勞工實施作業檢點。四個選項均屬應實施作業檢點之作業。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第五節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第五節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q029",
@@ -429,14 +968,34 @@
       "difficulty": "intermediate",
       "stem": "關於自動檢查之實施，下列敘述哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "雇主應訂定自動檢查計畫"},
-        {"id": "B", "text": "發現異常時應立即檢修及採取必要措施"},
-        {"id": "C", "text": "發現對勞工有危害之虞者應即報告上級主管"},
-        {"id": "D", "text": "定期檢查、重點檢查紀錄應保存三年"}
+        {
+          "id": "A",
+          "text": "發現對勞工有危害之虞者應即報告上級主管"
+        },
+        {
+          "id": "B",
+          "text": "發現異常時應立即檢修及採取必要措施"
+        },
+        {
+          "id": "C",
+          "text": "定期檢查、重點檢查紀錄應保存一年"
+        },
+        {
+          "id": "D",
+          "text": "自動檢查計畫應由勞工代表訂定"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生管理辦法第79條規定應訂定自動檢查計畫；第81條規定發現異常應立即檢修及採取必要措施，發現危害之虞應即報告上級主管；第80條規定定期檢查、重點檢查紀錄應保存三年。四項敘述均正確。",
-      "references": [{"title": "職業安全衛生管理辦法第79條至第81條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生管理辦法第81條規定發現異常應立即檢修及採取必要措施（B）、發現危害之虞應即報告上級主管（A）。C有誤，定期檢查、重點檢查紀錄應保存三年，非一年；D有誤，自動檢查計畫應由雇主訂定（第79條），非由勞工代表訂定。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條至第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U13-Q030",
@@ -444,14 +1003,35 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，下列哪些設備之定期檢查頻率為每年一次？（複選）",
       "options": [
-        {"id": "A", "text": "固定式起重機（整體）"},
-        {"id": "B", "text": "高壓電氣設備"},
-        {"id": "C", "text": "局部排氣裝置"},
-        {"id": "D", "text": "施工架及施工構台"}
+        {
+          "id": "A",
+          "text": "固定式起重機（整體）"
+        },
+        {
+          "id": "B",
+          "text": "高壓電氣設備"
+        },
+        {
+          "id": "C",
+          "text": "局部排氣裝置"
+        },
+        {
+          "id": "D",
+          "text": "施工架及施工構台"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "固定式起重機整體每年檢查一次；高壓電氣設備每年檢查一次；局部排氣裝置每年檢查一次。施工架及施工構台為每週檢查一次（第43條），非每年。故施工架不屬每年一次之設備。",
-      "references": [{"title": "職業安全衛生管理辦法第四章", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q031",
@@ -459,14 +1039,35 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生法施行細則》第31條規定，職業安全衛生管理計畫包括之事項，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "工作環境或作業危害之辨識、評估及控制"},
-        {"id": "B", "text": "機械、設備或器具之管理"},
-        {"id": "C", "text": "緊急應變措施"},
-        {"id": "D", "text": "定期檢查、重點檢查、作業檢點及現場巡視"}
+        {
+          "id": "A",
+          "text": "工作環境或作業危害之辨識、評估及控制"
+        },
+        {
+          "id": "B",
+          "text": "機械、設備或器具之管理"
+        },
+        {
+          "id": "C",
+          "text": "緊急應變措施"
+        },
+        {
+          "id": "D",
+          "text": "產品品質管制及良率提升"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法施行細則第31條列舉職業安全衛生管理計畫包括十六項事項，其中危害辨識評估控制（第1款）、機械設備器具管理（第2款）、緊急應變措施（第13款）、定期檢查重點檢查作業檢點及現場巡視（第8款）均屬之。四項均正確。",
-      "references": [{"title": "職業安全衛生法施行細則第31條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "職業安全衛生法施行細則第31條列舉職業安全衛生管理計畫包括十六項事項，其中危害辨識評估控制（A，第1款）、機械設備器具管理（B，第2款）、緊急應變措施（C，第13款）、定期檢查重點檢查作業檢點及現場巡視（第8款）均屬之。D產品品質管制及良率提升屬品質管理事項，非屬職業安全衛生管理計畫之範疇。",
+      "references": [
+        {
+          "title": "職業安全衛生法施行細則第31條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060002&flno=31"
+        }
+      ]
     },
     {
       "id": "U13-Q032",
@@ -474,14 +1075,34 @@
       "difficulty": "advanced",
       "stem": "關於施工架及施工構台之檢查，下列敘述哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "應每週定期實施檢查一次"},
-        {"id": "B", "text": "強風大雨等惡劣氣候襲擊後亦應實施檢查"},
-        {"id": "C", "text": "四級以上地震襲擊後應實施檢查"},
-        {"id": "D", "text": "每次停工之復工前亦應實施檢查"}
+        {
+          "id": "A",
+          "text": "每次停工之復工前亦應實施檢查"
+        },
+        {
+          "id": "B",
+          "text": "四級以上地震襲擊後應實施檢查"
+        },
+        {
+          "id": "C",
+          "text": "高溫超過35℃時應實施檢查"
+        },
+        {
+          "id": "D",
+          "text": "應每月定期實施檢查一次"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生管理辦法第43條規定，雇主對施工架及施工構台應每週定期實施檢查一次。強風大雨等惡劣氣候、四級以上之地震襲擊後及每次停工之復工前，亦應實施檢查。四項敘述均正確。",
-      "references": [{"title": "職業安全衛生管理辦法第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生管理辦法第43條規定，雇主對施工架及施工構台應每週定期實施檢查一次。四級以上之地震襲擊後（B）、強風大雨等惡劣氣候襲擊後及每次停工之復工前（A），亦應實施檢查。C高溫非屬第43條規定之應實施檢查情形；D有誤，頻率為每週一次，非每月一次。",
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"
+        }
+      ]
     },
     {
       "id": "U13-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "依《職業安全衛生法》規定，雇主應實施安全衛生管理及自動檢查。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第23條第1項規定，雇主應依其事業單位之規模、性質，訂定職業安全衛生管理計畫；並設置安全衛生組織、人員，實施安全衛生管理及自動檢查。自動檢查為雇主之法定義務。",
-      "references": [{"title": "職業安全衛生法第23條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第23條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=23"
+        }
+      ]
     },
     {
       "id": "U13-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主實施自動檢查，應訂定自動檢查計畫。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第79條明定，雇主依第13條至第63條規定實施之自動檢查，應訂定自動檢查計畫。自動檢查計畫為系統性執行檢查之依據。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U13-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，定期檢查、重點檢查之紀錄應保存五年。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第80條規定，定期檢查、重點檢查之紀錄應保存三年，非五年。須注意與其他法規之保存期限區分（如健康檢查紀錄為七年或十年）。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U13-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主發現機械設備有腐蝕、劣化、損傷或堪用性之虞時，應實施安全評估，並延長其檢查期限。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生管理辦法第44條規定，雇主發現有腐蝕、劣化、損傷或堪用性之虞時，應實施安全評估，並「縮短」其檢查期限，而非延長。發現異常徵兆應加強監控，故須縮短檢查週期。",
-      "references": [{"title": "職業安全衛生管理辦法第44條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第44條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=44"
+        }
+      ]
     },
     {
       "id": "U13-Q037",
@@ -541,84 +1214,163 @@
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，勞工實施檢查、檢點時，發現對勞工有危害之虞者，應即報告上級主管。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生管理辦法第81條第1項規定，勞工、主管人員及職業安全衛生管理人員實施檢查、檢點時，發現對勞工有危害之虞者，應即報告上級主管。以及時採取改善措施。",
-      "references": [{"title": "職業安全衛生管理辦法第81條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=81"
+        }
+      ]
     },
     {
       "id": "U13-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主實施之自動檢查，應訂定________計畫。",
-      "answer": ["自動檢查"],
+      "answer": [
+        "自動檢查"
+      ],
       "explanation": "職業安全衛生管理辦法第79條規定，雇主依第13條至第63條規定實施之自動檢查，應訂定自動檢查計畫。自動檢查計畫為落實自動檢查之依據。",
-      "references": [{"title": "職業安全衛生管理辦法第79條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=79"
+        }
+      ]
     },
     {
       "id": "U13-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，定期檢查、重點檢查之紀錄應保存________年。",
-      "answer": ["3", "三"],
+      "answer": [
+        "3",
+        "三"
+      ],
       "explanation": "職業安全衛生管理辦法第80條規定，雇主依第13條至第49條規定實施之定期檢查、重點檢查應記錄，並保存三年。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U13-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對鍋爐應每________定期實施檢查一次。",
-      "answer": ["月", "個月"],
+      "answer": [
+        "月",
+        "個月"
+      ],
       "explanation": "職業安全衛生管理辦法第32條規定，雇主對鍋爐應每月依規定定期實施檢查一次。鍋爐屬高危險設備，故檢查頻率為每月一次。",
-      "references": [{"title": "職業安全衛生管理辦法第32條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=32"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第32條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=32"
+        }
+      ]
     },
     {
       "id": "U13-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對化學設備及其附屬設備，應每________年定期實施檢查一次。",
-      "answer": ["2", "二"],
+      "answer": [
+        "2",
+        "二"
+      ],
       "explanation": "職業安全衛生管理辦法第38條規定，雇主對化學設備及其附屬設備，應就規定事項，每二年定期實施檢查一次。",
-      "references": [{"title": "職業安全衛生管理辦法第38條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=38"
+        }
+      ]
     },
     {
       "id": "U13-Q042",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依《職業安全衛生管理辦法》規定，雇主對施工架及施工構台，應每________定期實施檢查一次。",
-      "answer": ["週", "周"],
+      "answer": [
+        "週",
+        "周"
+      ],
       "explanation": "職業安全衛生管理辦法第43條規定，雇主對施工架及施工構台，應就規定事項，每週定期實施檢查一次。惡劣氣候、地震後及復工前亦應檢查。",
-      "references": [{"title": "職業安全衛生管理辦法第43條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第43條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=43"
+        }
+      ]
     },
     {
       "id": "U13-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某事業單位有鍋爐及化學設備各一台。依《職業安全衛生管理辦法》規定，鍋爐每月定期檢查一次，化學設備每二年定期檢查一次。請問一年（12個月）內，該事業單位對此二項設備合計應實施多少次定期檢查？",
-      "answer": {"value": 13, "unit": "次", "tolerance": 0},
+      "answer": {
+        "value": 13,
+        "unit": "次",
+        "tolerance": 0
+      },
       "explanation": "鍋爐每月檢查一次，一年共12次。化學設備每二年檢查一次，一年內檢查1次（若該年為檢查年）。合計12+1=13次。注意化學設備為每二年一次，故單一年度內僅1次。",
-      "references": [{"title": "職業安全衛生管理辦法第32條、第38條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第32條、第38條",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     },
     {
       "id": "U13-Q044",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依《職業安全衛生管理辦法》規定，定期檢查、重點檢查紀錄應保存三年。某事業單位於民國113年6月15日完成一項設備之定期檢查紀錄，請問該紀錄依法至少應保存至民國幾年？（僅輸入年份，如116）",
-      "answer": {"value": 116, "unit": "年", "tolerance": 0},
+      "answer": {
+        "value": 116,
+        "unit": "年",
+        "tolerance": 0
+      },
       "explanation": "職業安全衛生管理辦法第80條規定定期檢查、重點檢查紀錄應保存三年。113年6月15日加三年為116年6月15日，故至少應保存至民國116年。",
-      "references": [{"title": "職業安全衛生管理辦法第80條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第80條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=80"
+        }
+      ]
     },
     {
       "id": "U13-Q045",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "某事業單位有一般車輛5輛，依《職業安全衛生管理辦法》規定，一般車輛應每三個月定期檢查一次。請問一年內，該事業單位對5輛一般車輛合計應實施多少次定期檢查？",
-      "answer": {"value": 20, "unit": "次", "tolerance": 0},
+      "answer": {
+        "value": 20,
+        "unit": "次",
+        "tolerance": 0
+      },
       "explanation": "職業安全衛生管理辦法第14條規定，雇主對一般車輛應每三個月定期實施檢查一次。一年有4個三個月（即每季一次），5輛車各4次，合計5×4=20次。",
-      "references": [{"title": "職業安全衛生管理辦法第14條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第14條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060027&flno=14"
+        }
+      ]
     },
     {
       "id": "U13-Q046",
@@ -626,25 +1378,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列設備與其定期檢查頻率正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "鍋爐"},
-        {"id": "L2", "text": "一般車輛"},
-        {"id": "L3", "text": "化學設備及其附屬設備"},
-        {"id": "L4", "text": "施工架及施工構台"}
+        {
+          "id": "L1",
+          "text": "鍋爐"
+        },
+        {
+          "id": "L2",
+          "text": "一般車輛"
+        },
+        {
+          "id": "L3",
+          "text": "化學設備及其附屬設備"
+        },
+        {
+          "id": "L4",
+          "text": "施工架及施工構台"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "每月一次"},
-        {"id": "R2", "text": "每三個月一次"},
-        {"id": "R3", "text": "每二年一次"},
-        {"id": "R4", "text": "每週一次"}
+        {
+          "id": "R1",
+          "text": "每月一次"
+        },
+        {
+          "id": "R2",
+          "text": "每三個月一次"
+        },
+        {
+          "id": "R3",
+          "text": "每二年一次"
+        },
+        {
+          "id": "R4",
+          "text": "每週一次"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "鍋爐每月一次（第32條）；一般車輛每三個月一次（第14條）；化學設備每二年一次（第38條）；施工架及施工構台每週一次（第43條）。",
-      "references": [{"title": "職業安全衛生管理辦法第四章", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q047",
@@ -652,22 +1445,54 @@
       "difficulty": "advanced",
       "stem": "請將下列自動檢查類型與其主要實施時機正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "定期檢查"},
-        {"id": "L2", "text": "重點檢查"},
-        {"id": "L3", "text": "作業檢點"}
+        {
+          "id": "L1",
+          "text": "定期檢查"
+        },
+        {
+          "id": "L2",
+          "text": "重點檢查"
+        },
+        {
+          "id": "L3",
+          "text": "作業檢點"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "按固定週期（如每月、每年）實施"},
-        {"id": "R2", "text": "初次使用、改造、修理時實施"},
-        {"id": "R3", "text": "每日作業前或作業中由勞工實施"}
+        {
+          "id": "R1",
+          "text": "按固定週期（如每月、每年）實施"
+        },
+        {
+          "id": "R2",
+          "text": "初次使用、改造、修理時實施"
+        },
+        {
+          "id": "R3",
+          "text": "每日作業前或作業中由勞工實施"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        }
       ],
       "explanation": "定期檢查為按固定週期實施（每月、每季、每年等）；重點檢查為設備初次使用、改造、修理等特定時機實施；作業檢點為每日作業前或作業中由從事作業之勞工自行實施。",
-      "references": [{"title": "職業安全衛生管理辦法第四章", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q048",
@@ -675,19 +1500,42 @@
       "difficulty": "intermediate",
       "stem": "請將下列電氣設備與其定期檢查頻率正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "高壓電氣設備"},
-        {"id": "L2", "text": "防爆電氣設備"}
+        {
+          "id": "L1",
+          "text": "高壓電氣設備"
+        },
+        {
+          "id": "L2",
+          "text": "防爆電氣設備"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "每年一次"},
-        {"id": "R2", "text": "每月一次"}
+        {
+          "id": "R1",
+          "text": "每年一次"
+        },
+        {
+          "id": "R2",
+          "text": "每月一次"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        }
       ],
       "explanation": "高壓電氣設備每年定期檢查一次；防爆電氣設備每月定期檢查一次。防爆電氣設備因關係爆炸防護性能，故檢查頻率較高壓電氣設備為頻繁。",
-      "references": [{"title": "職業安全衛生管理辦法第四章第二節", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章第二節",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q049",
@@ -695,15 +1543,41 @@
       "difficulty": "advanced",
       "stem": "請依檢查頻率由高（間隔短）到低（間隔長）排列下列設備之定期檢查週期：",
       "items": [
-        {"id": "I1", "text": "施工架及施工構台（每週）"},
-        {"id": "I2", "text": "鍋爐（每月）"},
-        {"id": "I3", "text": "一般車輛（每三個月）"},
-        {"id": "I4", "text": "局部排氣裝置（每年）"},
-        {"id": "I5", "text": "化學設備（每二年）"}
+        {
+          "id": "I1",
+          "text": "施工架及施工構台（每週）"
+        },
+        {
+          "id": "I2",
+          "text": "鍋爐（每月）"
+        },
+        {
+          "id": "I3",
+          "text": "一般車輛（每三個月）"
+        },
+        {
+          "id": "I4",
+          "text": "局部排氣裝置（每年）"
+        },
+        {
+          "id": "I5",
+          "text": "化學設備（每二年）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4", "I5"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4",
+        "I5"
+      ],
       "explanation": "檢查頻率由高到低即間隔由短到長：施工架每週（間隔約7天）→鍋爐每月（間隔約30天）→一般車輛每三個月（間隔約90天）→局部排氣裝置每年（間隔約365天）→化學設備每二年（間隔約730天）。",
-      "references": [{"title": "職業安全衛生管理辦法第四章", "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第四章",
+          "url": "https://law.moj.gov.tw/LawClass/LawParaDeatil.aspx?pcode=N0060027&bp=4"
+        }
+      ]
     },
     {
       "id": "U13-Q050",
@@ -711,14 +1585,36 @@
       "difficulty": "intermediate",
       "stem": "請依自動檢查計畫之執行流程，排列下列步驟之先後順序：",
       "items": [
-        {"id": "I1", "text": "訂定自動檢查計畫"},
-        {"id": "I2", "text": "依計畫實施定期檢查、重點檢查及作業檢點"},
-        {"id": "I3", "text": "記錄檢查結果並保存三年"},
-        {"id": "I4", "text": "發現異常時立即檢修及採取必要措施"}
+        {
+          "id": "I1",
+          "text": "訂定自動檢查計畫"
+        },
+        {
+          "id": "I2",
+          "text": "依計畫實施定期檢查、重點檢查及作業檢點"
+        },
+        {
+          "id": "I3",
+          "text": "記錄檢查結果並保存三年"
+        },
+        {
+          "id": "I4",
+          "text": "發現異常時立即檢修及採取必要措施"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "自動檢查執行流程：先訂定自動檢查計畫（第79條）→依計畫實施各項檢查→記錄檢查結果並保存三年（第80條）→發現異常時立即檢修及採取必要措施（第81條）。",
-      "references": [{"title": "職業安全衛生管理辦法第79條至第81條", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"}]
+      "references": [
+        {
+          "title": "職業安全衛生管理辦法第79條至第81條",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060027"
+        }
+      ]
     }
   ]
 }

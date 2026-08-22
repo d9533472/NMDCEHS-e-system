@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則，本規則所稱「易燃液體」中，第二種易燃液體係指閃火點在攝氏多少度以上未滿攝氏多少度之物質？",
       "options": [
-        {"id": "A", "text": "零下30度以上，未滿0度"},
-        {"id": "B", "text": "0度以上，未滿30度"},
-        {"id": "C", "text": "30度以上，未滿65度"},
-        {"id": "D", "text": "65度以上，未滿100度"}
+        {
+          "id": "A",
+          "text": "零下30度以上，未滿0度"
+        },
+        {
+          "id": "B",
+          "text": "0度以上，未滿30度"
+        },
+        {
+          "id": "C",
+          "text": "30度以上，未滿65度"
+        },
+        {
+          "id": "D",
+          "text": "65度以上，未滿100度"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第二種易燃液體指正己烷、環氧乙烷、丙酮、苯、丁酮及其他閃火點在攝氏零下30度以上，未滿攝氏0度之物質。第一種為未滿零下30度，第三種為0度以上未滿30度，第四種為30度以上未滿65度。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，本規則所稱易燃液體中，第四種易燃液體（如煤油、輕油等）之閃火點範圍為何？",
       "options": [
-        {"id": "A", "text": "未滿攝氏零下30度"},
-        {"id": "B", "text": "攝氏零下30度以上未滿0度"},
-        {"id": "C", "text": "攝氏0度以上未滿30度"},
-        {"id": "D", "text": "攝氏30度以上未滿65度"}
+        {
+          "id": "A",
+          "text": "未滿攝氏零下30度"
+        },
+        {
+          "id": "B",
+          "text": "攝氏零下30度以上未滿0度"
+        },
+        {
+          "id": "C",
+          "text": "攝氏0度以上未滿30度"
+        },
+        {
+          "id": "D",
+          "text": "攝氏30度以上未滿65度"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第四種易燃液體指煤油、輕油、松節油、異戊醇、醋酸及其他閃火點在攝氏30度以上，未滿攝氏65度之物質。煤油、輕油屬於閃火點較高之易燃液體。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於作業場所有易燃液體之蒸氣、可燃性氣體或可燃性粉塵滯留而有爆炸火災之虞者，當蒸氣或氣體之濃度達爆炸下限值之多少以上時，應即刻使勞工退避至安全場所？",
       "options": [
-        {"id": "A", "text": "百分之十"},
-        {"id": "B", "text": "百分之二十"},
-        {"id": "C", "text": "百分之三十"},
-        {"id": "D", "text": "百分之五十"}
+        {
+          "id": "A",
+          "text": "百分之十"
+        },
+        {
+          "id": "B",
+          "text": "百分之二十"
+        },
+        {
+          "id": "C",
+          "text": "百分之三十"
+        },
+        {
+          "id": "D",
+          "text": "百分之五十"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於作業場所有易燃液體之蒸氣、可燃性氣體或可燃性粉塵滯留，而有爆炸、火災之虞者，蒸氣或氣體之濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所，並停止使用煙火及其他為點火源之虞之機具，並應加強通風。30%為法規規定之安全門檻。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則，雇主對於存有易燃液體之蒸氣、可燃性氣體或可燃性粉塵，致有引起爆炸、火災之虞之工作場所，應有下列何種必要設施？",
       "options": [
-        {"id": "A", "text": "通風、換氣、除塵、去除靜電等必要設施"},
-        {"id": "B", "text": "僅需設置滅火器"},
-        {"id": "C", "text": "僅需設置警告標示"},
-        {"id": "D", "text": "無須特別設施"}
+        {
+          "id": "A",
+          "text": "通風、換氣、除塵、去除靜電等必要設施"
+        },
+        {
+          "id": "B",
+          "text": "僅需設置滅火器"
+        },
+        {
+          "id": "C",
+          "text": "僅需設置警告標示"
+        },
+        {
+          "id": "D",
+          "text": "無須特別設施"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於存有易燃液體之蒸氣、可燃性氣體或可燃性粉塵，致有引起爆炸、火災之虞之工作場所，應有通風、換氣、除塵、去除靜電等必要設施。僅設滅火器或警告標示不足以預防爆炸火災之發生。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於下列何種設備有因靜電引起爆炸或火災之虞者，應採取接地、使用除電劑、加濕等去除靜電之措施？",
       "options": [
-        {"id": "A", "text": "僅電氣設備"},
-        {"id": "B", "text": "僅化學設備"},
-        {"id": "C", "text": "使用易燃液體、可燃性氣體或可燃性粉塵等之設備"},
-        {"id": "D", "text": "僅機械設備"}
+        {
+          "id": "A",
+          "text": "僅電氣設備"
+        },
+        {
+          "id": "B",
+          "text": "僅化學設備"
+        },
+        {
+          "id": "C",
+          "text": "使用易燃液體、可燃性氣體或可燃性粉塵等之設備"
+        },
+        {
+          "id": "D",
+          "text": "僅機械設備"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於使用易燃液體、可燃性氣體或可燃性粉塵等之設備，有因靜電引起爆炸或火災之虞者，應採取接地、使用除電劑、加濕、使用不致成為發火源之虞之除電裝置或其他去除靜電之裝置。靜電為重要之點火源，須加以控制。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "basic",
       "stem": "火災依燃燒物質之性質分類，普通火災（如木材、紙張、布等引起之火災）屬於下列何類火災？",
       "options": [
-        {"id": "A", "text": "A類火災"},
-        {"id": "B", "text": "B類火災"},
-        {"id": "C", "text": "C類火災"},
-        {"id": "D", "text": "D類火災"}
+        {
+          "id": "A",
+          "text": "A類火災"
+        },
+        {
+          "id": "B",
+          "text": "B類火災"
+        },
+        {
+          "id": "C",
+          "text": "C類火災"
+        },
+        {
+          "id": "D",
+          "text": "D類火災"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "依消防法規及國家標準，火災分為A、B、C、D四類。A類火災為普通火災，指木材、紙張、棉布、塑膠等可燃性固體引起之火災。B類為油類火災，C類為電氣火災，D類為金屬火災。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "basic",
       "stem": "火災依燃燒物質之性質分類，引燃性液體（如汽油、溶劑等）引起之火災屬於何類火災？",
       "options": [
-        {"id": "A", "text": "A類火災"},
-        {"id": "B", "text": "B類火災"},
-        {"id": "C", "text": "C類火災"},
-        {"id": "D", "text": "D類火災"}
+        {
+          "id": "A",
+          "text": "A類火災"
+        },
+        {
+          "id": "B",
+          "text": "B類火災"
+        },
+        {
+          "id": "C",
+          "text": "C類火災"
+        },
+        {
+          "id": "D",
+          "text": "D類火災"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "B類火災為油類火災，指汽油、溶劑、油漆、油脂等引燃性液體引起之火災。此類火災不可用水撲滅，應使用泡沫、乾粉或二氧化碳等滅火劑。A類為普通火災，C類為電氣火災，D類為金屬火災。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "火災依燃燒物質之性質分類，電氣設備通電中引起之火災屬於何類火災？",
       "options": [
-        {"id": "A", "text": "A類火災"},
-        {"id": "B", "text": "B類火災"},
-        {"id": "C", "text": "C類火災"},
-        {"id": "D", "text": "D類火災"}
+        {
+          "id": "A",
+          "text": "A類火災"
+        },
+        {
+          "id": "B",
+          "text": "B類火災"
+        },
+        {
+          "id": "C",
+          "text": "C類火災"
+        },
+        {
+          "id": "D",
+          "text": "D類火災"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "C類火災為電氣火災，指通電中之電氣設備引起之火災。撲滅此類火災應先切斷電源，如無法切斷電源時，應使用不導電之滅火劑（如二氧化碳或乾粉）。直接用水會造成觸電危險。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "火災依燃燒物質之性質分類，鉀、鈉、鎂等活性金屬引起之火災屬於何類火災？",
       "options": [
-        {"id": "A", "text": "A類火災"},
-        {"id": "B", "text": "B類火災"},
-        {"id": "C", "text": "C類火災"},
-        {"id": "D", "text": "D類火災"}
+        {
+          "id": "A",
+          "text": "A類火災"
+        },
+        {
+          "id": "B",
+          "text": "B類火災"
+        },
+        {
+          "id": "C",
+          "text": "C類火災"
+        },
+        {
+          "id": "D",
+          "text": "D類火災"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "D類火災為金屬火災，指鉀、鈉、鎂、鈦、鋅等活性金屬燃燒引起之火災。此類火災不可用水撲滅，因活性金屬遇水會產生氫氣而引起爆炸，應使用特殊之乾粉（如氯化鈉類）滅火劑。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於危險物之處置，下列何者為著火性物質之正確處理方式？",
       "options": [
-        {"id": "A", "text": "可加熱以加速反應"},
-        {"id": "B", "text": "應遠離煙火或有發火源之虞之物，不得加熱、摩擦或衝擊，並不得使其接觸促進氧化之物質或水"},
-        {"id": "C", "text": "可與氧化性物質混合儲存"},
-        {"id": "D", "text": "可隨意放置於作業場所"}
+        {
+          "id": "A",
+          "text": "可加熱以加速反應"
+        },
+        {
+          "id": "B",
+          "text": "應遠離煙火或有發火源之虞之物，不得加熱、摩擦或衝擊，並不得使其接觸促進氧化之物質或水"
+        },
+        {
+          "id": "C",
+          "text": "可與氧化性物質混合儲存"
+        },
+        {
+          "id": "D",
+          "text": "可隨意放置於作業場所"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，著火性物質應遠離煙火或有發火源之虞之物，並不得加熱、摩擦或衝擊或使其接觸促進氧化之物質或水。著火性物質遇火、水或氧化性物質易自燃，須嚴格隔離管理。",
-      "references": [{"title": "職業安全衛生設施規則第178條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第178條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"
+        }
+      ]
     },
     {
       "id": "U33-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於易燃液體之處置，下列規定何者正確？",
       "options": [
-        {"id": "A", "text": "可隨意加熱以降低黏度"},
-        {"id": "B", "text": "應遠離煙火或有發火源之虞之物，未經許可不得灌注、蒸發或加熱"},
-        {"id": "C", "text": "可與著火性物質混合儲存"},
-        {"id": "D", "text": "無特別規定"}
+        {
+          "id": "A",
+          "text": "可隨意加熱以降低黏度"
+        },
+        {
+          "id": "B",
+          "text": "應遠離煙火或有發火源之虞之物，未經許可不得灌注、蒸發或加熱"
+        },
+        {
+          "id": "C",
+          "text": "可與著火性物質混合儲存"
+        },
+        {
+          "id": "D",
+          "text": "無特別規定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第178條規定，易燃液體應遠離煙火或有發火源之虞之物，未經許可不得灌注、蒸發或加熱。易燃液體之蒸氣遇火源極易引燃，須遠離火源並嚴格管制操作程序。",
-      "references": [{"title": "職業安全衛生設施規則第178條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第178條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"
+        }
+      ]
     },
     {
       "id": "U33-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，雇主對於從事灌注、卸收或儲藏危險物於化學設備、槽車或槽體等作業，使用軟管從事易燃液體或可燃性氣體之灌注或卸收時，應如何處理？",
       "options": [
-        {"id": "A", "text": "作業前無須檢查，直接作業即可"},
-        {"id": "B", "text": "應事先確定軟管結合部分已確實連接牢固始得作業，作業結束後確認管線內無殘留物始得拆離"},
-        {"id": "C", "text": "作業結束後立即拆離管線"},
-        {"id": "D", "text": "可邊作業邊檢查"}
+        {
+          "id": "A",
+          "text": "作業前無須檢查，直接作業即可"
+        },
+        {
+          "id": "B",
+          "text": "應事先確定軟管結合部分已確實連接牢固始得作業，作業結束後確認管線內無殘留物始得拆離"
+        },
+        {
+          "id": "C",
+          "text": "作業結束後立即拆離管線"
+        },
+        {
+          "id": "D",
+          "text": "可邊作業邊檢查"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，使用軟管從事易燃液體或可燃性氣體之灌注或卸收時，應事先確定軟管結合部分已確實連接牢固始得作業；作業結束後，應確認管線內已無引起危害之殘留物後，管線始得拆離。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，從事環氧乙烷、乙醛或1,2-環氧丙烷灌注時，應確實將化學設備、槽車或槽體內之氣體以何種氣體置換之？",
       "options": [
-        {"id": "A", "text": "氧氣"},
-        {"id": "B", "text": "空氣"},
-        {"id": "C", "text": "氮、二氧化碳或氦、氬等惰性氣體"},
-        {"id": "D", "text": "氫氣"}
+        {
+          "id": "A",
+          "text": "氧氣"
+        },
+        {
+          "id": "B",
+          "text": "空氣"
+        },
+        {
+          "id": "C",
+          "text": "氮、二氧化碳或氦、氬等惰性氣體"
+        },
+        {
+          "id": "D",
+          "text": "氫氣"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，從事環氧乙烷、乙醛或1,2-環氧丙烷灌注時，應確實將化學設備、槽車或槽體內之氣體，以氮、二氧化碳或氦、氬等惰性氣體置換之。氧氣、空氣、氫氣均為助燃或可燃氣體，不可使用。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，使用槽車從事灌注或卸收作業前，槽車之引擎應如何處理？",
       "options": [
-        {"id": "A", "text": "保持發動狀態以便快速撤離"},
-        {"id": "B", "text": "應熄火，且設置適當之輪擋以防止作業時車輛移動"},
-        {"id": "C", "text": "由司機自行決定"},
-        {"id": "D", "text": "僅在裝載易燃物時熄火"}
+        {
+          "id": "A",
+          "text": "保持發動狀態以便快速撤離"
+        },
+        {
+          "id": "B",
+          "text": "應熄火，且設置適當之輪擋以防止作業時車輛移動"
+        },
+        {
+          "id": "C",
+          "text": "由司機自行決定"
+        },
+        {
+          "id": "D",
+          "text": "僅在裝載易燃物時熄火"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，使用槽車從事灌注或卸收作業前，槽車之引擎應熄火，且設置適當之輪擋，以防止作業時車輛移動。作業結束後並確認不致因引擎啟動而發生危害後，始得發動。引擎不熄火可能產生火花引燃蒸氣。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於作業場所有易燃液體之蒸氣等滯留而有爆炸火災之虞者，使用之電氣機械、器具或設備應具有何種性能構造？",
       "options": [
-        {"id": "A", "text": "防水性能構造"},
-        {"id": "B", "text": "適合於其設置場所危險區域劃分使用之防爆性能構造"},
-        {"id": "C", "text": "防塵性能構造"},
-        {"id": "D", "text": "無特別要求"}
+        {
+          "id": "A",
+          "text": "防水性能構造"
+        },
+        {
+          "id": "B",
+          "text": "適合於其設置場所危險區域劃分使用之防爆性能構造"
+        },
+        {
+          "id": "C",
+          "text": "防塵性能構造"
+        },
+        {
+          "id": "D",
+          "text": "無特別要求"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於作業場所有易燃液體之蒸氣等滯留而有爆炸火災之虞者，使用之電氣機械、器具或設備，應具有適合於其設置場所危險區域劃分使用之防爆性能構造。防爆電氣設備可防止電氣火花成為點火源。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "basic",
       "stem": "爆炸之發生須具備三要素（火三角），下列何者不屬於火三角之要素？",
       "options": [
-        {"id": "A", "text": "可燃物"},
-        {"id": "B", "text": "助燃物（氧氣）"},
-        {"id": "C", "text": "點火源（熱源）"},
-        {"id": "D", "text": "壓力容器"}
+        {
+          "id": "A",
+          "text": "可燃物"
+        },
+        {
+          "id": "B",
+          "text": "助燃物（氧氣）"
+        },
+        {
+          "id": "C",
+          "text": "點火源（熱源）"
+        },
+        {
+          "id": "D",
+          "text": "壓力容器"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "火（燃燒）三角為可燃物、助燃物（氧氣）及點火源（熱源）三要素，三者同時存在並達一定比例時才會發生燃燒或爆炸。壓力容器雖可能因爆炸而造成損害，但不屬於火三角之要素。移除任一要素即可防止火災爆炸。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於作業場所有可燃性蒸氣或氣體滯留而有爆炸火災之虞者，應於作業前由何人測定蒸氣或氣體之濃度？",
       "options": [
-        {"id": "A", "text": "由所有勞工輪流測定"},
-        {"id": "B", "text": "指定專人測定之"},
-        {"id": "C", "text": "由雇主自行測定"},
-        {"id": "D", "text": "無須測定"}
+        {
+          "id": "A",
+          "text": "由所有勞工輪流測定"
+        },
+        {
+          "id": "B",
+          "text": "指定專人測定之"
+        },
+        {
+          "id": "C",
+          "text": "由雇主自行測定"
+        },
+        {
+          "id": "D",
+          "text": "無須測定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於作業場所有易燃液體之蒸氣、可燃性氣體等滯留而有爆炸火災之虞者，應指定專人對於蒸氣、氣體之濃度，於作業前測定之。指定專人可確保測定之準確性與專業性。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於從事煤油或輕油灌注於化學設備、槽車或槽體等時，如內部有汽油殘存者，應採取何種措施？",
       "options": [
-        {"id": "A", "text": "直接灌注即可"},
-        {"id": "B", "text": "應於事前採取確實清洗、以惰性氣體置換油氣或其他適當措施，確認安全狀態無虞後始得作業"},
-        {"id": "C", "text": "提高灌注速度即可"},
-        {"id": "D", "text": "僅需加強通風"}
+        {
+          "id": "A",
+          "text": "直接灌注即可"
+        },
+        {
+          "id": "B",
+          "text": "應於事前採取確實清洗、以惰性氣體置換油氣或其他適當措施，確認安全狀態無虞後始得作業"
+        },
+        {
+          "id": "C",
+          "text": "提高灌注速度即可"
+        },
+        {
+          "id": "D",
+          "text": "僅需加強通風"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，從事煤油或輕油灌注時，如其內部有汽油殘存者，應於事前採取確實清洗、以惰性氣體置換油氣或其他適當措施，確認安全狀態無虞後，始得作業。汽油蒸氣與煤油混合極易產生爆炸危險。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則第10條，下列何者屬於第一種易燃液體？",
       "options": [
-        {"id": "A", "text": "乙醇、甲醇"},
-        {"id": "B", "text": "煤油、輕油"},
-        {"id": "C", "text": "乙醚、汽油、二硫化碳"},
-        {"id": "D", "text": "二甲苯、乙酸戊酯"}
+        {
+          "id": "A",
+          "text": "乙醇、甲醇"
+        },
+        {
+          "id": "B",
+          "text": "煤油、輕油"
+        },
+        {
+          "id": "C",
+          "text": "乙醚、汽油、二硫化碳"
+        },
+        {
+          "id": "D",
+          "text": "二甲苯、乙酸戊酯"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第一種易燃液體指乙醚、汽油、乙醛、環氧丙烷、二硫化碳及其他閃火點未滿攝氏零下30度之物質。乙醚、汽油、二硫化碳之閃火點極低，危險性最高。乙醇、二甲苯屬第三種，煤油屬第四種。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則第178條，雇主對於氧化性物質之處置，下列規定何者正確？",
       "options": [
-        {"id": "A", "text": "可與著火性物質混合儲存"},
-        {"id": "B", "text": "不得使其接觸促進其分解之物質，並不得予以加熱、摩擦或撞擊"},
-        {"id": "C", "text": "可隨意加熱"},
-        {"id": "D", "text": "無特別規定"}
+        {
+          "id": "A",
+          "text": "可與著火性物質混合儲存"
+        },
+        {
+          "id": "B",
+          "text": "不得使其接觸促進其分解之物質，並不得予以加熱、摩擦或撞擊"
+        },
+        {
+          "id": "C",
+          "text": "可隨意加熱"
+        },
+        {
+          "id": "D",
+          "text": "無特別規定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第178條規定，氧化性物質不得使其接觸促進其分解之物質，並不得予以加熱、摩擦或撞擊。氧化性物質與還原性物質接觸或受熱、衝擊時，可能劇烈反應而引起爆炸。",
-      "references": [{"title": "職業安全衛生設施規則第178條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第178條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"
+        }
+      ]
     },
     {
       "id": "U33-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於作業場所有爆炸危險之虞者，應採取何種措施以防止爆炸災害？",
       "options": [
-        {"id": "A", "text": "僅設置滅火器即可"},
-        {"id": "B", "text": "應設置通風、換氣、除塵等設施，並使用防爆電氣設備、去除靜電等"},
-        {"id": "C", "text": "僅設置警告標示"},
-        {"id": "D", "text": "限制勞工人數即可"}
+        {
+          "id": "A",
+          "text": "僅設置滅火器即可"
+        },
+        {
+          "id": "B",
+          "text": "應設置通風、換氣、除塵等設施，並使用防爆電氣設備、去除靜電等"
+        },
+        {
+          "id": "C",
+          "text": "僅設置警告標示"
+        },
+        {
+          "id": "D",
+          "text": "限制勞工人數即可"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於作業場所有易燃液體蒸氣、可燃性氣體或可燃性粉塵滯留而有爆炸火災之虞者，應採取通風、換氣、除塵等措施，使用防爆電氣設備，去除靜電，並於作業前測定濃度。多重防護措施才能有效防止爆炸。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，雇主對於除製造、處置必需之用料外，危險物應如何處理？",
       "options": [
-        {"id": "A", "text": "可任意放置於作業場所"},
-        {"id": "B", "text": "不得任意放置危險物"},
-        {"id": "C", "text": "可暫時堆置於通道"},
-        {"id": "D", "text": "由勞工自行決定"}
+        {
+          "id": "A",
+          "text": "可任意放置於作業場所"
+        },
+        {
+          "id": "B",
+          "text": "不得任意放置危險物"
+        },
+        {
+          "id": "C",
+          "text": "可暫時堆置於通道"
+        },
+        {
+          "id": "D",
+          "text": "由勞工自行決定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第178條規定，除製造、處置必需之用料外，不得任意放置危險物。危險物如任意放置，可能因接觸火源、相互反應或其他原因而引發火災爆炸。",
-      "references": [{"title": "職業安全衛生設施規則第178條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第178條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"
+        }
+      ]
     },
     {
       "id": "U33-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，下列何者屬於第三種易燃液體？",
       "options": [
-        {"id": "A", "text": "乙醚、汽油"},
-        {"id": "B", "text": "正己烷、丙酮"},
-        {"id": "C", "text": "乙醇、甲醇、二甲苯"},
-        {"id": "D", "text": "煤油、輕油"}
+        {
+          "id": "A",
+          "text": "乙醚、汽油"
+        },
+        {
+          "id": "B",
+          "text": "正己烷、丙酮"
+        },
+        {
+          "id": "C",
+          "text": "乙醇、甲醇、二甲苯"
+        },
+        {
+          "id": "D",
+          "text": "煤油、輕油"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第三種易燃液體指乙醇、甲醇、二甲苯、乙酸戊酯及其他閃火點在攝氏0度以上，未滿攝氏30度之物質。乙醚屬第一種，正己烷屬第二種，煤油屬第四種。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "某工廠儲存有閃火點為攝氏40度之松節油，依職業安全衛生設施規則，該物質屬於第幾種易燃液體？",
       "options": [
-        {"id": "A", "text": "第一種"},
-        {"id": "B", "text": "第二種"},
-        {"id": "C", "text": "第三種"},
-        {"id": "D", "text": "第四種"}
+        {
+          "id": "A",
+          "text": "第一種"
+        },
+        {
+          "id": "B",
+          "text": "第二種"
+        },
+        {
+          "id": "C",
+          "text": "第三種"
+        },
+        {
+          "id": "D",
+          "text": "第四種"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第四種易燃液體指煤油、輕油、松節油等及其他閃火點在攝氏30度以上，未滿攝氏65度之物質。松節油閃火點40度，在30度以上未滿65度之範圍內，屬第四種易燃液體。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q025",
@@ -369,14 +825,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，下列哪些屬於防止靜電引起爆炸或火災之措施？（複選）",
       "options": [
-        {"id": "A", "text": "接地"},
-        {"id": "B", "text": "使用除電劑"},
-        {"id": "C", "text": "加濕"},
-        {"id": "D", "text": "使用不致成為發火源之虞之除電裝置"}
+        {
+          "id": "A",
+          "text": "使用除電劑"
+        },
+        {
+          "id": "B",
+          "text": "接地"
+        },
+        {
+          "id": "C",
+          "text": "使用不致成為發火源之虞之除電裝置"
+        },
+        {
+          "id": "D",
+          "text": "降低環境濕度"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生設施規則規定，雇主對於有因靜電引起爆炸或火災之虞之設備，應採取接地、使用除電劑、加濕、使用不致成為發火源之虞之除電裝置或其他去除靜電之裝置。四項均為法規明定之防靜電措施。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "職業安全衛生設施規則規定，雇主對於有因靜電引起爆炸或火災之虞之設備，應採取接地、使用除電劑、加濕、使用不致成為發火源之虞之除電裝置或其他去除靜電之裝置。降低環境濕度反而增加靜電累積，非屬防靜電措施。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q026",
@@ -384,14 +861,34 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，下列哪些是雇主對於危險物處置之規定？（複選）",
       "options": [
-        {"id": "A", "text": "著火性物質應遠離煙火，不得加熱、摩擦或衝擊"},
-        {"id": "B", "text": "氧化性物質不得接觸促進其分解之物質"},
-        {"id": "C", "text": "易燃液體應遠離煙火，未經許可不得灌注、蒸發或加熱"},
-        {"id": "D", "text": "危險物可任意放置於作業場所"}
+        {
+          "id": "A",
+          "text": "危險物可任意放置於作業場所"
+        },
+        {
+          "id": "B",
+          "text": "易燃液體應遠離煙火，未經許可不得灌注、蒸發或加熱"
+        },
+        {
+          "id": "C",
+          "text": "著火性物質應集中堆放於高溫乾燥處所以利管理"
+        },
+        {
+          "id": "D",
+          "text": "氧化性物質不得接觸促進其分解之物質"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "職業安全衛生設施規則第178條規定各類危險物之處置方式：著火性物質應遠離煙火、不得加熱摩擦衝擊；氧化性物質不得接觸促進分解之物質；易燃液體應遠離煙火、未經許可不得灌注蒸發或加熱。且除必需用料外，不得任意放置危險物。選項D違反規定。",
-      "references": [{"title": "職業安全衛生設施規則第178條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"}]
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "職業安全衛生設施規則第178條規定各類危險物之處置方式：著火性物質應遠離煙火、不得加熱摩擦衝擊；氧化性物質不得接觸促進分解之物質；易燃液體應遠離煙火、未經許可不得灌注蒸發或加熱。除必需用料外不得任意放置危險物。著火性物質集中於高溫處違反規定。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第178條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=178"
+        }
+      ]
     },
     {
       "id": "U33-Q027",
@@ -399,14 +896,35 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，下列哪些情形使用之電氣設備應具有防爆性能構造？（複選）",
       "options": [
-        {"id": "A", "text": "有易燃液體蒸氣滯留之作業場所"},
-        {"id": "B", "text": "有可燃性氣體滯留之作業場所"},
-        {"id": "C", "text": "有可燃性粉塵滯留之作業場所"},
-        {"id": "D", "text": "一般辦公室"}
+        {
+          "id": "A",
+          "text": "有可燃性氣體滯留之作業場所"
+        },
+        {
+          "id": "B",
+          "text": "有可燃性粉塵滯留之作業場所"
+        },
+        {
+          "id": "C",
+          "text": "一般辦公室"
+        },
+        {
+          "id": "D",
+          "text": "有易燃液體蒸氣滯留之作業場所"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於作業場所有易燃液體之蒸氣、可燃性氣體或可燃性粉塵滯留，而有爆炸、火災之虞者，使用之電氣機械、器具或設備應具有適合其危險區域劃分之防爆性能構造。一般辦公室無此危險，不需防爆設備。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q028",
@@ -414,14 +932,35 @@
       "difficulty": "intermediate",
       "stem": "依火災分類，下列哪些屬於B類火災之可燃物？（複選）",
       "options": [
-        {"id": "A", "text": "汽油"},
-        {"id": "B", "text": "溶劑"},
-        {"id": "C", "text": "油漆"},
-        {"id": "D", "text": "木材"}
+        {
+          "id": "A",
+          "text": "汽油"
+        },
+        {
+          "id": "B",
+          "text": "油漆"
+        },
+        {
+          "id": "C",
+          "text": "溶劑"
+        },
+        {
+          "id": "D",
+          "text": "木材"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "B類火災為油類火災，指汽油、溶劑、油漆、油脂等引燃性液體引起之火災。木材屬於A類火災（普通火災）之可燃物。B類火災不可用水撲滅，應使用泡沫、乾粉等滅火劑。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q029",
@@ -429,14 +968,34 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，雇主對於作業場所有易燃液體蒸氣等滯留而有爆炸火災之虞者，應採取哪些措施？（複選）",
       "options": [
-        {"id": "A", "text": "指定專人於作業前測定蒸氣或氣體濃度"},
-        {"id": "B", "text": "濃度達爆炸下限值30%以上時使勞工退避至安全場所"},
-        {"id": "C", "text": "停止使用煙火及其他為點火源之虞之機具"},
-        {"id": "D", "text": "加強通風"}
+        {
+          "id": "A",
+          "text": "濃度達爆炸下限值30%以上時使勞工退避至安全場所"
+        },
+        {
+          "id": "B",
+          "text": "加強通風"
+        },
+        {
+          "id": "C",
+          "text": "指定專人於作業後測定蒸氣或氣體濃度"
+        },
+        {
+          "id": "D",
+          "text": "加強照明亮度以利觀察濃度變化"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生設施規則規定，對於有爆炸火災之虞之作業場所，應指定專人於作業前測定濃度，濃度達爆炸下限值30%以上時應即刻使勞工退避至安全場所，停止使用煙火及點火源之虞之機具，並應加強通風。四項均為法規規定之必要措施。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生設施規則規定，對於有爆炸火災之虞之作業場所，應指定專人於作業前測定濃度，濃度達爆炸下限值30%以上時應即刻使勞工退避至安全場所，停止使用煙火及點火源之虞之機具，並應加強通風。作業後測定無法及時預防危害，加強照明亦非防爆措施。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q030",
@@ -444,14 +1003,34 @@
       "difficulty": "intermediate",
       "stem": "下列哪些屬於火三角（燃燒三要素）？（複選）",
       "options": [
-        {"id": "A", "text": "可燃物"},
-        {"id": "B", "text": "助燃物（氧氣）"},
-        {"id": "C", "text": "點火源（熱源）"},
-        {"id": "D", "text": "壓力"}
+        {
+          "id": "A",
+          "text": "可燃物之包裝容器"
+        },
+        {
+          "id": "B",
+          "text": "助燃物（氧氣）"
+        },
+        {
+          "id": "C",
+          "text": "壓力"
+        },
+        {
+          "id": "D",
+          "text": "點火源（熱源）"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "火三角（燃燒三要素）為可燃物、助燃物（氧氣）及點火源（熱源），三者同時存在並達一定條件才會燃燒。壓力不屬於火三角要素，雖壓力會影響燃燒速率，但非燃燒之基本要素。移除任一要素即可防止火災。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "火三角（燃燒三要素）為可燃物、助燃物（氧氣）及點火源（熱源），三者同時存在並達一定條件才會燃燒。包裝容器非燃燒三要素；壓力亦非基本要素，雖壓力會影響燃燒速率。移除任一要素即可防止火災。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q031",
@@ -459,14 +1038,35 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則第186條，使用槽車從事灌注或卸收作業之規定，下列哪些正確？（複選）",
       "options": [
-        {"id": "A", "text": "作業前槽車引擎應熄火"},
-        {"id": "B", "text": "應設置適當之輪擋防止車輛移動"},
-        {"id": "C", "text": "作業結束後確認不致因引擎啟動發生危害後始得發動"},
-        {"id": "D", "text": "作業時引擎可保持發動以節省時間"}
+        {
+          "id": "A",
+          "text": "應設置適當之輪擋防止車輛移動"
+        },
+        {
+          "id": "B",
+          "text": "作業結束後確認不致因引擎啟動發生危害後始得發動"
+        },
+        {
+          "id": "C",
+          "text": "作業前槽車引擎應熄火"
+        },
+        {
+          "id": "D",
+          "text": "作業時引擎可保持發動以節省時間"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，使用槽車從事灌注或卸收作業前，槽車之引擎應熄火，且設置適當之輪擋，以防止作業時車輛移動。作業結束後，確認不致因引擎啟動而發生危害後，始得發動。選項D違反規定，引擎保持發動可能產生火花引燃蒸氣。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q032",
@@ -474,14 +1074,35 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則第10條，下列哪些物質屬於第一種易燃液體？（複選）",
       "options": [
-        {"id": "A", "text": "乙醚"},
-        {"id": "B", "text": "汽油"},
-        {"id": "C", "text": "二硫化碳"},
-        {"id": "D", "text": "乙醇"}
+        {
+          "id": "A",
+          "text": "汽油"
+        },
+        {
+          "id": "B",
+          "text": "乙醚"
+        },
+        {
+          "id": "C",
+          "text": "乙醇"
+        },
+        {
+          "id": "D",
+          "text": "二硫化碳"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第一種易燃液體指乙醚、汽油、乙醛、環氧丙烷、二硫化碳及其他閃火點未滿攝氏零下30度之物質。乙醇屬於第三種易燃液體（閃火點在0度以上未滿30度）。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q033",
@@ -489,12 +1110,25 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則，作業場所有易燃液體之蒸氣、可燃性氣體或可燃性粉塵滯留而有爆炸火災之虞者，蒸氣或氣體濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則規定，蒸氣或氣體之濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所，並停止使用煙火及其他為點火源之虞之機具，並應加強通風。30%為法規規定之安全門檻。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q034",
@@ -502,12 +1136,25 @@
       "difficulty": "intermediate",
       "stem": "B類火災（油類火災）可以使用水來撲滅。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "B類火災為油類火災（如汽油、溶劑等），不可用水撲滅。因油類比水輕，水會使油類擴散而擴大燃燒範圍。應使用泡沫、乾粉或二氧化碳等滅火劑來撲滅B類火災。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q035",
@@ -515,12 +1162,25 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，從事環氧乙烷灌注時，應以惰性氣體置換化學設備或槽體內之氣體。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，從事環氧乙烷、乙醛或1,2-環氧丙烷灌注時，應確實將化學設備、槽車或槽體內之氣體，以氮、二氧化碳或氦、氬等惰性氣體置換之，以防止與空氣混合產生爆炸性氣體。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q036",
@@ -528,12 +1188,25 @@
       "difficulty": "basic",
       "stem": "D類火災（金屬火災）如鉀、鈉燃燒時，可以用水來撲滅。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "D類火災為金屬火災，如鉀、鈉、鎂等活性金屬燃燒。此類金屬遇水會產生氫氣並放出大量熱，反而會引起劇烈爆炸，絕對不可用水撲滅。應使用特殊之乾粉（如氯化鈉類）滅火劑。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q037",
@@ -541,84 +1214,166 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，使用槽車從事灌注或卸收作業前，槽車之引擎應熄火。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則第186條規定，使用槽車從事灌注或卸收作業前，槽車之引擎應熄火，且設置適當之輪擋，以防止作業時車輛移動。引擎不熄火可能產生火花引燃可燃性蒸氣。",
-      "references": [{"title": "職業安全衛生設施規則第186條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第186條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=186"
+        }
+      ]
     },
     {
       "id": "U33-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，蒸氣或氣體之濃度達爆炸下限值之百分之________以上時，應即刻使勞工退避至安全場所。",
-      "answer": ["30", "三十"],
+      "answer": [
+        "30",
+        "三十"
+      ],
       "explanation": "職業安全衛生設施規則規定，蒸氣或氣體之濃度達爆炸下限值之百分之三十以上時，應即刻使勞工退避至安全場所，並停止使用煙火及加強通風。30%為法規規定之安全門檻。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則第10條，第一種易燃液體指閃火點未滿攝氏零下________度之物質（如乙醚、汽油等）。",
-      "answer": ["30", "三十"],
+      "answer": [
+        "30",
+        "三十"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第一種易燃液體指乙醚、汽油、乙醛、環氧丙烷、二硫化碳及其他閃火點未滿攝氏零下30度之物質，危險性最高。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則第10條，第四種易燃液體（如煤油、輕油）之閃火點在攝氏30度以上未滿攝氏________度。",
-      "answer": ["65", "六十五"],
+      "answer": [
+        "65",
+        "六十五"
+      ],
       "explanation": "職業安全衛生設施規則第10條規定，第四種易燃液體指煤油、輕油、松節油等及其他閃火點在攝氏30度以上，未滿攝氏65度之物質。65度為第四種與非易燃液體之界限。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依火災分類，電氣設備通電中引起之火災屬於________類火災。",
-      "answer": ["C", "c", "丙"],
+      "answer": [
+        "C",
+        "c",
+        "丙"
+      ],
       "explanation": "火災分為A、B、C、D四類，C類火災為電氣火災，指通電中之電氣設備引起之火災。撲滅C類火災應先切斷電源，如無法切斷，應使用不導電之滅火劑（如二氧化碳或乾粉）。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q042",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依火災分類，鉀、鈉、鎂等活性金屬引起之火災屬於________類火災。",
-      "answer": ["D", "d", "丁"],
+      "answer": [
+        "D",
+        "d",
+        "丁"
+      ],
       "explanation": "D類火災為金屬火災，指鉀、鈉、鎂、鈦、鋅等活性金屬燃燒引起之火災。此類火災不可用水撲滅，應使用特殊之乾粉滅火劑。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某作業場所測得可燃性氣體濃度為爆炸下限值（LEL）之24%，依職業安全衛生設施規則，此濃度是否已達到必須使勞工退避之標準？若已超過，超出多少個百分點？若未超過則回答0。",
-      "answer": {"value": 0, "unit": "百分點", "tolerance": 0},
+      "answer": {
+        "value": 0,
+        "unit": "百分點",
+        "tolerance": 0
+      },
       "explanation": "法規規定濃度達爆炸下限值之30%以上時才須使勞工退避。測得濃度為24%，未達30%之標準，故尚不須退避，超出值為0。但仍應持續監測並加強通風。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "某化學物質之爆炸下限值（LEL）為5%，依職業安全衛生設施規則，當作業場所該物質蒸氣濃度達到多少百分比時，應即刻使勞工退避至安全場所？（即爆炸下限值之30%）",
-      "answer": {"value": 1.5, "unit": "%", "tolerance": 0.01},
+      "answer": {
+        "value": 1.5,
+        "unit": "%",
+        "tolerance": 0.01
+      },
       "explanation": "法規規定濃度達爆炸下限值之30%以上時應使勞工退避。爆炸下限值5%×30%=5%×0.3=1.5%。因此當蒸氣濃度達到1.5%時，應即刻使勞工退避至安全場所。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某易燃液體之閃火點為攝氏零下35度，依職業安全衛生設施規則第10條之四種分類，該液體屬於第幾種易燃液體？（請輸入數字1~4）",
-      "answer": {"value": 1, "unit": "種", "tolerance": 0},
+      "answer": {
+        "value": 1,
+        "unit": "種",
+        "tolerance": 0
+      },
       "explanation": "職業安全衛生設施規則第10條規定，第一種易燃液體指閃火點未滿攝氏零下30度之物質。閃火點零下35度低於零下30度，屬第一種易燃液體，危險性最高。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q046",
@@ -626,25 +1381,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列火災類型與其對應之燃燒物質正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "A類火災"},
-        {"id": "L2", "text": "B類火災"},
-        {"id": "L3", "text": "C類火災"},
-        {"id": "L4", "text": "D類火災"}
+        {
+          "id": "L1",
+          "text": "A類火災"
+        },
+        {
+          "id": "L2",
+          "text": "B類火災"
+        },
+        {
+          "id": "L3",
+          "text": "C類火災"
+        },
+        {
+          "id": "L4",
+          "text": "D類火災"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "木材、紙張等可燃性固體"},
-        {"id": "R2", "text": "汽油、溶劑等引燃性液體"},
-        {"id": "R3", "text": "通電中之電氣設備"},
-        {"id": "R4", "text": "鉀、鈉、鎂等活性金屬"}
+        {
+          "id": "R1",
+          "text": "木材、紙張等可燃性固體"
+        },
+        {
+          "id": "R2",
+          "text": "汽油、溶劑等引燃性液體"
+        },
+        {
+          "id": "R3",
+          "text": "通電中之電氣設備"
+        },
+        {
+          "id": "R4",
+          "text": "鉀、鈉、鎂等活性金屬"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "A類為普通火災（固體可燃物），B類為油類火災（引燃性液體），C類為電氣火災（通電設備），D類為金屬火災（活性金屬）。各類火災之滅火方式不同，須正確判斷。",
-      "references": [{"title": "各類場所消防安全設備設置標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"}]
+      "references": [
+        {
+          "title": "各類場所消防安全設備設置標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=D0120029"
+        }
+      ]
     },
     {
       "id": "U33-Q047",
@@ -652,25 +1448,66 @@
       "difficulty": "advanced",
       "stem": "請將下列易燃液體與其所屬之種類正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "乙醚、汽油"},
-        {"id": "L2", "text": "正己烷、丙酮"},
-        {"id": "L3", "text": "乙醇、甲醇"},
-        {"id": "L4", "text": "煤油、輕油"}
+        {
+          "id": "L1",
+          "text": "乙醚、汽油"
+        },
+        {
+          "id": "L2",
+          "text": "正己烷、丙酮"
+        },
+        {
+          "id": "L3",
+          "text": "乙醇、甲醇"
+        },
+        {
+          "id": "L4",
+          "text": "煤油、輕油"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "第一種（閃火點未滿零下30度）"},
-        {"id": "R2", "text": "第二種（零下30度以上未滿0度）"},
-        {"id": "R3", "text": "第三種（0度以上未滿30度）"},
-        {"id": "R4", "text": "第四種（30度以上未滿65度）"}
+        {
+          "id": "R1",
+          "text": "第一種（閃火點未滿零下30度）"
+        },
+        {
+          "id": "R2",
+          "text": "第二種（零下30度以上未滿0度）"
+        },
+        {
+          "id": "R3",
+          "text": "第三種（0度以上未滿30度）"
+        },
+        {
+          "id": "R4",
+          "text": "第四種（30度以上未滿65度）"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "依職業安全衛生設施規則第10條：乙醚、汽油屬第一種；正己烷、丙酮屬第二種；乙醇、甲醇屬第三種；煤油、輕油屬第四種。閃火點越低危險性越高。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q048",
@@ -678,14 +1515,36 @@
       "difficulty": "advanced",
       "stem": "請依閃火點由低到高（危險性由高到低），排列下列易燃液體之種類：",
       "items": [
-        {"id": "I1", "text": "第一種（閃火點未滿零下30度）"},
-        {"id": "I2", "text": "第二種（閃火點零下30度以上未滿0度）"},
-        {"id": "I3", "text": "第三種（閃火點0度以上未滿30度）"},
-        {"id": "I4", "text": "第四種（閃火點30度以上未滿65度）"}
+        {
+          "id": "I1",
+          "text": "第一種（閃火點未滿零下30度）"
+        },
+        {
+          "id": "I2",
+          "text": "第二種（閃火點零下30度以上未滿0度）"
+        },
+        {
+          "id": "I3",
+          "text": "第三種（閃火點0度以上未滿30度）"
+        },
+        {
+          "id": "I4",
+          "text": "第四種（閃火點30度以上未滿65度）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "依職業安全衛生設施規則第10條，易燃液體依閃火點由低到高排列：第一種（未滿零下30度）→第二種（零下30度至未滿0度）→第三種（0度至未滿30度）→第四種（30度至未滿65度）。閃火點越低越容易引燃，危險性越高。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     },
     {
       "id": "U33-Q049",
@@ -693,14 +1552,36 @@
       "difficulty": "intermediate",
       "stem": "請依防止火災爆炸之控制層級，由最優先之工程控制到最後之應變措施排列：",
       "items": [
-        {"id": "I1", "text": "去除可燃物或助燃物（本質安全）"},
-        {"id": "I2", "text": "設置通風、換氣、除塵等設施（工程控制）"},
-        {"id": "I3", "text": "使用防爆電氣設備、去除靜電（工程控制）"},
-        {"id": "I4", "text": "設置滅火器及消防設備（應變措施）"}
+        {
+          "id": "I1",
+          "text": "去除可燃物或助燃物（本質安全）"
+        },
+        {
+          "id": "I2",
+          "text": "設置通風、換氣、除塵等設施（工程控制）"
+        },
+        {
+          "id": "I3",
+          "text": "使用防爆電氣設備、去除靜電（工程控制）"
+        },
+        {
+          "id": "I4",
+          "text": "設置滅火器及消防設備（應變措施）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "防止火災爆炸之優先順序為：首先從源頭去除可燃物或助燃物（本質安全），其次設置通風換氣等工程控制稀釋可燃性氣體，再以防爆設備及去除靜電等工程控制消除點火源，最後設置滅火器等消防設備作為應變措施。",
-      "references": [{"title": "職業安全衛生設施規則第177條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第177條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=177"
+        }
+      ]
     },
     {
       "id": "U33-Q050",
@@ -708,25 +1589,66 @@
       "difficulty": "advanced",
       "stem": "某工廠作業場所使用丙酮（閃火點約攝氏零下20度）作為溶劑，請將下列防護措施與其對應之法規依據正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "丙酮之易燃液體分類"},
-        {"id": "L2", "text": "應設置通風、換氣、除塵等設施"},
-        {"id": "L3", "text": "應採取接地、加濕等去除靜電措施"},
-        {"id": "L4", "text": "應使用防爆性能構造之電氣設備"}
+        {
+          "id": "L1",
+          "text": "丙酮之易燃液體分類"
+        },
+        {
+          "id": "L2",
+          "text": "應設置通風、換氣、除塵等設施"
+        },
+        {
+          "id": "L3",
+          "text": "應採取接地、加濕等去除靜電措施"
+        },
+        {
+          "id": "L4",
+          "text": "應使用防爆性能構造之電氣設備"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "第二種易燃液體（第10條）"},
-        {"id": "R2", "text": "第177條規定"},
-        {"id": "R3", "text": "第177條規定"},
-        {"id": "R4", "text": "第177條規定"}
+        {
+          "id": "R1",
+          "text": "第二種易燃液體（第10條）"
+        },
+        {
+          "id": "R2",
+          "text": "第177條規定"
+        },
+        {
+          "id": "R3",
+          "text": "第177條規定"
+        },
+        {
+          "id": "R4",
+          "text": "第177條規定"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "丙酮閃火點約零下20度，在零下30度以上未滿0度，屬第二種易燃液體（第10條）。依第177條規定，雇主應有通風、換氣、除塵、去除靜電等必要設施，並使用防爆電氣設備，指定專人於作業前測定蒸氣濃度，遠離煙火。僅設滅火器或警告標示不足以防止爆炸火災。",
-      "references": [{"title": "職業安全衛生設施規則第10條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第10條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=10"
+        }
+      ]
     }
   ]
 }

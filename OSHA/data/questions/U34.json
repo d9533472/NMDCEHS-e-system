@@ -9,14 +9,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則，勞工工作場所因機械設備所發生之聲音超過多少分貝時，雇主應採取工程控制、減少勞工噪音暴露時間等措施？",
       "options": [
-        {"id": "A", "text": "80分貝"},
-        {"id": "B", "text": "85分貝"},
-        {"id": "C", "text": "90分貝"},
-        {"id": "D", "text": "100分貝"}
+        {
+          "id": "A",
+          "text": "80分貝"
+        },
+        {
+          "id": "B",
+          "text": "85分貝"
+        },
+        {
+          "id": "C",
+          "text": "90分貝"
+        },
+        {
+          "id": "D",
+          "text": "100分貝"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，勞工工作場所因機械設備所發生之聲音超過90分貝時，雇主應採取工程控制、減少勞工噪音暴露時間等措施，使勞工噪音暴露工作日八小時日時量平均不超過規定值或相當之劑量值。90分貝為實施噪音管制措施之基準。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q002",
@@ -24,14 +43,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，勞工八小時日時量平均音壓級超過多少分貝或暴露劑量超過百分之五十時，雇主應使勞工戴用有效之耳塞、耳罩等防音防護具？",
       "options": [
-        {"id": "A", "text": "80分貝"},
-        {"id": "B", "text": "85分貝"},
-        {"id": "C", "text": "90分貝"},
-        {"id": "D", "text": "100分貝"}
+        {
+          "id": "A",
+          "text": "80分貝"
+        },
+        {
+          "id": "B",
+          "text": "85分貝"
+        },
+        {
+          "id": "C",
+          "text": "90分貝"
+        },
+        {
+          "id": "D",
+          "text": "100分貝"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，對於勞工八小時日時量平均音壓級超過85分貝或暴露劑量超過百分之五十時，雇主應使勞工戴用有效之耳塞、耳罩等防音防護具。85分貝為佩戴防音防護具之基準，低於90分貝之工程控制基準。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q003",
@@ -39,14 +77,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，任何時間勞工均不得暴露於峰值超過多少分貝之衝擊性噪音？",
       "options": [
-        {"id": "A", "text": "100分貝"},
-        {"id": "B", "text": "115分貝"},
-        {"id": "C", "text": "140分貝"},
-        {"id": "D", "text": "150分貝"}
+        {
+          "id": "A",
+          "text": "100分貝"
+        },
+        {
+          "id": "B",
+          "text": "115分貝"
+        },
+        {
+          "id": "C",
+          "text": "140分貝"
+        },
+        {
+          "id": "D",
+          "text": "150分貝"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，任何時間不得暴露於峰值超過140分貝之衝擊性噪音或115分貝之連續性噪音。衝擊性噪音之瞬間峰值極高，140分貝以上可能造成聽力永久損傷，故任何時間均不得暴露。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q004",
@@ -54,14 +111,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，任何時間勞工均不得暴露於超過多少分貝之連續性噪音？",
       "options": [
-        {"id": "A", "text": "85分貝"},
-        {"id": "B", "text": "90分貝"},
-        {"id": "C", "text": "115分貝"},
-        {"id": "D", "text": "140分貝"}
+        {
+          "id": "A",
+          "text": "85分貝"
+        },
+        {
+          "id": "B",
+          "text": "90分貝"
+        },
+        {
+          "id": "C",
+          "text": "115分貝"
+        },
+        {
+          "id": "D",
+          "text": "140分貝"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，任何時間不得暴露於峰值超過140分貝之衝擊性噪音或115分貝之連續性噪音。115分貝為連續性噪音之絕對上限，超過此值即使在極短時間內亦可能造成聽力損害。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q005",
@@ -69,14 +145,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則，雇主僱用勞工從事振動作業，應使勞工每天全身振動暴露時間不超過規定之容許時間。全身振動包括哪兩種？",
       "options": [
-        {"id": "A", "text": "高頻振動與低頻振動"},
-        {"id": "B", "text": "垂直振動與水平振動"},
-        {"id": "C", "text": "持續振動與間歇振動"},
-        {"id": "D", "text": "機械振動與自然振動"}
+        {
+          "id": "A",
+          "text": "高頻振動與低頻振動"
+        },
+        {
+          "id": "B",
+          "text": "垂直振動與水平振動"
+        },
+        {
+          "id": "C",
+          "text": "持續振動與間歇振動"
+        },
+        {
+          "id": "D",
+          "text": "機械振動與自然振動"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主僱用勞工從事振動作業，應使勞工每天全身振動暴露時間不超過規定之容許時間，包括垂直振動及水平振動。垂直振動及水平振動之容許時間依其三分之一八音度頻帶中心頻率之加速度而定。",
-      "references": [{"title": "職業安全衛生設施規則第301條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=301"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第301條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=301"
+        }
+      ]
     },
     {
       "id": "U34-Q006",
@@ -84,14 +179,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於高溫作業場所，應依何種標準所稱之高溫作業，採取預防危害之措施？",
       "options": [
-        {"id": "A", "text": "高溫作業勞工作息時間標準"},
-        {"id": "B", "text": "勞工作業環境監測實施辦法"},
-        {"id": "C", "text": "職業安全衛生法"},
-        {"id": "D", "text": "勞工健康保護規則"}
+        {
+          "id": "A",
+          "text": "高溫作業勞工作息時間標準"
+        },
+        {
+          "id": "B",
+          "text": "勞工作業環境監測實施辦法"
+        },
+        {
+          "id": "C",
+          "text": "職業安全衛生法"
+        },
+        {
+          "id": "D",
+          "text": "勞工健康保護規則"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於高溫作業場所，應依「高溫作業勞工作息時間標準」所稱之高溫作業，採取預防危害之措施。該標準依綜合溫度熱指數及工作負荷程度，規定勞工之工作時間與休息時間。",
-      "references": [{"title": "職業安全衛生設施規則第296條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=296"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第296條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=296"
+        }
+      ]
     },
     {
       "id": "U34-Q007",
@@ -99,14 +213,33 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生法第6條第1項第8款，雇主應防止下列何種物理性危害引起之危害？",
       "options": [
-        {"id": "A", "text": "輻射、高溫、低溫、超音波、噪音、振動或異常氣壓"},
-        {"id": "B", "text": "僅噪音與振動"},
-        {"id": "C", "text": "僅高溫與低溫"},
-        {"id": "D", "text": "僅輻射"}
+        {
+          "id": "A",
+          "text": "輻射、高溫、低溫、超音波、噪音、振動或異常氣壓"
+        },
+        {
+          "id": "B",
+          "text": "僅噪音與振動"
+        },
+        {
+          "id": "C",
+          "text": "僅高溫與低溫"
+        },
+        {
+          "id": "D",
+          "text": "僅輻射"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第6條第1項第8款規定，雇主應防止輻射、高溫、低溫、超音波、噪音、振動或異常氣壓等引起之危害。物理性危害包含多種類型，非僅單一項目。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U34-Q008",
@@ -114,14 +247,33 @@
       "difficulty": "intermediate",
       "stem": "依勞工作業環境監測實施辦法，勞工噪音暴露工作日八小時日時量平均音壓級達多少分貝以上之作業場所，應每六個月監測噪音一次以上？",
       "options": [
-        {"id": "A", "text": "80分貝"},
-        {"id": "B", "text": "85分貝"},
-        {"id": "C", "text": "90分貝"},
-        {"id": "D", "text": "100分貝"}
+        {
+          "id": "A",
+          "text": "80分貝"
+        },
+        {
+          "id": "B",
+          "text": "85分貝"
+        },
+        {
+          "id": "C",
+          "text": "90分貝"
+        },
+        {
+          "id": "D",
+          "text": "100分貝"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "勞工作業環境監測實施辦法第7條規定，勞工噪音暴露工作日八小時日時量平均音壓級85分貝以上之作業場所，應每六個月監測噪音一次以上。85分貝為需實施監測之基準，與佩戴防音防護具之基準一致。",
-      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+      "references": [
+        {
+          "title": "勞工作業環境監測實施辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"
+        }
+      ]
     },
     {
       "id": "U34-Q009",
@@ -129,14 +281,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於勞工經常作業之室內作業場所，其採光照明應依何種標準辦理？",
       "options": [
-        {"id": "A", "text": "依雇主自行決定之標準"},
-        {"id": "B", "text": "依中央主管機關規定之照度標準"},
-        {"id": "C", "text": "依國際照明委員會標準"},
-        {"id": "D", "text": "無特別規定"}
+        {
+          "id": "A",
+          "text": "依雇主自行決定之標準"
+        },
+        {
+          "id": "B",
+          "text": "依中央主管機關規定之照度標準"
+        },
+        {
+          "id": "C",
+          "text": "依國際照明委員會標準"
+        },
+        {
+          "id": "D",
+          "text": "無特別規定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於勞工經常作業之室內作業場所，其採光照明應依中央主管機關規定之照度標準辦理。採光不足會影響勞工視力及作業安全，照度標準依作業類型而有不同要求。",
-      "references": [{"title": "職業安全衛生設施規則第293條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=293"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第293條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=293"
+        }
+      ]
     },
     {
       "id": "U34-Q010",
@@ -144,14 +315,33 @@
       "difficulty": "advanced",
       "stem": "依異常氣壓危害預防標準，雇主使勞工從事高壓室內作業時，為預防減壓症，應對勞工實施何種試驗？",
       "options": [
-        {"id": "A", "text": "視力試驗"},
-        {"id": "B", "text": "聽力試驗"},
-        {"id": "C", "text": "耐氧試驗"},
-        {"id": "D", "text": "肺功能試驗"}
+        {
+          "id": "A",
+          "text": "視力試驗"
+        },
+        {
+          "id": "B",
+          "text": "聽力試驗"
+        },
+        {
+          "id": "C",
+          "text": "耐氧試驗"
+        },
+        {
+          "id": "D",
+          "text": "肺功能試驗"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "異常氣壓危害預防標準規定，雇主對從事異常氣壓作業之勞工，應實施耐氧試驗。耐氧試驗指在高壓艙以每平方公分1.8公斤（60呎）之壓力，使勞工呼吸純氧30分鐘之試驗，以確認勞工是否適合從事異常氣壓作業。",
-      "references": [{"title": "異常氣壓危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026"}]
+      "references": [
+        {
+          "title": "異常氣壓危害預防標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026"
+        }
+      ]
     },
     {
       "id": "U34-Q011",
@@ -159,14 +349,33 @@
       "difficulty": "intermediate",
       "stem": "依異常氣壓危害預防標準，本標準所稱之異常氣壓作業，下列何者不屬於其種類？",
       "options": [
-        {"id": "A", "text": "高壓室內作業"},
-        {"id": "B", "text": "氣壓沉箱作業"},
-        {"id": "C", "text": "潛水作業"},
-        {"id": "D", "text": "一般室內作業"}
+        {
+          "id": "A",
+          "text": "高壓室內作業"
+        },
+        {
+          "id": "B",
+          "text": "氣壓沉箱作業"
+        },
+        {
+          "id": "C",
+          "text": "潛水作業"
+        },
+        {
+          "id": "D",
+          "text": "一般室內作業"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "異常氣壓危害預防標準所稱異常氣壓作業包括高壓室內作業（如沉箱施工、壓氣潛盾施工等）及潛水作業等。一般室內作業之氣壓為正常大氣壓，非屬異常氣壓作業。",
-      "references": [{"title": "異常氣壓危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026"}]
+      "references": [
+        {
+          "title": "異常氣壓危害預防標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026"
+        }
+      ]
     },
     {
       "id": "U34-Q012",
@@ -174,14 +383,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於從事精密作業之勞工，其工作台面照度應符合何種要求？",
       "options": [
-        {"id": "A", "text": "100勒克斯以上"},
-        {"id": "B", "text": "300勒克斯以上"},
-        {"id": "C", "text": "500勒克斯以上"},
-        {"id": "D", "text": "1000勒克斯以上"}
+        {
+          "id": "A",
+          "text": "100勒克斯以上"
+        },
+        {
+          "id": "B",
+          "text": "300勒克斯以上"
+        },
+        {
+          "id": "C",
+          "text": "500勒克斯以上"
+        },
+        {
+          "id": "D",
+          "text": "1000勒克斯以上"
+        }
       ],
-      "answer": ["D"],
+      "answer": [
+        "D"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於勞工作業之照度標準依作業類型而定。精密作業如鐘錶零件組裝、精密儀器製造等需要極高之照度，通常要求1000勒克斯以上。一般作業照度要求較低。照度不足會影響視力及作業精度。",
-      "references": [{"title": "職業安全衛生設施規則第293條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=293"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第293條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=293"
+        }
+      ]
     },
     {
       "id": "U34-Q013",
@@ -189,14 +417,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，雇主對於勞工暴露於高溫作業環境時，原則上每日作業時間不得超過多少小時？",
       "options": [
-        {"id": "A", "text": "4小時"},
-        {"id": "B", "text": "6小時"},
-        {"id": "C", "text": "8小時"},
-        {"id": "D", "text": "10小時"}
+        {
+          "id": "A",
+          "text": "4小時"
+        },
+        {
+          "id": "B",
+          "text": "6小時"
+        },
+        {
+          "id": "C",
+          "text": "8小時"
+        },
+        {
+          "id": "D",
+          "text": "10小時"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第19條規定，雇主不得使勞工於高溫場所每日工作時間超過6小時。此為法定之高溫作業每日最高工作時間限制，旨在防止勞工因長時間高溫暴露而發生熱危害。",
-      "references": [{"title": "職業安全衛生法第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第19條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"
+        }
+      ]
     },
     {
       "id": "U34-Q014",
@@ -204,14 +451,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於異常氣壓作業之勞工，其工作時間應如何規定？",
       "options": [
-        {"id": "A", "text": "無特別限制"},
-        {"id": "B", "text": "應減少工作時間，並給予適當之休息時間"},
-        {"id": "C", "text": "每日不得超過4小時"},
-        {"id": "D", "text": "每日不得超過12小時"}
+        {
+          "id": "A",
+          "text": "無特別限制"
+        },
+        {
+          "id": "B",
+          "text": "應減少工作時間，並給予適當之休息時間"
+        },
+        {
+          "id": "C",
+          "text": "每日不得超過4小時"
+        },
+        {
+          "id": "D",
+          "text": "每日不得超過12小時"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生法第19條規定，雇主對於在異常氣壓作業、高架作業等特殊危險作業之勞工，應減少工作時間，並在工作時間中給予適當之休息時間。異常氣壓作業對人體影響大，須限制工作時間並給予休息。",
-      "references": [{"title": "職業安全衛生法第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第19條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"
+        }
+      ]
     },
     {
       "id": "U34-Q015",
@@ -219,14 +485,33 @@
       "difficulty": "basic",
       "stem": "下列何者屬於物理性危害？",
       "options": [
-        {"id": "A", "text": "化學品中毒"},
-        {"id": "B", "text": "噪音、振動、輻射、異常氣壓"},
-        {"id": "C", "text": "細菌感染"},
-        {"id": "D", "text": "人因工程不良姿勢"}
+        {
+          "id": "A",
+          "text": "化學品中毒"
+        },
+        {
+          "id": "B",
+          "text": "噪音、振動、輻射、異常氣壓"
+        },
+        {
+          "id": "C",
+          "text": "細菌感染"
+        },
+        {
+          "id": "D",
+          "text": "人因工程不良姿勢"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "物理性危害指因物理因素引起之危害，包括噪音、振動、輻射（游離及非游離輻射）、異常氣壓、高溫、低溫、超音波等。化學品中毒屬化學性危害，細菌感染屬生物性危害，人因工程屬人因性危害。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U34-Q016",
@@ -234,14 +519,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於勞工暴露於噪音作業場所，首先應採取何種控制措施？",
       "options": [
-        {"id": "A", "text": "直接發放耳塞給勞工使用"},
-        {"id": "B", "text": "採取工程控制措施，如隔音、消音等"},
-        {"id": "C", "text": "縮短勞工作業時間"},
-        {"id": "D", "text": "調換勞工至其他作業"}
+        {
+          "id": "A",
+          "text": "直接發放耳塞給勞工使用"
+        },
+        {
+          "id": "B",
+          "text": "採取工程控制措施，如隔音、消音等"
+        },
+        {
+          "id": "C",
+          "text": "縮短勞工作業時間"
+        },
+        {
+          "id": "D",
+          "text": "調換勞工至其他作業"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，勞工工作場所噪音超過90分貝時，雇主應「採取工程控制」為優先措施，如設置隔音、消音設施等，其次才採取減少暴露時間或佩戴防音防護具等行政管理措施。工程控制優於個人防護具。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q017",
@@ -249,14 +553,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，噪音暴露工作日容許暴露時間為8小時時，其A權噪音音壓級不得超過多少dBA？",
       "options": [
-        {"id": "A", "text": "80 dBA"},
-        {"id": "B", "text": "85 dBA"},
-        {"id": "C", "text": "90 dBA"},
-        {"id": "D", "text": "95 dBA"}
+        {
+          "id": "A",
+          "text": "80 dBA"
+        },
+        {
+          "id": "B",
+          "text": "85 dBA"
+        },
+        {
+          "id": "C",
+          "text": "90 dBA"
+        },
+        {
+          "id": "D",
+          "text": "95 dBA"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "職業安全衛生設施規則規定，工作日容許暴露時間8小時對應之A權噪音音壓級為90 dBA。暴露時間越短，容許之音壓級越高，呈反比關係。例如4小時對應95 dBA，2小時對應100 dBA。此為噪音劑量之基本換算基準。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q018",
@@ -264,14 +587,33 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，噪音暴露工作日容許暴露時間為4小時時，其A權噪音音壓級不得超過多少dBA？",
       "options": [
-        {"id": "A", "text": "90 dBA"},
-        {"id": "B", "text": "95 dBA"},
-        {"id": "C", "text": "100 dBA"},
-        {"id": "D", "text": "105 dBA"}
+        {
+          "id": "A",
+          "text": "90 dBA"
+        },
+        {
+          "id": "B",
+          "text": "95 dBA"
+        },
+        {
+          "id": "C",
+          "text": "100 dBA"
+        },
+        {
+          "id": "D",
+          "text": "105 dBA"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定之噪音容許暴露時間與音壓級對照：8小時=90 dBA、4小時=95 dBA、2小時=100 dBA、1小時=105 dBA。每減半暴露時間，容許音壓級增加5 dBA，符合等能量原則。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q019",
@@ -279,14 +621,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，噪音容許暴露時間為1小時時，其A權噪音音壓級不得超過多少dBA？",
       "options": [
-        {"id": "A", "text": "100 dBA"},
-        {"id": "B", "text": "105 dBA"},
-        {"id": "C", "text": "110 dBA"},
-        {"id": "D", "text": "115 dBA"}
+        {
+          "id": "A",
+          "text": "100 dBA"
+        },
+        {
+          "id": "B",
+          "text": "105 dBA"
+        },
+        {
+          "id": "C",
+          "text": "110 dBA"
+        },
+        {
+          "id": "D",
+          "text": "115 dBA"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定之噪音容許暴露時間與音壓級對照：8小時=90 dBA、4小時=95 dBA、2小時=100 dBA、1小時=105 dBA。1小時對應105 dBA，但仍不得超過連續性噪音115 dBA之上限。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q020",
@@ -294,14 +655,33 @@
       "difficulty": "intermediate",
       "stem": "依勞工作業環境監測實施辦法，設有中央管理方式之空氣調節設備之建築物室內作業場所，應每多久監測二氧化碳濃度一次以上？",
       "options": [
-        {"id": "A", "text": "三個月"},
-        {"id": "B", "text": "六個月"},
-        {"id": "C", "text": "一年"},
-        {"id": "D", "text": "二年"}
+        {
+          "id": "A",
+          "text": "三個月"
+        },
+        {
+          "id": "B",
+          "text": "六個月"
+        },
+        {
+          "id": "C",
+          "text": "一年"
+        },
+        {
+          "id": "D",
+          "text": "二年"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "勞工作業環境監測實施辦法第7條規定，設有中央管理方式之空氣調節設備之建築物室內作業場所，應每六個月監測二氧化碳濃度一次以上。密閉空調建築物因通風不足，二氧化碳濃度易超標，須定期監測。",
-      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+      "references": [
+        {
+          "title": "勞工作業環境監測實施辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"
+        }
+      ]
     },
     {
       "id": "U34-Q021",
@@ -309,14 +689,33 @@
       "difficulty": "intermediate",
       "stem": "依勞工作業環境監測實施辦法，坑內作業場所應每六個月監測哪些項目？（含粉塵及二氧化碳）",
       "options": [
-        {"id": "A", "text": "僅粉塵"},
-        {"id": "B", "text": "僅二氧化碳"},
-        {"id": "C", "text": "粉塵及二氧化碳"},
-        {"id": "D", "text": "粉塵、二氧化碳及一氧化碳"}
+        {
+          "id": "A",
+          "text": "僅粉塵"
+        },
+        {
+          "id": "B",
+          "text": "僅二氧化碳"
+        },
+        {
+          "id": "C",
+          "text": "粉塵及二氧化碳"
+        },
+        {
+          "id": "D",
+          "text": "粉塵、二氧化碳及一氧化碳"
+        }
       ],
-      "answer": ["C"],
+      "answer": [
+        "C"
+      ],
       "explanation": "勞工作業環境監測實施辦法第7條規定，坑內作業場所（如礦場地下礦物試掘採掘場所、隧道掘削建設工程場所等）應每六個月監測粉塵及二氧化碳之濃度一次以上。坑內作業通風不良，粉塵及二氧化碳積聚之風險高。",
-      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+      "references": [
+        {
+          "title": "勞工作業環境監測實施辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"
+        }
+      ]
     },
     {
       "id": "U34-Q022",
@@ -324,14 +723,33 @@
       "difficulty": "advanced",
       "stem": "依游離輻射防護標準，輻射工作人員職業暴露之有效劑量，五年內累計不得超過多少毫西弗？且任單一年不得超過多少毫西弗？",
       "options": [
-        {"id": "A", "text": "五年累計100毫西弗，單一年50毫西弗"},
-        {"id": "B", "text": "五年累計50毫西弗，單一年20毫西弗"},
-        {"id": "C", "text": "五年累計200毫西弗，單一年100毫西弗"},
-        {"id": "D", "text": "五年累計500毫西弗，單一年100毫西弗"}
+        {
+          "id": "A",
+          "text": "五年累計100毫西弗，單一年50毫西弗"
+        },
+        {
+          "id": "B",
+          "text": "五年累計50毫西弗，單一年20毫西弗"
+        },
+        {
+          "id": "C",
+          "text": "五年累計200毫西弗，單一年100毫西弗"
+        },
+        {
+          "id": "D",
+          "text": "五年累計500毫西弗，單一年100毫西弗"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "游離輻射防護標準規定，輻射工作人員職業暴露之有效劑量，五年內累計不得超過100毫西弗，且任單一年不得超過50毫西弗。此為國際輻射防護委員會（ICRP）建議之劑量限度，旨在防止輻射對人體造成確定效應及機率效應。",
-      "references": [{"title": "游離輻射防護標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"}]
+      "references": [
+        {
+          "title": "游離輻射防護標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"
+        }
+      ]
     },
     {
       "id": "U34-Q023",
@@ -339,14 +757,33 @@
       "difficulty": "advanced",
       "stem": "依游離輻射防護標準，輻射工作人員眼球水晶體之等效劑量，每年不得超過多少毫西弗？",
       "options": [
-        {"id": "A", "text": "50毫西弗"},
-        {"id": "B", "text": "150毫西弗"},
-        {"id": "C", "text": "500毫西弗"},
-        {"id": "D", "text": "1000毫西弗"}
+        {
+          "id": "A",
+          "text": "50毫西弗"
+        },
+        {
+          "id": "B",
+          "text": "150毫西弗"
+        },
+        {
+          "id": "C",
+          "text": "500毫西弗"
+        },
+        {
+          "id": "D",
+          "text": "1000毫西弗"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "游離輻射防護標準規定，輻射工作人員眼球水晶體之等效劑量每年不得超過150毫西弗。眼球水晶體對輻射較為敏感，長期暴露可能導致白內障，故有特別之劑量限制。",
-      "references": [{"title": "游離輻射防護標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"}]
+      "references": [
+        {
+          "title": "游離輻射防護標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"
+        }
+      ]
     },
     {
       "id": "U34-Q024",
@@ -354,14 +791,33 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，雇主對於勞工經常作業之室內作業場所，除採光照明應依規定外，對於何種作業場所應設置有效之通風設備？",
       "options": [
-        {"id": "A", "text": "所有作業場所均須設置中央空調"},
-        {"id": "B", "text": "有有害氣體、蒸氣、粉塵等發散之作業場所，應設置通風設備使其不超過容許暴露標準"},
-        {"id": "C", "text": "僅戶外作業場所"},
-        {"id": "D", "text": "無特別規定"}
+        {
+          "id": "A",
+          "text": "所有作業場所均須設置中央空調"
+        },
+        {
+          "id": "B",
+          "text": "有有害氣體、蒸氣、粉塵等發散之作業場所，應設置通風設備使其不超過容許暴露標準"
+        },
+        {
+          "id": "C",
+          "text": "僅戶外作業場所"
+        },
+        {
+          "id": "D",
+          "text": "無特別規定"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則第292條規定，雇主對於有害氣體、蒸氣、粉塵等作業場所，應視其性質採取密閉設備、局部排氣裝置、整體換氣裝置或其他方法導入新鮮空氣等適當措施，使其不超過勞工作業場所容許暴露標準之規定。",
-      "references": [{"title": "職業安全衛生設施規則第292條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=292"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第292條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=292"
+        }
+      ]
     },
     {
       "id": "U34-Q025",
@@ -369,14 +825,35 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第6條，下列哪些屬於雇主應防止之物理性危害？（複選）",
       "options": [
-        {"id": "A", "text": "噪音"},
-        {"id": "B", "text": "振動"},
-        {"id": "C", "text": "輻射"},
-        {"id": "D", "text": "異常氣壓"}
+        {
+          "id": "A",
+          "text": "振動"
+        },
+        {
+          "id": "B",
+          "text": "輻射"
+        },
+        {
+          "id": "C",
+          "text": "噪音"
+        },
+        {
+          "id": "D",
+          "text": "異常氣味"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生法第6條第1項第8款規定，雇主應防止輻射、高溫、低溫、超音波、噪音、振動或異常氣壓等引起之危害。四項均屬物理性危害，雇主有義務採取預防措施。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
+      "explanation": "職業安全衛生法第6條第1項第8款規定，雇主應防止輻射、高溫、低溫、超音波、噪音、振動或異常氣壓等引起之危害。振動、輻射、噪音、異常氣壓均屬物理性危害，雇主有義務採取預防措施。異常氣味屬化學性危害，非本款物理性危害範圍。",
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U34-Q026",
@@ -384,14 +861,34 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，雇主對於噪音超過90分貝之作業場所，應採取哪些措施？（複選）",
       "options": [
-        {"id": "A", "text": "工程控制（如隔音、消音）"},
-        {"id": "B", "text": "減少勞工噪音暴露時間"},
-        {"id": "C", "text": "使勞工戴用耳塞、耳罩等防音防護具（超過85分貝時）"},
-        {"id": "D", "text": "提高作業場所音量以蓋過噪音"}
+        {
+          "id": "A",
+          "text": "超過75分貝應使勞工戴用耳塞、耳罩等防音防護具"
+        },
+        {
+          "id": "B",
+          "text": "工程控制（如隔音、消音）"
+        },
+        {
+          "id": "C",
+          "text": "提高作業場所音量以蓋過噪音"
+        },
+        {
+          "id": "D",
+          "text": "減少勞工噪音暴露時間"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "職業安全衛生設施規則規定，噪音超過90分貝時應採取工程控制及減少暴露時間，超過85分貝時應使勞工戴用防音防護具。提高音量不僅無法降低危害，反而會增加噪音暴露劑量，為錯誤做法。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "answer": [
+        "B",
+        "D"
+      ],
+      "explanation": "職業安全衛生設施規則規定，噪音超過90分貝時應採取工程控制（如隔音、消音）及減少勞工噪音暴露時間，超過85分貝時應使勞工戴用防音防護具。75分貝非法定戴用防護具之門檻；提高作業場所音量不僅無法降低危害，反而增加暴露劑量，為錯誤做法。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q027",
@@ -399,14 +896,34 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則第300條，下列哪些噪音暴露限制之敘述正確？（複選）",
       "options": [
-        {"id": "A", "text": "8小時暴露不得超過90 dBA"},
-        {"id": "B", "text": "任何時間不得暴露於超過115分貝之連續性噪音"},
-        {"id": "C", "text": "任何時間不得暴露於峰值超過140分貝之衝擊性噪音"},
-        {"id": "D", "text": "超過85分貝應使勞工戴用防音防護具"}
+        {
+          "id": "A",
+          "text": "任何時間不得暴露於超過115分貝之連續性噪音"
+        },
+        {
+          "id": "B",
+          "text": "任何時間不得暴露於峰值超過140分貝之衝擊性噪音"
+        },
+        {
+          "id": "C",
+          "text": "超過75分貝應使勞工戴用防音防護具"
+        },
+        {
+          "id": "D",
+          "text": "8小時暴露不得超過85 dBA"
+        }
       ],
-      "answer": ["A", "B", "C", "D"],
-      "explanation": "職業安全衛生設施規則第300條規定：8小時=90 dBA、超過85分貝應戴防音防護具、連續性噪音不得超過115分貝、衝擊性噪音峰值不得超過140分貝。四項均為法規明定之噪音暴露限制。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "answer": [
+        "A",
+        "B"
+      ],
+      "explanation": "職業安全衛生設施規則第300條規定：8小時暴露不得超過90 dBA、超過85分貝應使勞工戴用防音防護具、連續性噪音不得超過115分貝、衝擊性噪音峰值不得超過140分貝。75分貝非法定戴用防護具之門檻，8小時85 dBA亦非法規限值。",
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q028",
@@ -414,14 +931,35 @@
       "difficulty": "intermediate",
       "stem": "依勞工作業環境監測實施辦法，下列哪些作業場所應每六個月監測一次以上？（複選）",
       "options": [
-        {"id": "A", "text": "噪音85分貝以上之作業場所"},
-        {"id": "B", "text": "設有中央管理方式空調之室內作業場所（監測二氧化碳）"},
-        {"id": "C", "text": "坑內作業場所（監測粉塵及二氧化碳）"},
-        {"id": "D", "text": "一般辦公室"}
+        {
+          "id": "A",
+          "text": "噪音85分貝以上之作業場所"
+        },
+        {
+          "id": "B",
+          "text": "設有中央管理方式空調之室內作業場所（監測二氧化碳）"
+        },
+        {
+          "id": "C",
+          "text": "一般辦公室"
+        },
+        {
+          "id": "D",
+          "text": "坑內作業場所（監測粉塵及二氧化碳）"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "D"
+      ],
       "explanation": "勞工作業環境監測實施辦法第7條規定，噪音85分貝以上、中央空調室內作業場所、坑內作業場所等均應每六個月監測一次以上。一般辦公室非屬應監測之作業場所，不須定期監測。",
-      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+      "references": [
+        {
+          "title": "勞工作業環境監測實施辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"
+        }
+      ]
     },
     {
       "id": "U34-Q029",
@@ -429,14 +967,35 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第19條，雇主對於從事哪些作業之勞工，應減少工作時間並在工作時間中給予適當休息？（複選）",
       "options": [
-        {"id": "A", "text": "高溫作業"},
-        {"id": "B", "text": "異常氣壓作業"},
-        {"id": "C", "text": "高架作業"},
-        {"id": "D", "text": "普通文書作業"}
+        {
+          "id": "A",
+          "text": "高架作業"
+        },
+        {
+          "id": "B",
+          "text": "異常氣壓作業"
+        },
+        {
+          "id": "C",
+          "text": "高溫作業"
+        },
+        {
+          "id": "D",
+          "text": "普通文書作業"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "職業安全衛生法第19條規定，雇主對於在異常氣壓作業、高架作業、高溫作業等特殊或危險作業之勞工，應減少工作時間，並在工作時間中給予適當之休息時間。普通文書作業非屬特殊或危險作業，不適用此規定。",
-      "references": [{"title": "職業安全衛生法第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第19條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"
+        }
+      ]
     },
     {
       "id": "U34-Q030",
@@ -444,14 +1003,34 @@
       "difficulty": "intermediate",
       "stem": "下列哪些屬於物理性危害之類型？（複選）",
       "options": [
-        {"id": "A", "text": "噪音"},
-        {"id": "B", "text": "游離輻射"},
-        {"id": "C", "text": "異常氣壓"},
-        {"id": "D", "text": "有機溶劑中毒"}
+        {
+          "id": "A",
+          "text": "噪音"
+        },
+        {
+          "id": "B",
+          "text": "游離輻射之遮蔽建材"
+        },
+        {
+          "id": "C",
+          "text": "有機溶劑中毒"
+        },
+        {
+          "id": "D",
+          "text": "異常氣壓"
+        }
       ],
-      "answer": ["A", "B", "C"],
-      "explanation": "物理性危害包括噪音、振動、輻射（游離及非游離）、異常氣壓、高溫、低溫、超音波等物理因素引起之危害。有機溶劑中毒屬於化學性危害，非物理性危害。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "answer": [
+        "A",
+        "D"
+      ],
+      "explanation": "物理性危害包括噪音、振動、輻射（游離及非游離）、異常氣壓、高溫、低溫、超音波等物理因素引起之危害。游離輻射之遮蔽建材為防護措施，非危害類型本身；有機溶劑中毒屬於化學性危害，非物理性危害。",
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U34-Q031",
@@ -459,14 +1038,34 @@
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，雇主對於勞工從事振動作業，應使全身振動暴露時間不超過容許時間。下列哪些為全身振動之類型？（複選）",
       "options": [
-        {"id": "A", "text": "垂直振動"},
-        {"id": "B", "text": "水平振動"},
-        {"id": "C", "text": "局部振動"},
-        {"id": "D", "text": "旋轉振動"}
+        {
+          "id": "A",
+          "text": "垂直振動"
+        },
+        {
+          "id": "B",
+          "text": "水平振動"
+        },
+        {
+          "id": "C",
+          "text": "旋轉振動"
+        },
+        {
+          "id": "D",
+          "text": "局部振動"
+        }
       ],
-      "answer": ["A", "B"],
+      "answer": [
+        "A",
+        "B"
+      ],
       "explanation": "職業安全衛生設施規則規定，雇主對於勞工從事振動作業，應使勞工每天全身振動暴露時間不超過容許時間，包括垂直振動及水平振動兩種。局部振動屬手手臂振動，非全身振動。旋轉振動非法規規定之類型。",
-      "references": [{"title": "職業安全衛生設施規則第301條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=301"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第301條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=301"
+        }
+      ]
     },
     {
       "id": "U34-Q032",
@@ -474,14 +1073,35 @@
       "difficulty": "advanced",
       "stem": "依異常氣壓危害預防標準，下列哪些屬於異常氣壓作業之種類？（複選）",
       "options": [
-        {"id": "A", "text": "高壓室內作業（如沉箱施工）"},
-        {"id": "B", "text": "潛水作業"},
-        {"id": "C", "text": "壓氣潛盾施工"},
-        {"id": "D", "text": "一般地面作業"}
+        {
+          "id": "A",
+          "text": "潛水作業"
+        },
+        {
+          "id": "B",
+          "text": "壓氣潛盾施工"
+        },
+        {
+          "id": "C",
+          "text": "高壓室內作業（如沉箱施工）"
+        },
+        {
+          "id": "D",
+          "text": "一般地面作業"
+        }
       ],
-      "answer": ["A", "B", "C"],
+      "answer": [
+        "A",
+        "B",
+        "C"
+      ],
       "explanation": "異常氣壓危害預防標準所稱異常氣壓作業包括高壓室內作業（如沉箱施工法、壓氣潛盾施工法及其他壓氣施工法中之作業）及潛水作業。一般地面作業之氣壓為正常大氣壓，非屬異常氣壓作業。",
-      "references": [{"title": "異常氣壓危害預防標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026"}]
+      "references": [
+        {
+          "title": "異常氣壓危害預防標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=N0060026"
+        }
+      ]
     },
     {
       "id": "U34-Q033",
@@ -489,12 +1109,25 @@
       "difficulty": "basic",
       "stem": "依職業安全衛生設施規則，勞工工作場所因機械設備所發生之聲音超過90分貝時，雇主應採取工程控制、減少勞工噪音暴露時間等措施。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則第300條規定，勞工工作場所因機械設備所發生之聲音超過90分貝時，雇主應採取工程控制、減少勞工噪音暴露時間等措施，使勞工噪音暴露不超過規定值。90分貝為實施噪音管制措施之基準。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q034",
@@ -502,12 +1135,25 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，任何時間均不得使勞工暴露於峰值超過140分貝之衝擊性噪音。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生設施規則第300條規定，任何時間不得暴露於峰值超過140分貝之衝擊性噪音或115分貝之連續性噪音。衝擊性噪音之瞬間峰值極高，超過140分貝可能造成聽力永久損傷。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q035",
@@ -515,12 +1161,25 @@
       "difficulty": "intermediate",
       "stem": "依職業安全衛生法第19條，雇主不得使勞工於高溫場所每日工作時間超過6小時。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "職業安全衛生法第19條規定，雇主不得使勞工於高溫場所每日工作時間超過6小時。此為法定之高溫作業每日最高工作時間限制，旨在防止熱危害。",
-      "references": [{"title": "職業安全衛生法第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第19條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"
+        }
+      ]
     },
     {
       "id": "U34-Q036",
@@ -528,12 +1187,25 @@
       "difficulty": "intermediate",
       "stem": "噪音危害屬於化學性危害的一種。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["B"],
+      "answer": [
+        "B"
+      ],
       "explanation": "噪音危害屬於物理性危害，非化學性危害。物理性危害包括噪音、振動、輻射、異常氣壓、高溫、低溫、超音波等。化學性危害指因化學物質引起之危害，如有機溶劑中毒、粉塵等。",
-      "references": [{"title": "職業安全衛生法第6條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第6條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=6"
+        }
+      ]
     },
     {
       "id": "U34-Q037",
@@ -541,84 +1213,164 @@
       "difficulty": "advanced",
       "stem": "依勞工作業環境監測實施辦法，勞工噪音暴露工作日八小時日時量平均音壓級85分貝以上之作業場所，應每六個月監測噪音一次以上。",
       "options": [
-        {"id": "A", "text": "正確"},
-        {"id": "B", "text": "錯誤"}
+        {
+          "id": "A",
+          "text": "正確"
+        },
+        {
+          "id": "B",
+          "text": "錯誤"
+        }
       ],
-      "answer": ["A"],
+      "answer": [
+        "A"
+      ],
       "explanation": "勞工作業環境監測實施辦法第7條規定，勞工噪音暴露工作日八小時日時量平均音壓級85分貝以上之作業場所，應每六個月監測噪音一次以上。85分貝為需實施噪音監測之基準。",
-      "references": [{"title": "勞工作業環境監測實施辦法第7條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"}]
+      "references": [
+        {
+          "title": "勞工作業環境監測實施辦法第7條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060033&flno=7"
+        }
+      ]
     },
     {
       "id": "U34-Q038",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，勞工八小時日時量平均音壓級超過________分貝時，雇主應使勞工戴用有效之耳塞、耳罩等防音防護具。",
-      "answer": ["85", "八十五"],
+      "answer": [
+        "85",
+        "八十五"
+      ],
       "explanation": "職業安全衛生設施規則第300條規定，勞工八小時日時量平均音壓級超過85分貝或暴露劑量超過百分之五十時，雇主應使勞工戴用有效之耳塞、耳罩等防音防護具。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q039",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，任何時間不得暴露於峰值超過________分貝之衝擊性噪音。",
-      "answer": ["140", "一百四十"],
+      "answer": [
+        "140",
+        "一百四十"
+      ],
       "explanation": "職業安全衛生設施規則第300條規定，任何時間不得暴露於峰值超過140分貝之衝擊性噪音或115分貝之連續性噪音。140分貝為衝擊性噪音之絕對上限。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q040",
       "type": "fill_blank",
       "difficulty": "intermediate",
       "stem": "依職業安全衛生設施規則，任何時間不得暴露於超過________分貝之連續性噪音。",
-      "answer": ["115", "一百一十五"],
+      "answer": [
+        "115",
+        "一百一十五"
+      ],
       "explanation": "職業安全衛生設施規則第300條規定，任何時間不得暴露於峰值超過140分貝之衝擊性噪音或115分貝之連續性噪音。115分貝為連續性噪音之絕對上限。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q041",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依職業安全衛生法第19條，雇主不得使勞工於高溫場所每日工作時間超過________小時。",
-      "answer": ["6", "六"],
+      "answer": [
+        "6",
+        "六"
+      ],
       "explanation": "職業安全衛生法第19條規定，雇主不得使勞工於高溫場所每日工作時間超過6小時。6小時為高溫作業每日最高工作時間之法定限制。",
-      "references": [{"title": "職業安全衛生法第19條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"}]
+      "references": [
+        {
+          "title": "職業安全衛生法第19條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060001&flno=19"
+        }
+      ]
     },
     {
       "id": "U34-Q042",
       "type": "fill_blank",
       "difficulty": "advanced",
       "stem": "依游離輻射防護標準，輻射工作人員職業暴露之有效劑量，五年內累計不得超過________毫西弗。",
-      "answer": ["100", "一百"],
+      "answer": [
+        "100",
+        "一百"
+      ],
       "explanation": "游離輻射防護標準規定，輻射工作人員職業暴露之有效劑量，五年內累計不得超過100毫西弗，且任單一年不得超過50毫西弗。此為國際輻射防護委員會建議之劑量限度。",
-      "references": [{"title": "游離輻射防護標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"}]
+      "references": [
+        {
+          "title": "游離輻射防護標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"
+        }
+      ]
     },
     {
       "id": "U34-Q043",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "某勞工於噪音作業場所每日工作8小時，依職業安全衛生設施規則，工作日容許暴露時間8小時對應之A權噪音音壓級為90 dBA。若該勞工實際暴露之噪音為95 dBA，依規定容許暴露時間為4小時。該勞工每日工作8小時是否超出容許標準？超出多少小時？",
-      "answer": {"value": 4, "unit": "小時", "tolerance": 0},
+      "answer": {
+        "value": 4,
+        "unit": "小時",
+        "tolerance": 0
+      },
       "explanation": "依職業安全衛生設施規則，95 dBA對應之容許暴露時間為4小時。該勞工每日工作8小時，超出容許時間8-4=4小時。雇主應採取工程控制、減少暴露時間或佩戴防音防護具等措施。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q044",
       "type": "calculation",
       "difficulty": "advanced",
       "stem": "依職業安全衛生設施規則，噪音容許暴露時間與音壓級之關係為：每減半暴露時間，容許音壓級增加5 dBA。已知8小時對應90 dBA，請計算2小時容許暴露時間對應之A權噪音音壓級為多少dBA？",
-      "answer": {"value": 100, "unit": "dBA", "tolerance": 0},
+      "answer": {
+        "value": 100,
+        "unit": "dBA",
+        "tolerance": 0
+      },
       "explanation": "8小時=90 dBA，減半為4小時→90+5=95 dBA，再減半為2小時→95+5=100 dBA。每減半暴露時間，容許音壓級增加5 dBA。故2小時對應100 dBA。此符合等能量原則。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q045",
       "type": "calculation",
       "difficulty": "intermediate",
       "stem": "依游離輻射防護標準，輻射工作人員五年內累計有效劑量不得超過100毫西弗，且任單一年不得超過50毫西弗。某輻射工作人員前四年累計已暴露75毫西弗，請問第五年最多還可暴露多少毫西弗？（不超過單年上限）",
-      "answer": {"value": 25, "unit": "毫西弗", "tolerance": 0},
+      "answer": {
+        "value": 25,
+        "unit": "毫西弗",
+        "tolerance": 0
+      },
       "explanation": "五年累計上限100毫西弗，前四年已暴露75毫西弗，剩餘100-75=25毫西弗。雖單年上限為50毫西弗，但五年累計上限先達到，故第五年最多只能暴露25毫西弗。",
-      "references": [{"title": "游離輻射防護標準", "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"}]
+      "references": [
+        {
+          "title": "游離輻射防護標準",
+          "url": "https://law.moj.gov.tw/LawClass/LawAll.aspx?pcode=J0160004"
+        }
+      ]
     },
     {
       "id": "U34-Q046",
@@ -626,25 +1378,66 @@
       "difficulty": "intermediate",
       "stem": "請將下列噪音暴露相關之數值與其對應之意義正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "85分貝"},
-        {"id": "L2", "text": "90分貝"},
-        {"id": "L3", "text": "115分貝"},
-        {"id": "L4", "text": "140分貝"}
+        {
+          "id": "L1",
+          "text": "85分貝"
+        },
+        {
+          "id": "L2",
+          "text": "90分貝"
+        },
+        {
+          "id": "L3",
+          "text": "115分貝"
+        },
+        {
+          "id": "L4",
+          "text": "140分貝"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "應戴用防音防護具之基準"},
-        {"id": "R2", "text": "應採工程控制等措施之基準（8小時容許值）"},
-        {"id": "R3", "text": "連續性噪音之絕對上限"},
-        {"id": "R4", "text": "衝擊性噪音峰值之絕對上限"}
+        {
+          "id": "R1",
+          "text": "應戴用防音防護具之基準"
+        },
+        {
+          "id": "R2",
+          "text": "應採工程控制等措施之基準（8小時容許值）"
+        },
+        {
+          "id": "R3",
+          "text": "連續性噪音之絕對上限"
+        },
+        {
+          "id": "R4",
+          "text": "衝擊性噪音峰值之絕對上限"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "85分貝=應戴防音防護具；90分貝=應採工程控制（8小時容許值）；115分貝=連續性噪音絕對上限；140分貝=衝擊性噪音峰值絕對上限。四個數值為噪音管制之重要基準。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q047",
@@ -652,25 +1445,66 @@
       "difficulty": "advanced",
       "stem": "請將下列噪音容許暴露時間與對應之A權噪音音壓級正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "8小時"},
-        {"id": "L2", "text": "4小時"},
-        {"id": "L3", "text": "2小時"},
-        {"id": "L4", "text": "1小時"}
+        {
+          "id": "L1",
+          "text": "8小時"
+        },
+        {
+          "id": "L2",
+          "text": "4小時"
+        },
+        {
+          "id": "L3",
+          "text": "2小時"
+        },
+        {
+          "id": "L4",
+          "text": "1小時"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "90 dBA"},
-        {"id": "R2", "text": "95 dBA"},
-        {"id": "R3", "text": "100 dBA"},
-        {"id": "R4", "text": "105 dBA"}
+        {
+          "id": "R1",
+          "text": "90 dBA"
+        },
+        {
+          "id": "R2",
+          "text": "95 dBA"
+        },
+        {
+          "id": "R3",
+          "text": "100 dBA"
+        },
+        {
+          "id": "R4",
+          "text": "105 dBA"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "依職業安全衛生設施規則第300條，噪音容許暴露時間與音壓級對照：8小時=90 dBA、4小時=95 dBA、2小時=100 dBA、1小時=105 dBA。每減半暴露時間，容許音壓級增加5 dBA。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q048",
@@ -678,14 +1512,36 @@
       "difficulty": "intermediate",
       "stem": "請依噪音暴露基準由低到高排列下列數值：",
       "items": [
-        {"id": "I1", "text": "應戴用防音防護具之基準（85分貝）"},
-        {"id": "I2", "text": "應採工程控制之基準（90分貝）"},
-        {"id": "I3", "text": "連續性噪音絕對上限（115分貝）"},
-        {"id": "I4", "text": "衝擊性噪音峰值絕對上限（140分貝）"}
+        {
+          "id": "I1",
+          "text": "應戴用防音防護具之基準（85分貝）"
+        },
+        {
+          "id": "I2",
+          "text": "應採工程控制之基準（90分貝）"
+        },
+        {
+          "id": "I3",
+          "text": "連續性噪音絕對上限（115分貝）"
+        },
+        {
+          "id": "I4",
+          "text": "衝擊性噪音峰值絕對上限（140分貝）"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "噪音暴露基準由低到高：85分貝（戴防音防護具）→90分貝（工程控制）→115分貝（連續性噪音上限）→140分貝（衝擊性噪音上限）。數值越高，危害越大，限制越嚴格。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q049",
@@ -693,14 +1549,36 @@
       "difficulty": "advanced",
       "stem": "請依噪音防護之控制層級，由最優先到最後排列：",
       "items": [
-        {"id": "I1", "text": "工程控制（隔音、消音等源頭控制）"},
-        {"id": "I2", "text": "行政管理（減少暴露時間、輪班）"},
-        {"id": "I3", "text": "個人防護具（耳塞、耳罩）"},
-        {"id": "I4", "text": "健康檢查與聽力追蹤"}
+        {
+          "id": "I1",
+          "text": "工程控制（隔音、消音等源頭控制）"
+        },
+        {
+          "id": "I2",
+          "text": "行政管理（減少暴露時間、輪班）"
+        },
+        {
+          "id": "I3",
+          "text": "個人防護具（耳塞、耳罩）"
+        },
+        {
+          "id": "I4",
+          "text": "健康檢查與聽力追蹤"
+        }
       ],
-      "answer": ["I1", "I2", "I3", "I4"],
+      "answer": [
+        "I1",
+        "I2",
+        "I3",
+        "I4"
+      ],
       "explanation": "噪音防護之優先順序為：工程控制（源頭消除或降低噪音）→行政管理（減少暴露時間）→個人防護具（佩戴耳塞耳罩）→健康檢查追蹤。工程控制為最根本之方法，個人防護具為最後一道防線。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     },
     {
       "id": "U34-Q050",
@@ -708,25 +1586,66 @@
       "difficulty": "advanced",
       "stem": "某工廠作業場所測得噪音為92 dBA，勞工每日工作8小時。請將下列噪音防護措施與其對應之控制層級正確配對：",
       "leftItems": [
-        {"id": "L1", "text": "設置隔音、消音設備"},
-        {"id": "L2", "text": "減少勞工噪音暴露時間或實施輪班"},
-        {"id": "L3", "text": "使勞工戴用耳塞、耳罩等防音防護具"},
-        {"id": "L4", "text": "實施聽力特殊健康檢查"}
+        {
+          "id": "L1",
+          "text": "設置隔音、消音設備"
+        },
+        {
+          "id": "L2",
+          "text": "減少勞工噪音暴露時間或實施輪班"
+        },
+        {
+          "id": "L3",
+          "text": "使勞工戴用耳塞、耳罩等防音防護具"
+        },
+        {
+          "id": "L4",
+          "text": "實施聽力特殊健康檢查"
+        }
       ],
       "rightItems": [
-        {"id": "R1", "text": "工程控制"},
-        {"id": "R2", "text": "行政管理"},
-        {"id": "R3", "text": "個人防護具"},
-        {"id": "R4", "text": "健康管理"}
+        {
+          "id": "R1",
+          "text": "工程控制"
+        },
+        {
+          "id": "R2",
+          "text": "行政管理"
+        },
+        {
+          "id": "R3",
+          "text": "個人防護具"
+        },
+        {
+          "id": "R4",
+          "text": "健康管理"
+        }
       ],
       "answer": [
-        {"left": "L1", "right": "R1"},
-        {"left": "L2", "right": "R2"},
-        {"left": "L3", "right": "R3"},
-        {"left": "L4", "right": "R4"}
+        {
+          "left": "L1",
+          "right": "R1"
+        },
+        {
+          "left": "L2",
+          "right": "R2"
+        },
+        {
+          "left": "L3",
+          "right": "R3"
+        },
+        {
+          "left": "L4",
+          "right": "R4"
+        }
       ],
       "explanation": "噪音92 dBA超過90分貝之工程控制基準（第300條），應採取工程控制及減少暴露時間；同時超過85分貝之防護具佩戴基準，應使勞工戴用防音防護具。工程控制為最優先措施，其次為行政管理，再為個人防護具，最後配合健康檢查追蹤。",
-      "references": [{"title": "職業安全衛生設施規則第300條", "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"}]
+      "references": [
+        {
+          "title": "職業安全衛生設施規則第300條",
+          "url": "https://law.moj.gov.tw/LawClass/LawSingle.aspx?pcode=N0060009&flno=300"
+        }
+      ]
     }
   ]
 }
