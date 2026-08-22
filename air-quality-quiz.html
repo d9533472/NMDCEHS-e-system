@@ -156,6 +156,9 @@
   .best{font-weight:900;color:var(--navy);}
 
   /* ---------- 得獎公告 ---------- */
+  #awardSheet{padding:14px;}
+  #awardSheet canvas{width:100%;height:auto;display:block;border-radius:12px;
+    box-shadow:0 8px 26px rgba(13,36,54,.16);}
   .aw-head{text-align:center;border-bottom:2px solid var(--line);padding-bottom:14px;margin-bottom:6px;}
   .aw-head h3{margin:0;font-size:23px;color:var(--navy);font-weight:900;}
   .aw-head .s{font-size:13px;color:var(--muted);margin-top:5px;}
@@ -410,8 +413,9 @@
       <div class="adm-tools">
         <button class="btn ghost" id="btnAwBack">返回後台 Back</button>
         <span style="flex:1"></span>
-        <button class="btn ghost" id="btnAwCopy">複製文字 Copy</button>
-        <button class="btn" id="btnAwPrint">列印 / 存 PDF</button>
+        <button class="btn ghost" id="btnAwCopy">複製文字</button>
+        <button class="btn ghost" id="btnAwPng">下載圖片</button>
+        <button class="btn" id="btnAwImg">複製圖片</button>
       </div>
       <div class="msg" id="awMsg"></div>
     </div>
@@ -662,7 +666,10 @@ const I18N = {
   closedS:"感謝各位同仁踴躍參與，得獎名單將另行公布。",
   thPick:"勾選得獎人", awMake:"產生得獎名單",
   pickHint:(a,b)=>`已勾選得獎人：台北 <b>${a}</b> 位、台中 <b>${b}</b> 位（可自行增減，預設依名額帶入）`,
-  awBack:"返回後台", awCopy:"複製文字", awPrint:"列印 / 存 PDF",
+  awBack:"返回後台", awCopy:"複製文字", awPng:"下載圖片", awImg:"複製圖片",
+  awSaved:"圖片已下載，可在 Outlook 以「插入 → 圖片」加入信件。",
+  awImgCopied:"圖片已複製！到 Outlook 內文按 Ctrl+V 就會貼上。",
+  awImgFail:"此瀏覽器不支援直接複製圖片，請改按「下載圖片」再插入信件。",
   awTitle:"營建工程空污防制 有獎徵答　得獎名單",
   awSub:"NMDC ENERGY　EHS 宣導活動", pt:" 分",
   nWinner:(n)=>`${n} 位得獎`, awNone:"本辦公室未勾選得獎人。",
@@ -718,7 +725,10 @@ const I18N = {
   closedS:"Thank you all for taking part. The winners will be announced separately.",
   thPick:"Select winners", awMake:"Generate winners list",
   pickHint:(a,b)=>`Winners selected: <b>${a}</b> in Taipei, <b>${b}</b> in Taichung (pre-filled by prize quota — adjust as you wish)`,
-  awBack:"Back to admin", awCopy:"Copy text", awPrint:"Print / Save PDF",
+  awBack:"Back to admin", awCopy:"Copy text", awPng:"Download image", awImg:"Copy image",
+  awSaved:"Image downloaded — in Outlook use Insert → Pictures to add it.",
+  awImgCopied:"Image copied! Press Ctrl+V in the Outlook message body.",
+  awImgFail:"This browser cannot copy images directly — use Download image and insert it instead.",
   awTitle:"Construction Air Pollution Control Prize Quiz — Winners",
   awSub:"NMDC ENERGY · EHS Awareness Campaign", pt:" pts",
   nWinner:(n)=>`${n} winners`, awNone:"No winners selected for this office.",
@@ -870,7 +880,8 @@ function renderStatic(){
   $("startCard").classList.toggle("hide", QUIZ_CLOSED);
   $("btnAwBack").textContent  = t.awBack;
   $("btnAwCopy").textContent  = t.awCopy;
-  $("btnAwPrint").textContent = t.awPrint;
+  $("btnAwPng").textContent   = t.awPng;
+  $("btnAwImg").textContent   = t.awImg;
   $("btnAward").textContent   = t.awMake;
   $("joinTitle").textContent = t.joinTitle;
   $("joinTP").textContent = t.joinTP;
@@ -1148,7 +1159,7 @@ $("btnAdmCsv").onclick = ()=>{
 };
 
 /* ================= 得獎公告 ================= */
-$("btnAward").onclick = ()=>{ buildAward(); show("scAward"); };
+$("btnAward").onclick = async ()=>{ show("scAward"); await buildAward(); };
 $("btnAwBack").onclick = ()=>{ show("scAdmin"); };
 
 function awardData(){
@@ -1165,32 +1176,174 @@ function awardData(){
   return out;
 }
 
-function buildAward(){
-  const t=T(), d=awardData();
-  const sec = (off, label) => {
-    const w=d[off].win;
-    if(!w.length) return `<div class="aw-sec"><div class="t">${label}
-      <span>${t.nWinner(0)}</span></div><p class="sub">${t.awNone}</p></div>`;
-    return `<div class="aw-sec"><div class="t">${label}<span>${t.nWinner(w.length)}</span></div>
-      <div class="aw-list">${w.map((p,i)=>`<div class="aw-item">
-        <div class="r">${i+1}</div><div class="n">${escapeHtml(p.name)}</div>
-        <div class="p">${p.total}${t.pt}</div></div>`).join("")}</div></div>`;
-  };
-  const others = [...d.Taipei.others, ...d.Taichung.others];
-  const thanks = others.length
-    ? `<div class="aw-thanks">${others.map(escapeHtml).join("　·　")}</div>`
-    : `<p class="sub">${t.awNoOthers}</p>`;
+/* ---- 中英雙語得獎公告圖（canvas 繪製，可直接貼到 Outlook）---- */
+const AW = {                                   // 版面常數（以 1240 寬為基準）
+  W:1240, PAD:60, SCALE:2,
+  navy:"#0d2436", navy2:"#14405f", teal:"#0f7a6e", green:"#0a8f3c", green2:"#00b140",
+  ink:"#12222f", muted:"#6a7a8a", line:"#dde8f2", mist:"#f7fbfe", amber:"#ffb020"
+};
+const FZH = (w,s)=>`${w} ${s}px "Microsoft JhengHei","PingFang TC","Noto Sans TC",sans-serif`;
+const FEN = (w,s)=>`${w} ${s}px Arial,Helvetica,sans-serif`;
 
-  $("awardSheet").innerHTML = `
-    <div class="aw-head">
-      <h3>${t.awTitle}</h3>
-      <div class="s">${t.awSub}　|　${new Date().toLocaleDateString(LANG==="zh"?"zh-TW":"en-GB")}</div>
-    </div>
-    ${sec("Taipei",  t.joinTP)}
-    ${sec("Taichung",t.joinTC)}
-    <div class="aw-sec"><div class="t">${t.awThanksT}
-      <span>${t.nPeople(others.length)}</span></div>${thanks}</div>
-    <div class="aw-foot">${t.awFoot}</div>`;
+let LOGO_IMG = null;
+function loadLogo(){
+  return new Promise(res=>{
+    if(LOGO_IMG) return res(LOGO_IMG);
+    const el=$("logoImg"), src = el && el.src ? el.src : "";
+    if(!src) return res(null);
+    const im=new Image();
+    im.onload=()=>{ LOGO_IMG=im; res(im); };
+    im.onerror=()=>res(null);
+    im.src=src;
+  });
+}
+function rrect(c,x,y,w,hh,r){
+  c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+hh,r); c.arcTo(x+w,y+hh,x,y+hh,r);
+  c.arcTo(x,y+hh,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
+function wrapLines(c,text,maxW){
+  const out=[]; let line="";
+  for(const ch of text){
+    if(c.measureText(line+ch).width>maxW && line){ out.push(line); line=ch; }
+    else line+=ch;
+  }
+  if(line) out.push(line);
+  return out;
+}
+
+async function drawAward(){
+  const d = awardData();
+  const tp = d.Taipei.win, tc = d.Taichung.win;
+  const others = [...d.Taipei.others, ...d.Taichung.others];
+  const logo = await loadLogo();
+
+  const W=AW.W, P=AW.PAD, colW=(W-P*2-40)/2, rowH=64, rowGap=10;
+  const headH=232, secTitleH=58;
+  const rows=Math.max(tp.length, tc.length, 1);
+  const listH=rows*(rowH+rowGap);
+
+  // 先量測感謝名單與註腳需要幾行
+  const probe=document.createElement("canvas").getContext("2d");
+  probe.font=FZH(600,21);
+  const thanksTxt = others.length ? others.join("　·　") : "（無其他參與人員 / none）";
+  const thanksLines = wrapLines(probe, thanksTxt, W-P*2-56);
+  probe.font=FZH(400,17);
+  const footZh="恭喜以上得獎同仁！獎品為內含 500 元儲值金的 NMDC 悠遊卡，將由承辦人員另行聯繫發放。同分人數超過名額者已依系統隨機抽取決定，全程公正、公平、公開。";
+  const footEn="Congratulations! The prize is an NMDC Easy Card preloaded with NT$500 — the organiser will be in touch. Where more participants tied than there were prizes, winners were drawn at random by the system: openly, fairly and impartially.";
+  const fzLines=wrapLines(probe, footZh, W-P*2-8);
+  probe.font=FEN(400,15);
+  const feLines=wrapLines(probe, footEn, W-P*2-8);
+
+  const thanksBoxH = 34 + thanksLines.length*34;
+  const H = headH + 44 + secTitleH + listH + 46 + secTitleH + thanksBoxH
+            + 40 + fzLines.length*26 + 6 + feLines.length*22 + 44;
+
+  const cv=document.createElement("canvas");
+  cv.width=W*AW.SCALE; cv.height=H*AW.SCALE;
+  const c=cv.getContext("2d");
+  c.scale(AW.SCALE,AW.SCALE);
+  c.textBaseline="alphabetic";
+
+  // 背景
+  c.fillStyle="#ffffff"; c.fillRect(0,0,W,H);
+
+  // 頁首漸層
+  const g=c.createLinearGradient(0,0,W,headH);
+  g.addColorStop(0,AW.navy); g.addColorStop(.55,AW.navy2); g.addColorStop(1,AW.teal);
+  c.fillStyle=g; c.fillRect(0,0,W,headH);
+  c.save(); c.globalAlpha=.16; c.fillStyle=AW.green2;
+  c.beginPath(); c.arc(W-90,-40,220,0,Math.PI*2); c.fill(); c.restore();
+
+  // logo 白底板
+  if(logo){
+    const plateW=248, plateH=80, px=P, py=40;
+    c.fillStyle="#fff"; rrect(c,px,py,plateW,plateH,14); c.fill();
+    const iw=plateW-32, ih=iw*logo.height/logo.width;
+    c.drawImage(logo, px+16, py+(plateH-ih)/2, iw, ih);
+  }
+  c.fillStyle="#ffffff"; c.font=FZH(800,38);
+  c.fillText("營建工程空污防制 有獎徵答　得獎名單", P, 172);
+  c.fillStyle="#a9cede"; c.font=FEN(400,19);
+  c.fillText("Construction Air Pollution Control Prize Quiz — Winners", P, 202);
+
+  // 兩欄得獎名單
+  const secY = headH + 44;
+  const drawCol = (x, zh, en, list) => {
+    c.fillStyle=AW.navy; c.font=FZH(800,26);
+    c.fillText(zh, x, secY+24);
+    const zhW=c.measureText(zh).width;
+    c.fillStyle=AW.muted; c.font=FEN(400,17);
+    c.fillText(en, x+zhW+10, secY+24);
+    c.fillStyle=AW.green; c.font=FZH(700,16);
+    c.fillText(`${list.length} 位得獎 / ${list.length} winner${list.length===1?"":"s"}`, x, secY+48);
+
+    let y=secY+secTitleH;
+    if(!list.length){
+      c.fillStyle=AW.mist; rrect(c,x,y,colW,rowH,12); c.fill();
+      c.strokeStyle=AW.line; c.lineWidth=1; rrect(c,x,y,colW,rowH,12); c.stroke();
+      c.fillStyle=AW.muted; c.font=FZH(400,18);
+      c.fillText("未勾選得獎人 / none selected", x+20, y+rowH/2+6);
+      return;
+    }
+    list.forEach((p,i)=>{
+      c.fillStyle=AW.mist; rrect(c,x,y,colW,rowH,12); c.fill();
+      c.strokeStyle=AW.line; c.lineWidth=1; rrect(c,x,y,colW,rowH,12); c.stroke();
+      // 名次圓
+      c.fillStyle = i<3 ? AW.green : AW.navy2;
+      c.beginPath(); c.arc(x+34, y+rowH/2, 17, 0, Math.PI*2); c.fill();
+      c.fillStyle="#fff"; c.font=FEN(800,16); c.textAlign="center";
+      c.fillText(String(i+1), x+34, y+rowH/2+6); c.textAlign="left";
+      // 姓名
+      c.fillStyle=AW.ink; c.font=FZH(800,23);
+      let nm=p.name;
+      while(c.measureText(nm).width>colW-190 && nm.length>1) nm=nm.slice(0,-1);
+      if(nm!==p.name) nm=nm.slice(0,-1)+"…";
+      c.fillText(nm, x+64, y+rowH/2+8);
+      // 分數
+      c.textAlign="right";
+      c.fillStyle=AW.green; c.font=FEN(900,25);
+      c.fillText(String(p.total), x+colW-62, y+rowH/2+9);
+      c.fillStyle=AW.muted; c.font=FZH(600,14);
+      c.fillText("分 pts", x+colW-18, y+rowH/2+9);
+      c.textAlign="left";
+      y+=rowH+rowGap;
+    });
+  };
+  drawCol(P,             "台北", "Taipei",   tp);
+  drawCol(P+colW+40,     "台中", "Taichung", tc);
+
+  // 感謝名單
+  let ty = secY + secTitleH + listH + 46;
+  c.fillStyle=AW.navy; c.font=FZH(800,24);
+  c.fillText("感謝以下同仁熱情參與", P, ty+22);
+  const tw=c.measureText("感謝以下同仁熱情參與").width;
+  c.fillStyle=AW.muted; c.font=FEN(400,16);
+  c.fillText("Thank you to everyone who took part", P+tw+12, ty+22);
+  ty += secTitleH - 12;
+  c.fillStyle=AW.mist; rrect(c,P,ty,W-P*2,thanksBoxH,14); c.fill();
+  c.strokeStyle=AW.line; c.lineWidth=1; rrect(c,P,ty,W-P*2,thanksBoxH,14); c.stroke();
+  c.fillStyle=AW.ink; c.font=FZH(600,21);
+  thanksLines.forEach((ln,i)=> c.fillText(ln, P+28, ty+40+i*34));
+
+  // 註腳
+  let fy = ty + thanksBoxH + 40;
+  c.strokeStyle=AW.line; c.beginPath(); c.moveTo(P,fy-22); c.lineTo(W-P,fy-22); c.stroke();
+  c.fillStyle=AW.ink; c.font=FZH(400,17);
+  fzLines.forEach((ln,i)=> c.fillText(ln, P, fy+i*26));
+  fy += fzLines.length*26 + 6;
+  c.fillStyle=AW.muted; c.font=FEN(400,15);
+  feLines.forEach((ln,i)=> c.fillText(ln, P, fy+i*22));
+
+  return cv;
+}
+
+let AW_CANVAS = null;
+async function buildAward(){
+  const t=T();
+  $("awardSheet").innerHTML = `<p class="sub" style="padding:20px">${t.loading}</p>`;
+  AW_CANVAS = await drawAward();
+  $("awardSheet").innerHTML = "";
+  $("awardSheet").appendChild(AW_CANVAS);
   setMsg("awMsg","","");
 }
 
@@ -1224,7 +1377,25 @@ $("btnAwCopy").onclick = async ()=>{
     ta.remove();
   }
 };
-$("btnAwPrint").onclick = ()=> window.print();
+$("btnAwPng").onclick = ()=>{
+  if(!AW_CANVAS) return;
+  const a=document.createElement("a");
+  a.download = "NMDC_有獎徵答_得獎名單.png";
+  a.href = AW_CANVAS.toDataURL("image/png");
+  a.click();
+  setMsg("awMsg", T().awSaved, "ok");
+};
+$("btnAwImg").onclick = async ()=>{
+  if(!AW_CANVAS) return;
+  const t=T();
+  try{
+    const blob = await new Promise(r=> AW_CANVAS.toBlob(r, "image/png"));
+    await navigator.clipboard.write([ new ClipboardItem({ "image/png": blob }) ]);
+    setMsg("awMsg", t.awImgCopied, "ok");
+  }catch(e){
+    setMsg("awMsg", t.awImgFail, "warn");
+  }
+};
 
 /* ================= 首頁參與人數 ================= */
 function paintStats(st){
