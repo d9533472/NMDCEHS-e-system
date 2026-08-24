@@ -162,7 +162,8 @@ const { useState, useEffect, useMemo, useRef } = React;
 const GAS_URL = "https://script.google.com/macros/s/AKfycbwHOao4wAjpsg5twpkK556lICKc04tiEVSLqWjXWMQwHhHZ7a9lo7oCmJtHWZfv1ymQ/exec";
 const PROJECT_NAME = "通霄電廠二期更新改建計畫輸氣海管統包工程";
 const LOGO_B64 = "data:image/png;base64,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";
-const INSTRUCTORS = ["Paul","Sean","Raymond"];
+const INSTRUCTORS = ["Paul Tong 童保舜","Sean Chu 朱修成","Raymond Huang 黃郁翔","Esty Ho 何詩婷","Jacquelin Peng 彭肖瑛"];
+const INSTRUCTOR_MIGRATE = {"Paul":"Paul Tong 童保舜","Sean":"Sean Chu 朱修成","Raymond":"Raymond Huang 黃郁翔"};
 const ATTACH_TYPES = ["簽到表","訓練教材","掃描檔","其他"];
 
 /*==================== 工具 ====================*/
@@ -262,7 +263,8 @@ function normRec(r){
   if(c.length===0 && r.company) c=[{name:r.company, count:Number(r.participantCount)||0}];
   const hasPhoto  = (r.hasPhoto===undefined)  ? !!(r.photo1Url||r.photo2Url) : !!r.hasPhoto;
   const hasSignIn = (r.hasSignIn===undefined) ? (r.attachments||[]).some(a=>a.type==="簽到表") : !!r.hasSignIn;
-  return {...r, contractors:c, hasPhoto, hasSignIn};
+  const instructor = INSTRUCTOR_MIGRATE[r.instructor] || r.instructor;
+  return {...r, contractors:c, hasPhoto, hasSignIn, instructor};
 }
 function loadKnownContractors(records){
   let ls=[];
@@ -456,7 +458,7 @@ function summaryPageHtml(periodLabel, rowsHtml, pageNo, totalPages){
            <th style="${c};width:76px">日期</th>
            <th style="${c};width:84px">時間</th>
            <th style="${l}">包商</th>
-           <th style="${c};width:54px">講師</th>
+           <th style="${c};width:90px">講師</th>
            <th style="${l}">包商 &amp; 人數</th>
            <th style="${c};width:52px">總人數</th></tr></thead>
          <tbody>${rowsHtml}</tbody></table>`
@@ -1061,7 +1063,8 @@ function App(){
   const [currentSnap,setCurrentSnap]=useState(null);   // {id,name}
   const [loading,setLoading]=useState(true);
   const [saving,setSaving]=useState(false);
-  const [user,setUser]=useState(()=>localStorage.getItem("tr_user")||INSTRUCTORS[0]);
+  const [user,setUser]=useState(()=>{ const raw=localStorage.getItem("tr_user")||"";
+    const m=INSTRUCTOR_MIGRATE[raw]||raw; return INSTRUCTORS.includes(m)?m:INSTRUCTORS[0]; });
   const [editing,setEditing]=useState(undefined);      // undefined=closed, null=new, obj=edit
   const [viewing,setViewing]=useState(null);
   const [showLoad,setShowLoad]=useState(false);
