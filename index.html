@@ -2009,6 +2009,7 @@ function openEventM(id){
   eEventId=id||null;
   $('mEvT').textContent=id?'編輯重點活動':'新增重點活動';
   $('bEv').textContent=id?'儲存':'新增';
+  $('bEvDel').style.display=id?'inline-block':'none';
   const ev=id?(D.events||[]).find(x=>x.id===id):null;
   $('inEvD').value=ev?ev.date:todayS();
   $('inEvTitle').value=ev?ev.title:'';
@@ -2048,6 +2049,7 @@ function saveEvent(){
   save();renderTab();closeEventM();
 }
 function delEvent(id){if(!confirm('刪除？'))return;D.events=D.events.filter(x=>x.id!==id);save();renderTab();}
+function delEventFromModal(){if(!eEventId)return;if(!confirm('確定刪除這個活動？'))return;D.events=D.events.filter(x=>x.id!==eEventId);save();closeEventM();renderTab();showToast('🗑️ 已刪除');}
 function toggleHideTab(key){
   if(!D.hiddenTabs)D.hiddenTabs=[];if(!D.eventTypes||!D.eventTypes.length)D.eventTypes=JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES));
   if(!D.rosterData)D.rosterData={};
@@ -2627,7 +2629,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
       <input type="checkbox" id="inEvStarred" style="width:16px;height:16px;accent-color:var(--warn);cursor:pointer">
       <label for="inEvStarred" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text2)">⭐ 標記為重點項目</label>
     </div>
-    <div class="modal-actions"><button class="btn-secondary" onclick="closeEventM()">取消</button><button class="btn-primary" onclick="saveEvent()" id="bEv">新增</button></div>
+    <div class="modal-actions"><button id="bEvDel" class="btn-secondary" style="display:none;color:#dc2626;border-color:#fecaca" onclick="delEventFromModal()">🗑️ 刪除</button><div style="flex:1"></div><button class="btn-secondary" onclick="closeEventM()">取消</button><button class="btn-primary" onclick="saveEvent()" id="bEv">新增</button></div>
   </div>
 </div></div>
 
