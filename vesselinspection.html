@@ -264,7 +264,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v36';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v37';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -289,6 +289,7 @@ const T = {
     histRestoreP:(no, ts)=>`Record ${no || ''} will be restored to the ${ts} snapshot. The current state is also logged, so you can restore back if needed. Deleted records will be fully recovered.`,
     histRestored:'Restored ✓',
     flowBtn:'📖 User Guide 使用說明', flowTitle:'Vessel Inspection System — User Guide 船檢系統使用說明', flowClose:'✕ Close 關閉',
+    visitsLabel:'Visits 瀏覽人數',
     pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
     pdfFetchBig:(i,n)=>`Downloading large photos… ${i} / ${n}`,
     pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
@@ -424,6 +425,7 @@ const T = {
     histRestoreP:(no, ts)=>`將把 ${no || '此紀錄'} 還原到 ${ts} 的快照內容;還原前的現況也會記錄一筆,隨時可再還原回來。若紀錄已被刪除將整筆救回。`,
     histRestored:'已還原 ✓',
     flowBtn:'📖 船檢系統使用說明', flowTitle:'船檢系統使用說明 User Guide', flowClose:'✕ 關閉 Close',
+    visitsLabel:'瀏覽人數 Visits',
     pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
     pdfFetchBig:(i,n)=>`大圖下載壓縮中… ${i} / ${n} 張`,
     pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
@@ -851,6 +853,10 @@ function localApi(action, p) {
       note: note || '', snapJson: sj });
     if (db.audit.length > 300) db.audit = db.audit.slice(-300);
   };
+  if (action === 'visit') {
+    if (p.first) { db.visits = (db.visits || 0) + 1; lsWrite(db); }
+    return done({ count: db.visits || 0 });
+  }
   if (action === 'auditList') {
     return done({ rows: (db.audit || []).slice().reverse().map(r =>
       Object.assign({}, r, { hasSnap: !!r.snapJson, snapJson: undefined })) });
@@ -2688,6 +2694,17 @@ function App() {
   /* ⚓ 船檢流程圖 */
   const [showFlow, setShowFlow] = useState(false);
 
+  /* 👀 瀏覽人數:每個瀏覽器工作階段計一次,重新整理不重複 */
+  const [visits, setVisits] = useState(null);
+  useEffect(() => {
+    let first = 1;
+    try { if (sessionStorage.getItem('evis_visited')) first = 0; } catch (e) {}
+    api('visit', { first }).then(r => {
+      setVisits(r.count);
+      try { sessionStorage.setItem('evis_visited', '1'); } catch (e) {}
+    }).catch(() => {});
+  }, [testMode]);
+
   /* 🕘 歷程紀錄與還原 */
   const [histRows, setHistRows] = useState(null);
   const openHistory = () => {
@@ -3086,6 +3103,12 @@ function App() {
       {busyMsgs.length > 0 &&
         <div className="loadbg">
           <div className="loadcard"><div className="spinner"></div>{busyMsgs[busyMsgs.length-1].msg || t.loadingData}</div>
+        </div>}
+      {/* 👀 瀏覽人數(左下角,只在總表顯示,不擋表單底部按鈕列) */}
+      {view === 'dash' && visits != null &&
+        <div style={{position:'fixed', left:10, bottom:8, zIndex:55, background:'rgba(18,40,63,.78)', color:'#fff',
+            borderRadius:14, padding:'4px 12px', fontSize:12, fontWeight:600, pointerEvents:'none'}}>
+          👀 {t.visitsLabel} {Number(visits).toLocaleString()}
         </div>}
       {/* ⚓ 船檢流程圖:點背景或 ✕ 關閉 */}
       {showFlow &&
