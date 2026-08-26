@@ -1869,6 +1869,12 @@ function App() {
   // ── 連線狀態 ──────────────────────────────────────────────
   const [gasUrl, setGasUrl] = useState(GAS_URL);
   const [connected, setConnected] = useState(false);
+  // 若 GAS_URL 常數已填，自動連線不需手動輸入
+  React.useEffect(() => {
+    if (GAS_URL && !connected) {
+      loadFromCloud(GAS_URL).catch(() => {});
+    }
+  }, []);
 
   // ── 純雲端資料（不存 localStorage）────────────────────────
   const [records, setRecords] = useState([]);
@@ -1939,11 +1945,6 @@ function App() {
       throw e;
     } finally { setLoading(false); }
   }, [gasUrl, toast]);
-
-  // ── 初始載入 ─────────────────────────────────────────────
-  useEffect(() => {
-    if (gasUrl) loadFromCloud(gasUrl).catch(() => {});
-  }, []);
 
   // ── 連線回調 ──────────────────────────────────────────────
   const handleConnect = async (url) => {
