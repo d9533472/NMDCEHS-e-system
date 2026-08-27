@@ -488,6 +488,20 @@ let NCR_URL='';
 let _ncrCache=null; // cache fetched NCR data
 let _visitCount=null; // 累計瀏覽人次
 
+// Track external link click (fire-and-forget)
+function trackLinkClick(id, name, url){
+  try{
+    if(!GAS_URL)return;
+    const u = GAS_URL + '?action=incLinkClick'
+      + '&id=' + encodeURIComponent(id)
+      + '&name=' + encodeURIComponent(name)
+      + '&url=' + encodeURIComponent(url);
+    // Use sendBeacon for reliability (doesn't block navigation)
+    if(navigator.sendBeacon){navigator.sendBeacon(u);}
+    else{fetch(u,{mode:'no-cors',keepalive:true}).catch(()=>{});}
+  }catch(e){}
+}
+
 async function fetchVisitCount(){
   if(!GAS_URL)return;
   try{
@@ -510,7 +524,119 @@ function updateVisitDisplay(){
   if(el&&_visitCount!==null){
     el.innerHTML=`👥 ${_visitCount.toLocaleString()} 人次`;
     el.style.display='inline-flex';
+    el.style.cursor='pointer';
+    el.title='點擊查看每日統計';
+    el.onclick=showVisitStats;
   }
+}
+
+async function showVisitStats(){
+  showToast('⏳ 載入統計中…');
+  try{
+    const [dailyR, clicksR] = await Promise.all([
+      fetch(GAS_URL+'?action=dailyVisits').then(r=>r.json()),
+      fetch(GAS_URL+'?action=linkClicks').then(r=>r.json()).catch(()=>({ok:false, clicks:{}}))
+    ]);
+    if(!dailyR||!dailyR.ok)throw new Error(dailyR?.error||'資料錯誤');
+    const clicks = (clicksR&&clicksR.ok) ? (clicksR.clicks||{}) : {};
+    renderVisitStatsModal(dailyR.daily||{}, clicks);
+  }catch(e){
+    showToast('⚠️ 載入失敗：'+e.message,'err');
+  }
+}
+
+function renderVisitStatsModal(daily, clicks){
+  // Build last 30 days array
+  const today=new Date();
+  const days=[];
+  for(let i=29;i>=0;i--){
+    const dt=new Date(today);dt.setDate(dt.getDate()-i);
+    const s=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    days.push({date:s,count:daily[s]||0,dow:dt.getDay(),d:dt.getDate(),m:dt.getMonth()+1});
+  }
+  const total30=days.reduce((s,d)=>s+d.count,0);
+  const avg30=total30/30;
+  const maxCount=Math.max(...days.map(d=>d.count),1);
+  const todayCount=days[29].count;
+  const yesterdayCount=days[28].count;
+
+  let html='<div style="padding:8px 4px">';
+  // Summary cards
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px">';
+  html+=`<div style="padding:12px;background:linear-gradient(135deg,#dbeafe,#eff6ff);border-radius:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#1e40af">${todayCount}</div><div style="font-size:11px;color:#64748b;margin-top:2px">今日</div></div>`;
+  html+=`<div style="padding:12px;background:linear-gradient(135deg,#f1f5f9,#f8fafc);border-radius:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#334155">${yesterdayCount}</div><div style="font-size:11px;color:#64748b;margin-top:2px">昨日</div></div>`;
+  html+=`<div style="padding:12px;background:linear-gradient(135deg,#dcfce7,#f0fdf4);border-radius:10px;text-align:center"><div style="font-size:22px;font-weight:800;color:#166534">${avg30.toFixed(1)}</div><div style="font-size:11px;color:#64748b;margin-top:2px">日均 (30天)</div></div>`;
+  html+='</div>';
+
+  // Chart title
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:700;color:var(--text)">📊 近 30 日趨勢</div><div style="font-size:11px;color:var(--muted)">共 '+total30.toLocaleString()+' 人次</div></div>';
+
+  // Bar chart
+  html+='<div style="display:flex;align-items:flex-end;gap:2px;height:180px;padding:10px;background:var(--card2);border-radius:10px;border:1px solid var(--border);overflow-x:auto">';
+  days.forEach(d=>{
+    const h=Math.max((d.count/maxCount)*160,2);
+    const isWeekend=d.dow===0||d.dow===6;
+    const color=isWeekend?'#e2e8f0':(d.count===0?'#f1f5f9':'#3b82f6');
+    const isToday=d.date===days[29].date;
+    html+=`<div style="flex:1;min-width:14px;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative" title="${d.date} (週${['日','一','二','三','四','五','六'][d.dow]}): ${d.count} 人次">`;
+    html+=`<div style="font-size:9px;color:${d.count>0?'#334155':'#cbd5e1'};font-weight:600;margin-bottom:1px">${d.count||''}</div>`;
+    html+=`<div style="width:100%;height:${h}px;background:${color};border-radius:2px 2px 0 0;${isToday?'outline:2px solid #f59e0b;outline-offset:1px':''}"></div>`;
+    if(d.d===1||d.date===days[0].date||isToday){
+      html+=`<div style="font-size:8px;color:var(--muted);white-space:nowrap;margin-top:2px">${d.m}/${d.d}</div>`;
+    }else{
+      html+=`<div style="font-size:8px;color:transparent">-</div>`;
+    }
+    html+='</div>';
+  });
+  html+='</div>';
+
+  // Legend
+  html+='<div style="display:flex;gap:14px;margin-top:10px;font-size:10px;color:var(--muted);justify-content:center">';
+  html+='<span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;vertical-align:middle;margin-right:4px"></span>平日</span>';
+  html+='<span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;vertical-align:middle;margin-right:4px"></span>週末</span>';
+  html+='<span><span style="display:inline-block;width:10px;height:10px;border:2px solid #f59e0b;border-radius:2px;vertical-align:middle;margin-right:4px"></span>今天</span>';
+  html+='</div>';
+
+  // ── 外部連結點擊統計 ──
+  if(clicks && Object.keys(clicks).length){
+    // Sort by count desc
+    const entries=Object.entries(clicks).sort((a,b)=>(b[1].count||0)-(a[1].count||0));
+    const totalClicks=entries.reduce((s,[,v])=>s+(v.count||0),0);
+    const maxClick=Math.max(...entries.map(([,v])=>v.count||0),1);
+    html+='<div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border)">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+    html+='<div style="font-size:13px;font-weight:700;color:var(--text)">🔗 外部連結點擊</div>';
+    html+='<div style="font-size:11px;color:var(--muted)">共 '+totalClicks.toLocaleString()+' 次</div>';
+    html+='</div>';
+    html+='<div style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto">';
+    entries.forEach(([id,v])=>{
+      const pct=(v.count/maxClick)*100;
+      const last=v.lastClick?new Date(v.lastClick).toLocaleString('zh-TW',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'';
+      html+='<div style="padding:8px 12px;background:var(--card2);border-radius:8px;border:1px solid var(--border)">';
+      html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;gap:8px">';
+      html+='<div style="font-weight:600;color:var(--text);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">'+esc(v.name||id)+'</div>';
+      html+='<div style="font-weight:800;color:#3b82f6;font-size:14px;white-space:nowrap">'+(v.count||0).toLocaleString()+' 次</div>';
+      html+='</div>';
+      // Progress bar
+      html+='<div style="height:5px;background:#e2e8f0;border-radius:99px;overflow:hidden;margin-bottom:4px"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,#60a5fa,#3b82f6);border-radius:99px"></div></div>';
+      if(last)html+='<div style="font-size:10px;color:var(--muted)">🕐 最後點擊：'+last+'</div>';
+      html+='</div>';
+    });
+    html+='</div></div>';
+  } else {
+    html+='<div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border)">';
+    html+='<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">🔗 外部連結點擊</div>';
+    html+='<div style="padding:14px;background:var(--card2);border-radius:8px;font-size:12px;color:var(--muted);text-align:center;font-style:italic">尚無外部連結點擊記錄</div>';
+    html+='</div>';
+  }
+
+  html+='<div style="margin-top:14px;padding:10px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:6px;font-size:11px;color:#78350f;line-height:1.5">';
+  html+='累計總次數：<b>'+(_visitCount||0).toLocaleString()+'</b> 人次｜每個 session 只計 1 次｜資料保留最近 90 天';
+  html+='</div>';
+
+  html+='</div>';
+
+  alertHtml(html,'👥 瀏覽人次統計');
 }
 
 async function fetchData(){
@@ -770,7 +896,7 @@ function renderLinksHTML(){let h='';
       if(!isEditor&&lk.hidden)return'';
       const hidBtn=isEditor?`<button class="icon-btn" onclick="toggleLnkHide('${sec.id}','${lk.id}')" title="${lk.hidden?'顯示':'隱藏'}" style="opacity:.6">${lk.hidden?'👁':'🚫'}</button>`:'';
       const hidStyle=lk.hidden?'opacity:.45;':'';
-      return`<div class="link-item" style="${hidStyle}"><div class="link-icon-wrap">${lk.icon||'📄'}</div><a href="${esc(lk.url)}" target="_blank" rel="noopener noreferrer">${esc(lk.title)}${lk.hidden?'<span style="font-size:10px;color:var(--muted);margin-left:4px">(隱藏)</span>':''}</a>${isEditor?`<div class="link-actions">${ar}${hidBtn}<button class="icon-btn" onclick="openELnk('${sec.id}','${lk.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delLnk('${sec.id}','${lk.id}')">${SV.trash}</button></div>`:''}</div>`;}).join('');
+      return`<div class="link-item" style="${hidStyle}"><div class="link-icon-wrap">${lk.icon||'📄'}</div><a href="${esc(lk.url)}" target="_blank" rel="noopener noreferrer" onclick="trackLinkClick('${lk.id}','${esc((lk.title||'').replace(/'/g,"\\'"))}', '${esc(lk.url)}')">${esc(lk.title)}${lk.hidden?'<span style="font-size:10px;color:var(--muted);margin-left:4px">(隱藏)</span>':''}</a>${isEditor?`<div class="link-actions">${ar}${hidBtn}<button class="icon-btn" onclick="openELnk('${sec.id}','${lk.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delLnk('${sec.id}','${lk.id}')">${SV.trash}</button></div>`:''}</div>`;}).join('');
     const nH=isR?`<div class="inline-edit" onclick="event.stopPropagation()"><input class="inline-input" id="rn_${sec.id}" value="${esc(sec.name)}" onkeydown="if(event.key==='Enter')cfmRen('${sec.id}');if(event.key==='Escape')canRen()"><button class="icon-btn success" onclick="cfmRen('${sec.id}')">${SV.check}</button><button class="icon-btn" onclick="canRen()">${SV.x}</button></div>`:`<span class="section-name">${esc(sec.name)}<span class="link-count">${sec.links.length}</span></span>`;
     const secAr=isEditor?`<button class="icon-btn sm" onclick="event.stopPropagation();moveItem('sections',${si},-1)" ${si===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="event.stopPropagation();moveItem('sections',${si},1)" ${si===D.sections.length-1?'disabled':''}>▼</button>`:'';
     const aH=isEditor?`<div class="section-actions" onclick="event.stopPropagation()">${secAr}<button class="icon-btn" onclick="stRen('${sec.id}')">${SV.edit}</button><button class="icon-btn accent" onclick="openALnk('${sec.id}')">${SV.plus}</button><button class="icon-btn danger" onclick="delSec('${sec.id}')">${SV.trash}</button></div>`:'';
