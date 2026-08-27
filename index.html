@@ -597,7 +597,7 @@ function showLogin(){
 }
 function renderAuth(){
   const visitBadge=`<span id="visitCounter" style="display:none;align-items:center;padding:4px 10px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;margin-right:6px"></span>`;
-  $('authBar').innerHTML=isEditor?`${visitBadge}<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:visitBadge;
+  $('authBar').innerHTML=isEditor?`${visitBadge}<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:'';
   updateVisitDisplay();
 }
 
