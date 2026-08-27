@@ -495,11 +495,13 @@ function trackLinkClick(id, name, url){
     const u = GAS_URL + '?action=incLinkClick'
       + '&id=' + encodeURIComponent(id)
       + '&name=' + encodeURIComponent(name)
-      + '&url=' + encodeURIComponent(url);
-    // Use sendBeacon for reliability (doesn't block navigation)
-    if(navigator.sendBeacon){navigator.sendBeacon(u);}
-    else{fetch(u,{mode:'no-cors',keepalive:true}).catch(()=>{});}
-  }catch(e){}
+      + '&url=' + encodeURIComponent(url)
+      + '&t=' + Date.now(); // cache buster
+    // Image ping — works cross-origin, follows redirects, fires before navigation
+    const img = new Image();
+    img.src = u;
+    console.log('[trackLinkClick] pinged:', id, name);
+  }catch(e){console.warn('trackLinkClick error:',e);}
 }
 
 async function fetchVisitCount(){
