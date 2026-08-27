@@ -486,6 +486,32 @@ const GAS_URL='https://script.google.com/macros/s/AKfycbyWTuJEQc1jMVcl9kCuPlCfvf
 localStorage.removeItem('ncr-gas-url');
 let NCR_URL='';
 let _ncrCache=null; // cache fetched NCR data
+let _visitCount=null; // 累計瀏覽人次
+
+async function fetchVisitCount(){
+  if(!GAS_URL)return;
+  try{
+    const r=await fetch(GAS_URL+'?action=visits');
+    if(r.ok){const d=await r.json();if(d&&d.ok&&typeof d.visits==='number'){_visitCount=d.visits;updateVisitDisplay();}}
+  }catch(e){console.warn('fetchVisitCount:',e);}
+}
+async function incrementVisitCount(){
+  if(!GAS_URL)return;
+  // Only count once per session
+  if(sessionStorage.getItem('visit-counted')==='1')return;
+  sessionStorage.setItem('visit-counted','1');
+  try{
+    const r=await fetch(GAS_URL+'?action=incVisits');
+    if(r.ok){const d=await r.json();if(d&&d.ok&&typeof d.visits==='number'){_visitCount=d.visits;updateVisitDisplay();}}
+  }catch(e){console.warn('incrementVisitCount:',e);}
+}
+function updateVisitDisplay(){
+  const el=document.getElementById('visitCounter');
+  if(el&&_visitCount!==null){
+    el.innerHTML=`👥 ${_visitCount.toLocaleString()} 人次`;
+    el.style.display='inline-flex';
+  }
+}
 
 async function fetchData(){
   if(!GAS_URL)return false;
@@ -569,7 +595,11 @@ function showLogin(){
   isEditor=true;sessionStorage.setItem(AK,'1');renderAll();
   showToast('✏️ 已進入編輯模式');
 }
-function renderAuth(){$('authBar').innerHTML=isEditor?`<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:'';}
+function renderAuth(){
+  const visitBadge=`<span id="visitCounter" style="display:none;align-items:center;padding:4px 10px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;margin-right:6px"></span>`;
+  $('authBar').innerHTML=isEditor?`${visitBadge}<div class="auth-status editor"><span class="dot"></span>✏️ 編輯模式 <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()">💾 儲存</button><button class="btn-auth btn-logout-sm" onclick="exportData()">📤 匯出</button><button class="btn-auth btn-logout-sm" onclick="importData()">📥 匯入</button><button class="btn-auth btn-logout-sm" onclick="doLogout()">登出</button>`:visitBadge;
+  updateVisitDisplay();
+}
 
 function exportData(){
   const json=JSON.stringify(D,null,2);
@@ -2451,6 +2481,9 @@ function delVesselAttach(vId,idx){
 }
 
 // ═══ INIT ═══
+// Fetch + increment visit count on load
+setTimeout(()=>{fetchVisitCount();incrementVisitCount();},500);
+
 // Listen for roster publish events
 window.addEventListener('roster-published', function(e){
   try{
