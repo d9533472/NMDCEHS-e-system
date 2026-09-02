@@ -264,7 +264,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v38';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v39';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -290,8 +290,8 @@ const T = {
     histRestored:'Restored ✓',
     flowBtn:'📖 User Guide 使用說明', flowTitle:'Vessel Inspection System — User Guide 船檢系統使用說明', flowClose:'✕ Close 關閉',
     visitsLabel:'Visits 瀏覽人數',
-    fltStatusAll:'All results 全部結果', fltPending:'Pending 未檢查', fltPass:'✓ Pass 通過',
-    fltCond:'⚠ Conditional 有條件(未結案)', fltClosed:'✓ Closed 已結案', fltFail:'✗ Failed 未通過',
+    fltStatusAll:'All results 全部結果', fltPending:'Pending 未檢查', fltPass:'✓ Pass / Closed 通過·已結案',
+    fltCond:'⚠ Conditional 有條件(待結案)', fltFail:'✗ Failed 未通過',
     fltScopeAll:'All scopes 全部範疇', fltShown:(x,y)=>`Showing ${x} / ${y}`,
     scopeEditBtn:'⚙ Scope list', scopeEditT:'Scope List 工作範疇清單',
     scopeEditP:'One scope per line. Contractors pick from this list when filling the form (prevents the same work being named differently).',
@@ -432,8 +432,8 @@ const T = {
     histRestored:'已還原 ✓',
     flowBtn:'📖 船檢系統使用說明', flowTitle:'船檢系統使用說明 User Guide', flowClose:'✕ 關閉 Close',
     visitsLabel:'瀏覽人數 Visits',
-    fltStatusAll:'全部結果 All', fltPending:'未檢查 Pending', fltPass:'✓ 通過 Pass',
-    fltCond:'⚠ 有條件(未結案)', fltClosed:'✓ 已結案 Closed', fltFail:'✗ 未通過 Failed',
+    fltStatusAll:'全部結果 All', fltPending:'未檢查 Pending', fltPass:'✓ 通過/已結案 Pass·Closed',
+    fltCond:'⚠ 有條件(待結案)', fltFail:'✗ 未通過 Failed',
     fltScopeAll:'全部範疇 All scopes', fltShown:(x,y)=>`顯示 ${x} / ${y} 筆`,
     scopeEditBtn:'⚙ 範疇清單', scopeEditT:'工作範疇清單 Scope List',
     scopeEditP:'一行一個工作範疇。廠商填表時改用下拉選擇,避免同一種工作被填成不同名稱。',
@@ -1689,9 +1689,9 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
   const fmatch = it => {
     if (fScope && (it.scope || '') !== fScope) return false;
     if (fStatus === 'pending' && it.status === 'nmdc_done') return false;
-    if (fStatus === 'pass'   && !(it.status === 'nmdc_done' && it.verdict === 'pass')) return false;
+    if (fStatus === 'pass'   && !(it.status === 'nmdc_done' &&
+          (it.verdict === 'pass' || (it.verdict === 'cond' && String(it.closed) === '1')))) return false;   // 通過 = Pass + 有條件已結案
     if (fStatus === 'cond'   && !(it.status === 'nmdc_done' && it.verdict === 'cond' && String(it.closed) !== '1')) return false;
-    if (fStatus === 'closed' && !(it.verdict === 'cond' && String(it.closed) === '1')) return false;
     if (fStatus === 'fail'   && !(it.status === 'nmdc_done' && it.verdict === 'fail')) return false;
     return true;
   };
@@ -1723,7 +1723,6 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
           <option value="pending">{t.fltPending}</option>
           <option value="pass">{t.fltPass}</option>
           <option value="cond">{t.fltCond}</option>
-          <option value="closed">{t.fltClosed}</option>
           <option value="fail">{t.fltFail}</option>
         </select>
         <select style={{width:'auto', minWidth:170, maxWidth:320, padding:'7px 10px', fontSize:13.5}}
