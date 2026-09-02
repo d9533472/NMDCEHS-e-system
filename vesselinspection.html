@@ -264,7 +264,7 @@ const EDIT_CODE  = (window.EVIS_CONFIG || {}).EDIT_CODE || '';
 
 const DOC_NO = 'ENY-HSE-PG-PLN-17-FRM-02';
 const DOC_REV = 'Rev. 03';
-const APP_VER = 'v37';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
+const APP_VER = 'v38';   // 系統版本:出問題時先確認畫面右下/抬頭顯示的版本是否為最新
 
 /* ---------------- i18n ---------------- */
 const T = {
@@ -282,7 +282,7 @@ const T = {
     scopeLabel:'Scope 工作範疇',
     histBtn:'🕘 History', histTitle:'Audit Log & Restore 歷程紀錄與還原',
     histNote:'Every create / save / delete / upload is logged with role and device code (IP is not available on Google Apps Script). Entries with a snapshot can be restored in one click — deleted records are fully recovered (attachments retrieved from Drive trash).',
-    histAct:{ create:'Create', save:'Save', delete:'Delete', upload:'Upload', deleteFile:'Remove file', restore:'Restore', storePdf:'Export PDF', saveChecklist:'Edit checklist' },
+    histAct:{ create:'Create', save:'Save', delete:'Delete', upload:'Upload', deleteFile:'Remove file', restore:'Restore', storePdf:'Export PDF', saveChecklist:'Edit checklist', saveScopes:'Edit scopes' },
     histCols:['Time','Action','Record','Role','Device','Note',''],
     histRestore:'↩ Restore', histEmpty:'No log entries yet.', histLoad:'Loading log…',
     histRestoreT:'Restore this version?',
@@ -290,6 +290,12 @@ const T = {
     histRestored:'Restored ✓',
     flowBtn:'📖 User Guide 使用說明', flowTitle:'Vessel Inspection System — User Guide 船檢系統使用說明', flowClose:'✕ Close 關閉',
     visitsLabel:'Visits 瀏覽人數',
+    fltStatusAll:'All results 全部結果', fltPending:'Pending 未檢查', fltPass:'✓ Pass 通過',
+    fltCond:'⚠ Conditional 有條件(未結案)', fltClosed:'✓ Closed 已結案', fltFail:'✗ Failed 未通過',
+    fltScopeAll:'All scopes 全部範疇', fltShown:(x,y)=>`Showing ${x} / ${y}`,
+    scopeEditBtn:'⚙ Scope list', scopeEditT:'Scope List 工作範疇清單',
+    scopeEditP:'One scope per line. Contractors pick from this list when filling the form (prevents the same work being named differently).',
+    scopePick:'— Select scope 請選擇 —',
     pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
     pdfFetchBig:(i,n)=>`Downloading large photos… ${i} / ${n}`,
     pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
@@ -418,7 +424,7 @@ const T = {
     scopeLabel:'工作範疇 Scope',
     histBtn:'🕘 歷程紀錄', histTitle:'歷程紀錄與還原 Audit Log & Restore',
     histNote:'每次新增/儲存/刪除/上傳都會自動記錄(角色+裝置代碼;GAS 無法取得 IP,以此代替識別)。有快照的紀錄可一鍵還原 — 被刪除的紀錄會整筆救回,附件從 Drive 垃圾桶取回。',
-    histAct:{ create:'新增', save:'儲存', delete:'刪除', upload:'上傳附件', deleteFile:'刪附件', restore:'還原', storePdf:'匯出PDF', saveChecklist:'改檢查表' },
+    histAct:{ create:'新增', save:'儲存', delete:'刪除', upload:'上傳附件', deleteFile:'刪附件', restore:'還原', storePdf:'匯出PDF', saveChecklist:'改檢查表', saveScopes:'改範疇清單' },
     histCols:['時間','動作','紀錄','角色','裝置','附註',''],
     histRestore:'↩ 還原', histEmpty:'尚無歷程紀錄。', histLoad:'歷程載入中…',
     histRestoreT:'還原此版本?',
@@ -426,6 +432,12 @@ const T = {
     histRestored:'已還原 ✓',
     flowBtn:'📖 船檢系統使用說明', flowTitle:'船檢系統使用說明 User Guide', flowClose:'✕ 關閉 Close',
     visitsLabel:'瀏覽人數 Visits',
+    fltStatusAll:'全部結果 All', fltPending:'未檢查 Pending', fltPass:'✓ 通過 Pass',
+    fltCond:'⚠ 有條件(未結案)', fltClosed:'✓ 已結案 Closed', fltFail:'✗ 未通過 Failed',
+    fltScopeAll:'全部範疇 All scopes', fltShown:(x,y)=>`顯示 ${x} / ${y} 筆`,
+    scopeEditBtn:'⚙ 範疇清單', scopeEditT:'工作範疇清單 Scope List',
+    scopeEditP:'一行一個工作範疇。廠商填表時改用下拉選擇,避免同一種工作被填成不同名稱。',
+    scopePick:'— 請選擇工作範疇 Select —',
     pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
     pdfFetchBig:(i,n)=>`大圖下載壓縮中… ${i} / ${n} 張`,
     pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
@@ -808,7 +820,7 @@ function apiOnce(action, payload) {
 }
 
 /* 🕘 歷程紀錄:寫入類動作自動附上操作者資訊(角色+裝置代碼+瀏覽器;GAS 拿不到 IP) */
-const WHO_ACTIONS = { save:1, delete:1, upload:1, deleteFile:1, storePdf:1, restore:1, saveChecklist:1 };
+const WHO_ACTIONS = { save:1, delete:1, upload:1, deleteFile:1, storePdf:1, restore:1, saveChecklist:1, saveScopes:1 };
 function getWho() {
   let dev = '';
   try {
@@ -853,6 +865,16 @@ function localApi(action, p) {
       note: note || '', snapJson: sj });
     if (db.audit.length > 300) db.audit = db.audit.slice(-300);
   };
+  if (action === 'getScopes') {
+    try { return done({ scopes: JSON.parse(localStorage.getItem('evis_scopes' + (TESTMODE?'_t':''))) || [] }); }
+    catch (e) { return done({ scopes: [] }); }
+  }
+  if (action === 'saveScopes') {
+    const sl = (p.scopes || []).map(x => String(x).trim()).filter(x => x);
+    localStorage.setItem('evis_scopes' + (TESTMODE?'_t':''), JSON.stringify(sl));
+    logA('saveScopes', {}, sl.length + ' items'); lsWrite(db);
+    return done({ scopes: sl });
+  }
   if (action === 'visit') {
     if (p.first) { db.visits = (db.visits || 0) + 1; lsWrite(db); }
     return done({ count: db.visits || 0 });
@@ -1658,7 +1680,23 @@ function HistoryView({ t, rows, onBack, onRestore, editMode }) {
   );
 }
 
-function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, onEditor, onRe, onHistory, onFlow }) {
+function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, onEditor, onRe, onHistory, onFlow, scopes, onSaveScopes }) {
+  /* 🔎 篩選:NMDC 檢查結果 + 工作範疇 */
+  const [fStatus, setFStatus] = useState('');
+  const [fScope, setFScope] = useState('');
+  const [editScopes, setEditScopes] = useState(false);
+  const [scopeText, setScopeText] = useState('');
+  const fmatch = it => {
+    if (fScope && (it.scope || '') !== fScope) return false;
+    if (fStatus === 'pending' && it.status === 'nmdc_done') return false;
+    if (fStatus === 'pass'   && !(it.status === 'nmdc_done' && it.verdict === 'pass')) return false;
+    if (fStatus === 'cond'   && !(it.status === 'nmdc_done' && it.verdict === 'cond' && String(it.closed) !== '1')) return false;
+    if (fStatus === 'closed' && !(it.verdict === 'cond' && String(it.closed) === '1')) return false;
+    if (fStatus === 'fail'   && !(it.status === 'nmdc_done' && it.verdict === 'fail')) return false;
+    return true;
+  };
+  const shown = list.filter(fmatch);
+  const scopeOpts = Array.from(new Set((scopes || []).concat(list.map(i => i.scope).filter(Boolean))));
   const nSelf = list.filter(i=>i.status==='self_done'||i.status==='nmdc_done').length;
   const nNmdc = list.filter(i=>i.status==='nmdc_done').length;
   return (
@@ -1676,6 +1714,43 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
         <button className="btn btn-amber" onClick={onFlow}>{t.flowBtn}</button>{' '}
         <button className="btn btn-p" onClick={onNew}>{t.newInsp}</button>
       </div>
+
+      {/* 🔎 篩選列 */}
+      <div style={{display:'flex', gap:8, alignItems:'center', flexWrap:'wrap', margin:'10px 0 12px'}}>
+        <select style={{width:'auto', minWidth:170, padding:'7px 10px', fontSize:13.5}}
+          value={fStatus} onChange={e=>setFStatus(e.target.value)}>
+          <option value="">{t.fltStatusAll}</option>
+          <option value="pending">{t.fltPending}</option>
+          <option value="pass">{t.fltPass}</option>
+          <option value="cond">{t.fltCond}</option>
+          <option value="closed">{t.fltClosed}</option>
+          <option value="fail">{t.fltFail}</option>
+        </select>
+        <select style={{width:'auto', minWidth:170, maxWidth:320, padding:'7px 10px', fontSize:13.5}}
+          value={fScope} onChange={e=>setFScope(e.target.value)}>
+          <option value="">{t.fltScopeAll}</option>
+          {scopeOpts.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
+        {canEdit &&
+          <button className="btn btn-o btn-sm" onClick={()=>{ setScopeText((scopes||[]).join('\n')); setEditScopes(true); }}>{t.scopeEditBtn}</button>}
+        {(fStatus || fScope) &&
+          <span style={{fontSize:12.5, color:'#54626f'}}>{t.fltShown(shown.length, list.length)}</span>}
+      </div>
+
+      {/* ⚙ 工作範疇清單編輯 */}
+      {editScopes &&
+        <div className="modalbg" style={{zIndex:210}} onClick={()=>setEditScopes(false)}>
+          <div className="modal" style={{maxWidth:460}} onClick={e=>e.stopPropagation()}>
+            <h4>⚙ {t.scopeEditT}</h4>
+            <p style={{fontSize:13, color:'#54626f'}}>{t.scopeEditP}</p>
+            <textarea rows={8} value={scopeText} onChange={e=>setScopeText(e.target.value)}
+              placeholder={'Subsea pipeline installation 海底管線鋪設\nRock placement 拋石作業\n…'} />
+            <div style={{display:'flex', gap:8, marginTop:12, justifyContent:'flex-end'}}>
+              <button className="btn btn-o" onClick={()=>setEditScopes(false)}>{t.cmtEditCancel}</button>
+              <button className="btn btn-p" onClick={()=>{ onSaveScopes(scopeText.split('\n').map(x=>x.trim()).filter(Boolean)); setEditScopes(false); }}>{t.save}</button>
+            </div>
+          </div>
+        </div>}
       <div className="tblscroll">
         <table className="list">
           <thead><tr>
@@ -1683,11 +1758,11 @@ function Dashboard({ t, list, loading, canEdit, onOpen, onNew, onDelete, onPdf, 
             <th>{t.colSelf}</th><th>{t.colNmdc}</th><th>{t.colAct}</th>
           </tr></thead>
           <tbody>
-            {list.length === 0 && (
+            {shown.length === 0 && (
               <tr><td colSpan="8" style={{textAlign:'center', color:'#8a94a0', padding:'28px 10px'}}>
                 {loading ? '...' : t.empty}</td></tr>
             )}
-            {[...list].sort((a,b) =>
+            {[...shown].sort((a,b) =>
               String(b.inspectDate||'').localeCompare(String(a.inspectDate||'')) ||
               String(b.inspNo||'').localeCompare(String(a.inspNo||''))
             ).map(it => {
@@ -1792,7 +1867,7 @@ function EvHint({ it, lang }) {
 }
 
 /* ---------------- 廠商自檢表單 ---------------- */
-function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, highlightMissing }) {
+function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, highlightMissing, scopes }) {
   const answers = item.data.answers || {};
   const TOTAL = totalOf(cl);
   const [activeSec, setActiveSec] = useState(cl.length ? cl[0].code : 'A');
@@ -1871,8 +1946,14 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
           <div className="field"><label>{t.contactEmail}</label>
             <input disabled={!can} inputMode="email" value={(item.data.contact||{}).email||''} onChange={e=>setContact('email', e.target.value)} placeholder="name@example.com" /></div>
           <div className="field"><label>{t.scopeLabel}</label>
-            <input disabled={!can} value={item.scope||''} placeholder="e.g. Subsea pipeline installation 海底管線鋪設"
-              onChange={e=>setField('scope', e.target.value)} /></div>
+            {(scopes && scopes.length)
+              ? <select disabled={!can} value={item.scope||''} onChange={e=>setField('scope', e.target.value)}>
+                  <option value="">{t.scopePick}</option>
+                  {item.scope && scopes.indexOf(item.scope) < 0 && <option value={item.scope}>{item.scope}</option>}
+                  {scopes.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
+              : <input disabled={!can} value={item.scope||''} placeholder="e.g. Subsea pipeline installation 海底管線鋪設"
+                  onChange={e=>setField('scope', e.target.value)} />}</div>
         </div>
       </div>
 
@@ -1939,7 +2020,7 @@ function ContractorForm({ t, lang, cl, item, setItem, can, adminEdit, onSave, on
 }
 
 /* ---------------- NMDC 覆核表單 ---------------- */
-function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing, onReinspect }) {
+function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave, onBack, saving, uploadFile, deleteAtt, uploadingKeys, askConfirm, showToast, onExport, exporting, highlightMissing, onReinspect, scopes }) {
   const answers = item.data.answers || {};
   const nAns = item.data.nmdcAnswers || {};
   const TOTAL = totalOf(cl);
@@ -2050,7 +2131,13 @@ function NmdcForm({ t, lang, cl, item, setItem, can, adminEdit, editMode, onSave
             <div className="field"><label>{t.contactEmail}</label>
               <input inputMode="email" value={(item.data.contact||{}).email||''} onChange={e=>setContactN('email', e.target.value)} /></div>
             <div className="field"><label>{t.scopeLabel}</label>
-              <input value={item.scope||''} onChange={e=>setField('scope', e.target.value)} /></div>
+              {(scopes && scopes.length)
+                ? <select value={item.scope||''} onChange={e=>setField('scope', e.target.value)}>
+                    <option value="">{t.scopePick}</option>
+                    {item.scope && scopes.indexOf(item.scope) < 0 && <option value={item.scope}>{item.scope}</option>}
+                    {scopes.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                : <input value={item.scope||''} onChange={e=>setField('scope', e.target.value)} />}</div>
           </div>
         ) : (
           <div className="kv">
@@ -2642,6 +2729,7 @@ function App() {
     const img2 = demoPhotoB64('NMDC VERIFICATION', '#1d3d5c');
     const img3 = demoPhotoB64('IMPROVEMENT EVIDENCE', '#1c7a42');
     (async () => {
+      await api('saveScopes', { scopes: ['Subsea pipeline installation 海底管線鋪設', 'Rock placement 拋石作業', 'Diving support 潛水支援'] });
       await api('save', { item: rec1 });
       const r2 = await api('save', { item: rec2 });
       await api('upload', { inspId:r2.item.id, itemCode:noC2, label:noC2, name:'dust_photo.png', mimeType:'image/png', base64:img1 });
@@ -2658,6 +2746,7 @@ function App() {
       const r5 = await api('save', { item: rec5 });
       await api('upload', { inspId:r5.item.id, itemCode:'CMT-demo-d2', label:'CMT', name:'dust_screen_replaced.png', mimeType:'image/png', base64:img3 });
       showToast(t.seedDone); refresh();
+      api('getScopes').then(r => setScopes(r.scopes || [])).catch(()=>{});
     })().catch(e => showToast(String(e.message||e), true));
   };
 
@@ -2693,6 +2782,14 @@ function App() {
 
   /* ⚓ 船檢流程圖 */
   const [showFlow, setShowFlow] = useState(false);
+
+  /* 🛠 工作範疇清單 */
+  const [scopes, setScopes] = useState([]);
+  useEffect(() => { api('getScopes').then(r => setScopes(r.scopes || [])).catch(() => {}); }, [testMode]);
+  const saveScopesFn = (list) =>
+    track(api('saveScopes', { scopes: list }), t.savingData)
+      .then(r => { setScopes(r.scopes || list); showToast(t.saved); })
+      .catch(e => showToast(String(e.message || e), true));
 
   /* 👀 瀏覽人數:每個瀏覽器工作階段計一次,重新整理不重複 */
   const [visits, setVisits] = useState(null);
@@ -3071,7 +3168,8 @@ function App() {
           <Dashboard t={t} list={list} loading={loading} canEdit={effEdit}
             onOpen={openItem} onNew={newItem} onDelete={deleteInsp} onPdf={exportById} onRe={reinspectById}
             onEditor={()=>{ setView('editor'); window.scrollTo(0,0); }}
-            onHistory={openHistory} onFlow={()=>setShowFlow(true)} />}
+            onHistory={openHistory} onFlow={()=>setShowFlow(true)}
+            scopes={scopes} onSaveScopes={saveScopesFn} />}
         {view === 'history' &&
           <HistoryView t={t} rows={histRows} editMode={effEdit} onRestore={restoreLog}
             onBack={()=>{ setView('dash'); window.scrollTo(0,0); }} />}
@@ -3079,13 +3177,13 @@ function App() {
           <Editor t={t} checklist={checklist} onSave={saveChecklistFn} saving={saving}
             onBack={()=>{ setView('dash'); window.scrollTo(0,0); }} askConfirm={askConfirm} />}
         {view === 'form' && item && item.status === 'draft' &&
-          <ContractorForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canContractor} adminEdit={effEdit}
+          <ContractorForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canContractor} adminEdit={effEdit} scopes={scopes}
             onSave={doSave} saving={saving}
             onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
             askConfirm={askConfirm} showToast={showToast} highlightMissing={highlightMissing} />}
         {view === 'form' && item && item.status !== 'draft' &&
-          <NmdcForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canNmdc} adminEdit={effEdit} editMode={effEdit}
+          <NmdcForm t={t} lang={lang} cl={recCl(item, checklist)} item={item} setItem={setItemDirty} can={canNmdc} adminEdit={effEdit} editMode={effEdit} scopes={scopes}
             onSave={doSave} saving={saving}
             onBack={goHome}
             uploadFile={uploadFile} deleteAtt={deleteAtt} uploadingKeys={uploadingKeys}
