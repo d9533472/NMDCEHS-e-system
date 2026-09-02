@@ -352,7 +352,7 @@
 const DAYS=7, PHOTOS=7;
 const NEW_FORMAT_DATE='2026-04-20'; // 此日期之後使用新照片表格式（含水表）
 const DEFAULT_PROJECT='通霄電廠第二期更新改建計畫－海底輸氣管線統包工程';
-const METHODS=['人工灑水','灑水車','灑水器自動噴灑','其他'];
+const METHODS=['人工灑水','灑水車','灑水器自動噴灑','其他','未出工'];
 const DM=1;
 const PAGE_SIZE=20;
 const API_URL='https://script.google.com/macros/s/AKfycbwXhNnRZWVQcu_y8kJ_tMlbEZbOmDi-M8lLiR4XN8SZDZtPd2q9LHrbt3hy1XmAOSCRVw/exec';
@@ -372,6 +372,7 @@ function hideLoading(){$('loadingOverlay').classList.remove('open');}
 function getMonday(dateStr){const d=new Date(dateStr);const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);d.setDate(diff);return d.toISOString().slice(0,10);}
 function addDays(dateStr,n){const d=new Date(dateStr);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function fmtDate(s){if(!s)return'—';const d=new Date(s);return `${d.getMonth()+1}/${d.getDate()}`;}
+function R(n){return Math.round(n*10)/10;}
 function weekday(s){return['日','一','二','三','四','五','六'][new Date(s).getDay()];}
 function recKey(loc,sd){return `${loc}_${sd}`;}
 function isNewFormat(sd){return sd&&sd>=NEW_FORMAT_DATE;}
@@ -518,7 +519,7 @@ function calcAndSync(d){
   const m2e=parseFloat($(`ptNum_${d}_m2e`).value)||0;
   const w1=m1e>m1s?(m1e-m1s):0;
   const w2=m2e>m2s?(m2e-m2s):0;
-  const total=w1+w2;
+  const total=R(w1+w2);
   $(`ptTotal_${d}`).textContent=total>0?total.toFixed(1):'—';
   // 更新每日用水量顯示
   updateRecordCumDisplay();
@@ -861,9 +862,7 @@ function buildPdfHtml(data,isFirst){
   if(data.days){
     let weekTotal=0;
     data.days.forEach((day,d)=>{
-      const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;
-      const dailyW=parseFloat(day.water)||0;
-      weekTotal+=dailyW;
+      const dailyW=R(parseFloat(day.water)||0);weekTotal=R(weekTotal+dailyW);const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;
       const rs=2+(day.extra?day.extra.length:0);
       for(const p of['am','pm']){
         const r=day[p]||{};
@@ -898,7 +897,7 @@ function buildPdfHtml(data,isFirst){
       return r;
     }
     // Page 2: Day 1-4
-    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（一）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(0,4)}</tbody></table>${sigHtml}</div>`;
+    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（一）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(0,4)}</tbody></table></div>`;
     // Page 3: Day 5-7
     h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（二）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(4,7)}</tbody></table>${sigHtml}</div>`;
   }else{
@@ -1093,7 +1092,7 @@ async function renderCumulative(){
   let cum=0,h='';
   if(!_cumDates.length){h='<tr><td colspan="3" style="color:#999;padding:20px;">尚無紀錄</td></tr>';}
   else{_cumDates.forEach(dt=>{
-    const w=dailyMap[dt]||0;cum+=w;
+    const w=R(dailyMap[dt]||0);cum=R(cum+w);
     const isOld=dt<NEW_FORMAT_DATE;
     h+=`<tr><td style="white-space:nowrap;">${dt}（${weekday(dt)}）</td>`;
     if(isOld){h+=`<td><input type="number" id="cumInput_${dt.replace(/-/g,'')}" data-date="${dt}" value="${w||''}" step="0.1" min="0" style="width:70px;" oninput="recalcCum()"></td>`;}
@@ -1108,8 +1107,8 @@ function recalcCum(){
   _cumDates.forEach(dt=>{
     const key=dt.replace(/-/g,'');
     const input=$(`cumInput_${key}`);
-    const w=input?parseFloat(input.value)||0:(_cumAutoMap[dt]||0);
-    cum+=w;
+    const w=R(input?parseFloat(input.value)||0:(_cumAutoMap[dt]||0));
+    cum=R(cum+w);
     const totalEl=$(`cumTotal_${key}`);
     if(totalEl)totalEl.textContent=cum.toFixed(1);
   });
@@ -1124,7 +1123,7 @@ function collectWeeklyData(loc){
   const allW={...sheetW,...(cumData[loc]||{})};
   Object.entries(allW).forEach(([dt,w])=>{
     const mon=getMonday(dt);
-    weeklyMap[mon]=(weeklyMap[mon]||0)+(w||0);
+    weeklyMap[mon]=R((weeklyMap[mon]||0)+(w||0));
   });
   const weeks=Object.keys(weeklyMap).sort();
   // 按結束日期所屬月份分組
@@ -1185,8 +1184,8 @@ async function renderMeterReport(){
   h+=`<table class="meter-report"><thead><tr><th>日期區間</th><th>每周累積水量</th><th>每月累積水量</th><th>總水量</th></tr></thead><tbody>`;
   let grandTotal=0;
   months.forEach(mg=>{
-    const monthTotal=mg.weeks.reduce((s,w)=>s+w.wt,0);
-    grandTotal+=monthTotal;
+    const monthTotal=R(mg.weeks.reduce((s,w)=>s+w.wt,0));
+    grandTotal=R(grandTotal+monthTotal);
     const rs=mg.weeks.length;
     mg.weeks.forEach((w,wi)=>{
       h+=`<tr><td>${w.sd} ～ ${w.ed}</td><td>${w.wt>0?w.wt.toFixed(1)+' m³':'—'}</td>`;
@@ -1211,7 +1210,7 @@ function buildMeterReportPdfHtml(){
 
   // 計算每月的 grandTotal
   let gt=0;
-  months.forEach(mg=>{const mt=mg.weeks.reduce((s,w)=>s+w.wt,0);gt+=mt;mg.monthTotal=mt;mg.grandTotal=gt;});
+  months.forEach(mg=>{const mt=R(mg.weeks.reduce((s,w)=>s+w.wt,0));gt=R(gt+mt);mg.monthTotal=mt;mg.grandTotal=gt;});
 
   // 按完整月份分頁（不拆月份，rowspan 才不會跨頁）
   const FIRST_LIMIT=23, NEXT_LIMIT=28;
@@ -1309,7 +1308,7 @@ function buildCumPdfHtml(){
 
   // 計算累計（需要全域累加）
   let cum=0;const cumMap={};
-  dates.forEach(dt=>{cum+=dailyMap[dt]||0;cumMap[dt]=cum;});
+  dates.forEach(dt=>{cum=R(cum+(dailyMap[dt]||0));cumMap[dt]=cum;});
 
   let h='';
   pages.forEach((pageDates,pi)=>{
@@ -1359,7 +1358,7 @@ async function exportCumWord(){
   html+=`<h2 style="text-align:center;">每日用水量紀錄 — ${loc}工區</h2>`;
   html+=`<table><thead><tr><th>日期</th><th>當日用水量(m³)</th><th>累計用水量(m³)</th></tr></thead><tbody>`;
   dates.forEach(dt=>{
-    const w=dailyMap[dt]||0;cum+=w;
+    const w=R(dailyMap[dt]||0);cum=R(cum+w);
     html+=`<tr><td>${dt}（${weekday(dt)}）</td><td>${w>0?w.toFixed(1):'—'}</td><td class="cum">${cum.toFixed(1)}</td></tr>`;
   });
   html+=`</tbody></table></body></html>`;
