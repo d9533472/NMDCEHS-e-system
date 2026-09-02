@@ -883,11 +883,18 @@ function buildPdfHtml(data,isFirst){
       let r='';
       for(let d=startD;d<endD&&d<data.photoTable.length;d++){
         const pt=data.photoTable[d];
-        const dayDate=data.days&&data.days[d]?data.days[d].date:'';
+        const day=data.days&&data.days[d]?data.days[d]:null;
+        const dayDate=day?day.date:'';
         const dt=dayDate?`${fmtDate(dayDate)}(${weekday(dayDate)})`:`第${d+1}天`;
         const wm=dayDate||'';
+        // 判斷是否未出工（上下午+額外時段全部都是未出工）
+        const isOff=day&&String(day.am?.method)==='4'&&String(day.pm?.method)==='4'&&(!day.extra||day.extra.every(ex=>String(ex.method)==='4'));
         r+=`<tr><td class="pt-day-cell">${dt}</td>`;
-        r+=`<td class="pt-img-cell">${pt.spraySrc?`<div class="pt-img-wrap"><img src="${pt.spraySrc}"><span class="pt-watermark">${wm}</span></div>`:'—'}</td>`;
+        if(isOff){
+          r+=`<td class="pt-img-cell" style="font-size:16px;font-weight:700;color:#999;vertical-align:middle;">未出工</td>`;
+        }else{
+          r+=`<td class="pt-img-cell">${pt.spraySrc?`<div class="pt-img-wrap"><img src="${pt.spraySrc}"><span class="pt-watermark">${wm}</span></div>`:'—'}</td>`;
+        }
         r+=`<td class="pt-meter-cell">${pt.m1sVal||'—'}</td>`;
         r+=`<td class="pt-meter-cell">${pt.m1eVal||'—'}</td>`;
         r+=`<td class="pt-meter-cell">${pt.m2sVal||'—'}</td>`;
