@@ -375,11 +375,38 @@ function folderUrlFor_(rec) {
 //    3. 不認 <a> 的 padding → 按鈕一律用 <table><td> 包
 //    4. 不認 <span> 的背景色 → 徽章一律用巢狀 <table>
 //    5. 不認 div 的 max-width / margin auto → 外層改用 mso 條件式表格
-var MAIL_FONT = "font-family:'Segoe UI','Microsoft JhengHei','Microsoft YaHei','PingFang TC',Arial,sans-serif;";
+//    6. ⭐ 中文字型：Word 不會為了中文往後找字型堆疊，它一律用自己的「東亞字型」
+//       （預設新細明體）。所以正黑體要放第一個，並且一定要加 mso-fareast-font-family，
+//       否則 Outlook 的中文全部會變成襯線的新細明體。
+var MAIL_FONT = "font-family:'Microsoft JhengHei','Segoe UI','PingFang TC',Arial,sans-serif;" +
+                "mso-fareast-font-family:'Microsoft JhengHei';mso-ascii-font-family:'Microsoft JhengHei';" +
+                "mso-hansi-font-family:'Microsoft JhengHei';mso-bidi-font-family:Arial;";
+
+// 等寬字（編號、日期、數字用）
+var MAIL_MONO = "font-family:Consolas,'Courier New',monospace;mso-ascii-font-family:Consolas;" +
+                "mso-hansi-font-family:Consolas;mso-fareast-font-family:Consolas;";
 
 function mailShell_(headTitle, headSub, accent, bodyHtml) {
   var T = MAIL_THEME;
+  // Outlook 專屬樣式：再保險一層，強制所有元素用正黑體（條件式註解，其他信箱會忽略）
+  var msoHead = '<!--[if mso]>' +
+    '<style type="text/css">' +
+      'body,table,td,th,div,p,span,a{' +
+        "font-family:'Microsoft JhengHei','Segoe UI',Arial,sans-serif !important;" +
+        "mso-fareast-font-family:'Microsoft JhengHei' !important;" +
+        "mso-ascii-font-family:'Microsoft JhengHei' !important;" +
+        "mso-hansi-font-family:'Microsoft JhengHei' !important;}" +
+      '.mono,.mono span,.mono div{' +
+        "font-family:Consolas,'Courier New',monospace !important;" +
+        "mso-fareast-font-family:Consolas !important;" +
+        "mso-ascii-font-family:Consolas !important;}" +
+      'table{mso-table-lspace:0pt;mso-table-rspace:0pt;}' +
+    '</style>' +
+  '<![endif]-->';
+
   return '' +
+  '<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>' + msoHead + '</head>' +
+  '<body style="margin:0;padding:0;background-color:' + T.bg + ';">' +
   '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="' + T.bg + '" style="background-color:' + T.bg + ';border-collapse:collapse;">' +
   '<tr><td align="center" style="padding:24px 12px;' + MAIL_FONT + '">' +
     '<!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" align="center"><tr><td><![endif]-->' +
@@ -392,7 +419,7 @@ function mailShell_(headTitle, headSub, accent, bodyHtml) {
           (headSub ? '<div style="' + MAIL_FONT + 'color:#cbe9fb;font-size:12px;padding-top:6px;">' + headSub + '</div>' : '') +
         '</td></tr>' +
         // Accent bar
-        '<tr><td bgcolor="' + accent + '" style="background-color:' + accent + ';height:4px;font-size:0;line-height:4px;">&nbsp;</td></tr>' +
+        '<tr><td bgcolor="' + accent + '" height="4" style="background-color:' + accent + ';height:4px;font-size:1px;line-height:4px;mso-line-height-rule:exactly;">&#8203;</td></tr>' +
         // Body
         '<tr><td style="padding:26px 28px 8px 28px;color:' + T.text + ';font-size:14px;line-height:1.7;' + MAIL_FONT + '">' + bodyHtml + '</td></tr>' +
         // Footer
@@ -404,7 +431,8 @@ function mailShell_(headTitle, headSub, accent, bodyHtml) {
       '</table>' +
     '</div>' +
     '<!--[if mso]></td></tr></table><![endif]-->' +
-  '</td></tr></table>';
+  '</td></tr></table>' +
+  '</body></html>';
 }
 
 function infoTable_(rows) {
@@ -496,13 +524,13 @@ function buildRecordMail_(rec, itemOpts, kind) {
   }
 
   var rows = [
-    ['改善單編號', '<span style="font-family:Consolas,monospace;font-size:14px;color:' + T.navy + ';">' + esc_(dash_(rec.number)) + '</span>' +
+    ['改善單編號', '<span class="mono" style="' + MAIL_MONO + 'font-size:14px;color:' + T.navy + ';">' + esc_(dash_(rec.number)) + '</span>' +
                    (rec.type ? ' <span style="font-size:11px;color:' + T.muted + ';">(' + esc_(rec.type) + ')</span>' : '')],
     ['缺失日期',   esc_(dash_(rec.date))],
     ['單位',       esc_(dash_(rec.unit))],
     ['開單人',     esc_(dash_(rec.issuer))],
     ['工區',       esc_(dash_(rec.area))],
-    ['關單期限',   '<span style="font-family:Consolas,monospace;">' + esc_(dash_(rec.deadline)) + '</span> &nbsp; ' + deadlineBadge_(rec.deadline, rec.status)],
+    ['關單期限',   '<span class="mono" style="' + MAIL_MONO + 'font-size:13px;color:' + T.text + ';">' + esc_(dash_(rec.deadline)) + '</span> &nbsp; ' + deadlineBadge_(rec.deadline, rec.status)],
   ];
   if (rec.refNumber) rows.splice(1, 0, ['業主通知單號', esc_(rec.refNumber)]);
   if (kind === 'closed') {
@@ -678,7 +706,7 @@ function buildWeeklyMail_() {
   // 統計卡
   var stat = function(label, value, color) {
     return '<td width="33%" align="center" bgcolor="#fafbfc" style="background-color:#fafbfc;padding:14px 10px;text-align:center;border:1px solid ' + T.line + ';border-radius:10px;' + MAIL_FONT + '">' +
-      '<div style="font-size:26px;font-weight:700;color:' + color + ';font-family:Consolas,\'Courier New\',monospace;">' + value + '</div>' +
+      '<div class="mono" style="' + MAIL_MONO + 'font-size:26px;font-weight:700;color:' + color + ';">' + value + '</div>' +
       '<div style="' + MAIL_FONT + 'font-size:11px;color:' + T.muted + ';padding-top:4px;">' + label + '</div></td>';
   };
   var statsHtml = '<table role="presentation" cellpadding="0" cellspacing="6" border="0" width="100%"><tr>' +
@@ -710,7 +738,7 @@ function buildWeeklyMail_() {
     // 第一列：基本欄位；第二列：缺失項目（跨欄，避免文字被擠壓）
     var tdTop = td + 'border-bottom:none;padding-bottom:4px;';
     rowsHtml += '<tr>' +
-      '<td' + bgAttr + ' style="' + tdTop + 'font-family:Consolas,\'Courier New\',monospace;font-weight:700;white-space:nowrap;">' + esc_(dash_(r.number)) + '</td>' +
+      '<td' + bgAttr + ' class="mono" style="' + tdTop + MAIL_MONO + 'font-weight:700;white-space:nowrap;">' + esc_(dash_(r.number)) + '</td>' +
       '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.date)) + '</td>' +
       '<td' + bgAttr + ' style="' + tdTop + '">' + esc_(dash_(r.unit)) + '</td>' +
       '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.issuer)) + '</td>' +
