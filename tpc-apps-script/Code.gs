@@ -369,51 +369,72 @@ function folderUrlFor_(rec) {
 }
 
 // ── HTML 版型元件 ────────────────────────────────────────────
+// ⚠️ Outlook（桌面版）用 Word 排版引擎，限制較多，本檔一律遵守以下規則：
+//    1. 字型不會從外層 div 繼承進表格 → 每個 <td> 都要自己帶 font-family
+//    2. 不認 background 簡寫 → 用 bgcolor 屬性 + background-color
+//    3. 不認 <a> 的 padding → 按鈕一律用 <table><td> 包
+//    4. 不認 <span> 的背景色 → 徽章一律用巢狀 <table>
+//    5. 不認 div 的 max-width / margin auto → 外層改用 mso 條件式表格
+var MAIL_FONT = "font-family:'Segoe UI','Microsoft JhengHei','Microsoft YaHei','PingFang TC',Arial,sans-serif;";
+
 function mailShell_(headTitle, headSub, accent, bodyHtml) {
   var T = MAIL_THEME;
   return '' +
-  '<div style="margin:0;padding:24px 12px;background:' + T.bg + ';font-family:\'Segoe UI\',\'Microsoft JhengHei\',\'PingFang TC\',Arial,sans-serif;">' +
-    '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:660px;margin:0 auto;background:#ffffff;border-radius:14px;overflow:hidden;border:1px solid ' + T.line + ';">' +
-      // Header
-      '<tr><td style="background:' + T.navy + ';background-image:linear-gradient(135deg,' + T.navy + ' 0%,' + T.cyan + ' 100%);padding:24px 28px;">' +
-        '<div style="color:' + T.sky + ';font-size:11px;letter-spacing:1.5px;font-weight:600;">NMDC ENVIRONMENTAL &nbsp;|&nbsp; 環保改善追蹤系統</div>' +
-        '<div style="color:#ffffff;font-size:21px;font-weight:700;margin-top:8px;line-height:1.35;">' + headTitle + '</div>' +
-        (headSub ? '<div style="color:#cbe9fb;font-size:12px;margin-top:6px;">' + headSub + '</div>' : '') +
-      '</td></tr>' +
-      // Accent bar
-      '<tr><td style="height:4px;background:' + accent + ';font-size:0;line-height:0;">&nbsp;</td></tr>' +
-      // Body
-      '<tr><td style="padding:26px 28px 8px 28px;color:' + T.text + ';font-size:14px;line-height:1.7;">' + bodyHtml + '</td></tr>' +
-      // Footer
-      '<tr><td style="padding:18px 28px 24px 28px;border-top:1px solid ' + T.line + ';color:' + T.muted + ';font-size:11px;line-height:1.8;">' +
-        '<div style="font-weight:600;color:#374151;">' + esc_(PROJECT_NAME) + '</div>' +
-        '<div>本信件由系統自動發送，請勿直接回覆。收件人設定可於系統「⚙️ 設定 → 📧 郵件通知設定」調整。</div>' +
-        '<div style="margin-top:4px;">發送時間：' + Utilities.formatDate(new Date(), tz_(), 'yyyy-MM-dd HH:mm') + '</div>' +
-      '</td></tr>' +
-    '</table>' +
-  '</div>';
+  '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="' + T.bg + '" style="background-color:' + T.bg + ';border-collapse:collapse;">' +
+  '<tr><td align="center" style="padding:24px 12px;' + MAIL_FONT + '">' +
+    '<!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="640" align="center"><tr><td><![endif]-->' +
+    '<div style="max-width:640px;margin:0 auto;text-align:left;">' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:14px;border:1px solid ' + T.line + ';border-collapse:collapse;">' +
+        // Header
+        '<tr><td bgcolor="' + T.navy + '" style="background-color:' + T.navy + ';background-image:linear-gradient(135deg,' + T.navy + ' 0%,' + T.cyan + ' 100%);padding:24px 28px;border-radius:14px 14px 0 0;' + MAIL_FONT + '">' +
+          '<div style="' + MAIL_FONT + 'color:' + T.sky + ';font-size:11px;letter-spacing:1.5px;font-weight:600;">NMDC ENVIRONMENTAL &nbsp;|&nbsp; 環保改善追蹤系統</div>' +
+          '<div style="' + MAIL_FONT + 'color:#ffffff;font-size:21px;font-weight:700;padding-top:8px;line-height:1.35;">' + headTitle + '</div>' +
+          (headSub ? '<div style="' + MAIL_FONT + 'color:#cbe9fb;font-size:12px;padding-top:6px;">' + headSub + '</div>' : '') +
+        '</td></tr>' +
+        // Accent bar
+        '<tr><td bgcolor="' + accent + '" style="background-color:' + accent + ';height:4px;font-size:0;line-height:4px;">&nbsp;</td></tr>' +
+        // Body
+        '<tr><td style="padding:26px 28px 8px 28px;color:' + T.text + ';font-size:14px;line-height:1.7;' + MAIL_FONT + '">' + bodyHtml + '</td></tr>' +
+        // Footer
+        '<tr><td style="padding:18px 28px 24px 28px;border-top:1px solid ' + T.line + ';color:' + T.muted + ';font-size:11px;line-height:1.8;' + MAIL_FONT + '">' +
+          '<div style="' + MAIL_FONT + 'font-size:11px;font-weight:600;color:#374151;">' + esc_(PROJECT_NAME) + '</div>' +
+          '<div style="' + MAIL_FONT + 'font-size:11px;color:' + T.muted + ';">本信件由系統自動發送，請勿直接回覆。收件人設定可於系統「⚙️ 設定 → 📧 郵件通知設定」調整。</div>' +
+          '<div style="' + MAIL_FONT + 'font-size:11px;color:' + T.muted + ';padding-top:4px;">發送時間：' + Utilities.formatDate(new Date(), tz_(), 'yyyy-MM-dd HH:mm') + '</div>' +
+        '</td></tr>' +
+      '</table>' +
+    '</div>' +
+    '<!--[if mso]></td></tr></table><![endif]-->' +
+  '</td></tr></table>';
 }
 
 function infoTable_(rows) {
   var T = MAIL_THEME;
-  var html = '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border:1px solid ' + T.line + ';border-radius:10px;overflow:hidden;">';
+  var html = '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border:1px solid ' + T.line + ';border-radius:10px;">';
   rows.forEach(function(r, i) {
     var bg = i % 2 === 0 ? '#fafbfc' : '#ffffff';
     html += '<tr>' +
-      '<td style="background:' + bg + ';padding:11px 14px;border-bottom:1px solid ' + T.line + ';color:' + T.muted + ';font-size:12px;font-weight:600;white-space:nowrap;width:118px;">' + r[0] + '</td>' +
-      '<td style="background:' + bg + ';padding:11px 14px;border-bottom:1px solid ' + T.line + ';color:' + T.text + ';font-size:13px;font-weight:600;">' + r[1] + '</td>' +
+      '<td bgcolor="' + bg + '" width="118" style="background-color:' + bg + ';padding:11px 14px;border-bottom:1px solid ' + T.line + ';color:' + T.muted + ';font-size:12px;font-weight:600;white-space:nowrap;width:118px;' + MAIL_FONT + '">' + r[0] + '</td>' +
+      '<td bgcolor="' + bg + '" style="background-color:' + bg + ';padding:11px 14px;border-bottom:1px solid ' + T.line + ';color:' + T.text + ';font-size:13px;font-weight:600;' + MAIL_FONT + '">' + r[1] + '</td>' +
     '</tr>';
   });
   return html + '</table>';
 }
 
+// 徽章：Outlook 不認 span 的背景色，故用巢狀表格
 function badge_(text, color, bg) {
-  return '<span style="display:inline-block;padding:3px 10px;border-radius:20px;background:' + bg + ';color:' + color + ';font-size:12px;font-weight:700;">' + text + '</span>';
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="display:inline-table;border-collapse:collapse;"><tr>' +
+    '<td bgcolor="' + bg + '" style="background-color:' + bg + ';padding:3px 10px;border-radius:20px;color:' + color + ';font-size:12px;font-weight:700;white-space:nowrap;' + MAIL_FONT + '">' + text + '</td>' +
+  '</tr></table>';
 }
 
+// 按鈕：Outlook 不認 <a> 的 padding，故用表格儲存格當按鈕本體
 function button_(url, text, color) {
   if (!url) return '';
-  return '<a href="' + esc_(url) + '" target="_blank" style="display:inline-block;padding:12px 24px;background:' + color + ';color:#ffffff !important;text-decoration:none;border-radius:8px;font-size:14px;font-weight:700;">' + text + '</a>';
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="display:inline-table;border-collapse:collapse;margin:4px 6px;"><tr>' +
+    '<td bgcolor="' + color + '" align="center" style="background-color:' + color + ';border-radius:8px;padding:12px 24px;' + MAIL_FONT + '">' +
+      '<a href="' + esc_(url) + '" target="_blank" style="' + MAIL_FONT + 'color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;">' + text + '</a>' +
+    '</td>' +
+  '</tr></table>';
 }
 
 // 缺失項目清單
@@ -425,12 +446,12 @@ function defectsHtml_(rec, itemOpts) {
   defs.forEach(function(d) {
     var k = String(d.item || 1);
     var name = itemOpts[k] || '';
-    html += '<tr><td style="padding:10px 14px;border-bottom:1px solid ' + T.line + ';vertical-align:top;">' +
-      '<div style="font-size:12px;color:' + T.cyan + ';font-weight:700;margin-bottom:3px;">' + esc_(k + '. ' + name) + '</div>' +
-      '<div style="font-size:13px;color:' + T.text + ';line-height:1.6;">' + esc_(dash_(d.description)) + '</div>' +
+    html += '<tr><td bgcolor="#fafbfc" style="background-color:#fafbfc;padding:10px 14px;border-bottom:1px solid ' + T.line + ';vertical-align:top;' + MAIL_FONT + '">' +
+      '<div style="' + MAIL_FONT + 'font-size:12px;color:' + T.cyan + ';font-weight:700;padding-bottom:3px;">' + esc_(k + '. ' + name) + '</div>' +
+      '<div style="' + MAIL_FONT + 'font-size:13px;color:' + T.text + ';line-height:1.6;">' + esc_(dash_(d.description)) + '</div>' +
     '</td></tr>';
   });
-  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;border:1px solid ' + T.line + ';border-radius:10px;overflow:hidden;background:#fafbfc;">' + html + '</table>';
+  return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#fafbfc" style="background-color:#fafbfc;border-collapse:collapse;border:1px solid ' + T.line + ';border-radius:10px;">' + html + '</table>';
 }
 
 // 期限徽章（依剩餘天數變色）
@@ -490,17 +511,17 @@ function buildRecordMail_(rec, itemOpts, kind) {
   }
 
   var body =
-    '<div style="margin:0 0 18px 0;font-size:14px;color:' + T.text + ';">' + lead + '</div>' +
+    '<div style="' + MAIL_FONT + 'padding-bottom:18px;font-size:14px;color:' + T.text + ';">' + lead + '</div>' +
     infoTable_(rows) +
-    '<div style="margin:22px 0 8px 0;font-size:13px;font-weight:700;color:' + T.navy + ';">📌 缺失項目</div>' +
+    '<div style="' + MAIL_FONT + 'padding:22px 0 8px 0;font-size:13px;font-weight:700;color:' + T.navy + ';">📌 缺失項目</div>' +
     defectsHtml_(rec, itemOpts) +
-    (rec.remark ? '<div style="margin-top:16px;padding:12px 14px;background:#fafbfc;border-left:3px solid ' + T.line + ';font-size:12px;color:' + T.muted + ';">備註：' + esc_(rec.remark) + '</div>' : '') +
-    '<div style="margin:26px 0 6px 0;text-align:center;">' +
+    (rec.remark ? '<div style="' + MAIL_FONT + 'margin-top:16px;padding:12px 14px;background-color:#fafbfc;border-left:3px solid ' + T.line + ';font-size:12px;color:' + T.muted + ';">備註：' + esc_(rec.remark) + '</div>' : '') +
+    '<div style="padding:26px 0 6px 0;text-align:center;">' +
       button_(url, '📂 開啟雲端資料夾', T.navy) +
       (SYSTEM_URL ? '&nbsp;&nbsp;' + button_(SYSTEM_URL, '🖥️ 開啟系統', T.cyan) : '') +
     '</div>' +
-    (url ? '<div style="margin:10px 0 18px 0;text-align:center;font-size:11px;color:' + T.muted + ';word-break:break-all;">' +
-      '若按鈕無法點擊，請複製此連結：<br/><a href="' + esc_(url) + '" style="color:' + T.cyan + ';">' + esc_(url) + '</a></div>' : '');
+    (url ? '<div style="' + MAIL_FONT + 'padding:10px 0 18px 0;text-align:center;font-size:11px;color:' + T.muted + ';word-break:break-all;">' +
+      '若按鈕無法點擊，請複製此連結：<br/><a href="' + esc_(url) + '" style="' + MAIL_FONT + 'color:' + T.cyan + ';font-size:11px;">' + esc_(url) + '</a></div>' : '');
 
   return {
     subject: subject,
@@ -656,9 +677,9 @@ function buildWeeklyMail_() {
 
   // 統計卡
   var stat = function(label, value, color) {
-    return '<td width="33%" style="padding:14px 10px;text-align:center;background:#fafbfc;border:1px solid ' + T.line + ';border-radius:10px;">' +
-      '<div style="font-size:26px;font-weight:700;color:' + color + ';font-family:Consolas,monospace;">' + value + '</div>' +
-      '<div style="font-size:11px;color:' + T.muted + ';margin-top:4px;">' + label + '</div></td>';
+    return '<td width="33%" align="center" bgcolor="#fafbfc" style="background-color:#fafbfc;padding:14px 10px;text-align:center;border:1px solid ' + T.line + ';border-radius:10px;' + MAIL_FONT + '">' +
+      '<div style="font-size:26px;font-weight:700;color:' + color + ';font-family:Consolas,\'Courier New\',monospace;">' + value + '</div>' +
+      '<div style="' + MAIL_FONT + 'font-size:11px;color:' + T.muted + ';padding-top:4px;">' + label + '</div></td>';
   };
   var statsHtml = '<table role="presentation" cellpadding="0" cellspacing="6" border="0" width="100%"><tr>' +
     stat('未關單總數', open.length, T.navy) +
@@ -668,7 +689,9 @@ function buildWeeklyMail_() {
 
   // 明細表
   var th = function(t, w) {
-    return '<th style="padding:10px 8px;background:' + T.navy + ';color:#fff;font-size:11px;font-weight:700;text-align:left;' + (w ? 'width:' + w + ';' : '') + '">' + t + '</th>';
+    return '<th bgcolor="' + T.navy + '" align="left"' + (w ? ' width="' + parseInt(w, 10) + '"' : '') +
+      ' style="background-color:' + T.navy + ';padding:10px 8px;color:#ffffff;font-size:11px;font-weight:700;text-align:left;' +
+      (w ? 'width:' + w + ';' : '') + MAIL_FONT + '">' + t + '</th>';
   };
   var rowsHtml = '';
   open.forEach(function(r, i) {
@@ -680,21 +703,24 @@ function buildWeeklyMail_() {
       var k = String(d.item || 1);
       return (itemOpts[k] ? k + '.' + itemOpts[k] + '｜' : '') + (d.description || '');
     }).join('<br/>');
-    var td = 'padding:9px 8px;border-bottom:1px solid ' + T.line + ';font-size:12px;color:' + T.text + ';vertical-align:top;background:' + bg + ';';
+    var td = 'padding:9px 8px;border-bottom:1px solid ' + T.line + ';font-size:12px;color:' + T.text +
+             ';vertical-align:top;background-color:' + bg + ';' + MAIL_FONT;
+    var bgAttr = ' bgcolor="' + bg + '"';
 
     // 第一列：基本欄位；第二列：缺失項目（跨欄，避免文字被擠壓）
     var tdTop = td + 'border-bottom:none;padding-bottom:4px;';
     rowsHtml += '<tr>' +
-      '<td style="' + tdTop + 'font-family:Consolas,monospace;font-weight:700;white-space:nowrap;">' + esc_(dash_(r.number)) + '</td>' +
-      '<td style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.date)) + '</td>' +
-      '<td style="' + tdTop + '">' + esc_(dash_(r.unit)) + '</td>' +
-      '<td style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.issuer)) + '</td>' +
-      '<td style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.area)) + '</td>' +
-      '<td style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.deadline)) + '<br/>' + deadlineBadge_(r.deadline, r.status) + '</td>' +
-      '<td style="' + tdTop + 'white-space:nowrap;">' + (url ? '<a href="' + esc_(url) + '" style="color:' + T.cyan + ';font-weight:700;text-decoration:none;">📂 開啟</a>' : '—') + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + 'font-family:Consolas,\'Courier New\',monospace;font-weight:700;white-space:nowrap;">' + esc_(dash_(r.number)) + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.date)) + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + '">' + esc_(dash_(r.unit)) + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.issuer)) + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.area)) + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + esc_(dash_(r.deadline)) + '<br/>' + deadlineBadge_(r.deadline, r.status) + '</td>' +
+      '<td' + bgAttr + ' style="' + tdTop + 'white-space:nowrap;">' + (url ? '<a href="' + esc_(url) + '" style="' + MAIL_FONT + 'color:' + T.cyan + ';font-weight:700;text-decoration:none;font-size:12px;">📂 開啟</a>' : '—') + '</td>' +
     '</tr>' +
-    '<tr><td colspan="7" style="' + td + 'padding-top:0;line-height:1.65;color:' + T.muted + ';font-size:12px;">' +
-      '<span style="color:' + T.navy + ';font-weight:700;">缺失項目：</span>' + defText +
+    '<tr><td colspan="7"' + bgAttr + ' style="' + td + 'padding-top:0;line-height:1.65;color:' + T.muted + ';font-size:12px;">' +
+      '<span style="' + MAIL_FONT + 'color:' + T.navy + ';font-weight:700;font-size:12px;">缺失項目：</span>' +
+      '<span style="' + MAIL_FONT + 'color:' + T.muted + ';font-size:12px;">' + defText + '</span>' +
     '</td></tr>';
   });
 
@@ -703,14 +729,14 @@ function buildWeeklyMail_() {
         '<tr>' + th('改善單編號','96px') + th('缺失日期','86px') + th('單位','52px') + th('開單人','70px') + th('工區','76px') + th('關單期限','104px') + th('雲端','60px') + '</tr>' +
         rowsHtml +
       '</table></div>'
-    : '<div style="padding:26px;text-align:center;background:' + T.grnBg + ';border-radius:10px;color:' + T.green + ';font-size:15px;font-weight:700;">🎉 目前沒有未關單的改善單，全部結案！</div>';
+    : '<div style="' + MAIL_FONT + 'padding:26px;text-align:center;background-color:' + T.grnBg + ';border-radius:10px;color:' + T.green + ';font-size:15px;font-weight:700;">🎉 目前沒有未關單的改善單，全部結案！</div>';
 
   var body =
-    '<div style="margin:0 0 18px 0;">本週未關單改善單彙總如下（統計基準日：' + today + '）。<br/>逾期與 3 天內到期項目已以底色標示，請優先處理。</div>' +
+    '<div style="' + MAIL_FONT + 'padding-bottom:18px;font-size:14px;color:' + T.text + ';">本週未關單改善單彙總如下（統計基準日：' + today + '）。<br/>逾期與 3 天內到期項目已以底色標示，請優先處理。</div>' +
     statsHtml +
-    '<div style="margin:22px 0 8px 0;font-size:13px;font-weight:700;color:' + T.navy + ';">📋 未關單明細（依關單期限排序）</div>' +
+    '<div style="' + MAIL_FONT + 'padding:22px 0 8px 0;font-size:13px;font-weight:700;color:' + T.navy + ';">📋 未關單明細（依關單期限排序）</div>' +
     tableHtml +
-    (SYSTEM_URL ? '<div style="margin:26px 0 8px 0;text-align:center;">' + button_(SYSTEM_URL, '🖥️ 開啟改善單管理系統', T.navy) + '</div>' : '');
+    (SYSTEM_URL ? '<div style="padding:26px 0 8px 0;text-align:center;">' + button_(SYSTEM_URL, '🖥️ 開啟改善單管理系統', T.navy) + '</div>' : '');
 
   return {
     subject: '【每週未關單彙總】' + today + '｜未關單 ' + open.length + ' 件（逾期 ' + overdue + ' 件）',
