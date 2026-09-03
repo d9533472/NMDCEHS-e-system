@@ -337,24 +337,6 @@ const DEFAULT_ITEMS = {
 };
 const DEFAULT_AREAS = ['台中工區','通霄工區','天力工區','其他'];
 const DEFAULT_UNITS = ['TPC','POE','NMDC'];
-// ─── 郵件通知預設設定 ────────────────────────────────────────
-// areaRecipients：工區 → 收件人 email（多筆以逗號分隔）
-// defaultRecipients：未在上表設定的工區（含「其他」）使用此收件人
-// weeklyRecipients：每週一 09:00 未關單彙總報表收件人
-const DEFAULT_MAIL_CONFIG = {
-  enabled: true,
-  areaRecipients: { '台中工區': '', '通霄工區': '' },
-  defaultRecipients: '',
-  cc: '',
-  weeklyRecipients: '',
-  senderName: 'NMDC 環保改善追蹤系統',
-};
-const mergeMailConfig = (mc) => ({
-  ...DEFAULT_MAIL_CONFIG,
-  ...(mc || {}),
-  areaRecipients: { ...DEFAULT_MAIL_CONFIG.areaRecipients, ...((mc && mc.areaRecipients) || {}) },
-});
-
 const DEFAULT_PEOPLE = ['曾曉菁','翁雅慧','聶官暉','徐瑋廷','吳愷寓','江志豪','康育誠','李宛蓁','廖思婷','李仁富','劉欣盈','陳偉庭','黃宣頤','廖慶梧','蕭明華','許文達','賴紀良','劉新盈','徐偉庭','何鈞傑'];
 
 // ─── SESSION STORAGE（僅 GAS URL，非業務資料）──────────────────
@@ -1816,43 +1798,13 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
   const [editUnits, setEditUnits] = useState(config.unitOptions.join('\n'));
   const [editPeople, setEditPeople] = useState((config.peopleOptions||DEFAULT_PEOPLE).join('\n'));
 
-  // ── 郵件通知設定 ──────────────────────────────────────────
-  const mc0 = mergeMailConfig(config.mailConfig);
-  const [mailEnabled, setMailEnabled] = useState(mc0.enabled !== false);
-  const [areaMails, setAreaMails]     = useState({ ...(mc0.areaRecipients||{}) });
-  const [defMails, setDefMails]       = useState(mc0.defaultRecipients || '');
-  const [ccMails, setCcMails]         = useState(mc0.cc || '');
-  const [weeklyMails, setWeeklyMails] = useState(mc0.weeklyRecipients || '');
-  const [testTo, setTestTo]           = useState('');
-  const [testing, setTesting]         = useState(false);
-  const areaList = editAreas.split('\n').map(s=>s.trim()).filter(Boolean);
-
-  const buildMailConfig = (areaOptions) => {
-    const areaRecipients = {};
-    areaOptions.forEach(a => { const v=(areaMails[a]||'').trim(); if(v) areaRecipients[a]=v; });
-    return { ...mc0, enabled: mailEnabled, areaRecipients,
-      defaultRecipients: defMails.trim(), cc: ccMails.trim(), weeklyRecipients: weeklyMails.trim() };
-  };
-
-  const sendTestMail = async () => {
-    const to = testTo.trim() || defMails.split(',')[0].trim();
-    if (!to) { alert('請先輸入測試收件信箱，或填寫「預設收件人」。'); return; }
-    setTesting(true);
-    try {
-      const res = await xhrPost(gasUrl, { action:'testMail', to, mailConfig: buildMailConfig(areaList) });
-      alert(res && res.ok ? `✅ 測試信已寄出至 ${to}` : `❌ 寄送失敗：${(res&&res.error)||'未知錯誤'}`);
-    } catch(e) { alert('❌ 寄送失敗：' + e.message); }
-    finally { setTesting(false); }
-  };
-
   const saveConfig = () => {
     try {
       const itemOptions = JSON.parse(editItems);
       const areaOptions = editAreas.split('\n').map(s=>s.trim()).filter(Boolean);
       const unitOptions = editUnits.split('\n').map(s=>s.trim()).filter(Boolean);
       const peopleOptions = editPeople.split('\n').map(s=>s.trim()).filter(Boolean);
-      onSaveConfig({ ...config, itemOptions, areaOptions, unitOptions, peopleOptions,
-        mailConfig: buildMailConfig(areaOptions) });
+      onSaveConfig({ itemOptions, areaOptions, unitOptions, peopleOptions });
     } catch(e) { alert('項目格式錯誤：' + e.message); }
   };
 
@@ -1903,72 +1855,6 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
           新增或修改後按下方「儲存設定至雲端」即生效，表單中的下拉選單會同步更新。
         </div>
       </div>
-      <div className="settings-section">
-        <div className="settings-title">📧 郵件通知設定</div>
-
-        <label style={{display:'flex',alignItems:'center',gap:8,marginBottom:14,cursor:'pointer',fontSize:13,color:'var(--text-secondary)'}}>
-          <input type="checkbox" checked={mailEnabled} onChange={e=>setMailEnabled(e.target.checked)} style={{width:16,height:16,cursor:'pointer'}} />
-          <span>啟用郵件通知（新增改善單／關單／到期前 2 天提醒／每週一未關單彙總）</span>
-        </label>
-
-        <div style={{fontSize:11,color:'var(--text-muted)',marginBottom:12,lineHeight:1.7}}>
-          每欄可填多個信箱，以逗號 <code style={{color:'var(--accent-orange)'}}>,</code> 分隔。<br/>
-          工區未填寫者，一律寄給下方「預設收件人」。
-        </div>
-
-        {areaList.map(a => (
-          <div className="settings-row" key={a}>
-            <label>📍 {a}</label>
-            <input type="text" value={areaMails[a]||''} placeholder="paul@example.com, sean@example.com"
-              onChange={e=>setAreaMails(m=>({...m, [a]: e.target.value}))} />
-          </div>
-        ))}
-
-        <div className="settings-row">
-          <label>⭐ 預設收件人（其他未設定工區）</label>
-          <input type="text" value={defMails} placeholder="paul@example.com"
-            onChange={e=>setDefMails(e.target.value)} />
-        </div>
-        <div className="settings-row">
-          <label>📋 副本 CC（所有通知信，可留空）</label>
-          <input type="text" value={ccMails} placeholder="留空表示不寄副本"
-            onChange={e=>setCcMails(e.target.value)} />
-        </div>
-        <div className="settings-row">
-          <label>🗓️ 每週一 09:00 未關單彙總報表收件人</label>
-          <input type="text" value={weeklyMails} placeholder="paul@example.com, sean@example.com, raymond@example.com"
-            onChange={e=>setWeeklyMails(e.target.value)} />
-        </div>
-
-        <div className="settings-row">
-          <label>🧪 測試寄信（留空則使用預設收件人）</label>
-          <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
-            <input type="text" value={testTo} placeholder="test@example.com" style={{flex:1,minWidth:220}}
-              onChange={e=>setTestTo(e.target.value)} />
-            <button className="btn btn-secondary" onClick={sendTestMail} disabled={testing}>
-              {testing ? '⏳ 寄送中...' : '✉️ 寄送測試信'}
-            </button>
-            <button className="btn btn-secondary" disabled={testing} title="立即寄出一次未關單彙總報表給週報收件人"
-              onClick={async()=>{
-                if(!confirm('立即寄出「未關單彙總報表」給週報收件人？')) return;
-                setTesting(true);
-                try {
-                  const res = await xhrPost(gasUrl, { action:'runWeeklyNow' });
-                  alert(res && res.ok ? `✅ 已寄出至 ${res.to}（未關單 ${res.open} 件）` : `❌ 寄送失敗：${(res&&res.error)||'未知錯誤'}`);
-                } catch(e) { alert('❌ 寄送失敗：' + e.message); }
-                finally { setTesting(false); }
-              }}>📤 立即寄週報</button>
-          </div>
-        </div>
-
-        <div style={{fontSize:11,color:'var(--text-muted)',marginTop:10,lineHeight:1.8,borderTop:'1px solid var(--border)',paddingTop:10}}>
-          ⏰ <b>定時通知</b>由 Google Apps Script 觸發器執行，與本頁是否開啟無關：<br/>
-          ・關單期限前 2 天 <b>12:00</b> 自動寄出到期提醒（依工區規則）<br/>
-          ・每週一 <b>09:00</b> 寄出所有未關單彙總報表<br/>
-          設定完成後請按下方「儲存設定至雲端」，定時信才會使用最新收件人。
-        </div>
-      </div>
-
       <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
         <button className="btn btn-primary" onClick={saveConfig} disabled={saving}>
           {saving ? '⏳ 儲存中...' : '☁️ 儲存設定至雲端'}
@@ -1997,7 +1883,6 @@ function App() {
     areaOptions: DEFAULT_AREAS,
     unitOptions: DEFAULT_UNITS,
     peopleOptions: DEFAULT_PEOPLE,
-    mailConfig: DEFAULT_MAIL_CONFIG,
   });
 
   // ── UI 狀態 ───────────────────────────────────────────────
@@ -2037,7 +1922,6 @@ function App() {
         unitOptions:  (data.config?.unitOptions  || data.unitOptions)  || DEFAULT_UNITS,
         peopleOptions:(data.config?.peopleOptions|| data.peopleOptions)|| DEFAULT_PEOPLE,
         issuerRoles:  (data.config?.issuerRoles  || {}),
-        mailConfig:   mergeMailConfig(data.config?.mailConfig),
       };
       if (cloudRecords.length === 0) {
         setLoadingMsg('首次連線，正在遷移資料至 Drive...');
@@ -2083,42 +1967,20 @@ function App() {
     } finally { setSaving(false); }
   };
 
-  // ── 郵件通知（交由 GAS 以 MailApp 寄出）────────────────────
-  // kind：'new' 新增改善單 ｜ 'closed' 改善單關閉
-  const sendMailNotify = useCallback(async (record, kind) => {
-    const mc = mergeMailConfig(config.mailConfig);
-    if (!mc.enabled) return;
-    try {
-      const res = await xhrPost(gasUrl, {
-        action: 'sendMail', kind, record,
-        mailConfig: mc, itemOptions: config.itemOptions,
-      });
-      if (res && res.ok) toast(`📧 通知信已寄出：${res.to || ''}`);
-      else toast('⚠️ 通知信未寄出：' + ((res && res.error) || '收件人未設定'), 'error');
-    } catch(e) {
-      toast('⚠️ 通知信寄送失敗：' + e.message, 'error');
-    }
-  }, [gasUrl, config, toast]);
-
   // ── CRUD ──────────────────────────────────────────────────
   const addRecord = async (form) => {
     try {
       await saveRecordToDrive(form);
       setRecords(prev => [...prev, form]);
       toast('紀錄已新增並儲存至雲端');
-      sendMailNotify(form, 'new');
     } catch {}
   };
 
   const editRecord = async (form) => {
-    const before = records.find(r => r.id === form.id);
     try {
       await saveRecordToDrive(form);
       setRecords(prev => prev.map(r => r.id===form.id ? form : r));
       toast('紀錄已更新');
-      // 由未關單 → 已關單 時寄出結案通知
-      if (form.status === 'Closed' && (!before || before.status !== 'Closed'))
-        sendMailNotify(form, 'closed');
     } catch {}
   };
 
