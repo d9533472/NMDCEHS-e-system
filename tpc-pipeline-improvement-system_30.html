@@ -1810,7 +1810,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
 }
 
 // ─── SETTINGS TAB ─────────────────────────────────────────────
-function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, lastSync, onRefresh, saving }) {
+function SettingsTab({ config, records, gasUrl, onSaveConfig, onDisconnect, syncState, lastSync, onRefresh, saving }) {
   const [editItems, setEditItems] = useState(JSON.stringify(config.itemOptions, null, 2));
   const [editAreas, setEditAreas] = useState(config.areaOptions.join('\n'));
   const [editUnits, setEditUnits] = useState(config.unitOptions.join('\n'));
@@ -1825,6 +1825,9 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
   const [weeklyMails, setWeeklyMails] = useState(mc0.weeklyRecipients || '');
   const [testTo, setTestTo]           = useState('');
   const [testing, setTesting]         = useState(false);
+  const [preview, setPreview]         = useState(null);   // {kind, subject, html, to}
+  const [previewRecId, setPreviewRecId] = useState('');
+  const [previewing, setPreviewing]   = useState(false);
   const areaList = editAreas.split('\n').map(s=>s.trim()).filter(Boolean);
 
   const buildMailConfig = (areaOptions) => {
@@ -1832,6 +1835,22 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
     areaOptions.forEach(a => { const v=(areaMails[a]||'').trim(); if(v) areaRecipients[a]=v; });
     return { ...mc0, enabled: mailEnabled, areaRecipients,
       defaultRecipients: defMails.trim(), cc: ccMails.trim(), weeklyRecipients: weeklyMails.trim() };
+  };
+
+  // 版型預覽（不寄出，直接向 GAS 取回信件 HTML 顯示於下方）
+  const doPreview = async (kind) => {
+    setPreviewing(true);
+    try {
+      const rec = previewRecId ? (records||[]).find(r=>String(r.id)===String(previewRecId)) : null;
+      const res = await xhrPost(gasUrl, {
+        action:'previewMail', kind, record: rec || null,
+        itemOptions: config.itemOptions, mailConfig: buildMailConfig(areaList),
+      });
+      if (res && res.ok) setPreview({ kind, subject: res.subject, html: res.html, to: res.to||'' });
+      else alert('❌ 預覽失敗：' + ((res&&res.error)||'未知錯誤') +
+        '\n\n若出現「Unknown action」，表示 Apps Script 尚未貼上新版 Code.gs 或尚未重新部署。');
+    } catch(e) { alert('❌ 預覽失敗：' + e.message); }
+    finally { setPreviewing(false); }
   };
 
   const sendTestMail = async () => {
@@ -1939,6 +1958,39 @@ function SettingsTab({ config, gasUrl, onSaveConfig, onDisconnect, syncState, la
           <input type="text" value={weeklyMails} placeholder="paul@example.com, sean@example.com, raymond@example.com"
             onChange={e=>setWeeklyMails(e.target.value)} />
         </div>
+
+        <div className="settings-row">
+          <label>👁️ 信件版型預覽（不會寄出）</label>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
+            <select value={previewRecId} onChange={e=>setPreviewRecId(e.target.value)}
+              style={{flex:'1 1 240px',minWidth:200,background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'10px 12px',fontSize:12}}>
+              <option value="">📄 使用示範資料</option>
+              {(records||[]).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,60).map(r=>
+                <option key={r.id} value={r.id}>{(r.number||'—') + '｜' + (r.area||'') + '｜' + (r.date||'')}</option>
+              )}
+            </select>
+            <button className="btn btn-secondary btn-sm" disabled={previewing} onClick={()=>doPreview('new')}>📋 新增通知</button>
+            <button className="btn btn-secondary btn-sm" disabled={previewing} onClick={()=>doPreview('due')}>⏰ 到期提醒</button>
+            <button className="btn btn-secondary btn-sm" disabled={previewing} onClick={()=>doPreview('closed')}>✅ 關單通知</button>
+            <button className="btn btn-secondary btn-sm" disabled={previewing} onClick={()=>doPreview('weekly')}>🗓️ 每週彙總</button>
+          </div>
+        </div>
+
+        {preview && (
+          <div style={{marginTop:12,border:'1px solid var(--border)',borderRadius:'var(--radius-sm)',overflow:'hidden'}}>
+            <div style={{display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',padding:'10px 14px',background:'var(--bg-secondary)',borderBottom:'1px solid var(--border)'}}>
+              <div style={{flex:1,minWidth:200}}>
+                <div style={{fontSize:11,color:'var(--text-muted)'}}>主旨</div>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--text-primary)',wordBreak:'break-all'}}>{preview.subject}</div>
+                {preview.kind!=='weekly' && preview.to &&
+                  <div style={{fontSize:11,color:'var(--text-muted)',marginTop:3}}>將寄給：{preview.to}</div>}
+              </div>
+              <button className="btn btn-secondary btn-sm" onClick={()=>setPreview(null)}>✕ 關閉預覽</button>
+            </div>
+            <iframe title="mail-preview" srcDoc={preview.html} sandbox=""
+              style={{width:'100%',height:560,border:'none',background:'#fff',display:'block'}} />
+          </div>
+        )}
 
         <div className="settings-row">
           <label>🧪 測試寄信（留空則使用預設收件人）</label>
@@ -2445,7 +2497,7 @@ function App() {
         )}
         {tab==='settings' && (
           <SettingsTab
-            config={config} gasUrl={gasUrl}
+            config={config} records={records} gasUrl={gasUrl}
             onSaveConfig={saveConfig} onDisconnect={handleDisconnect}
             onRefresh={() => loadFromCloud()} syncState={syncState}
             lastSync={lastSync} saving={saving}

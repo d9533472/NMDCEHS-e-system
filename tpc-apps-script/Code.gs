@@ -175,6 +175,7 @@ function doPost(e) {
     // ── 郵件通知 ─────────────────────────────────────────
     if (action === 'sendMail')       return handleSendMail(body);
     if (action === 'testMail')       return handleTestMail(body);
+    if (action === 'previewMail')    return handlePreviewMail(body);
     if (action === 'runWeeklyNow')   return out(weeklyOpenReport());
     if (action === 'runDeadlineNow') return out(dailyDeadlineNotify());
 
@@ -459,9 +460,13 @@ function buildRecordMail_(rec, itemOpts, kind) {
     subject = '【改善單已關單】' + (rec.number || '') + '｜' + (rec.area || '') + '｜' + PROJECT_NAME;
   } else if (kind === 'due') {
     cfgTitle = '⏰ 改善單到期提醒';
-    accent = T.orange;
-    lead = '下列改善單將於 <b style="color:' + T.red + ';">' + esc_(rec.deadline) + '</b> 到期（尚餘 ' + left + ' 天），請儘速完成改善並辦理關單。';
-    subject = '【到期提醒｜剩 ' + left + ' 天】' + (rec.number || '') + '｜' + (rec.area || '') + '｜期限 ' + (rec.deadline || '');
+    accent = (left !== null && left < 0) ? T.red : T.orange;
+    var leftTxt = (left === null) ? '未設定期限'
+                : (left < 0 ? '已逾期 ' + Math.abs(left) + ' 天' : (left === 0 ? '今日到期' : '剩 ' + left + ' 天'));
+    lead = (left !== null && left < 0)
+      ? '下列改善單已於 <b style="color:' + T.red + ';">' + esc_(rec.deadline) + '</b> 逾期（' + leftTxt + '），請儘速完成改善並辦理關單。'
+      : '下列改善單將於 <b style="color:' + T.red + ';">' + esc_(rec.deadline) + '</b> 到期（' + leftTxt + '），請儘速完成改善並辦理關單。';
+    subject = '【到期提醒｜' + leftTxt + '】' + (rec.number || '') + '｜' + (rec.area || '') + '｜期限 ' + (rec.deadline || '');
   } else {
     cfgTitle = '📋 新增改善單通知';
     accent = T.cyan;
@@ -525,6 +530,45 @@ function handleSendMail(body) {
   } catch(e) { return out({ ok: false, error: e.message }); }
 }
 
+// 預覽／測試用的示範改善單
+function demoRecord_() {
+  return {
+    type: 'NCR', number: 'NCR-TEST', date: todayStr_(), unit: 'TPC',
+    issuer: '系統測試', area: '通霄工區', deadline: addDaysStr_(2), status: 'Open',
+    refNumber: 'TEST-0001', submitDate: todayStr_(), recipient: '系統測試',
+    remark: '這是示範資料，實際寄信時會顯示真實內容。',
+    defects: [
+      { item: 1, description: '此為示範用缺失內容，實際寄信時會顯示真實缺失說明。' },
+      { item: 4, description: '材料堆置區未依規定分類標示。' },
+    ],
+    driveFolderUrl: '',
+  };
+}
+
+// ── 前端呼叫：信件版型預覽（不寄出）───────────────────────────
+// kind：'new' ｜ 'due' ｜ 'closed' ｜ 'weekly'
+function handlePreviewMail(body) {
+  try {
+    var kind = body.kind || 'new';
+    if (kind === 'weekly') {
+      var w = buildWeeklyMail_();
+      return out({ ok: true, subject: w.subject, html: w.html });
+    }
+    var rec = body.record || demoRecord_();
+    if (kind === 'closed' && rec.status !== 'Closed') {
+      rec = JSON.parse(JSON.stringify(rec));
+      rec.status = 'Closed';
+      if (!rec.submitDate) rec.submitDate = todayStr_();
+    }
+    var mail = buildRecordMail_(rec, getItemOptions_(body.itemOptions), kind);
+
+    // 一併回報這筆會寄給誰，方便檢查工區規則
+    var mc = getMailConfig_(body.mailConfig);
+    return out({ ok: true, subject: mail.subject, html: mail.html,
+                 to: resolveRecipients_(mc, rec.area) || '（此工區與預設收件人皆未設定）' });
+  } catch(e) { return out({ ok: false, error: e.message }); }
+}
+
 // ── 前端呼叫：測試信 ─────────────────────────────────────────
 function handleTestMail(body) {
   try {
@@ -532,14 +576,7 @@ function handleTestMail(body) {
     var to = normalizeMails_(body.to || mc.defaultRecipients);
     if (!to) return out({ ok: false, error: '未提供有效的測試收件信箱' });
 
-    var demo = {
-      type: 'NCR', number: 'NCR-TEST', date: todayStr_(), unit: 'TPC',
-      issuer: '系統測試', area: '通霄工區', deadline: addDaysStr_(2), status: 'Open',
-      refNumber: 'TEST-0001', remark: '這是一封測試信，用於確認郵件設定是否正確。',
-      defects: [{ item: 1, description: '此為測試用缺失內容，實際寄信時會顯示真實缺失說明。' }],
-      driveFolderUrl: '',
-    };
-    var mail = buildRecordMail_(demo, getItemOptions_(), 'new');
+    var mail = buildRecordMail_(demoRecord_(), getItemOptions_(), body.kind || 'new');
     MailApp.sendEmail({ to: to, subject: '【測試信】' + mail.subject, htmlBody: mail.html, name: mc.senderName });
 
     var quota = MailApp.getRemainingDailyQuota();
@@ -583,13 +620,22 @@ function dailyDeadlineNotify() {
 //  🗓️ 定時觸發：每週一 09:00 未關單彙總
 // =============================================================
 function weeklyOpenReport() {
-  var T = MAIL_THEME;
   var mc = getMailConfig_();
   if (!mc.enabled) return { ok: false, error: '郵件通知未啟用' };
 
   var to = normalizeMails_(mc.weeklyRecipients || mc.defaultRecipients);
   if (!to) return { ok: false, error: '未設定週報收件人' };
 
+  var w = buildWeeklyMail_();
+  MailApp.sendEmail({ to: to, subject: w.subject, htmlBody: w.html, name: mc.senderName });
+
+  Logger.log('weeklyOpenReport：寄給 ' + to + '，未關單 ' + w.open + ' 件');
+  return { ok: true, to: to, open: w.open, overdue: w.overdue };
+}
+
+// 產生週報內容（預覽與寄送共用）
+function buildWeeklyMail_() {
+  var T = MAIL_THEME;
   var idx = getIndexSafe_();
   var itemOpts = (idx.config || {}).itemOptions || {};
   var today = todayStr_();
@@ -666,12 +712,12 @@ function weeklyOpenReport() {
     tableHtml +
     (SYSTEM_URL ? '<div style="margin:26px 0 8px 0;text-align:center;">' + button_(SYSTEM_URL, '🖥️ 開啟改善單管理系統', T.navy) + '</div>' : '');
 
-  var subject = '【每週未關單彙總】' + today + '｜未關單 ' + open.length + ' 件（逾期 ' + overdue + ' 件）';
-  var opt = { to: to, subject: subject, htmlBody: mailShell_('🗓️ 每週未關單彙總報表', esc_(PROJECT_NAME), T.navy, body), name: mc.senderName };
-  MailApp.sendEmail(opt);
-
-  Logger.log('weeklyOpenReport：寄給 ' + to + '，未關單 ' + open.length + ' 件');
-  return { ok: true, to: to, open: open.length, overdue: overdue };
+  return {
+    subject: '【每週未關單彙總】' + today + '｜未關單 ' + open.length + ' 件（逾期 ' + overdue + ' 件）',
+    html: mailShell_('🗓️ 每週未關單彙總報表', esc_(PROJECT_NAME), T.navy, body),
+    open: open.length,
+    overdue: overdue,
+  };
 }
 
 // =============================================================
