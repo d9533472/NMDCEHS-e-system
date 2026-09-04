@@ -417,6 +417,20 @@ body.is-editor .hdr-search{padding:7px 9px;font-size:14px;line-height:1}
 .info-bar .ib-next .ib-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
 .info-bar .ib-next .ib-cd{padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
 .info-bar .ib-next.soon .ib-cd{background:var(--orange)}
+.info-bar .ib-stats{flex-basis:100%;display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card2);margin-top:2px}
+.info-bar .ib-stats>div{padding:6px 8px;text-align:center;border-left:1px solid var(--border);min-width:0}
+.info-bar .ib-stats>div:nth-child(1),.info-bar .ib-stats>div:nth-child(3),.info-bar .ib-stats>div:nth-child(8){border-left:0}
+.info-bar .ib-stats .ib-sg{grid-column:span 2;font-weight:700;font-size:13px;color:var(--text);background:var(--bg2);padding:5px 8px}
+.info-bar .ib-stats .ib-sh{font-size:11px;font-weight:600;color:var(--muted);padding:4px 8px;border-top:1px solid var(--border)}
+.info-bar .ib-stats .ib-sc{cursor:pointer;border-top:1px solid var(--border);background:var(--card);transition:.15s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.info-bar .ib-stats .ib-sc:hover{background:var(--accent-light)}
+.info-bar .ib-stats .ib-sn{display:inline-block;min-width:28px;padding:2px 10px;border-radius:999px;font-size:14px;font-weight:800;line-height:1.4;background:var(--bg2);color:var(--muted)}
+.info-bar .ib-stats .ib-sc.red .ib-sn{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+.info-bar .ib-stats .ib-sc.orange .ib-sn{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+.info-bar .ib-stats .ib-sg.w3{grid-column:span 3}
+.info-bar .ib-stats .ib-sc.blue .ib-sn{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.info-bar .ib-stats .ib-sp{font-size:11px;color:var(--text2);line-height:1.35;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
+.info-bar .ib-stats .ib-sp:empty{display:none}
 
 /* ══════════ SEASON BANNER (September) ══════════ */
 .season-banner{position:relative;overflow:hidden;display:flex;align-items:center;gap:18px;padding:14px 20px;margin:0 0 14px;border-radius:14px;background:linear-gradient(115deg,#0b1f33 0%,#183462 55%,#3a2a5e 100%);color:#f1f5f9;border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow2);animation:slideUp .5s}
@@ -502,7 +516,7 @@ body.is-editor .hdr-search{padding:7px 9px;font-size:14px;line-height:1}
   .hdr-search .lbl,.hdr-search kbd{display:none}.hdr-search{padding:7px 9px}.hdr-season{display:none}
   .hdr-nav-inner{padding:0 6px}.main-tab{padding:0 12px;font-size:13px;height:42px}
   .site-header .auth-status.editor{font-size:11px;padding:4px 8px}.site-header .btn-auth{padding:5px 8px;font-size:11px}
-  .info-bar{padding:9px 12px;gap:8px}.info-bar .ib-date{font-size:14px}.info-bar .ib-sep{display:none}.info-bar .ib-next{margin-left:0;width:100%;padding-left:4px}.info-bar .ib-next .ib-t{max-width:none;flex:1}
+  .info-bar{padding:9px 12px;gap:8px}.info-bar .ib-date{font-size:14px}.info-bar .ib-sep{display:none}.info-bar .ib-next{margin-left:0;width:100%;padding-left:4px}.info-bar .ib-next .ib-t{max-width:none;flex:1}.info-bar .ib-stats .ib-sp{-webkit-line-clamp:1}
   .season-banner{padding:12px 14px;gap:10px;flex-direction:column;align-items:stretch}.season-banner .sb-moonwrap{position:absolute;right:0;top:0;height:0}.season-banner .sb-moon{right:-30px;top:-40px;width:80px;height:80px}.season-banner .sb-rabbit{right:34px;top:6px;font-size:18px}.season-banner .sb-sep{display:none}.season-banner .sb-close{position:absolute;top:8px;right:8px}.season-banner .sb-item{padding-right:40px}
   .bul-head .bh-search{min-width:0;width:100%;order:3}
   .ftr-inner{grid-template-columns:1fr;gap:26px;padding:28px 18px 16px}.ftr-season{padding:18px 18px 0}
@@ -661,9 +675,10 @@ const WKDAYS=['日','一','二','三','四','五','六'];
 
 // ═══ Google Sheets Sync (via Apps Script API) ═══
 const GAS_URL='https://script.google.com/macros/s/AKfycbyWTuJEQc1jMVcl9kCuPlCfvfSgIg2piyw8ODr013JcJrwC2hm7dvkX2_n1eJ9K4WPn/exec';
-localStorage.removeItem('ncr-gas-url');
-let NCR_URL='';
+const DEFAULT_NCR_URL='https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
+let NCR_URL=localStorage.getItem('ncr-gas-url')||DEFAULT_NCR_URL;
 let _ncrCache=null; // cache fetched NCR data
+let _ncrOpen=null; // 所有尚未結案的改善單（含未到期），僅在抓取全部紀錄時可得
 let _visitCount=null; // 累計瀏覽人次
 
 // Track external link click (fire-and-forget)
@@ -970,7 +985,37 @@ function renderInfoBar(){
   const ev=evs[0];
   if(ev){const n=daysBetween(today,ev.date);h+=`<span class="ib-next${n<=3?' soon':''}" onclick="switchTab('events')" title="前往重點活動"><span>${ev.starred?'⭐':'📌'}</span><span class="ib-t">${esc(ev.title)}</span><span style="color:var(--muted);font-weight:500;white-space:nowrap">${esc(ev.date)}</span><span class="ib-cd">${n===0?'今天':'還有 '+n+' 天'}</span></span>`;}
   else h+=`<span class="ib-next" onclick="switchTab('events')" style="color:var(--muted);font-weight:500">📌 近期沒有排定的重點活動</span>`;
+  h+=renderIbStats(today);
   el.innerHTML=h;
+}
+// ── 資訊列統計：追蹤事項 / 改善單 的 逾期 與 三天內到期（今天～2 天後）──
+function renderIbStats(today){
+  const tasks=(D.tasks||[]).filter(t=>!t.done&&t.deadline);
+  const trkOver=tasks.filter(t=>daysBetween(today,t.deadline)<0);
+  const trkSoon=tasks.filter(t=>{const n=daysBetween(today,t.deadline);return n>=0&&n<=2;});
+  const ncr=_ncrCache;
+  const ncrOver=ncr?ncr.filter(r=>r.daysLeft<0):null;
+  const ncrSoon=ncr?ncr.filter(r=>r.daysLeft>=0&&r.daysLeft<=2):null;
+  const ncrOpen=_ncrOpen;
+  const names=list=>{const set=[];list.forEach(x=>String(x||'').split(',').map(p=>p.trim()).filter(Boolean).forEach(p=>{if(!set.includes(p))set.push(p);}));return set.join('、');};
+  const cell=(list,cls,onclick,personOf,title)=>{
+    if(!list)return `<div class="ib-sc" onclick="${onclick}" title="${esc(title||'')}"><span class="ib-sn">—</span><span class="ib-sp">${NCR_URL?'載入中…':'未設定'}</span></div>`;
+    const n=list.length;const who=names(list.map(personOf));
+    return `<div class="ib-sc${n?' '+cls:''}" onclick="${onclick}" title="${esc(title||'')}"><span class="ib-sn">${n}</span><span class="ib-sp">${esc(who)}</span></div>`;
+  };
+  const NCR_SYS='https://d9533472.github.io/NMDCEHS-e-system/tpc-pipeline-improvement-system_30.html';
+  const goNcr=`window.open('${NCR_SYS}','_blank')`;
+  const trkTitle=l=>l.map(t=>`${t.name}（${t.deadline}）`).join('\n');
+  const ncrTitle=l=>(l||[]).map(r=>`${r.type} ${r.number}（${r.deadline}）`).join('\n');
+  return '<div class="ib-stats">'
+    +'<div class="ib-sg">📋 追蹤事項</div><div class="ib-sg w3">🛠️ 改善單</div>'
+    +'<div class="ib-sh">逾期</div><div class="ib-sh">三天內到期</div><div class="ib-sh">逾期</div><div class="ib-sh">三天內到期</div><div class="ib-sh">尚未結案</div>'
+    +cell(trkOver,'red',"switchTab('tracker')",t=>t.person,trkTitle(trkOver)||'前往追蹤事項')
+    +cell(trkSoon,'orange',"switchTab('tracker')",t=>t.person,trkTitle(trkSoon)||'前往追蹤事項')
+    +cell(ncrOver,'red',goNcr,r=>r.issuer,ncrTitle(ncrOver)||'開啟改善單系統')
+    +cell(ncrSoon,'orange',goNcr,r=>r.issuer,ncrTitle(ncrSoon)||'開啟改善單系統')
+    +cell(ncrOpen,'blue',goNcr,r=>r.issuer,ncrTitle(ncrOpen)||'開啟改善單系統')
+    +'</div>';
 }
 // ── 九月節慶：中秋節（農曆八月十五）＋ 教師節（9/28）──
 function seasonInfo(){
@@ -1624,6 +1669,19 @@ async function fetchNcrExpiring(){
     if(!r.ok)return null;
     const d=await r.json();
     if(d&&d.ok)return d.records||[];
+    // GAS 不支援 action=expiring 時：改抓全部紀錄，前端自行計算逾期／到期天數（僅未結案）
+    const r2=await fetch(NCR_URL);
+    if(!r2.ok)return null;
+    const d2=await r2.json();
+    if(d2&&Array.isArray(d2.records)){
+      const today=todayS();
+      const open=d2.records
+        .filter(x=>x.status!=='Closed')
+        .map(x=>({...x,daysLeft:x.deadline?daysBetween(today,x.deadline):NaN,description:x.description||(x.defects&&x.defects[0]&&x.defects[0].description)||''}))
+        .sort((a,b)=>(a.daysLeft||0)-(b.daysLeft||0));
+      _ncrOpen=open;
+      return open.filter(x=>x.deadline&&x.daysLeft<=7);
+    }
   }catch(e){console.warn('NCR fetch:',e);}
   return null;
 }
@@ -1725,7 +1783,8 @@ function saveNcrUrl(){
   localStorage.setItem('ncr-gas-url',NCR_URL);
   $('mNcrUrl').classList.add('hidden');
   _ncrCache=null;
-  if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){console.error('NCR render:',e);}}).catch(()=>{});}
+  if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();renderInfoBar();}catch(e){console.error('NCR render:',e);}}).catch(()=>{});}
+  else{try{renderInfoBar();}catch(e){}}
   showToast('✅ 改善單 URL 已儲存');
 }
 
@@ -2972,12 +3031,12 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   }
 
   // Fetch NCR immediately after page loads
-  if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){console.error('NCR renderTab error:',e);}}).catch(e=>console.warn('NCR fetch error:',e));}
+  if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();renderInfoBar();}catch(e){console.error('NCR renderTab error:',e);}}).catch(e=>console.warn('NCR fetch error:',e));}
 
   // Auto-refresh for viewers every 2 min
   setInterval(async()=>{if(isEditor)return;try{const f=await fetchData();if(f){(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});renderAll();}}catch(e){}},2*60*1000);
   // Refresh NCR every 5 min
-  if(NCR_URL){setInterval(()=>{fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();}catch(e){}}).catch(()=>{});},5*60*1000);}
+  if(NCR_URL){setInterval(()=>{fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();renderInfoBar();}catch(e){}}).catch(()=>{});},5*60*1000);}
 })();
 </script>
 
