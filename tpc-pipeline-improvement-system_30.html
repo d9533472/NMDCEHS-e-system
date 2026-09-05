@@ -241,6 +241,12 @@ body { background:var(--bg-primary); color:var(--text-primary); font-family:'Not
 .table-row { display:grid; padding:13px 16px; border-bottom:1px solid var(--border); transition:background .15s; align-items:center; }
 .table-row:last-child { border-bottom:none; }
 .table-row:hover { background:#f6faf3; }
+.table-row.row-wm { background:#f2f9ff; }
+.table-row.row-wm:hover { background:#e2f1fe; }
+.table-row.row-ncr { background:#fff8ec; }
+.table-row.row-ncr:hover { background:#feefd3; }
+.table-row.row-pn { background:#fff5f5; }
+.table-row.row-pn:hover { background:#fee4e4; }
 .table-cell { font-size:12.5px; color:var(--text-primary); overflow:hidden; word-break:break-word; white-space:pre-wrap; }
 .mobile-only { display:none; }
 .mobile-card { display:none; }
@@ -1192,14 +1198,16 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
           <div className="page-title">📊 總覽儀表板</div>
           <div className="page-sub">{PROJECT.name}</div>
         </div>
-        <button className="btn btn-secondary" onClick={()=>onExport({
-          totalDefects, open, closed,
-          closedDefs: activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0),
-          closeRate,
-          itemMap,
-          itemOptions,
-        })} title="匯出 KPI 總結圖片">📊 匯出總結</button>
-        <button className="btn btn-primary" onClick={()=>onFilterClick({_newrecord:true})}>➕ 新增紀錄</button>
+        <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+          <button className="btn btn-primary" onClick={()=>onFilterClick({_newrecord:true})}>➕ 新增紀錄</button>
+          <button className="btn btn-secondary" onClick={()=>onExport({
+            totalDefects, open, closed,
+            closedDefs: activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0),
+            closeRate,
+            itemMap,
+            itemOptions,
+          })} title="匯出 KPI 總結圖片">📊 匯出總結</button>
+        </div>
       </div>
       {/* 日期篩選列 */}
       <div className="filter-bar period-bar">
@@ -1266,7 +1274,6 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
 
       {/* ─── 主要 KPI 列 ─── */}
       <div className="kpi-grid" id="kpi-summary">
-        <KpiCard label="總開單數" value={total} sub="累計改善單張數" color="var(--accent-blue)" />
         <KpiCard label="總缺失件數" value={totalDefects} sub="累計缺失條數" color="var(--accent-purple)" />
         <KpiCard label="Open 未結" value={open} sub="待改善" color="var(--accent-red)" filter={{status:'Open'}} />
         <div className="kpi-card" style={{cursor:'pointer'}} onClick={()=>onFilterClick({status:'Closed'})} title="點擊查看已結案">
@@ -1310,7 +1317,7 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
             <div className="chart-card" style={{display:'flex',flexDirection:'column'}}>
               <div className="chart-head"><div><div className="chart-title">📋 各環保項目統計</div><div className="chart-sub">各項目總計與關單率，點擊可篩選</div></div></div>
               <div style={{display:'grid',gridTemplateColumns:window.innerWidth<=640?'1fr':'1fr 1fr',gap:10,flex:1}}>
-                {Object.entries(itemMap).sort((a,b)=>b[1].total-a[1].total).map(([k,v])=>{
+                {Object.entries(itemMap).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).map(([k,v])=>{
                   const rate = v.total ? Math.round(v.closed/v.total*100) : 0;
                   const color = iColors[parseInt(k) % iColors.length];
                   return (
@@ -1795,7 +1802,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
         {filtered.length===0
           ? <div className="empty-state"><div className="empty-icon">🔍</div><div className="empty-text">無符合條件的紀錄</div></div>
           : filtered.map(r=>(
-            <div key={r.id} className="table-row t-cols">
+            <div key={r.id} className={`table-row t-cols row-${(r.type||'').toLowerCase()}`}>
               {/* ── 電腦版：表格欄位 ── */}
               <div className="table-cell desktop-only"><span className={`badge badge-${r.type.toLowerCase()}`}>{r.type}</span></div>
               <div className="table-cell desktop-only" style={{fontFamily:'var(--num)',fontSize:11}}>{r.number}</div>
