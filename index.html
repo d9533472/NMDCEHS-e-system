@@ -373,17 +373,17 @@ textarea{resize:vertical}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:10px}
 .hdr-search{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--hdr-muted);font-size:12px;cursor:pointer;font-family:inherit;transition:.15s;white-space:nowrap}.hdr-search:hover{background:rgba(255,255,255,.11);color:#fff}
 .hdr-search kbd{font-family:inherit;font-size:10px;padding:1px 6px;border-radius:4px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.28);color:#c7d5e4}
-.hdr-nav{border-top:1px solid var(--hdr-line);background:rgba(0,0,0,.2)}
+.hdr-nav{border-top:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,#166534 0%,#14532d 100%)}
 .hdr-nav-inner{max-width:var(--page-w);margin:0 auto;padding:0 16px;display:flex;align-items:center}
 .main-tabs{display:flex;gap:2px;margin:0;flex:1;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;border-bottom:none;padding:0;align-items:stretch}
 .main-tabs::-webkit-scrollbar{display:none}
-.main-tab{padding:0 16px;height:46px;border:none;background:transparent;color:var(--hdr-muted);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;border-bottom:3px solid transparent;margin:0;display:flex;align-items:center;gap:6px;white-space:nowrap;border-radius:0}
-.main-tab:hover{color:#fff;background:rgba(255,255,255,.04)}
-.main-tab.active{color:#fff;border-bottom-color:#22c55e;background:rgba(34,197,94,.12);border-radius:0}
-.tab-edit-wrap{display:flex;align-items:center;gap:4px;padding:4px 8px;margin:0;background:rgba(34,197,94,.14);border-bottom:3px solid #22c55e;border-radius:0}
+.main-tab{padding:0 16px;height:46px;border:none;background:transparent;color:#bbf7d0;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;border-bottom:3px solid transparent;margin:0;display:flex;align-items:center;gap:6px;white-space:nowrap;border-radius:0}
+.main-tab:hover{color:#fff;background:rgba(255,255,255,.08)}
+.main-tab.active{color:#fff;border-bottom-color:#fde047;background:rgba(255,255,255,.12);border-radius:0}
+.tab-edit-wrap{display:flex;align-items:center;gap:4px;padding:4px 8px;margin:0;background:rgba(255,255,255,.14);border-bottom:3px solid #fde047;border-radius:0}
 .tab-edit-wrap input{background:#fff}
-.tab-edit-btn{color:var(--hdr-muted)}.tab-edit-btn:hover{color:#fff;background:rgba(255,255,255,.12)}
-.btn-login-tiny{color:var(--hdr-muted);font-size:13px;padding:6px 12px;border-radius:8px;align-self:center}.btn-login-tiny:hover{color:#fff;background:rgba(255,255,255,.08)}
+.tab-edit-btn{color:#bbf7d0}.tab-edit-btn:hover{color:#fff;background:rgba(255,255,255,.16)}
+.btn-login-tiny{color:#bbf7d0;font-size:13px;padding:6px 12px;border-radius:8px;align-self:center}.btn-login-tiny:hover{color:#fff;background:rgba(255,255,255,.12)}
 .site-header .auth-status.editor{background:rgba(34,197,94,.14);color:#86efac;border:1px solid rgba(74,222,128,.28);padding:5px 12px;font-size:12px}
 .site-header .sync-badge.synced{color:#86efac;background:rgba(34,197,94,.16)}
 .site-header .btn-auth{padding:6px 12px;font-size:12px}
@@ -412,13 +412,13 @@ body.is-editor .hdr-search{padding:7px 9px;font-size:14px;line-height:1}
 .info-bar .ib-sep{width:1px;height:18px;background:var(--border)}
 .info-bar .ib-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:8px;background:var(--card2);border:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text2);white-space:nowrap}
 .info-bar .ib-chip.hol{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
-.info-bar .ib-next{margin-left:auto;display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--accent2);font-weight:600;font-size:13px;padding:4px 6px 4px 10px;border-radius:9px;transition:.15s;max-width:100%}
-.info-bar .ib-next:hover{background:var(--accent-light)}
+.info-bar .ib-next{margin-left:auto;display:inline-flex;align-items:center;gap:8px;cursor:pointer;color:var(--accent2);font-weight:600;font-size:13px;padding:4px 6px 4px 10px;border-radius:9px;background:#fefce8;border:1px solid #fde68a;transition:.15s;max-width:100%}
+.info-bar .ib-next:hover{background:#fef3c7;border-color:#fcd34d}
 .info-bar .ib-next .ib-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
 .info-bar .ib-next .ib-cd{padding:3px 10px;border-radius:999px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;white-space:nowrap}
 .info-bar .ib-next.soon .ib-cd{background:var(--orange)}
 .info-bar .ib-next .ib-pp{display:inline-flex;gap:3px;flex-wrap:wrap}
-.info-bar .ib-next .ib-pb{padding:2px 7px;border-radius:6px;background:var(--accent-light);color:var(--accent2);font-size:11px;font-weight:600;border:1px solid rgba(22,163,74,.12);white-space:nowrap}
+.info-bar .ib-next .ib-pb{padding:2px 7px;border-radius:6px;background:#fff;color:var(--accent2);font-size:11px;font-weight:600;border:1px solid rgba(22,163,74,.18);white-space:nowrap}
 .info-bar .ib-next .ib-ctr{font-size:11px;color:var(--muted);font-weight:600;padding-left:2px;white-space:nowrap}
 @keyframes ibFade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .info-bar .ib-next.fade{animation:ibFade .4s ease}
@@ -719,13 +719,39 @@ async function fetchVisitCount(){
     if(r.ok){const d=await r.json();if(d&&d.ok&&typeof d.visits==='number'){_visitCount=d.visits;updateVisitDisplay();}}
   }catch(e){console.warn('fetchVisitCount:',e);}
 }
+// ── 設備辨識：只看作業系統 / 瀏覽器 / 裝置形態，不蒐集任何個人資料 ──
+function getDeviceInfo(){
+  const ua=navigator.userAgent||'';
+  const uad=navigator.userAgentData;
+  const plat=(uad&&uad.platform)||navigator.platform||'';
+  const touch=(navigator.maxTouchPoints||0)>1;
+  let os='其他';
+  if(/iPhone|iPod/.test(ua))os='iPhone';
+  else if(/iPad/.test(ua)||(/Mac/.test(plat)&&touch))os='iPad'; // iPadOS 13+ 會偽裝成 Mac，用觸控點數分辨
+  else if(/Android/.test(ua))os='Android';
+  else if(/Windows/.test(ua)||/Win/.test(plat))os='Windows';
+  else if(/Mac/.test(plat)||/Mac OS X/.test(ua))os='Mac';
+  else if(/CrOS/.test(ua))os='ChromeOS';
+  else if(/Linux/.test(ua)||/Linux/.test(plat))os='Linux';
+  let browser='其他';
+  if(/Line\//i.test(ua))browser='LINE';
+  else if(/Edg\//.test(ua))browser='Edge';
+  else if(/OPR\/|Opera/.test(ua))browser='Opera';
+  else if(/SamsungBrowser/.test(ua))browser='Samsung';
+  else if(/Firefox\//.test(ua))browser='Firefox';
+  else if(/Chrome\/|CriOS\//.test(ua))browser='Chrome';
+  else if(/Safari\//.test(ua))browser='Safari';
+  const form=(os==='iPhone'||(os==='Android'&&/Mobile/.test(ua)))?'手機':(os==='iPad'||(os==='Android'))?'平板':'電腦';
+  return {os,browser,form};
+}
 async function incrementVisitCount(){
   if(!GAS_URL)return;
   // Only count once per session
   if(sessionStorage.getItem('visit-counted')==='1')return;
   sessionStorage.setItem('visit-counted','1');
   try{
-    const r=await fetch(GAS_URL+'?action=incVisits');
+    const dv=getDeviceInfo();
+    const r=await fetch(GAS_URL+'?action=incVisits&os='+encodeURIComponent(dv.os)+'&browser='+encodeURIComponent(dv.browser)+'&form='+encodeURIComponent(dv.form));
     if(r.ok){const d=await r.json();if(d&&d.ok&&typeof d.visits==='number'){_visitCount=d.visits;updateVisitDisplay();}}
   }catch(e){console.warn('incrementVisitCount:',e);}
 }
@@ -743,19 +769,21 @@ function updateVisitDisplay(){
 async function showVisitStats(){
   showToast('⏳ 載入統計中…');
   try{
-    const [dailyR, clicksR] = await Promise.all([
+    const [dailyR, clicksR, devR] = await Promise.all([
       fetch(GAS_URL+'?action=dailyVisits').then(r=>r.json()),
-      fetch(GAS_URL+'?action=linkClicks').then(r=>r.json()).catch(()=>({ok:false, clicks:{}}))
+      fetch(GAS_URL+'?action=linkClicks').then(r=>r.json()).catch(()=>({ok:false, clicks:{}})),
+      fetch(GAS_URL+'?action=deviceStats').then(r=>r.json()).catch(()=>({ok:false}))
     ]);
     if(!dailyR||!dailyR.ok)throw new Error(dailyR?.error||'資料錯誤');
     const clicks = (clicksR&&clicksR.ok) ? (clicksR.clicks||{}) : {};
-    renderVisitStatsModal(dailyR.daily||{}, clicks);
+    const devices = (devR&&devR.ok) ? (devR.devices||null) : null;
+    renderVisitStatsModal(dailyR.daily||{}, clicks, devices);
   }catch(e){
     showToast('⚠️ 載入失敗：'+e.message,'err');
   }
 }
 
-function renderVisitStatsModal(daily, clicks){
+function renderVisitStatsModal(daily, clicks, devices){
   // Build last 30 days array
   const today=new Date();
   const days=[];
@@ -805,6 +833,49 @@ function renderVisitStatsModal(daily, clicks){
   html+='<span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;border-radius:2px;vertical-align:middle;margin-right:4px"></span>平日</span>';
   html+='<span><span style="display:inline-block;width:10px;height:10px;background:#e2e8f0;border-radius:2px;vertical-align:middle;margin-right:4px"></span>週末</span>';
   html+='<span><span style="display:inline-block;width:10px;height:10px;border:2px solid #f59e0b;border-radius:2px;vertical-align:middle;margin-right:4px"></span>今天</span>';
+  html+='</div>';
+
+  // ── 設備分布 ──
+  html+='<div style="margin-top:22px;padding-top:16px;border-top:1px solid var(--border)">';
+  const devTotal=devices?Object.values(devices.form||{}).reduce((s,n)=>s+(n||0),0):0;
+  html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">';
+  html+='<div style="font-size:13px;font-weight:700;color:var(--text)">💻 設備分布</div>';
+  if(devTotal)html+='<div style="font-size:11px;color:var(--muted)">共 '+devTotal.toLocaleString()+' 人次'+(devices.since?'｜自 '+esc(devices.since)+' 起':'')+'</div>';
+  html+='</div>';
+  if(devices&&devTotal){
+    const icons={'電腦':'🖥️','手機':'📱','平板':'📟','Windows':'🪟','Mac':'🍎','iPhone':'📱','iPad':'📟','Android':'🤖','ChromeOS':'🌐','Linux':'🐧','Chrome':'🟢','Edge':'🔵','Safari':'🧭','Firefox':'🦊','LINE':'💬','Opera':'🔴','Samsung':'📱','其他':'❔'};
+    // 裝置形態：三張小卡
+    const forms=['電腦','手機','平板'].map(k=>({k,n:(devices.form||{})[k]||0}));
+    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px">';
+    forms.forEach(f=>{
+      const pct=devTotal?Math.round(f.n/devTotal*100):0;
+      html+=`<div style="padding:10px 8px;background:var(--card2);border:1px solid var(--border);border-radius:10px;text-align:center"><div style="font-size:18px;line-height:1">${icons[f.k]}</div><div style="font-size:18px;font-weight:800;color:#166534;margin-top:4px;font-variant-numeric:tabular-nums">${pct}%</div><div style="font-size:11px;color:var(--muted)">${f.k}｜${f.n.toLocaleString()} 人次</div></div>`;
+    });
+    html+='</div>';
+    // 作業系統 / 瀏覽器：兩欄長條
+    const bars=(title,obj)=>{
+      const entries=Object.entries(obj||{}).filter(([,n])=>n>0).sort((a,b)=>b[1]-a[1]);
+      if(!entries.length)return '';
+      const max=Math.max(...entries.map(([,n])=>n),1);
+      let s='<div style="padding:10px 12px;background:var(--card2);border:1px solid var(--border);border-radius:10px">';
+      s+='<div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:.04em">'+title+'</div>';
+      entries.forEach(([k,n])=>{
+        const pct=Math.round(n/devTotal*100);
+        s+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:12px">';
+        s+='<span style="width:16px;text-align:center">'+(icons[k]||'❔')+'</span>';
+        s+='<span style="width:64px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(k)+'</span>';
+        s+='<span style="flex:1;height:7px;background:#e2e8f0;border-radius:99px;overflow:hidden"><span style="display:block;height:100%;width:'+(n/max*100)+'%;background:linear-gradient(90deg,#4ade80,#16a34a);border-radius:99px"></span></span>';
+        s+='<span style="width:70px;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap">'+n.toLocaleString()+'｜'+pct+'%</span>';
+        s+='</div>';
+      });
+      return s+'</div>';
+    };
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+bars('作業系統',devices.os)+bars('瀏覽器',devices.browser)+'</div>';
+  } else if(devices){
+    html+='<div style="padding:14px;background:var(--card2);border-radius:8px;font-size:12px;color:var(--muted);text-align:center;font-style:italic">尚無設備記錄，之後有人打開頁面就會開始累積</div>';
+  } else {
+    html+='<div style="padding:12px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:6px;font-size:11.5px;color:#78350f;line-height:1.5">後端 Apps Script 尚未加入 <b>deviceStats</b> 動作。請依照 <b>gas-device-stats.gs</b> 的說明更新並重新部署後，這裡就會顯示設備分布。</div>';
+  }
   html+='</div>';
 
   // ── 外部連結點擊統計 ──
