@@ -133,7 +133,6 @@ h1,h2,h3,h4{margin:0;font-weight:600}
 .dayhead .date small{font-family:var(--font-b);font-size:14px;letter-spacing:.25em;color:var(--gold);display:block;margin-bottom:8px;font-weight:700}
 .dayhead h2{font-size:clamp(20px,2.6vw,28px);color:var(--navy);margin-top:6px;font-weight:700}
 .daystats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media(max-width:480px){.daystats{grid-template-columns:repeat(3,1fr)}}
 .stat{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .stat b{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:500}
 .stat span{font-family:var(--font-d);font-size:24px;color:var(--navy);font-weight:700;line-height:1.2}
@@ -274,6 +273,17 @@ h1,h2,h3,h4{margin:0;font-weight:600}
 .ck .row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .cl-tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center;font-size:12.5px;color:var(--muted)}
 
+/* fatigue + notes */
+.ov-card .tag.fat{background:rgba(11,26,51,.75);color:#fff;border:1px solid rgba(255,255,255,.25);font-weight:600}
+.stat.fat span small{font-size:12px;color:var(--muted);font-family:var(--font-b);font-weight:500}
+.stat.fat i{white-space:normal}
+.daystats{grid-template-columns:repeat(4,1fr)}
+@media(max-width:640px){.daystats{grid-template-columns:1fr 1fr}}
+.noteblock{margin-top:10px;display:grid;gap:4px}
+.noteblock .nl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;cursor:text}
+.noteblock textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;line-height:1.5;background:#fff;color:var(--ink);resize:none;min-height:36px;overflow:hidden}
+.noteblock textarea:focus{outline:2px solid var(--gold-2);border-color:var(--gold)}
+.ck.done .noteblock textarea{opacity:1}
 /* ===== NOTES ===== */
 .notes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:24px}
 .ncard{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px 20px}
@@ -386,7 +396,7 @@ footer b{color:var(--gold-2)}
     <div class="eyebrow">Booking Checklist · 訂票與預約清單</div>
     <h2 class="sec-title">出發前要搞定的事</h2>
     <div class="gold-rule"></div>
-    <p class="sec-sub">線上版勾選狀態會跨裝置同步（開同一個連結的人都看得到）；單機 index.html 則保存在該裝置瀏覽器。Klook／KKday 方案與價格會變動，<b>價格以預訂頁面為準</b>。</p>
+    <p class="sec-sub">每項下方可填備註（訂單編號、價格、時段）；線上版勾選與備註會跨裝置同步（開同一個連結的人都看得到），單機 index.html 則保存在該裝置瀏覽器。Klook／KKday 方案與價格會變動，<b>價格以預訂頁面為準</b>。</p>
     <div class="progress"><i id="prog"></i></div>
     <div class="cl-tools"><span id="progtxt"></span><button class="btn ghost sm" id="clreset" type="button">重設勾選</button></div>
     <div class="cl-grid" id="clgrid"></div>
@@ -695,7 +705,7 @@ const NIGHT = {
 /* ============ DAYS ============ */
 const DAYS = [
   {
-    id:1, date:'10.21', dow:'Wed 三', theme:'抵達曼谷 ＋ Mahanakhon 夜景 ＋ 私人自由時間', cover:'hero1',
+    id:1, fatigue:{score:'7',lv:'🟠',note:'台灣 04:30 起床＋帶行李轉乘，清醒 18.5 小時；午睡後 Mahanakhon 不算重，晚上想睡就睡。'}, date:'10.21', dow:'Wed 三', theme:'抵達曼谷 ＋ Mahanakhon 夜景 ＋ 私人自由時間', cover:'hero1',
     wake:'—', breakfast:'機上', back:'23:00',
     summary:'CI833 抵達 → 捷運進市區 → Silom 午餐 → 休息 → Mahanakhon 夕陽夜景 → Silom 晚餐',
     timeline:[
@@ -720,7 +730,7 @@ const DAYS = [
     notes:['10 月午後常有 30–90 分鐘雷陣雨：Mahanakhon 78F 戶外層遇雨暫停，先留在 74F 室內等待。','抵達日不安排 Gay Bar，讓隔天 06:45 早起不會太辛苦。','Check-in 14:00；若房間未備妥，行李寄放後直接去午餐。','護照正本入住後放保險箱，外出帶影本＋一張實體證件。']
   },
   {
-    id:2, date:'10.22', dow:'Thu 四', theme:'Safari World 一整天 ＋ Baiyoke Sky 自助晚餐', cover:'safari2',
+    id:2, fatigue:{score:'8.5',lv:'🔴',note:'Safari World 戶外 7 小時＋兩小時自助餐，清醒 15 小時；睡眠充足、隔天慢活日，設計上剛好。'}, date:'10.22', dow:'Thu 四', theme:'Safari World 一整天 ＋ Baiyoke Sky 自助晚餐', cover:'safari2',
     wake:'06:45', breakfast:'07:00–07:40', back:'21:45',
     summary:'包車 Safari World（Safari Park／Marine Park／表演）→ 回飯店換裝 → 彩虹雲霄酒店自助晚餐',
     timeline:[
@@ -744,7 +754,7 @@ const DAYS = [
     notes:['防曬、帽子、飲水；園區禁帶外食，午餐可用 Klook 加購的自助餐或園內餐廳。','表演場次以園區當日公告為準，Bird Show 16:15 與 16:10 離園衝突，需要再次確認取捨。','Safari Park 車行區全程關窗、勿餵食（長頸鹿餵食區除外）。','Baiyoke 84F 露天旋轉台雨天可能暫停，先用餐再上去。','這天不排夜生活：Safari World 玩整天再吃兩小時自助餐，體力消耗不小。']
   },
   {
-    id:3, date:'10.23', dow:'Fri 五', theme:'慢活曼谷：睡飽・自由時間・運河長尾船與大佛・Calypso 秀', cover:'pk1',
+    id:3, fatigue:{score:'5',lv:'🟢',note:'休息日：睡到 09:30、早上留白，下午在船上有頂，晚上站著逛夜市為主。'}, date:'10.23', dow:'Fri 五', theme:'慢活曼谷：睡飽・自由時間・運河長尾船與大佛・Calypso 秀', cover:'pk1',
     wake:'09:30', breakfast:'09:45–10:30', back:'23:00',
     summary:'睡到自然醒 → 倫披尼公園散步 → 私人自由時間 → Charoenkrung 午餐 → 長尾船運河＋Wat Paknam 大佛與玻璃佛塔 → ICONSIAM 自由時間 → 接駁船到 Asiatique：Calypso 秀、河濱晚餐、摩天輪',
     timeline:[
@@ -773,7 +783,7 @@ const DAYS = [
     notes:['早上刻意留白：倫披尼公園散步後的自由時間請自行拿捏，12:30 出發是硬底線。','長尾船會濺水、引擎聲大：手機防水袋、坐前段較乾；導遊通常前一天用 WhatsApp／Klook 訊息聯絡集合點，記得開通知。','Wat Paknam 玻璃佛塔在 5 樓、需脫鞋，塔內請安靜；大佛週邊 2024 年曾整修，現況以現場為準。','10 月午後雷陣雨：長尾船有頂篷、寺院室內可避雨；ICONSIAM 全室內；Asiatique 倉庫有頂、摩天輪雷雨停駛。','Asiatique 接駁船末班 23:30；BTS 末班約 24:00。','取代芭達雅後不需要 14 小時包車，省下約 ฿4,500–6,000 與來回 4.5 小時車程。']
   },
   {
-    id:4, date:'10.24', dow:'Sat 六', theme:'三頭象神 ＋ 恰圖恰週末市集 ＋ 夜生活①', cover:'erawan1',
+    id:4, fatigue:{score:'8',lv:'🔴',note:'恰圖恰 14:30 最曬＋夜生活到 02:00，清醒 17 小時、隔天只睡 6.5 小時；DJ Station 那段設為選配。'}, date:'10.24', dow:'Sat 六', theme:'三頭象神 ＋ 恰圖恰週末市集 ＋ 夜生活①', cover:'erawan1',
     wake:'08:45', breakfast:'09:00–10:00', back:'最晚 02:00',
     summary:'Grab 到三頭象神博物館 → BTS 直達 Mo Chit → Or Tor Kor 市場午餐 → 恰圖恰週末市集 → MRT 回 Silom 休息 → 晚餐 → R3 Sauna Mania → Stranger Bar → DJ Station',
     timeline:[
@@ -801,7 +811,7 @@ const DAYS = [
     notes:['三頭象神：入殿脫鞋、禁飲食；Tavatimsa 聖殿內請保持安靜。','恰圖恰只有週六日開（約 09:00–18:00），14:30 到人潮最多也最熱：帶水、記住區號（Section）與時鐘塔當集合點，走散好找。','Or Tor Kor 市場約 06:00–18:00，芒果糯米飯、烤河蝦、咖哩攤位在美食區；環境乾淨、有冷氣熟食區。','午後雷陣雨：恰圖恰多數攤位有頂但走道會積水，可躲到旁邊 JJ Mall 或 Mixt Chatuchak 冷氣商場。','週六晚 Silom Soi 4 人潮多：Stranger Bar 21:00 前到較有位、變裝秀 21:30 起；DJ Station 週六入場 ฿400。','R3 Sauna Mania 在 Silom 的 Phiphat Soi 2（非 Ratchada 分店）。','夜間安全：注意手機與錢包、拒絕陌生人拉客去 Patpong 秀場、飲料不離手；泰國法定飲酒年齡 20 歲。','最晚 02:00 回飯店，隔天 09:15 起床。']
   },
   {
-    id:5, date:'10.25', dow:'Sun 日', theme:'古城七十六府 ＋ 泰服外拍 ＋ 夜生活②', cover:'ancient1',
+    id:5, fatigue:{score:'8.5',lv:'🔴',note:'累積高峰 9.5：前一晚晚睡＋泰服戶外 6.5 小時＋夜生活②；建議泰服縮到 13:00–15:30，夜生活②看體力。'}, date:'10.25', dow:'Sun 日', theme:'古城七十六府 ＋ 泰服外拍 ＋ 夜生活②', cover:'ancient1',
     wake:'09:15', breakfast:'09:30–10:15', back:'00:30 前',
     summary:'包車古城 76 府（泰服＋高爾夫球車）→ Silom 紀念日晚餐 → 整理行李 → Silom Soi 4／Soi 2 夜生活②',
     timeline:[
@@ -824,7 +834,7 @@ const DAYS = [
     notes:['泰服：現場租借成人約 ฿600 起，<b>不含鞋與妝髮</b>、須出示押金（護照或駕照）並於閉園前歸還；男生尺寸與同性雙人造型是否有配對款式，建議先以 LINE @ancientcitygroup 或電話 02-026-8800 詢問。','如果特別重視照片，事先預訂「泰服＋妝髮＋攝影師」外拍方案；只在現場租衣服，照片效果會比較看同行者技術。','高爾夫球車：確認電量、記下歸還時間；園區禁空拍機。','閉園 18:00／19:00 兩來源不一，18:15 離園請以現場公告為準。','<b>最後一晚需在 00:30 前回飯店</b>：隔天 10:00 要出發去機場。','夜生活②店家未定，右側清單為推薦，請確認後決定。']
   },
   {
-    id:6, date:'10.26', dow:'Mon 一', theme:'返台：飯店送機 → BKK → CI832', cover:'bkk2',
+    id:6, fatigue:{score:'4',lv:'🟢',note:'收尾日：早餐後送機，體力負擔低，累的是飛行本身。'}, date:'10.26', dow:'Mon 一', theme:'返台：飯店送機 → BKK → CI832', cover:'bkk2',
     wake:'08:15', breakfast:'08:30–09:15', back:'—',
     summary:'退房 → 10:00 飯店送機包車 → 11:00–11:30 抵達 BKK → 報到、免稅店 → 14:05 CI832 起飛',
     timeline:[
@@ -898,7 +908,7 @@ function renderOverview(){
     <button class="ov-card" data-day="${d.id}" type="button" aria-label="Day ${d.id}">
       <div class="bg" ${bg(d.cover)}></div>
       <span class="num">DAY ${d.id}</span>
-      ${d.id===5?'<span class="tag">Anniversary</span>':''}
+      <span class="tag fat" title="${d.fatigue.note}">${d.fatigue.lv} 疲勞 ${d.fatigue.score}/10</span>
       <div class="in">
         <div class="d">${d.date}<small>${d.dow}</small></div>
         <h3>${d.theme}</h3>
@@ -994,6 +1004,7 @@ function renderDay(id){
         <div class="stat"><b>起床</b><span>${d.wake}</span><i>早餐 ${d.breakfast}</i></div>
         <div class="stat"><b>主要景點</b><span>${d.timeline.filter(x=>x.k==='major').length}</span><i>大卡片 · 點開看詳情</i></div>
         <div class="stat"><b>預估回飯店</b><span>${d.back}</span><i>Crowne Plaza Lumpini Park</i></div>
+        <div class="stat fat"><b>疲勞指數</b><span>${d.fatigue.lv} ${d.fatigue.score}<small>/10</small></span><i>${d.fatigue.note}</i></div>
       </div>
     </div>
     <div class="daylayout">
@@ -1050,11 +1061,13 @@ function renderFH(){
 }
 
 /* ============ CHECKLIST ============ */
-const LS_KEY = 'kp_thai_checklist_v1';
+const LS_KEY = 'kp_thai_checklist_v1', LS_NOTES = 'kp_thai_notes_v1';
 function loadCK(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
 function saveCK(o){ try{ localStorage.setItem(LS_KEY, JSON.stringify(o)); }catch(e){} }
+function loadNotes(){ try{ return JSON.parse(localStorage.getItem(LS_NOTES)||'{}'); }catch(e){ return {}; } }
+function saveNotes(o){ try{ localStorage.setItem(LS_NOTES, JSON.stringify(o)); }catch(e){} }
 function renderChecklist(){
-  const st = loadCK();
+  const st = loadCK(); const nt = loadNotes();
   $('#clgrid').innerHTML = CHECKLIST.map(c => `
     <label class="ck ${st[c.id]?'done':''}" for="ck-${c.id}">
       <input type="checkbox" id="ck-${c.id}" data-ck="${c.id}" ${st[c.id]?'checked':''}>
@@ -1062,8 +1075,10 @@ function renderChecklist(){
         <div class="ti">${c.t}${c.urgent?tag('warn','需立即預訂'):''}${tag(c.status==='備案'?'free':(c.status==='需確認'?'warn':'rem'), c.status)}</div>
         <div class="de">${c.note}</div>
         <div class="row">${tag('rem','建議最晚 '+c.by)}<span class="tag bts">平台：${c.pf}</span><a class="btn ghost sm" target="_blank" rel="noopener" href="${c.url}">前往預訂 ↗</a></div>
+        <div class="noteblock"><label class="nl" for="nt-${c.id}">📝 我的備註</label><textarea id="nt-${c.id}" data-note="${c.id}" rows="1" placeholder="訂單編號、價格、時段、聯絡人…">${(nt[c.id]||'').replace(/</g,'&lt;')}</textarea></div>
       </div>
     </label>`).join('');
+  document.querySelectorAll('textarea[data-note]').forEach(autoGrow);
   updateProg();
 }
 let SYNC = null; // shared db doc when the page runs as a claude.ai artifact
@@ -1072,13 +1087,14 @@ function updateProg(){
   $('#prog').style.width = Math.round(n/CHECKLIST.length*100)+'%';
   $('#progtxt').textContent = `已完成 ${n} / ${CHECKLIST.length} 項（${SYNC?'☁ 跨裝置同步中':'自動保存於此瀏覽器'}）`;
 }
-function pushSync(){ if(!SYNC) return; const st=loadCK(); SYNC.set({items:st, updatedAt:Date.now()}).catch(()=>{}); }
+function pushSync(){ if(!SYNC) return; SYNC.set({items:loadCK(), notes:loadNotes(), updatedAt:Date.now()}).catch(()=>{}); }
+function autoGrow(t){ t.style.height='auto'; t.style.height=(t.scrollHeight+2)+'px'; }
 (async function initSync(){
   try{
     if(typeof claude==='undefined' || !claude.use) return;
     const db = await claude.use('db'); if(!db) return;
     SYNC = db.doc('checklist/shared');
-    const apply = snap => { let d=null; try{ d = snap && (typeof snap.data==='function' ? snap.data() : (snap.data||snap)); }catch(e){} if(d && d.items){ saveCK(d.items); renderChecklist(); } else { pushSync(); } };
+    const apply = snap => { let d=null; try{ d = snap && (typeof snap.data==='function' ? snap.data() : (snap.data||snap)); }catch(e){} if(d && d.items){ if(document.activeElement && document.activeElement.dataset && document.activeElement.dataset.note) return; saveCK(d.items); saveNotes(d.notes||{}); renderChecklist(); } else { pushSync(); } };
     try{ apply(await SYNC.get()); }catch(e){}
     try{ SYNC.onSnapshot(apply); }catch(e){}
     updateProg();
@@ -1137,11 +1153,18 @@ document.addEventListener('click', e => {
   const g = e.target.closest('[data-gal]'); if(g){ galTo(galIdx + (+g.dataset.gal)); return; }
   const gt = e.target.closest('[data-galto]'); if(gt){ galTo(+gt.dataset.galto); return; }
 });
+document.addEventListener('click', e => { if(e.target.closest('.noteblock')) { e.preventDefault(); const ta=e.target.closest('.noteblock').querySelector('textarea'); if(ta) ta.focus(); } }, true);
 document.addEventListener('change', e => {
   if(e.target.dataset && e.target.dataset.ck){ const st=loadCK(); st[e.target.dataset.ck]=e.target.checked; if(!e.target.checked) delete st[e.target.dataset.ck]; saveCK(st); e.target.closest('.ck').classList.toggle('done', e.target.checked); updateProg(); pushSync(); }
 });
+let noteTimer=null;
+document.addEventListener('input', e => {
+  const t=e.target; if(!(t.dataset && t.dataset.note)) return;
+  autoGrow(t); const n=loadNotes(); if(t.value.trim()) n[t.dataset.note]=t.value; else delete n[t.dataset.note]; saveNotes(n);
+  clearTimeout(noteTimer); noteTimer=setTimeout(pushSync, 800);
+});
 document.addEventListener('keydown', e => { if(!$('#modal').classList.contains('open')) return; if(e.key==='Escape') closeModal(); if(e.key==='ArrowRight') galTo(galIdx+1); if(e.key==='ArrowLeft') galTo(galIdx-1); });
-$('#clreset').addEventListener('click', () => { if(confirm('確定要清除所有勾選嗎？')){ saveCK({}); renderChecklist(); pushSync(); } });
+$('#clreset').addEventListener('click', () => { if(confirm('確定要清除所有勾選嗎？（備註會保留）')){ saveCK({}); renderChecklist(); pushSync(); } });
 // swipe on gallery
 (function(){ let x0=null; const m=$('#mbox'); m.addEventListener('touchstart',e=>{ if(e.target.closest('.gal')) x0=e.touches[0].clientX; },{passive:true}); m.addEventListener('touchend',e=>{ if(x0==null) return; const dx=e.changedTouches[0].clientX-x0; if(Math.abs(dx)>40) galTo(galIdx+(dx<0?1:-1)); x0=null; },{passive:true}); })();
 // back to top + bottom nav active
