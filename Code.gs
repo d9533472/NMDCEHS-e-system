@@ -128,6 +128,10 @@ function saveAllData(payload) {
     } else {
       serialized = JSON.stringify(val);
     }
+    // Google Sheet 單格上限 50,000 字：超過會讓整批 setValues 失敗，所有資料都存不進去
+    if (serialized.length > 50000) {
+      throw new Error('資料「' + key + '」共 ' + serialized.length + ' 字，超過 Google Sheet 單格 50,000 字上限（公告內若有 base64 圖片請改用圖片上傳按鈕）');
+    }
     updates.push([serialized]);
   }
 
@@ -150,13 +154,29 @@ function authorizeDrive() {
   Logger.log('✅ Drive 授權成功！資料夾: ' + root.getName());
 }
 
+// 公告圖片資料夾：
+//   1) 若有填 BULLETIN_IMG_FOLDER_ID → 直接用該資料夾
+//   2) 否則在船舶附件根目錄 (VESSEL_ATTACH_ROOT_ID) 底下自動建立/使用「EHS-Bulletin-Images」子資料夾
+//   3) 上述都失敗 → 在我的雲端硬碟根目錄建立「EHS-Bulletin-Images」
 function getOrCreateBulFolder() {
   if (BULLETIN_IMG_FOLDER_ID) {
     try { return DriveApp.getFolderById(BULLETIN_IMG_FOLDER_ID); } catch(e){}
   }
+  var parent = null;
+  try { parent = DriveApp.getFolderById(VESSEL_ATTACH_ROOT_ID); } catch(e){ parent = null; }
+  if (parent) {
+    var subs = parent.getFoldersByName('EHS-Bulletin-Images');
+    if (subs.hasNext()) return subs.next();
+    return parent.createFolder('EHS-Bulletin-Images');
+  }
   var folders = DriveApp.getFoldersByName('EHS-Bulletin-Images');
   if (folders.hasNext()) return folders.next();
   return DriveApp.createFolder('EHS-Bulletin-Images');
+}
+
+// 公告圖片給 <img src> 用的網址（drive.google.com/uc?export=view 已常常無法直接顯示，改用 thumbnail 端點）
+function bulImageUrl_(fileId) {
+  return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w1600';
 }
 
 function doGet(e) {
@@ -182,8 +202,8 @@ function doGet(e) {
     }
   }
 
-  // action=findImage → 根據檔名查 URL
-  if (action === 'findImage') {
+  // action=findImage / findBulImage → 根據檔名查公告圖片 URL（前端 no-cors 上傳後用這個查回網址）
+  if (action === 'findImage' || action === 'findBulImage') {
     try {
       var name = e.parameter.name;
       if (!name) throw new Error('No filename');
@@ -191,8 +211,8 @@ function doGet(e) {
       var files = folder.getFilesByName(name);
       if (!files.hasNext()) throw new Error('圖片還在上傳中');
       var file = files.next();
-      var url = 'https://drive.google.com/uc?export=view&id=' + file.getId();
-      return jsonOut_({ok:true, url:url});
+      try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(e2){}
+      return jsonOut_({ok:true, url:bulImageUrl_(file.getId()), id:file.getId()});
     } catch(err) {
       return jsonOut_({ok:false, error:err.message});
     }
@@ -209,7 +229,7 @@ function doGet(e) {
         if (!latest || f.getDateCreated() > latest.getDateCreated()) latest = f;
       }
       if (!latest) throw new Error('No image found');
-      var url = 'https://drive.google.com/uc?export=view&id=' + latest.getId();
+      var url = bulImageUrl_(latest.getId());
       return jsonOut_({ok:true, url:url, id:latest.getId()});
     } catch(err) {
       return jsonOut_({ok:false, error:err.message});
@@ -394,8 +414,7 @@ function uploadBulletinImage(payload) {
     var file = folder.createFile(blob);
     file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
     var fileId = file.getId();
-    var url = 'https://drive.google.com/uc?export=view&id=' + fileId;
-    return jsonOut_({ ok: true, url: url, fileId: fileId });
+    return jsonOut_({ ok: true, url: bulImageUrl_(fileId), fileId: fileId });
   } catch(err) {
     return jsonOut_({ ok: false, error: err.message });
   }

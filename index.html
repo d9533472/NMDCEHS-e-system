@@ -1356,7 +1356,11 @@ function renderBulHTML(){
   return h+'</div>';}
 function openBulM(id){eBulId=id||null;$('mBT').textContent=id?'編輯公告':'新增公告';$('bBul').textContent=id?'儲存':'發布';const b=id?D.bulletins.find(x=>x.id===id):null;$('rteBody').innerHTML=b?b.text:'';$('mBul').classList.remove('hidden');setTimeout(()=>$('rteBody').focus(),50);}
 function closeBulM(){$('mBul').classList.add('hidden');}
-function saveBul(){const t=$('rteBody').innerHTML.trim();if(!t||t==='<br>')return;if(eBulId){const b=D.bulletins.find(x=>x.id===eBulId);if(b)b.text=t;}else{if(!D.bulletins)D.bulletins=[];D.bulletins.unshift({id:gid(),text:t,date:todayS()});}save();renderTab();closeBulM();}
+function saveBul(){const t=$('rteBody').innerHTML.trim();if(!t||t==='<br>')return;
+  // 防呆：base64 圖片（例如從剪貼簿直接貼上）會超過 Google Sheet 單格 50,000 字上限，導致整份資料存檔失敗
+  if(/src\s*=\s*["']?data:image/i.test(t)){showToast('⚠️ 公告內含未上傳的圖片（base64），請刪除後改用工具列 🖼️ 按鈕插入圖片','err');return;}
+  if(t.length>40000){showToast('⚠️ 公告內容過長（'+t.length+' 字），雲端無法儲存，請精簡內容','err');return;}
+  if(eBulId){const b=D.bulletins.find(x=>x.id===eBulId);if(b)b.text=t;}else{if(!D.bulletins)D.bulletins=[];D.bulletins.unshift({id:gid(),text:t,date:todayS()});}save();renderTab();closeBulM();}
 function delBul(id){if(!confirm('刪除？'))return;D.bulletins=D.bulletins.filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 2 TRACKER ═══
@@ -2763,23 +2767,52 @@ function toggleHideTab(key){
 
 // ══ Bulletin Image Insert (upload to Drive via GAS) ══
 function insertBulImage(){$('bulImgInput').click();}
+// 圖片不再以 base64 塞進公告內文（Google Sheet 單格上限 50,000 字，塞 base64 會讓整份資料存檔失敗）
+// 改為：壓縮 → 上傳到 Drive（GAS uploadImage）→ 查回公開網址 → 只把 <img src="網址"> 放進公告
 async function handleBulImage(input){
   const file=input.files[0];if(!file)return;
+  if(!GAS_URL){showToast('⚠️ 未設定 GAS_URL，無法上傳圖片','err');input.value='';return;}
   showToast('⏳ 壓縮圖片中…');
   try{
-    // 壓縮到 500px 寬, 品質 0.6
-    const compressed=await compressImage(file,500,0.6);
+    // 壓縮到 1200px 寬, 品質 0.8（存在 Drive，不佔試算表空間）
+    const compressed=await compressImage(file,1200,0.8);
     const kb=Math.round(compressed.length*0.75/1024);
     console.log('Compressed image size:',kb,'KB');
 
-    // 直接 append 到 RTE
+    const uniqueName='bulletin-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+    showToast('⏳ 上傳圖片到 Drive… ('+kb+' KB)');
+
+    // no-cors POST：資料會送出，但讀不到回應，所以之後再用 GET 查檔案網址
+    fetch(GAS_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:'uploadImage',fileName:uniqueName,dataUrl:compressed})
+    });
+
+    // 等 GAS 處理完（最多重試 6 次，每次 2.5 秒）
+    let url=null,lastErr='';
+    for(let i=0;i<6;i++){
+      await new Promise(r=>setTimeout(r,2500));
+      try{
+        const r=await fetch(GAS_URL+'?action=findBulImage&name='+encodeURIComponent(uniqueName)+'&_='+Date.now(),{cache:'no-store'});
+        if(!r.ok){lastErr='HTTP '+r.status;continue;}
+        const d=await r.json();
+        if(d&&d.ok&&d.url){url=d.url;break;}
+        lastErr=(d&&d.error)||'找不到檔案';
+      }catch(e){lastErr=e.message;}
+    }
+    if(!url)throw new Error(lastErr||'上傳逾時');
+
+    // 插入 <img>（只存網址，不存 base64）
     const rte=$('rteBody');
-    const imgHtml=`<img src="${compressed}" style="max-width:400px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt=""><br>`;
-    rte.innerHTML+=imgHtml;
-    showToast(`✅ 圖片已插入 (${kb} KB)`);
+    const imgHtml=`<img src="${url}" style="max-width:480px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt=""><br>`;
+    let inserted=false;
+    try{rte.focus();inserted=document.execCommand('insertHTML',false,imgHtml);}catch(e){}
+    if(!inserted)rte.innerHTML+=imgHtml;
+    showToast('✅ 圖片已上傳並插入');
   }catch(e){
     console.error('image insert:',e);
-    showToast('⚠️ 圖片處理失敗：'+e.message,'err');
+    showToast('⚠️ 圖片上傳失敗：'+e.message+'（請確認 Code.gs 已更新並重新部署）','err');
   }
   input.value='';
 }
