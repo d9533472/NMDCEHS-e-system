@@ -1,4 +1,4 @@
-// ===== Environmental E-System — Code.gs v4 (split storage + device stats) =====
+// ===== Environmental E-System — Code.gs v5 (split storage + device stats + visitor log) =====
 // Google Sheet ID: 12GwWG_gqqb0A-a8GN5yfUEyRIfrZqDA7VGz1GoiBup0
 // 資料表名稱: Data
 // 每類資料存在不同儲存格，更穩定可擴展
@@ -7,6 +7,11 @@
 //   - 新增 ?action=deviceStats（設備分布統計）
 //   - ?action=incVisits 會同時記錄 os / browser / form 三個參數到「DeviceStats」工作表
 //   - incVisits / incLinkClick 的 Lock 改成 try/finally，避免例外時鎖沒釋放
+//
+// v5 變更：
+//   - ?action=incVisits 多接收 vid（瀏覽器訪客代號）與 ip（前端用 ipify 查到的公網 IP）
+//     寫入「Visitors」工作表，每個訪客代號一列（id / ip / os / browser / form / count / firstSeen / lastSeen）
+//   - 新增 ?action=visitorList（回傳訪客清單，前端只在編輯者登入後才會呼叫）
 
 var SHEET_ID   = '12GwWG_gqqb0A-a8GN5yfUEyRIfrZqDA7VGz1GoiBup0';
 var SHEET_NAME = 'Data';
@@ -15,6 +20,11 @@ var NCR_SYNC_SHEET = 'SyncData';
 
 // 設備統計工作表名稱（與 Data 同一份試算表，第一次呼叫會自動建立）
 var DEVICE_SHEET_NAME = 'DeviceStats';
+
+// 訪客清單工作表名稱（與 Data 同一份試算表，第一次呼叫會自動建立）
+var VISITOR_SHEET_NAME = 'Visitors';
+// 訪客清單最多回傳幾筆（依最後造訪時間排序）
+var VISITOR_LIST_LIMIT = 300;
 
 // 排班工具通行碼（選填；留空 = 不驗證）
 var ROSTER_TOKEN = '';
@@ -258,6 +268,8 @@ function doGet(e) {
       }
       // 設備統計（獨立上鎖；失敗不影響人次計數的回傳）
       try { recordDevice_(e.parameter); } catch(e4) { Logger.log('recordDevice_ error: ' + e4.message); }
+      // 訪客清單（獨立上鎖；失敗不影響人次計數的回傳）
+      try { recordVisitor_(e.parameter); } catch(e5) { Logger.log('recordVisitor_ error: ' + e5.message); }
       return jsonOut_({ok:true, visits: next});
     } catch(err) {
       return jsonOut_({ok:false, error:err.message});
@@ -281,6 +293,15 @@ function doGet(e) {
   if (action === 'deviceStats') {
     try {
       return jsonOut_(getDeviceStats_());
+    } catch(err) {
+      return jsonOut_({ok:false, error:err.message});
+    }
+  }
+
+  // action=visitorList → 回傳訪客清單 { ok, total, visitors:[{id, ip, os, browser, form, count, firstSeen, lastSeen}] }
+  if (action === 'visitorList') {
+    try {
+      return jsonOut_(getVisitorList_());
     } catch(err) {
       return jsonOut_({ok:false, error:err.message});
     }
@@ -465,6 +486,108 @@ function getDeviceStats_() {
 function testDeviceStats() {
   recordDevice_({ os: 'Windows', browser: 'Chrome', form: '電腦' });
   Logger.log(JSON.stringify(getDeviceStats_()));
+}
+
+// ─────────────────────────────────────────
+// 訪客清單（Visitors 工作表）
+// 欄位：id / ip / os / browser / form / count / firstSeen / lastSeen
+// id  = 前端存在 localStorage 的隨機代號（同一個瀏覽器固定不變；換瀏覽器或清除資料會變新的一個）
+// ip  = 前端用 ipify 查到的公網 IP（同一辦公室網路的人 IP 會相同；查不到時為空）
+// ─────────────────────────────────────────
+function visitorSheet_() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sh = ss.getSheetByName(VISITOR_SHEET_NAME);
+  if (!sh) {
+    sh = ss.insertSheet(VISITOR_SHEET_NAME);
+    sh.appendRow(['id', 'ip', 'os', 'browser', 'form', 'count', 'firstSeen', 'lastSeen']);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+
+function cleanVisitorId_(v) {
+  return String(v || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40);
+}
+
+function cleanIp_(v) {
+  return String(v || '').replace(/[^0-9a-fA-F.:]/g, '').slice(0, 45);
+}
+
+/** 每次 incVisits 呼叫一次。p = e.parameter（含 vid / ip / os / browser / form） */
+function recordVisitor_(p) {
+  p = p || {};
+  var id = cleanVisitorId_(p.vid);
+  if (!id) return; // 舊版前端沒帶 vid 就略過
+  var ip = cleanIp_(p.ip);
+  var os = cleanDeviceValue_(p.os);
+  var browser = cleanDeviceValue_(p.browser);
+  var form = cleanDeviceValue_(p.form);
+
+  var lock = LockService.getScriptLock();
+  try { lock.waitLock(5000); } catch(e) { /* 拿不到鎖就直接寫，最多少算一次 */ }
+  try {
+    var sh = visitorSheet_();
+    var now = new Date();
+    var lastRow = sh.getLastRow();
+    var row = -1;
+    if (lastRow >= 2) {
+      var ids = sh.getRange(2, 1, lastRow - 1, 1).getValues();
+      for (var i = 0; i < ids.length; i++) {
+        if (String(ids[i][0]) === id) { row = i + 2; break; }
+      }
+    }
+    if (row > 0) {
+      var cur = sh.getRange(row, 1, 1, 8).getValues()[0];
+      var newCount = Number(cur[5] || 0) + 1;
+      var firstSeen = cur[6] || now;
+      // IP 查不到時保留上一次的 IP
+      var keepIp = ip || String(cur[1] || '');
+      sh.getRange(row, 1, 1, 8).setValues([[id, keepIp, os, browser, form, newCount, firstSeen, now]]);
+    } else {
+      sh.appendRow([id, ip, os, browser, form, 1, now, now]);
+    }
+  } finally {
+    try { lock.releaseLock(); } catch(e) {}
+  }
+}
+
+/** 回傳 { ok, total, visitors:[...] }，依最後造訪時間由新到舊，最多 VISITOR_LIST_LIMIT 筆 */
+function getVisitorList_() {
+  var sh = visitorSheet_();
+  var lastRow = sh.getLastRow();
+  var list = [];
+  if (lastRow >= 2) {
+    var data = sh.getRange(2, 1, lastRow - 1, 8).getValues();
+    for (var i = 0; i < data.length; i++) {
+      var r = data[i];
+      if (!r[0]) continue;
+      list.push({
+        id: String(r[0]),
+        ip: String(r[1] || ''),
+        os: String(r[2] || ''),
+        browser: String(r[3] || ''),
+        form: String(r[4] || ''),
+        count: Number(r[5] || 0),
+        firstSeen: fmtVisitorDate_(r[6]),
+        lastSeen: fmtVisitorDate_(r[7])
+      });
+    }
+  }
+  list.sort(function(a, b) { return a.lastSeen < b.lastSeen ? 1 : a.lastSeen > b.lastSeen ? -1 : 0; });
+  var total = list.length;
+  if (list.length > VISITOR_LIST_LIMIT) list = list.slice(0, VISITOR_LIST_LIMIT);
+  return { ok: true, total: total, visitors: list };
+}
+
+function fmtVisitorDate_(d) {
+  if (d instanceof Date) return Utilities.formatDate(d, 'Asia/Taipei', 'yyyy-MM-dd HH:mm');
+  return d ? String(d) : '';
+}
+
+/** 在編輯器裡直接執行這個函式可以測試（會寫入一筆測試訪客） */
+function testVisitorList() {
+  recordVisitor_({ vid: 'test-visitor-001', ip: '1.2.3.4', os: 'Windows', browser: 'Chrome', form: '電腦' });
+  Logger.log(JSON.stringify(getVisitorList_()));
 }
 
 // ─────────────────────────────────────────
