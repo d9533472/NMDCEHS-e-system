@@ -928,12 +928,12 @@ const DAYS = [
       urls:[['在 Google Maps 開啟今日路線', dirUrl(HOTEL.q, HOTEL.q, ['Or Tor Kor Market','Chatuchak Weekend Market','Erawan Shrine Bangkok','Big C Supercenter Ratchadamri', HOTEL.q,'Le Du Restaurant Silom','The Stranger Bar Silom Soi 4'],'driving')],['恰圖恰 → 四面佛（BTS，transit）', dirUrl('Chatuchak Weekend Market','Erawan Shrine Bangkok',[],'transit')],['飯店 → 恰圖恰（MRT，transit）', dirUrl(HOTEL.q,'Chatuchak Weekend Market',[],'transit')],['晚上 Silom 步行路線', dirUrl(HOTEL.q, HOTEL.q, ['Le Du Restaurant Silom','The Stranger Bar Silom Soi 4'],'walking')]]},
     transport:['今天不包車：去程 MRT（Lumphini 站在飯店對面，Chatuchak Park 站出口直達市集）；離開恰圖恰改搭 BTS Mo Chit → Chit Lom 直達四面佛，回程 Chit Lom → Siam 轉 Silom 線 → Sala Daeng。','恰圖恰旁 Kamphaeng Phet 站是 Or Tor Kor 市場入口；買太多東西可在 Kamphaeng Phet 路口叫 Grab 回 Silom，週日下午約 30–45 分。','晚上 Le Du（Silom Soi 7）與 Stranger Bar（Silom Soi 4）都在飯店步行 5–8 分內。'],
     reminders:[{i:'🍽',b:'Le Du 紀念日晚餐 19:30',s:'需提前數週訂位（週日 18:00 起）；72 小時內取消收費'},{i:'💵',b:'恰圖恰現金',s:'多數攤位只收現金或泰國 QR，多帶小鈔；殺價保守 10–20%'},{i:'🎭',b:'Stranger Bar',s:'週日入場 ฿460（含 2 張飲料券）；變裝秀 21:30／22:30／23:50，21:45 到看得到兩場；20 歲以上、可 walk-in'},{i:'🛍',b:'Big C 伴手禮',s:'滿 ฿2,000 可辦退稅（護照）；行李箱先留空間'},{i:'🧳',b:'行李',s:'傍晚先整理好，晚上回來只要洗澡睡覺'}],
-    notes:['恰圖恰週日照常開（約 09:00–18:00），11:45 進場避開最熱時段的一半；帶水、記住區號與時鐘塔當集合點。','Or Tor Kor 市場約 06:00–18:00，有冷氣熟食區。','午後雷陣雨：市集走道會積水，躲 JJ Mall 或 Mixt Chatuchak。','<b>最後一晚需在 00:30 前回飯店</b>：隔天 10:00 要出發去機場（若 CI832 為 13:20 起飛則 09:30）。','夜間安全：注意手機與錢包、飲料不離手；泰國法定飲酒年齡 20 歲。']
+    notes:['恰圖恰週日照常開（約 09:00–18:00），11:45 進場避開最熱時段的一半；帶水、記住區號與時鐘塔當集合點。','Or Tor Kor 市場約 06:00–18:00，有冷氣熟食區。','午後雷陣雨：市集走道會積水，躲 JJ Mall 或 Mixt Chatuchak。','<b>最後一晚需在 00:30 前回飯店</b>：隔天 10:00 要出發去機場。','夜間安全：注意手機與錢包、飲料不離手；泰國法定飲酒年齡 20 歲。']
   },
   {
-    id:6, fatigue:{score:'4',lv:'🟢',note:'收尾日：早餐後送機，體力負擔低，累的是飛行本身。'}, date:'10.26', dow:'Mon 一', theme:'返台：飯店送機 → BKK → CI832', cover:'bkk2',
-    wake:'08:15', breakfast:'08:30–09:15', back:'—',
-    summary:'退房 → 10:00 飯店送機包車 → 11:00–11:30 抵達 BKK → 報到、免稅店 → 14:05 CI832 起飛',
+    id:6, fatigue:{score:'5',lv:'🟢',note:'收尾日：飛行 3.5 小時後再機捷＋台鐵 2 小時回清水，23:03 到家；帶行李轉乘三次是唯一的累點。'}, date:'10.26', dow:'Mon 一', theme:'返台：BKK → CI832 → 桃園 → 機捷・台鐵回清水', cover:'bkk2',
+    wake:'08:15', breakfast:'08:30–09:15', back:'23:03 清水到家',
+    summary:'退房 → 10:00 飯店送機 → BKK → 14:05 CI832 → 18:40 抵達桃園 → 機場捷運到老街溪站 → 計程車到中壢車站 → 21:27 自強 285 → 23:03 清水到家',
     timeline:[
       {t:'08:15',k:'minor',x:'起床'},
       {t:'08:30–09:15',k:'minor',x:'飯店早餐'},
@@ -942,20 +942,27 @@ const DAYS = [
       {t:'10:00',k:'minor',x:'包車前往 BKK（飯店送機，約 45–60 分）',tags:['hotelcar']},
       {t:'11:00–11:30',k:'minor',x:'抵達機場（4F 出境層；華航可用自助報到 KIOSK 與自助託運）'},
       {t:'11:30–13:15',k:'minor',x:'報到、託運、安檢、逛免稅店'},
-      {t:'14:05',k:'minor',x:'CI832 起飛返台',tags:['warn'],note:'現行班表為 13:20 起飛，10/25 冬季班表切換，請以機票為準'}
+      {t:'14:05',k:'minor',x:'CI832 起飛返台（飛行約 3 小時 35 分）'},
+      {t:'18:40',k:'minor',x:'抵達桃園機場 T2；入境、領行李（約 45–60 分）'},
+      {t:'19:40',k:'minor',x:'機場捷運 A13 機場第二航廈站 → 往中壢方向普通車 → A21 老街溪站（約 25 分、票價約 NT$35，每 15 分一班）',tags:['mrt']},
+      {t:'20:10',k:'minor',x:'老街溪站出口叫計程車 → 中壢火車站（約 3 km、10 分、NT$120–150）',tags:['grab'],note:'或 Uber／桃園客運 5 分鐘一班'},
+      {t:'20:25',k:'minor',x:'中壢車站取票、便利商店買宵夜（車上可飲食）'},
+      {t:'21:27',k:'minor',x:'台鐵 自強(3000) 285 次（花蓮 → 彰化，海線）中壢發車',tags:['bts','rem'],note:'全車對號、不售無座票，需事先訂票'},
+      {t:'23:03',k:'minor',x:'抵達清水站，回家 🏠'}
     ],
-    route:{title:'飯店 → 素萬那普機場 BKK',
-      stops:[{n:'Crowne Plaza Lumpini Park',h:1,legs:['hotelcar'],lg:'飯店送機 · 約 45–60 分（高速公路）'},{n:'素萬那普機場 BKK 4F 出境',legs:[]}],
-      urls:[['在 Google Maps 開啟今日路線', dirUrl(HOTEL.q, BKK.q, [],'driving')]]},
-    transport:['飯店送機可向 Crowne Plaza 櫃台預約（+66 2 632 9000），或 Klook／KKday 訂機場送機；週一早上 10:00 出發正常約 45–60 分。','若 CI832 確認為 13:20 起飛，11:00–11:30 抵達機場僅約 2 小時，建議提早至 09:30 出發。','華航建議國際線起飛前 2 小時到機場；櫃台於起飛前 1 小時關閉（櫃台排號以現場螢幕為準）。'],
-    reminders:[{i:'🚐',b:'10/26 飯店送機',s:'10/14 前向飯店或 Klook 預訂 10:00 出發'},{i:'✈️',b:'CI832 起飛時間再確認',s:'目前班表 13:20，非 14:05；10/1 前查華航班表與電子機票'}],
+    route:{title:'飯店 → BKK ✈ 桃園 T2 → 機捷 A21 老街溪 → 中壢車站 → 台鐵 → 清水',
+      stops:[{n:'Crowne Plaza Lumpini Park',h:1,legs:['hotelcar'],lg:'飯店送機 · 約 45–60 分'},{n:'素萬那普機場 BKK 4F 出境 ✈ CI832 14:05',legs:[],lg:'飛行約 3 小時 35 分'},{n:'桃園機場 T2 18:40 抵達',legs:['mrt'],lg:'機場捷運普通車 A13 → A21 約 25 分'},{n:'A21 老街溪站',legs:['grab'],lg:'計程車 10 分'},{n:'中壢火車站 21:27 自強 285',legs:['bts'],lg:'海線 1 小時 36 分'},{n:'清水站 23:03',legs:[]}],
+      urls:[['飯店 → BKK（Google Maps）', dirUrl(HOTEL.q, BKK.q, [],'driving')],['桃園機場 T2 → 老街溪站（transit）', dirUrl('Taoyuan Airport Terminal 2 Station','Laojie River Station Zhongli',[],'transit')],['老街溪站 → 中壢車站', dirUrl('Laojie River Station Zhongli','Zhongli Railway Station',[],'driving')],['台鐵時刻表（自強 285）','https://www.railway.gov.tw/tra-tip-web/tip/tip001/tip112/gobytime']]},
+    transport:['飯店送機可向 Crowne Plaza 櫃台預約（+66 2 632 9000），或 Klook／KKday 訂機場送機；週一早上 10:00 出發正常約 45–60 分，11:00 到機場有 3 小時。','<b>桃園回清水</b>：T2 入境後走到 A13 機場第二航廈站，搭往中壢方向的普通車（藍色）到終點 A21 老街溪站約 25 分（A13 只有普通車往中壢；直達車是往台北方向，別搭錯月台）。','老街溪站 → 中壢火車站約 3 km，出口計程車或 Uber 10 分鐘（NT$120–150）；也可搭桃園客運（5 分一班）約 15 分。','台鐵自強(3000) 285 次：中壢 21:27 → 清水 23:03，海線經新竹、苗栗、大甲，全票 NT$383；<b>全車對號、不售無座票</b>，請在台鐵 e 訂通提前訂票（乘車日 28 天前 00:00 開放，即 9/28 起可訂），第 6 節騰雲座艙須持該車廂票。','若飛機延誤：285 是當晚最後幾班海線自強之一，備案是中壢 → 新竹／彰化再轉區間車，或 A21 直接搭客運／計程車回清水（約 1.5 小時、NT$2,500 左右）。'],
+    reminders:[{i:'🚐',b:'10/26 飯店送機',s:'10/14 前向飯店或 Klook 預訂 10:00 出發'},{i:'🚆',b:'台鐵自強 285 訂票（中壢 21:27 → 清水 23:03）',s:'9/28 起台鐵 e 訂通可訂；全車對號，兩張、可用信用卡付款取票'},{i:'✈️',b:'CI832 14:05 → 18:40',s:'依你的機票；出發前再對一次華航 App'}],
     notes:['10:00 務必離開飯店；前一晚 00:30 前回飯店。','退房前檢查保險箱、浴室、充電線；泰銖零錢可在機場用完。','液體退稅／免稅店購物請預留時間，安檢後 D／E／F／G 廊皆有店家。','護照效期須 6 個月以上；入境卡（TDAC）已於 2025 起數位化，出發前 3 天內線上填寫。']
   }
 ];
 
 /* ============ CHECKLIST ============ */
 const CHECKLIST = [
-  {id:'flight',t:'CI833／CI832 航班確認',by:'10/01',pf:'華航官網 china-airlines.com',url:'https://booking.china-airlines.com/Flightschedule/?country=us&locale=en',urgent:true,note:'CI833 07:00→09:45 無誤；CI832 現行班表 13:20（非 14:05），10/25 冬季班表切換後再確認並線上劃位。',status:'需確認'},
+  {id:'flight',t:'CI833 07:00→09:45／CI832 14:05→18:40 線上劃位',by:'10/19',pf:'華航 App／官網',url:'https://www.china-airlines.com/',urgent:false,note:'依你的機票 CI832 14:05 起飛、18:40 抵桃園；出發前 48 小時線上報到選位。',status:'已確認'},
+  {id:'tra',t:'10月26日 台鐵自強(3000) 285 中壢 21:27 → 清水 23:03 訂票',by:'09/28 起開放',pf:'台鐵 e 訂通 App／網站',url:'https://www.railway.gov.tw/tra-tip-web/tip',urgent:true,note:'全車對號、不售無座票；全票 NT$383×2。乘車日 28 天前 00:00 開放，9/28 一開放就訂；付款後可超商或站內取票。',status:'未確認'},
   {id:'tymotel',t:'10月20日 桃園 TY 精品商務旅館（已訂）＋ 04:30 送機預約',by:'入住當晚',pf:'Trip.com',url:'https://tw.trip.com/hotels/taoyuan-hotel-detail-5790716/ty-motel/',urgent:false,note:'訂單編號 1658114674865728；桃園市大園區三民路二段 615 號，距 T2 約 4 km。入住時預約隔天 04:30 免費送機（清晨時段需確認），或備計程車；10/20 先在華航 App 線上報到。',status:'已預訂'},
   {id:'pickup',t:'10月21日 BKK 接機',by:'10/14',pf:'Klook／KKday／AOT Limousine',url:'https://www.klook.com/en-US/activity/1596-private-car-charter-thailand-bangkok/',urgent:false,note:'目前決定搭 ARL＋BTS 進市區，此項為備案：若改回包車接機再預訂（AOT Limousine 約 ฿1,000 起）。',status:'備案'},
   {id:'maha',t:'Mahanakhon SkyWalk 門票（10/21 夕陽時段）',by:'10/18',pf:'Klook／官方',url:'https://www.klook.com/en-US/activity/16870-king-power-mahanakhon-skywalk-ticket-bangkok/',urgent:false,note:'選 16:00–19:00 夕陽票（最後入場 18:30），憑證直接入場。價格以預訂頁面為準。',status:'未確認'},
@@ -980,7 +987,7 @@ const NOTES = [
   {h:'🚶 10/23 中國城與河畔老街',l:['一整天不回飯店：早上就帶齊晚上要的東西；中國城 → Talad Noi → Charoenkrung → Sathorn 碼頭一路往南走，累了隨時 Grab 5–10 分。','兩座寺廟遮肩膝、脫鞋；Skyflyers 17:30 場先搭再吃晚餐（酒後不能搭），手機眼鏡不能帶上去。','Asiatique 接駁船末班 23:30；16:15 離開 Charoenkrung 是硬底線。']},
   {h:'🛺 古城高爾夫球車',l:['駕駛須 18 歲以上並持泰國或國際駕照（IDP）；押金為護照或駕照。','出發前在台灣監理站辦妥 IDP；租車時確認電量與歸還時間。']},
   {h:'👘 泰服與外拍',l:['男生尺寸、同性雙人造型是否有配對款式，建議事先詢問；園區租衣不含鞋、妝髮與配件升級。','押金（護照或駕照）、歸還時間（閉園前）、外拍方案含攝影師與修圖時程請先確認。']},
-  {h:'🌙 最後一晚與離境',l:['10/25 夜生活②需在 00:30 前回飯店。','10/26 10:00 準時離開飯店前往 BKK；若 CI832 為 13:20 起飛則改 09:30 出發。']},
+  {h:'🌙 最後一晚與離境',l:['10/25 夜生活②需在 00:30 前回飯店。','10/26 10:00 準時離開飯店前往 BKK；CI832 14:05 起飛、18:40 抵桃園，落地後機捷 → 老街溪 → 中壢 → 自強 285 回清水，台鐵票 9/28 起先訂好。']},
   {h:'🛂 護照、現金、叫車與夜間安全',l:['護照正本放保險箱，外出帶影本；夜店（DJ Station）需附照片證件。','現金：夜店、小吃、計程車多收現金；ATM 每筆手續費約 ฿220，一次多領。','叫車優先用 Grab（固定價、有紀錄）；路邊計程車要求跳表、避免嘟嘟車喊價。','夜間：注意手機與錢包、飲料不離手、拒絕拉客去 Patpong 秀場；泰國法定飲酒年齡 20 歲。','出發前 3 天內填寫泰國數位入境卡（TDAC）；護照效期需 6 個月以上。']}
 ];
 </script>
@@ -1136,10 +1143,10 @@ function renderFH(){
     <div class="frow"><div><b>抵達機場</b><strong>素萬那普 BKK</strong></div><div><b>建議進市區時間</b><strong>11:15</strong></div><div><b>方式</b><strong>ARL＋BTS（或接機包車）</strong></div><div><b>飛行時間</b><strong>約 3 小時 45 分</strong></div></div>
   </div>
   <div class="fcard">
-    <div class="fl"><div><div class="code">CI832</div><div class="al">China Airlines · 中華航空 · 回程</div></div>${tag('warn','起飛時間需再確認')}</div>
-    <div class="route"><div class="ap">BKK<small>Bangkok Suvarnabhumi Airport<br>10/26 <b>14:05</b> 起飛</small></div><div class="plane">✈</div><div class="ap r">TPE<small>台北桃園<br>約 3 小時 40 分</small></div></div>
-    <div class="frow"><div><b>飯店出發</b><strong>10:00</strong></div><div><b>預計抵達機場</b><strong>11:00 – 11:30</strong></div><div><b>出境層</b><strong>4F · 自助報到 KIOSK</strong></div><div><b>現行班表</b><strong>13:20（10/25 冬季班表切換）</strong></div></div>
-    <div class="credit" style="color:rgba(255,255,255,.6)">依你提供的 14:05 顯示；flightera 2026-09 班表為 13:20，請以電子機票與華航官網為準。若為 13:20，建議 09:30 出發。</div>
+    <div class="fl"><div><div class="code">CI832</div><div class="al">China Airlines · 中華航空 · 回程</div></div>${tag('ok','已排定')}</div>
+    <div class="route"><div class="ap">BKK<small>Bangkok Suvarnabhumi Airport<br>10/26 <b>14:05</b> 起飛</small></div><div class="plane">✈</div><div class="ap r">TPE<small>桃園機場 T2<br>10/26 <b>18:40</b> 抵達</small></div></div>
+    <div class="frow"><div><b>飯店出發</b><strong>10:00</strong></div><div><b>預計抵達機場</b><strong>11:00 – 11:30</strong></div><div><b>出境層</b><strong>4F · 自助報到 KIOSK</strong></div><div><b>落地後回清水</b><strong>機捷 A13→A21 老街溪 → 計程車中壢 → 自強 285 21:27→23:03</strong></div></div>
+    <div class="credit" style="color:rgba(255,255,255,.6)">出發前 48 小時可在華航 App 線上報到；落地後的機捷、台鐵接駁見 Day 6 時間軸。</div>
   </div>
   <div class="hcard">
     <div class="pic" ${bg('lump1')}><div class="cap"><b>Crowne Plaza Bangkok Lumpini Park</b><span>by IHG · 每日路線起點與終點 · 倫披尼公園旁</span></div></div>
