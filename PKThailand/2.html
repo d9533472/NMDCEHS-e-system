@@ -789,10 +789,15 @@ const NIGHT = {
 /* ============ DAYS ============ */
 const DAYS = [
   {
-    id:1, fatigue:{score:'7',lv:'🟠',note:'台灣 04:30 起床＋帶行李轉乘，清醒 18.5 小時；午睡後 Mahanakhon 不算重，晚上想睡就睡。'}, date:'10.21', dow:'Wed 三', theme:'抵達曼谷 ＋ Mahanakhon 夜景 ＋ 私人自由時間', cover:'hero1',
-    wake:'—', breakfast:'機上', back:'23:00',
-    summary:'CI833 抵達 → 捷運進市區 → Silom 午餐 → 休息 → Mahanakhon 夕陽夜景 → Silom 晚餐',
+    id:1, fatigue:{score:'6.5',lv:'🟠',note:'前一晚住桃園機場旁，04:40 起床；帶行李轉乘＋清醒 18 小時，午睡後 Mahanakhon 不算重，晚上想睡就睡。'}, date:'10.21', dow:'Wed 三', theme:'抵達曼谷 ＋ Mahanakhon 夜景 ＋ 私人自由時間', cover:'hero1',
+    wake:'04:40（桃園）', breakfast:'機上', back:'23:00',
+    summary:'前一晚宿桃園 TY 精品商務旅館 → 05:00 送機 → CI833 → 09:45 抵達 BKK → 捷運進市區 → Silom 午餐 → 休息 → Mahanakhon 夕陽夜景 → Silom 晚餐',
     timeline:[
+      {t:'10/20 夜',k:'minor',x:'前一晚入住桃園 TY 精品商務旅館（大園區三民路二段 615 號，Trip.com 訂單 1658114674865728）；抵達方式見下方交通建議',tags:['rem']},
+      {t:'04:40',k:'minor',x:'起床、退房（旅館可免費寄放停車、免費送機，送機時段請前一晚向櫃台預約）'},
+      {t:'05:00',k:'minor',x:'旅館送機或計程車約 10 分 → 桃園機場第二航廈（華航）',tags:['hotelcar'],note:'起飛前 2 小時到機場'},
+      {t:'05:10–06:30',k:'minor',x:'華航櫃台報到、託運、安檢、出境'},
+      {t:'07:00',k:'minor',x:'CI833 起飛（飛行約 3 小時 45 分）'},
       {t:'09:45',k:'minor',x:'CI833 抵達曼谷素萬那普機場 BKK',tags:[]},
       {t:'09:45–11:00',k:'minor',x:'入境、領行李、換少量泰銖（機場匯率較差，換到市區夠用即可）'},
       {t:'11:15',k:'minor',x:'出發前往飯店：Airport Rail Link（B1 層）→ Phaya Thai 轉 BTS → Siam 轉 Silom 線 → Sala Daeng；約 60–75 分、票價約 ฿45 ＋ ฿33–37',tags:['arl','bts'],note:'Phaya Thai 轉乘有電梯，帶行李最友善'},
@@ -809,9 +814,9 @@ const DAYS = [
     route:{title:'BKK → 飯店 → Mahanakhon → Silom → 飯店',
       stops:[{n:'素萬那普機場 BKK',legs:['arl','bts'],lg:'ARL → Phaya Thai → BTS Sala Daeng · 約 60–75 分'},{n:'Crowne Plaza Lumpini Park',h:1,legs:['walk','bts'],lg:'BTS 1 站至 Chong Nonsi · 約 15–20 分'},{n:'King Power Mahanakhon SkyWalk',legs:['walk'],lg:'步行 8–12 分'},{n:'Silom 晚餐（Convent Rd／Sala Daeng）',legs:['walk'],lg:'步行 5–8 分'},{n:'Crowne Plaza Lumpini Park',h:1}],
       urls:[['在 Google Maps 開啟今日路線', dirUrl(BKK.q, HOTEL.q, [HOTEL.q,'King Power Mahanakhon','Silom Road, Bangkok'],'driving')],['機場 → 飯店 捷運路線（transit）', dirUrl(BKK.q, HOTEL.q, [], 'transit')],['飯店 → Mahanakhon（transit）', dirUrl(HOTEL.q, 'King Power Mahanakhon', [], 'transit')]]},
-    transport:['ARL 機場站在航廈 B1，票價 ฿45 至 Phaya Thai（約 25–30 分，6–15 分一班）；外國旅客不適用 ฿20 均一票價。','帶行李建議走 Phaya Thai 轉 BTS（室內、有電梯）；Makkasan 轉 MRT 需走 7–10 分高架通道。','若改搭車：2F 排隊計程車跳表約 ฿350–500（含 ฿50 機場費＋高速費）、Grab 約 ฿500–800，40–60 分。','Mahanakhon 就在 BTS Chong Nonsi 3 號出口，回程可原路搭 1 站或直接步行約 20 分回 Sala Daeng。'],
-    reminders:[{i:'🎫',b:'Mahanakhon SkyWalk 門票',s:'Klook 訂「夕陽時段 16:00–19:00」票，最晚 10/18 前'},{i:'🍽',b:'Silom 晚餐',s:'選 Eat Me／Taling Pling 需訂位，Baan Somtum 免訂'},{i:'🚄',b:'捷運進市區',s:'預留 60–75 分；2 件大行李以上可考慮改 Grab'}],
-    notes:['10 月午後常有 30–90 分鐘雷陣雨：Mahanakhon 78F 戶外層遇雨暫停，先留在 74F 室內等待。','抵達日不安排 Gay Bar，讓隔天 06:45 早起不會太辛苦。','Check-in 14:00；若房間未備妥，行李寄放後直接去午餐。','護照正本入住後放保險箱，外出帶影本＋一張實體證件。']
+    transport:['<b>10/20 前往 TY 精品商務旅館</b>（桃園市大園區三民路二段 615 號）：機場捷運 A15 大園站下車再計程車約 5 分（約 2 km）；高鐵桃園站轉計程車約 20 分；自駕可免費停車並在出國期間寄放（請向旅館確認）。','<b>10/21 清晨去機場</b>：旅館提供免費送機（時段需前一晚預約，清晨班次請確認）或計程車約 10 分、約 NT$200–250 到第二航廈；華航國際線於 T2 報到，起飛前 2 小時到達、櫃台起飛前 60 分關閉。','ARL 機場站在航廈 B1，票價 ฿45 至 Phaya Thai（約 25–30 分，6–15 分一班）；外國旅客不適用 ฿20 均一票價。','帶行李建議走 Phaya Thai 轉 BTS（室內、有電梯）；Makkasan 轉 MRT 需走 7–10 分高架通道。','若改搭車：2F 排隊計程車跳表約 ฿350–500（含 ฿50 機場費＋高速費）、Grab 約 ฿500–800，40–60 分。','Mahanakhon 就在 BTS Chong Nonsi 3 號出口，回程可原路搭 1 站或直接步行約 20 分回 Sala Daeng。'],
+    reminders:[{i:'🏨',b:'10/20 TY 精品商務旅館',s:'Trip.com 訂單 1658114674865728；入住時預約 05:00 送機'},{i:'🎫',b:'Mahanakhon SkyWalk 門票',s:'Klook 訂「夕陽時段 16:00–19:00」票，最晚 10/18 前'},{i:'🍽',b:'Silom 晚餐',s:'選 Eat Me／Taling Pling 需訂位，Baan Somtum 免訂'},{i:'🚄',b:'捷運進市區',s:'預留 60–75 分；2 件大行李以上可考慮改 Grab'}],
+    notes:['前一晚住桃園機場旁：04:40 起床、05:00 出發即可，比從台北出發多睡 1.5 小時。','10 月午後常有 30–90 分鐘雷陣雨：Mahanakhon 78F 戶外層遇雨暫停，先留在 74F 室內等待。','抵達日不安排 Gay Bar，讓隔天 06:45 早起不會太辛苦。','Check-in 14:00；若房間未備妥，行李寄放後直接去午餐。','護照正本入住後放保險箱，外出帶影本＋一張實體證件。']
   },
   {
     id:2, fatigue:{score:'8.5',lv:'🔴',note:'Safari World 戶外 7 小時＋兩小時自助餐，清醒 15 小時；睡眠充足、隔天慢活日，設計上剛好。'}, date:'10.22', dow:'Thu 四', theme:'Safari World 一整天 ＋ Baiyoke Sky 自助晚餐', cover:'safari2',
@@ -951,6 +956,7 @@ const DAYS = [
 /* ============ CHECKLIST ============ */
 const CHECKLIST = [
   {id:'flight',t:'CI833／CI832 航班確認',by:'10/01',pf:'華航官網 china-airlines.com',url:'https://booking.china-airlines.com/Flightschedule/?country=us&locale=en',urgent:true,note:'CI833 07:00→09:45 無誤；CI832 現行班表 13:20（非 14:05），10/25 冬季班表切換後再確認並線上劃位。',status:'需確認'},
+  {id:'tymotel',t:'10月20日 桃園 TY 精品商務旅館（已訂）＋ 05:00 送機預約',by:'入住當晚',pf:'Trip.com',url:'https://tw.trip.com/hotels/taoyuan-hotel-detail-5790716/ty-motel/',urgent:false,note:'訂單編號 1658114674865728；桃園市大園區三民路二段 615 號，距 T2 約 4 km。入住時預約隔天 05:00 免費送機（清晨時段需確認），或備計程車。',status:'已預訂'},
   {id:'pickup',t:'10月21日 BKK 接機',by:'10/14',pf:'Klook／KKday／AOT Limousine',url:'https://www.klook.com/en-US/activity/1596-private-car-charter-thailand-bangkok/',urgent:false,note:'目前決定搭 ARL＋BTS 進市區，此項為備案：若改回包車接機再預訂（AOT Limousine 約 ฿1,000 起）。',status:'備案'},
   {id:'maha',t:'Mahanakhon SkyWalk 門票（10/21 夕陽時段）',by:'10/18',pf:'Klook／官方',url:'https://www.klook.com/en-US/activity/16870-king-power-mahanakhon-skywalk-ticket-bangkok/',urgent:false,note:'選 16:00–19:00 夕陽票（最後入場 18:30），憑證直接入場。價格以預訂頁面為準。',status:'未確認'},
   {id:'safari',t:'10月22日 Safari World 一日票',by:'10/18',pf:'Klook',url:'https://www.klook.com/en-US/activity/365-safari-world-bangkok/',urgent:false,note:'至少提前 1 天；可選含自助午餐方案。價格以預訂頁面為準。',status:'未確認'},
@@ -1119,9 +1125,14 @@ function renderDay(id){
 /* ============ FLIGHTS & HOTEL ============ */
 function renderFH(){
   $('#fhgrid').innerHTML = `
+  <div class="fcard" style="grid-column:1/-1;background:linear-gradient(160deg,#1b3a66,#122a4d)">
+    <div class="fl"><div><div class="code" style="font-size:26px">前一晚 · 10/20</div><div class="al">Pre-flight stay · 桃園機場旁</div></div>${tag('ok','已預訂 · Trip.com')}</div>
+    <div class="frow" style="margin-top:14px"><div><b>旅館</b><strong>TY 精品商務旅館（TY Motel）</strong></div><div><b>地址</b><strong>桃園市大園區三民路二段 615 號</strong></div><div><b>Trip.com 訂單</b><strong>1658114674865728</strong></div><div><b>距桃園機場</b><strong>約 4 km · 車程 10 分</strong></div><div><b>去程交通</b><strong>機場捷運 A15 大園站＋計程車 5 分／高鐵桃園站計程車 20 分／自駕免費停車寄放</strong></div><div><b>10/21 清晨</b><strong>05:00 旅館免費送機（入住時預約）或計程車 → T2 華航</strong></div></div>
+    <div class="btnrow" style="margin-top:14px"><a class="btn gold sm" target="_blank" rel="noopener" href="https://tw.trip.com/hotels/taoyuan-hotel-detail-5790716/ty-motel/">Trip.com 訂單頁 ↗</a><a class="btn ghost sm" target="_blank" rel="noopener" href="${gm('TY精品商務旅館 桃園市大園區三民路二段615號')}">Google Maps ↗</a><a class="btn ghost sm" target="_blank" rel="noopener" href="${dirUrl('TY精品商務旅館 桃園市大園區三民路二段615號','Taiwan Taoyuan International Airport Terminal 2',[],'driving')}">旅館 → T2 路線 ↗</a></div>
+  </div>
   <div class="fcard">
     <div class="fl"><div><div class="code">CI833</div><div class="al">China Airlines · 中華航空 · 去程</div></div>${tag('ok','已排定')}</div>
-    <div class="route"><div class="ap">TPE<small>台北桃園<br>10/21 07:00 起飛</small></div><div class="plane">✈</div><div class="ap r">BKK<small>Bangkok Suvarnabhumi Airport<br>10/21 <b>09:45</b> 抵達</small></div></div>
+    <div class="route"><div class="ap">TPE<small>桃園機場 T2<br>10/21 07:00 起飛（05:00 自 TY 旅館出發）</small></div><div class="plane">✈</div><div class="ap r">BKK<small>Bangkok Suvarnabhumi Airport<br>10/21 <b>09:45</b> 抵達</small></div></div>
     <div class="frow"><div><b>抵達機場</b><strong>素萬那普 BKK</strong></div><div><b>建議進市區時間</b><strong>11:15</strong></div><div><b>方式</b><strong>ARL＋BTS（或接機包車）</strong></div><div><b>飛行時間</b><strong>約 3 小時 45 分</strong></div></div>
   </div>
   <div class="fcard">
