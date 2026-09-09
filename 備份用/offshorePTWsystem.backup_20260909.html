@@ -1437,27 +1437,12 @@ function renderDownloads(rows){
   $('downloadsList').innerHTML=h+'</div>';
 }
 function loadPublicDownloads(){
-  // 未登入首頁：先用上次快取即時顯示，再用「一支」合併 API（home.public）背景更新
-  var key='ptw_home_cache_public';
-  var env=null; try{ env=JSON.parse(sget(key)||'null'); }catch(e){}
-  var cached=env&&env.data;
-  var render=function(d){
-    if(d.downloads) renderDownloads(d.downloads);
-    if(d.board){ var bw=$('boardWrap'); if(bw) bw.classList.remove('d-none'); renderBoard(d.board); }
-    if(d.announcements) renderAnnouncements(d.announcements);
-  };
-  if(cached) render(cached);
-  if(env&&env.__t&&(Date.now()-env.__t)<15000) return;
-  api('home.public',{},{silent:!!cached}).then(function(res){
-    if(res.ok){ try{ sset(key,JSON.stringify({__t:Date.now(),data:res.data})); }catch(e){} render(res.data); return; }
-    if(res.errorCode!=='UNKNOWN_ACTION') return;
-    // 後端尚未部署 home.public → 退回原本的三支呼叫
-    api('downloads.list',{},{silent:!!cached}).then(function(r){ if(r.ok) renderDownloads(r.data); });
-    api('ptw.board',{},{silent:!!cached}).then(function(r){
-      if(r.ok){ var bw=$('boardWrap'); if(bw) bw.classList.remove('d-none'); renderBoard(r.data); }
-    });
-    loadPublicAnnounces();
+  api('downloads.list',{}).then(function(res){ if(res.ok) renderDownloads(res.data); });
+  
+  api('ptw.board',{}).then(function(res){
+    if(res.ok){ var bw=$('boardWrap'); if(bw) bw.classList.remove('d-none'); renderBoard(res.data); }
   });
+  loadPublicAnnounces();
 }
  
 function renderFlowBar(){
@@ -1485,8 +1470,7 @@ function renderHome(){
   else $('kpiRow').innerHTML='<div class="text-muted small p-2">'+(lang==='zh'?'載入中…':'Loading…')+'</div>';
   
   if(env&&env.__t&&(Date.now()-env.__t)<15000) return;
-  // 已有快取畫面 → 背景更新，不顯示全畫面「讀取中」
-  api('home.bootstrap',{},{silent:!!cached}).then(function(res){
+  api('home.bootstrap',{}).then(function(res){
     if(!res.ok){ if(!cached) $('kpiRow').innerHTML='<div class="text-danger small p-2">'+esc(apiMsg(res))+'</div>'; return; }
     try{ sset(homeKey,JSON.stringify({__t:Date.now(),data:res.data})); }catch(e){}
     renderHomeData(res.data);
@@ -3073,7 +3057,7 @@ function loadPtwList(){
   var cached=null; try{ cached=JSON.parse(sget(key)||'null'); }catch(e){}
   if(cached) renderPtwListData(cached);
   else $('ptwList').innerHTML='<div class="text-muted small p-2">Loading…</div>';
-  api('ptw.list',{status:$('pfStatus').value,q:$('pfQ').value.trim(),mine:$('pfMine').checked?1:'' },{silent:!!cached}).then(function(res){
+  api('ptw.list',{status:$('pfStatus').value,q:$('pfQ').value.trim(),mine:$('pfMine').checked?1:'' }).then(function(res){
     if(!res.ok){ if(!cached) $('ptwList').innerHTML='<div class="text-danger p-2">'+esc(apiMsg(res))+'</div>'; return; }
     try{ sset(key,JSON.stringify(res.data)); }catch(e){}
     renderPtwListData(res.data);
@@ -3752,7 +3736,7 @@ function gotoStep(i){
   }
   if(cur&&cur.editable&&curStep!==i){
     collectStep();
-    if(dirty) saveNow(false,true); // 換步驟自動存檔：背景進行，不擋畫面（狀態列會顯示「儲存中…」）
+    if(dirty) saveNow(); 
   }
   curStep=Math.max(0,Math.min(STEPS.length-1,i));
   if(isMyReviewTurn()&&curStep>(cur._maxSeen||0)){ cur._maxSeen=curStep; renderReviewBar(); }
@@ -4308,7 +4292,7 @@ function collectStep(){
     cur.coHolderUserId=JSON.stringify(ids);
   }
 }
-function saveNow(showToast,silent){
+function saveNow(showToast){
   if(!cur||!cur.editable) return Promise.resolve({ok:true,skipped:true});
   collectStep();
   if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; }
@@ -4319,7 +4303,7 @@ function saveNow(showToast,silent){
    'psOthers','hzOthers','cssOthers','pcOthers','holderUserId','coHolderUserId','paDeclarationAccepted']
    .forEach(function(k){ payload[k]=cur[k]===undefined?'':cur[k]; });
   WT_DEF.forEach(function(d){ payload[d[0]]=asB(cur[d[0]]); });
-  return api('ptw.saveDraft',payload,{silent:!!silent}).then(function(res){
+  return api('ptw.saveDraft',payload).then(function(res){
     if(res.ok){
       dirty=false;
       $('pfSaveState').textContent='✓ '+T('pw.saved')+' '+new Date().toTimeString().substring(0,5);
