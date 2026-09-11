@@ -2,6 +2,8 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1f33">
 <title>Environmental E-System</title>
 <link rel="icon" href="assets/nmdc-energy-logo.jpeg">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Noto+Sans+TC:wght@400;500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
@@ -535,6 +537,145 @@ body.is-editor .hdr-search{padding:7px 9px;font-size:14px;line-height:1}
   .season-banner{padding:12px 14px;gap:10px;flex-direction:column;align-items:stretch}.season-banner .sb-moonwrap{position:absolute;right:0;top:0;height:0}.season-banner .sb-moon{right:-30px;top:-40px;width:80px;height:80px}.season-banner .sb-rabbit{right:34px;top:6px;font-size:18px}.season-banner .sb-sep{display:none}.season-banner .sb-close{position:absolute;top:8px;right:8px}.season-banner .sb-item{padding-right:40px}
   .bul-head .bh-search{min-width:0;width:100%;order:3}
   .ftr-inner{grid-template-columns:1fr;gap:26px;padding:28px 18px 16px}.ftr-season{padding:18px 18px 0}
+}
+/* ══════════ MOBILE OPTIMIZATION ══════════ */
+/* 觸控裝置：沒有 hover，動作按鈕直接顯示、加大點擊區域 */
+@media(hover:none),(pointer:coarse){
+  .link-actions,.bulletin-item .b-actions{opacity:1}
+  .icon-btn{width:32px;height:32px}.icon-btn.sm{width:26px;height:26px;font-size:11px}
+  .main-tab:hover{background:transparent;color:#bbf7d0}.main-tab.active:hover{background:rgba(255,255,255,.12);color:#fff}
+  .bulletin-item:hover{transform:none}
+  .sched-img-card img:hover{transform:none}
+  .icon-opt:hover{transform:none}
+}
+@media(max-width:640px){
+  html{-webkit-text-size-adjust:100%}
+  .container{padding:12px 12px 40px}
+  .card{padding:14px 12px;border-radius:12px;margin-bottom:12px}
+  #tabContent,.tab-panel{min-width:0}
+  #tabContent img{max-width:100%;height:auto}
+  .b-text,.doc-note,.link-item a,.section-name{overflow-wrap:anywhere}
+  .b-text table{display:block;max-width:100%;overflow-x:auto}
+  /* Header：緊湊化，只保留圖示 */
+  .hdr-top{min-height:52px;padding:6px 12px;gap:8px}
+  .hdr-brand{gap:10px}.hdr-logo{height:24px}.hdr-divider{display:none}
+  .hdr-title{font-size:14px}
+  .hdr-right{gap:6px}
+  .hdr-search{padding:7px 8px;font-size:14px;line-height:1}
+  .site-header .btn-auth .lbl,.site-header .auth-status .lbl{display:none}
+  .site-header .btn-auth{padding:6px 8px;font-size:14px;line-height:1}
+  .site-header .auth-status.editor{padding:4px 7px;font-size:11px;gap:5px}
+  .site-header .sync-badge{margin-left:4px;padding:3px 7px;font-size:10px}
+  .site-header #visitCounter{display:none!important}
+  .hdr-nav-inner{padding:0 4px}
+  .main-tabs{-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+  .main-tab{padding:0 12px;height:42px;font-size:13px;scroll-snap-align:start}
+  .btn-login-tiny{font-size:12px;padding:6px 10px}
+  /* Info bar */
+  .info-bar{padding:8px 10px;gap:6px;margin-bottom:12px;font-size:12px}
+  .info-bar .ib-date{font-size:13px}
+  .info-bar .ib-chip{padding:3px 8px;font-size:11px}
+  .info-bar .ib-next{font-size:12px;padding:4px 6px 4px 8px;gap:6px}
+  .info-bar .ib-next .ib-cd{padding:2px 8px;font-size:11px}
+  .info-bar .ib-stats .ib-sg{font-size:12px;padding:4px 6px}
+  .info-bar .ib-stats .ib-sh{font-size:10px;padding:3px 4px}
+  .info-bar .ib-stats>div{padding:5px 4px}
+  .info-bar .ib-stats .ib-sn{min-width:24px;padding:1px 7px;font-size:13px}
+  .info-bar .ib-stats .ib-sp{font-size:10px}
+  /* Season banner */
+  .season-banner{padding:12px 12px;margin-bottom:12px}.season-banner .sb-t{font-size:14px}.season-banner .sb-d{font-size:11.5px}
+  /* Bulletin */
+  .bul-head{gap:8px;margin-bottom:12px;padding-bottom:10px}
+  .bul-head .bh-title{font-size:15px}
+  .bul-head .btn-primary.sm{padding:7px 12px;font-size:12px}
+  .bulletin-item{padding:12px 12px 12px 14px;border-radius:10px;margin-bottom:10px}
+  .bulletin-item .b-text{font-size:14px;line-height:1.7}
+  .bulletin-item .b-actions{top:6px;right:6px}
+  .bul-archived-item{padding:10px 12px}
+  /* Section / links */
+  .section-header{padding:12px 12px;gap:8px}.section-name{font-size:14px;gap:6px}
+  .section-body.open{padding:4px 4px 8px}
+  .link-item{padding:8px 8px;gap:8px}.link-item a{font-size:13.5px}
+  .btn-add-section{padding:8px 12px;font-size:12px}
+  /* 追蹤事項：表格改為卡片列 */
+  .trk-tabs{gap:4px;margin-bottom:10px}.trk-tab{padding:5px 10px;font-size:12px}
+  .tracker-table,.tracker-table tbody{display:block;width:100%}
+  .tracker-table thead{display:none}
+  .tracker-table tr{display:grid;grid-template-columns:28px 1fr;column-gap:10px;row-gap:5px;padding:10px 2px;border-bottom:1px solid var(--border);align-items:start}
+  .tracker-table tr:last-child{border-bottom:none}
+  .tracker-table td{display:block;padding:0!important;border:none!important;font-size:14px;min-width:0}
+  .tracker-table td:first-child{grid-row:1/span 4;padding-top:2px!important}
+  .tracker-table td:nth-child(2){font-weight:500;line-height:1.5}
+  .tracker-table td:nth-child(3){font-size:12px}
+  .tracker-table td:nth-child(4){font-size:12.5px}
+  .tracker-table td:nth-child(4) br{display:none}
+  .tracker-table td:nth-child(4) span{margin-left:6px}
+  .tracker-table td:nth-child(5){white-space:normal!important;display:flex;gap:2px;flex-wrap:wrap;margin-top:2px}
+  .tracker-table td.tracker-empty{grid-column:1/-1;padding:20px 0!important;text-align:center}
+  .done-row td{text-decoration:none}.done-row td:nth-child(2){text-decoration:line-through}
+  .pri-badge{font-size:10px;padding:1px 6px}
+  .person-badge{font-size:11px;padding:2px 8px}
+  /* 文件、加班、請假表格：橫向捲動，避免壓縮 */
+  .doc-table{min-width:720px;font-size:12px}.doc-table th,.doc-table td{padding:7px 8px}
+  .doc-note{max-width:180px}
+  .ot-section{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ot-record-table{min-width:560px;font-size:12px}.ot-record-table th,.ot-record-table td{padding:6px 8px}
+  .card[style*="overflow-x:auto"]{-webkit-overflow-scrolling:touch}
+  /* 班表 */
+  .sch-wrap{margin-left:-6px;margin-right:-6px;border-radius:6px}
+  .sch-name{min-width:72px;padding:5px 6px!important;font-size:12px}
+  .sch-table th,.sch-table td{min-width:30px;padding:3px 1px}
+  .sch-cell{font-size:12px;height:30px}
+  .sch-summary table{width:100%;font-size:12px}.sch-summary th,.sch-summary td{padding:5px 6px}
+  /* 通用內嵌 grid：2～4 欄改為 2 欄或 1 欄 */
+  #tabContent div[style*="grid-template-columns:1fr 1fr;gap:20px"]{grid-template-columns:1fr!important;gap:14px!important}
+  #tabContent div[style*="grid-template-columns:repeat(3,1fr)"]{grid-template-columns:repeat(2,1fr)!important}
+  .modal-box div[style*="grid-template-columns:1fr 1fr 1fr"]{grid-template-columns:1fr 1fr!important}
+  .modal-box div[style*="grid-template-columns:80px 1fr"]{grid-template-columns:64px 1fr!important}
+  /* Modal：改為底部抽屜式，避免 iOS 鍵盤遮擋 */
+  .modal-overlay{align-items:flex-end;padding:0}
+  .modal-box{width:100%;max-width:100%;max-height:92dvh;max-height:92vh;border-radius:16px 16px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom));animation:slideUp .25s}
+  .modal-title{font-size:15px;margin-bottom:14px}.modal-form{gap:12px}
+  .modal-actions{gap:8px;flex-wrap:wrap}.modal-actions .btn-primary,.modal-actions .btn-secondary{flex:1;min-width:0;padding:11px 12px;text-align:center}
+  .form-input,.form-textarea,.form-select,.inline-input,.login-field input,.rte-body,.bul-head .bh-search input,.gs-input input,.sch-url-row input{font-size:16px}
+  .rte-btn{width:28px;height:28px}
+  .icon-grid{grid-template-columns:repeat(6,1fr)}
+  .person-ck{padding:6px 10px;font-size:12px}
+  .pri-seg button{padding:6px 10px}
+  /* Login / Search overlays */
+  .login-card{width:min(400px,94vw);padding:28px 20px;border-radius:16px}
+  .gs-overlay{padding:4vh 8px 0}.gs-box{border-radius:14px}.gs-input{padding:10px 12px}.gs-input kbd{display:none}.gs-foot{display:none}
+  .gs-list{max-height:min(440px,70vh)}
+  .lightbox img{max-width:100vw;max-height:100vh;border-radius:0}
+  /* 排班系統 */
+  .roster-scope .cgrid{grid-template-columns:repeat(2,1fr)}
+  .roster-scope .optgrid{grid-template-columns:repeat(2,1fr)}
+  .roster-scope .stats{grid-template-columns:repeat(2,1fr)}
+  /* Footer */
+  .site-footer{margin-top:36px}
+  .ftr-inner{padding:24px 14px 12px;gap:22px}.ftr-season{padding:14px 14px 0}
+  .ftr-season-box{padding:10px 12px;gap:10px;font-size:12px}
+  .ftr-bottom-inner{padding:12px 14px;justify-content:center;text-align:center;font-size:11px}
+  /* 載入畫面 */
+  .loading-title{font-size:18px}.loading-bar{width:160px}
+}
+@media(max-width:400px){
+  .hdr-title{font-size:13px}.hdr-logo{height:22px}
+  .main-tab{padding:0 10px;font-size:12.5px}
+  .info-bar .ib-stats .ib-sg{font-size:11px}
+  .info-bar .ib-stats .ib-sh{font-size:9px}
+}
+@media(max-width:640px){
+  /* 重點活動：月曆格子縮小、只顯示標題；週曆改為橫向捲動 */
+  .ev-day{min-height:78px!important;padding:3px 2px!important}
+  .ev-day>div:first-child{font-size:11px!important;margin-bottom:2px!important}
+  .ev-day>div:first-child span{display:none}
+  .ev-chip{padding:2px 3px!important;margin-bottom:2px!important;border-left-width:2px!important;font-size:9px!important;line-height:1.25!important}
+  .ev-chip>div:first-child{display:none!important}
+  .ev-chip .ev-title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:break-all!important}
+  .ev-chip .ev-sub{display:none!important}
+  .ev-week{grid-template-columns:repeat(7,minmax(150px,1fr))!important;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ev-week>div{min-height:260px!important}
 }
 </style>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
@@ -2558,7 +2699,7 @@ function renderEventMonth(events,types){
   });
   h+='</div>';
   // Days grid
-  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr)">';
+  h+='<div class="ev-month" style="display:grid;grid-template-columns:repeat(7,1fr)">';
   for(let i=0;i<42;i++){
     const cur=new Date(startDate);cur.setDate(startDate.getDate()+i);
     const dateStr=`${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
@@ -2569,7 +2710,7 @@ function renderEventMonth(events,types){
     const isWeekend=dayOfWeek===0||dayOfWeek===6;
     const bg=isToday?'#fef9c3':(isWeekend?'#fafafa':'transparent');
     const numColor=isToday?'#a16207':(inMonth?(isWeekend?'#dc2626':'var(--text)'):'var(--border2)');
-    h+=`<div style="min-height:130px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:${bg};position:relative;overflow:hidden;vertical-align:top">`;
+    h+=`<div class="ev-day" style="min-height:130px;padding:6px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:${bg};position:relative;overflow:hidden;vertical-align:top">`;
     h+=`<div style="font-size:12px;font-weight:600;color:${numColor};margin-bottom:4px">${cur.getDate()}${isToday?' <span style="font-size:9px;background:#ca8a04;color:#fff;padding:1px 5px;border-radius:3px;font-weight:700">今天</span>':''}</div>`;
     // Show up to 3 events with full info
     const maxShow=3;
@@ -2577,17 +2718,17 @@ function renderEventMonth(events,types){
       const t=getTypeInfo(ev.typeKey);
       const persons=(ev.person||'').split(',').map(p=>p.trim()).filter(Boolean).join(', ');
       const noteText=(ev.note||'').replace(/<[^>]+>/g,'').trim();
-      h+=`<div style="background:${t.bg};border-left:3px solid ${t.color};border-radius:4px;padding:4px 6px;margin-bottom:3px;font-size:10px;line-height:1.35;cursor:pointer" onclick="${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}">`;
+      h+=`<div class="ev-chip" style="background:${t.bg};border-left:3px solid ${t.color};border-radius:4px;padding:4px 6px;margin-bottom:3px;font-size:10px;line-height:1.35;cursor:pointer" onclick="${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}">`;
       h+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:3px;margin-bottom:2px">`;
       h+=`<span style="background:#fff;color:${t.color};padding:0 4px;border-radius:2px;font-size:9px;font-weight:700;border:1px solid ${t.color}44">${esc(t.label)}</span>`;
       if(ev.starred)h+='<span style="font-size:9px">⭐</span>';
       h+='</div>';
-      h+=`<div style="font-weight:700;color:${t.color};word-break:break-word;white-space:normal">${esc(ev.title)}</div>`;
-      if(persons)h+=`<div style="color:var(--text2);font-size:9px;margin-top:1px;white-space:normal;word-break:break-word">👤 ${esc(persons)}</div>`;
-      if(ev.area)h+=`<div style="color:var(--muted);font-size:9px;white-space:normal">📍 ${esc(ev.area)}</div>`;
+      h+=`<div class="ev-title" style="font-weight:700;color:${t.color};word-break:break-word;white-space:normal">${esc(ev.title)}</div>`;
+      if(persons)h+=`<div class="ev-sub" style="color:var(--text2);font-size:9px;margin-top:1px;white-space:normal;word-break:break-word">👤 ${esc(persons)}</div>`;
+      if(ev.area)h+=`<div class="ev-sub" style="color:var(--muted);font-size:9px;white-space:normal">📍 ${esc(ev.area)}</div>`;
       if(noteText){
         const shortNote=noteText.length>40?noteText.slice(0,40)+'…':noteText;
-        h+=`<div style="color:var(--muted);font-size:9px;margin-top:2px;line-height:1.3;white-space:normal;word-break:break-word">${esc(shortNote)}</div>`;
+        h+=`<div class="ev-sub" style="color:var(--muted);font-size:9px;margin-top:2px;line-height:1.3;white-space:normal;word-break:break-word">${esc(shortNote)}</div>`;
       }
       h+='</div>';
     });
@@ -2609,7 +2750,7 @@ function renderEventWeek(events,types){
 
   const today=todayS();
   let h='<div style="border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card)">';
-  h+='<div style="display:grid;grid-template-columns:repeat(7,1fr)">';
+  h+='<div class="ev-week" style="display:grid;grid-template-columns:repeat(7,1fr)">';
   const daysOfWeek=['週一','週二','週三','週四','週五','週六','週日'];
   for(let i=0;i<7;i++){
     const cur=new Date(mon);cur.setDate(mon.getDate()+i);
