@@ -385,7 +385,7 @@ function doGet(e) {
       var pv = buildTrackerMail_({ noBlobs: true });
       var cfgNow = getMailConfig_();
       // 預覽用：cid 圖片換成 Drive 網址
-      var htmlPv = pv.html.replace(/src="cid:kpi"/g, 'src="' + ((cfgNow.kpi && cfgNow.kpi.url) || '') + '"');
+      var htmlPv = pv.html.replace(/src="cid:kpi"/g, 'src="' + ((cfgNow.kpi && cfgNow.kpi.url) || 'https://drive.google.com/thumbnail?id=') + '"');
       (cfgNow.photos || []).forEach(function(p, i) { htmlPv = htmlPv.replace('src="cid:photo' + (i - (i % 2)) + (i % 2) + '"', 'src="' + (p.url || '') + '"'); });
       return jsonOut_({ok:true, subject: pv.subject, html: htmlPv, total: pv.total, overdue: pv.overdue, ncr: pv.ncr, photos: pv.photos, kpi: pv.kpi, range: pv.range});
     } catch(err) { return jsonOut_({ok:false, error:err.message}); }
@@ -396,6 +396,10 @@ function doGet(e) {
   }
   if (action === 'sendReminderNow') {
     try { return jsonOut_(sendReminderMail_(true)); }
+    catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
+  if (action === 'makeKpiSlide') {
+    try { return jsonOut_(makeKpiSlideAndStore_('slides')); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
   if (action === 'removeKpiSummary') {
@@ -1152,15 +1156,18 @@ function trkSectionTitle_(icon, zh, en, sub, color) {
       (sub ? trkP_(sub, 'font-size:11px;color:#64748b;margin-top:3px;') : '') +
     '</td></tr></table>';
 }
-function trkKpiCard_(num, zh, en, color, sub) {
-  return '<td class="stat" width="25%" valign="top" style="padding:0 5px;">' +
-    '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;background-color:#ffffff;">' +
-    '<tr><td bgcolor="' + color + '" style="background-color:' + color + ';font-size:0;line-height:0;height:5px;">&nbsp;</td></tr>' +
-    '<tr><td align="center" style="padding:14px 6px 12px;">' +
-      trkP_(num, 'font-size:32px;font-weight:bold;line-height:1;color:' + color + ';') +
-      trkP_(zh, 'font-size:12px;font-weight:bold;color:#1e293b;margin-top:7px;') +
-      trkP_(en, 'font-size:10px;color:#94a3b8;margin-top:2px;letter-spacing:.3px;') +
-      (sub ? trkP_(sub, 'font-size:10px;color:' + color + ';margin-top:5px;font-weight:bold;') : '') +
+function trkKpiCard_(num, zh, en, color, sub, icon, bg, unit, last) {
+  return '<td class="stat" width="25%" valign="top" style="padding:0 ' + (last ? '0' : '10px') + ' 0 0;">' +
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="' + bg + '" style="background-color:' + bg + ';border:1px solid #e2e8f0;border-left:5px solid ' + color + ';">' +
+    '<tr><td style="padding:13px 14px 12px;">' +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+        '<td valign="top">' + trkP_(zh, 'font-size:12px;font-weight:bold;color:#1e293b;letter-spacing:.3px;') +
+                              trkP_(en, 'font-size:9px;color:#8a97a8;margin-top:1px;letter-spacing:1px;text-transform:uppercase;') + '</td>' +
+        '<td width="26" align="right" valign="top" style="font-size:18px;line-height:1;">' + icon + '</td>' +
+      '</tr></table>' +
+      trkP_('<span style="font-size:36px;font-weight:bold;line-height:1;color:' + color + ';' + TRK_FONT + '">' + num + '</span>' +
+            '<span style="font-size:12px;color:#64748b;padding-left:5px;' + TRK_FONT + '">' + unit + '</span>', 'margin-top:10px;line-height:1;') +
+      trkP_(sub || '&nbsp;', 'font-size:10px;color:' + (sub ? color : bg) + ';margin-top:8px;font-weight:bold;line-height:1.3;') +
     '</td></tr></table></td>';
 }
 function trkDaysLabel_(d) {
@@ -1209,14 +1216,14 @@ function trkTaskTable_(rows, today, doTr) {
   var priLabel = { high: '● 高', mid: '● 中', low: '● 低' };
   var priEn    = { high: 'High', mid: 'Mid', low: 'Low' };
   var priColor = { high: '#dc2626', mid: '#d97706', low: '#16a34a' };
-  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;border:1px solid #d8dee6;margin-top:10px;">';
   h += '<tr bgcolor="#0b1f33">' +
-       '<td bgcolor="#0b1f33" style="' + TH + 'text-align:center;">#</td>' +
-       '<td bgcolor="#0b1f33" style="' + TH + '">優先 Pri.</td>' +
-       '<td bgcolor="#0b1f33" style="' + TH + 'white-space:normal;">事項 Item</td>' +
-       '<td bgcolor="#0b1f33" style="' + TH + '">負責人 Owner</td>' +
-       '<td bgcolor="#0b1f33" style="' + TH + '">期限 Due</td>' +
-       '<td bgcolor="#0b1f33" style="' + TH + '">剩餘 Left</td></tr>';
+       '<td bgcolor="#0b1f33" width="4%" style="' + TH + 'text-align:center;">#</td>' +
+       '<td bgcolor="#0b1f33" width="8%" style="' + TH + '">優先</td>' +
+       '<td bgcolor="#0b1f33" width="56%" style="' + TH + 'white-space:normal;">事項 Item</td>' +
+       '<td bgcolor="#0b1f33" width="12%" style="' + TH + '">負責人</td>' +
+       '<td bgcolor="#0b1f33" width="12%" style="' + TH + '">期限</td>' +
+       '<td bgcolor="#0b1f33" width="8%" style="' + TH + '">剩餘</td></tr>';
   rows.forEach(function(t, i) {
     var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
     var pri = t.priority || 'mid';
@@ -1238,7 +1245,7 @@ function trkTaskTable_(rows, today, doTr) {
            '<br><span style="font-size:10px;font-weight:normal;color:#94a3b8;' + TRK_FONT + '">' + priEn[pri] + '</span></td>';
     h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' +
            trkZhEn_(t.name, 'font-size:13px;font-weight:bold;color:#0f172a;', '', doTr) + noteHtml + '</td>';
-    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;">' + trkEsc_(persons || '—') + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + trkEsc_(persons || '—') + '</td>';
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;">' + trkEsc_(t.deadline || '—') + '</td>';
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;font-size:12px;">' + trkDaysLabel_(d) +
            '<br><span style="font-size:10px;font-weight:normal;color:#94a3b8;' + TRK_FONT + '">' + trkDaysLabelEn_(d) + '</span></td>';
@@ -1272,10 +1279,10 @@ function getNcrOpenFromGas_(days) {
 function trkNcrTable_(rows, doTr) {
   if (!rows.length) return '';
   var TH = 'padding:9px 10px;background-color:#7c2d12;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;white-space:nowrap;' + TRK_FONT;
-  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
-  h += '<tr bgcolor="#7c2d12">' +
-       ['類型 Type','編號 No.','缺失改善內容 Description','關單期限 Due','剩餘 Left','單位／開單人 Unit / Issuer','資料夾'].map(function(x, i){
-         return '<td bgcolor="#7c2d12" ' + (i === 2 ? 'width="34%" ' : '') + 'style="' + TH + (i === 2 ? 'white-space:normal;' : '') + '">' + x + '</td>';
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;border:1px solid #d8dee6;margin-top:10px;">';
+  var cols = [['類型',7],['編號',13],['缺失改善內容 Description',36],['關單期限 Due',13],['剩餘',9],['單位／開單人',13],['📁',9]];
+  h += '<tr bgcolor="#7c2d12">' + cols.map(function(c, i){
+         return '<td bgcolor="#7c2d12" width="' + c[1] + '%" style="' + TH + (i === 2 ? 'white-space:normal;' : '') + (i === 6 ? 'text-align:center;' : '') + '">' + c[0] + '</td>';
        }).join('') + '</tr>';
   rows.forEach(function(r, i) {
     var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
@@ -1286,14 +1293,14 @@ function trkNcrTable_(rows, doTr) {
     var TD = 'padding:9px 10px;border-top:1px solid #e5e9ef;font-size:13px;color:#1e293b;vertical-align:top;' + TRK_FONT;
     h += '<tr bgcolor="' + bg + '">';
     h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';color:' + typeColor + ';font-weight:bold;font-size:12px;white-space:nowrap;">' + trkEsc_(r.type || '—') + '</td>';
-    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';font-weight:bold;color:#0f172a;white-space:nowrap;">' + trkEsc_(r.number || '—') + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';font-weight:bold;color:#0f172a;">' + trkEsc_(r.number || '—') + '</td>';
     h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + trkZhEn_(r.description || '—', 'font-size:13px;color:#1e293b;', '', doTr) + '</td>';
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;">' + trkEsc_(r.deadline || '—') + '</td>';
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;font-size:12px;">' + trkDaysLabel_(d) +
            '<br><span style="font-size:10px;font-weight:normal;color:#94a3b8;' + TRK_FONT + '">' + trkDaysLabelEn_(d) + '</span></td>';
     h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';font-size:12px;">' + trkZhEn_(r.unit || '—', 'font-size:12px;color:#1e293b;', '', doTr) + trkP_(trkEsc_(r.issuer || '—'), 'font-size:11px;color:#64748b;margin-top:2px;') + '</td>';
-    h += '<td bgcolor="' + bg + '" align="center" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;">' +
-           (r.driveFolderUrl ? '<a href="' + trkEsc_(r.driveFolderUrl) + '" style="color:#166534;font-weight:bold;font-size:12px;text-decoration:none;' + TRK_FONT + '">📁 開啟</a>' : '—') +
+    h += '<td bgcolor="' + bg + '" align="center" style="' + TD + 'background-color:' + bg + ';">' +
+           (r.driveFolderUrl ? '<a href="' + trkEsc_(r.driveFolderUrl) + '" style="color:#166534;font-weight:bold;font-size:12px;text-decoration:none;' + TRK_FONT + '">開啟</a>' : '—') +
          '</td>';
     h += '</tr>';
   });
@@ -1364,15 +1371,29 @@ function buildTrackerMail_(opts) {
 
   // 附件與內嵌圖片
   var inline = {}, attachments = [];
-  var kpi = mc.kpi, kpiOk = false;
-  if (kpi && kpi.fileId && !opts.noBlobs) {
-    try {
-      var kb = DriveApp.getFileById(kpi.fileId).getBlob();
-      var ext = (kb.getContentType() || '').indexOf('png') >= 0 ? 'png' : 'jpg';
-      kb.setName('ENV_KPI_Summary_' + range.fromIso + '_' + range.toIso + '.' + ext);
-      attachments.push(kb); inline.kpi = kb; kpiOk = true;
-    } catch(e) { Logger.log('KPI 圖讀取失敗：' + e.message); }
-  } else if (kpi && kpi.fileId) kpiOk = true;
+  var kpi = mc.kpi, kpiOk = false, kpiSource = '';
+  // 本週（報告期間的週一之後）同步或上傳過的圖才算新；否則由系統自己畫一張
+  var kpiFresh = !!(kpi && kpi.fileId && kpi.uploadedAt && kpi.uploadedAt >= range.fromIso + 'T00:00:00');
+  if (opts.noBlobs) {
+    kpiOk = true; kpiSource = kpiFresh ? (kpi.source || 'upload') : 'slides-preview';
+  } else {
+    if (kpiFresh) {
+      try {
+        var kb = DriveApp.getFileById(kpi.fileId).getBlob();
+        var ext = (kb.getContentType() || '').indexOf('png') >= 0 ? 'png' : 'jpg';
+        kb.setName('ENV_KPI_Summary_' + range.fromIso + '_' + range.toIso + '.' + ext);
+        attachments.push(kb); inline.kpi = kb; kpiOk = true; kpiSource = kpi.source || 'upload';
+      } catch(e) { Logger.log('KPI 圖讀取失敗：' + e.message); }
+    }
+    if (!kpiOk) {
+      try {
+        var ks = makeKpiSlideAndStore_('slides');
+        var kb2 = DriveApp.getFileById(ks.kpi.fileId).getBlob();
+        kb2.setName('ENV_KPI_Summary_' + range.fromIso + '_' + range.toIso + '.png');
+        attachments.push(kb2); inline.kpi = kb2; kpiOk = true; kpiSource = 'slides';
+      } catch(e) { Logger.log('KPI 圖自動產生失敗：' + e.message); }
+    }
+  }
   var photos = [];
   (mc.photos || []).forEach(function(p, idx) {
     if (!p || !p.fileId) return;
@@ -1387,14 +1408,18 @@ function buildTrackerMail_(opts) {
 
   // 開頭文字
   var intro = trkIntroHtml_(mc.intro);
-  if (intro) body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:6px;"><tr><td style="padding:4px 0 6px;">' + intro + '</td></tr></table>';
+  if (intro) body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;"><tr>' +
+    '<td width="5" bgcolor="#16a34a" style="background-color:#16a34a;font-size:0;line-height:0;">&nbsp;</td>' +
+    '<td bgcolor="#f6faf7" style="background-color:#f6faf7;border:1px solid #d9e7dd;border-left:none;padding:18px 22px 10px;">' + intro + '</td></tr></table>';
 
   // KPI 卡片
-  body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;"><tr>' +
-    trkKpiCard_(String(ncr.length),      '改善單待處理', 'NCR / WM to handle', '#ea580c', ncrOverdue.length ? '逾期 ' + ncrOverdue.length + ' · ' + ncrSoon.length + ' due in 7d' : (ncr.length ? ncrSoon.length + ' due in 7d' : '')) +
-    trkKpiCard_(String(overdue.length),  '追蹤事項逾期', 'Tracker overdue',    '#dc2626', '') +
-    trkKpiCard_(String(thisWeek.length), '本週到期',     'Due this week',      '#d97706', '') +
-    trkKpiCard_(String(later.length),    '排程中',       'Scheduled',          '#0369a1', '') +
+  body += trkP_('本週摘要 <span style="color:#94a3b8;font-weight:normal;' + TRK_FONT + '">Weekly Summary</span>', 'font-size:12px;font-weight:bold;color:#0f172a;margin-top:22px;letter-spacing:1px;');
+  body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;"><tr>' +
+    trkKpiCard_(String(ncr.length),      '改善單待處理', 'NCR / WM to handle', '#ea580c',
+                ncrOverdue.length ? '⚠ 逾期 ' + ncrOverdue.length + ' 筆 · ' + ncrSoon.length + ' 筆 7 天內到期' : (ncr.length ? ncrSoon.length + ' 筆 7 天內到期' : '✓ 無逾期'), '🛠️', '#fff7ed', '筆', false) +
+    trkKpiCard_(String(overdue.length),  '追蹤事項逾期', 'Tracker overdue',    '#dc2626', overdue.length ? '⚠ 請優先處理 Action needed' : '✓ 無逾期 All on track', '🔴', '#fef2f2', '項', false) +
+    trkKpiCard_(String(thisWeek.length), '本週到期',     'Due this week',      '#d97706', thisWeek.length ? '本週內完成 Due within 7 days' : '本週無到期', '🗓️', '#fffbeb', '項', false) +
+    trkKpiCard_(String(later.length),    '排程中',       'Scheduled',          '#0369a1', '7 天後到期 Due after 7 days', '📌', '#eff6ff', '項', true) +
     '</tr></table>';
 
   // 改善單
@@ -1409,7 +1434,8 @@ function buildTrackerMail_(opts) {
   if (kpiOk) {
     body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;"><tr><td style="border:1px solid #e2e8f0;padding:6px;background-color:#ffffff;">' +
       '<img src="cid:kpi" width="608" alt="KPI Summary" style="width:100%;max-width:608px;height:auto;display:block;border:0;"></td></tr>' +
-      '<tr><td style="padding-top:6px;">' + trkP_('📊 改善單 KPI 總結（同附件）· KPI summary, also attached', 'font-size:11px;color:#94a3b8;') + '</td></tr></table>';
+      '<tr><td style="padding-top:6px;">' + trkP_('📊 改善單 KPI 總結（同附件）· KPI summary, also attached' +
+        (kpiSource === 'slides' ? '　·　系統依最新資料自動產生' : kpiSource === 'slides-preview' ? '　·　預覽：寄出時會由系統依最新資料自動產生' : ''), 'font-size:11px;color:#94a3b8;') + '</td></tr></table>';
   }
 
   // 追蹤事項
@@ -1477,7 +1503,7 @@ function buildTrackerMail_(opts) {
   var subject = 'ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')';
   return { subject: subject, html: html, inline: inline, attachments: attachments, range: range,
            total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length,
-           photos: photos.length, kpi: kpiOk };
+           photos: photos.length, kpi: kpiOk, kpiSource: kpiSource };
 }
 
 // ── 寄送週報 ──
@@ -1538,13 +1564,13 @@ function buildReminderMail_() {
     '<tr><td bgcolor="#f59e0b" style="background-color:#f59e0b;font-size:0;line-height:0;height:5px;">&nbsp;</td></tr>' +
     '<tr><td bgcolor="#fffbeb" style="background-color:#fffbeb;border-left:6px solid #f59e0b;padding:14px 28px;">' +
       trkP_('下週一 09:00 將自動寄出 <b>ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')</b>', 'font-size:14px;color:#78350f;') +
-      trkP_('請在週一之前更新本週的現場照片與改善單 KPI 總結圖。', 'font-size:13px;color:#92400e;margin-top:4px;') +
-      trkP_('The report will be sent automatically next Monday 09:00. Please update this week\'s site photos and the KPI summary image before then.', 'font-size:11px;color:#a16207;margin-top:4px;') +
+      trkP_('請在週一之前更新本週的現場照片。改善單 KPI 總結圖會自動處理，不用手動匯出。', 'font-size:13px;color:#92400e;margin-top:4px;') +
+      trkP_('The report will be sent automatically next Monday 09:00. Please update this week\'s site photos before then; the KPI summary image is generated automatically.', 'font-size:11px;color:#a16207;margin-top:4px;') +
     '</td></tr>' +
     '<tr><td style="padding:14px 28px 6px;">' +
       '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
       row('📷', '現場照片 Site photos', photos.length ? '目前 ' + photos.length + ' 張，最後更新 ' + fmt(lastPhoto) : '尚未放入任何照片', photos.length && !stale, photos.length ? (stale ? '上次寄出後未更新' : photos.length + ' 張') : '尚無照片') +
-      row('📊', 'KPI 總結圖 KPI summary image', kpi ? '上傳於 ' + fmt(kpi.uploadedAt) + (kpi.source === 'auto' ? '（改善單系統匯出）' : '') : '尚未上傳，請到改善單系統按「匯出總結」', kpi && !kpiStale, kpi ? (kpiStale ? '上次寄出後未更新' : '已上傳') : '尚未上傳') +
+      row('📊', 'KPI 總結圖 KPI summary image', kpi && !kpiStale ? '已同步 ' + fmt(kpi.uploadedAt) + (kpi.source === 'auto' ? '（改善單系統自動匯出）' : kpi.source === 'slides' ? '（系統產生）' : '（手動上傳）') : '本週尚未同步，寄出時會由系統依最新資料自動產生', true, kpi && !kpiStale ? '已同步' : '自動') +
       row('📋', '追蹤事項與改善單 Tracker & notices', '寄出時會自動抓取最新資料，不用手動整理', true, '自動') +
       '</table></td></tr>' +
     '<tr><td align="center" style="padding:16px 28px 8px;">' +
@@ -1552,7 +1578,7 @@ function buildReminderMail_() {
         '<td>' + btn(SYSTEM_URL + '?weekly=1', '📧 開啟週報設定（更新照片）', '#16a34a') + '</td>' +
         '<td>' + btn(NCR_SYSTEM_URL, '📊 改善單系統 → 匯出總結', '#ea580c') + '</td>' +
       '</tr></table>' +
-      trkP_('改善單系統按「匯出總結」時會自動把圖片上傳到週報，不用另外上傳。', 'font-size:11px;color:#94a3b8;margin-top:6px;') +
+      trkP_('改善單系統只要開啟儀表板就會自動把 KPI 總結圖同步到週報；本週沒開過也沒關係，寄出時系統會自己畫一張。', 'font-size:11px;color:#94a3b8;margin-top:6px;') +
     '</td></tr>' +
     '<tr><td bgcolor="#f8fafc" style="background-color:#f8fafc;border-top:1px solid #e5e9ef;padding:12px 28px;">' +
       trkP_('此提醒由 Environmental E-System 於每週五 15:00 自動寄出。可在「週報設定」關閉。', 'font-size:11px;color:#94a3b8;') +
@@ -1616,4 +1642,222 @@ function testTrackerMailToMe() {
 // 在編輯器執行：寄一封提醒信（給設定的提醒收件者）
 function testReminderMail() {
   return sendReminderMail_(true);
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  📊 KPI 總結圖備援：排程寄信時若本週沒有從改善單系統同步過來的圖，
+//     就由 Apps Script 用 Google Slides 依最新資料畫一張，匯出 PNG 當附件。
+//     （改善單系統開啟儀表板時會自動在背景匯出並上傳，那張版型較精緻，優先使用）
+// ═══════════════════════════════════════════════════════════════════════
+var KPI_PROJECT_NAME = '通霄電廠二期更新改建計畫海底輸氣管線統包工程';
+var KPI_PROJECT_EN   = 'Tongxiao Power Plant Phase II Subsea Gas Pipeline EPC Project';
+var KPI_ITEM_EN = { '1': 'Exposed Area Control', '2': 'Site Entrance', '3': 'Vehicle Route', '4': 'Housekeeping', '5': 'Wastewater / Oil', '6': 'Contract Specs', '7': 'Good Practice' };
+var KPI_DEFAULT_ITEMS = { '1': '裸露區域防制措施', '2': '工區出入口', '3': '車行路徑', '4': '整理整頓', '5': '廢水廢油處理', '6': '契約規範', '7': '優點' };
+var KPI_PALETTE = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4', '#f97316', '#ec4899'];
+var KPI_FONT = 'Noto Sans TC';
+
+function getNcrIndex_() {
+  var resp = UrlFetchApp.fetch(NCR_GAS_URL + '?action=index&_=' + Date.now(), { muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) throw new Error('改善單 GAS 回應 HTTP ' + resp.getResponseCode());
+  var data = JSON.parse(resp.getContentText());
+  if (!data || !Array.isArray(data.records)) throw new Error(data && data.error ? data.error : '改善單資料格式不符');
+  return data;
+}
+
+// 與改善單系統儀表板「全部期間」相同的統計方式
+function kpiStats_(data) {
+  var recs = data.records || [];
+  var iopts = (data.config && data.config.itemOptions) || data.itemOptions || KPI_DEFAULT_ITEMS;
+  var defsOf = function(r) { return (r.defects && r.defects.length) ? r.defects : [{ item: r.item || 1, description: r.description || '' }]; };
+  var open = 0, closed = 0, totalDefects = 0, closedDefs = 0, map = {};
+  recs.forEach(function(r) {
+    if (!r) return;
+    var ds = defsOf(r);
+    if (r.status === 'Open') open++; else if (r.status === 'Closed') closed++;
+    totalDefects += ds.length;
+    if (r.status === 'Closed') closedDefs += ds.length;
+    ds.forEach(function(d) {
+      var k = String(d.item || 1);
+      if (!map[k]) map[k] = { total: 0, open: 0, closed: 0 };
+      map[k].total++;
+      if (r.status === 'Open') map[k].open++; else map[k].closed++;
+    });
+  });
+  var items = Object.keys(map).map(function(k) {
+    return { k: k, name: iopts[k] || ('項目 ' + k), en: KPI_ITEM_EN[k] || ('Item ' + k), total: map[k].total, open: map[k].open, closed: map[k].closed };
+  }).sort(function(a, b) { return b.total - a.total; });
+  items.forEach(function(it, i) {
+    it.color = KPI_PALETTE[i % KPI_PALETTE.length];
+    it.pct = totalDefects ? Math.round(it.total / totalDefects * 100) : 0;
+    it.closedPct = it.total ? Math.round(it.closed / it.total * 100) : 0;
+  });
+  return { recCount: recs.length, open: open, closed: closed, totalDefects: totalDefects, closedDefs: closedDefs,
+           closeRate: totalDefects ? Math.round(closedDefs / totalDefects * 100) : 0, items: items };
+}
+
+// ── Slides 繪圖小工具（單位 pt，頁面 720 × 405） ──
+function kpiRect_(slide, x, y, w, h, fill, rounded, border) {
+  var s = slide.insertShape(rounded ? SlidesApp.ShapeType.ROUND_RECTANGLE : SlidesApp.ShapeType.RECTANGLE, x, y, w, h);
+  if (fill) s.getFill().setSolidFill(fill); else s.getFill().setTransparent();
+  if (border) s.getBorder().setWeight(0.75).getLineFill().setSolidFill(border); else s.getBorder().setTransparent();
+  return s;
+}
+function kpiText_(slide, x, y, w, h, text, size, color, bold, align, valign) {
+  // 文字方塊四邊預設有 7.2pt 內距，這裡把座標往外推，讓 x/y 就是文字實際位置
+  var s = slide.insertTextBox(String(text), x - 7.2, y - 7.2, w + 14.4, h + 14.4);
+  var tr = s.getText();
+  var st = tr.getTextStyle();
+  st.setFontFamily(KPI_FONT).setFontSize(size).setForegroundColor(color).setBold(!!bold);
+  tr.getParagraphStyle().setParagraphAlignment(align || SlidesApp.ParagraphAlignment.START).setSpaceAbove(0).setSpaceBelow(0).setLineSpacing(100);
+  s.setContentAlignment(valign || SlidesApp.ContentAlignment.TOP);
+  try { s.getAutofit().setAutofitType(SlidesApp.AutofitType.NONE); } catch(e) {}
+  return s;
+}
+function kpiDonutBlob_(items) {
+  var dt = Charts.newDataTable().addColumn(Charts.ColumnType.STRING, '項目').addColumn(Charts.ColumnType.NUMBER, '件數');
+  items.forEach(function(it) { dt.addRow([it.k, it.total]); });
+  var chart = Charts.newPieChart().setDataTable(dt.build())
+    .setOption('pieHole', 0.58).setOption('legend', { position: 'none' })
+    .setOption('pieSliceText', 'percentage').setOption('pieSliceTextStyle', { color: '#ffffff', fontSize: 22, bold: true })
+    .setOption('pieSliceBorderColor', '#ffffff').setOption('backgroundColor', 'transparent')
+    .setOption('chartArea', { left: 8, top: 8, width: '90%', height: '90%' })
+    .setColors(items.map(function(it) { return it.color; }))
+    .setDimensions(520, 520).build();
+  return chart.getBlob();
+}
+
+// 產生 KPI 圖 → 回傳 {blob, stats}
+function buildKpiSlideImage_() {
+  var data = getNcrIndex_();
+  var st = kpiStats_(data);
+  var today = trkTodayStr_();
+  var pres = SlidesApp.create('ENV-KPI-temp-' + Date.now());
+  var slide = pres.getSlides()[0];
+  slide.getShapes().forEach(function(s) { try { s.remove(); } catch(e) {} });
+  var W = 720, H = 405;
+  var NAVY = '#0b1f33', TEXT = '#1e3a5f', MUTED = '#6b8299', LINE = '#dbe4ee', SOFT = '#f4f7fb';
+  kpiRect_(slide, 0, 0, W, H, '#f6f8fb');
+
+  // 頁首
+  kpiRect_(slide, 0, 0, W, 58, NAVY);
+  kpiRect_(slide, 0, 58, W, 3, '#16a34a');
+  kpiRect_(slide, 14, 12, 34, 34, '#16a34a', true);
+  kpiText_(slide, 14, 17, 34, 24, '≋', 18, '#ffffff', true, SlidesApp.ParagraphAlignment.CENTER);
+  kpiText_(slide, 56, 8, 450, 20, KPI_PROJECT_NAME, 14, '#ffffff', true);
+  kpiText_(slide, 56, 27, 450, 12, KPI_PROJECT_EN, 6.5, '#9fb8d3', false);
+  kpiText_(slide, 56, 39, 450, 12, '環保改善缺失追蹤 KPI 總結  ·  ENVIRONMENTAL IMPROVEMENT DEFECT TRACKING · KPI SUMMARY', 6.5, '#8fb3d9', true);
+  kpiRect_(slide, 596, 10, 110, 38, '#123456', true, '#2f5f8f');
+  kpiText_(slide, 602, 13, 100, 10, '統計期間 · PERIOD', 5.5, '#8fb3d9', true, SlidesApp.ParagraphAlignment.CENTER);
+  kpiText_(slide, 602, 23, 100, 14, '全部期間', 10, '#ffffff', true, SlidesApp.ParagraphAlignment.CENTER);
+  kpiText_(slide, 602, 36, 100, 10, 'All Time', 6, '#c8d8ea', false, SlidesApp.ParagraphAlignment.CENTER);
+  kpiText_(slide, 400, 44, 190, 10, '共 ' + st.recCount + ' 筆紀錄  |  產出日期 ' + today.replace(/-/g, '/') + '  |  NMDC Energy', 5.5, '#9fb8d3', false, SlidesApp.ParagraphAlignment.END);
+
+  // 四個統計卡
+  var cards = [
+    { zh: '總缺失件數', en: 'TOTAL DEFECTS',    v: st.totalDefects, unit: '條 items',   sub: '累計缺失條數 · Cumulative defect items',           color: '#2563eb' },
+    { zh: 'Open 未結',  en: 'NON-CONFORMANCES', v: st.open,         unit: '張 reports', sub: '待改善件數 · Pending non-conformance reports',   color: '#ef4444' },
+    { zh: 'Closed 已結', en: 'CLOSED',          v: st.closed,       unit: '張 reports', sub: '已結缺失 ' + st.closedDefs + ' 條 · ' + st.closedDefs + ' defect items closed', color: '#16a34a' },
+    { zh: '關單率',     en: 'CLOSURE RATE',     v: st.closeRate,    unit: '%',          sub: '以缺失件數計算 · Calculated by defect count',    color: '#16a34a' }
+  ];
+  var cw = (W - 28 - 30) / 4, ch = 74, cy = 72;
+  cards.forEach(function(c, i) {
+    var cx = 14 + i * (cw + 10);
+    kpiRect_(slide, cx, cy, cw, ch, '#ffffff', false, LINE);
+    kpiRect_(slide, cx, cy, cw, 3, c.color);
+    kpiText_(slide, cx + 10, cy + 8, cw - 20, 12, c.zh, 8.5, TEXT, true);
+    kpiText_(slide, cx + 10, cy + 19, cw - 20, 9, c.en, 5.5, MUTED, true);
+    kpiText_(slide, cx + 10, cy + 27, 90, 30, String(c.v), 24, c.color, true);
+    kpiText_(slide, cx + 10 + (String(c.v).length * 13.5) + 4, cy + 41, 60, 12, c.unit, 6.5, MUTED, false);
+    kpiText_(slide, cx + 10, cy + 60, cw - 20, 9, c.sub, 5.2, MUTED, false);
+  });
+
+  // 左：分類統計
+  var lx = 14, ly = 158, lw = 434, lh = 230;
+  kpiRect_(slide, lx, ly, lw, lh, '#ffffff', false, LINE);
+  kpiText_(slide, lx + 12, ly + 8, 300, 12, '環境缺失分類統計', 9, TEXT, true);
+  kpiText_(slide, lx + 12, ly + 20, 300, 9, 'ENVIRONMENTAL DEFECT CATEGORY STATISTICS', 5.2, MUTED, true);
+  kpiRect_(slide, lx + 12, ly + 31, lw - 24, 0.75, LINE);
+  var items = st.items.slice(0, 8);
+  var rowH = items.length ? Math.min(28, (lh - 40) / items.length) : 28;
+  var maxTotal = Math.max.apply(null, items.map(function(it) { return it.total; }).concat([1]));
+  items.forEach(function(it, i) {
+    var ry = ly + 38 + i * rowH;
+    kpiRect_(slide, lx + 12, ry + 2, 18, 18, it.color, true);
+    kpiText_(slide, lx + 12, ry + 5, 18, 12, it.k, 8, '#ffffff', true, SlidesApp.ParagraphAlignment.CENTER);
+    kpiText_(slide, lx + 38, ry, 200, 11, it.name, 7.5, TEXT, true);
+    kpiText_(slide, lx + 38, ry + 10, 200, 8, it.en, 5, MUTED, false);
+    kpiText_(slide, lx + 230, ry, 120, 9, '已結 ' + it.closed + ' 條  ' + it.closedPct + '%', 5.5, it.closedPct >= 90 ? '#16a34a' : '#b45309', true, SlidesApp.ParagraphAlignment.END);
+    kpiText_(slide, lx + 230, ry + 8, 120, 8, it.closed + ' closed · ' + it.closedPct + '%', 4.8, MUTED, false, SlidesApp.ParagraphAlignment.END);
+    kpiRect_(slide, lx + 38, ry + rowH - 7, 312, 3, '#e6ecf3', true);
+    kpiRect_(slide, lx + 38, ry + rowH - 7, Math.max(6, 312 * it.total / maxTotal), 3, it.color, true);
+    kpiText_(slide, lx + 356, ry - 1, 66, 16, String(it.total), 13, it.color, true, SlidesApp.ParagraphAlignment.END);
+    kpiText_(slide, lx + 356, ry + 13, 66, 8, it.total + ' items', 4.8, MUTED, false, SlidesApp.ParagraphAlignment.END);
+  });
+  if (!items.length) kpiText_(slide, lx + 12, ly + 60, lw - 24, 20, '尚無資料 No data', 9, MUTED, false, SlidesApp.ParagraphAlignment.CENTER);
+
+  // 右：圓餅分佈
+  var rx = 458, ry0 = 158, rw = 248, rh = 230;
+  kpiRect_(slide, rx, ry0, rw, rh, '#ffffff', false, LINE);
+  kpiText_(slide, rx + 12, ry0 + 8, 200, 12, '缺失項目分佈', 9, TEXT, true);
+  kpiText_(slide, rx + 12, ry0 + 20, 200, 9, 'DEFECT DISTRIBUTION BY CATEGORY', 5.2, MUTED, true);
+  kpiRect_(slide, rx + 12, ry0 + 31, rw - 24, 0.75, LINE);
+  if (items.length) {
+    try {
+      var img = slide.insertImage(kpiDonutBlob_(items));
+      var ps = 112;
+      img.setWidth(ps).setHeight(ps).setLeft(rx + (rw - ps) / 2).setTop(ry0 + 36);
+      kpiRect_(slide, rx + rw / 2 - 26, ry0 + 36 + ps / 2 - 26, 52, 52, '#ffffff', false);
+      kpiText_(slide, rx + rw / 2 - 30, ry0 + 36 + ps / 2 - 18, 60, 20, String(st.totalDefects), 16, TEXT, true, SlidesApp.ParagraphAlignment.CENTER);
+      kpiText_(slide, rx + rw / 2 - 30, ry0 + 36 + ps / 2 + 3, 60, 8, '缺失件數', 5.5, MUTED, true, SlidesApp.ParagraphAlignment.CENTER);
+    } catch(e) { Logger.log('圓餅圖產生失敗：' + e.message); }
+    var gy = ry0 + 156, gcol = (rw - 24) / 2;
+    items.forEach(function(it, i) {
+      var gx = rx + 12 + (i % 2) * gcol, yy = gy + Math.floor(i / 2) * 17;
+      if (yy > ry0 + rh - 14) return;
+      kpiRect_(slide, gx, yy + 3, 7, 7, it.color, true);
+      kpiText_(slide, gx + 10, yy, gcol - 40, 9, it.k + '. ' + it.name, 5.8, TEXT, true);
+      kpiText_(slide, gx + 10, yy + 8, gcol - 40, 7, it.en, 4.5, MUTED, false);
+      kpiText_(slide, gx + gcol - 36, yy, 30, 9, it.pct + '%', 6.5, it.color, true, SlidesApp.ParagraphAlignment.END);
+      kpiText_(slide, gx + gcol - 36, yy + 8, 30, 7, it.total + ' 條', 4.5, MUTED, false, SlidesApp.ParagraphAlignment.END);
+    });
+  }
+
+  // 頁尾
+  kpiText_(slide, 14, 393, 300, 9, '環保改善缺失追蹤系統 · Environmental Improvement Defect Tracking System', 5, MUTED, false);
+  kpiText_(slide, 406, 393, 300, 9, 'NMDC Energy  ·  產出日期 ' + today.replace(/-/g, '/') + '  ·  由 Environmental E-System 自動產生', 5, MUTED, false, SlidesApp.ParagraphAlignment.END);
+
+  pres.saveAndClose();
+  var presId = pres.getId();
+  var pageId = slide.getObjectId();
+  var blob = null, err = '';
+  try {
+    var url = 'https://docs.google.com/presentation/d/' + presId + '/export/png?id=' + presId + '&pageid=' + pageId;
+    var resp = UrlFetchApp.fetch(url, { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true, followRedirects: true });
+    if (resp.getResponseCode() === 200 && (resp.getBlob().getContentType() || '').indexOf('image') >= 0) blob = resp.getBlob();
+    else err = 'export HTTP ' + resp.getResponseCode();
+  } catch(e) { err = e.message; }
+  try { DriveApp.getFileById(presId).setTrashed(true); } catch(e) {}
+  if (!blob) throw new Error('KPI 圖匯出失敗：' + err);
+  blob.setName('KPI-summary-' + today + '.png');
+  return { blob: blob, stats: st };
+}
+
+// 產生後存進週報設定（KPI_CELL），給設定頁「由系統產生」按鈕與排程備援共用
+function makeKpiSlideAndStore_(source) {
+  var r = buildKpiSlideImage_();
+  var file = getWeeklyFolder_().createFile(r.blob);
+  try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(e) {}
+  var old = readJsonCell_(KPI_CELL);
+  if (old && old.fileId) { try { DriveApp.getFileById(old.fileId).setTrashed(true); } catch(e) {} }
+  var kpi = { fileId: file.getId(), url: bulImageUrl_(file.getId()), name: r.blob.getName(), uploadedAt: new Date().toISOString(), source: source || 'slides' };
+  getSheet().getRange(KPI_CELL).setValue(JSON.stringify(kpi));
+  return { ok: true, kpi: kpi, stats: r.stats };
+}
+
+// 在編輯器執行：產生一張 KPI 圖存到 Drive 週報資料夾，執行紀錄會印出網址，可直接開來看版型
+function testKpiSlide() {
+  var r = makeKpiSlideAndStore_('slides');
+  Logger.log('KPI 圖已產生：' + r.kpi.url + '（總缺失 ' + r.stats.totalDefects + '，未結 ' + r.stats.open + '，已結 ' + r.stats.closed + '，關單率 ' + r.stats.closeRate + '%）');
+  return r;
 }

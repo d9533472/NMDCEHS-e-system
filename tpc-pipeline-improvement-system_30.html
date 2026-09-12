@@ -1189,6 +1189,21 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
   });
   const iColors = ['#0ea5e9','#f59e0b','#10b981','#8b5cf6','#ef4444','#22d3ee','#f97316','#ec4899','#84cc16','#6366f1','#14b8a6','#94a3b8'];
 
+  // 自動同步 KPI 總結圖到 Environmental E-System 週報：儀表板載入資料後（全部期間）在背景匯出並上傳，
+  // 每次開頁最多一次、6 小時內不重複；不會下載檔案、不會跳提示。
+  useEffect(() => {
+    if (!records.length || useFiltered || window.__kpiAutoSyncTried) return;
+    let last = 0; try { last = +localStorage.getItem('kpi_auto_upload_at') || 0; } catch(e) {}
+    if (Date.now() - last < 6 * 3600 * 1000) return;
+    window.__kpiAutoSyncTried = true;
+    const t = setTimeout(() => onExport({
+      totalDefects, open, closed,
+      closedDefs: activeRecs.filter(r=>r.status==='Closed').reduce((s,r)=>s+((r.defects&&r.defects.length>0)?r.defects.length:1),0),
+      closeRate, itemMap, itemOptions, dateFrom, dateTo, quickPeriod, recCount: activeRecs.length, _auto: true,
+    }), 3000);
+    return () => clearTimeout(t);
+  }, [records.length]);
+
   const clickStyle = { cursor:'pointer' };
   const KpiCard = ({label,value,sub,color,filter}) => (
     <div className="kpi-card" style={filter?{...clickStyle}:{}} onClick={filter?()=>onFilterClick(filter):undefined}
@@ -2655,22 +2670,28 @@ function App() {
                 imageTimeout: 0,
               }).then(canvas => {
                 document.body.removeChild(el);
-                const a = document.createElement('a');
-                a.download = `TPC海管工程_KPI總結_${new Date().toISOString().slice(0,10)}.png`;
-                a.href = canvas.toDataURL('image/png');
-                a.click();
+                if (!exportData._auto) {
+                  const a = document.createElement('a');
+                  a.download = `TPC海管工程_KPI總結_${new Date().toISOString().slice(0,10)}.png`;
+                  a.href = canvas.toDataURL('image/png');
+                  a.click();
+                }
                 // 同步上傳到 Environmental E-System，作為週報 ENV WEEKLY REPORT 的附件（改善單狀態區塊）
                 try {
                   const c2 = document.createElement('canvas'); c2.width = 1600; c2.height = 900;
                   c2.getContext('2d').drawImage(canvas, 0, 0, 1600, 900);
                   const dataUrl = c2.toDataURL('image/jpeg', 0.92);
-                  showKpiToast('⏳ 正在同步 KPI 總結圖到週報…');
+                  if (!exportData._auto) showKpiToast('⏳ 正在同步 KPI 總結圖到週報…');
                   fetch(ESYSTEM_GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'uploadKpiSummary', fileName: 'KPI-summary-' + new Date().toISOString().slice(0, 10) + '.jpg', dataUrl, source: 'auto' }) })
                     .then(r => r.json())
-                    .then(d => { if (d && d.ok) showKpiToast('✅ KPI 總結圖已同步到週報（下週一 ENV WEEKLY REPORT 會附上）'); else throw new Error((d && d.error) || '上傳失敗'); })
-                    .catch(err => { console.warn('週報同步失敗', err); showKpiToast('⚠️ 圖片已下載，但同步到週報失敗：' + err.message + '（可到 E-System 週報設定手動上傳）', true); });
+                    .then(d => {
+                      if (!(d && d.ok)) throw new Error((d && d.error) || '上傳失敗');
+                      try { localStorage.setItem('kpi_auto_upload_at', String(Date.now())); } catch(e) {}
+                      if (exportData._auto) console.log('[週報] KPI 總結圖已自動同步'); else showKpiToast('✅ KPI 總結圖已同步到週報（下週一 ENV WEEKLY REPORT 會附上）');
+                    })
+                    .catch(err => { console.warn('週報同步失敗', err); if (!exportData._auto) showKpiToast('⚠️ 圖片已下載，但同步到週報失敗：' + err.message + '（週報寄出時系統會自動產生一張）', true); });
                 } catch (err) { console.warn('週報同步失敗', err); }
-              }).catch(err => { if (el.parentNode) document.body.removeChild(el); console.error('匯出失敗', err); alert('匯出失敗：' + err.message); }), 300);
+              }).catch(err => { if (el.parentNode) document.body.removeChild(el); console.error('匯出失敗', err); if (!exportData._auto) alert('匯出失敗：' + err.message); }), 300);
             });
           };
           if (window.html2canvas) { doExport(); }

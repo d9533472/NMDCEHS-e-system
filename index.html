@@ -2552,10 +2552,10 @@ async function handleMcPhotos(input){
 // ── KPI 總結圖（改善單系統「匯出總結」會自動上傳；這裡可手動上傳／移除） ──
 function renderMcKpi(k){
   const box=$('mcKpi');if(!box)return;
-  if(!k||!k.fileId){box.innerHTML='<div class="mc-empty">尚未上傳。到改善單系統按「📊 匯出總結」會自動上傳到這裡，或用右邊按鈕手動上傳圖片。</div>';return;}
+  if(!k||!k.fileId){box.innerHTML='<div class="mc-empty">目前沒有圖。改善單系統開啟儀表板時會自動同步一張到這裡；本週沒有的話，寄出時系統會自己依最新資料產生，不用手動處理。</div>';return;}
   const when=k.uploadedAt?new Date(k.uploadedAt).toLocaleString('zh-TW'):'';
   box.innerHTML=`<div class="mc-kpi"><a href="${esc(k.url)}" target="_blank" rel="noopener"><img src="${esc(k.url)}" alt="KPI"></a>
-    <div class="mc-kpi-meta"><b>${esc(k.name||'KPI 總結圖')}</b><br>上傳於 ${esc(when)}${k.source==='auto'?'（改善單系統自動匯出）':'（手動上傳）'}<br><span style="color:var(--muted)">寄出時會作為附件，並嵌在「改善單狀態」區塊下方。</span></div></div>`;
+    <div class="mc-kpi-meta"><b>${esc(k.name||'KPI 總結圖')}</b><br>更新於 ${esc(when)}${k.source==='auto'?'（改善單系統自動同步）':k.source==='slides'?'（系統自動產生）':'（手動上傳）'}<br><span style="color:var(--muted)">寄出時會作為附件並嵌在「改善單狀態」區塊下方；若這張比報告週還舊，寄出時會自動重新產生。</span></div></div>`;
 }
 function uploadMcKpi(){$('mcKpiInput').click();}
 async function handleMcKpi(input){
@@ -2568,6 +2568,11 @@ async function handleMcKpi(input){
     const d=await uploadWeeklyFile('uploadKpiSummary','KPI-summary-'+todayS()+'-'+Date.now()+'.'+ext,dataUrl,{source:'manual'});
     if(_mailCfg)_mailCfg.kpi=d.kpi;renderMcKpi(d.kpi);setMailCfgStatus('✅ KPI 總結圖已更新','ok');
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 上傳失敗：'+e.message,'err');}
+}
+async function makeMcKpi(){
+  setMailCfgStatus('⏳ 系統產生 KPI 總結圖中（約 10～20 秒）…');
+  try{const d=await gasGet('makeKpiSlide');if(!d||!d.ok)throw new Error((d&&d.error)||'產生失敗');if(_mailCfg)_mailCfg.kpi=d.kpi;renderMcKpi(d.kpi);setMailCfgStatus('✅ 已產生：總缺失 '+d.stats.totalDefects+'，未結 '+d.stats.open+'，已結 '+d.stats.closed+'，關單率 '+d.stats.closeRate+'%','ok');}
+  catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ '+e.message,'err');}
 }
 async function removeMcKpi(){
   if(!_mailCfg||!_mailCfg.kpi){showToast('目前沒有 KPI 圖');return;}
@@ -3713,7 +3718,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
 
     <div class="mc-sec">
-      <div class="mc-sec-h"><b>④ 改善單 KPI 總結圖（附件）</b><div style="display:flex;gap:6px"><a class="mc-btn" href="tpc-pipeline-improvement-system_30.html" target="_blank" rel="noopener" style="text-decoration:none">📊 開啟改善單系統</a><button type="button" class="mc-btn" onclick="uploadMcKpi()">⬆ 手動上傳</button><button type="button" class="mc-btn" onclick="removeMcKpi()">🗑 移除</button></div></div>
+      <div class="mc-sec-h"><b>④ 改善單 KPI 總結圖（附件）</b><div style="display:flex;gap:6px"><a class="mc-btn" href="tpc-pipeline-improvement-system_30.html" target="_blank" rel="noopener" style="text-decoration:none">📊 開啟改善單系統</a><button type="button" class="mc-btn" onclick="makeMcKpi()" title="用最新的改善單資料，由系統畫一張 KPI 總結圖">🖼 由系統產生</button><button type="button" class="mc-btn" onclick="uploadMcKpi()">⬆ 手動上傳</button><button type="button" class="mc-btn" onclick="removeMcKpi()">🗑 移除</button></div></div>
       <input type="file" id="mcKpiInput" accept="image/*" style="display:none" onchange="handleMcKpi(this)">
       <div id="mcKpi"></div>
     </div>
