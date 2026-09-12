@@ -1275,7 +1275,7 @@ function trkNcrTable_(rows, doTr) {
   var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
   h += '<tr bgcolor="#7c2d12">' +
        ['類型 Type','編號 No.','缺失改善內容 Description','關單期限 Due','剩餘 Left','單位／開單人 Unit / Issuer','資料夾'].map(function(x, i){
-         return '<td bgcolor="#7c2d12" style="' + TH + (i === 2 ? 'white-space:normal;' : '') + '">' + x + '</td>';
+         return '<td bgcolor="#7c2d12" ' + (i === 2 ? 'width="34%" ' : '') + 'style="' + TH + (i === 2 ? 'white-space:normal;' : '') + '">' + x + '</td>';
        }).join('') + '</tr>';
   rows.forEach(function(r, i) {
     var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
@@ -1291,7 +1291,7 @@ function trkNcrTable_(rows, doTr) {
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;">' + trkEsc_(r.deadline || '—') + '</td>';
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;font-size:12px;">' + trkDaysLabel_(d) +
            '<br><span style="font-size:10px;font-weight:normal;color:#94a3b8;' + TRK_FONT + '">' + trkDaysLabelEn_(d) + '</span></td>';
-    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;font-size:12px;">' + trkZhEn_((r.unit || '—') + ' / ' + (r.issuer || '—'), 'font-size:12px;color:#1e293b;', '', doTr) + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';font-size:12px;">' + trkZhEn_(r.unit || '—', 'font-size:12px;color:#1e293b;', '', doTr) + trkP_(trkEsc_(r.issuer || '—'), 'font-size:11px;color:#64748b;margin-top:2px;') + '</td>';
     h += '<td bgcolor="' + bg + '" align="center" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;">' +
            (r.driveFolderUrl ? '<a href="' + trkEsc_(r.driveFolderUrl) + '" style="color:#166534;font-weight:bold;font-size:12px;text-decoration:none;' + TRK_FONT + '">📁 開啟</a>' : '—') +
          '</td>';
@@ -1316,7 +1316,7 @@ function trkPhotosHtml_(photos, doTr) {
           '</td></tr>' +
           '<tr><td style="padding:10px 12px 12px;">' +
             trkZhEn_(p.title || '（未命名）', 'font-size:13px;font-weight:bold;color:#0f172a;', '', doTr) +
-            (p.location ? trkZhEn_('📍 ' + p.location, 'font-size:11px;color:#475569;margin-top:4px;', '', doTr) : '') +
+            (p.location ? trkP_('📍 ' + trkEsc_(p.location), 'font-size:11px;color:#475569;margin-top:4px;') + (doTr && tr_(p.location) ? trkP_(trkEsc_(tr_(p.location)), 'font-size:10px;color:#8a97a8;line-height:1.4;') : '') : '') +
             (p.date ? trkP_('🗓 ' + trkEsc_(p.date), 'font-size:11px;color:#94a3b8;margin-top:2px;') : '') +
           '</td></tr></table>';
       } else {
