@@ -1334,7 +1334,6 @@ var NotificationService = (function () {
     ['ptwOverdue',      'PTW 逾期未關提醒',        'PTW overdue (not closed)'],
     ['ptwSuspended',    'PTW 暫停',                'PTW suspended'],
     ['ptwResumed',      'PTW 復工',                'PTW resumed'],
-    ['ptwExtended',     'PTW 展延',                'PTW extended'],
     ['ptwDeleted',      'PTW 刪除',                'PTW deleted by administrator'],
     ['adminOverride',   '管理員調整關卡',          'Admin stage override'],
     ['trainingPassed',  '訓練考試通過',            'Training exam passed'],
@@ -7932,50 +7931,6 @@ var LifecycleService = (function () {
     }).forEach(function (u) { NotificationService.push(u.id, type, m.id, tEn, tZh, mEn, mZh, u.email); });
   }
 
-  /** T1 申請延長 */
-  function requestExtension(user, payload) {
-    requireFields_(payload, ['ptwId', 'newValidTo', 'reason']);
-    var m = mustGet_(payload.ptwId);
-    if (m.applicantUserId !== user.id) throw ApiError_('FORBIDDEN', 'Not your PTW', '非您的 PTW');
-    if ([CFG.STATUS.ACTIVE, CFG.STATUS.EXTENDED, CFG.STATUS.EXPIRED].indexOf(m.status) < 0) {
-      throw ApiError_('BAD_STATE', 'Only Active/Extended/Expired PTW can request extension', '目前狀態不可申請延長：' + m.status);
-    }
-    AuditService.log({ user: user, actionType: 'PTW_EXTENSION_REQUEST', entityType: 'PTW', entityId: m.id,
-      ptwNumber: m.ptwNumber, newValue: { newValidTo: payload.newValidTo, reason: payload.reason }, success: true });
-    notifyT5_(m, 'PTW_EXTENSION_REQUEST',
-      'Extension requested: ' + m.ptwNumber, 'PTW 延長申請：' + m.ptwNumber,
-      'Requested new valid-to: ' + payload.newValidTo + '. Reason: ' + payload.reason,
-      '申請新有效期限：' + payload.newValidTo + '。原因：' + payload.reason);
-    return ok_({ requested: true });
-  }
-
-  /** T5 核准延長（Revalidation） */
-  function extend(user, payload) {
-    SecurityService.requireAdminOrTier5(user);
-    requireFields_(payload, ['ptwId', 'newValidTo']);
-    var m = mustGet_(payload.ptwId);
-    if ([CFG.STATUS.ACTIVE, CFG.STATUS.EXTENDED, CFG.STATUS.EXPIRED].indexOf(m.status) < 0) {
-      throw ApiError_('BAD_STATE', 'Cannot extend in status ' + m.status, '目前狀態不可延長：' + m.status);
-    }
-    var newTo = payload.newValidTo;
-    if (!(parseDateTime_(newTo) > parseDateTime_(m.validTo))) {
-      throw ApiError_('BAD_DATE', 'New valid-to must be later than current', '新期限須晚於現行期限');
-    }
-    Repo.insert('PTW_Revalidations', {
-      ptwId: m.id, paUserId: m.paUserId, date: fmtDate_(),
-      fromTime: m.validTo, toTime: newTo,
-      disciplineSupSignatureId: '', hseSignatureId: '', newValidTo: newTo
-    }, user.id);
-    Repo.update('PTW_Master', m.id, { validTo: newTo }, user.id);
-    setStatus_(user, m, CFG.STATUS.EXTENDED, 'Extended to ' + newTo);
-    AuditService.log({ user: user, actionType: 'PTW_EXTEND', entityType: 'PTW', entityId: m.id,
-      ptwNumber: m.ptwNumber, oldValue: m.validTo, newValue: newTo, success: true });
-    notifyApplicant_(m, 'PTW_EXTENDED', 'PTW extended: ' + m.ptwNumber, 'PTW 已延長：' + m.ptwNumber,
-      'New valid-to: ' + newTo, '新有效期限：' + newTo);
-    try { NotificationService.adminCc('ptwExtended', 'PTW extended: ' + (m.ptwNumber || m.tempNumber), 'PTW 展延：' + (m.ptwNumber || m.tempNumber), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), m.id); } catch (eCc) {}
-    return ok_({ extended: true, newValidTo: newTo });
-  }
-
   /** T5 暫停 / 恢復 */
   function suspend(user, payload) {
     SecurityService.requireAdminOrTier5(user);
@@ -8001,7 +7956,7 @@ var LifecycleService = (function () {
       throw ApiError_('BAD_STATE', 'Only Suspended can be resumed', '僅暫停中的 PTW 可恢復');
     }
     if (m.validTo < fmtDateTime_()) {
-      throw ApiError_('EXPIRED', 'PTW already expired — extend it instead', 'PTW 已過期，請改走延長流程');
+      throw ApiError_('EXPIRED', 'PTW already expired — close it out and raise a new PTW', 'PTW 已過期，請辦理關閉並重新申請新 PTW');
     }
     setStatus_(user, m, CFG.STATUS.ACTIVE, 'Resumed');
     AuditService.log({ user: user, actionType: 'PTW_RESUME', entityType: 'PTW', entityId: m.id,
@@ -8196,7 +8151,7 @@ var LifecycleService = (function () {
     return ok_({ closed: true });
   }
 
-  return { closeoutReturn: closeoutReturn, requestExtension: requestExtension, extend: extend, suspend: suspend,
+  return { closeoutReturn: closeoutReturn, suspend: suspend,
     resume: resume, requestClosure: requestClosure, close: close, closeoutConfirm: closeoutConfirm };
 })();
 
@@ -8248,7 +8203,7 @@ var SchedulerService = (function () {
           entityId: m.id, ptwNumber: num, success: true });
         if (applicant) notifyOnce_(applicant.id, applicant.email, 'PTW_EXPIRED', m.id,
           '⏰ PTW EXPIRED: ' + num, '⏰ PTW 已到期：' + num,
-          'Stop work. Apply for extension or close-out.', '請停止作業，申請延長或辦理關閉。');
+          'Stop work and proceed with close-out.', '請停止作業並辦理關閉。');
         try { NotificationService.adminCc('ptwOverdue', 'PTW overdue (not closed): ' + num,
           'PTW 逾期未關：' + num, NotificationService.ptwBrief(m), NotificationService.ptwBrief(m), m.id); } catch (eCc) {}
         count.expired++;
@@ -8958,8 +8913,6 @@ function routes_() {
     'ptw.siteHtml':    function (u, p) { return PdfService.siteHtml(u, p); },
     'ptw.saveSitePdf': function (u, p) { return DriveService.saveSitePdf(u, p); },
     'ptw.exportPdf':          function (u, p) { return PdfService.exportPdf(u, p); },
-    'ptw.requestExtension':   function (u, p) { return LifecycleService.requestExtension(u, p); },
-    'ptw.extend':             function (u, p) { return LifecycleService.extend(u, p); },
     'ptw.suspend':            function (u, p) { return LifecycleService.suspend(u, p); },
     'ptw.resume':             function (u, p) { return LifecycleService.resume(u, p); },
     'ptw.requestClosure':     function (u, p) { return LifecycleService.requestClosure(u, p); },
@@ -9629,20 +9582,6 @@ function runAllTests_M41() {
     assert(CERT_FIELD_DEFS.HW.sections.some(function (s) {
       return s.f.some(function (f) { return f[0] === 'hw_wsc16'; });
     }), 'HW wsc16 missing');
-  });
-
-  t('T41 T1 申請延長 → 通知；T5 核准延長 → validTo 更新＋Revalidation＋Extended', function () {
-    var oldTo = m.validTo;
-    LifecycleService.requestExtension(t1, { ptwId: ptwId, newValidTo: '2027-12-31 18:00:00', reason: '工期延後' });
-    var denied = false;
-    try { LifecycleService.extend(t2, { ptwId: ptwId, newValidTo: '2027-12-31 18:00:00' }); }
-    catch (e) { denied = (e.apiCode === 'FORBIDDEN'); }
-    assert(denied, 'T2 extended PTW');
-    var r = LifecycleService.extend(t5, { ptwId: ptwId, newValidTo: '2027-12-31 18:00:00' });
-    assert(r.ok, 'extend failed');
-    var m2 = Repo.getById('PTW_Master', ptwId);
-    assert(m2.validTo === '2027-12-31 18:00:00' && m2.status === CFG.STATUS.EXTENDED, 'validTo/status wrong');
-    assert(Repo.find('PTW_Revalidations', function (v) { return v.ptwId === ptwId; }).length === 1, 'revalidation row missing');
   });
 
   t('T42 暫停 → Suspended；恢復 → Active', function () {
@@ -12373,7 +12312,7 @@ function showTierHelp(){
     ['Tier 4',Z?'NMDC 安衛部門':'NMDC HSE','N',
      Z?'安衛面審查：危害辨識、預防措施與法規符合性。':'HSE review: hazards, precautions and compliance.'],
     ['Tier 5',Z?'NMDC PTW 協調員／系統管理員':'NMDC PTW Coordinator / System Admin','N',
-     Z?'最終簽發、啟用、延長、暫停與關閉 PTW；具系統管理權限。':'Final issue, activation, extension, suspension and close-out; has system administration rights.']];
+     Z?'最終簽發、暫停與關閉 PTW；具系統管理權限。':'Final issue, suspension and close-out; has system administration rights.']];
   var h='<b style="font-size:1.05rem">'+(Z?'Tier 1–5 角色說明':'Tier 1–5 Roles')+'</b>'+
     '<div class="small mt-1"><span style="color:#b35c00;font-weight:700">■ '+(Z?'承商 Contractor':'Contractor')+'</span>　'+
     '<span style="color:#0b6bcb;font-weight:700">■ NMDC</span></div><div class="mt-2" style="text-align:left">';
@@ -14387,13 +14326,9 @@ function renderLifeBar(){
   };
   var isT5=(Number(u.tier)===5||u.isAdmin);
   var btns=[];
-  if(isApplicant&&['Active','Extended','Expired'].indexOf(s)>=0)
-    btns.push('<button class="btn btn-sm btn-outline-primary" onclick="reqExtension()">⏳ '+L('申請延長 Request Extension')+'</button>');
   // 完工申報：同承商公司人員皆可（作業提早完成、申請人不在班上時仍可關單）
   if(canCloseThis()&&['Approved','Active','Extended','Suspended','Expired'].indexOf(s)>=0)
     btns.push('<button class="btn btn-sm btn-outline-success" onclick="reqClosure()">🏁 '+L('完工申報 Work Completed')+'</button>');
-  if(isT5&&['Active','Extended','Expired'].indexOf(s)>=0)
-    btns.push('<button class="btn btn-sm btn-primary" onclick="doExtend()">⏳ '+L('延長 Extend')+'</button>');
   if(isT5&&['Active','Extended'].indexOf(s)>=0)
     btns.push('<button class="btn btn-sm btn-warning" onclick="doSuspend()">⏸ '+L('暫停 Suspend')+'</button>');
   if(isT5&&s==='Suspended')
@@ -14448,24 +14383,6 @@ function doCloseoutConfirm(){
     });
   });
 }
-function reqExtension(){
-  uiPrompt(lang==='zh'?'新有效期限（YYYY-MM-DD HH:MM）':'New valid-to (YYYY-MM-DD HH:MM)',String(cur.validTo||'').substring(0,16)).then(function(d){
-    if(!d) return;
-    uiPrompt(lang==='zh'?'延長原因':'Reason').then(function(reason){ if(!reason) return;
-      api('ptw.requestExtension',{ptwId:cur.id,newValidTo:d.length===16?d+':00':d,reason:reason}).then(function(res){
-        toast(res.ok?(lang==='zh'?'延長申請已送出，待 Coordinator 核准':'Extension requested'):apiMsg(res),res.ok);
-      });
-    });
-  });
-}
-function doExtend(){
-  uiPrompt(lang==='zh'?'核准新有效期限（YYYY-MM-DD HH:MM）':'New valid-to (YYYY-MM-DD HH:MM)',String(cur.validTo||'').substring(0,16)).then(function(d){
-    if(!d) return;
-    api('ptw.extend',{ptwId:cur.id,newValidTo:d.length===16?d+':00':d}).then(function(res){
-      if(res.ok){ toast('Extended ✅ → '+res.data.newValidTo,true); openPtwForm(cur.id); } else toast(apiMsg(res));
-    });
-  });
-}
 function doSuspend(){
   uiPrompt(lang==='zh'?'暫停原因（必填）':'Suspend reason (required)').then(function(reason){ if(!reason) return;
   api('ptw.suspend',{ptwId:cur.id,reason:reason}).then(function(res){
@@ -14479,26 +14396,56 @@ function doResume(){
   });});
 }
 function reqClosure(){
-  var Z=(lang==='zh'),miss=[];
-  if(!attHas('DailyValidation')) miss.push(Z?'現場聯每日驗證紀錄':'Site Copy daily validation record');
-  if(!attHas('TbmHip')) miss.push(Z?'每班次 TBM/HIP 紀錄':'TBM & HIP records');
-  // 自檢表與其他結案文件為選配；氣測記錄／局限空間管制表則依勾選項目強制
-  if((cur.gasTestRequired==='Y'||asB(cur.wtHotWork)||asB(cur.wtConfinedSpace))&&!attHas('GasMonitorLog'))
-    miss.push(Z?'氣體監測記錄表':'Gas Monitoring Log');
-  if(asB(cur.wtConfinedSpace)&&!attHas('EntryLog'))
-    miss.push(Z?'局限空間人員進出管制表':'Confined Space Personnel Entry Control Log');
-  if(miss.length){
-    toast((Z?'關閉前須上傳：':'Required before closing: ')+miss.join('、'));
-    gotoStep(STEPS.length-1);
+  var Z=(lang==='zh');
+  // 關單文件清單一律取自後端 CloseoutRules（ptw.open 帶回的 cur._closeoutDocs），與後端擋件規則同一來源
+  var docs=(cur._closeoutDocs||[]).slice();
+  var order={required:0,recommended:1,optional:2};
+  docs.sort(function(a,b){ return order[a.level]-order[b.level]; });
+  var missingReq=docs.filter(function(d){ return d.level==='required'&&!attHas(d.key); });
+  var missingRec=docs.filter(function(d){ return d.level==='recommended'&&!attHas(d.key); });
+  var row=function(d){
+    var has=attHas(d.key);
+    var icon=has?'✅':(d.level==='required'?'❌':(d.level==='recommended'?'⚑':'▫️'));
+    var tag=d.level==='required'?(Z?'必要':'required'):(d.level==='recommended'?(Z?'建議':'recommended'):(Z?'選配':'optional'));
+    var tagStyle=d.level==='required'?'background:#fdeaea;color:#a13030;border-color:#f3c6c6'
+      :(d.level==='recommended'?'background:#fff8e6;color:#8a5a00;border-color:#f0dca8':'background:#f2f4f7;color:#54657a;border-color:#dde3ea');
+    return '<tr><td class="k" style="width:34px;text-align:center;font-size:1.05rem">'+icon+'</td>'+
+      '<td class="v'+(has?'':(d.level==='required'?' fw-bold':''))+'" style="'+(has?'color:#54657a':'')+'">'+esc(Z?d.zh:d.en)+
+      ' <span class="uiChip" style="'+tagStyle+'">'+tag+'</span></td></tr>';
+  };
+  var table='<table class="uiKV mb-3">'+docs.map(row).join('')+'</table>';
+  var sub=(cur.ptwNumber||cur.tempNumber)+' · '+(Z?'關單文件檢核':'Close-out document check');
+  // ── 缺必要文件：不給申報，直接帶去第 6 步上傳 ──
+  if(missingReq.length){
+    uiDialog({icon:'📎',width:560,noCancel:true,
+      title:(Z?('尚缺 '+missingReq.length+' 份必要關單文件，無法申報完工'):('Missing '+missingReq.length+' mandatory close-out document(s) — cannot declare completion')),
+      sub:sub,okText:(Z?'前往第 6 步上傳 →':'Go to Step 6 to upload →'),okClass:'btn-warning fw-bold',
+      headColor:'linear-gradient(135deg,#8d1f1f 0%,#c0392b 100%)',
+      html:table+'<div class="uiNote">'+(Z
+        ?'❌ 標示的項目為本張 PTW 依作業類型必須檢附的紀錄，請於第 6 步「附件上傳」選擇對應分類上傳後，再回來按完工申報。'
+        :'Items marked ❌ are mandatory for this PTW based on its work types. Upload them under the matching category in Step 6, then declare completion again.')+'</div>'})
+    .then(function(){ gotoStep(STEPS.length-1); setTimeout(function(){ var el=$('attCategory'); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); },300); });
     return;
   }
-  var msg=lang==='zh'
-    ?'完工聲明：我特此聲明，本許可證中詳述的工作已在安全的情況下完成/停止，所有人員均已撤離，並且該區域已恢復安全。\\n\\n確認申報完工？'
-    :'Declaration: the work has been completed/stopped in a safe condition, all personnel withdrawn, area made safe.\\n\\nConfirm work completion?';
-  uiConfirm(msg).then(function(ok){ if(!ok) return;
-  api('ptw.requestClosure',{ptwId:cur.id,wcDeclarationAccepted:true}).then(function(res){
-    if(res.ok){ toast(lang==='zh'?'已申報完工，待 Coordinator 關閉':'Pending close-out',true); openPtwForm(cur.id); } else toast(apiMsg(res));
-  });});
+  // ── 必要文件齊全：顯示檢核結果＋完工聲明，確認後送出 ──
+  var decl=Z
+    ?'<b>完工聲明：</b>我特此聲明，本許可證中詳述的工作已在安全的情況下完成／停止，所有人員均已撤離，並且該區域已恢復安全。'
+    :'<b>Declaration:</b> the work detailed in this permit has been completed / stopped in a safe condition, all personnel have been withdrawn and the area has been made safe.';
+  var recNote=missingRec.length
+    ?'<div class="uiNote mb-2">⚑ '+(Z
+        ?('有 '+missingRec.length+' 份「建議」文件尚未上傳，目前不擋關單，但結案審閱人員可能會要求補件。')
+        :(missingRec.length+' recommended document(s) not uploaded. Close-out is not blocked, but reviewers may ask for them.'))+'</div>'
+    :'';
+  uiDialog({icon:'🏁',width:560,
+    title:(Z?'必要關單文件已齊全 — 確認申報完工？':'All mandatory close-out documents present — declare completion?'),
+    sub:sub,okText:(Z?'確認申報完工':'Declare completion'),okClass:'btn-success fw-bold',
+    html:table+recNote+'<div class="uiNote" style="background:#f2faf5;border-color:#bfe5cd;border-left-color:#1e7e34;color:#1c4a2e">'+decl+
+      '<br><span class="small" style="opacity:.8">'+(Z?'送出後將依序由承商職安衛 → NMDC 施工 → EHS → 協調員確認關單。':'After submission, close-out is confirmed in sequence by Contractor HSE → NMDC Construction → EHS → Coordinator.')+'</span></div>'})
+  .then(function(ok){ if(!ok) return;
+    api('ptw.requestClosure',{ptwId:cur.id,wcDeclarationAccepted:true}).then(function(res){
+      if(res.ok){ toast(lang==='zh'?'已申報完工，進入結案確認流程':'Completion declared — close-out review started',true); openPtwForm(cur.id); } else toast(apiMsg(res));
+    });
+  });
 }
 function doClose(){
   uiPrompt(lang==='zh'?'關閉備註（選填，可留空）':'Close comment (optional)').then(function(comment){
