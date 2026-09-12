@@ -1061,7 +1061,7 @@ function uploadKpiSummary_(payload) {
   var r = saveDataUrlToWeekly_(name, payload.dataUrl);
   var old = readJsonCell_(KPI_CELL);
   if (old && old.fileId) { try { DriveApp.getFileById(old.fileId).setTrashed(true); } catch(e) {} }
-  var kpi = { fileId: r.fileId, url: r.url, name: name, uploadedAt: new Date().toISOString(), source: payload.source || 'manual' };
+  var kpi = { fileId: r.fileId, url: r.url, name: name, uploadedAt: new Date().toISOString(), source: payload.source || 'manual', size: r.size || 0 };
   getSheet().getRange(KPI_CELL).setValue(JSON.stringify(kpi));
   return { ok: true, kpi: kpi };
 }
@@ -1142,7 +1142,7 @@ function trLoad_() {
     if (!sh) { sh = ss.insertSheet(TRANSLATE_SHEET); sh.getRange(1, 1, 1, 3).setValues([['zh', 'en', 'updatedAt']]); return; }
     var last = sh.getLastRow();
     if (last < 2) return;
-    sh.getRange(2, 1, last - 1, 2).getValues().forEach(function(r){ if (r[0]) _trCache[String(r[0])] = String(r[1] || ''); });
+    sh.getRange(2, 1, last - 1, 2).getValues().forEach(function(r){ if (r[0] && !trCacheBad_(String(r[0]), String(r[1] || ''))) _trCache[String(r[0])] = String(r[1] || ''); });
   } catch(e) { Logger.log('翻譯快取讀取失敗：' + e.message); }
 }
 function trFlush_() {
@@ -1153,13 +1153,23 @@ function trFlush_() {
   } catch(e) { Logger.log('翻譯快取寫入失敗：' + e.message); }
   _trNew = [];
 }
+// 固定用語：先換成英文再送翻譯，避免「通霄」被翻成 All night long
+var TR_TERMS = [['通霄工區', 'TungHsiao Site'], ['通霄', 'TungHsiao'], ['台中工區', 'Taichung Site'], ['台中', 'Taichung'],
+                ['天力工區', 'Tienli Site'], ['天力', 'Tienli'], ['海管', 'subsea pipeline'], ['環安衛', 'EHS']];
+function trFixTerms_(s) { TR_TERMS.forEach(function(t){ s = s.split(t[0]).join(t[1]); }); return s; }
+function trCacheBad_(zh, en) { // 快取裡舊的錯譯（地名沒照固定用語）就不採用
+  for (var i = 0; i < TR_TERMS.length; i++) if (zh.indexOf(TR_TERMS[i][0]) >= 0 && en.indexOf(TR_TERMS[i][1]) < 0) return true;
+  return false;
+}
 function tr_(zh) {
   zh = String(zh == null ? '' : zh).trim();
   if (!zh || !trHasCjk_(zh)) return '';
   trLoad_();
   if (_trCache[zh] != null) return _trCache[zh];
   var en = '';
-  try { en = String(LanguageApp.translate(zh, 'zh-TW', 'en') || '').trim(); } catch(e) { Logger.log('翻譯失敗：' + e.message); }
+  var pre = trFixTerms_(zh);
+  if (!trHasCjk_(pre)) en = pre;   // 整句都是固定用語（例如「通霄工區」）
+  else { try { en = String(LanguageApp.translate(pre, 'zh-TW', 'en') || '').trim(); } catch(e) { Logger.log('翻譯失敗：' + e.message); } }
   _trCache[zh] = en;
   if (en) _trNew.push([zh, en, new Date().toISOString()]);
   return en;
@@ -1174,39 +1184,44 @@ function trkZhEn_(zh, css, enCss, doTr) {
   if (en) h += trkP_(trkEsc_(en), 'font-size:11px;color:#8a97a8;margin-top:2px;line-height:1.45;' + (enCss || ''));
   return h;
 }
+function trkSpacer_(px) {
+  return '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="' + px + '" style="height:' + px + 'px;font-size:0;line-height:0;">&nbsp;</td></tr></table>';
+}
 function trkSectionTitle_(icon, zh, en, sub, color) {
-  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px;"><tr>' +
+  return trkSpacer_(34) + '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
     '<td width="5" bgcolor="' + color + '" style="background-color:' + color + ';font-size:0;line-height:0;">&nbsp;</td>' +
     '<td style="padding:2px 0 2px 14px;">' +
       trkP_(icon + ' ' + zh + ' <span style="color:' + color + ';' + TRK_FONT + '">' + en + '</span>', 'font-size:16px;font-weight:bold;color:#0f172a;letter-spacing:.3px;') +
       (sub ? trkP_(sub, 'font-size:11px;color:#64748b;margin-top:3px;') : '') +
     '</td></tr></table>';
 }
-function trkKpiCard_(num, zh, en, color, sub, unit, last, pillBg) {
-  return '<td class="stat" width="25%" valign="top" style="padding:14px 18px 16px;' + (last ? '' : 'border-right:1px solid #1e3a5a;') + '">' +
-      trkP_(zh, 'font-size:12px;font-weight:bold;color:' + color + ';letter-spacing:.5px;white-space:nowrap;') +
-      trkP_(en, 'font-size:8.5px;color:#7fa6cf;margin-top:2px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;') +
-      trkP_('<span style="font-size:40px;font-weight:bold;line-height:1;color:#ffffff;' + TRK_FONT + '">' + num + '</span>' +
-            '<span style="font-size:12px;color:#7fa6cf;padding-left:6px;' + TRK_FONT + '">' + unit + '</span>', 'margin-top:12px;line-height:1;white-space:nowrap;') +
-      '<table cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;"><tr><td bgcolor="' + pillBg + '" style="background-color:' + pillBg + ';padding:4px 9px;">' +
-        trkP_(sub, 'font-size:10px;font-weight:bold;color:' + color + ';white-space:nowrap;letter-spacing:.2px;') +
+function trkKpiCard_(num, zh, en, color, subZh, subEn, unit, last) {
+  return '<td class="stat" width="25%" valign="top" bgcolor="#ffffff" style="background-color:#ffffff;padding:16px 16px 14px;' + (last ? '' : 'border-right:1px solid #e2e8f0;') + '">' +
+      trkP_(zh, 'font-size:13px;font-weight:bold;color:' + color + ';letter-spacing:.5px;white-space:nowrap;') +
+      trkP_(en, 'font-size:8.5px;color:#8a97a8;margin-top:2px;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;') +
+      trkP_('<span style="font-size:42px;font-weight:bold;line-height:1;color:#0b1f33;' + TRK_FONT + '">' + num + '</span>' +
+            '<span style="font-size:12px;color:#64748b;padding-left:6px;' + TRK_FONT + '">' + unit + '</span>', 'margin-top:14px;line-height:1;white-space:nowrap;') +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;"><tr><td bgcolor="' + color + '" style="background-color:' + color + ';padding:7px 10px;">' +
+        trkP_(subZh, 'font-size:11px;font-weight:bold;color:#ffffff;letter-spacing:.3px;') +
+        trkP_(subEn, 'font-size:9px;color:#ffffff;margin-top:1px;') +
       '</td></tr></table>' +
     '</td>';
 }
 function trkKpiStrip_(range, cards) {
-  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0b1f33" style="background-color:#0b1f33;margin-top:22px;">';
-  h += '<tr><td style="padding:14px 18px 0;">' +
+  var h = trkSpacer_(30) + '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f7fb" style="background-color:#f4f7fb;border:1px solid #d9e2ec;">';
+  h += '<tr><td style="padding:14px 18px 12px;border-bottom:1px solid #d9e2ec;">' +
        '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
-       '<td valign="middle">' + trkP_('本週摘要 <span style="color:#7fa6cf;font-weight:normal;letter-spacing:2px;' + TRK_FONT + '">WEEKLY SUMMARY</span>', 'font-size:12px;font-weight:bold;color:#ffffff;letter-spacing:1px;') + '</td>' +
-       '<td valign="middle" align="right">' + trkP_(range.from + ' ~ ' + range.to, 'font-size:10px;color:#7fa6cf;letter-spacing:.5px;white-space:nowrap;') + '</td>' +
-       '</tr></table>' +
-       '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;"><tr><td bgcolor="#1e3a5a" style="background-color:#1e3a5a;font-size:0;line-height:0;height:1px;">&nbsp;</td></tr></table>' +
-       '</td></tr>';
+       '<td valign="middle">' + trkP_('本週摘要 <span style="color:#64748b;font-weight:normal;letter-spacing:2px;' + TRK_FONT + '">WEEKLY SUMMARY</span>', 'font-size:13px;font-weight:bold;color:#0b1f33;letter-spacing:1px;') + '</td>' +
+       '<td valign="middle" align="right">' + trkP_(range.from + ' ~ ' + range.to, 'font-size:10px;color:#64748b;letter-spacing:.5px;white-space:nowrap;') + '</td>' +
+       '</tr></table></td></tr>';
   h += '<tr><td style="padding:0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' + cards.join('') + '</tr></table></td></tr>';
+  // 分組列：第一格＝改善單，後三格＝待辦事項
   h += '<tr><td style="padding:0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
-       ['#fb923c', '#f87171', '#fbbf24', '#60a5fa'].map(function(c) {
-         return '<td width="25%" bgcolor="' + c + '" style="background-color:' + c + ';font-size:0;line-height:0;height:4px;">&nbsp;</td>';
-       }).join('') + '</tr></table></td></tr>';
+       '<td class="stat" width="25%" bgcolor="#fbbf24" align="center" style="background-color:#fbbf24;padding:7px 8px;border-top:1px solid #d9e2ec;">' +
+         trkP_('改善單 <span style="font-weight:normal;font-size:9px;letter-spacing:1px;' + TRK_FONT + '">NCR / WM</span>', 'font-size:11px;font-weight:bold;color:#0b1f33;white-space:nowrap;') + '</td>' +
+       '<td class="stat" width="75%" colspan="3" bgcolor="#0e7490" align="center" style="background-color:#0e7490;padding:7px 8px;border-top:1px solid #d9e2ec;">' +
+         trkP_('待辦事項 <span style="font-weight:normal;font-size:9px;letter-spacing:1px;' + TRK_FONT + '">TRACKER ITEMS</span>', 'font-size:11px;font-weight:bold;color:#ffffff;white-space:nowrap;') + '</td>' +
+       '</tr></table></td></tr>';
   return h + '</table>';
 }
 function trkDaysLabel_(d) {
@@ -1346,6 +1361,65 @@ function trkNcrTable_(rows, doTr) {
   return h + '</table>';
 }
 
+// ── 本週活動 Coming Activities：寄出日起 7 天（週一寄 = 週一～週日）的重點活動 ──
+var EVT_DEFAULT_TYPES = [
+  { key: 'audit', label: '查核', color: '#dc2626', bg: '#fef2f2' },
+  { key: 'campaign', label: 'Campaign', color: '#7c3aed', bg: '#ede9fe' },
+  { key: 'meeting', label: '會議', color: '#0369a1', bg: '#e0f2fe' },
+  { key: 'other', label: '其他', color: '#475569', bg: '#f1f5f9' }
+];
+function trkWeekEvents_(data, today) {
+  var from = trkParse_(today), list = [];
+  (data.events || []).forEach(function(ev) {
+    if (!ev || !ev.date) return;
+    var d = trkDaysLeft_(ev.date, today);
+    if (d == null || d < 0 || d > 6) return;
+    list.push(ev);
+  });
+  list.sort(function(a, b) { return String(a.date).localeCompare(String(b.date)) || (b.starred ? 1 : 0) - (a.starred ? 1 : 0); });
+  var to = new Date(from.getTime() + 6 * 86400000);
+  return { list: list, from: trkFmt_(from, '/'), to: trkFmt_(to, '/') };
+}
+function trkEventsHtml_(data, today, doTr) {
+  var w = trkWeekEvents_(data, today);
+  var types = (data.eventTypes && data.eventTypes.length) ? data.eventTypes : EVT_DEFAULT_TYPES;
+  var typeOf = function(key) {
+    for (var i = 0; i < types.length; i++) if (types[i].key === key) return types[i];
+    return { label: '其他', color: '#475569', bg: '#f1f5f9' };
+  };
+  var h = trkSectionTitle_('📅', '本週活動', 'Coming Activities', w.from + ' ~ ' + w.to + ' 的重點活動 · Key activities scheduled this week', '#7c3aed');
+  if (!w.list.length) return h + trkEmptyNote_('本週沒有排定的活動。', 'No activities scheduled this week.');
+  h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
+  w.list.forEach(function(ev, i) {
+    var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
+    var t = typeOf(ev.typeKey);
+    var wd = trkWeekdayZh_(ev.date);
+    var md = String(ev.date).slice(5).replace('-', '/');
+    var meta = [ev.area, ev.person].filter(Boolean).join(' · ');
+    var notes = trkNoteLines_(ev.note);
+    var TD = 'padding:10px 12px;border-top:1px solid #e5e9ef;vertical-align:top;word-wrap:break-word;' + TRK_FONT;
+    h += '<tr bgcolor="' + bg + '">';
+    h += '<td bgcolor="' + bg + '" width="18%" style="' + TD + 'background-color:' + bg + ';">' +
+           trkP_(md, 'font-size:15px;font-weight:bold;color:#0f172a;line-height:1.1;') +
+           trkP_(wd, 'font-size:11px;color:#64748b;margin-top:2px;') + '</td>';
+    h += '<td bgcolor="' + bg + '" width="17%" style="' + TD + 'background-color:' + bg + ';">' +
+           '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + (t.bg || '#f1f5f9') + '" style="background-color:' + (t.bg || '#f1f5f9') + ';padding:3px 8px;">' +
+             trkP_(trkEsc_(t.label || '其他'), 'font-size:10px;font-weight:bold;color:' + (t.color || '#475569') + ';white-space:nowrap;') + '</td></tr></table></td>';
+    var body = trkP_((ev.starred ? '⭐ ' : '') + trkEsc_(ev.title || '（未命名）'), 'font-size:13px;font-weight:bold;color:#0f172a;');
+    var titleEn = doTr ? tr_(ev.title || '') : '';
+    if (titleEn) body += trkP_(trkEsc_(titleEn), 'font-size:11px;color:#8a97a8;margin-top:2px;line-height:1.45;');
+    if (meta) body += trkZhEn_(meta, 'font-size:11px;color:#475569;margin-top:3px;', '', doTr);
+    notes.forEach(function(l) {
+      body += trkP_(trkEsc_(l), 'font-size:11px;color:#64748b;margin-top:3px;line-height:1.5;');
+      var en = doTr ? tr_(l) : '';
+      if (en) body += trkP_(trkEsc_(en), 'font-size:10px;color:#a3aec0;line-height:1.4;');
+    });
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + body + '</td>';
+    h += '</tr>';
+  });
+  return h + '</table>';
+}
+
 // ── 現場照片（兩欄，不裁切、原比例） ──
 function trkPhotosHtml_(photos, doTr) {
   if (!photos.length) return '';
@@ -1455,11 +1529,14 @@ function buildTrackerMail_(opts) {
 
   // KPI 卡片
   body += trkKpiStrip_(range, [
-    trkKpiCard_(String(ncr.length),      '改善單待處理', 'NCR / WM to handle', '#fb923c',
-                ncrOverdue.length ? '⚠ 逾期 ' + ncrOverdue.length + ' · 7 天內 ' + ncrSoon.length : (ncr.length ? '7 天內到期 ' + ncrSoon.length + ' 筆' : '✓ 無待處理'), '筆', false, '#3b1d12'),
-    trkKpiCard_(String(overdue.length),  '追蹤事項逾期', 'Tracker overdue',    '#f87171', overdue.length ? '⚠ 請優先處理' : '✓ 無逾期', '項', false, '#3b1515'),
-    trkKpiCard_(String(thisWeek.length), '本週到期',     'Due this week',      '#fbbf24', thisWeek.length ? '本週內完成' : '本週無到期', '項', false, '#3a2a0d'),
-    trkKpiCard_(String(later.length),    '排程中',       'Scheduled',          '#60a5fa', '7 天後到期', '項', true, '#12294a')
+    trkKpiCard_(String(ncr.length), '改善單待處理', 'NCR / WM to handle', '#ea580c',
+      ncrOverdue.length ? '⚠ 逾期 ' + ncrOverdue.length + ' · 7 天內 ' + ncrSoon.length : (ncr.length ? '7 天內到期 ' + ncrSoon.length + ' 筆' : '✓ 無待處理'),
+      ncrOverdue.length ? ncrOverdue.length + ' overdue · ' + ncrSoon.length + ' due in 7d' : (ncr.length ? ncrSoon.length + ' due within 7 days' : 'Nothing pending'), '筆', false),
+    trkKpiCard_(String(overdue.length), '追蹤事項逾期', 'Tracker overdue', '#dc2626',
+      overdue.length ? '⚠ 請優先處理' : '✓ 無逾期', overdue.length ? 'Action needed' : 'All on track', '項', false),
+    trkKpiCard_(String(thisWeek.length), '本週到期', 'Due this week', '#d97706',
+      thisWeek.length ? '本週內完成' : '本週無到期', thisWeek.length ? 'Due within 7 days' : 'Nothing due this week', '項', false),
+    trkKpiCard_(String(later.length), '排程中', 'Scheduled', '#0369a1', '7 天後到期', 'Due after 7 days', '項', true)
   ]);
 
   // 改善單
@@ -1479,6 +1556,11 @@ function buildTrackerMail_(opts) {
   if (thisWeek.length) { body += trkSubHead_('🟠 本週到期（' + thisWeek.length + ' 項）Due this week', '#b45309'); body += trkTaskTable_(thisWeek, today, doTr); }
   if (later.length)    { body += trkSubHead_('🔵 排程中（' + later.length + ' 項）Scheduled', '#0369a1'); body += trkTaskTable_(later, today, doTr); }
 
+  // 本週活動（照片上方）
+  var evHtml = '';
+  try { evHtml = trkEventsHtml_(data, today, doTr); } catch(e) { Logger.log('活動區塊產生失敗：' + e.message); }
+  body += evHtml;
+
   // 現場照片
   if (photos.length) {
     body += trkSectionTitle_('📸', '現場照片', 'Site Photos', '本週環保活動與現場紀錄 · Environmental activities and site records this week', '#0ea5e9');
@@ -1491,7 +1573,7 @@ function buildTrackerMail_(opts) {
     '<title>ENV Weekly Report</title>' +
     '<!--[if mso]><style>table,td,p,a,span,div,li{font-family:\'Microsoft JhengHei\',\'Segoe UI\',Arial,sans-serif !important;' +
       'mso-fareast-font-family:\'Microsoft JhengHei\' !important;mso-ascii-font-family:\'Microsoft JhengHei\' !important;mso-hansi-font-family:\'Microsoft JhengHei\' !important;}</style><![endif]-->' +
-    '<style>@media only screen and (max-width:620px){.wrap{width:100% !important;}.stat{display:block !important;width:100% !important;padding:0 0 10px !important;border-right:none !important;border-bottom:1px solid #1e3a5a;}.pad{padding-left:16px !important;padding-right:16px !important;}.hdr-r{display:block !important;text-align:left !important;padding-top:0 !important;}}</style>' +
+    '<style>@media only screen and (max-width:620px){.wrap{width:100% !important;}.stat{display:block !important;width:100% !important;border-right:none !important;border-bottom:1px solid #e2e8f0;}.pad{padding-left:16px !important;padding-right:16px !important;}.hdr-r{display:block !important;text-align:left !important;padding-top:0 !important;}}</style>' +
     '</head><body style="margin:0;padding:0;background-color:#edf1f5;">' +
     '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#edf1f5" style="background-color:#edf1f5;"><tr><td align="center" style="padding:24px 12px;">' +
     '<!--[if mso]><table width="680" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->' +

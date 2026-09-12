@@ -2582,7 +2582,7 @@ function renderMcKpi(k){
   if(!k||!k.fileId){box.innerHTML='<div class="mc-empty">目前沒有圖。改善單系統開啟儀表板時會自動同步一張到這裡；本週沒有的話，寄出時系統會自己依最新資料產生，不用手動處理。</div>';return;}
   const when=k.uploadedAt?new Date(k.uploadedAt).toLocaleString('zh-TW'):'';
   box.innerHTML=`<div class="mc-kpi"><a href="${esc(k.url)}" target="_blank" rel="noopener"><img src="${esc(k.url)}" alt="KPI"></a>
-    <div class="mc-kpi-meta"><b>${esc(k.name||'KPI 總結圖')}</b><br>更新於 ${esc(when)}${k.source==='auto'?'（改善單系統自動同步）':k.source==='slides'?'（系統自動產生）':'（手動上傳）'}<br><span style="color:var(--muted)">寄出時會作為附件並嵌在「改善單狀態」區塊下方；若這張比報告週還舊，寄出時會自動重新產生。</span></div></div>`;
+    <div class="mc-kpi-meta"><b>${esc(k.name||'KPI 總結圖')}</b><br>更新於 ${esc(when)}${k.source==='auto'?'（改善單系統自動同步）':k.source==='slides'?'（系統自動產生）':'（手動上傳）'}${k.size?'　·　'+(k.size>1048576?(k.size/1048576).toFixed(1)+' MB':Math.round(k.size/1024)+' KB'):''}${k.size&&k.size<600*1024?' <span style="color:var(--danger)">⚠ 檔案偏小，可能是舊的壓縮版，建議重新同步</span>':''}<br><span style="color:var(--muted)">寄出時會作為附件並嵌在「改善單狀態」區塊下方；若這張比報告週還舊，寄出時會自動重新產生。</span></div></div>`;
 }
 function uploadMcKpi(){$('mcKpiInput').click();}
 async function handleMcKpi(input){
@@ -2590,8 +2590,8 @@ async function handleMcKpi(input){
   setMailCfgStatus('⏳ 上傳 KPI 總結圖…');
   try{
     let dataUrl;
-    if(f.size>3*1024*1024)dataUrl=await compressImage(f,1600,0.9);else dataUrl=await fileToDataUrl(f);
-    const ext=/png/i.test(f.type)&&f.size<=3*1024*1024?'png':'jpg';
+    dataUrl=await fileToDataUrl(f);   // 原檔上傳，不壓縮（KPI 圖要放大看字）
+    const ext=/png/i.test(f.type)?'png':'jpg';
     const d=await uploadWeeklyFile('uploadKpiSummary','KPI-summary-'+todayS()+'-'+Date.now()+'.'+ext,dataUrl,{source:'manual'});
     if(_mailCfg)_mailCfg.kpi=d.kpi;renderMcKpi(d.kpi);setMailCfgStatus('✅ KPI 總結圖已更新','ok');
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 上傳失敗：'+e.message,'err');}
