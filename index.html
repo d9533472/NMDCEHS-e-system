@@ -2539,7 +2539,7 @@ async function handleMcPhotos(input){
       const f=files[k];
       setMailCfgStatus(`⏳ 上傳照片 ${k+1}/${files.length}：${f.name}`);
       try{
-        const dataUrl=await compressImage(f,1400,0.85);
+        const dataUrl=await cropCoverImage(f,1200,900,0.86);
         const name='weekly-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
         const d=await uploadWeeklyFile('uploadWeeklyPhoto',name,dataUrl);
         _mcPhotos.push({fileId:d.photo.fileId,url:d.photo.url,title:f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),location:'',date:todayS(),uploadedAt:d.photo.uploadedAt||new Date().toISOString()});
@@ -3146,6 +3146,21 @@ async function handleBulImage(input){
   input.value='';
 }
 
+// 置中裁切成固定比例（週報照片用：1200×900，4:3）。直式照片會取中間區域。
+function cropCoverImage(file,W,H,quality){
+  return new Promise((resolve,reject)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
+      const s=Math.max(W/img.width,H/img.height);
+      const dw=img.width*s,dh=img.height*s,dx=(W-dw)/2,dy=(H-dh)/2;
+      const ctx=canvas.getContext('2d');ctx.fillStyle='#f1f5f9';ctx.fillRect(0,0,W,H);ctx.drawImage(img,dx,dy,dw,dh);
+      resolve(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror=reject;
+    const reader=new FileReader();reader.onload=e=>{img.src=e.target.result;};reader.readAsDataURL(file);
+  });
+}
 function compressImage(file,maxWidth,quality){
   return new Promise((resolve,reject)=>{
     const img=new Image();
@@ -3670,7 +3685,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
 .mc-photo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .mc-photo .form-input{padding:7px 10px;font-size:12px;border-radius:8px}
 .mc-photo-img{aspect-ratio:4/3;background:#eef2f6;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.mc-photo-img img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+.mc-photo-img img{width:100%;height:100%;object-fit:cover;display:block}
 .mc-photo-img.err::after{content:'圖片載入中／無法顯示';font-size:11px;color:var(--muted)}
 .mc-photo-row{display:flex;gap:4px;align-items:center}.mc-photo-row .form-input{flex:1;min-width:0}
 .mc-ib{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text2);cursor:pointer;font-size:13px;font-family:inherit}.mc-ib:hover{border-color:var(--accent);color:var(--accent2)}.mc-ib.del:hover{border-color:var(--danger);color:var(--danger)}.mc-ib:disabled{opacity:.35;cursor:default}
@@ -3711,10 +3726,10 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
 
     <div class="mc-sec">
-      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>顯示於信件最後，兩欄、不裁切、原比例</small><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
+      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>信件最後兩欄等高顯示；上傳時會置中裁成 4:3，直式照片只保留中間</small><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
       <input type="file" id="mcPhotoInput" accept="image/*" multiple style="display:none" onchange="handleMcPhotos(this)">
       <div class="mc-photos" id="mcPhotos"></div>
-      <div class="mc-note" style="margin-top:8px">照片會壓縮到 1400px 寬後存到 Drive 的 EHS-Weekly-Report 資料夾；寄出時以內嵌圖片放進信件。移除照片後按「儲存設定」才會生效。</div>
+      <div class="mc-note" style="margin-top:8px">照片上傳時會置中裁切成 4:3（1200×900）後存到 Drive 的 EHS-Weekly-Report 資料夾，信件裡每張等高；建議放橫式照片。移除照片後按「儲存設定」才會生效。</div>
     </div>
 
     <div class="mc-sec">

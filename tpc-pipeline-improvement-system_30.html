@@ -2678,11 +2678,10 @@ function App() {
                 }
                 // 同步上傳到 Environmental E-System，作為週報 ENV WEEKLY REPORT 的附件（改善單狀態區塊）
                 try {
-                  const c2 = document.createElement('canvas'); c2.width = 1600; c2.height = 900;
-                  c2.getContext('2d').drawImage(canvas, 0, 0, 1600, 900);
-                  const dataUrl = c2.toDataURL('image/jpeg', 0.92);
+                  // 原始解析度 PNG（3200×1800，不壓縮），放大看字才清楚
+                  const dataUrl = canvas.toDataURL('image/png');
                   if (!exportData._auto) showKpiToast('⏳ 正在同步 KPI 總結圖到週報…');
-                  fetch(ESYSTEM_GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'uploadKpiSummary', fileName: 'KPI-summary-' + new Date().toISOString().slice(0, 10) + '.jpg', dataUrl, source: 'auto' }) })
+                  fetch(ESYSTEM_GAS_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'uploadKpiSummary', fileName: 'KPI-summary-' + new Date().toISOString().slice(0, 10) + '.png', dataUrl, source: 'auto' }) })
                     .then(r => r.json())
                     .then(d => {
                       if (!(d && d.ok)) throw new Error((d && d.error) || '上傳失敗');
