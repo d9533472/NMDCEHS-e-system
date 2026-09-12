@@ -1526,7 +1526,7 @@ function renderTrkHTML(){
   h+='</div>';
   h+=`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card2);user-select:none"><input type="checkbox" onchange="showDone=this.checked;renderTab()" ${showDone?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"> 顯示已完成 <span style="font-size:11px;background:var(--bg2);padding:1px 6px;border-radius:10px">${doneCount}</span></label>`;
   if(isEditor)h+=`<button onclick="sendTrkEmail()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent2)'">📧 寄出追蹤摘要</button>`;
-  if(isEditor)h+=`<button onclick="showMailCfgM()" title="每週一 09:00 自動寄送的收件者設定" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">⚙️ 週報寄送設定</button>`;
+  if(isEditor)h+=`<button onclick="showMailCfgM()" title="ENV WEEKLY REPORT：收件者、開頭文字、現場照片、KPI 圖（每週一 09:00 自動寄出）" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">📧 週報設定</button>`;
   h+='</div>';
   h+=`<table class="tracker-table"><thead><tr><th style="width:32px"></th><th>事項</th><th>負責人</th><th>完成期限</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
   if(!filtered.length)h+=`<tr><td colspan="5" class="tracker-empty">${showDone?'無追蹤事項':'無待辦事項'}</td></tr>`;
@@ -2441,71 +2441,181 @@ function openOutlookForEmail(){
   showToast('📨 Outlook 已開啟，請貼上內容後寄出');
 }
 
-// ══ 📧 追蹤事項週報：收件者設定 / 由系統直接寄出（GAS 觸發器每週一 09:00 自動寄） ══
-let _mailCfg=null;
+// ══ 📧 環保部門週報 ENV WEEKLY REPORT：收件者 / 開頭文字 / 現場照片 / KPI 圖 / 由系統寄出 ══
+//    GAS 觸發器：每週一 09:00 自動寄出、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
+let _mailCfg=null,_mcPhotos=[],_mcBusy=false;
+const MC_DEFAULT_INTRO='<p>Dear Chris, Sam</p><p>Please refer to the attached weekly report from the ENV Department for this week.<br>You are also welcome to discuss with us if you have any suggestions or comments.<br>Thank you all for your continued support.</p><p>BR,<br>Paul Tong</p>';
+async function gasGet(action,params){
+  const q=Object.entries(params||{}).map(([k,v])=>'&'+k+'='+encodeURIComponent(v)).join('');
+  const r=await fetch(GAS_URL+'?action='+action+q+'&_='+Date.now(),{cache:'no-store'});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return r.json();
+}
+async function gasPost(obj){
+  const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(obj)});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  return r.json();
+}
 async function loadMailCfg(){
   if(!GAS_URL)return null;
-  try{const r=await fetch(GAS_URL+'?action=mailConfig&_='+Date.now(),{cache:'no-store'});const d=await r.json();if(d&&d.ok){_mailCfg=d.config;return _mailCfg;}}catch(e){console.warn('mailConfig:',e);}
+  try{const d=await gasGet('mailConfig');if(d&&d.ok){_mailCfg=d.config;return _mailCfg;}}catch(e){console.warn('mailConfig:',e);}
   return null;
 }
-function setMailCfgStatus(msg,type){const el=$('mcStatus');if(!el)return;el.textContent=msg||'';el.style.color=type==='err'?'var(--danger)':'var(--muted)';}
-function mailCfgFromForm(){return {enabled:$('inMcEnabled').checked,to:$('inMcTo').value.trim(),cc:$('inMcCc').value.trim(),senderName:$('inMcName').value.trim()};}
+function setMailCfgStatus(msg,type){const el=$('mcStatus');if(!el)return;el.textContent=msg||'';el.style.color=type==='err'?'var(--danger)':type==='ok'?'var(--accent2)':'var(--muted)';}
+function mailCfgFromForm(){
+  return {enabled:$('inMcEnabled').checked,to:$('inMcTo').value.trim(),cc:$('inMcCc').value.trim(),senderName:$('inMcName').value.trim(),
+    intro:$('inMcIntro').innerHTML.trim(),translate:$('inMcTranslate').checked,
+    reminderEnabled:$('inMcRemind').checked,reminderTo:$('inMcRemindTo').value.trim(),
+    photos:_mcPhotos.map(p=>({fileId:p.fileId,url:p.url,title:p.title||'',location:p.location||'',date:p.date||'',uploadedAt:p.uploadedAt||''}))};
+}
+function fillMailCfgForm(c){
+  $('inMcEnabled').checked=c.enabled!==false;$('inMcTo').value=c.to||'';$('inMcCc').value=c.cc||'';$('inMcName').value=c.senderName||'';
+  $('inMcIntro').innerHTML=(c.intro!=null&&c.intro!=='')?c.intro:MC_DEFAULT_INTRO;
+  $('inMcTranslate').checked=c.translate!==false;
+  $('inMcRemind').checked=c.reminderEnabled!==false;$('inMcRemindTo').value=c.reminderTo||'';
+  _mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));
+  renderMcPhotos();renderMcKpi(c.kpi);
+  const ls=c.lastSentAt?new Date(c.lastSentAt).toLocaleString('zh-TW'):'尚未寄出過';
+  $('mcLastSent').textContent='上次自動寄出：'+ls;
+}
 async function showMailCfgM(){
   $('mMailCfg').classList.remove('hidden');
   setMailCfgStatus('讀取雲端設定中…');
   const c=await loadMailCfg();
-  if(c){
-    $('inMcEnabled').checked=c.enabled!==false;$('inMcTo').value=c.to||'';$('inMcCc').value=c.cc||'';$('inMcName').value=c.senderName||'';
-    setMailCfgStatus(c.saved?'已載入雲端設定':'尚未儲存過，目前顯示的是預設收件者，請確認後按「儲存設定」');
-  }else setMailCfgStatus('⚠️ 無法讀取設定：GAS 後端可能尚未更新到含週報模組的版本','err');
+  if(c){fillMailCfgForm(c);setMailCfgStatus(c.saved?'已載入雲端設定':'尚未儲存過，目前顯示的是預設值，請確認後按「儲存設定」');}
+  else setMailCfgStatus('⚠️ 無法讀取設定：GAS 後端可能尚未更新到含週報模組的版本','err');
 }
-async function saveMailCfg(){
+function rteCmdW(cmd,val){$('inMcIntro').focus();document.execCommand(cmd,false,val||null);}
+function resetMcIntro(){if(confirm('還原成預設的開頭文字？'))$('inMcIntro').innerHTML=MC_DEFAULT_INTRO;}
+async function saveMailCfg(silent){
   const cfg=mailCfgFromForm();
   if(cfg.enabled&&!cfg.to){showToast('⚠️ 請至少填一位收件者','err');return false;}
+  if(cfg.reminderEnabled&&!cfg.reminderTo){showToast('⚠️ 請填提醒信收件者','err');return false;}
   setMailCfgStatus('儲存中…');
   try{
-    const r=await fetch(GAS_URL+'?action=saveMailConfig&cfg='+encodeURIComponent(JSON.stringify(cfg))+'&_='+Date.now(),{cache:'no-store'});
-    const d=await r.json();
+    const d=await gasPost({action:'saveMailConfig',cfg});
     if(!d||!d.ok)throw new Error((d&&d.error)||'儲存失敗');
     _mailCfg=d.config;
-    setMailCfgStatus('✅ 已儲存至雲端（'+new Date().toLocaleTimeString('zh-TW')+'）');
-    showToast(cfg.enabled?'✅ 已儲存，每週一 09:00 會寄給這些收件者':'✅ 已儲存，自動寄送已停用');
+    setMailCfgStatus('✅ 已儲存至雲端（'+new Date().toLocaleTimeString('zh-TW')+'）','ok');
+    if(!silent)showToast(cfg.enabled?'✅ 已儲存，每週一 09:00 會自動寄出':'✅ 已儲存，自動寄送已停用');
     return true;
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 儲存失敗：'+e.message,'err');return false;}
 }
+// ── 現場照片 ──
+function renderMcPhotos(){
+  const g=$('mcPhotos');if(!g)return;
+  if(!_mcPhotos.length){g.innerHTML='<div class="mc-empty">尚未加入照片。按「＋ 新增照片」可一次選多張，會自動壓縮上傳到 Drive。</div>';return;}
+  g.innerHTML=_mcPhotos.map((p,i)=>`<div class="mc-photo">
+    <div class="mc-photo-img"><img src="${esc(p.url)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('err')"></div>
+    <input class="form-input" placeholder="照片標題（例：Water sprinkling）" value="${esc(p.title||'')}" oninput="_mcPhotos[${i}].title=this.value">
+    <input class="form-input" placeholder="地點（例：Tung Hsiao）" value="${esc(p.location||'')}" oninput="_mcPhotos[${i}].location=this.value">
+    <div class="mc-photo-row"><input class="form-input" type="date" value="${esc(p.date||'')}" oninput="_mcPhotos[${i}].date=this.value">
+      <button type="button" class="mc-ib" title="往前" onclick="mcPhotoMove(${i},-1)" ${i===0?'disabled':''}>↑</button>
+      <button type="button" class="mc-ib" title="往後" onclick="mcPhotoMove(${i},1)" ${i===_mcPhotos.length-1?'disabled':''}>↓</button>
+      <button type="button" class="mc-ib del" title="移除" onclick="mcPhotoDel(${i})">🗑</button></div>
+  </div>`).join('');
+}
+function mcPhotoMove(i,dir){const j=i+dir;if(j<0||j>=_mcPhotos.length)return;[_mcPhotos[i],_mcPhotos[j]]=[_mcPhotos[j],_mcPhotos[i]];renderMcPhotos();}
+function mcPhotoDel(i){if(!confirm('移除這張照片？（儲存設定後才會生效）'))return;_mcPhotos.splice(i,1);renderMcPhotos();}
+function fileToDataUrl(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
+async function uploadWeeklyFile(action,fileName,dataUrl,extra){
+  // 主要走可讀回應的 POST；若瀏覽器讀不到回應（CORS），退回「no-cors 送出 + 依檔名查詢」
+  try{const d=await gasPost(Object.assign({action,fileName,dataUrl},extra||{}));if(d&&d.ok)return d;throw new Error((d&&d.error)||'上傳失敗');}
+  catch(e){
+    if(!(e instanceof TypeError))throw e;
+    fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,fileName,dataUrl},extra||{}))});
+    let last='';
+    for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,2500));try{const d=await gasGet('findWeeklyFile',{name:fileName});if(d&&d.ok)return action==='uploadKpiSummary'?{ok:true,kpi:{fileId:d.fileId,url:d.url,name:fileName,uploadedAt:new Date().toISOString()}}:{ok:true,photo:{fileId:d.fileId,url:d.url,name:fileName,uploadedAt:new Date().toISOString()}};last=(d&&d.error)||'';}catch(e2){last=e2.message;}}
+    throw new Error(last||'上傳逾時');
+  }
+}
+function addMcPhotos(){$('mcPhotoInput').click();}
+async function handleMcPhotos(input){
+  const files=[...(input.files||[])];input.value='';if(!files.length)return;
+  if(_mcBusy){showToast('⚠️ 還在上傳中，請稍候','err');return;}
+  _mcBusy=true;let okCount=0;
+  try{
+    for(let k=0;k<files.length;k++){
+      const f=files[k];
+      setMailCfgStatus(`⏳ 上傳照片 ${k+1}/${files.length}：${f.name}`);
+      try{
+        const dataUrl=await compressImage(f,1400,0.85);
+        const name='weekly-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
+        const d=await uploadWeeklyFile('uploadWeeklyPhoto',name,dataUrl);
+        _mcPhotos.push({fileId:d.photo.fileId,url:d.photo.url,title:f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),location:'',date:todayS(),uploadedAt:d.photo.uploadedAt||new Date().toISOString()});
+        renderMcPhotos();okCount++;
+      }catch(e){console.error('photo upload:',e);showToast('⚠️ '+f.name+' 上傳失敗：'+e.message,'err');}
+    }
+    if(okCount){setMailCfgStatus(`✅ 已上傳 ${okCount} 張，請填標題／地點後按「儲存設定」`,'ok');await saveMailCfg(true);}
+  }finally{_mcBusy=false;}
+}
+// ── KPI 總結圖（改善單系統「匯出總結」會自動上傳；這裡可手動上傳／移除） ──
+function renderMcKpi(k){
+  const box=$('mcKpi');if(!box)return;
+  if(!k||!k.fileId){box.innerHTML='<div class="mc-empty">尚未上傳。到改善單系統按「📊 匯出總結」會自動上傳到這裡，或用右邊按鈕手動上傳圖片。</div>';return;}
+  const when=k.uploadedAt?new Date(k.uploadedAt).toLocaleString('zh-TW'):'';
+  box.innerHTML=`<div class="mc-kpi"><a href="${esc(k.url)}" target="_blank" rel="noopener"><img src="${esc(k.url)}" alt="KPI"></a>
+    <div class="mc-kpi-meta"><b>${esc(k.name||'KPI 總結圖')}</b><br>上傳於 ${esc(when)}${k.source==='auto'?'（改善單系統自動匯出）':'（手動上傳）'}<br><span style="color:var(--muted)">寄出時會作為附件，並嵌在「改善單狀態」區塊下方。</span></div></div>`;
+}
+function uploadMcKpi(){$('mcKpiInput').click();}
+async function handleMcKpi(input){
+  const f=input.files[0];input.value='';if(!f)return;
+  setMailCfgStatus('⏳ 上傳 KPI 總結圖…');
+  try{
+    let dataUrl;
+    if(f.size>3*1024*1024)dataUrl=await compressImage(f,1600,0.9);else dataUrl=await fileToDataUrl(f);
+    const ext=/png/i.test(f.type)&&f.size<=3*1024*1024?'png':'jpg';
+    const d=await uploadWeeklyFile('uploadKpiSummary','KPI-summary-'+todayS()+'-'+Date.now()+'.'+ext,dataUrl,{source:'manual'});
+    if(_mailCfg)_mailCfg.kpi=d.kpi;renderMcKpi(d.kpi);setMailCfgStatus('✅ KPI 總結圖已更新','ok');
+  }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 上傳失敗：'+e.message,'err');}
+}
+async function removeMcKpi(){
+  if(!_mailCfg||!_mailCfg.kpi){showToast('目前沒有 KPI 圖');return;}
+  if(!confirm('移除目前的 KPI 總結圖？'))return;
+  try{const d=await gasGet('removeKpiSummary');if(!d||!d.ok)throw new Error((d&&d.error)||'移除失敗');_mailCfg.kpi=null;renderMcKpi(null);setMailCfgStatus('已移除 KPI 總結圖');}
+  catch(e){showToast('⚠️ '+e.message,'err');}
+}
+// ── 寄送 / 預覽 / 提醒 ──
 async function sendTrackerMailNow(testOnly){
   let to='';
   if(testOnly){
     to=$('inMcTest').value.trim();
     if(!to||to.indexOf('@')<0){showToast('⚠️ 請先填測試信箱','err');$('inMcTest').focus();return;}
+    if(!$('mMailCfg').classList.contains('hidden')){if(!(await saveMailCfg(true)))return;}
   }else{
     const inCfgModal=!$('mMailCfg').classList.contains('hidden');
-    if(inCfgModal){if(!(await saveMailCfg()))return;}
+    if(inCfgModal){if(!(await saveMailCfg(true)))return;}
     else if(!_mailCfg){await loadMailCfg();}
     const who=(_mailCfg&&_mailCfg.to)||'（尚未設定）';
-    if(!confirm('立即寄出追蹤事項週報給：\n'+who+(_mailCfg&&_mailCfg.cc?'\nCC：'+_mailCfg.cc:'')+'\n\n確定寄出？'))return;
+    if(!confirm('立即寄出 ENV WEEKLY REPORT 給：\n'+who+(_mailCfg&&_mailCfg.cc?'\nCC：'+_mailCfg.cc:'')+'\n\n確定寄出？'))return;
   }
-  setMailCfgStatus('📨 寄送中，請稍候…');showToast('📨 寄送中，請稍候…');
+  setMailCfgStatus('📨 寄送中（含照片與附件，可能需要 10～30 秒）…');showToast('📨 寄送中，請稍候…');
   try{
-    const r=await fetch(GAS_URL+'?action=sendTrackerNow'+(to?'&to='+encodeURIComponent(to):'')+'&_='+Date.now(),{cache:'no-store'});
-    const d=await r.json();
+    const d=await gasGet('sendTrackerNow',to?{to}:{});
     if(!d||!d.ok)throw new Error((d&&d.error)||'寄送失敗');
-    setMailCfgStatus('✅ 已寄給 '+d.to+(d.cc?'（CC '+d.cc+'）':'')+'　待辦 '+d.total+' 項／逾期 '+d.overdue);
-    showToast('✅ 已寄出！待辦 '+d.total+' 項，逾期 '+d.overdue+' 項');
+    setMailCfgStatus('✅ 已寄給 '+d.to+(d.cc?'（CC '+d.cc+'）':'')+'　主旨：'+d.subject+'　照片 '+d.photos+' 張'+(d.kpi?'、含 KPI 附件':'、無 KPI 附件'),'ok');
+    showToast('✅ 已寄出！'+d.subject);
     const pm=$('mTrkEmail');if(pm&&!pm.classList.contains('hidden'))pm.classList.add('hidden');
+    if(!to)loadMailCfg().then(c=>{if(c&&!$('mMailCfg').classList.contains('hidden'))$('mcLastSent').textContent='上次自動寄出：'+new Date(c.lastSentAt).toLocaleString('zh-TW');});
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 寄送失敗：'+e.message,'err');}
 }
 async function previewTrackerMail(){
+  if(!$('mMailCfg').classList.contains('hidden')){if(!(await saveMailCfg(true)))return;}
   setMailCfgStatus('產生預覽中…');
   const w=window.open('','_blank');
   try{
-    const r=await fetch(GAS_URL+'?action=trackerMailPreview&_='+Date.now(),{cache:'no-store'});
-    const d=await r.json();
+    const d=await gasGet('trackerMailPreview');
     if(!d||!d.ok)throw new Error((d&&d.error)||'預覽失敗');
     if(!w){showToast('⚠️ 瀏覽器阻擋了新視窗，請允許彈出視窗後再試','err');return;}
     w.document.open();w.document.write(d.html);w.document.close();
-    setMailCfgStatus('主旨：'+d.subject);
+    setMailCfgStatus('主旨：'+d.subject+'（預覽不含附件；圖片改用 Drive 網址顯示）');
   }catch(e){if(w)w.close();setMailCfgStatus('⚠️ '+e.message,'err');}
+}
+async function sendReminderNow(){
+  if(!$('mMailCfg').classList.contains('hidden')){if(!(await saveMailCfg(true)))return;}
+  setMailCfgStatus('📨 寄提醒信中…');
+  try{const d=await gasGet('sendReminderNow');if(!d||!d.ok)throw new Error((d&&d.error)||'寄送失敗');setMailCfgStatus('✅ 提醒信已寄給 '+d.to,'ok');showToast('✅ 提醒信已寄出');}
+  catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ '+e.message,'err');}
 }
 
 // ══ Export Schedule as Image ══
@@ -3472,8 +3582,8 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     },300);
   }
 
-  // 讀取週報收件者設定（給「寄出追蹤摘要」預覽用）
-  loadMailCfg();
+  // 讀取週報設定（給「寄出追蹤摘要」預覽用）；網址帶 ?weekly=1（週五提醒信的按鈕）時直接開啟週報設定
+  loadMailCfg().then(()=>{try{if(new URLSearchParams(location.search).get('weekly')){switchTab('tracker');setTimeout(showMailCfgM,300);}}catch(e){}});
   // Fetch NCR immediately after page loads
   if(NCR_URL){fetchNcrExpiring().then(r=>{try{_ncrCache=r;if(activeTab==='bulletin')renderTab();renderInfoBar();}catch(e){console.error('NCR renderTab error:',e);}}).catch(e=>console.warn('NCR fetch error:',e));}
 
@@ -3544,29 +3654,86 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   </div>
 </div></div>
 
-<div class="modal-overlay hidden" id="mMailCfg" onclick="if(event.target===this)this.classList.add('hidden')"><div class="modal-box" style="width:min(580px,95vw)" onclick="event.stopPropagation()">
-  <div class="modal-title">📧 追蹤事項週報寄送設定</div>
-  <div class="modal-form">
-    <div style="padding:10px 14px;border-radius:10px;background:var(--accent-light);border:1px solid rgba(22,163,74,.2);font-size:12px;color:var(--text2);line-height:1.7">系統會在<b>每週一 09:00</b>（台北時間）自動把「未完成的追蹤事項」與「7 天內到期／已逾期的改善單」寄給下列收件者。<br>設定存在雲端，排程寄信讀的是<b>已儲存</b>的設定。</div>
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--text2)"><input type="checkbox" id="inMcEnabled" checked style="width:16px;height:16px;accent-color:var(--accent)"> 啟用每週一自動寄送</label>
-    <div><label class="form-label">收件者 To（多位請用逗號分隔）</label><textarea class="form-input" id="inMcTo" rows="2" placeholder="raymond.huang@nmdc-group.com, sean.chu@nmdc-group.com"></textarea></div>
-    <div><label class="form-label">副本 CC（選填）</label><textarea class="form-input" id="inMcCc" rows="1" placeholder="NMDCTaiwanEHSgroup@NMDCGroup.onmicrosoft.com"></textarea></div>
-    <div><label class="form-label">寄件者顯示名稱</label><input class="form-input" id="inMcName" placeholder="NMDC Environmental E-System"></div>
+<style>
+.mc-sec{border:1px solid var(--border);border-radius:12px;padding:14px 16px;background:var(--card2)}
+.mc-sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.mc-sec-h b{font-size:14px;color:var(--text)}.mc-sec-h small{font-size:11px;color:var(--muted)}
+.mc-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}@media(max-width:640px){.mc-grid2{grid-template-columns:1fr}}
+.mc-chk{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2)}.mc-chk input{width:16px;height:16px;accent-color:var(--accent)}
+.mc-empty{font-size:12px;color:var(--muted);padding:14px;border:1px dashed var(--border2);border-radius:10px;text-align:center;background:var(--card)}
+.mc-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.mc-photo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.mc-photo .form-input{padding:7px 10px;font-size:12px;border-radius:8px}
+.mc-photo-img{aspect-ratio:4/3;background:#eef2f6;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mc-photo-img img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
+.mc-photo-img.err::after{content:'圖片載入中／無法顯示';font-size:11px;color:var(--muted)}
+.mc-photo-row{display:flex;gap:4px;align-items:center}.mc-photo-row .form-input{flex:1;min-width:0}
+.mc-ib{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text2);cursor:pointer;font-size:13px;font-family:inherit}.mc-ib:hover{border-color:var(--accent);color:var(--accent2)}.mc-ib.del:hover{border-color:var(--danger);color:var(--danger)}.mc-ib:disabled{opacity:.35;cursor:default}
+.mc-kpi{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
+.mc-kpi img{width:220px;max-width:40vw;height:auto;border-radius:8px;border:1px solid var(--border);display:block}
+.mc-kpi-meta{font-size:12px;color:var(--text2);line-height:1.7}
+.mc-btn{padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}.mc-btn:hover{border-color:var(--accent);color:var(--accent2)}
+.mc-note{font-size:11px;color:var(--muted);line-height:1.6}
+</style>
+<div class="modal-overlay hidden" id="mMailCfg" onclick="if(event.target===this)this.classList.add('hidden')"><div class="modal-box" style="width:min(860px,95vw)" onclick="event.stopPropagation()">
+  <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>📧 環保部門週報設定 <small style="font-weight:500;color:var(--muted);font-size:12px">ENV WEEKLY REPORT</small></span><span id="mcLastSent" style="font-size:11px;color:var(--muted);font-weight:500"></span></div>
+  <div class="modal-form" style="gap:12px">
+    <div style="padding:10px 14px;border-radius:10px;background:var(--accent-light);border:1px solid rgba(22,163,74,.2);font-size:12px;color:var(--text2);line-height:1.7">
+      <b>每週一 09:00</b>（台北時間）自動寄出主旨為 <b>ENV WEEKLY REPORT (上週一~上週日)</b> 的週報：開頭文字 → KPI 卡片 → 改善單狀態（含 KPI 總結圖附件）→ 追蹤事項 → 現場照片，中文內容會自動加上英文小字。<br>
+      <b>每週五 15:00</b> 會寄提醒信，提醒更新照片與 KPI 總結圖。排程讀的是<b>已儲存</b>的設定。
+    </div>
+
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>① 收件者與排程</b><small>多位請用逗號分隔</small></div>
+      <div class="mc-grid2">
+        <div><label class="form-label">收件者 To</label><textarea class="form-input" id="inMcTo" rows="2" placeholder="chris@…, sam@…"></textarea></div>
+        <div><label class="form-label">副本 CC（選填）</label><textarea class="form-input" id="inMcCc" rows="2" placeholder="NMDCTaiwanEHSgroup@…"></textarea></div>
+        <div><label class="form-label">寄件者顯示名稱</label><input class="form-input" id="inMcName" placeholder="NMDC Environmental E-System"></div>
+        <div><label class="form-label">週五提醒信收件者</label><input class="form-input" id="inMcRemindTo" placeholder="paul.tong@nmdc-group.com"></div>
+      </div>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:10px">
+        <label class="mc-chk"><input type="checkbox" id="inMcEnabled" checked> 啟用每週一 09:00 自動寄出</label>
+        <label class="mc-chk"><input type="checkbox" id="inMcRemind" checked> 啟用每週五 15:00 提醒更新照片</label>
+        <label class="mc-chk"><input type="checkbox" id="inMcTranslate" checked> 中文內容自動加英文小字</label>
+      </div>
+    </div>
+
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>② 開頭文字</b><button type="button" class="mc-btn" onclick="resetMcIntro()">↺ 還原預設</button></div>
+      <div class="rte-toolbar"><button class="rte-btn" type="button" onclick="rteCmdW('bold')"><b>B</b></button><button class="rte-btn" type="button" onclick="rteCmdW('italic')"><i>I</i></button><button class="rte-btn" type="button" onclick="rteCmdW('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" type="button" onclick="rteCmdW('insertOrderedList')">1.</button><button class="rte-btn" type="button" onclick="rteCmdW('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#166534" onchange="rteCmdW('foreColor',this.value)"><button class="rte-btn" type="button" onclick="rteCmdW('removeFormat')" style="font-size:11px" title="清除格式">✕</button></div>
+      <div class="rte-body" contenteditable="true" id="inMcIntro" style="min-height:130px;background:var(--card)"></div>
+      <div class="mc-note" style="margin-top:6px">這段會放在信件最上方、KPI 卡片之前。Enter 換段、Shift+Enter 換行。</div>
+    </div>
+
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>顯示於信件最後，兩欄、不裁切、原比例</small><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
+      <input type="file" id="mcPhotoInput" accept="image/*" multiple style="display:none" onchange="handleMcPhotos(this)">
+      <div class="mc-photos" id="mcPhotos"></div>
+      <div class="mc-note" style="margin-top:8px">照片會壓縮到 1400px 寬後存到 Drive 的 EHS-Weekly-Report 資料夾；寄出時以內嵌圖片放進信件。移除照片後按「儲存設定」才會生效。</div>
+    </div>
+
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>④ 改善單 KPI 總結圖（附件）</b><div style="display:flex;gap:6px"><a class="mc-btn" href="tpc-pipeline-improvement-system_30.html" target="_blank" rel="noopener" style="text-decoration:none">📊 開啟改善單系統</a><button type="button" class="mc-btn" onclick="uploadMcKpi()">⬆ 手動上傳</button><button type="button" class="mc-btn" onclick="removeMcKpi()">🗑 移除</button></div></div>
+      <input type="file" id="mcKpiInput" accept="image/*" style="display:none" onchange="handleMcKpi(this)">
+      <div id="mcKpi"></div>
+    </div>
+
     <div id="mcStatus" style="font-size:12px;color:var(--muted);min-height:18px;line-height:1.5"></div>
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--border)">
       <input class="form-input" id="inMcTest" placeholder="測試信箱（先寄給自己看版型）" style="flex:1;min-width:200px;font-size:12px">
       <button class="btn-secondary" onclick="sendTrackerMailNow(true)">✉️ 寄測試信</button>
       <button class="btn-secondary" onclick="previewTrackerMail()">👁️ 預覽版型</button>
+      <button class="btn-secondary" onclick="sendReminderNow()" title="立刻寄一封週五提醒信給提醒收件者">🔔 測試提醒信</button>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="$('mMailCfg').classList.add('hidden')">關閉</button>
-      <button class="btn-secondary" onclick="sendTrackerMailNow(false)" title="會先儲存設定，再立刻寄一次給收件者">📤 立即寄出週報</button>
+      <button class="btn-secondary" onclick="sendTrackerMailNow(false)" title="會先儲存設定，再立刻寄給收件者">📤 立即寄出週報</button>
       <button class="btn-primary" onclick="saveMailCfg()">☁️ 儲存設定</button>
     </div>
   </div>
 </div></div>
 
-<div class="modal-overlay hidden" id="mTrkEmail" onclick="if(event.target===this)this.classList.add('hidden')">
+<div class="modal-overlay hidden" id="mTrkEmail"<div class="modal-overlay hidden" id="mTrkEmail" onclick="if(event.target===this)this.classList.add('hidden')">
   <div class="modal-box" style="width:min(860px,95vw);max-height:90vh" onclick="event.stopPropagation()">
     <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between">
       <span>📧 追蹤事項摘要預覽</span>
@@ -3577,7 +3744,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     <div class="modal-actions" style="margin-top:16px">
       <button class="btn-secondary" onclick="$('mTrkEmail').classList.add('hidden')">關閉</button>
       <button onclick="copyTrkEmailHtml()" style="padding:10px 20px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s">📋 複製內容</button>
-      <button class="btn-secondary" onclick="showMailCfgM()">⚙️ 收件者設定</button>
+      <button class="btn-secondary" onclick="showMailCfgM()">📧 週報設定</button>
       <button class="btn-secondary" onclick="sendTrackerMailNow(false)" title="由 Google Apps Script 直接寄給設定頁的收件者">📤 由系統寄出</button>
       <button class="btn-primary" onclick="openOutlookForEmail()">📨 開啟 Outlook</button>
     </div>
