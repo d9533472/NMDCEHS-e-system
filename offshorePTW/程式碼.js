@@ -11998,7 +11998,7 @@ var STRINGS = {
  'home.noNotify':{en:'No notifications.',zh:'目前沒有通知。'},
  'kpi.total':{en:'Total PTW',zh:'PTW 總數'},
  'kpi.draft':{en:'Draft',zh:'草稿'},
- 'kpi.pending':{en:'Pending Review',zh:'待簽核'},
+ 'kpi.pending':{en:'Under Review',zh:'簽核中'},
  'kpi.approved':{en:'Approved',zh:'已核准'},
  'kpi.active':{en:'Active (In Progress)',zh:'執行中'},
  'kpi.issuedPending':{en:'Issued (Not Started)',zh:'已核發待生效'},
@@ -12445,9 +12445,10 @@ function requireLogin(fn){
   toast(T('home.loginFirst'),true);
   showView('auth'); showPanel('Login');
 }
+/* 首頁 KPI 只留六顆流程階段：總數 → 草稿 → 簽核中 → 已核發待生效 → 執行中 → 逾期未關
+   （已核准／即將到期／已到期／被退回／已關閉 仍由後端計算，可從 PTW 清單篩選查看） */
 var KPI_DEF=[
-  ['total','#0b3a5c'],['draft','#6c757d'],['pending','#f0a500'],['approved','#1e7e34'],['active','#146c43'],['issuedPending','#0b6bcb'],
-  ['expiringSoon','#fd7e14'],['expired','#c62828'],['overdueOpen','#b02a37'],['returned','#d63384'],['closed','#495057']
+  ['total','#0b3a5c'],['draft','#6c757d'],['pending','#f0a500'],['issuedPending','#0b6bcb'],['active','#146c43'],['overdueOpen','#b02a37']
 ];
 var KPI_FILTER={total:'',draft:'Draft',pending:'_pending',approved:'Approved',active:'_active',issuedPending:'_issuedPending',
  expiringSoon:'_expiringSoon',expired:'Expired',overdueOpen:'_overdueOpen',returned:'_returned',closed:'Closed'};
