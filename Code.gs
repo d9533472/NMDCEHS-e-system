@@ -885,6 +885,10 @@ function loadRosterState_(data) {
 var SYSTEM_URL     = 'https://d9533472.github.io/NMDCEHS-e-system/';
 var MAIL_CFG_CELL  = 'B5';          // JSON: {enabled, to, cc, senderName}
 var MAIL_TZ        = 'Asia/Taipei';
+// 改善單系統的 GAS 網址（與前端 index.html 的 DEFAULT_NCR_URL 相同）。
+// 改善單資料現在存在該 GAS 的 Drive JSON index，不是 NCR_SHEET_ID 的 SyncData 工作表（那是舊版遷移殘留）。
+var NCR_GAS_URL = 'https://script.google.com/macros/s/AKfycbyUtSGT-UfX8xYiw9C_0f3ciJN0inf3_Q8GX6FHi1qlN6YBPQ_LGcOLvH5ZjW9jZ0O7/exec';
+
 var MAIL_DEFAULT_CFG = {
   enabled:    true,
   to:         'raymond.huang@nmdc-group.com, Sean.chu@nmdc-group.com, Jacqueline.peng@nmdc-group.com',
@@ -965,6 +969,28 @@ function trkNoteLines_(raw) {
        .replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>')
        .replace(/<[^>]+>/g, '');
   return s.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+}
+
+// ── 改善單：從改善單系統 GAS 抓「全部紀錄」，同前端公告欄的算法（未結案 + 期限在 days 天內或已逾期） ──
+function getNcrOpenFromGas_(days) {
+  var resp = UrlFetchApp.fetch(NCR_GAS_URL + '?action=index&_=' + Date.now(), { muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) throw new Error('改善單 GAS 回應 HTTP ' + resp.getResponseCode());
+  var data = JSON.parse(resp.getContentText());
+  if (!data || !Array.isArray(data.records)) throw new Error(data && data.error ? data.error : '改善單資料格式不符');
+  var today = trkTodayStr_();
+  var list = data.records.filter(function(r) {
+    return r && r.status !== 'Closed' && r.deadline && r.deadline !== '-';
+  }).map(function(r) {
+    var defs = (r.defects && r.defects.length) ? r.defects : [{ description: r.description || '' }];
+    var desc = defs.map(function(d){ return String(d.description || '').trim(); }).filter(Boolean).join('；');
+    return {
+      type: r.type || '', number: r.number || '', date: r.date || '', deadline: r.deadline || '',
+      status: r.status || '', unit: r.unit || '', issuer: r.issuer || '', area: r.area || '',
+      daysLeft: trkDaysLeft_(r.deadline, today), driveFolderUrl: r.driveFolderUrl || '', description: desc
+    };
+  }).filter(function(r){ return r.daysLeft != null && r.daysLeft <= days; });
+  list.sort(function(a, b){ return a.daysLeft - b.daysLeft; });
+  return { ok: true, records: list, total: data.records.length, open: data.records.filter(function(r){ return r && r.status !== 'Closed'; }).length };
 }
 
 // ── 信件組件 ──
@@ -1094,11 +1120,11 @@ function buildTrackerMail_() {
   var byDeadline = function(a, b){ return String(a.deadline || '').localeCompare(String(b.deadline || '')); };
   overdue.sort(byDeadline); thisWeek.sort(byDeadline);
 
-  // 改善單（已逾期 + 7 天內到期）— 讀不到也不能讓週報失敗
+  // 改善單（已逾期 + 7 天內到期）— 來源是改善單系統 GAS（與公告欄一致）；讀不到也不能讓週報失敗
   var ncr = [], ncrErr = '';
   try {
-    var res = getNcrExpiring(7);
-    if (res && res.ok) ncr = res.records || []; else ncrErr = (res && res.error) || '讀取失敗';
+    var res = getNcrOpenFromGas_(7);
+    ncr = res.records || [];
   } catch(e) { ncrErr = e.message; }
   var ncrOverdue = ncr.filter(function(r){ return r.daysLeft < 0; });
   var ncrSoon    = ncr.filter(function(r){ return r.daysLeft >= 0; });
@@ -1128,13 +1154,6 @@ function buildTrackerMail_() {
     trkStatTile_(String(ncr.length),      '改善單待處理', 'NCR / WM open', '#9a3412', '#fff7ed', '#fed7aa') +
     '</tr></table>';
 
-  // 追蹤事項
-  body += trkSectionTitle_('📋 追蹤事項 Tracker Items', '依優先度與期限排序 · Sorted by priority and deadline', '#16a34a');
-  if (!total) body += trkEmptyNote_('目前沒有未完成的追蹤事項。');
-  if (overdue.length)  { body += trkP_('🔴 已逾期（' + overdue.length + ' 項）',  'font-size:13px;font-weight:bold;color:#b91c1c;margin-top:14px;'); body += trkTaskTable_(overdue, today); }
-  if (thisWeek.length) { body += trkP_('🟠 本週到期（' + thisWeek.length + ' 項）', 'font-size:13px;font-weight:bold;color:#b45309;margin-top:14px;'); body += trkTaskTable_(thisWeek, today); }
-  if (later.length)    { body += trkP_('🔵 排程中（' + later.length + ' 項）',    'font-size:13px;font-weight:bold;color:#0369a1;margin-top:14px;'); body += trkTaskTable_(later, today); }
-
   // 改善單
   body += trkSectionTitle_('🛠️ 改善單 Improvement Notices', '已逾期與 7 天內到期的 NCR / WM · Overdue and due within 7 days', '#ea580c');
   if (ncrErr) body += trkEmptyNote_('改善單資料暫時無法讀取：' + trkEsc_(ncrErr));
@@ -1142,6 +1161,13 @@ function buildTrackerMail_() {
   if (ncrOverdue.length) { body += trkP_('🔴 已逾期（' + ncrOverdue.length + ' 筆）', 'font-size:13px;font-weight:bold;color:#b91c1c;margin-top:14px;'); body += trkNcrTable_(ncrOverdue); }
   if (ncrSoon.length)    { body += trkP_('🟠 7 天內到期（' + ncrSoon.length + ' 筆）', 'font-size:13px;font-weight:bold;color:#b45309;margin-top:14px;'); body += trkNcrTable_(ncrSoon); }
 
+
+  // 追蹤事項
+  body += trkSectionTitle_('📋 追蹤事項 Tracker Items', '依優先度與期限排序 · Sorted by priority and deadline', '#16a34a');
+  if (!total) body += trkEmptyNote_('目前沒有未完成的追蹤事項。');
+  if (overdue.length)  { body += trkP_('🔴 已逾期（' + overdue.length + ' 項）',  'font-size:13px;font-weight:bold;color:#b91c1c;margin-top:14px;'); body += trkTaskTable_(overdue, today); }
+  if (thisWeek.length) { body += trkP_('🟠 本週到期（' + thisWeek.length + ' 項）', 'font-size:13px;font-weight:bold;color:#b45309;margin-top:14px;'); body += trkTaskTable_(thisWeek, today); }
+  if (later.length)    { body += trkP_('🔵 排程中（' + later.length + ' 項）',    'font-size:13px;font-weight:bold;color:#0369a1;margin-top:14px;'); body += trkTaskTable_(later, today); }
   var dateLine = today + '（' + trkWeekdayZh_(today) + '）';
   var html =
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -1235,6 +1261,14 @@ function listTrackerMailTriggers() {
   var s = ScriptApp.getProjectTriggers().map(function(t){ return t.getHandlerFunction() + ' / ' + t.getEventType(); }).join('\n');
   Logger.log(s || '（目前沒有任何觸發器）');
   return s;
+}
+
+// 在編輯器執行：檢查改善單資料抓得對不對（看執行紀錄）
+function testNcrSource() {
+  var r = getNcrOpenFromGas_(7);
+  Logger.log('改善單總數 ' + r.total + '，未結案 ' + r.open + '，逾期或 7 天內到期 ' + r.records.length);
+  r.records.forEach(function(x){ Logger.log(x.type + ' ' + x.number + ' | ' + x.deadline + ' | ' + trkDaysLabel_(x.daysLeft) + ' | ' + x.status + ' | ' + x.description); });
+  return r;
 }
 
 // 在編輯器執行：寄一封測試信給自己（Apps Script 擁有者）

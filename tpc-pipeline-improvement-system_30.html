@@ -2402,14 +2402,14 @@ function App() {
         {tab==='dashboard' && <DashboardTab records={records} itemOptions={config.itemOptions} onFilterClick={filter=>{ if(filter._newrecord){ setTab('records'); setActiveFilter({_newrecord:true, _ts:Date.now()}); } else { setActiveFilter({...filter, _ts: Date.now()}); setTab('records'); } }} onExport={(exportData)=>{
           // 動態建立排版精美的匯出元素
           const doExport = () => {
-            // ===== 匯出 KPI 總結圖（1600×900 淺色報表風）=====
+            // ===== 匯出 KPI 總結圖（1600×900 淺色報表風，中文在上、英文小字在下）=====
             const PERIOD_LABELS = {
-              all:'全部期間 · All Time', thisweek:'本週 · This Week', lastweek:'上週 · Last Week',
-              thismonth:'本月 · This Month', lastmonth:'上月 · Last Month',
-              last30:'近 30 天 · Last 30 Days', last90:'近 90 天 · Last 90 Days', custom:'自訂期間 · Custom Range',
+              all:{zh:'全部期間',en:'All Time'}, thisweek:{zh:'本週',en:'This Week'}, lastweek:{zh:'上週',en:'Last Week'},
+              thismonth:{zh:'本月',en:'This Month'}, lastmonth:{zh:'上月',en:'Last Month'},
+              last30:{zh:'近 30 天',en:'Last 30 Days'}, last90:{zh:'近 90 天',en:'Last 90 Days'}, custom:{zh:'自訂期間',en:'Custom Range'},
             };
             const hasRange = !!(exportData.dateFrom || exportData.dateTo);
-            const periodName = hasRange ? (PERIOD_LABELS[exportData.quickPeriod] || PERIOD_LABELS.custom) : PERIOD_LABELS.all;
+            const period = hasRange ? (PERIOD_LABELS[exportData.quickPeriod] || PERIOD_LABELS.custom) : PERIOD_LABELS.all;
             const fmtD = s => s ? s.replace(/-/g,'/') : '';
             const periodRange = hasRange ? `${fmtD(exportData.dateFrom)||'起'} ～ ${fmtD(exportData.dateTo)||'今'}` : '';
             const recCount = exportData.recCount || 0;
@@ -2419,109 +2419,140 @@ function App() {
             const TEXT = '#1e3a5f', MUTED = '#6b8299', LINE = '#dbe4ee', SOFT = '#f4f7fb';
             const NUM = "'Outfit','Noto Sans TC',sans-serif";
             const ZH = "'Noto Sans TC',sans-serif";
+            // 英文小字共用樣式
+            const EN = `font-size:10.5px;font-weight:500;color:${MUTED};letter-spacing:.3px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;`;
 
             const el = document.createElement('div');
             el.style.cssText = `position:fixed;left:-9999px;top:0;width:1600px;height:900px;background:#ffffff;font-family:${ZH};color:${TEXT};box-sizing:border-box;overflow:hidden;`;
 
             const cards = [
-              { label:'總缺失件數',  en:'Total Defects',    value: exportData.totalDefects, unit:'條', sub:'累計缺失條數 · Cumulative',                                                color:'#0369a1' },
-              { label:'Open 未結',   en:'Non-Conformances', value: exportData.open,         unit:'張', sub:'待改善件數 · Pending',                                                    color:'#b91c1c' },
-              { label:'Closed 已結', en:'Closed',           value: exportData.closed,       unit:'張', sub:`已結缺失 ${exportData.closedDefs} 條 · ${exportData.closedDefs} defects closed`, color:'#15803d' },
-              { label:'關單率',      en:'Closure Rate',     value: exportData.closeRate,    unit:'%',  sub:'以缺失件數計算 · By defect count',                                        color:'#0e7490' },
+              { label:'總缺失件數',  en:'Total Defects',    value: exportData.totalDefects, unit:'條', unitEn:'items',   sub:'累計缺失條數',                        subEn:'Cumulative defect items',                     color:'#0369a1' },
+              { label:'Open 未結',   en:'Non-Conformances', value: exportData.open,         unit:'張', unitEn:'reports', sub:'待改善件數',                          subEn:'Pending non-conformance reports',             color:'#b91c1c' },
+              { label:'Closed 已結', en:'Closed',           value: exportData.closed,       unit:'張', unitEn:'reports', sub:`已結缺失 ${exportData.closedDefs} 條`, subEn:`${exportData.closedDefs} defect items closed`, color:'#15803d' },
+              { label:'關單率',      en:'Closure Rate',     value: exportData.closeRate,    unit:'%',  unitEn:'',        sub:'以缺失件數計算',                      subEn:'Calculated by defect count',                  color:'#0e7490' },
             ];
 
             // 缺失分類統計
             const imap = exportData.itemMap || {};
             const iopts = exportData.itemOptions || {};
-            const EN_ITEMS = {'1':'Exposed Area Control','2':'Site Entrance','3':'Vehicle Route','4':'Housekeeping','5':'Wastewater / Oil','6':'Contract Specs'};
+            const EN_ITEMS = {'1':'Exposed Area Control','2':'Site Entrance','3':'Vehicle Route','4':'Housekeeping','5':'Wastewater / Oil','6':'Contract Specs','7':'Good Practice'};
             const palette = ['#2563eb','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4','#f97316','#ec4899'];
             const colorOf = i => palette[i % palette.length];
             const entries = Object.entries(imap).sort((a,b)=>(b[1].total||0)-(a[1].total||0));
             const maxVal = Math.max(...entries.map(([,v])=>v.total||0), 1);
             const pieTotal = entries.reduce((s,[,v])=>s+(v.total||0),0);
             const pctOf = n => pieTotal ? Math.round(n/pieTotal*100) : 0;
+            // 圖例列數多時縮小圓餅，避免溢出
+            const legendRows = Math.ceil(entries.length / 2);
+            const PIE = legendRows > 3 ? 236 : 276;
 
             const itemRows = entries.length ? entries.map(([k,v],i) => {
               const barPct = Math.round((v.total/maxVal)*100);
               const closedPct = v.total ? Math.round((v.closed||0)/v.total*100) : 0;
               const c = colorOf(i);
               return `
-                <div style="flex:1 1 0;max-height:88px;display:grid;grid-template-columns:36px 1fr 84px;column-gap:16px;align-items:center;border-bottom:1px solid ${LINE};">
+                <div style="flex:1 1 0;max-height:84px;display:grid;grid-template-columns:36px 1fr 96px;column-gap:16px;align-items:center;border-bottom:1px solid ${LINE};">
                   <div style="width:36px;height:36px;border-radius:10px;background:${c};color:#fff;font-family:${NUM};font-weight:800;font-size:17px;display:flex;align-items:center;justify-content:center;">${k}</div>
                   <div style="min-width:0;">
-                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;">
-                      <div style="font-size:15px;font-weight:700;color:${TEXT};line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iopts[k]||('項目 '+k)}<span style="font-size:11px;font-weight:500;color:${MUTED};margin-left:8px;">${EN_ITEMS[k]||''}</span></div>
-                      <div style="font-size:11.5px;color:${MUTED};white-space:nowrap;margin-left:12px;">已結 ${v.closed||0} 條 · Closed <span style="font-family:${NUM};font-weight:700;color:${c};">${closedPct}%</span></div>
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:6px;">
+                      <div style="min-width:0;">
+                        <div style="font-size:15px;font-weight:700;color:${TEXT};line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${iopts[k]||('項目 '+k)}</div>
+                        <div style="${EN}margin-top:1px;">${EN_ITEMS[k]||('Item '+k)}</div>
+                      </div>
+                      <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-size:11.5px;font-weight:600;color:${TEXT};line-height:1.2;white-space:nowrap;">已結 ${v.closed||0} 條 <span style="font-family:${NUM};font-weight:800;font-size:13px;color:${c};margin-left:2px;">${closedPct}%</span></div>
+                        <div style="${EN}margin-top:1px;">${v.closed||0} closed · ${closedPct}%</div>
+                      </div>
                     </div>
-                    <div style="background:#e9eef5;border-radius:99px;height:11px;overflow:hidden;">
+                    <div style="background:#e9eef5;border-radius:99px;height:10px;overflow:hidden;">
                       <div style="height:100%;border-radius:99px;background:${c};width:${barPct}%;"></div>
                     </div>
                   </div>
-                  <div style="text-align:right;font-family:${NUM};font-weight:800;font-size:28px;color:${c};line-height:1;white-space:nowrap;">${v.total}<span style="font-family:${ZH};font-size:11px;font-weight:600;color:${MUTED};margin-left:4px;">條</span></div>
+                  <div style="text-align:right;">
+                    <div style="font-family:${NUM};font-weight:800;font-size:28px;color:${c};line-height:1;white-space:nowrap;">${v.total}<span style="font-family:${ZH};font-size:11px;font-weight:600;color:${MUTED};margin-left:4px;">條</span></div>
+                    <div style="${EN}margin-top:4px;">${v.total} items</div>
+                  </div>
                 </div>`;
-            }).join('') : `<div style="flex:1;display:flex;align-items:center;justify-content:center;color:${MUTED};font-size:14px;">此期間沒有資料 · No data in this period</div>`;
+            }).join('') : `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:${MUTED};"><div style="font-size:14px;font-weight:600;">此期間沒有資料</div><div style="${EN}margin-top:3px;">No data in this period</div></div>`;
 
             const legend = entries.map(([k,v],i) => {
               const c = colorOf(i);
               return `
-                <div style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:9px;background:${SOFT};">
+                <div style="display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:9px;background:${SOFT};">
                   <div style="width:12px;height:12px;border-radius:4px;background:${c};flex-shrink:0;"></div>
-                  <div style="flex:1;min-width:0;font-size:12px;font-weight:700;color:${TEXT};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k}. ${iopts[k]||''}</div>
-                  <div style="font-family:${NUM};font-size:15px;font-weight:800;color:${c};line-height:1;">${pctOf(v.total)}%</div>
-                  <div style="font-size:11px;color:${MUTED};white-space:nowrap;">${v.total} 條</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:12px;font-weight:700;color:${TEXT};line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${k}. ${iopts[k]||''}</div>
+                    <div style="${EN}font-size:10px;">${EN_ITEMS[k]||('Item '+k)}</div>
+                  </div>
+                  <div style="font-family:${NUM};font-size:15px;font-weight:800;color:${c};line-height:1;flex-shrink:0;">${pctOf(v.total)}%</div>
+                  <div style="text-align:right;flex-shrink:0;min-width:44px;">
+                    <div style="font-size:11px;font-weight:600;color:${TEXT};line-height:1.25;white-space:nowrap;">${v.total} 條</div>
+                    <div style="${EN}font-size:10px;">${v.total} items</div>
+                  </div>
                 </div>`;
             }).join('');
 
             const cardTitle = (zh, en) => `
-              <div style="display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;margin-bottom:6px;border-bottom:2px solid ${LINE};flex-shrink:0;">
-                <div style="font-size:15px;font-weight:800;color:${TEXT};letter-spacing:.3px;">${zh}</div>
-                <div style="font-size:11px;font-weight:600;color:${MUTED};letter-spacing:.8px;text-transform:uppercase;">${en}</div>
+              <div style="padding-bottom:9px;margin-bottom:6px;border-bottom:2px solid ${LINE};flex-shrink:0;">
+                <div style="font-size:15px;font-weight:800;color:${TEXT};letter-spacing:.3px;line-height:1.2;">${zh}</div>
+                <div style="${EN}letter-spacing:.8px;text-transform:uppercase;margin-top:2px;">${en}</div>
               </div>`;
 
             el.innerHTML = `
               <!-- 標題列 -->
-              <div style="height:108px;background:linear-gradient(120deg,#0b1f3a 0%,#123c6b 60%,#1a5a8f 100%);display:flex;align-items:center;padding:0 40px;gap:18px;">
+              <div style="height:122px;background:linear-gradient(120deg,#0b1f3a 0%,#123c6b 60%,#1a5a8f 100%);display:flex;align-items:center;padding:0 40px;gap:18px;box-sizing:border-box;">
                 <div style="width:56px;height:56px;border-radius:14px;background:linear-gradient(135deg,#38bdf8,#0369a1);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 7c2 0 2.5-1.5 5-1.5S9.5 7 12 7s2.5-1.5 5-1.5S19.5 7 22 7"/><path d="M2 12c2 0 2.5-1.5 5-1.5S9.5 12 12 12s2.5-1.5 5-1.5S19.5 12 22 12"/><path d="M2 17c2 0 2.5-1.5 5-1.5S9.5 17 12 17s2.5-1.5 5-1.5S19.5 17 22 17"/></svg></div>
                 <div style="flex:1;min-width:0;">
                   <div style="font-size:24px;font-weight:700;color:#ffffff;letter-spacing:.5px;line-height:1.2;">通霄電廠二期海底輸氣管線統包工程</div>
-                  <div style="font-size:12.5px;color:#9cc4e4;margin-top:4px;letter-spacing:.3px;">Tongxiao PP Ph.II Subsea Gas Pipeline EPC　|　環保改善缺失追蹤 KPI 總結 · Environmental Improvement KPI Summary</div>
+                  <div style="font-size:11.5px;color:#9cc4e4;margin-top:3px;letter-spacing:.4px;line-height:1.25;">Tongxiao Power Plant Phase II Subsea Gas Pipeline EPC Project</div>
+                  <div style="display:inline-block;margin-top:9px;padding:5px 12px 6px;border-radius:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.22);">
+                    <div style="font-size:13px;font-weight:700;color:#e6f2fb;line-height:1.2;letter-spacing:.3px;">環保改善缺失追蹤 KPI 總結</div>
+                    <div style="font-size:10px;color:#8fb5d4;margin-top:2px;letter-spacing:.6px;line-height:1.2;">ENVIRONMENTAL IMPROVEMENT DEFECT TRACKING · KPI SUMMARY</div>
+                  </div>
                 </div>
                 <div style="text-align:right;flex-shrink:0;">
-                  <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:99px;padding:7px 16px;">
-                    <span style="font-size:10.5px;color:#bcd9ef;letter-spacing:1.2px;">統計期間 PERIOD</span>
-                    <span style="font-size:14px;font-weight:700;color:#ffffff;">${periodName}</span>
-                    ${periodRange ? `<span style="font-family:${NUM};font-size:14px;font-weight:600;color:#7dd3fc;letter-spacing:.3px;">${periodRange}</span>` : ''}
+                  <div style="display:inline-block;text-align:left;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);border-radius:12px;padding:8px 16px 9px;">
+                    <div style="font-size:10px;color:#bcd9ef;letter-spacing:1.2px;line-height:1.2;">統計期間 · PERIOD</div>
+                    <div style="display:flex;align-items:baseline;gap:10px;margin-top:3px;">
+                      <span style="font-size:16px;font-weight:700;color:#ffffff;line-height:1.2;">${period.zh}</span>
+                      ${periodRange ? `<span style="font-family:${NUM};font-size:14px;font-weight:600;color:#7dd3fc;letter-spacing:.3px;">${periodRange}</span>` : ''}
+                    </div>
+                    <div style="font-size:10.5px;color:#9cc4e4;margin-top:2px;letter-spacing:.4px;line-height:1.2;">${period.en}</div>
                   </div>
-                  <div style="font-size:11.5px;color:#8fb5d4;margin-top:7px;">共 <span style="font-family:${NUM};font-weight:700;color:#cfe6f7;">${recCount}</span> 筆紀錄 · ${recCount} records　|　產出日期 ${dateStr}　|　NMDC Energy</div>
+                  <div style="font-size:11.5px;color:#cfe6f7;margin-top:8px;line-height:1.2;">共 <span style="font-family:${NUM};font-weight:700;color:#ffffff;">${recCount}</span> 筆紀錄　|　產出日期 ${dateStr}　|　NMDC Energy</div>
+                  <div style="font-size:10px;color:#8fb5d4;margin-top:3px;letter-spacing:.3px;line-height:1.2;">${recCount} records　|　Generated ${dateStr}　|　NMDC Energy</div>
                 </div>
               </div>
 
               <!-- 內容區 -->
-              <div style="height:758px;background:${SOFT};padding:22px 40px;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;">
+              <div style="height:734px;background:${SOFT};padding:20px 40px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;">
                 <!-- KPI 卡片列 -->
-                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;height:160px;flex-shrink:0;">
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;height:168px;flex-shrink:0;">
                   ${cards.map(c=>`
-                    <div style="position:relative;background:#ffffff;border:1px solid ${LINE};border-radius:14px;padding:20px 24px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;">
+                    <div style="position:relative;background:#ffffff;border:1px solid ${LINE};border-radius:14px;padding:18px 24px 16px;box-sizing:border-box;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;">
                       <div style="position:absolute;left:0;top:0;right:0;height:5px;background:${c.color};"></div>
                       <div>
                         <div style="font-size:15px;font-weight:700;color:${TEXT};line-height:1.2;">${c.label}</div>
-                        <div style="font-size:10.5px;font-weight:600;color:${MUTED};letter-spacing:1px;text-transform:uppercase;margin-top:2px;">${c.en}</div>
+                        <div style="${EN}letter-spacing:1px;text-transform:uppercase;margin-top:2px;">${c.en}</div>
                       </div>
-                      <div style="font-family:${NUM};font-size:54px;font-weight:800;line-height:1;color:${c.color};">${c.value}<span style="font-family:${ZH};font-size:15px;font-weight:600;color:${MUTED};margin-left:5px;">${c.unit}</span></div>
-                      <div style="font-size:11.5px;color:${MUTED};line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.sub}</div>
+                      <div style="display:flex;align-items:baseline;gap:6px;font-family:${NUM};font-size:52px;font-weight:800;line-height:1;color:${c.color};">${c.value}<span style="display:inline-flex;flex-direction:column;font-family:${ZH};line-height:1.1;"><span style="font-size:14px;font-weight:600;color:${MUTED};">${c.unit}</span>${c.unitEn ? `<span style="font-size:9.5px;font-weight:500;color:${MUTED};letter-spacing:.3px;">${c.unitEn}</span>` : ''}</span></div>
+                      <div>
+                        <div style="font-size:11.5px;font-weight:600;color:${TEXT};line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.sub}</div>
+                        <div style="${EN}margin-top:1px;">${c.subEn}</div>
+                      </div>
                     </div>`).join('')}
                 </div>
 
                 <!-- 下方兩欄 -->
                 <div style="display:grid;grid-template-columns:1fr 560px;gap:18px;flex:1;min-height:0;">
-                  <div style="background:#ffffff;border:1px solid ${LINE};border-radius:14px;padding:18px 26px;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;">
-                    ${cardTitle('環境缺失分類統計', 'Env. Defect Category Statistics')}
+                  <div style="background:#ffffff;border:1px solid ${LINE};border-radius:14px;padding:16px 26px;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;">
+                    ${cardTitle('環境缺失分類統計', 'Environmental Defect Category Statistics')}
                     <div style="flex:1;min-height:0;display:flex;flex-direction:column;">${itemRows}</div>
                   </div>
-                  <div style="background:#ffffff;border:1px solid ${LINE};border-radius:14px;padding:18px 26px;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;">
-                    ${cardTitle('缺失項目分布', 'Defect Distribution')}
-                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:0;">
-                      <canvas id="export-pie" width="640" height="640" style="width:320px;height:320px;flex-shrink:0;"></canvas>
+                  <div style="background:#ffffff;border:1px solid ${LINE};border-radius:14px;padding:16px 26px;box-sizing:border-box;display:flex;flex-direction:column;min-height:0;">
+                    ${cardTitle('缺失項目分布', 'Defect Distribution by Category')}
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;min-height:0;">
+                      <canvas id="export-pie" width="${PIE*2}" height="${PIE*2}" style="width:${PIE}px;height:${PIE}px;flex-shrink:0;"></canvas>
                       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;width:100%;">${legend}</div>
                     </div>
                   </div>
@@ -2529,9 +2560,15 @@ function App() {
               </div>
 
               <!-- 頁尾 -->
-              <div style="height:34px;border-top:1px solid ${LINE};display:flex;align-items:center;justify-content:space-between;padding:0 40px;font-size:11px;color:${MUTED};background:#ffffff;box-sizing:border-box;">
-                <span>環保改善缺失追蹤系統 · Environmental Improvement Tracking System</span>
-                <span>NMDC Energy　|　Generated ${dateStr}</span>
+              <div style="height:44px;border-top:1px solid ${LINE};display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:#ffffff;box-sizing:border-box;">
+                <div>
+                  <div style="font-size:11.5px;font-weight:600;color:${TEXT};line-height:1.2;">環保改善缺失追蹤系統</div>
+                  <div style="${EN}font-size:10px;margin-top:2px;">Environmental Improvement Defect Tracking System</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-size:11.5px;font-weight:600;color:${TEXT};line-height:1.2;">NMDC Energy　|　產出日期 ${dateStr}</div>
+                  <div style="${EN}font-size:10px;margin-top:2px;">NMDC Energy　|　Generated ${dateStr}</div>
+                </div>
               </div>`;
 
             // 甜甜圈圖（以 2 倍解析度繪製，輸出更銳利）
@@ -2540,7 +2577,7 @@ function App() {
               if (!cvs) return;
               const ctx = cvs.getContext('2d');
               ctx.scale(2, 2);
-              const cx = 160, cy = 160, r = 150, ir = 92;
+              const cx = PIE / 2, cy = PIE / 2, r = PIE / 2 - 8, ir = Math.round(r * 0.62);
               let angle = -Math.PI / 2;
 
               if (!pieTotal) {
@@ -2565,7 +2602,7 @@ function App() {
                   ctx.save();
                   ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                   ctx.fillStyle = '#ffffff';
-                  ctx.font = `800 17px ${NUM}`;
+                  ctx.font = `800 16px ${NUM}`;
                   ctx.fillText(pct + '%', lx, pct >= 9 ? ly - 7 : ly);
                   if (pct >= 9) {
                     const name = (iopts[k] || '').replace(/防制措施/,'防制').replace(/廢水廢油/,'廢油').replace(/出入口/,'出入').slice(0, 4);
@@ -2578,18 +2615,21 @@ function App() {
                 angle += slice;
               });
 
-              // 中心
+              // 中心：總數 + 中文 + 英文小字
               ctx.beginPath(); ctx.arc(cx, cy, ir, 0, Math.PI * 2);
               ctx.fillStyle = '#ffffff'; ctx.fill();
               ctx.beginPath(); ctx.arc(cx, cy, ir - 6, 0, Math.PI * 2);
               ctx.fillStyle = SOFT; ctx.fill();
               ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
               ctx.fillStyle = '#0c1f3d';
-              ctx.font = `800 44px ${NUM}`;
-              ctx.fillText(pieTotal, cx, cy - 10);
+              ctx.font = `800 40px ${NUM}`;
+              ctx.fillText(pieTotal, cx, cy - 12);
               ctx.font = `700 12px ${ZH}`;
               ctx.fillStyle = MUTED;
-              ctx.fillText('缺失件數 · Defects', cx, cy + 20);
+              ctx.fillText('缺失件數', cx, cy + 16);
+              ctx.font = `500 9.5px ${ZH}`;
+              ctx.fillStyle = '#8aa0b6';
+              ctx.fillText('Total Defect Items', cx, cy + 30);
             };
 
             document.body.appendChild(el);
