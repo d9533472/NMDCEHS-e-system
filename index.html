@@ -2483,7 +2483,7 @@ async function showMailCfgM(){
   $('mMailCfg').classList.remove('hidden');
   setMailCfgStatus('讀取雲端設定中…');
   const c=await loadMailCfg();
-  if(c){fillMailCfgForm(c);setMailCfgStatus(c.saved?'已載入雲端設定':'尚未儲存過，目前顯示的是預設值，請確認後按「儲存設定」');}
+  if(c){fillMailCfgForm(c);setMailCfgStatus(c.saved?'已載入雲端設定':'尚未儲存過，目前顯示的是預設值，請確認後按「儲存設定」');normalizeMcPhotos();}
   else setMailCfgStatus('⚠️ 無法讀取設定：GAS 後端可能尚未更新到含週報模組的版本','err');
 }
 function rteCmdW(cmd,val){$('inMcIntro').focus();document.execCommand(cmd,false,val||null);}
@@ -2520,6 +2520,27 @@ function renderMcPhotos(){
       <button type="button" class="mc-ib del" title="移除" onclick="mcPhotoDel(${i})">🗑</button></div>
   </div>`).join('');
 }
+// 舊照片（沒有 framed 旗標）：從 Drive 抓回來 → 放進 16:9 畫框 → 重新上傳 → 取代清單裡的檔案（舊檔會在儲存時移到垃圾桶）
+async function normalizeMcPhotos(){
+  const todo=_mcPhotos.map((p,i)=>[p,i]).filter(([p])=>p.fileId&&!p.framed);
+  if(!todo.length||_mcBusy)return;
+  _mcBusy=true;let done=0;
+  try{
+    for(const [p,i] of todo){
+      setMailCfgStatus(`⏳ 整理舊照片成 16:9（${done+1}/${todo.length}）：${p.title||''}`);
+      try{
+        const d=await gasGet('photoData',{id:p.fileId});
+        if(!d||!d.ok)throw new Error((d&&d.error)||'讀取失敗');
+        const framedUrl=await fitImage16x9(d.dataUrl,1280,720,0.86);
+        const name='weekly-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
+        const u=await uploadWeeklyFile('uploadWeeklyPhoto',name,framedUrl);
+        const cur=_mcPhotos[i];if(cur&&cur.fileId===p.fileId){Object.assign(cur,{fileId:u.photo.fileId,url:u.photo.url,framed:true});}
+        done++;
+      }catch(e){console.warn('normalize photo:',e);}
+    }
+    if(done){renderMcPhotos();await saveMailCfg(true);setMailCfgStatus(`✅ 已把 ${done} 張舊照片整理成 16:9，信件裡會等高顯示`,'ok');}
+  }finally{_mcBusy=false;}
+}
 function mcLocSel(i,sel){const inp=sel.nextElementSibling;if(sel.value==='__other'){inp.style.display='';_mcPhotos[i].location=inp.value.trim();inp.focus();}else{inp.style.display='none';inp.value='';_mcPhotos[i].location=sel.value;}}
 function mcPhotoMove(i,dir){const j=i+dir;if(j<0||j>=_mcPhotos.length)return;[_mcPhotos[i],_mcPhotos[j]]=[_mcPhotos[j],_mcPhotos[i]];renderMcPhotos();}
 function mcPhotoDel(i){if(!confirm('移除這張照片？（儲存設定後才會生效）'))return;_mcPhotos.splice(i,1);renderMcPhotos();}
@@ -2548,7 +2569,7 @@ async function handleMcPhotos(input){
         const dataUrl=await fitImage16x9(f,1280,720,0.86);
         const name='weekly-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
         const d=await uploadWeeklyFile('uploadWeeklyPhoto',name,dataUrl);
-        _mcPhotos.push({fileId:d.photo.fileId,url:d.photo.url,title:f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),location:'',date:todayS(),uploadedAt:d.photo.uploadedAt||new Date().toISOString()});
+        _mcPhotos.push({fileId:d.photo.fileId,url:d.photo.url,title:f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),location:'',date:todayS(),uploadedAt:d.photo.uploadedAt||new Date().toISOString(),framed:true});
         renderMcPhotos();okCount++;
       }catch(e){console.error('photo upload:',e);showToast('⚠️ '+f.name+' 上傳失敗：'+e.message,'err');}
     }
@@ -3164,6 +3185,7 @@ function fitImage16x9(file,W,H,quality){
       resolve(canvas.toDataURL('image/jpeg',quality));
     };
     img.onerror=reject;
+    if(typeof file==='string'){img.src=file;return;}
     const reader=new FileReader();reader.onload=e=>{img.src=e.target.result;};reader.readAsDataURL(file);
   });
 }

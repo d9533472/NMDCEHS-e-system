@@ -406,6 +406,13 @@ function doGet(e) {
     try { return jsonOut_(removeKpiSummary_()); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
+  if (action === 'photoData') {
+    try {
+      var pf = DriveApp.getFileById(e.parameter.id);
+      var pb = pf.getBlob();
+      return jsonOut_({ok:true, name: pf.getName(), dataUrl: 'data:' + pb.getContentType() + ';base64,' + Utilities.base64Encode(pb.getBytes())});
+    } catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
   if (action === 'findWeeklyFile') {
     try { return jsonOut_(findWeeklyFile_(e.parameter.name || '')); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
@@ -977,7 +984,7 @@ function saveMailConfig_(cfg) {
   var truthy = function(v, dflt) { return v == null ? dflt : !(v === false || v === 'false' || v === 0); };
   var photos = Array.isArray(cfg.photos) ? cfg.photos.map(function(p) {
     return { fileId: String(p.fileId || ''), url: String(p.url || ''), title: String(p.title || ''),
-             location: String(p.location || ''), date: String(p.date || ''), uploadedAt: String(p.uploadedAt || '') };
+             location: String(p.location || ''), date: String(p.date || ''), uploadedAt: String(p.uploadedAt || ''), framed: !!p.framed };
   }).filter(function(p){ return p.fileId; }) : (old.photos || []);
   var clean = {
     enabled:         truthy(cfg.enabled, true),
