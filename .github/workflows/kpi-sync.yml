@@ -1,0 +1,28 @@
+name: KPI 總結圖同步（ENV WEEKLY REPORT）
+
+# 每週一 08:50（台北）用無頭 Chrome 開啟改善單系統儀表板，
+# 頁面會自動把 KPI 總結圖（3200×1800 PNG）同步到 E-System 週報，09:00 寄信時附上。
+# 另在週日 22:00（台北）先跑一次當保險。GitHub 排程可能延遲數分鐘，屬正常現象。
+on:
+  schedule:
+    - cron: '50 0 * * 1'   # 週一 08:50 台北 = 週一 00:50 UTC
+    - cron: '0 14 * * 0'   # 週日 22:00 台北 = 週日 14:00 UTC（保險）
+  workflow_dispatch:        # 也可在 GitHub Actions 頁面手動執行
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: 安裝中文字型（保險，頁面本身用 Google Fonts）
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq fonts-noto-cjk > /dev/null
+      - name: 安裝 puppeteer-core
+        run: npm install --no-save --no-audit --no-fund puppeteer-core@23
+      - name: 開啟改善單系統儀表板並等待同步完成
+        env:
+          CHROME_PATH: /usr/bin/google-chrome
+        run: node scripts/kpi-sync.js
