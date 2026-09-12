@@ -386,7 +386,7 @@ function doGet(e) {
       var cfgNow = getMailConfig_();
       // 預覽用：cid 圖片換成 Drive 網址
       var htmlPv = pv.html.replace(/src="cid:kpi"/g, 'src="' + ((cfgNow.kpi && cfgNow.kpi.url) || 'https://drive.google.com/thumbnail?id=') + '"');
-      (cfgNow.photos || []).forEach(function(p, i) { htmlPv = htmlPv.replace('src="cid:photo' + (i - (i % 2)) + (i % 2) + '"', 'src="' + (p.url || '') + '"'); });
+      (pv.photoList || []).forEach(function(p, i) { htmlPv = htmlPv.replace('src="cid:photo' + (i - (i % 2)) + (i % 2) + '"', 'src="' + (p.url || '') + '"'); });
       return jsonOut_({ok:true, subject: pv.subject, html: htmlPv, total: pv.total, overdue: pv.overdue, ncr: pv.ncr, photos: pv.photos, kpi: pv.kpi, range: pv.range});
     } catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
@@ -1001,9 +1001,28 @@ function saveMailConfig_(cfg) {
   getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(clean));
   return getMailConfig_();
 }
-function markMailSent_() {
+function markMailSent_(sentPhotos, range) {
   var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
   cfg.lastSentAt = new Date().toISOString();
+  var sentIds = (sentPhotos || []).map(function(p){ return p.fileId; });
+  if (sentIds.length) {
+    // 封存：EHS-Weekly-Report/已寄出/2026-09-07~2026-09-13
+    var sub = null;
+    try {
+      var root = getWeeklyFolder_();
+      var it = root.getFoldersByName('已寄出');
+      var archive = it.hasNext() ? it.next() : root.createFolder('已寄出');
+      var name = range ? (range.fromIso + '~' + range.toIso) : cfg.lastSentAt.slice(0, 10);
+      var it2 = archive.getFoldersByName(name);
+      sub = it2.hasNext() ? it2.next() : archive.createFolder(name);
+    } catch(e) { Logger.log('建立封存資料夾失敗：' + e.message); }
+    sentIds.forEach(function(id) {
+      if (!sub) return;
+      try { DriveApp.getFileById(id).moveTo(sub); } catch(e) { Logger.log('封存照片失敗 ' + id + '：' + e.message); }
+    });
+    cfg.photos = (cfg.photos || []).filter(function(p){ return sentIds.indexOf(p.fileId) < 0; });
+    Logger.log('已封存 ' + sentIds.length + ' 張照片' + (sub ? '到 ' + sub.getName() : ''));
+  }
   getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(cfg));
 }
 
@@ -1331,8 +1350,8 @@ function trkPhotosHtml_(photos, doTr) {
       if (p) {
         h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e2e8f0;background-color:#ffffff;">' +
           '<tr><td bgcolor="#16a34a" style="background-color:#16a34a;font-size:0;line-height:0;height:4px;">&nbsp;</td></tr>' +
-          '<tr><td bgcolor="#f1f5f9" align="center" style="background-color:#f1f5f9;padding:0;">' +
-            '<img src="cid:photo' + i + j + '" width="300" height="225" alt="' + trkEsc_(p.title || '') + '" style="width:100%;max-width:300px;height:auto;display:block;border:0;">' +
+          '<tr><td bgcolor="#eef2f6" align="center" style="background-color:#eef2f6;padding:0;">' +
+            '<img src="cid:photo' + i + j + '" width="300" height="169" alt="' + trkEsc_(p.title || '') + '" style="width:100%;max-width:300px;height:auto;display:block;border:0;">' +
           '</td></tr>' +
           '<tr><td style="padding:10px 12px 12px;">' +
             trkZhEn_(p.title || '（未命名）', 'font-size:13px;font-weight:bold;color:#0f172a;', '', doTr) +
@@ -1407,9 +1426,11 @@ function buildTrackerMail_(opts) {
       } catch(e) { Logger.log('KPI 圖自動產生失敗：' + e.message); }
     }
   }
+  // 只放上次寄出之後上傳的照片（沒有 uploadedAt 的舊資料也放）；寄出後會封存，不會再出現
   var photos = [];
   (mc.photos || []).forEach(function(p, idx) {
     if (!p || !p.fileId) return;
+    if (mc.lastSentAt && p.uploadedAt && p.uploadedAt <= mc.lastSentAt) return;
     if (opts.noBlobs) { photos.push(p); return; }
     try { var b = DriveApp.getFileById(p.fileId).getBlob(); b.setName('photo' + (idx + 1) + '.jpg'); photos.push(p); inline['photo' + (photos.length - 1 - ((photos.length - 1) % 2)) + ((photos.length - 1) % 2)] = b; }
     catch(e) { Logger.log('照片讀取失敗：' + (p.title || p.fileId) + ' ' + e.message); }
@@ -1509,7 +1530,7 @@ function buildTrackerMail_(opts) {
   var subject = 'ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')';
   return { subject: subject, html: html, inline: inline, attachments: attachments, range: range,
            total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length,
-           photos: photos.length, kpi: kpiOk, kpiSource: kpiSource };
+           photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource };
 }
 
 // ── 寄送週報 ──
@@ -1529,7 +1550,7 @@ function sendTrackerMail_(testTo) {
   if (Object.keys(m.inline).length) opt.inlineImages = m.inline;
   if (m.attachments.length) opt.attachments = m.attachments;
   MailApp.sendEmail(opt);
-  if (!testTo) markMailSent_();
+  if (!testTo) markMailSent_(m.photoList, m.range);
   var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
   Logger.log('週報已寄出 → ' + to + (cc ? ' (cc ' + cc + ')' : '') + '；' + m.subject + '；待辦 ' + m.total + '，逾期 ' + m.overdue + '，照片 ' + m.photos + '，KPI 圖 ' + (m.kpi ? '有' : '無'));
   return { ok: true, to: to, cc: cc, subject: opt.subject, total: m.total, overdue: m.overdue, thisWeek: m.thisWeek, ncr: m.ncr, photos: m.photos, kpi: m.kpi, quota: quota };
@@ -1542,8 +1563,9 @@ function buildReminderMail_() {
   var photos = mc.photos || [];
   var kpi = mc.kpi;
   var fmt = function(iso) { try { return Utilities.formatDate(new Date(iso), MAIL_TZ, 'yyyy-MM-dd HH:mm'); } catch(e) { return iso || ''; } };
-  var lastPhoto = photos.length ? photos.map(function(p){ return p.uploadedAt || ''; }).sort().pop() : '';
-  var stale = photos.length && mc.lastSentAt && lastPhoto && lastPhoto < mc.lastSentAt; // 照片比上次寄出還舊
+  var fresh = photos.filter(function(p){ return !(mc.lastSentAt && p.uploadedAt && p.uploadedAt <= mc.lastSentAt); });
+  var lastPhoto = fresh.length ? fresh.map(function(p){ return p.uploadedAt || ''; }).sort().pop() : '';
+  var stale = !fresh.length; // 本週還沒有新照片
   var kpiStale = kpi && mc.lastSentAt && kpi.uploadedAt && kpi.uploadedAt < mc.lastSentAt;
   var row = function(icon, zh, en, ok, note) {
     return '<tr><td width="34" valign="top" style="padding:10px 0;border-top:1px solid #e5e9ef;font-size:18px;">' + icon + '</td>' +
@@ -1575,7 +1597,7 @@ function buildReminderMail_() {
     '</td></tr>' +
     '<tr><td style="padding:14px 28px 6px;">' +
       '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
-      row('📷', '現場照片 Site photos', photos.length ? '目前 ' + photos.length + ' 張，最後更新 ' + fmt(lastPhoto) : '尚未放入任何照片', photos.length && !stale, photos.length ? (stale ? '上次寄出後未更新' : photos.length + ' 張') : '尚無照片') +
+      row('📷', '現場照片 Site photos', fresh.length ? '本週已上傳 ' + fresh.length + ' 張，最後更新 ' + fmt(lastPhoto) : '本週尚未上傳照片（上週的已封存，不會重複寄出）', !stale, fresh.length ? fresh.length + ' 張' : '尚無照片') +
       row('📊', 'KPI 總結圖 KPI summary image', kpi && !kpiStale ? '已同步 ' + fmt(kpi.uploadedAt) + (kpi.source === 'auto' ? '（改善單系統自動匯出）' : kpi.source === 'slides' ? '（系統產生）' : '（手動上傳）') : '本週尚未同步，寄出時會由系統依最新資料自動產生', true, kpi && !kpiStale ? '已同步' : '自動') +
       row('📋', '追蹤事項與改善單 Tracker & notices', '寄出時會自動抓取最新資料，不用手動整理', true, '自動') +
       '</table></td></tr>' +

@@ -2444,6 +2444,7 @@ function openOutlookForEmail(){
 // ══ 📧 環保部門週報 ENV WEEKLY REPORT：收件者 / 開頭文字 / 現場照片 / KPI 圖 / 由系統寄出 ══
 //    GAS 觸發器：每週一 09:00 自動寄出、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
 let _mailCfg=null,_mcPhotos=[],_mcBusy=false;
+const MC_LOCS=['Taichung','TungHsiao','Project','Offshore','Tienli','Environmental Monitoring'];
 const MC_DEFAULT_INTRO='<p>Dear Chris, Sam</p><p>Please refer to the attached weekly report from the ENV Department for this week.<br>You are also welcome to discuss with us if you have any suggestions or comments.<br>Thank you all for your continued support.</p><p>BR,<br>Paul Tong</p>';
 async function gasGet(action,params){
   const q=Object.entries(params||{}).map(([k,v])=>'&'+k+'='+encodeURIComponent(v)).join('');
@@ -2508,13 +2509,18 @@ function renderMcPhotos(){
   g.innerHTML=_mcPhotos.map((p,i)=>`<div class="mc-photo">
     <div class="mc-photo-img"><img src="${esc(p.url)}" alt="" loading="lazy" onerror="this.parentNode.classList.add('err')"></div>
     <input class="form-input" placeholder="照片標題（例：Water sprinkling）" value="${esc(p.title||'')}" oninput="_mcPhotos[${i}].title=this.value">
-    <input class="form-input" placeholder="地點（例：Tung Hsiao）" value="${esc(p.location||'')}" oninput="_mcPhotos[${i}].location=this.value">
+    ${(()=>{const loc=p.location||'';const other=loc&&!MC_LOCS.includes(loc);return `<select class="form-input" onchange="mcLocSel(${i},this)">
+      <option value="" ${!loc?'selected':''}>地點 Location…</option>
+      ${MC_LOCS.map(l=>`<option value="${l}" ${loc===l?'selected':''}>${l}</option>`).join('')}
+      <option value="__other" ${other?'selected':''}>Other（自行填寫）</option></select>
+    <input class="form-input" placeholder="請填寫地點" value="${other?esc(loc):''}" style="${other?'':'display:none'}" oninput="_mcPhotos[${i}].location=this.value">`;})()}
     <div class="mc-photo-row"><input class="form-input" type="date" value="${esc(p.date||'')}" oninput="_mcPhotos[${i}].date=this.value">
       <button type="button" class="mc-ib" title="往前" onclick="mcPhotoMove(${i},-1)" ${i===0?'disabled':''}>↑</button>
       <button type="button" class="mc-ib" title="往後" onclick="mcPhotoMove(${i},1)" ${i===_mcPhotos.length-1?'disabled':''}>↓</button>
       <button type="button" class="mc-ib del" title="移除" onclick="mcPhotoDel(${i})">🗑</button></div>
   </div>`).join('');
 }
+function mcLocSel(i,sel){const inp=sel.nextElementSibling;if(sel.value==='__other'){inp.style.display='';_mcPhotos[i].location=inp.value.trim();inp.focus();}else{inp.style.display='none';inp.value='';_mcPhotos[i].location=sel.value;}}
 function mcPhotoMove(i,dir){const j=i+dir;if(j<0||j>=_mcPhotos.length)return;[_mcPhotos[i],_mcPhotos[j]]=[_mcPhotos[j],_mcPhotos[i]];renderMcPhotos();}
 function mcPhotoDel(i){if(!confirm('移除這張照片？（儲存設定後才會生效）'))return;_mcPhotos.splice(i,1);renderMcPhotos();}
 function fileToDataUrl(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
@@ -2539,7 +2545,7 @@ async function handleMcPhotos(input){
       const f=files[k];
       setMailCfgStatus(`⏳ 上傳照片 ${k+1}/${files.length}：${f.name}`);
       try{
-        const dataUrl=await cropCoverImage(f,1200,900,0.86);
+        const dataUrl=await fitImage16x9(f,1280,720,0.86);
         const name='weekly-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
         const d=await uploadWeeklyFile('uploadWeeklyPhoto',name,dataUrl);
         _mcPhotos.push({fileId:d.photo.fileId,url:d.photo.url,title:f.name.replace(/\.[^.]+$/,'').replace(/[_-]+/g,' '),location:'',date:todayS(),uploadedAt:d.photo.uploadedAt||new Date().toISOString()});
@@ -3146,15 +3152,15 @@ async function handleBulImage(input){
   input.value='';
 }
 
-// 置中裁切成固定比例（週報照片用：1200×900，4:3）。直式照片會取中間區域。
-function cropCoverImage(file,W,H,quality){
+// 放進固定 16:9 畫框（週報照片用：1280×720）：等比縮小、置中，不裁切；空白處用淺灰底。
+function fitImage16x9(file,W,H,quality){
   return new Promise((resolve,reject)=>{
     const img=new Image();
     img.onload=()=>{
       const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
-      const s=Math.max(W/img.width,H/img.height);
-      const dw=img.width*s,dh=img.height*s,dx=(W-dw)/2,dy=(H-dh)/2;
-      const ctx=canvas.getContext('2d');ctx.fillStyle='#f1f5f9';ctx.fillRect(0,0,W,H);ctx.drawImage(img,dx,dy,dw,dh);
+      const s=Math.min(W/img.width,H/img.height);
+      const dw=Math.round(img.width*s),dh=Math.round(img.height*s),dx=Math.round((W-dw)/2),dy=Math.round((H-dh)/2);
+      const ctx=canvas.getContext('2d');ctx.fillStyle='#eef2f6';ctx.fillRect(0,0,W,H);ctx.drawImage(img,dx,dy,dw,dh);
       resolve(canvas.toDataURL('image/jpeg',quality));
     };
     img.onerror=reject;
@@ -3684,8 +3690,8 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
 .mc-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .mc-photo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .mc-photo .form-input{padding:7px 10px;font-size:12px;border-radius:8px}
-.mc-photo-img{aspect-ratio:4/3;background:#eef2f6;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.mc-photo-img img{width:100%;height:100%;object-fit:cover;display:block}
+.mc-photo-img{aspect-ratio:16/9;background:#eef2f6;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.mc-photo-img img{width:100%;height:100%;object-fit:contain;display:block}
 .mc-photo-img.err::after{content:'圖片載入中／無法顯示';font-size:11px;color:var(--muted)}
 .mc-photo-row{display:flex;gap:4px;align-items:center}.mc-photo-row .form-input{flex:1;min-width:0}
 .mc-ib{width:30px;height:30px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text2);cursor:pointer;font-size:13px;font-family:inherit}.mc-ib:hover{border-color:var(--accent);color:var(--accent2)}.mc-ib.del:hover{border-color:var(--danger);color:var(--danger)}.mc-ib:disabled{opacity:.35;cursor:default}
@@ -3726,10 +3732,10 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
 
     <div class="mc-sec">
-      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>信件最後兩欄等高顯示；上傳時會置中裁成 4:3，直式照片只保留中間</small><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
+      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>信件最後兩欄、固定 16:9 等高；上傳時等比縮小置中放進畫框，不裁切</small><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
       <input type="file" id="mcPhotoInput" accept="image/*" multiple style="display:none" onchange="handleMcPhotos(this)">
       <div class="mc-photos" id="mcPhotos"></div>
-      <div class="mc-note" style="margin-top:8px">照片上傳時會置中裁切成 4:3（1200×900）後存到 Drive 的 EHS-Weekly-Report 資料夾，信件裡每張等高；建議放橫式照片。移除照片後按「儲存設定」才會生效。</div>
+      <div class="mc-note" style="margin-top:8px">照片上傳時會等比縮小、置中放進固定 16:9 畫框（1280×720，不裁切，空白處淺灰底）後存到 Drive 的 EHS-Weekly-Report 資料夾，信件裡每張等高；建議放橫式照片。之前上傳的舊照片不會自動套用，請重新上傳。<b>週報寄出後，這次寄出的照片會自動從這裡移除並封存到 Drive「已寄出／報告週」子資料夾</b>，所以這裡永遠只有「這週要寄的」。移除照片後按「儲存設定」才會生效。</div>
     </div>
 
     <div class="mc-sec">
