@@ -371,6 +371,28 @@ function doGet(e) {
     }
   }
 
+  // ── 📧 追蹤事項週報 ──
+  if (action === 'mailConfig') {
+    try { return jsonOut_({ok:true, config: getMailConfig_()}); }
+    catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
+  if (action === 'saveMailConfig') {
+    try {
+      var cfgIn = JSON.parse(e.parameter.cfg || '{}');
+      return jsonOut_({ok:true, config: saveMailConfig_(cfgIn)});
+    } catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
+  if (action === 'trackerMailPreview') {
+    try {
+      var pv = buildTrackerMail_();
+      return jsonOut_({ok:true, subject: pv.subject, html: pv.html, total: pv.total, overdue: pv.overdue, ncr: pv.ncr, config: getMailConfig_()});
+    } catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
+  if (action === 'sendTrackerNow') {
+    try { return jsonOut_(sendTrackerMail_(e.parameter.to || '')); }
+    catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
+
   // 預設：回傳全部資料
   try {
     var data = getAllData();
@@ -845,4 +867,377 @@ function loadRosterState_(data) {
   var state = null;
   try { state = JSON.parse(vals); } catch(e) { return json_({ ok:false, msg:'state parse error' }); }
   return json_({ ok:true, state:state });
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════
+//  📧 追蹤事項週報 — 每週一 09:00 自動寄給「週報寄送設定」的收件者
+//
+//  部署後請在 Apps Script 編輯器手動執行一次 setupTrackerMailTrigger()
+//  （第一次會要求 Gmail 寄信授權）。
+//
+//  前端可用的 action：
+//    ?action=mailConfig                       → 讀取收件者設定
+//    ?action=saveMailConfig&cfg=<JSON>        → 儲存收件者設定（存於 Data!B5）
+//    ?action=trackerMailPreview               → 回傳信件 HTML（預覽用，不寄出）
+//    ?action=sendTrackerNow[&to=<email>]      → 立即寄出（帶 to = 只寄測試信給該信箱）
+// ═══════════════════════════════════════════════════════════════════════
+var SYSTEM_URL     = 'https://d9533472.github.io/NMDCEHS-e-system/';
+var MAIL_CFG_CELL  = 'B5';          // JSON: {enabled, to, cc, senderName}
+var MAIL_TZ        = 'Asia/Taipei';
+var MAIL_DEFAULT_CFG = {
+  enabled:    true,
+  to:         'raymond.huang@nmdc-group.com, Sean.chu@nmdc-group.com, Jacqueline.peng@nmdc-group.com',
+  cc:         'NMDCTaiwanEHSgroup@NMDCGroup.onmicrosoft.com',
+  senderName: 'NMDC Environmental E-System'
+};
+
+// Outlook 桌面版用 Word 引擎排版：字型不會從外層繼承，且中文一律用「東亞字型」（預設新細明體）。
+// 所以每個 <td>/<p> 都要自帶字型，正黑體放第一個，並加 mso-fareast-font-family。
+var TRK_FONT = "font-family:'Microsoft JhengHei','微軟正黑體','PingFang TC','Noto Sans TC','Segoe UI',Helvetica,Arial,sans-serif;" +
+               "mso-fareast-font-family:'Microsoft JhengHei';mso-ascii-font-family:'Microsoft JhengHei';" +
+               "mso-hansi-font-family:'Microsoft JhengHei';mso-bidi-font-family:Arial;";
+
+function normalizeMails_(s) {
+  return String(s || '').split(/[,;\s]+/).map(function(x){ return x.trim(); })
+    .filter(function(x){ return x && x.indexOf('@') > 0; }).join(',');
+}
+
+function getMailConfig_() {
+  var cfg = {}, raw = '';
+  try {
+    raw = getSheet().getRange(MAIL_CFG_CELL).getValue();
+    if (raw) cfg = JSON.parse(raw) || {};
+  } catch(e) { cfg = {}; }
+  return {
+    enabled:    cfg.enabled !== false,
+    to:         (cfg.to         != null) ? String(cfg.to)         : MAIL_DEFAULT_CFG.to,
+    cc:         (cfg.cc         != null) ? String(cfg.cc)         : MAIL_DEFAULT_CFG.cc,
+    senderName: (cfg.senderName != null && String(cfg.senderName).trim()) ? String(cfg.senderName) : MAIL_DEFAULT_CFG.senderName,
+    saved:      !!raw
+  };
+}
+
+function saveMailConfig_(cfg) {
+  cfg = cfg || {};
+  var clean = {
+    enabled:    cfg.enabled !== false && cfg.enabled !== 'false' && cfg.enabled !== 0,
+    to:         String(cfg.to || '').trim(),
+    cc:         String(cfg.cc || '').trim(),
+    senderName: String(cfg.senderName || '').trim() || MAIL_DEFAULT_CFG.senderName,
+    updatedAt:  new Date().toISOString()
+  };
+  getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(clean));
+  return getMailConfig_();
+}
+
+// ── 日期工具（全部以台北時間為準） ──
+function trkTodayStr_() { return Utilities.formatDate(new Date(), MAIL_TZ, 'yyyy-MM-dd'); }
+function trkWeekdayZh_(ymd) {
+  var d = trkParse_(ymd); if (!d) return '';
+  return '週' + ['日','一','二','三','四','五','六'][d.getUTCDay()];
+}
+function trkParse_(ymd) {
+  var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(ymd || ''));
+  if (!m) return null;
+  return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+}
+function trkDaysLeft_(deadline, today) {
+  var a = trkParse_(deadline), b = trkParse_(today);
+  if (!a || !b) return null;
+  return Math.round((a - b) / 86400000);
+}
+function trkEsc_(s) {
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+// 備註是前端 RTE 的 HTML → 轉成純文字行
+function trkNoteLines_(raw) {
+  if (!raw) return [];
+  var s = String(raw), n = 0;
+  s = s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, function(_, inner) {
+    n = 0;
+    return inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, function(__, t) { n++; return n + '. ' + t.replace(/<[^>]+>/g, '') + '\n'; });
+  });
+  s = s.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, function(_, inner) {
+    return inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, function(__, t) { return '• ' + t.replace(/<[^>]+>/g, '') + '\n'; });
+  });
+  s = s.replace(/<br[^>]*>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<\/div>/gi, '\n')
+       .replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>')
+       .replace(/<[^>]+>/g, '');
+  return s.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+}
+
+// ── 信件組件 ──
+function trkP_(text, css) { return '<p style="margin:0;' + TRK_FONT + (css || '') + '">' + text + '</p>'; }
+
+function trkSectionTitle_(title, sub, color) {
+  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;"><tr>' +
+    '<td width="4" bgcolor="' + color + '" style="background-color:' + color + ';font-size:0;line-height:0;">&nbsp;</td>' +
+    '<td style="padding:2px 0 2px 12px;">' +
+      trkP_(title, 'font-size:15px;font-weight:bold;color:#0f172a;') +
+      (sub ? trkP_(sub, 'font-size:11px;color:#64748b;margin-top:2px;') : '') +
+    '</td></tr></table>';
+}
+
+function trkStatTile_(num, label, en, color, bg, border) {
+  return '<td class="stat" width="25%" valign="top" style="padding:0 4px;">' +
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+    '<td bgcolor="' + bg + '" align="center" style="background-color:' + bg + ';border:1px solid ' + border + ';padding:12px 6px;">' +
+      trkP_(num, 'font-size:26px;font-weight:bold;line-height:1.1;color:' + color + ';') +
+      trkP_(label, 'font-size:12px;font-weight:bold;color:' + color + ';margin-top:4px;') +
+      trkP_(en, 'font-size:10px;color:#94a3b8;margin-top:1px;') +
+    '</td></tr></table></td>';
+}
+
+function trkDaysLabel_(d) {
+  if (d == null) return '—';
+  if (d < 0)  return '逾期 ' + Math.abs(d) + ' 天';
+  if (d === 0) return '今天';
+  if (d === 1) return '明天';
+  return d + ' 天';
+}
+
+// 追蹤事項表格（rows 已排序）
+function trkTaskTable_(rows, today) {
+  if (!rows.length) return '';
+  var TH = 'padding:9px 10px;background-color:#0b1f33;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;white-space:nowrap;' + TRK_FONT;
+  var priLabel = { high: '● 高', mid: '● 中', low: '● 低' };
+  var priColor = { high: '#dc2626', mid: '#d97706', low: '#16a34a' };
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
+  h += '<tr bgcolor="#0b1f33">' +
+       '<td bgcolor="#0b1f33" style="' + TH + 'text-align:center;">#</td>' +
+       '<td bgcolor="#0b1f33" style="' + TH + '">優先</td>' +
+       '<td bgcolor="#0b1f33" style="' + TH + 'white-space:normal;">事項 Item</td>' +
+       '<td bgcolor="#0b1f33" style="' + TH + '">負責人</td>' +
+       '<td bgcolor="#0b1f33" style="' + TH + '">期限</td>' +
+       '<td bgcolor="#0b1f33" style="' + TH + '">剩餘</td></tr>';
+  rows.forEach(function(t, i) {
+    var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
+    var pri = t.priority || 'mid';
+    var d = trkDaysLeft_(t.deadline, today);
+    var dlColor = d == null ? '#334155' : d < 0 ? '#b91c1c' : d <= 1 ? '#b45309' : d <= 6 ? '#0369a1' : '#334155';
+    var dlBg    = d == null ? bg       : d < 0 ? '#fef2f2' : d <= 1 ? '#fffbeb' : bg;
+    var persons = String(t.person || '').split(',').map(function(p){ return p.trim(); }).filter(Boolean).join('、');
+    var notes = trkNoteLines_(t.note);
+    var TD = 'padding:9px 10px;border-top:1px solid #e5e9ef;font-size:13px;color:#1e293b;vertical-align:top;' + TRK_FONT;
+    h += '<tr bgcolor="' + bg + '">';
+    h += '<td bgcolor="' + bg + '" align="center" style="' + TD + 'background-color:' + bg + ';color:#94a3b8;font-size:12px;white-space:nowrap;">' + (i + 1) + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';color:' + priColor[pri] + ';font-weight:bold;font-size:12px;white-space:nowrap;">' + priLabel[pri] + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' +
+           trkP_(trkEsc_(t.name), 'font-size:13px;font-weight:bold;color:#0f172a;') +
+           (notes.length ? trkP_(notes.map(trkEsc_).join('<br>'), 'font-size:11px;color:#64748b;margin-top:3px;line-height:1.5;') : '') +
+         '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;">' + trkEsc_(persons || '—') + '</td>';
+    h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;">' + trkEsc_(t.deadline || '—') + '</td>';
+    h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;font-size:12px;">' + trkDaysLabel_(d) + '</td>';
+    h += '</tr>';
+  });
+  return h + '</table>';
+}
+
+// 改善單表格（來自 getNcrExpiring）
+function trkNcrTable_(rows) {
+  if (!rows.length) return '';
+  var TH = 'padding:9px 10px;background-color:#7c2d12;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;white-space:nowrap;' + TRK_FONT;
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
+  h += '<tr bgcolor="#7c2d12">' +
+       ['類型','編號','缺失改善內容','關單期限','剩餘','單位／開單人','資料夾'].map(function(x, i){
+         return '<td bgcolor="#7c2d12" style="' + TH + (i === 2 ? 'white-space:normal;' : '') + '">' + x + '</td>';
+       }).join('') + '</tr>';
+  rows.forEach(function(r, i) {
+    var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
+    var d = r.daysLeft;
+    var dlColor = d < 0 ? '#b91c1c' : d <= 1 ? '#b45309' : '#334155';
+    var dlBg    = d < 0 ? '#fef2f2' : d <= 1 ? '#fffbeb' : bg;
+    var typeColor = r.type === 'NCR' ? '#b45309' : r.type === 'WM' ? '#1d4ed8' : '#b91c1c';
+    var TD = 'padding:9px 10px;border-top:1px solid #e5e9ef;font-size:13px;color:#1e293b;vertical-align:top;' + TRK_FONT;
+    h += '<tr bgcolor="' + bg + '">';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';color:' + typeColor + ';font-weight:bold;font-size:12px;white-space:nowrap;">' + trkEsc_(r.type || '—') + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';font-weight:bold;color:#0f172a;white-space:nowrap;">' + trkEsc_(r.number || '—') + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + trkEsc_(r.description || '—') + '</td>';
+    h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;">' + trkEsc_(r.deadline || '—') + '</td>';
+    h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';color:' + dlColor + ';font-weight:bold;white-space:nowrap;font-size:12px;">' + trkDaysLabel_(d) + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;font-size:12px;">' + trkEsc_((r.unit || '—') + ' / ' + (r.issuer || '—')) + '</td>';
+    h += '<td bgcolor="' + bg + '" align="center" style="' + TD + 'background-color:' + bg + ';white-space:nowrap;">' +
+           (r.driveFolderUrl ? '<a href="' + trkEsc_(r.driveFolderUrl) + '" style="color:#166534;font-weight:bold;font-size:12px;text-decoration:none;' + TRK_FONT + '">📁 開啟</a>' : '—') +
+         '</td>';
+    h += '</tr>';
+  });
+  return h + '</table>';
+}
+
+function trkEmptyNote_(text) {
+  return '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:10px;"><tr>' +
+    '<td bgcolor="#f8fafc" style="background-color:#f8fafc;border:1px dashed #cbd5e1;padding:12px 14px;">' +
+    trkP_(text, 'font-size:12px;color:#64748b;') + '</td></tr></table>';
+}
+
+// ── 組信（預覽與寄送共用） ──
+function buildTrackerMail_() {
+  var today = trkTodayStr_();
+  var data  = getAllData();
+  var tasks = (data.tasks || []).filter(function(t){ return t && !t.done; });
+
+  var priOrd = { high: 0, mid: 1, low: 2 };
+  tasks.sort(function(a, b) {
+    var pa = priOrd[a.priority || 'mid'], pb = priOrd[b.priority || 'mid'];
+    if (pa !== pb) return pa - pb;
+    return String(a.deadline || '9999').localeCompare(String(b.deadline || '9999'));
+  });
+  var overdue = [], thisWeek = [], later = [];
+  tasks.forEach(function(t) {
+    var d = trkDaysLeft_(t.deadline, today);
+    if (d != null && d < 0) overdue.push(t);
+    else if (d != null && d <= 6) thisWeek.push(t);
+    else later.push(t);
+  });
+  var byDeadline = function(a, b){ return String(a.deadline || '').localeCompare(String(b.deadline || '')); };
+  overdue.sort(byDeadline); thisWeek.sort(byDeadline);
+
+  // 改善單（已逾期 + 7 天內到期）— 讀不到也不能讓週報失敗
+  var ncr = [], ncrErr = '';
+  try {
+    var res = getNcrExpiring(7);
+    if (res && res.ok) ncr = res.records || []; else ncrErr = (res && res.error) || '讀取失敗';
+  } catch(e) { ncrErr = e.message; }
+  var ncrOverdue = ncr.filter(function(r){ return r.daysLeft < 0; });
+  var ncrSoon    = ncr.filter(function(r){ return r.daysLeft >= 0; });
+
+  var total = tasks.length;
+  var bannerBg, bannerBorder, bannerColor, bannerTitle, bannerSub;
+  if (!total && !ncr.length) {
+    bannerBg = '#ecfdf5'; bannerBorder = '#16a34a'; bannerColor = '#14532d';
+    bannerTitle = '🎉 本週沒有待辦事項，全部完成！';
+    bannerSub   = 'Nothing pending this week. Great job!';
+  } else if (overdue.length || ncrOverdue.length) {
+    bannerBg = '#fef2f2'; bannerBorder = '#dc2626'; bannerColor = '#7f1d1d';
+    bannerTitle = '⚠️ 待辦 ' + total + ' 項｜逾期 ' + overdue.length + '｜本週到期 ' + thisWeek.length;
+    bannerSub   = total + ' open items · ' + overdue.length + ' overdue · ' + thisWeek.length + ' due this week';
+  } else {
+    bannerBg = '#fffbeb'; bannerBorder = '#f59e0b'; bannerColor = '#78350f';
+    bannerTitle = '📌 待辦 ' + total + ' 項｜本週到期 ' + thisWeek.length;
+    bannerSub   = total + ' open items · ' + thisWeek.length + ' due this week';
+  }
+
+  var body = '';
+  // 統計方塊
+  body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:18px;"><tr>' +
+    trkStatTile_(String(overdue.length),  '已逾期',   'Overdue',        '#b91c1c', '#fef2f2', '#fecaca') +
+    trkStatTile_(String(thisWeek.length), '本週到期', 'Due this week',  '#b45309', '#fffbeb', '#fde68a') +
+    trkStatTile_(String(later.length),    '排程中',   'Scheduled',      '#0369a1', '#eff6ff', '#bfdbfe') +
+    trkStatTile_(String(ncr.length),      '改善單待處理', 'NCR / WM open', '#9a3412', '#fff7ed', '#fed7aa') +
+    '</tr></table>';
+
+  // 追蹤事項
+  body += trkSectionTitle_('📋 追蹤事項 Tracker Items', '依優先度與期限排序 · Sorted by priority and deadline', '#16a34a');
+  if (!total) body += trkEmptyNote_('目前沒有未完成的追蹤事項。');
+  if (overdue.length)  { body += trkP_('🔴 已逾期（' + overdue.length + ' 項）',  'font-size:13px;font-weight:bold;color:#b91c1c;margin-top:14px;'); body += trkTaskTable_(overdue, today); }
+  if (thisWeek.length) { body += trkP_('🟠 本週到期（' + thisWeek.length + ' 項）', 'font-size:13px;font-weight:bold;color:#b45309;margin-top:14px;'); body += trkTaskTable_(thisWeek, today); }
+  if (later.length)    { body += trkP_('🔵 排程中（' + later.length + ' 項）',    'font-size:13px;font-weight:bold;color:#0369a1;margin-top:14px;'); body += trkTaskTable_(later, today); }
+
+  // 改善單
+  body += trkSectionTitle_('🛠️ 改善單 Improvement Notices', '已逾期與 7 天內到期的 NCR / WM · Overdue and due within 7 days', '#ea580c');
+  if (ncrErr) body += trkEmptyNote_('改善單資料暫時無法讀取：' + trkEsc_(ncrErr));
+  else if (!ncr.length) body += trkEmptyNote_('沒有逾期或 7 天內到期的改善單。');
+  if (ncrOverdue.length) { body += trkP_('🔴 已逾期（' + ncrOverdue.length + ' 筆）', 'font-size:13px;font-weight:bold;color:#b91c1c;margin-top:14px;'); body += trkNcrTable_(ncrOverdue); }
+  if (ncrSoon.length)    { body += trkP_('🟠 7 天內到期（' + ncrSoon.length + ' 筆）', 'font-size:13px;font-weight:bold;color:#b45309;margin-top:14px;'); body += trkNcrTable_(ncrSoon); }
+
+  var dateLine = today + '（' + trkWeekdayZh_(today) + '）';
+  var html =
+    '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+    '<title>追蹤事項週報</title>' +
+    '<!--[if mso]><style>table,td,p,a,span,div{font-family:\'Microsoft JhengHei\',\'Segoe UI\',Arial,sans-serif !important;' +
+      'mso-fareast-font-family:\'Microsoft JhengHei\' !important;mso-ascii-font-family:\'Microsoft JhengHei\' !important;mso-hansi-font-family:\'Microsoft JhengHei\' !important;}</style><![endif]-->' +
+    '<style>@media only screen and (max-width:620px){.wrap{width:100% !important;}.stat{display:block !important;width:100% !important;padding:0 0 8px !important;}.pad{padding-left:16px !important;padding-right:16px !important;}}</style>' +
+    '</head><body style="margin:0;padding:0;background-color:#edf1f5;">' +
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#edf1f5" style="background-color:#edf1f5;"><tr><td align="center" style="padding:24px 12px;">' +
+    '<!--[if mso]><table width="680" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->' +
+    '<table class="wrap" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:680px;background-color:#ffffff;border:1px solid #d3dbe4;">' +
+    // 頁首
+    '<tr><td bgcolor="#0b1f33" class="pad" style="background-color:#0b1f33;padding:22px 28px 20px;">' +
+      trkP_('NMDC ENERGY &nbsp;|&nbsp; ENVIRONMENTAL E-SYSTEM', 'font-size:11px;letter-spacing:2px;color:#8fb3d9;') +
+      trkP_('📋 追蹤事項週報 <span style="color:#86efac;' + TRK_FONT + '">Weekly Tracker Digest</span>', 'font-size:22px;font-weight:bold;color:#ffffff;margin-top:6px;') +
+      trkP_('EHS Department · 製表日期 ' + dateLine, 'font-size:12px;color:#b9c8d8;margin-top:6px;') +
+    '</td></tr>' +
+    '<tr><td bgcolor="#16a34a" style="background-color:#16a34a;font-size:0;line-height:0;height:4px;">&nbsp;</td></tr>' +
+    // 狀態橫幅
+    '<tr><td bgcolor="' + bannerBg + '" class="pad" style="background-color:' + bannerBg + ';border-left:6px solid ' + bannerBorder + ';border-bottom:1px solid #e5e9ef;padding:16px 28px;">' +
+      trkP_(bannerTitle, 'font-size:18px;font-weight:bold;color:' + bannerColor + ';') +
+      trkP_(bannerSub, 'font-size:12px;color:#64748b;margin-top:4px;') +
+    '</td></tr>' +
+    // 內容
+    '<tr><td class="pad" style="padding:6px 28px 8px;">' + body + '</td></tr>' +
+    // 按鈕
+    '<tr><td align="center" style="padding:26px 28px 6px;">' +
+      '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#16a34a" align="center" style="background-color:#16a34a;padding:13px 34px;">' +
+        '<a href="' + SYSTEM_URL + '" style="color:#ffffff;font-size:15px;font-weight:bold;text-decoration:none;display:inline-block;' + TRK_FONT + '">🌿 開啟 E-System &nbsp;Open System</a>' +
+      '</td></tr></table>' +
+      trkP_('若按鈕無法點擊，請複製此連結 If the button does not work, copy this link:<br><a href="' + SYSTEM_URL + '" style="color:#166534;' + TRK_FONT + '">' + SYSTEM_URL + '</a>', 'font-size:10px;color:#94a3b8;margin-top:12px;line-height:1.6;') +
+    '</td></tr>' +
+    // 頁尾
+    '<tr><td bgcolor="#f8fafc" class="pad" style="background-color:#f8fafc;border-top:1px solid #e5e9ef;padding:14px 28px;">' +
+      trkP_('此信件由 Environmental E-System 於每週一 09:00 自動寄出，收件者可在系統「追蹤事項 → 📧 週報寄送設定」調整。<br>Automated weekly digest · NMDC Energy EHS Department', 'font-size:11px;color:#94a3b8;line-height:1.6;') +
+    '</td></tr>' +
+    '</table>' +
+    '<!--[if mso]></td></tr></table><![endif]-->' +
+    '</td></tr></table></body></html>';
+
+  var subject = '【追蹤事項週報】' + today + '｜待辦 ' + total + ' 項' +
+                (overdue.length ? '（逾期 ' + overdue.length + '）' : '') +
+                (ncr.length ? '｜改善單 ' + ncr.length + ' 筆' : '');
+  return { subject: subject, html: html, total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length };
+}
+
+// ── 寄送 ──
+function sendTrackerMail_(testTo) {
+  var mc = getMailConfig_();
+  var to = normalizeMails_(testTo);
+  var cc = '';
+  if (!to) {
+    if (!mc.enabled) return { ok: false, error: '週報寄送已停用（請到設定頁啟用）' };
+    to = normalizeMails_(mc.to);
+    cc = normalizeMails_(mc.cc);
+    if (!to) return { ok: false, error: '尚未設定收件者' };
+  }
+  var m = buildTrackerMail_();
+  var opt = { to: to, subject: (testTo ? '【測試】' : '') + m.subject, htmlBody: m.html, name: mc.senderName };
+  if (cc) opt.cc = cc;
+  MailApp.sendEmail(opt);
+  var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
+  Logger.log('追蹤事項週報已寄出 → ' + to + (cc ? ' (cc ' + cc + ')' : '') + '；待辦 ' + m.total + '，逾期 ' + m.overdue);
+  return { ok: true, to: to, cc: cc, subject: opt.subject, total: m.total, overdue: m.overdue, thisWeek: m.thisWeek, ncr: m.ncr, quota: quota };
+}
+
+// 觸發器呼叫的函式（每週一 09:00）
+function weeklyTrackerMail() {
+  var r = sendTrackerMail_('');
+  if (!r.ok) Logger.log('weeklyTrackerMail 未寄出：' + r.error);
+  return r;
+}
+
+// 在編輯器手動執行一次即可（會先清掉舊的同名觸發器，可重複執行）
+function setupTrackerMailTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'weeklyTrackerMail') ScriptApp.deleteTrigger(t);
+  });
+  ScriptApp.newTrigger('weeklyTrackerMail')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.MONDAY)
+    .atHour(9)
+    .nearMinute(0)
+    .inTimezone(MAIL_TZ)
+    .create();
+  Logger.log('✅ 已安裝觸發器：每週一 09:00（台北時間）寄出追蹤事項週報');
+  return '✅ 已安裝觸發器：每週一 09:00（台北時間）寄出追蹤事項週報';
+}
+
+function listTrackerMailTriggers() {
+  var s = ScriptApp.getProjectTriggers().map(function(t){ return t.getHandlerFunction() + ' / ' + t.getEventType(); }).join('\n');
+  Logger.log(s || '（目前沒有任何觸發器）');
+  return s;
+}
+
+// 在編輯器執行：寄一封測試信給自己（Apps Script 擁有者）
+function testTrackerMailToMe() {
+  return sendTrackerMail_(Session.getEffectiveUser().getEmail());
 }
