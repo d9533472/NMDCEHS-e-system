@@ -1193,49 +1193,63 @@ function trkSpacer_(px) {
   return '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td height="' + px + '" bgcolor="#ffffff" style="background-color:#ffffff;height:' + px + 'px;font-size:1px;line-height:' + px + 'px;mso-line-height-rule:exactly;">&nbsp;</td></tr></table>';
 }
 function trkSectionTitle_(icon, zh, en, sub, color) {
-  return trkSpacer_(68) + '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+  return trkSpacer_(51) + '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
     '<td bgcolor="#ffffff" style="background-color:#ffffff;border-left:5px solid ' + color + ';padding:2px 0 2px 14px;">' +
       trkP_(icon + ' ' + zh + ' <span style="color:' + color + ';' + TRK_FONT + '">' + en + '</span>', 'font-size:16px;font-weight:bold;color:#0f172a;letter-spacing:.3px;') +
       (sub ? trkP_(sub, 'font-size:11px;color:#64748b;margin-top:3px;') : '') +
     '</td></tr></table>';
 }
-function trkKpiCard_(num, zh, en, color, subZh, subEn, unit, pos, icon, tint) {
+// 卡片配色：主色 → 卡片淡底 / 圖示與狀態膠囊的淡底
+var KPI_TINT = {
+  '#ea580c': { card: '#fffaf6', soft: '#ffe6d3' },
+  '#dc2626': { card: '#fff8f8', soft: '#fee2e2' },
+  '#16a34a': { card: '#f7fdf9', soft: '#dcfce7' },
+  '#d97706': { card: '#fffcf5', soft: '#fdeccd' },
+  '#0369a1': { card: '#f6faff', soft: '#dbeafe' }
+};
+function trkKpiCard_(num, zh, en, color, subZh, subEn, unit, pos, icon, okColor) {
   var pad = pos === 'first' ? '0 6px 0 0' : pos === 'last' ? '0 0 0 6px' : '0 6px';
   var ok = /^✓/.test(subZh);
-  tint = tint || '#ffffff';
+  var accent = ok && okColor ? okColor : color;        // 狀態良好時圖示與膠囊用綠色
+  var t = KPI_TINT[color] || { card: '#ffffff', soft: '#f1f5f9' };
+  var ta = KPI_TINT[accent] || t;
   return '<td class="stat" width="25%" valign="top" style="padding:' + pad + ';">' +
     '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
-    '<td bgcolor="' + tint + '" style="background-color:' + tint + ';border:1px solid #e2e8f0;border-top:3px solid ' + color + ';padding:14px 14px 12px;">' +
+    '<td bgcolor="' + t.card + '" style="background-color:' + t.card + ';border:1px solid #e2e8f0;padding:14px 12px 12px;">' +
       '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
         '<td valign="top">' +
-          trkP_(zh, 'font-size:12px;font-weight:bold;color:#0f172a;letter-spacing:.4px;') +
-          trkP_(en, 'font-size:8.5px;color:#94a3b8;margin-top:2px;letter-spacing:1px;text-transform:uppercase;line-height:1.4;') +
+          trkP_(zh, 'font-size:12px;font-weight:bold;color:#0f172a;letter-spacing:.2px;white-space:nowrap;') +
+          trkP_(en, 'font-size:8.5px;color:#8a97a8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;line-height:1.4;') +
         '</td>' +
-        '<td width="38" valign="top" align="right" style="padding-left:6px;">' +
-          '<table cellpadding="0" cellspacing="0" border="0" align="right"><tr><td bgcolor="' + color + '" width="34" height="34" align="center" valign="middle" style="background-color:' + color + ';width:34px;height:34px;font-size:17px;line-height:34px;text-align:center;">' + icon + '</td></tr></table>' +
+        '<td width="34" valign="top" align="right" style="padding-left:4px;">' +
+          '<table cellpadding="0" cellspacing="0" border="0" align="right"><tr><td bgcolor="' + ta.soft + '" width="34" height="34" align="center" valign="middle" style="background-color:' + ta.soft + ';width:34px;height:34px;font-size:17px;line-height:34px;text-align:center;">' + icon + '</td></tr></table>' +
         '</td>' +
       '</tr></table>' +
-      trkP_('<span style="font-size:40px;font-weight:bold;line-height:1;color:' + color + ';' + TRK_FONT + '">' + num + '</span>' +
-            '<span style="font-size:12px;color:#94a3b8;padding-left:5px;' + TRK_FONT + '">' + unit + '</span>', 'margin-top:14px;line-height:1;white-space:nowrap;') +
-      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;"><tr><td style="border-top:1px solid ' + color + '33;padding-top:9px;">' +
-        trkP_(subZh, 'font-size:11px;font-weight:bold;color:' + (ok ? '#15803d' : color) + ';white-space:nowrap;') +
-        trkP_(subEn, 'font-size:9.5px;color:#94a3b8;margin-top:2px;white-space:nowrap;') +
+      trkP_('<span style="font-size:42px;font-weight:bold;line-height:1;color:' + color + ';' + TRK_FONT + '">' + num + '</span>' +
+            '<span style="font-size:13px;color:#64748b;padding-left:6px;' + TRK_FONT + '">' + unit + '</span>', 'margin-top:16px;line-height:1;white-space:nowrap;') +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;"><tr><td style="border-top:1px solid #e2e8f0;padding-top:12px;">' +
+        '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + ta.soft + '" style="background-color:' + ta.soft + ';padding:5px 10px;">' +
+          trkP_(subZh, 'font-size:11px;font-weight:bold;color:' + accent + ';white-space:nowrap;') +
+        '</td></tr></table>' +
+        trkP_(subEn, 'font-size:10px;color:#64748b;margin-top:6px;') +
       '</td></tr></table>' +
     '</td></tr></table></td>';
 }
 function trkKpiStrip_(range, cards) {
   var eyebrow = function(zh, en, color) {
-    return '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-bottom:2px solid ' + color + ';padding:0 2px 6px;">' +
-      trkP_(zh + ' <span style="font-weight:normal;color:#94a3b8;font-size:9px;letter-spacing:1.2px;' + TRK_FONT + '">' + en + '</span>', 'font-size:11px;font-weight:bold;color:' + color + ';letter-spacing:.5px;white-space:nowrap;') +
+    return '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-bottom:3px solid ' + color + ';padding:0 2px 6px;">' +
+      trkP_(zh + ' <span style="font-weight:normal;color:#64748b;font-size:10px;letter-spacing:.8px;' + TRK_FONT + '">' + en + '</span>', 'font-size:13px;font-weight:bold;color:' + color + ';letter-spacing:.5px;white-space:nowrap;') +
       '</td></tr></table>';
   };
-  var h = trkSpacer_(60) + '<table width="100%" cellpadding="0" cellspacing="0" border="0">';
+  var h = trkSpacer_(45) + '<table width="100%" cellpadding="0" cellspacing="0" border="0">';
   h += '<tr><td style="padding:0 0 12px;border-bottom:1px solid #e2e8f0;">' +
        '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
-       '<td valign="bottom">' + trkP_('本週摘要', 'font-size:15px;font-weight:bold;color:#0b1f33;letter-spacing:1px;') +
-                                trkP_('WEEKLY SUMMARY', 'font-size:9px;color:#94a3b8;letter-spacing:2.5px;margin-top:2px;') + '</td>' +
-       '<td valign="bottom" align="right">' + trkP_('報告期間 Period', 'font-size:9px;color:#94a3b8;letter-spacing:1px;') +
-                                              trkP_(range.from + ' ~ ' + range.to, 'font-size:12px;font-weight:bold;color:#0b1f33;margin-top:2px;white-space:nowrap;') + '</td>' +
+       '<td valign="middle">' + trkP_('WEEKLY SUMMARY', 'font-size:20px;font-weight:bold;color:#0b1f33;letter-spacing:1.5px;') +
+                                trkP_('本週摘要', 'font-size:11px;color:#64748b;margin-top:2px;letter-spacing:2px;') + '</td>' +
+       '<td valign="middle" align="right">' +
+         '<table cellpadding="0" cellspacing="0" border="0" align="right"><tr><td bgcolor="#f1f5f9" style="background-color:#f1f5f9;border:1px solid #e2e8f0;padding:6px 12px;">' +
+           trkP_('📅&nbsp; ' + range.from + ' ~ ' + range.to, 'font-size:12px;font-weight:bold;color:#0b1f33;white-space:nowrap;') +
+         '</td></tr></table></td>' +
        '</tr></table></td></tr>';
   h += '<tr><td style="padding:16px 0 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
        '<td class="stat" width="25%" style="padding:0 6px 0 0;">' + eyebrow('改善單', 'NCR / WM', '#ea580c') + '</td>' +
@@ -1547,14 +1561,14 @@ function buildTrackerMail_(opts) {
 
   // KPI 卡片
   body += trkKpiStrip_(range, [
-    trkKpiCard_(String(ncr.length), '改善單待處理', 'NCR / WM to handle', '#ea580c',
+    trkKpiCard_(String(ncr.length), '改善單待處理', 'NCR / WM', '#ea580c',
       ncrOverdue.length ? '⚠ 逾期 ' + ncrOverdue.length + ' · 7 天內 ' + ncrSoon.length : (ncr.length ? '7 天內到期 ' + ncrSoon.length + ' 筆' : '✓ 無待處理'),
-      ncrOverdue.length ? ncrOverdue.length + ' overdue · ' + ncrSoon.length + ' due in 7d' : (ncr.length ? ncrSoon.length + ' due within 7 days' : 'Nothing pending'), '筆', 'first', '🛠️', '#fff7ed'),
-    trkKpiCard_(String(overdue.length), '追蹤事項逾期', 'Tracker overdue', '#dc2626',
-      overdue.length ? '⚠ 請優先處理' : '✓ 無逾期', overdue.length ? 'Action needed' : 'All on track', '項', 'mid', '⏰', '#fef2f2'),
+      ncrOverdue.length ? ncrOverdue.length + ' overdue · ' + ncrSoon.length + ' due in 7d' : (ncr.length ? ncrSoon.length + ' due within 7 days' : 'Nothing pending'), '筆', 'first', '🔧', '#16a34a'),
+    trkKpiCard_(String(overdue.length), '追蹤事項逾期', 'Overdue', '#dc2626',
+      overdue.length ? '⚠ 請優先處理' : '✓ 無逾期', overdue.length ? 'Action needed' : 'All on track', '項', 'mid', '🕒', '#16a34a'),
     trkKpiCard_(String(thisWeek.length), '本週到期', 'Due this week', '#d97706',
-      thisWeek.length ? '本週內完成' : '✓ 本週無到期', thisWeek.length ? 'Due within 7 days' : 'Nothing due this week', '項', 'mid', '📅', '#fffbeb'),
-    trkKpiCard_(String(later.length), '排程中', 'Scheduled', '#0369a1', '7 天後到期', 'Due after 7 days', '項', 'last', '📌', '#eff6ff')
+      thisWeek.length ? '本週內完成' : '✓ 本週無到期', thisWeek.length ? 'Due within 7 days' : 'Nothing due this week', '項', 'mid', '📅', '#16a34a'),
+    trkKpiCard_(String(later.length), '排程中', 'Scheduled', '#0369a1', '7 天後到期', 'Due after 7 days', '項', 'last', '📌', '')
   ]);
 
   // 改善單
@@ -1581,7 +1595,7 @@ function buildTrackerMail_(opts) {
 
   // 現場照片
   if (photos.length) {
-    body += trkSectionTitle_('📸', '現場照片', 'Site Photos', '本週環保活動與現場紀錄 · Environmental activities and site records this week', '#0ea5e9');
+    body += trkSectionTitle_('📸', '現場照片', 'Site Photos', '報告期間 ' + range.from + ' ~ ' + range.to + ' 的環保活動與現場紀錄 · Environmental activities and site records for the report period', '#0ea5e9');
     body += trkPhotosHtml_(photos, doTr);
   }
   trFlush_();
