@@ -2443,14 +2443,18 @@ function openOutlookForEmail(){
 
 // ══ 📧 環保部門週報 ENV WEEKLY REPORT：收件者 / 開頭文字 / 現場照片 / KPI 圖 / 由系統寄出 ══
 //    GAS 觸發器：每週一 09:00 自動寄出、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
-let _mailCfg=null,_mcPhotos=[],_mcBusy=false;
+let _mailCfg=null,_mcPhotos=[],_mcBusy=false,_mcNormalizing=false;
 const MC_LOCS=['Taichung','TungHsiao','Project','Offshore','Tienli','Environmental Monitoring'];
 const MC_DEFAULT_INTRO='<p>Dear Chris, Sam</p><p>Please refer to the attached weekly report from the ENV Department for this week.<br>You are also welcome to discuss with us if you have any suggestions or comments.<br>Thank you all for your continued support.</p><p>BR,<br>Paul Tong</p>';
-async function gasGet(action,params){
+async function gasGet(action,params,timeoutMs){
   const q=Object.entries(params||{}).map(([k,v])=>'&'+k+'='+encodeURIComponent(v)).join('');
-  const r=await fetch(GAS_URL+'?action='+action+q+'&_='+Date.now(),{cache:'no-store'});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  return r.json();
+  const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),timeoutMs||90000);
+  try{
+    const r=await fetch(GAS_URL+'?action='+action+q+'&_='+Date.now(),{cache:'no-store',signal:ac.signal});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    return await r.json();
+  }catch(e){if(e&&e.name==='AbortError')throw new Error('等待 GAS 回應逾時');throw e;}
+  finally{clearTimeout(tm);}
 }
 async function gasPost(obj){
   const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(obj)});
@@ -2467,7 +2471,7 @@ function mailCfgFromForm(){
   return {enabled:$('inMcEnabled').checked,to:$('inMcTo').value.trim(),cc:$('inMcCc').value.trim(),senderName:$('inMcName').value.trim(),
     intro:$('inMcIntro').innerHTML.trim(),translate:$('inMcTranslate').checked,
     reminderEnabled:$('inMcRemind').checked,reminderTo:$('inMcRemindTo').value.trim(),
-    photos:_mcPhotos.map(p=>({fileId:p.fileId,url:p.url,title:p.title||'',location:p.location||'',date:p.date||'',uploadedAt:p.uploadedAt||''}))};
+    photos:_mcPhotos.map(p=>({fileId:p.fileId,url:p.url,title:p.title||'',location:p.location||'',date:p.date||'',uploadedAt:p.uploadedAt||'',framed:!!p.framed}))};
 }
 function fillMailCfgForm(c){
   $('inMcEnabled').checked=c.enabled!==false;$('inMcTo').value=c.to||'';$('inMcCc').value=c.cc||'';$('inMcName').value=c.senderName||'';
@@ -2523,23 +2527,24 @@ function renderMcPhotos(){
 // 舊照片（沒有 framed 旗標）：從 Drive 抓回來 → 放進 16:9 畫框 → 重新上傳 → 取代清單裡的檔案（舊檔會在儲存時移到垃圾桶）
 async function normalizeMcPhotos(){
   const todo=_mcPhotos.map((p,i)=>[p,i]).filter(([p])=>p.fileId&&!p.framed);
-  if(!todo.length||_mcBusy)return;
-  _mcBusy=true;let done=0;
+  if(!todo.length||_mcNormalizing)return;
+  _mcNormalizing=true;let done=0,n=0;
   try{
     for(const [p,i] of todo){
-      setMailCfgStatus(`⏳ 整理舊照片成 16:9（${done+1}/${todo.length}）：${p.title||''}`);
+      n++;setMailCfgStatus(`⏳ 背景整理舊照片成 16:9（${n}/${todo.length}）：${p.title||''}（不影響新增照片）`);
       try{
-        const d=await gasGet('photoData',{id:p.fileId});
+        const d=await gasGet('photoData',{id:p.fileId},60000);
         if(!d||!d.ok)throw new Error((d&&d.error)||'讀取失敗');
         const framedUrl=await fitImage16x9(d.dataUrl,1280,720,0.86);
         const name='weekly-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'.jpg';
         const u=await uploadWeeklyFile('uploadWeeklyPhoto',name,framedUrl);
-        const cur=_mcPhotos[i];if(cur&&cur.fileId===p.fileId){Object.assign(cur,{fileId:u.photo.fileId,url:u.photo.url,framed:true});}
+        const cur=_mcPhotos.find(x=>x.fileId===p.fileId);if(cur){Object.assign(cur,{fileId:u.photo.fileId,url:u.photo.url,framed:true});}
         done++;
       }catch(e){console.warn('normalize photo:',e);}
     }
-    if(done){renderMcPhotos();await saveMailCfg(true);setMailCfgStatus(`✅ 已把 ${done} 張舊照片整理成 16:9，信件裡會等高顯示`,'ok');}
-  }finally{_mcBusy=false;}
+    if(done){renderMcPhotos();if(!_mcBusy)await saveMailCfg(true);setMailCfgStatus(`✅ 已把 ${done} 張舊照片整理成 16:9，信件裡會等高顯示`,'ok');}
+    else if(todo.length)setMailCfgStatus('⚠️ 舊照片整理失敗（可能已被移除或 Drive 讀不到），不影響新增照片','err');
+  }finally{_mcNormalizing=false;}
 }
 function mcLocSel(i,sel){const inp=sel.nextElementSibling;if(sel.value==='__other'){inp.style.display='';_mcPhotos[i].location=inp.value.trim();inp.focus();}else{inp.style.display='none';inp.value='';_mcPhotos[i].location=sel.value;}}
 function mcPhotoMove(i,dir){const j=i+dir;if(j<0||j>=_mcPhotos.length)return;[_mcPhotos[i],_mcPhotos[j]]=[_mcPhotos[j],_mcPhotos[i]];renderMcPhotos();}
