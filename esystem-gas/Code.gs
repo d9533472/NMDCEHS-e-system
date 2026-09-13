@@ -117,6 +117,14 @@ function saveAllData(payload) {
   var keys = Object.keys(STORAGE);
   var updates = [];
 
+  // 安全閥：payload 裡連一個資料欄位都沒有 → 一定不是前端的正常存檔，拒絕寫入以免整包清空
+  var present = keys.filter(function(k){ return payload && payload[k] !== undefined; });
+  if (!present.length) throw new Error('saveAllData 拒絕寫入：請求內沒有任何資料欄位（' + keys.join('/') + '）');
+  // 主要清單（tasks / bulletins / documents / sections）若全部同時為空，也拒絕（正常使用不會一次全清）
+  var core = ['tasks','bulletins','documents','sections'];
+  var allCoreEmpty = core.every(function(k){ var v = payload[k]; return v === undefined || v === null || (Array.isArray(v) && v.length === 0); });
+  if (allCoreEmpty) throw new Error('saveAllData 拒絕寫入：tasks／bulletins／documents／sections 全部為空，疑似誤送空資料');
+
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     var val = payload[key];
@@ -444,6 +452,9 @@ function doPost(e) {
     if (payload.action === 'publishRoster')   return handlePublishRoster_(payload);
     if (payload.action === 'saveRosterState') return saveRosterState_(payload);
     if (payload.action === 'loadRosterState') return loadRosterState_(payload);
+    // ⚠️ 只有「沒有 action、且帶有實際資料欄位」的請求才會存整包資料。
+    //    2026-09-13 曾因一個未知 action 的測試請求落到這裡，把 A1:A18 全部清空（靠版本記錄還原）。
+    if (payload.action) return jsonOut_({ ok: false, error: 'Unknown action: ' + payload.action });
     var result = saveAllData(payload);
     return jsonOut_(result);
   } catch(err) {
