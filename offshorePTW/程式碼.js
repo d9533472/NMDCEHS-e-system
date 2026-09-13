@@ -15215,7 +15215,11 @@ function renderStepContent(){
       '<h6 class="mt-3">📎 '+(lang==='zh'?'附件上傳（Method Statement、JSA/RA、圖面、證照、照片…）':'Attachments (Method Statement, JSA/RA, drawings, licences, photos…)')+'</h6>'+
       (function(){
         var uCo=getUser()||{};
-        var canCoUpload=!cur.editable&&cur.applicantUserId===uCo.id&&
+        // 與生命週期列「完工申報」同一規則：申請人、同公司人員、Tier 5、管理員皆可補上傳結案附件
+        // （後端 attach.upload 只檢查 assertCanViewPtw；若只限申請人，同事代為關單時會無處上傳必附文件）
+        var uCoOk=(cur.applicantUserId===uCo.id)||asB(uCo.isAdmin)||Number(uCo.tier)===5||
+          (cur.companyId&&cur.companyId===uCo.companyId);
+        var canCoUpload=!cur.editable&&uCoOk&&
           ['Approved','Active','Extended','Suspended','Expired','WorkCompleted','PendingCloseout'].indexOf(cur.status)>=0;
         if(!canCoUpload) return '';
         var opt=function(v,l){ return '<option value="'+v+'">'+l+'</option>'; };
