@@ -2443,27 +2443,43 @@ function openOutlookForEmail(){
 
 // ══ 📧 環保部門週報 ENV WEEKLY REPORT：收件者 / 開頭文字 / 現場照片 / KPI 圖 / 由系統寄出 ══
 //    GAS 觸發器：每週一 09:00 自動寄出、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
-let _mailCfg=null,_mcPhotos=[],_mcBusy=false,_mcNormalizing=false;
+let _mailCfg=null,_mcPhotos=[],_mcBusy=false,_mcNormalizing=false,_mailCfgErr='';
 const MC_LOCS=['Taichung','TungHsiao','Project','Offshore','Tienli','Environmental Monitoring'];
 const MC_DEFAULT_INTRO='<p>Dear Chris, Sam</p><p>Please refer to the attached weekly report from the ENV Department for this week.<br>You are also welcome to discuss with us if you have any suggestions or comments.<br>Thank you all for your continued support.</p><p>BR,<br>Paul Tong</p>';
+// GAS 的 /exec 會轉址到 googleusercontent，Google 端偶爾會回 404／429／5xx（不是程式錯），遇到就等一下再試
+const GAS_RETRY_CODES=[404,408,429,500,502,503,504];
+const _sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function gasGet(action,params,timeoutMs){
   const q=Object.entries(params||{}).map(([k,v])=>'&'+k+'='+encodeURIComponent(v)).join('');
-  const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),timeoutMs||90000);
-  try{
-    const r=await fetch(GAS_URL+'?action='+action+q+'&_='+Date.now(),{cache:'no-store',signal:ac.signal});
-    if(!r.ok)throw new Error('HTTP '+r.status);
-    return await r.json();
-  }catch(e){if(e&&e.name==='AbortError')throw new Error('等待 GAS 回應逾時');throw e;}
-  finally{clearTimeout(tm);}
+  let lastErr=null;
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt)await _sleep(1500*attempt);
+    const ac=new AbortController();const tm=setTimeout(()=>ac.abort(),timeoutMs||90000);
+    try{
+      const r=await fetch(GAS_URL+'?action='+action+q+'&_='+Date.now()+'_'+attempt,{cache:'no-store',signal:ac.signal});
+      if(!r.ok){lastErr=new Error('HTTP '+r.status);if(GAS_RETRY_CODES.includes(r.status))continue;throw lastErr;}
+      return await r.json();
+    }catch(e){
+      if(e&&e.name==='AbortError')throw new Error('等待 GAS 回應逾時');
+      if(e instanceof TypeError){lastErr=e;continue;}   // 網路層錯誤也重試
+      throw e;
+    }finally{clearTimeout(tm);}
+  }
+  throw new Error((lastErr&&lastErr.message||'GAS 無回應')+'（已重試 3 次）');
 }
 async function gasPost(obj){
-  const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(obj)});
-  if(!r.ok)throw new Error('HTTP '+r.status);
-  return r.json();
+  const body=JSON.stringify(obj);let lastErr=null;
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt)await _sleep(1500*attempt);
+    const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body});
+    if(!r.ok){lastErr=new Error('HTTP '+r.status);if(GAS_RETRY_CODES.includes(r.status))continue;throw lastErr;}
+    return r.json();
+  }
+  throw new Error((lastErr&&lastErr.message||'GAS 無回應')+'（已重試 3 次）');
 }
 async function loadMailCfg(){
   if(!GAS_URL)return null;
-  try{const d=await gasGet('mailConfig');if(d&&d.ok){_mailCfg=d.config;return _mailCfg;}}catch(e){console.warn('mailConfig:',e);}
+  try{const d=await gasGet('mailConfig');if(d&&d.ok){_mailCfg=d.config;return _mailCfg;}_mailCfgErr=(d&&d.error)||'後端回應格式不對';}catch(e){console.warn('mailConfig:',e);_mailCfgErr=e.message;}
   return null;
 }
 function setMailCfgStatus(msg,type){const el=$('mcStatus');if(!el)return;el.textContent=msg||'';el.style.color=type==='err'?'var(--danger)':type==='ok'?'var(--accent2)':'var(--muted)';}
@@ -2488,7 +2504,7 @@ async function showMailCfgM(){
   setMailCfgStatus('讀取雲端設定中…');
   const c=await loadMailCfg();
   if(c){fillMailCfgForm(c);setMailCfgStatus(c.saved?'已載入雲端設定':'尚未儲存過，目前顯示的是預設值，請確認後按「儲存設定」');normalizeMcPhotos();}
-  else setMailCfgStatus('⚠️ 無法讀取設定：GAS 後端可能尚未更新到含週報模組的版本','err');
+  else setMailCfgStatus('⚠️ 無法讀取週報設定：'+(_mailCfgErr||'GAS 無回應')+'。這通常是 Google 端暫時性問題，請關閉視窗後再開一次；若一直失敗，請確認 GAS 已部署含週報模組的版本','err');
 }
 function rteCmdW(cmd,val){$('inMcIntro').focus();document.execCommand(cmd,false,val||null);}
 function resetMcIntro(){if(confirm('還原成預設的開頭文字？'))$('inMcIntro').innerHTML=MC_DEFAULT_INTRO;}
@@ -2551,15 +2567,34 @@ function mcPhotoMove(i,dir){const j=i+dir;if(j<0||j>=_mcPhotos.length)return;[_m
 function mcPhotoDel(i){if(!confirm('移除這張照片？（儲存設定後才會生效）'))return;_mcPhotos.splice(i,1);renderMcPhotos();}
 function fileToDataUrl(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
 async function uploadWeeklyFile(action,fileName,dataUrl,extra){
-  // 主要走可讀回應的 POST；若瀏覽器讀不到回應（CORS），退回「no-cors 送出 + 依檔名查詢」
-  try{const d=await gasPost(Object.assign({action,fileName,dataUrl},extra||{}));if(d&&d.ok)return d;throw new Error((d&&d.error)||'上傳失敗');}
-  catch(e){
-    if(!(e instanceof TypeError))throw e;
-    fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(Object.assign({action,fileName,dataUrl},extra||{}))});
-    let last='';
-    for(let i=0;i<8;i++){await new Promise(r=>setTimeout(r,2500));try{const d=await gasGet('findWeeklyFile',{name:fileName});if(d&&d.ok)return action==='uploadKpiSummary'?{ok:true,kpi:{fileId:d.fileId,url:d.url,name:fileName,uploadedAt:new Date().toISOString()}}:{ok:true,photo:{fileId:d.fileId,url:d.url,name:fileName,uploadedAt:new Date().toISOString()}};last=(d&&d.error)||'';}catch(e2){last=e2.message;}}
-    throw new Error(last||'上傳逾時');
+  // 流程：POST 讀回應 → 若 Google 端回 404 等暫時性錯誤或瀏覽器讀不到回應（CORS），
+  //      先依檔名到 Drive 查（轉址階段失敗時檔案其實已存好）→ 查不到才重送，最多 3 輪，避免重複檔
+  const body=JSON.stringify(Object.assign({action,fileName,dataUrl},extra||{}));
+  const wrap=d=>action==='uploadKpiSummary'
+    ?{ok:true,kpi:{fileId:d.fileId,url:d.url,name:fileName,uploadedAt:new Date().toISOString()}}
+    :{ok:true,photo:{fileId:d.fileId,url:d.url,name:fileName,uploadedAt:new Date().toISOString()}};
+  const findIt=async(tries)=>{
+    for(let i=0;i<tries;i++){await _sleep(2500);try{const d=await gasGet('findWeeklyFile',{name:fileName},30000);if(d&&d.ok)return wrap(d);}catch(e){}}
+    return null;
+  };
+  let last='';
+  for(let attempt=0;attempt<3;attempt++){
+    if(attempt)await _sleep(1500);
+    try{
+      const r=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body});
+      if(r.ok){const d=await r.json();if(d&&d.ok)return d;throw new Error((d&&d.error)||'上傳失敗');}   // GAS 自己回報的錯誤：不重試
+      last='HTTP '+r.status;
+      if(!GAS_RETRY_CODES.includes(r.status))throw new Error(last);
+    }catch(e){
+      if(!(e instanceof TypeError))throw e;
+      // 讀不到回應（CORS）：用 no-cors 送一次再用檔名查
+      last=e.message;
+      fetch(GAS_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body}).catch(()=>{});
+    }
+    const found=await findIt(attempt===0?3:5);
+    if(found)return found;
   }
+  throw new Error((last||'上傳逾時')+'（已重試 3 次，請稍後再試）');
 }
 function addMcPhotos(){$('mcPhotoInput').click();}
 async function handleMcPhotos(input){
