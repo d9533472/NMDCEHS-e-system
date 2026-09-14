@@ -2245,6 +2245,18 @@ var UserService = (function () {
     });
   }
 
+  /** Admin：替指定使用者上傳／更換簽名檔 */
+  function updateSignatureByAdmin(user, payload) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['userId', 'signatureBase64']);
+    var target = mustGet_(payload.userId);
+    var fid = DriveService.saveAccountSignature(payload.signatureBase64, target.email);
+    if (target.signatureFileId) { try { DriveApp.getFileById(target.signatureFileId).setTrashed(true); } catch (e) {} }
+    Repo.update('Users', target.id, { signatureFileId: fid }, user.id);
+    AuditService.log({ user: user, actionType: 'SIGNATURE_UPDATE_BY_ADMIN', entityType: 'User', entityId: target.id, success: true });
+    return ok_({ updated: true });
+  }
+
   /** 使用者更新自己的簽名檔 */
   function updateSignature(user, payload) {
     requireFields_(payload, ['signatureBase64']);
@@ -2295,7 +2307,7 @@ var UserService = (function () {
     disable: disable, enable: enable, unlock: unlock, deleteUser: deleteUser,
     resetPasswordByAdmin: resetPasswordByAdmin, setDelegation: setDelegation, exportList: exportList,
     myProfile: myProfile, requestProfileChange: requestProfileChange, cancelProfileChange: cancelProfileChange,
-    detail: detail, updateSignature: updateSignature,
+    detail: detail, updateSignature: updateSignature, updateSignatureByAdmin: updateSignatureByAdmin,
     profileRequestList: profileRequestList, profileRequestApprove: profileRequestApprove,
     profileRequestReject: profileRequestReject
   };
@@ -8802,6 +8814,7 @@ function routes_() {
     'user.enable':  function (u, p) { return UserService.enable(u, p); },
     'user.unlock':  function (u, p) { return UserService.unlock(u, p); },
     'user.resetPasswordByAdmin': function (u, p) { return UserService.resetPasswordByAdmin(u, p); },
+    'user.updateSignatureByAdmin': function (u, p) { return UserService.updateSignatureByAdmin(u, p); },
     'user.setDelegation':        function (u, p) { return UserService.setDelegation(u, p); },
     'user.export':  function (u) { return UserService.exportList(u); },
 
@@ -10805,6 +10818,19 @@ function createQuickAdmin() {
   console.log(ensureQuickAdmin_());
 }
 
+/** 把快速管理員 admin 的密碼重設回 admin（繞過密碼強度政策；在編輯器直接執行本函式即可） */
+function resetQuickAdminPassword() {
+  var existing = Repo.findOne('Users', function (u) { return normEmail_(u.email) === 'admin'; });
+  if (!existing) { var msg0 = ensureQuickAdmin_(); console.log(msg0); return msg0; }
+  var salt = randomToken_(32);
+  Repo.update('Users', existing.id, {
+    passwordSalt: salt, passwordHash: hashPassword_('admin', salt), hashIter: CFG.HASH_ITERATIONS,
+    mustChangePassword: false, failedLoginCount: 0, status: 'Active', lockedUntil: ''
+  }, 'setup');
+  console.log('✅ admin 密碼已重設為 admin');
+  return '✅ admin 密碼已重設為 admin';
+}
+
 /** 測試管理員帳號（testnmdc / testnmdc）— 具 Admin 權限；重複執行不重建，密碼固定回復為 testnmdc */
 function ensureTestNmdcAdmin_() {
   try {
@@ -12563,8 +12589,42 @@ function openUserEdit(uid){
     '<div class="d-flex gap-2 mt-3 justify-content-end">'+
     '<button class="btn btn-sm btn-outline-secondary" onclick="closeUserEdit()">'+(Z?'取消':'Cancel')+'</button>'+
     '<button class="btn btn-sm btn-navy" onclick="saveUserEdit(\\''+r.id+'\\')">💾 '+(Z?'儲存':'Save')+'</button>'+
-    '</div></div></div>';
+    '</div>'+
+    '<hr class="my-3">'+
+    '<h6 class="mb-2">✍️ '+(Z?'簽名檔':'Signature')+'</h6>'+
+    '<div class="d-flex gap-3 flex-wrap align-items-start">'+
+      '<div><div class="small text-muted mb-1">'+(Z?'目前簽名：':'Current:')+'</div>'+
+        '<img id="ueSigImg" style="max-height:70px;border:1px dashed #ccc;border-radius:6px;padding:4px;display:none">'+
+        '<span id="ueSigNone" class="text-muted small">'+(Z?'讀取中…':'Loading…')+'</span></div>'+
+      '<div class="flex-grow-1">'+
+        '<div class="d-flex gap-2 flex-wrap align-items-center">'+
+          '<input type="file" id="ueSigFile" accept="image/*" class="form-control form-control-sm" style="max-width:220px" onchange="sigLoadImage(this,\\'ue\\')">'+
+          '<button type="button" class="btn btn-sm btn-outline-primary" id="ueSigBtn" onclick="sigRemoveBg(\\'ue\\')" disabled>'+T('sig.removeBg')+'</button>'+
+          '<button type="button" class="btn btn-sm btn-navy" onclick="ueSaveSignature(\\''+r.id+'\\')">💾 '+(Z?'更新簽名':'Update signature')+'</button>'+
+        '</div>'+
+        '<div id="ueSigMsg" class="small text-muted mt-1"></div>'+
+        '<canvas id="ueSigCanvas" width="480" height="180" class="d-none mt-2" style="border:1px dashed #9ec5e8;border-radius:6px;max-width:100%;background:repeating-conic-gradient(#f2f2f2 0% 25%,#fff 0% 50%) 50%/16px 16px"></canvas>'+
+      '</div>'+
+    '</div>'+
+    '</div></div>';
   document.body.insertAdjacentHTML('beforeend',html);
+  sigState.ue=null;
+  api('user.detail',{userId:uid}).then(function(res){
+    var img=$('ueSigImg'),none=$('ueSigNone'); if(!img||!none) return;
+    var sig=res.ok?res.data.signatureBase64:'';
+    if(sig){ img.src='data:image/png;base64,'+sig; img.style.display=''; none.style.display='none'; }
+    else { img.style.display='none'; none.textContent=(lang==='zh'?'尚未上傳簽名檔':'No signature on file'); none.style.display=''; }
+  });
+}
+function ueSaveSignature(uid){
+  if(!sigState.ue||!sigState.ue.cleaned){ toast(T('sig.required')); return; }
+  api('user.updateSignatureByAdmin',{userId:uid,signatureBase64:sigState.ue.dataUrl.split(',')[1]}).then(function(res){
+    if(!res.ok){ toast(apiMsg(res)); return; }
+    toast('✅ '+(lang==='zh'?'簽名已更新':'Signature updated'),true);
+    var img=$('ueSigImg'),none=$('ueSigNone');
+    if(img){ img.src=sigState.ue.dataUrl; img.style.display=''; }
+    if(none) none.style.display='none';
+  });
 }
 function closeUserEdit(){ var m=$('userEditModal'); if(m) m.remove(); }
 function saveUserEdit(uid){
@@ -13836,8 +13896,10 @@ function showUserDetail(id){
       '<button class="btn btn-sm btn-outline-secondary" onclick="$(\\'udModal\\').remove()">✕</button></div>'+
       '<table class="table table-sm small">'+rows.map(function(r){
         return '<tr><th style="width:36%">'+esc(r[0])+'</th><td>'+esc(r[1]==null?'':r[1])+'</td></tr>';}).join('')+'</table>'+
-      (res.data.signatureBase64?'<div class="small text-muted">'+(lang==='zh'?'簽名檔':'Signature')+':</div>'+
-        '<img src="data:image/png;base64,'+res.data.signatureBase64+'" style="max-height:60px;border:1px dashed #ccc;border-radius:6px;padding:3px">':'')+
+      '<div class="small text-muted">'+(lang==='zh'?'簽名檔':'Signature')+':</div>'+
+      (res.data.signatureBase64
+        ?'<img src="data:image/png;base64,'+res.data.signatureBase64+'" style="max-height:60px;border:1px dashed #ccc;border-radius:6px;padding:3px">'
+        :'<span class="text-muted small">'+(lang==='zh'?'尚未上傳簽名檔（可在 ✏️ 編輯視窗代為上傳）':'No signature on file (upload via the ✏️ edit dialog)')+'</span>')+
       '</div></div>';
     document.body.insertAdjacentHTML('beforeend',h);
   });
