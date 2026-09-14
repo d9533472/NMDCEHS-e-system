@@ -98,11 +98,14 @@ var CFG = {
   }
 };
 
+/** NMDC 施工部門（Tier 3）所屬部門選項 */
+var NMDC_DEPARTMENTS = ['NMDC D&M', 'NMDC Energy'];
+
 /** 所有工作表結構（首列欄名）。initSystem() 依此建表。 */
 var SHEETS = {
   Users: ['id','email','nameZh','nameEn','companyId','title','phone','vessel','tier','isAdmin','badgeNo',
           'passwordHash','passwordSalt','hashIter','signatureFileId','status','failedLoginCount','lockedUntil','mustChangePassword',
-          'applyReason','appliedTier','trainingPassedAt','trainingValidUntil','langPref','isTestUser','isHse',
+          'applyReason','appliedTier','trainingPassedAt','trainingValidUntil','langPref','isTestUser','isHse','department',
           'createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Companies: ['id','nameZh','nameEn','type','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Roles: ['id','code','nameZh','nameEn','pickerFilter','createdAt','createdBy','updatedAt','updatedBy','isActive'],
@@ -134,7 +137,7 @@ var SHEETS = {
   PTW_Attachments: ['id','ptwId','certificateId','fileName','driveFileId','fileUrl','fileType','fileSizeBytes',
                     'category','uploadedBy','uploadedAt','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PTW_Approvals: ['id','ptwId','version','tier','action','reviewerUserId','comment','returnReason','signatureId',
-                  'sessionId','userAgent','clientInfo','decidedAt','createdAt','createdBy','updatedAt','updatedBy','isActive'],
+                  'sessionId','userAgent','clientInfo','decidedAt','msRaReviewed','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PTW_Comments: ['id','ptwId','userId','tier','comment','timestamp','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PTW_StatusHistory: ['id','ptwId','fromStatus','toStatus','byUserId','reason','timestamp',
                       'createdAt','createdBy','updatedAt','updatedBy','isActive'],
@@ -1726,6 +1729,14 @@ var AuthService = (function () {
     if (isNaN(appliedTier) || appliedTier < 1 || appliedTier > 5) {
       throw ApiError_('BAD_TIER', 'Applied tier must be 1–5', '申請層級須為 Tier 1–5');
     }
+    // Tier 3 施工部門：須選擇所屬部門（NMDC D&M / NMDC Energy）
+    var department = String(payload.department || '').trim();
+    if (appliedTier === 3) {
+      if (NMDC_DEPARTMENTS.indexOf(department) < 0) {
+        throw ApiError_('DEPT_REQUIRED', 'Tier 3 must select a department (NMDC D&M / NMDC Energy)',
+          'Tier 3 施工部門請選擇所屬部門（NMDC D&M／NMDC Energy）');
+      }
+    } else department = '';
     if (payload.password !== payload.confirmPassword) {
       throw ApiError_('PASSWORD_MISMATCH', 'Passwords do not match', '兩次密碼輸入不一致');
     }
@@ -1750,6 +1761,7 @@ var AuthService = (function () {
       tier: '', isAdmin: false, badgeNo: payload.badgeNo || '',
       passwordSalt: salt, passwordHash: hashPassword_(String(payload.password), salt), hashIter: CFG.HASH_ITERATIONS,
       status: 'PendingApproval', failedLoginCount: 0, mustChangePassword: false, isHse: asBool_(payload.isHse),
+      department: department,
       applyReason: payload.applyReason, appliedTier: payload.appliedTier, langPref: 'en'
     }, 'self-apply');
     AuditService.log({ userName: email, actionType: 'ACCOUNT_APPLY', entityType: 'User', entityId: user.id, success: true });
@@ -1843,7 +1855,7 @@ var AuthService = (function () {
       id: u.id, email: u.email, nameZh: u.nameZh, nameEn: u.nameEn,
       companyId: u.companyId, title: u.title, phone: u.phone, vessel: u.vessel,
       tier: Number(u.tier || 0), isAdmin: asBool_(u.isAdmin), badgeNo: u.badgeNo,
-      langPref: u.langPref || 'en'
+      langPref: u.langPref || 'en', department: u.department || ''
     };
   }
 
@@ -1957,7 +1969,7 @@ var UserService = (function () {
       companyId: payload.companyId, title: payload.title, phone: payload.phone || '',
       vessel: payload.vessel || '', tier: Number(payload.tier),
       isAdmin: asBool_(payload.isAdmin) && Number(payload.tier) === 5,
-      badgeNo: payload.badgeNo || '',
+      badgeNo: payload.badgeNo || '', department: String(payload.department || ''),
       passwordSalt: salt, passwordHash: hashPassword_(String(payload.password), salt), hashIter: CFG.HASH_ITERATIONS,
       status: 'Active', failedLoginCount: 0, mustChangePassword: true, langPref: 'en'
     }, user.id);
@@ -1970,7 +1982,7 @@ var UserService = (function () {
     SecurityService.requireAdmin(user);
     requireFields_(payload, ['userId']);
     var target = mustGet_(payload.userId);
-    var allowed = ['nameZh', 'nameEn', 'companyId', 'title', 'phone', 'vessel', 'tier', 'badgeNo', 'isAdmin', 'langPref', 'isHse'];
+    var allowed = ['nameZh', 'nameEn', 'companyId', 'title', 'phone', 'vessel', 'tier', 'badgeNo', 'isAdmin', 'langPref', 'isHse', 'department'];
     var patch = {};
     allowed.forEach(function (k) { if (payload[k] !== undefined) patch[k] = payload[k]; });
     if (patch.tier !== undefined) {
@@ -2483,7 +2495,7 @@ var TestModeService = (function () {
     });
     AuditService.log({ user: user, actionType: 'TESTMODE_ENABLE', entityType: 'System',
       comment: 'created=' + created, success: true });
-    try { ensureExamplePtw_(); } catch (e) { console.error('example ptw failed: ' + e.message); }
+    // Example-001 範例 PTW 不再自動建立（2026-09-14 業主要求清除）
     return personas(user);
   }
 
@@ -2642,8 +2654,32 @@ var TestModeService = (function () {
     return ok_({ reset: true, keptAdmin: KEEP_ADMIN_EMAIL });
   }
 
+  /** 清除全部 PTW 並將編號歸零（保留帳號、公司、訓練／考試紀錄、題庫、設定）— 測試結束後使用 */
+  function clearAllPtws(user, payload) {
+    SecurityService.requireAdmin(user);
+    if (String(payload && payload.confirm) !== 'CLEAR') {
+      throw ApiError_('CONFIRM_REQUIRED', 'Type CLEAR to confirm', '請輸入 CLEAR 以確認執行');
+    }
+    var n = 0;
+    Repo.readAll('PTW_Master').forEach(function (p) {
+      n++;
+      if (p.driveFolderId) { try { DriveApp.getFolderById(p.driveFolderId).setTrashed(true); } catch (e) {} }
+    });
+    ['PTW_Master', 'PTW_Hazards', 'PTW_GasTests', 'PTW_Certificates',
+     'Cert_HotWork', 'Cert_ColdWork', 'Cert_ElectricalIso', 'Cert_ProcessIso',
+     'Cert_ConfinedSpace', 'Cert_Excavation', 'Cert_Radiography', 'Cert_Diving',
+     'PTW_Attachments', 'PTW_Approvals', 'PTW_Comments', 'PTW_StatusHistory',
+     'PTW_Versions', 'PTW_Signatures', 'PTW_Revalidations'
+    ].forEach(function (nm) { try { Repo.removeWhere(nm, function () { return true; }); } catch (e) { console.error('clearPtws ' + nm + ': ' + e.message); } });
+    try { Repo.removeWhere('Notifications', function (x) { return !!x.ptwId; }); } catch (e) {}
+    try { Repo.removeWhere('Sequences', function () { return true; }); } catch (e) {}
+    AuditService.log({ user: user, actionType: 'PTW_CLEAR_ALL', entityType: 'System',
+      comment: 'PTWs wiped=' + n + '; numbering restarted from 0001', success: true });
+    return ok_({ cleared: n });
+  }
+
   return { enable: enable, personas: personas, impersonate: impersonate, reset: reset,
-    factoryReset: factoryReset };
+    factoryReset: factoryReset, clearAllPtws: clearAllPtws };
 })();
 
 /* ============================== DashboardService.gs ============================== */
@@ -3494,8 +3530,9 @@ var PTWService = (function () {
   }
 
   function requireTrainedTier1_(user) {
-    if (Number(user.tier) !== 1 && !asBool_(user.isAdmin)) {
-      throw ApiError_('FORBIDDEN', 'Only Tier 1 (Contractor Applicant) can create a PTW', '僅 Tier 1 承商申請者可建立 PTW');
+    var t0 = Number(user.tier);
+    if (t0 !== 1 && t0 !== 2 && !asBool_(user.isAdmin)) {
+      throw ApiError_('FORBIDDEN', 'Only contractor Tier 1 / Tier 2 can create a PTW', '僅承商 Tier 1／Tier 2 可建立 PTW');
     }
     var valid = (user.trainingValidUntil && user.trainingValidUntil >= fmtDate_()) || asBool_(user.isAdmin);
     if (!valid) {
@@ -3808,18 +3845,27 @@ var PTWService = (function () {
         diffJson: '', submittedAt: fmtDateTime_(), submittedBy: user.id
       }, user.id);
 
-      // (通知) 指定審閱人（選填）：驗證屬於本公司 Tier 2
-      var designated = null;
-      if (payload.reviewerId) {
-        designated = Repo.getById('Users', payload.reviewerId);
-        if (!designated || Number(designated.tier) !== 2 || designated.companyId !== m.companyId ||
-            designated.status !== 'Active' || !asBool_(designated.isActive)) {
-          throw ApiError_('BAD_REVIEWER', 'Selected reviewer is not a valid Tier 2 of your company', '指定的審閱人非本公司有效 Tier 2 人員');
+      // 起始關卡：承商職安衛（Tier 2）自行申請 → 不得自審，跳過 Tier 2 直接送 Tier 3
+      var applicantU = Repo.getById('Users', m.applicantUserId) || user;
+      var startTier = (Number(applicantU.tier) === 2) ? 3 : 2;
+      // (通知) 指定審閱人（選填；可多位）：須為起始關卡之有效人員（Tier 2 限本公司；Tier 3 依部門挑選）
+      var desigIds = [];
+      var rawRev = [];
+      if (payload.reviewerIds && payload.reviewerIds.length) rawRev = payload.reviewerIds;
+      else if (payload.reviewerId) rawRev = [payload.reviewerId];
+      rawRev.forEach(function (rid) {
+        var ru = Repo.getById('Users', String(rid));
+        if (!ru || Number(ru.tier) !== startTier || ru.status !== 'Active' || !asBool_(ru.isActive) ||
+            (startTier === 2 && ru.companyId !== m.companyId) || ru.id === m.applicantUserId) {
+          throw ApiError_('BAD_REVIEWER', 'Selected reviewer is not a valid Tier ' + startTier + ' reviewer',
+            '指定的審閱人非有效的 Tier ' + startTier + ' 審閱人員');
         }
-      }
-      var newStatus = CFG.STATUS.PENDING_T2; // 重新送審預設從 Tier 2（SystemSettings resubmitStartTier）
+        if (desigIds.indexOf(ru.id) < 0) desigIds.push(ru.id);
+      });
+      var designated = desigIds.length === 1 ? Repo.getById('Users', desigIds[0]) : null;
+      var newStatus = (startTier === 3) ? CFG.STATUS.PENDING_T3 : CFG.STATUS.PENDING_T2;
       Repo.update('PTW_Master', m.id, {
-        status: newStatus, version: newVersion, currentTier: 2,
+        status: newStatus, version: newVersion, currentTier: startTier,
         currentReviewerId: designated ? designated.id : '',
         submittedAt: fmtDateTime_()
       }, user.id);
@@ -3830,15 +3876,18 @@ var PTWService = (function () {
       AuditService.log({ user: user, actionType: isResubmit ? 'PTW_RESUBMIT' : 'PTW_SUBMIT',
         entityType: 'PTW', entityId: m.id, ptwNumber: m.tempNumber, newValue: { version: newVersion }, success: true });
 
-      // 通知：指定審閱人 → 只寄該員；未指定 → 本公司全部 Tier 2（任一人審閱即可）
+      // 通知：指定審閱人 → 只寄該些人；未指定 → 起始關卡全部人員（Tier 2 限本公司；任一人審閱即可）
       try {
-        var targets = designated ? [designated] : Repo.find('Users', function (u2) {
-          return Number(u2.tier) === 2 && u2.companyId === m.companyId && u2.status === 'Active' && asBool_(u2.isActive);
-        });
+        var targets = desigIds.length
+          ? desigIds.map(function (id) { return Repo.getById('Users', id); }).filter(Boolean)
+          : Repo.find('Users', function (u2) {
+              return Number(u2.tier) === startTier && (startTier !== 2 || u2.companyId === m.companyId) &&
+                u2.status === 'Active' && asBool_(u2.isActive) && u2.id !== m.applicantUserId;
+            });
         targets.forEach(function (r) {
           NotificationService.push(r.id, 'PTW_PENDING_REVIEW', m.id,
-            (designated ? '👤 PTW assigned to YOU for review: ' : 'PTW pending your review: ') + m.tempNumber,
-            (designated ? '👤 指定由您審閱的 PTW：' : '待您審核的 PTW：') + m.tempNumber,
+            (desigIds.length ? '👤 PTW assigned to YOU for review: ' : 'PTW pending your review: ') + m.tempNumber,
+            (desigIds.length ? '👤 指定由您審閱的 PTW：' : '待您審核的 PTW：') + m.tempNumber,
             'Work: ' + String(m.workDescription).substring(0, 100), '工作內容：' + String(m.workDescription).substring(0, 100),
             r.email);
         });
@@ -3927,15 +3976,18 @@ var PTWService = (function () {
     requireFields_(payload, ['ptwId']);
     var m = mustGet_(payload.ptwId);
     SecurityService.assertCanViewPtw(user, m);
-    var target = (EDIT_STATUSES.indexOf(m.status) >= 0) ? 2 : Number(m.currentTier) + 1;
+    var applicantU = Repo.getById('Users', m.applicantUserId);
+    var startTier = (applicantU && Number(applicantU.tier) === 2) ? 3 : 2; // T2 自行申請 → 起始關卡為 T3
+    var target = (EDIT_STATUSES.indexOf(m.status) >= 0) ? startTier : Number(m.currentTier) + 1;
     if (!(target >= 2 && target <= 5)) return ok_({ tier: null, users: [] });
     var rows = Repo.find('Users', function (u2) {
       if (Number(u2.tier) !== target || u2.status !== 'Active' || !asBool_(u2.isActive)) return false;
+      if (u2.id === m.applicantUserId) return false; // 不得自審
       if (target === 2) return u2.companyId === m.companyId;
       return true;
     });
     return ok_({ tier: target, users: rows.map(function (u2) {
-      return { id: u2.id, nameZh: u2.nameZh, nameEn: u2.nameEn };
+      return { id: u2.id, nameZh: u2.nameZh, nameEn: u2.nameEn, title: u2.title || '', department: u2.department || '' };
     }) });
   }
 
@@ -4383,11 +4435,18 @@ var ApprovalService = (function () {
 
       var tier = Number(m.currentTier);
       var num = m.ptwNumber || m.tempNumber;
+      // Tier 2–4 核准前必須確認已完整審閱 MS 與 RA
+      if (tier >= 2 && tier <= 4 && !asBool_(payload.msRaReviewed)) {
+        throw ApiError_('MSRA_CONFIRM_REQUIRED',
+          'Please confirm that you have fully reviewed the Method Statement (MS) and Risk Assessment (RA/JSA) before approving',
+          '核准前請先勾選「本人已完整審閱本 PTW 之施工方法說明書（MS）與風險評估（RA/JSA），內容無意見」');
+      }
       var signatureId = DriveService.saveSignature(user, m, 'TIER' + tier + '_REVIEWER', payload.signatureDataUrl);
 
       Repo.insert('PTW_Approvals', {
         ptwId: m.id, version: m.version, tier: tier, action: 'Approve',
         reviewerUserId: user.id, comment: payload.comment || '', returnReason: '',
+        msRaReviewed: (tier >= 2 && tier <= 4),
         signatureId: signatureId, sessionId: (meta && meta.token ? String(meta.token).substring(0, 12) : ''),
         userAgent: (meta && meta.userAgent) || '', clientInfo: '', decidedAt: fmtDateTime_()
       }, user.id);
@@ -4691,7 +4750,8 @@ var ApprovalService = (function () {
       .map(function (a) {
         return { version: a.version, tier: a.tier, tierName: TIER_NAMES[a.tier] || ('Tier ' + a.tier),
           action: a.action, reviewer: users[a.reviewerUserId] || '', comment: a.comment,
-          returnReason: a.returnReason, decidedAt: a.decidedAt, hasSignature: !!a.signatureId };
+          returnReason: a.returnReason, decidedAt: a.decidedAt, hasSignature: !!a.signatureId,
+          msRaReviewed: asBool_(a.msRaReviewed) };
       });
     approvals.sort(function (a, b) { return a.decidedAt < b.decidedAt ? -1 : 1; });
     var historyRows = Repo.find('PTW_StatusHistory', function (s) { return s.ptwId === m.id; })
@@ -7220,7 +7280,9 @@ var PdfService = (function () {
   }
 
   /** ===== A4 現場聯 Site Copy（依用戶 mock 版面：圓角區塊、左上雙 Logo、QR 框） ===== */
-  function siteCopyHtml_(m, ctx) {
+  function siteCopyHtml_(m, ctx, opts) {
+    opts = opts || {};
+    var CO = !!opts.closeout; // 關單文件模式：無重新驗證表；審查歷程含完工申報與四關結案確認
     var qr = folderQr_(m);
     var d10 = function (v) { return esc_(String(v || '').substring(0, 10)); };
     var CB = function (b) { return '<span class="cb' + (b ? ' on' : '') + '">' + (b ? '&#10003;' : '&nbsp;') + '</span>'; };
@@ -7261,9 +7323,13 @@ var PdfService = (function () {
         '<div class="projzh">通霄電廠二期更新改建計畫海底輸氣管線統包工程</div>' +
         '<div class="projen">Subsea Gas Pipeline of Tung-Hsiao Power Plant 2nd Stage Renewal Project</div>' +
         '<div class="hdrule"></div>' +
-        '<div class="doctitle">OFFSHORE PERMIT TO WORK</div>' +
-        '<div class="validbar"><span class="vlabel">PERMIT VALID</span>' +
-          '<span class="vdates">' + d10(m.validFrom) + ' &nbsp;~&nbsp; ' + d10(m.validTo) + '</span></div>' +
+        '<div class="doctitle">OFFSHORE PERMIT TO WORK' + (CO ? ' &mdash; CLOSE-OUT RECORD' : '') + '</div>' +
+        (CO
+          ? '<div class="validbar"><span class="vlabel">PERMIT CLOSED</span>' +
+            '<span class="vdates">' + d10(m.validFrom) + ' &nbsp;~&nbsp; ' + d10(m.validTo) +
+            ' &nbsp;&middot;&nbsp; closed ' + esc_(String(m.closedAt || '').substring(0, 16)) + '</span></div>'
+          : '<div class="validbar"><span class="vlabel">PERMIT VALID</span>' +
+            '<span class="vdates">' + d10(m.validFrom) + ' &nbsp;~&nbsp; ' + d10(m.validTo) + '</span></div>') +
       '</td>' +
       '<td style="width:118px;vertical-align:middle"><div class="qrbox">' +
         '<div class="qrtxt">詳情請掃描 QR Code<br>For details, please<br>scan QR Code</div>' + qr.img +
@@ -7303,8 +7369,8 @@ var PdfService = (function () {
       '<td style="text-align:center;font-weight:700">' + nameLine(idList__(m.holderUserId)) + '</td>' +
       '<td style="text-align:center;font-weight:700">' + nameLine(idList__(m.coHolderUserId)) + '</td></tr></table></div>';
 
-    // ===== RE-VALIDATION（7 列大格手寫）=====
-    h += '<div class="box"><div class="sec">RE-VALIDATION <span class="note">(NOTE: EVERY SHIFT NEEDS TO BE RE-VALIDATED BEFORE PROCEEDING WITH THE WORK)</span></div>' +
+    // ===== RE-VALIDATION（7 列大格手寫；關單文件不列）=====
+    if (!CO) h += '<div class="box"><div class="sec">RE-VALIDATION <span class="note">(NOTE: EVERY SHIFT NEEDS TO BE RE-VALIDATED BEFORE PROCEEDING WITH THE WORK)</span></div>' +
       '<table class="grid rv"><tr>' +
       '<th class="lbl" style="width:15%;text-align:center">DATE /<br>TIME</th><th class="lbl" style="width:17%;text-align:center">EHS</th>' +
       '<th class="lbl" style="width:18%;text-align:center">SUPERVISOR</th>' +
@@ -7329,8 +7395,10 @@ var PdfService = (function () {
       signRow('NMDC engineer', byTier[3]) +
       signRow('NMDC EHS', byTier[4]) +
       signRow('NMDC PTW coord.', byTier[5]) +
+      (CO ? closeoutRows_(m, ctx, signRow) : '') +
       '</table></div>';
 
+    if (CO) return h + closeoutNotes_(m) + '</body></html>';
     h += '<div class="box notes"><div class="nsec">NOTES</div><ol>' +
       '<li>This site copy must be displayed at the worksite for the duration of the work; the permit is invalid if not displayed.</li>' +
       '<li>Re-validation above must be completed and signed before work starts on every shift.</li>' +
@@ -7653,6 +7721,38 @@ var PdfService = (function () {
     return Utilities.newBlob(html, 'text/html', name + '.html').getAs('application/pdf').setName(name + '.pdf');
   }
 
+  /** 關單文件：審查歷程續列 — 完工申報（申報人帳號簽名）＋ 四關結案確認（電子簽名） */
+  function closeoutRows_(m, ctx, signRow) {
+    var h = '<tr><th class="lbl" colspan="5" style="text-align:center;background:#dfe9f3">WORK COMPLETION &amp; CLOSE-OUT CONFIRMATION</th></tr>';
+    // 完工申報人：最後一次轉入 PendingCloseout 的狀態歷程
+    var decl = null;
+    Repo.find('PTW_StatusHistory', function (s) { return s.ptwId === m.id && s.toStatus === CFG.STATUS.PENDING_CLOSEOUT; })
+      .forEach(function (s) { if (!decl || String(s.timestamp) > String(decl.timestamp)) decl = s; });
+    h += '<tr><td class="rhTitle">Work completed (declared)</td>' +
+      '<td>' + esc_(decl ? (ctx.names[decl.byUserId] || '') : '') + '</td>' +
+      '<td>' + esc_(decl ? String(decl.timestamp).substring(0, 10) : '') + '</td>' +
+      '<td>' + esc_(decl ? String(decl.timestamp).substring(11, 16) : '') + '</td>' +
+      '<td class="sig-cell">' + (decl ? accSig_(ctx, decl.byUserId) : '') + '</td></tr>';
+    var co = {};
+    ctx.approvals.forEach(function (a) { if (a.action === 'CloseoutConfirm') co[a.tier] = a; }); // 依時間排序 → 取最後一次
+    h += signRow('Supplier EHS close-out', co[2]) +
+      signRow('NMDC engineer close-out', co[3]) +
+      signRow('NMDC EHS close-out', co[4]) +
+      signRow('NMDC PTW coord. close-out', co[5]);
+    return h;
+  }
+
+  function closeoutNotes_(m) {
+    return '<div class="box notes"><div class="nsec">NOTES</div><ol>' +
+      '<li>This close-out record certifies that the work under this permit has been completed, the worksite restored, and the permit formally closed.</li>' +
+      '<li>Close-out was confirmed in sequence by the Supplier EHS, NMDC engineer, NMDC EHS and NMDC PTW coordinator with their registered electronic signatures.</li>' +
+      '<li>Close-out evidence (photos, logs, checklists) is filed in the permit Drive folder — scan the QR code (top right).</li>' +
+      '<li>No further work may be carried out under this permit number; a new PTW is required for any additional work.</li>' +
+      '</ol></div>' +
+      '<div class="foot"><span style="float:right">' + esc_(m.ptwNumber || m.tempNumber) + ' · v' + esc_(m.version) +
+      ' · CLOSED ' + esc_(String(m.closedAt || '').substring(0, 16)) + ' · generated ' + fmtDateTime_() + ' (Asia/Taipei)</span></div>';
+  }
+
   /** 匯出用 ctx（公司/人名/簽核/證書/展延） */
   function buildCtx_(m) {
     var company = Repo.getById('Companies', m.companyId);
@@ -7674,7 +7774,7 @@ var PdfService = (function () {
       approvals: approvals.map(function (a) {
         return { tier: a.tier, tierName: TIER_NAMES[a.tier] || '', reviewer: names[a.reviewerUserId] || '',
           action: a.action, returnReason: a.returnReason, comment: a.comment, decidedAt: a.decidedAt,
-          sigHtml: sigImg_(a.signatureId) };
+          msRaReviewed: asBool_(a.msRaReviewed), sigHtml: sigImg_(a.signatureId) };
       })
     };
     var certRows = Repo.find('PTW_Certificates', function (c) { return c.ptwId === m.id && asBool_(c.isActive); });
@@ -7741,6 +7841,48 @@ var PdfService = (function () {
     DriveService.savePtwFile(m, '04_Approval_Records', blob);
   }
 
+  /** 關單文件 HTML（前端以瀏覽器引擎轉 PDF；申報完工後即可預覽，正式關閉後為最終版） */
+  function closeoutHtml(user, payload) {
+    requireFields_(payload, ['ptwId']);
+    var m = Repo.getById('PTW_Master', payload.ptwId);
+    if (!m || !asBool_(m.isActive)) throw ApiError_('NOT_FOUND', 'PTW not found', '找不到 PTW');
+    SecurityService.assertCanViewPtw(user, m);
+    if ([CFG.STATUS.PENDING_CLOSEOUT, CFG.STATUS.CLOSED].indexOf(m.status) < 0) {
+      throw ApiError_('BAD_STATE', 'The close-out record is available once work completion has been declared',
+        '關單文件須於申報完工後才可產生');
+    }
+    var ctx = buildCtx_(m);
+    var num = m.ptwNumber || m.tempNumber;
+    return ok_({ html: siteCopyHtml_(m, ctx, { closeout: true }), fileName: num + '_CloseOut_Record.pdf' });
+  }
+
+  /** 正式關閉時：關單文件 PDF → 05_Close_out_evidence；sendMail=true 時同時 Email 給申請人 */
+  function saveCloseoutRecord(m, sendMail) {
+    var ctx = buildCtx_(m);
+    var num = m.ptwNumber || m.tempNumber;
+    var blob = toPdf_(siteCopyHtml_(m, ctx, { closeout: true }), num + '_CloseOut_Record');
+    try { DriveService.savePtwFile(m, '05_Close_out_evidence', blob); }
+    catch (e) { console.error('closeout record drive save failed: ' + e.message); }
+    if (sendMail) {
+      var applicant = Repo.getById('Users', m.applicantUserId);
+      if (applicant && applicant.email && String(applicant.email).indexOf('@') > 0 && !/^Example/i.test(String(num))) {
+        try {
+          MailApp.sendEmail({
+            to: applicant.email, name: 'NMDC Offshore PTW System Notification',
+            subject: '[Offshore PTW] PTW closed 關單完成：' + num,
+            htmlBody: '<div style="font-family:Arial,\'Microsoft JhengHei\',sans-serif;font-size:14px;line-height:1.7">' +
+              '<p>Your permit <b>' + esc_(num) + '</b> has completed the full close-out confirmation chain and is now formally <b>CLOSED</b>. ' +
+              'The close-out record is attached and has also been filed in the permit Drive folder (05_Close_out_evidence).</p>' +
+              '<p>您的許可證 <b>' + esc_(num) + '</b> 已完成全部結案確認並正式<b>關閉</b>。關單文件如附件，並已存入該 PTW 之 Drive 資料夾（05_Close_out_evidence）。</p>' +
+              '<p style="color:#777;font-size:12px">Work: ' + esc_(String(m.workDescription || '').substring(0, 160)) + '</p></div>',
+            attachments: [blob]
+          });
+        } catch (eM) { console.error('closeout mail failed: ' + eM.message); }
+      }
+    }
+    return blob;
+  }
+
   /** 匯出：主表 A3 + 已建立證書各一份 A4 */
   function exportPdf(user, payload) {
     requireFields_(payload, ['ptwId']);
@@ -7799,7 +7941,8 @@ var PdfService = (function () {
     });
   }
 
-  return { exportPdf: exportPdf, siteHtml: siteHtml, saveApprovalRecord: saveApprovalRecord };
+  return { exportPdf: exportPdf, siteHtml: siteHtml, saveApprovalRecord: saveApprovalRecord,
+    closeoutHtml: closeoutHtml, saveCloseoutRecord: saveCloseoutRecord };
 })();
 
 /* ============================== CloseoutRules.gs ============================== */
@@ -8053,6 +8196,16 @@ var LifecycleService = (function () {
       throw ApiError_('FORBIDDEN', 'Only the contractor\'s own HSE can confirm this step',
         '此步驟僅限該承商之職安衛人員確認');
     }
+    // 電子簽名：每一關結案確認均套用帳號簽名檔並留存（審查歷程與關單文件皆會顯示）
+    if (!payload.signatureDataUrl) {
+      throw ApiError_('SIGNATURE_REQUIRED', 'Your signature is required to confirm close-out', '結案確認須附上您的簽名檔');
+    }
+    var coSigId = DriveService.saveSignature(user, m, 'CLOSEOUT_T' + step, payload.signatureDataUrl);
+    Repo.insert('PTW_Approvals', {
+      ptwId: m.id, version: m.version, tier: step, action: 'CloseoutConfirm',
+      reviewerUserId: user.id, comment: payload.comment || '', returnReason: '',
+      signatureId: coSigId, sessionId: '', userAgent: '', clientInfo: '', decidedAt: fmtDateTime_()
+    }, user.id);
     var patch = {};
     patch['coT' + step + 'UserId'] = user.id;
     patch['coT' + step + 'At'] = fmtDateTime_();
@@ -8074,6 +8227,9 @@ var LifecycleService = (function () {
     setStatus_(user, m, CFG.STATUS.CLOSED, payload.comment || 'Closed after full close-out confirmation chain');
     AuditService.log({ user: user, actionType: 'PTW_CLOSE', entityType: 'PTW', entityId: m.id,
       ptwNumber: m.ptwNumber, comment: payload.comment || '', success: true });
+    // 關單文件：產生 PDF → 存入 05_Close_out_evidence，並 Email 給申請人
+    try { PdfService.saveCloseoutRecord(Repo.getById('PTW_Master', m.id), true); }
+    catch (eCo) { console.error('closeout record failed: ' + eCo.message); }
     notifyApplicant_(m, 'PTW_CLOSED', 'PTW closed: ' + m.ptwNumber, 'PTW 已關閉：' + m.ptwNumber,
       'Contractor HSE and all NMDC departments have confirmed. The permit is now formally closed.',
       '承商職安衛與 NMDC 各部門均已確認，本許可證已正式關閉。');
@@ -8862,6 +9018,7 @@ function routes_() {
     'admin.ccMail.set':        function (u, p) { return NotificationService.ccMailSet(u, p); },
     'admin.mail.test':         function (u, p) { return NotificationService.mailTest(u, p); },
     'admin.system.factoryReset': function (u, p) { return TestModeService.factoryReset(u, p); },
+    'admin.system.clearPtws':    function (u, p) { return TestModeService.clearAllPtws(u, p); },
     // 關單文件規則：檢視全表＋將「建議」項目升級為「必要」
     'admin.closeout.rules': function (u) {
       SecurityService.requireAdmin(u);
@@ -8925,6 +9082,7 @@ function routes_() {
 
     // Phase 4：PDF / 生命週期 / 證書欄位定義
     'ptw.siteHtml':    function (u, p) { return PdfService.siteHtml(u, p); },
+    'ptw.closeoutHtml': function (u, p) { return PdfService.closeoutHtml(u, p); },
     'ptw.saveSitePdf': function (u, p) { return DriveService.saveSitePdf(u, p); },
     'ptw.exportPdf':          function (u, p) { return PdfService.exportPdf(u, p); },
     'ptw.suspend':            function (u, p) { return LifecycleService.suspend(u, p); },
@@ -10819,6 +10977,28 @@ function createQuickAdmin() {
   console.log(ensureQuickAdmin_());
 }
 
+/** 一次性：硬刪除所有 Example-xxx 範例 PTW（含子表資料與 Drive 資料夾）。在編輯器直接執行本函式即可。 */
+function purgeExamplePtws() {
+  var ids = {};
+  Repo.readAll('PTW_Master').forEach(function (p) {
+    if (/^Example-/i.test(String(p.ptwNumber || '')) || /^Example-/i.test(String(p.tempNumber || ''))) {
+      ids[p.id] = true;
+      if (p.driveFolderId) { try { DriveApp.getFolderById(p.driveFolderId).setTrashed(true); } catch (e) {} }
+    }
+  });
+  var n = Object.keys(ids).length;
+  if (!n) { console.log('no Example PTWs'); return 'no Example PTWs'; }
+  ['PTW_Hazards', 'PTW_GasTests', 'PTW_Certificates', 'PTW_Attachments', 'PTW_Approvals', 'PTW_Comments',
+   'PTW_StatusHistory', 'PTW_Versions', 'PTW_Signatures', 'PTW_Revalidations', 'Notifications'
+  ].forEach(function (nm) { try { Repo.removeWhere(nm, function (r) { return !!ids[r.ptwId]; }); } catch (e) { console.error(nm + ': ' + e.message); } });
+  ['Cert_HotWork', 'Cert_ColdWork', 'Cert_ElectricalIso', 'Cert_ProcessIso',
+   'Cert_ConfinedSpace', 'Cert_Excavation', 'Cert_Radiography', 'Cert_Diving'
+  ].forEach(function (nm) { try { Repo.removeWhere(nm, function (r) { return !!ids[r.ptwId]; }); } catch (e) {} });
+  Repo.removeWhere('PTW_Master', function (p) { return !!ids[p.id]; });
+  console.log('✅ purged Example PTWs: ' + n);
+  return '✅ purged Example PTWs: ' + n;
+}
+
 /** 把快速管理員 admin 的密碼重設回 admin（繞過密碼強度政策；在編輯器直接執行本函式即可） */
 function resetQuickAdminPassword() {
   var existing = Repo.findOne('Users', function (u) { return normEmail_(u.email) === 'admin'; });
@@ -11116,12 +11296,18 @@ main{position:relative;z-index:1}
           <div class="col-md-6"><label class="form-label"><span data-i18n="apply.tier"></span>
             <a href="#" onclick="showTierHelp();return false" title="Tier 說明" style="text-decoration:none;margin-left:4px">
             <span style="display:inline-flex;width:18px;height:18px;border-radius:50%;background:#0b6bcb;color:#fff;align-items:center;justify-content:center;font-size:.72rem;font-weight:700">?</span></a></label>
-            <select id="apTier" class="form-select">
+            <select id="apTier" class="form-select" onchange="apTierChanged()">
               <option value="1" selected style="color:#b35c00;font-weight:600">【承商 Contractor】Tier 1 — 承商持有人／申請人 Holder / Applicant</option>
               <option value="2" style="color:#b35c00;font-weight:600">【承商 Contractor】Tier 2 — 承商職安衛 Contractor HSE</option>
               <option value="3" style="color:#0b6bcb;font-weight:600">【NMDC】Tier 3 — 施工部門 Construction</option>
               <option value="4" style="color:#0b6bcb;font-weight:600">【NMDC】Tier 4 — 安衛部門 HSE</option>
               <option value="5" style="color:#0b6bcb;font-weight:600">【NMDC】Tier 5 — PTW 協調員 Coordinator</option>
+            </select></div>
+          <div class="col-md-6 d-none" id="apDeptWrap"><label class="form-label">所屬部門 Department（Tier 3）＊</label>
+            <select id="apDept" class="form-select">
+              <option value="">--</option>
+              <option value="NMDC D&amp;M">NMDC D&amp;M</option>
+              <option value="NMDC Energy">NMDC Energy</option>
             </select></div>
           <div class="col-12"><label class="form-label" data-i18n="apply.reason"></label><textarea id="apReason" class="form-control" rows="2"></textarea></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.password"></label><input id="apPw" type="password" class="form-control"></div>
@@ -11433,6 +11619,12 @@ main{position:relative;z-index:1}
         <button class="btn btn-outline-danger" onclick="tmReset()">🗑 <span data-i18n="tm.reset">Clear test PTW data</span></button>
         <div id="tmPersonaList" class="mt-3"></div>
       </div>
+      <!-- 🧹 清除全部 PTW／編號歸零（測試結束後） -->
+      <div class="card-x p-3 mt-3" style="border:2px solid #e08a00;background:#fff9ef">
+        <h6 style="color:#9a5b00">🧹 <span data-l>清除全部 PTW 並將編號歸零 Clear all PTWs &amp; restart numbering</span></h6>
+        <div class="small mb-2" style="color:#6b4a00" data-l>測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！ Use after testing: deletes ALL PTWs (certificates, approvals, attachments, Drive folders); numbering restarts from 0001. Keeps all accounts, companies, training/exam records, question bank and settings. This CANNOT be undone!</div>
+        <button class="btn btn-warning fw-bold" onclick="doClearPtws()">🧹 <span data-l>清除全部 PTW 並歸零編號 Clear all PTWs</span></button>
+      </div>
       <!-- ⚠️ 一鍵重置（Danger Zone） -->
       <div class="card-x p-3 mt-3" style="border:2px solid #c62828;background:#fff5f5">
         <h6 style="color:#c62828">☢️ <span data-l>一鍵重置系統 Factory Reset</span></h6>
@@ -11705,6 +11897,12 @@ main{position:relative;z-index:1}
     <div id="sigDrawWrap" class="d-none">
       <canvas id="sigCanvas" width="480" height="180" style="border:2px dashed #9ec5e8;border-radius:6px;width:100%;touch-action:none;background:#fff"></canvas>
       <button class="btn btn-link btn-sm p-0 mt-1 d-none" id="sigBackAcc" onclick="sigSwitchToAcc()" data-i18n="rv.useAccSigBtn">Use my registered signature</button>
+    </div>
+    <div id="apMsRaWrap" class="d-none mt-2">
+      <div class="form-check rounded p-2 ps-5" style="background:#fff8e6;border:1px solid #f0d58c">
+        <input class="form-check-input" type="checkbox" id="apMsRa">
+        <label class="form-check-label small fw-bold" for="apMsRa" id="apMsRaLabel"></label>
+      </div>
     </div>
     <div class="mb-2"><textarea id="apComment" class="form-control form-control-sm mt-2" rows="2"
       data-l-ph placeholder="Comment 意見（選填 optional）"></textarea></div>
@@ -12333,7 +12531,7 @@ function showTierHelp(){
     ['Tier 1',Z?'承商持有人／申請人 Contractor Holder / Applicant':'Contractor Holder / Applicant','C',
      Z?'建立與提交 PTW、指定持有人／副持有人、填寫證書與上傳附件；通過教育訓練後也可擔任現場工單持有人（同一人可兼任申請人與持有人）。HSE 人員不可擔任持有人。':'Creates and submits PTWs, assigns holders/co-holders, completes certificates and uploads attachments; once training is passed, may also act as the on-site permit holder (the same person can be both applicant and holder). HSE personnel cannot act as a holder.'],
     ['Tier 2',Z?'承商職安衛 Contractor HSE':'Contractor HSE','C',
-     Z?'承商內部第一關審查（僅限本公司 PTW）。':'First-line review within the contractor (own company PTWs only).'],
+     Z?'承商內部第一關審查（僅限本公司 PTW）。亦可自行申請 PTW：不得自審，送出後直接進入 Tier 3 審查；HSE 人員不可擔任持有人。':'First-line review within the contractor (own company PTWs only). May also apply for a PTW: no self-review — it goes straight to Tier 3; HSE personnel cannot act as a holder.'],
     ['Tier 3',Z?'NMDC 施工部門':'NMDC Construction','N',
      Z?'施工面審查：施工方法、介面與現場條件。':'Construction review: method, interfaces and site conditions.'],
     ['Tier 4',Z?'NMDC 安衛部門':'NMDC HSE','N',
@@ -12582,6 +12780,8 @@ function openUserEdit(uid){
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'電話':'Phone')+'</label><input id="ue_phone" class="form-control form-control-sm" value="'+esc(r.phone||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'船舶':'Vessel')+'</label><input id="ue_vessel" class="form-control form-control-sm" value="'+esc(r.vessel||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'證號 Badge No':'Badge No')+'</label><input id="ue_badgeNo" class="form-control form-control-sm" value="'+esc(r.badgeNo||'')+'"></div>'+
+    '<div class="col-6"><label class="form-label small mb-0">'+(Z?'所屬部門（Tier 3）':'Department (Tier 3)')+'</label><select id="ue_department" class="form-select form-select-sm">'+
+      '<option value="">--</option>'+['NMDC D&M','NMDC Energy'].map(function(d){ return '<option value="'+esc(d)+'"'+(r.department===d?' selected':'')+'>'+esc(d)+'</option>'; }).join('')+'</select></div>'+
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isHse"'+((r.isHse===true||r.isHse==='TRUE')?' checked':'')+'>'+
       '<label class="form-check-label small" for="ue_isHse">'+(Z?'HSE 人員（不可任持有人）':'HSE (cannot be a holder)')+'</label></div></div>'+
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isAdmin"'+((r.isAdmin===true||r.isAdmin==='TRUE')?' checked':'')+'>'+
@@ -12633,7 +12833,7 @@ function saveUserEdit(uid){
     nameZh:$('ue_nameZh').value.trim(),nameEn:$('ue_nameEn').value.trim(),
     companyId:$('ue_companyId').value,tier:Number($('ue_tier').value),
     title:$('ue_title').value.trim(),phone:$('ue_phone').value.trim(),
-    vessel:$('ue_vessel').value.trim(),badgeNo:$('ue_badgeNo').value.trim(),
+    vessel:$('ue_vessel').value.trim(),badgeNo:$('ue_badgeNo').value.trim(),department:$('ue_department').value,
     isHse:$('ue_isHse').checked,isAdmin:$('ue_isAdmin').checked
   }).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
@@ -13188,9 +13388,16 @@ function sigRemoveBg(key){
   sigState[key]={cleaned:true,img:st.img,dataUrl:result.toDataURL('image/png')};
   $(key+'SigMsg').innerHTML='<span class="text-success">✅ '+T('sig.done')+'</span>';
 }
+/* Tier 3 施工部門 → 顯示部門選單（NMDC D&M / NMDC Energy） */
+function apTierChanged(){
+  var t3=($('apTier').value==='3');
+  $('apDeptWrap').classList.toggle('d-none',!t3);
+  if(!t3) $('apDept').value='';
+}
 function doApply(){
   // (6) 所有欄位必填檢查＋紅框標示
   var ids=['apNameZh','apNameEn','apCompany','apTitle','apIsHse','apEmail','apPhone','apVessel','apTier','apReason','apPw','apPw2'];
+  if($('apTier').value==='3') ids.push('apDept');
   var missing=false;
   ids.forEach(function(id){
     var el=$(id); var v=(el.value||'').trim();
@@ -13201,6 +13408,7 @@ function doApply(){
   var p={nameZh:$('apNameZh').value.trim(),nameEn:$('apNameEn').value.trim(),companyName:$('apCompany').value.trim(),
     title:$('apTitle').value.trim(),isHse:$('apIsHse').value==='Y',email:$('apEmail').value.trim(),phone:$('apPhone').value.trim(),
     vessel:$('apVessel').value.trim(),appliedTier:$('apTier').value,applyReason:$('apReason').value.trim(),
+    department:($('apTier').value==='3')?$('apDept').value:'',
     password:$('apPw').value,confirmPassword:$('apPw2').value};
   if(!sigState.ap||!sigState.ap.cleaned){ alertBox('applyAlert','danger',T('sig.required')); $('apSigMsg').innerHTML='<span class="text-danger">'+T('sig.required')+'</span>'; return; }
   p.signatureBase64=sigState.ap.dataUrl.split(',')[1];
@@ -13856,7 +14064,7 @@ function loadUsers(pre){
       var isAdm=(r.isAdmin===true||r.isAdmin==='TRUE');
       h+='<tr><td>'+esc(r.email)+(isAdm?' <span class="badge bg-dark">Admin</span>':'')+'</td>'+
         '<td><a href="#" onclick="showUserDetail(\\''+r.id+'\\');return false"><b>'+esc(r.nameEn)+'</b><br><small>'+esc(r.nameZh)+'</small></a></td>'+
-        '<td>'+esc(companyName(r.companyId))+'</td><td>'+esc(r.tier)+'</td>'+
+        '<td>'+esc(companyName(r.companyId))+(r.department?'<br><small class="text-muted">'+esc(r.department)+'</small>':'')+'</td><td>'+esc(r.tier)+'</td>'+
         '<td><span class="badge badge-status-'+esc(r.status)+'">'+esc(r.status)+'</span></td>'+
         '<td class="small">'+esc(r.trainingValidUntil||'—')+'</td>'+
         '<td class="text-nowrap">'+
@@ -13885,6 +14093,7 @@ function showUserDetail(id){
       [lang==='zh'?'公司':'Company',res.data.companyName],['Tier','Tier '+u.tier+(asB(u.isAdmin)?' · Admin':'')],
       [lang==='zh'?'職稱':'Title',u.title],[lang==='zh'?'電話':'Phone',u.phone],
       [lang==='zh'?'船舶':'Vessel',u.vessel],[lang==='zh'?'徽章編號':'Badge No',u.badgeNo||'—'],
+      [lang==='zh'?'所屬部門':'Department',u.department||'—'],
       [lang==='zh'?'狀態':'Status',u.status],
       [lang==='zh'?'訓練通過':'Training passed',u.trainingPassedAt||'—'],
       [lang==='zh'?'訓練效期':'Training valid until',u.trainingValidUntil||'—'],
@@ -14076,6 +14285,25 @@ function tmExit(){
   sset('ptw_tm_admin_token',''); sset('ptw_tm_admin_user',''); sset('ptw_tm_personas','');
   clearDataCaches();
   enter();
+}
+/* 🧹 清除全部 PTW 並歸零編號：輸入 CLEAR 才執行（保留帳號／公司） */
+function doClearPtws(){
+  var Z=(lang==='zh');
+  uiPrompt(Z
+    ?'🧹 將刪除所有 PTW（含證書、簽核、附件、Drive 資料夾），編號自 0001 重新開始；帳號與公司保留。無法復原！\\n\\n請輸入大寫 CLEAR 確認執行：'
+    :'🧹 This deletes ALL PTWs (certificates, approvals, attachments, Drive folders) and restarts numbering from 0001; accounts and companies are kept. This CANNOT be undone!\\n\\nType CLEAR (uppercase) to confirm:')
+  .then(function(v){
+    if(v===null||v===undefined) return;
+    if(String(v).trim()!=='CLEAR'){ toast(Z?'⚠️ 未輸入 CLEAR，已取消':'⚠️ CLEAR not entered — cancelled'); return; }
+    api('admin.system.clearPtws',{confirm:'CLEAR'}).then(function(res){
+      if(!res.ok){ toast(apiMsg(res)); return; }
+      clearDataCaches();
+      uiAlert(Z
+        ?'✅ 已清除 '+res.data.cleared+' 張 PTW，編號將自 OPTW-0001 重新開始。\\n\\n按確定後將重新整理頁面。'
+        :'✅ Cleared '+res.data.cleared+' PTW(s). Numbering restarts from OPTW-0001.\\n\\nThe page will now reload.')
+      .then(function(){ try{ sessionStorage.clear(); }catch(e){} location.reload(); });
+    });
+  });
 }
 /* ☢️ 一鍵重置：輸入 RESET 才執行 */
 function doFactoryReset(){
@@ -14400,6 +14628,9 @@ function renderLifeBar(){
     btns.push('<button class="btn btn-sm btn-dark" onclick="doClose()">🔒 '+L('關閉 Close')+'</button>');
   if((asB(u.isAdmin)||Number(u.tier)===5)&&cur.id&&!isMyReviewTurn())
     btns.push('<button class="btn btn-sm btn-danger" onclick="doDeletePtw()">🗑 '+T('ptw.delete')+'</button>');
+  // 關單文件：申報完工後可預覽，正式關閉後為最終版（含四關結案簽名）
+  if(['PendingCloseout','Closed'].indexOf(s)>=0)
+    btns.push('<button class="btn btn-sm btn-outline-dark" onclick="quickPdf(cur.id,\\'closeout\\')">🧾 '+(lang==='zh'?'關單文件 Close-out Record':'Close-out Record')+(s==='Closed'?'':(lang==='zh'?'（預覽）':' (preview)'))+'</button>');
   // (6) 結案三部門依序確認
   var CO_NAME={2:(lang==='zh'?'承商職安衛':'Contractor HSE'),3:(lang==='zh'?'NMDC 施工組':'NMDC Engineering'),
     4:(lang==='zh'?'NMDC 工安組':'NMDC EHS'),5:(lang==='zh'?'NMDC 協調員':'PTW Coordinator')};
@@ -14436,9 +14667,22 @@ function doCloseoutReturn(){
   });
 }
 function doCloseoutConfirm(){
-  uiPrompt(lang==='zh'?'確認意見（選填）':'Confirmation comment (optional)').then(function(c){
-    if(c===null) return;
-    api('ptw.closeoutConfirm',{ptwId:cur.id,comment:c||''}).then(function(res){
+  if(!(cur&&cur._mySignature)){ showSigSetupDialog(); return; }
+  var Z=(lang==='zh'), u=getUser()||{};
+  var CO_NAME={2:(Z?'承商職安衛':'Contractor HSE'),3:(Z?'NMDC 施工組':'NMDC Engineering'),4:(Z?'NMDC 工安組':'NMDC EHS'),5:(Z?'NMDC 協調員':'PTW Coordinator')};
+  var step=Number(cur.coCurrentTier||2);
+  uiDialog({icon:'🔒',width:540,
+    title:(Z?'結案確認 — 簽名並確認':'Close-out confirmation — sign & confirm'),
+    sub:(cur.ptwNumber||cur.tempNumber)+' · '+CO_NAME[step]+' · '+(Z?'簽署人：':'Signing as: ')+bi(u.nameEn,u.nameZh),
+    okText:(Z?'✅ 簽名並確認':'✅ Sign & Confirm'),okClass:'btn-success',
+    html:'<div class="border rounded p-2 text-center mb-2" style="background:#f7fbff;border-color:#9ec5e8 !important">'+
+      '<img src="data:image/png;base64,'+cur._mySignature+'" style="max-height:90px;max-width:100%">'+
+      '<div class="small text-success mt-1">'+(Z?'將套用您的帳號簽名檔，並留存於審查歷程與關單文件':'Your registered signature will be applied and kept in the review history and close-out record.')+'</div></div>'+
+      '<textarea id="coCmt" class="form-control form-control-sm" rows="2" placeholder="'+(Z?'確認意見（選填）':'Confirmation comment (optional)')+'"></textarea>'})
+  .then(function(ok){
+    if(!ok) return;
+    var cEl=document.getElementById('coCmt'); var c=cEl?cEl.value:'';
+    api('ptw.closeoutConfirm',{ptwId:cur.id,comment:(c||'').trim(),signatureDataUrl:'data:image/png;base64,'+cur._mySignature}).then(function(res){
       if(!res.ok){ toast(apiMsg(res)); return; }
       toast(res.data.closed?(lang==='zh'?'已完成三部門確認，PTW 正式關閉 🔒':'All confirmations complete — PTW closed 🔒')
         :(lang==='zh'?'已確認，轉下一部門':'Confirmed — passed to next department'),true);
@@ -14523,6 +14767,7 @@ function doClose(){
 /* 清單直接下載現場聯（承商每日列印用） */
 function quickPdf(id,kind){
   if((kind||'site')==='site'){ siteCopyClient(id); return; }
+  if(kind==='closeout'){ siteCopyClient(id,'closeout'); return; }
   serverPdf(id,kind);
 }
 function serverPdf(id,kind){
@@ -14543,9 +14788,10 @@ function serverPdf(id,kind){
 }
 /* 現場聯：轉換引擎載入 iframe 內執行（樣式完整保留，輸出與樣張一致），並自動存入 Drive 01_Application */
 var H2P_URL=window.H2P_SRC||'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-function siteCopyClient(id){
-  toast('⏳ Site Copy PDF…',true);
-  api('ptw.siteHtml',{ptwId:id}).then(function(res){
+function siteCopyClient(id,kind){
+  var isCo=(kind==='closeout');
+  toast(isCo?'⏳ Close-out Record PDF…':'⏳ Site Copy PDF…',true);
+  api(isCo?'ptw.closeoutHtml':'ptw.siteHtml',{ptwId:id}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     var iframe=document.createElement('iframe');
     // A4 @ 96dpi：794×1123；引擎於 iframe 內執行，樣式不會丟失
@@ -14595,8 +14841,12 @@ function siteCopyClient(id){
             }).from(d.body).outputPdf('datauristring').then(function(uri){
               if(done) return; done=true; clearTimeout(t);
               var a=document.createElement('a'); a.href=uri; a.download=res.data.fileName; a.click();
-              api('ptw.saveSitePdf',{ptwId:id,base64:uri.split(',')[1],fileName:res.data.fileName})
-                .then(function(sv){ toast(sv.ok?(lang==='zh'?'Site Copy ✅ 已下載並存入 Drive 01_Application':'Site Copy ✅ downloaded & saved to Drive 01_Application'):('PDF ✅ (Drive: '+apiMsg(sv)+')'),true); });
+              if(isCo){
+                toast(lang==='zh'?'關單文件 ✅ 已下載（正式關閉時系統已自動存入 Drive 05_Close_out_evidence 並 Email 申請人）':'Close-out Record ✅ downloaded (filed to Drive 05_Close_out_evidence and emailed to the applicant at closure)',true);
+              }else{
+                api('ptw.saveSitePdf',{ptwId:id,base64:uri.split(',')[1],fileName:res.data.fileName})
+                  .then(function(sv){ toast(sv.ok?(lang==='zh'?'Site Copy ✅ 已下載並存入 Drive 01_Application':'Site Copy ✅ downloaded & saved to Drive 01_Application'):('PDF ✅ (Drive: '+apiMsg(sv)+')'),true); });
+              }
               iframe.remove();
             }).catch(function(err){ try{ console.error('[sitepdf] worker failed:',err); }catch(_){} if(!done){ done=true; clearTimeout(t); fallback(); } });
           }catch(e){ try{ console.error('[sitepdf] exception:',e); }catch(_){} if(!done){ done=true; clearTimeout(t); fallback(); } }
@@ -14769,9 +15019,11 @@ function doForceStage(){
 function renderHistoryData(data){
   var h='';
   (data&&data.approvals||[]).forEach(function(a){
-    var icon=a.action==='Approve'?'✅':(a.action==='AdminOverride'?'⚙️':'↩️');
+    var icon=a.action==='Approve'?'✅':(a.action==='AdminOverride'?'⚙️':(a.action==='CloseoutConfirm'?'🔒':'↩️'));
+    var actLabel=a.action==='CloseoutConfirm'?(lang==='zh'?'結案確認 Close-out confirmed':'Close-out confirmed'):a.action;
     h+='<div class="border-bottom py-1">'+icon+' <b>Tier '+esc(a.tier)+'</b> '+esc(a.tierName)+' · '+esc(a.reviewer)+
-      ' · '+esc(a.action)+(a.returnReason?' ['+esc(a.returnReason)+']':'')+
+      ' · '+esc(actLabel)+(a.returnReason?' ['+esc(a.returnReason)+']':'')+
+      (a.msRaReviewed?' <span class="badge" style="background:#fff3cd;color:#7a5a00;border:1px solid #f0d58c">📋 MS/RA reviewed 已審閱</span>':'')+
       (a.comment?'<br><span class="ms-4">💬 '+esc(a.comment)+'</span>':'')+
       '<span class="text-muted"> · v'+esc(a.version)+' · '+esc(a.decidedAt)+(a.hasSignature?' · ✍️':'')+'</span></div>';
   });
@@ -14786,37 +15038,8 @@ function loadHistory(){
 }
 /* 簽名板 */
 var sigDrawn=false;
-function openApprove(){
-  var u=getUser()||{};
-  $('sigWho').textContent=(lang==='zh'?'簽署人：':'Signing as: ')+bi(u.nameEn,u.nameZh)+' · Tier '+u.tier;
-  // (通知) 下一關審閱人選擇（T5 簽發時無下一關）
-  $('apNextRevWrap').classList.add('d-none');
-  if(Number(cur.currentTier)<5){
-    var toTier3=(Number(cur.currentTier)===2); // T2→T3：可複選多位（不同船別不同施工組）
-    api('ptw.nextReviewers',{ptwId:cur.id}).then(function(res){
-      if(!res.ok||!res.data.users||!res.data.users.length) return;
-      $('apNextRev').classList.toggle('d-none',toTier3);
-      $('apNextRevMulti').classList.toggle('d-none',!toTier3);
-      $('apNextRevHint').classList.toggle('d-none',!toTier3);
-      if(toTier3){
-        $('apNextRevMulti').innerHTML=res.data.users.map(function(p){
-          var nm=esc(lang==='zh'?(p.nameZh||p.nameEn):(p.nameEn||p.nameZh));
-          return '<div class="form-check"><input class="form-check-input" type="checkbox" id="anr_'+esc(p.id)+'">'+
-            '<label class="form-check-label small" for="anr_'+esc(p.id)+'">👤 '+nm+
-            (p.title?' <span class="text-muted">'+esc(p.title)+'</span>':'')+'</label></div>';
-        }).join('');
-      }else{
-        var h='<option value="">📣 '+T('rv.notifyAll')+'</option>';
-        res.data.users.forEach(function(p){
-          h+='<option value="'+esc(p.id)+'">👤 '+esc(lang==='zh'?(p.nameZh||p.nameEn):(p.nameEn||p.nameZh))+'</option>';
-        });
-        $('apNextRev').innerHTML=h;
-      }
-      if(res.data.users.length>1) $('apNextRevWrap').classList.remove('d-none');
-    });
-  }
-  // 一律使用帳號簽名檔；尚未設定 → 先保存目前進度，再跳警告視窗引導前往設定（不提供手寫）
-  if(!(cur&&cur._mySignature)){
+/* 尚未設定簽名檔 → 先保存目前進度，再引導前往「我的帳號」設定（核准與結案確認共用） */
+function showSigSetupDialog(){
     // 先儲存：申請草稿（若可編輯）＋本 PTW 的逐步審查進度（回來後自動還原）
     try{
       if(cur&&cur.editable){ collectStep(); if(dirty) saveNow(); }
@@ -14847,8 +15070,39 @@ function openApprove(){
           box.style.outline='3px solid #f0a500'; setTimeout(function(){ box.style.outline=''; },4000); }
       },800); }
     });
-    return;
+}
+var MSRA_TEXT={zh:'本人已完整審閱本 PTW 之施工方法說明書（MS）與風險評估（RA/JSA），內容無意見。',
+  en:'I have fully reviewed the Method Statement (MS) and Risk Assessment (RA/JSA) for this PTW and have no further comments.'};
+function openApprove(){
+  var u=getUser()||{};
+  $('sigWho').textContent=(lang==='zh'?'簽署人：':'Signing as: ')+bi(u.nameEn,u.nameZh)+' · Tier '+u.tier;
+  // Tier 2–4 核准前必勾：已完整審閱 MS 與 RA
+  var needMsRa=(Number(cur.currentTier)>=2&&Number(cur.currentTier)<=4);
+  $('apMsRaWrap').classList.toggle('d-none',!needMsRa);
+  $('apMsRa').checked=false;
+  $('apMsRaLabel').textContent='📋 '+(lang==='zh'?MSRA_TEXT.zh:MSRA_TEXT.en);
+  // (通知) 下一關審閱人選擇（T5 簽發時無下一關）
+  $('apNextRevWrap').classList.add('d-none');
+  if(Number(cur.currentTier)<5){
+    var toTier3=(Number(cur.currentTier)===2); // T2→T3：可複選多位（不同船別不同施工組）
+    api('ptw.nextReviewers',{ptwId:cur.id}).then(function(res){
+      if(!res.ok||!res.data.users||!res.data.users.length) return;
+      $('apNextRev').classList.toggle('d-none',toTier3);
+      $('apNextRevMulti').classList.toggle('d-none',!toTier3);
+      $('apNextRevHint').classList.toggle('d-none',!toTier3);
+      if(toTier3){
+        $('apNextRevMulti').innerHTML=revGroupHtml(res.data.users,'anr_');
+      }else{
+        var h='<option value="">📣 '+T('rv.notifyAll')+'</option>';
+        res.data.users.forEach(function(p){
+          h+='<option value="'+esc(p.id)+'">👤 '+esc(lang==='zh'?(p.nameZh||p.nameEn):(p.nameEn||p.nameZh))+'</option>';
+        });
+        $('apNextRev').innerHTML=h;
+      }
+      if(res.data.users.length>1) $('apNextRevWrap').classList.remove('d-none');
+    });
   }
+  if(!(cur&&cur._mySignature)){ showSigSetupDialog(); return; }
   $('sigModal').classList.remove('d-none');
   $('sigAccImg').src='data:image/png;base64,'+cur._mySignature;
   sigSwitchToAcc();
@@ -14896,6 +15150,24 @@ function initSigPad(){
 function clearSig(){
   var c=$('sigCanvas'); c.getContext('2d').clearRect(0,0,c.width,c.height); sigDrawn=false;
 }
+/* 審閱人複選清單（Tier 3 依部門 NMDC D&M / NMDC Energy 分組顯示人名） */
+function revGroupHtml(users,prefix){
+  var groups={},order=[];
+  (users||[]).forEach(function(p){
+    var g=p.department||(lang==='zh'?'未指定部門':'No department');
+    if(!groups[g]){ groups[g]=[]; order.push(g); }
+    groups[g].push(p);
+  });
+  order.sort(function(a,b){ var ia=['NMDC D&M','NMDC Energy'].indexOf(a),ib=['NMDC D&M','NMDC Energy'].indexOf(b); return (ia<0?9:ia)-(ib<0?9:ib); });
+  return order.map(function(g){
+    return '<div class="small fw-bold mt-1" style="color:#0b6bcb">🏢 '+esc(g)+'</div>'+groups[g].map(function(p){
+      var nm=esc(lang==='zh'?(p.nameZh||p.nameEn):(p.nameEn||p.nameZh));
+      return '<div class="form-check ms-2"><input class="form-check-input" type="checkbox" id="'+prefix+esc(p.id)+'">'+
+        '<label class="form-check-label small" for="'+prefix+esc(p.id)+'">👤 '+nm+
+        (p.title?' <span class="text-muted">'+esc(p.title)+'</span>':'')+'</label></div>';
+    }).join('');
+  }).join('');
+}
 function confirmApprove(){
   var dataUrl;
   if(sigMode==='acc'&&cur&&cur._mySignature){
@@ -14904,6 +15176,10 @@ function confirmApprove(){
     if(!sigDrawn){ toast(lang==='zh'?'請先簽名':'Please sign first'); return; }
     dataUrl=$('sigCanvas').toDataURL('image/png');
   }
+  if(!$('apMsRaWrap').classList.contains('d-none')&&!$('apMsRa').checked){
+    toast(lang==='zh'?'核准前請先勾選「已完整審閱 MS 與 RA，內容無意見」':'Please confirm you have fully reviewed the MS and RA before approving');
+    return;
+  }
   $('sigModal').classList.add('d-none');
   var nrvIds=[];
   if(!$('apNextRevWrap').classList.contains('d-none')){
@@ -14911,7 +15187,7 @@ function confirmApprove(){
       document.querySelectorAll('#apNextRevMulti input:checked').forEach(function(el){ nrvIds.push(el.id.substring(4)); });
     }else if($('apNextRev').value){ nrvIds=[$('apNextRev').value]; }
   }
-  api('approval.approve',{ptwId:cur.id,comment:$('apComment').value.trim(),signatureDataUrl:dataUrl,nextReviewerIds:nrvIds}).then(function(res){
+  api('approval.approve',{ptwId:cur.id,comment:$('apComment').value.trim(),signatureDataUrl:dataUrl,nextReviewerIds:nrvIds,msRaReviewed:$('apMsRa').checked}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     try{ sset('ptw_rv_'+cur.id,''); }catch(e){}
     toast((lang==='zh'?'已核准 → ':'Approved → ')+res.data.newStatus+(res.data.newStatus==='Approved'?' · '+res.data.number:''),true);
@@ -15929,10 +16205,15 @@ function previewSubmit(){
           (Z?'附件 Files ':'Files ')+attN+'</span>')+
     '</table>'+
     '<div class="uiNote">⚠️ '+esc(T('pw.confirmSubmit'))+'</div>';
-  // (通知) 下一關（本公司 Tier 2）審閱人選擇
+  // (通知) 起始關卡審閱人選擇：T1 申請 → 本公司 Tier 2（單選）；T2 申請 → 直接送 Tier 3（依部門複選，顯示人名）
   api('ptw.nextReviewers',{ptwId:cur.id}).then(function(rv){
     var users=(rv.ok&&rv.data.users)||[];
-    if(users.length>1){
+    var startTier=(rv.ok&&Number(rv.data.tier))||2;
+    if(startTier===3){
+      html+='<div class="mt-3 text-start"><label class="form-label small fw-bold mb-1">👥 '+(Z?'指定 NMDC 施工部門審閱人（依部門 D&M／Energy，可複選；全不勾＝通知全部 Tier 3）':'Assign NMDC construction reviewers (by department D&M / Energy, multi-select; none = notify all Tier 3)')+'</label>'+
+        '<div id="nextRevMulti" class="border rounded p-2" style="max-height:190px;overflow:auto;background:#fff">'+
+        (users.length?revGroupHtml(users,'snr_'):'<span class="small text-muted">—</span>')+'</div></div>';
+    }else if(users.length>1){
       html+='<div class="mt-3 text-start"><label class="form-label small fw-bold mb-1">👥 '+esc(T('rv.nextReviewer'))+'</label>'+
         '<select id="nextRevSel" class="form-select form-select-sm">'+
         '<option value="">📣 '+esc(T('rv.notifyAll'))+'</option>'+
@@ -15941,11 +16222,15 @@ function previewSubmit(){
     }
   uiDialog({html:html,icon:'🚀',width:540,
     title:(Z?'提交送審確認':'Confirm submission'),
-    sub:(cur.ptwNumber||cur.tempNumber)+' · '+(Z?'送出後進入第 2 關（承商職安衛）審核':'Goes to Step 2 — Contractor HSE review'),
+    sub:(cur.ptwNumber||cur.tempNumber)+' · '+(startTier===3
+      ?(Z?'承商職安衛自行申請：跳過第 2 關，送出後直接進入第 3 關（NMDC 施工部門）審核':'Applied by Contractor HSE: skips Step 2 — goes straight to Step 3 (NMDC Construction)')
+      :(Z?'送出後進入第 2 關（承商職安衛）審核':'Goes to Step 2 — Contractor HSE review')),
     okText:(Z?'確定提交 Submit':'Submit'),okClass:'btn-success'}).then(function(ok){
     if(!ok) return;
     var revSel=document.getElementById('nextRevSel');
     var reviewerId=revSel?revSel.value:'';
+    var reviewerIds=[];
+    document.querySelectorAll('#nextRevMulti input:checked').forEach(function(el){ reviewerIds.push(el.id.substring(4)); });
     var btn=$('btnSubmitPtw'); btn.disabled=true;
     // 先儲存並「確認儲存成功」才提交；失敗即中止（避免以伺服器舊資料驗證）
     ensureSaved().then(function(sv){
@@ -15954,7 +16239,7 @@ function previewSubmit(){
         toast(Z?'草稿儲存失敗，尚未提交 — 請再按一次提交':'Draft save failed — NOT submitted. Please try again.');
         return;
       }
-      api('ptw.submit',{ptwId:cur.id,reviewerId:reviewerId||''}).then(function(res){
+      api('ptw.submit',{ptwId:cur.id,reviewerId:reviewerId||'',reviewerIds:reviewerIds}).then(function(res){
         btn.disabled=false;
         if(!res.ok){
           // 後端擋下（罕見）：同樣以逐項清單顯示
@@ -15963,7 +16248,9 @@ function previewSubmit(){
           return;
         }
         $('valErrors').innerHTML='';
-        toast(T('pw.submitted'),true);
+        toast(res.data&&res.data.status==='PendingTier3Review'
+          ?(Z?'PTW 已提交 — 直接進入 Tier 3 NMDC 施工部門審查。':'PTW submitted — now pending Tier 3 (NMDC Construction) review.')
+          :T('pw.submitted'),true);
         openPtwList();
       });
     });
