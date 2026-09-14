@@ -12166,10 +12166,10 @@ var STRINGS = {
  'tm.admin':{en:'👑 Admin (my real account)',zh:'👑 管理員（原始身分）'},
  'tm.enable':{en:'Enable / refresh personas',zh:'啟用／重新整理測試人員'},
  'tm.reset':{en:'Clear test PTW data',zh:'清除測試 PTW 資料'},
- 'tm.clearDesc':{en:'Use after testing: deletes all PTWs (certificates, approvals, attachments, Drive folders); PTW and certificate numbering restarts from 0001. Keeps all accounts, companies, training/exam records, question bank and settings. This cannot be undone. A verification code is emailed to the designated mailbox first, and nothing is deleted until it is entered.',
-   zh:'測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！執行前系統會先寄驗證碼到指定信箱，輸入驗證碼後才會刪除。'},
- 'tm.resetDesc':{en:'Deletes all PTWs (certificates, approvals, attachments), all companies (NMDC kept) and all users with their training/exam records — keeps only the paultong.ehs@gmail.com administrator; PTW and certificate numbering restarts from 0001; Drive PTW folders are moved to trash. Keeps the question bank, courses, settings, downloads, announcements and the audit trail. This cannot be undone. A verification code is emailed to the designated mailbox first, and nothing is deleted until it is entered.',
-   zh:'刪除「所有 PTW（含證書、簽核、附件紀錄）、所有公司（NMDC 保留）、所有人員及其訓練／考試紀錄」，只保留 paultong.ehs@gmail.com 管理員；PTW 與證書編號自 0001 重新開始；Drive 的 PTW 資料夾移至垃圾桶。保留：題庫、訓練課程、系統設定、下載專區、公告、稽核紀錄。此操作無法復原！執行前系統會先寄驗證碼到指定信箱，輸入驗證碼後才會刪除。'},
+ 'tm.clearDesc':{en:'Use after testing: deletes all PTWs (certificates, approvals, attachments, Drive folders); PTW and certificate numbering restarts from 0001. Keeps all accounts, companies, training/exam records, question bank and settings. This cannot be undone.',
+   zh:'測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！'},
+ 'tm.resetDesc':{en:'Deletes all PTWs (certificates, approvals, attachments), all companies (NMDC kept) and all users with their training/exam records — keeps only the paultong.ehs@gmail.com administrator; PTW and certificate numbering restarts from 0001; Drive PTW folders are moved to trash. Keeps the question bank, courses, settings, downloads, announcements and the audit trail. This cannot be undone.',
+   zh:'刪除「所有 PTW（含證書、簽核、附件紀錄）、所有公司（NMDC 保留）、所有人員及其訓練／考試紀錄」，只保留 paultong.ehs@gmail.com 管理員；PTW 與證書編號自 0001 重新開始；Drive 的 PTW 資料夾移至垃圾桶。保留：題庫、訓練課程、系統設定、下載專區、公告、稽核紀錄。此操作無法復原！'},
  'tm.exit':{en:'Exit test mode',zh:'退出測試模式'},
  'tm.desc':{en:'Creates two test contractors and one user per tier, then lets you switch identity from the top bar — no need to register accounts. Test users are ordinary accounts (marked as test) and follow the normal permission flow, so nothing in the existing system changes.',zh:'建立兩家測試承商與各 Tier 測試人員，之後可從頁面上方下拉選單直接切換身分測試，不必自己申請帳號。測試人員就是一般帳號（標記為測試），走完全相同的權限流程，不會動到既有系統架構。'},
  'tm.enabled':{en:'Test mode ready — switch identity from the top bar',zh:'測試模式已啟用 — 請用頁面上方下拉選單切換身分'},
@@ -14339,11 +14339,11 @@ function dangerOtpFlow(action,intro){
   var Z=(lang==='zh');
   return uiConfirm(intro).then(function(ok){
     if(!ok) return null;
-    toast(Z?'📧 正在寄送驗證碼…':'📧 Sending verification code…',true);
     return api('admin.system.requestDangerCode',{action:action}).then(function(r){
       if(!r.ok){ toast(apiMsg(r)); return null; }
-      return uiPrompt((Z?'📧 驗證碼已寄至 ':'📧 A verification code has been sent to ')+r.data.sentTo+
-        (Z?'（10 分鐘內有效）。\\n\\n請輸入 6 位數驗證碼後按確定，系統才會執行：':' (valid for 10 minutes).\\n\\nEnter the 6-digit code and press OK to run the action:'))
+      return uiPrompt(Z
+        ?'🔐 為確保安全，請至指定信箱收取驗證碼（10 分鐘內有效），輸入 6 位數驗證碼後按確定，系統才會執行：'
+        :'🔐 For security, please retrieve the verification code from the designated mailbox (valid for 10 minutes). Enter the 6-digit code and press OK to run the action:')
       .then(function(v){
         if(v===null||v===undefined) return null;
         var code=String(v).trim();
@@ -14357,8 +14357,8 @@ function dangerOtpFlow(action,intro){
 function doClearPtws(){
   var Z=(lang==='zh');
   dangerOtpFlow('clearPtws',Z
-    ?'🧹 將刪除所有 PTW（含證書、簽核、附件、Drive 資料夾），編號自 0001 重新開始；帳號與公司保留。無法復原！\\n\\n系統會先寄送驗證碼到指定信箱，輸入驗證碼後才會執行。要繼續嗎？'
-    :'🧹 This deletes all PTWs (certificates, approvals, attachments, Drive folders) and restarts numbering from 0001; accounts and companies are kept. This cannot be undone!\\n\\nA verification code will be emailed first; nothing is deleted until you enter it. Continue?')
+    ?'🧹 將刪除所有 PTW（含證書、簽核、附件、Drive 資料夾），編號自 0001 重新開始；帳號與公司保留。\\n\\n此操作無法復原！確定執行？'
+    :'🧹 This deletes all PTWs (certificates, approvals, attachments, Drive folders) and restarts numbering from 0001; accounts and companies are kept.\\n\\nThis cannot be undone! Proceed?')
   .then(function(code){
     if(!code) return;
     api('admin.system.clearPtws',{otp:code}).then(function(res){
@@ -14375,8 +14375,8 @@ function doClearPtws(){
 function doFactoryReset(){
   var Z=(lang==='zh');
   dangerOtpFlow('factoryReset',Z
-    ?'☢️ 一鍵重置將刪除所有 PTW、公司與人員（只留 paultong.ehs@gmail.com），編號歸零，無法復原！\\n\\n系統會先寄送驗證碼到指定信箱，輸入驗證碼後才會執行。要繼續嗎？'
-    :'☢️ Factory reset will delete all PTWs, companies and users (keeps only paultong.ehs@gmail.com) and restart numbering. This cannot be undone!\\n\\nA verification code will be emailed first; nothing is deleted until you enter it. Continue?')
+    ?'☢️ 一鍵重置將刪除所有 PTW、公司與人員（只留 paultong.ehs@gmail.com），編號歸零。\\n\\n此操作無法復原！確定執行？'
+    :'☢️ Factory reset will delete all PTWs, companies and users (keeps only paultong.ehs@gmail.com) and restart numbering.\\n\\nThis cannot be undone! Proceed?')
   .then(function(code){
     if(!code) return;
     api('admin.system.factoryReset',{otp:code}).then(function(res){
