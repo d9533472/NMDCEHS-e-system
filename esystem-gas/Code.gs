@@ -399,7 +399,11 @@ function doGet(e) {
     } catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
   if (action === 'sendTrackerNow') {
-    try { return jsonOut_(sendTrackerMail_(e.parameter.to || '')); }
+    try { return jsonOut_(sendTrackerMail_(e.parameter.to || '', 'manual')); }
+    catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
+  if (action === 'mailLog') {          // 寄送紀錄（最近 N 筆，含退信檢查）
+    try { return jsonOut_(listMailLog_(parseInt(e.parameter.limit, 10) || 30)); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
   if (action === 'sendReminderNow') {
@@ -922,6 +926,7 @@ function loadRosterState_(data) {
 //    ?action=trackerMailPreview          → 回傳信件 HTML（預覽用，不寄出）
 //    ?action=sendTrackerNow[&to=email]   → 立即寄出（帶 to = 只寄測試信給該信箱）
 //    ?action=sendReminderNow             → 立即寄一封週五提醒信（測試用）
+//    ?action=mailLog[&limit=30]          → 寄送紀錄（工作表 MailLog；會順便到 Gmail 收件匣找退信）
 //    ?action=findWeeklyFile&name=…       → 依檔名查週報資料夾內的檔案（上傳後備援查詢）
 //  POST action（body JSON）：
 //    {action:'saveMailConfig', cfg:{…}}                     → 儲存設定
@@ -943,6 +948,7 @@ function nmdcLogoDataUrl_() { return 'data:image/png;base64,' + NMDC_LOGO_B64; }
 var MAIL_TZ          = 'Asia/Taipei';
 var WEEKLY_FOLDER    = 'EHS-Weekly-Report';
 var TRANSLATE_SHEET  = 'Translations';
+var MAIL_LOG_SHEET   = 'MailLog';      // 寄送紀錄：時間/類型/來源/收件者/CC/主旨/結果/說明/退信檢查/檢查時間
 
 var MAIL_DEFAULT_CFG = {
   enabled:         true,
@@ -1667,26 +1673,42 @@ function buildTrackerMail_(opts) {
 }
 
 // ── 寄送週報 ──
-function sendTrackerMail_(testTo) {
+// source：'trigger'（每週一排程）或 'manual'（設定頁按鈕）；testTo 有值 = 測試信
+function sendTrackerMail_(testTo, source) {
   var mc = getMailConfig_();
   var to = normalizeMails_(testTo);
   var cc = '';
+  var type = testTo ? '測試信' : '週報';
+  var src = source === 'trigger' ? '自動' : '手動';
+  var fail = function(msg) {
+    logMail_({ type: type, source: src, to: to || mc.to, cc: cc || mc.cc, subject: '', ok: false, note: msg });
+    return { ok: false, error: msg };
+  };
   if (!to) {
-    if (!mc.enabled) return { ok: false, error: '週報寄送已停用（請到設定頁啟用）' };
+    if (!mc.enabled) return fail('週報寄送已停用（請到設定頁啟用）');
     to = normalizeMails_(mc.to);
     cc = normalizeMails_(mc.cc);
-    if (!to) return { ok: false, error: '尚未設定收件者' };
+    if (!to) return fail('尚未設定收件者');
   }
-  var m = buildTrackerMail_();
-  var opt = { to: to, subject: (testTo ? '【測試】' : '') + m.subject, htmlBody: m.html, name: mc.senderName };
-  if (cc) opt.cc = cc;
-  m.inline.logo = nmdcLogoBlob_();
-  if (Object.keys(m.inline).length) opt.inlineImages = m.inline;
-  if (m.attachments.length) opt.attachments = m.attachments;
-  MailApp.sendEmail(opt);
+  var m, opt;
+  try {
+    m = buildTrackerMail_();
+    opt = { to: to, subject: (testTo ? '【測試】' : '') + m.subject, htmlBody: m.html, name: mc.senderName };
+    if (cc) opt.cc = cc;
+    m.inline.logo = nmdcLogoBlob_();
+    if (Object.keys(m.inline).length) opt.inlineImages = m.inline;
+    if (m.attachments.length) opt.attachments = m.attachments;
+    MailApp.sendEmail(opt);
+  } catch(err) {
+    var msg = (m ? '寄送失敗：' : '組信失敗：') + err.message;
+    logMail_({ type: type, source: src, to: to, cc: cc, subject: m ? m.subject : '', ok: false, note: msg });
+    throw new Error(msg);
+  }
   if (!testTo) markMailSent_(m.photoList, m.range);
   var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
-  Logger.log('週報已寄出 → ' + to + (cc ? ' (cc ' + cc + ')' : '') + '；' + m.subject + '；待辦 ' + m.total + '，逾期 ' + m.overdue + '，照片 ' + m.photos + '，KPI 圖 ' + (m.kpi ? '有' : '無'));
+  var note = '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '');
+  logMail_({ type: type, source: src, to: to, cc: cc, subject: opt.subject, ok: true, note: note });
+  Logger.log('週報已寄出 → ' + to + (cc ? ' (cc ' + cc + ')' : '') + '；' + m.subject + '；' + note);
   return { ok: true, to: to, cc: cc, subject: opt.subject, total: m.total, overdue: m.overdue, thisWeek: m.thisWeek, ncr: m.ncr, photos: m.photos, kpi: m.kpi, quota: quota };
 }
 
@@ -1750,18 +1772,150 @@ function buildReminderMail_() {
   return { subject: '【提醒】請更新週報照片與 KPI 總結圖 — ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')', html: html, to: normalizeMails_(mc.reminderTo), enabled: mc.reminderEnabled };
 }
 function sendReminderMail_(force) {
-  var r = buildReminderMail_();
   var mc = getMailConfig_();
-  if (!force && !r.enabled) return { ok: false, error: '提醒信已停用' };
-  if (!r.to) return { ok: false, error: '尚未設定提醒收件者' };
-  MailApp.sendEmail({ to: r.to, subject: r.subject, htmlBody: r.html, name: mc.senderName, inlineImages: { logo: nmdcLogoBlob_() } });
+  var src = force ? '手動' : '自動';
+  var r;
+  try {
+    r = buildReminderMail_();
+    if (!force && !r.enabled) { logMail_({ type: '提醒信', source: src, to: r.to, ok: false, note: '提醒信已停用' }); return { ok: false, error: '提醒信已停用' }; }
+    if (!r.to) { logMail_({ type: '提醒信', source: src, to: '', ok: false, note: '尚未設定提醒收件者' }); return { ok: false, error: '尚未設定提醒收件者' }; }
+    MailApp.sendEmail({ to: r.to, subject: r.subject, htmlBody: r.html, name: mc.senderName, inlineImages: { logo: nmdcLogoBlob_() } });
+  } catch(err) {
+    logMail_({ type: '提醒信', source: src, to: r ? r.to : mc.reminderTo, subject: r ? r.subject : '', ok: false, note: '寄送失敗：' + err.message });
+    throw err;
+  }
+  logMail_({ type: '提醒信', source: src, to: r.to, subject: r.subject, ok: true, note: '' });
   Logger.log('週報提醒已寄出 → ' + r.to);
   return { ok: true, to: r.to, subject: r.subject };
 }
 
+// ── 寄送紀錄（工作表 MailLog）＋ 退信檢查 ──
+// 每次寄週報 / 測試信 / 提醒信（成功或失敗）都記一列；設定頁「⑤ 寄送紀錄」讀 ?action=mailLog。
+// 退信檢查：到寄件帳號的 Gmail 收件匣找 postmaster / mailer-daemon 的退信，依主旨與時間對回該筆紀錄。
+// 注意：GmailApp 需要「讀取 Gmail」授權，部署後請在編輯器執行一次 testMailLog() 完成授權，否則排程會因權限不足失敗。
+var MAIL_LOG_HEAD = ['時間', '類型', '來源', '收件者', 'CC', '主旨', '結果', '說明', '退信檢查', '檢查時間'];
+function getMailLogSheet_() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sh = ss.getSheetByName(MAIL_LOG_SHEET);
+  if (!sh) {
+    sh = ss.insertSheet(MAIL_LOG_SHEET);
+    sh.getRange(1, 1, 1, MAIL_LOG_HEAD.length).setValues([MAIL_LOG_HEAD]).setFontWeight('bold');
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+function logMail_(e) {
+  try {
+    var sh = getMailLogSheet_();
+    sh.appendRow([new Date().toISOString(), e.type || '', e.source || '', String(e.to || ''), String(e.cc || ''), String(e.subject || ''),
+                  e.ok ? '成功' : '失敗', String(e.note || ''), '', '']);
+    var n = sh.getLastRow();
+    if (n > 1200) sh.deleteRows(2, n - 1200);   // 只留最近 1200 筆
+  } catch(err) { Logger.log('寫入寄送紀錄失敗：' + err.message); }
+}
+function listMailLog_(limit) {
+  var sh = getMailLogSheet_();
+  var n = sh.getLastRow();
+  var rows = [];
+  if (n > 1) {
+    var start = Math.max(2, n - limit + 1);
+    var vals = sh.getRange(start, 1, n - start + 1, MAIL_LOG_HEAD.length).getValues();
+    vals.forEach(function(v, i) {
+      rows.push({ row: start + i, at: v[0] instanceof Date ? v[0].toISOString() : String(v[0] || ''), type: v[1], source: v[2], to: v[3], cc: v[4],
+                  subject: v[5], ok: v[6] === '成功', note: v[7], bounce: String(v[8] || ''), bounceAt: v[9] instanceof Date ? v[9].toISOString() : String(v[9] || '') });
+    });
+  }
+  var bounceCheck = { ok: true, checked: 0 };
+  try { bounceCheck.checked = checkBounces_(sh, rows); }
+  catch(err) {
+    bounceCheck = { ok: false, error: err.message };
+    Logger.log('退信檢查失敗：' + err.message);
+  }
+  rows.reverse();   // 新的在前
+  rows.forEach(function(r) { r.bounceHint = r.bounce.indexOf('退信') === 0 ? explainBounce_(r.bounce) : ''; });
+  return { ok: true, rows: rows, bounceCheck: bounceCheck, total: Math.max(0, n - 1) };
+}
+// 對「成功且退信欄還是空的」的紀錄找退信；沒找到且已寄出超過 15 分鐘 → 標「無退信」
+function checkBounces_(sh, rows) {
+  var now = Date.now();
+  var pending = rows.filter(function(r) { return r.ok && !r.bounce && r.at && (now - new Date(r.at).getTime()) < 7 * 86400000; });
+  if (!pending.length) return 0;
+  var threads = GmailApp.search('(from:postmaster OR from:mailer-daemon OR subject:Undeliverable OR subject:"Delivery Status Notification") newer_than:8d', 0, 40);
+  var bounces = [];
+  threads.forEach(function(t) {
+    t.getMessages().forEach(function(m) {
+      var from = String(m.getFrom() || '').toLowerCase();
+      var subj = String(m.getSubject() || '');
+      if (!/postmaster|mailer-daemon/.test(from) && !/undeliverable|delivery status|failure/i.test(subj)) return;
+      var body = '';
+      try { body = String(m.getPlainBody() || '').slice(0, 4000); } catch(e) {}
+      bounces.push({ date: m.getDate().getTime(), subject: subj, text: parseBounce_(body) });
+    });
+  });
+  var keyOf = function(r) { return String(r.subject || '').replace(/^【測試】/, '').trim(); };
+  var checked = 0;
+  pending.forEach(function(r) {
+    var sent = new Date(r.at).getTime();
+    var key = keyOf(r);
+    var hit = null;
+    bounces.forEach(function(b) {
+      if (!key || b.subject.indexOf(key) < 0) return;
+      if (b.date < sent - 60000 || b.date > sent + 6 * 3600000) return;
+      // 同主旨可能寄過好幾次：退信歸給「在退信之前、寄出時間最接近」的那一筆
+      var later = rows.some(function(o) { var t = new Date(o.at).getTime(); return o.ok && keyOf(o) === key && t > sent && t <= b.date + 60000; });
+      if (later) return;
+      if (!hit || b.date < hit.date) hit = b;
+    });
+    var val = '';
+    if (hit) val = '退信：' + hit.text;
+    else if (now - sent > 15 * 60000) val = '無退信';
+    if (val) {
+      r.bounce = val; r.bounceAt = new Date().toISOString();
+      sh.getRange(r.row, 9, 1, 2).setValues([[val, r.bounceAt]]);
+      checked++;
+    }
+  });
+  return checked;
+}
+function parseBounce_(body) {
+  var text = body.replace(/\r/g, '');
+  var m = text.match(/recipients or groups:\s*([\s\S]*?)\n\s*(Your message[^\n]*)/i);
+  var addrs, reason;
+  if (m) {
+    addrs = (m[1].match(/[\w.+-]+@[\w.-]+\.\w+/g) || []);
+    reason = m[2];
+  } else {
+    addrs = (text.slice(0, 1500).match(/[\w.+-]+@[\w.-]+\.\w+/g) || []).filter(function(a) { return !/postmaster|mailer-daemon|gmail\.com$/i.test(a); });
+    var line = text.split('\n').map(function(x){ return x.trim(); }).filter(function(x) { return /couldn't be delivered|wasn't delivered|could not be delivered|rejected|not found|does not exist|5\.\d\.\d|550|blocked|full/i.test(x); })[0];
+    reason = line || text.replace(/\s+/g, ' ').slice(0, 160);
+  }
+  reason = String(reason || '').replace(/\s+/g, ' ').trim();
+  var cut = reason.indexOf('. ');
+  if (cut > 30) reason = reason.slice(0, cut + 1);
+  addrs = addrs.filter(function(a, i, arr) { return arr.indexOf(a) === i; }).slice(0, 5);
+  return (addrs.length ? addrs.join(', ') : '（無法辨識收件者）') + (reason ? '｜' + reason.slice(0, 200) : '');
+}
+function explainBounce_(s) {
+  if (/authenticated senders|restricted to/i.test(s)) return '這個群組只收公司內部（已驗證）寄件者，系統是用 Gmail 從外部寄，所以被群組擋掉；其他收件者不受影響。請 IT 在 Microsoft 365 該群組的「傳遞管理」開放「允許組織外部的寄件者」，或改填群組成員的個人信箱。';
+  if (/not found|does not exist|couldn't be found|5\.1\.1|5\.1\.10|no such user|unknown/i.test(s)) return '收件者信箱不存在，請確認拼字。';
+  if (/mailbox full|over quota|5\.2\.2/i.test(s)) return '收件者信箱已滿。';
+  if (/spam|blocked|policy|5\.7\./i.test(s)) return '被對方郵件伺服器的安全／垃圾信政策拒收，請 IT 把寄件者加入白名單。';
+  if (/size|too large|5\.3\.4/i.test(s)) return '信件太大被拒收，請減少照片張數。';
+  return '';
+}
+// 編輯器手動執行：立刻對最近 30 筆做退信檢查（新增 Gmail 讀取權限後請先跑一次以完成授權）
+function testMailLog() {
+  var r = listMailLog_(30);
+  Logger.log('退信檢查：' + JSON.stringify(r.bounceCheck) + '；共 ' + r.rows.length + ' 筆');
+  r.rows.forEach(function(x){ Logger.log([x.at, x.type, x.source, x.ok ? '成功' : '失敗', x.to, x.bounce || '-', x.note].join(' | ')); });
+  return r;
+}
+
 // ── 觸發器呼叫的函式 ──
 function weeklyTrackerMail() {           // 每週一 09:00
-  var r = sendTrackerMail_('');
+  var r;
+  try { r = sendTrackerMail_('', 'trigger'); }
+  catch(err) { Logger.log('weeklyTrackerMail 失敗：' + err.message); return { ok: false, error: err.message }; }
   if (!r.ok) Logger.log('weeklyTrackerMail 未寄出：' + r.error);
   return r;
 }
