@@ -2849,7 +2849,8 @@ var TrainingService = (function () {
       var pct = dur > 0 ? Math.min(100, Math.round(sec * 100 / dur)) : 0;
       var done = dur > 0 && pct >= minPct;
       if (!done) allDone = false;
-      totalDur += dur; totalWatched += Math.min(sec, dur > 0 ? dur : sec);
+      // 長度未知的影片不計入總進度（否則總進度條會誤顯 100% 而單片仍 0%）
+      totalDur += dur; totalWatched += dur > 0 ? Math.min(sec, dur) : 0;
       return { id: v.id, title: v.title || '', durationSec: dur, watchedSec: sec, watchPercent: pct, completed: done };
     });
     return { videos: list, totalDur: totalDur, totalWatched: totalWatched,
@@ -2924,8 +2925,8 @@ var TrainingService = (function () {
     vids.forEach(function (v, i) { if (v.id === videoId) vIdx = i; });
     if (vIdx < 0) { vIdx = 0; videoId = vids[0].id; }
 
-    // 影片長度：若該部影片未設定，採用播放器回報（>60 秒才接受）
-    if (!Number(vids[vIdx].durationSec || 0) && payload.playerDurationSec && Number(payload.playerDurationSec) > 60) {
+    // 影片長度：若該部影片未設定，採用播放器回報（≥5 秒才接受；播放器尚未載入 metadata 時會回 0）
+    if (!Number(vids[vIdx].durationSec || 0) && payload.playerDurationSec && Number(payload.playerDurationSec) >= 5) {
       vids[vIdx].durationSec = Math.round(Number(payload.playerDurationSec));
       Repo.update('TrainingCourses', course.id, {
         videosJson: JSON.stringify(vids),
@@ -16081,7 +16082,7 @@ function initYt(videoId){
         try{
           var dur=Math.round(ev.target.getDuration());
           var cv=(trVideos||[]).filter(function(v){ return v.id===curVid; })[0];
-          if(dur>60&&(!cv||!cv.durationSec)){
+          if(dur>=5&&(!cv||!cv.durationSec)){
             api('training.reportProgress',{courseId:trCourse.id,deltaSec:0,playerDurationSec:dur,videoId:curVid},{silent:true});
             if(cv) cv.durationSec=dur;
           }
@@ -16102,7 +16103,7 @@ function onYtState(ev){
     try{
       var cv0=(trVideos||[]).filter(function(v){ return v.id===curVid; })[0];
       var dur0=Math.round(ytPlayer.getDuration());
-      if(dur0>60&&cv0&&!Number(cv0.durationSec||0)){
+      if(dur0>=5&&cv0&&!Number(cv0.durationSec||0)){
         api('training.reportProgress',{courseId:trCourse.id,deltaSec:0,playerDurationSec:dur0,videoId:curVid},{silent:true});
         cv0.durationSec=dur0;
       }
