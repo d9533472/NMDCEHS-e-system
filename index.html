@@ -2564,6 +2564,20 @@ async function saveMailCfg(silent){
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 儲存失敗：'+e.message,'err');return false;}
 }
 // ── 現場照片 ──
+async function restoreMcPhotos(){
+  if(_mcBusy)return;
+  if(!confirm('把最近一次寄出時封存的照片（含標題／地點／日期）搬回這裡？
+搬回後會出現在下一封週報。'))return;
+  _mcBusy=true;setMailCfgStatus('⏳ 還原封存照片中…');
+  try{
+    const d=await gasGet('restoreArchivedPhotos',{},90000);
+    if(!d||!d.ok)throw new Error((d&&d.error)||'還原失敗');
+    (d.photos||[]).forEach(p=>{if(!_mcPhotos.some(x=>x.fileId===p.fileId))_mcPhotos.push(p);});
+    renderMcPhotos();
+    setMailCfgStatus(d.restored?`✅ 已從「${d.folder}」還原 ${d.restored} 張照片`:`ℹ️ 「${d.folder}」裡沒有可還原的照片`,'ok');
+  }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');}
+  finally{_mcBusy=false;}
+}
 function renderMcPhotos(){
   const g=$('mcPhotos');if(!g)return;
   if(!_mcPhotos.length){g.innerHTML='<div class="mc-empty">尚未加入照片。按「＋ 新增照片」可一次選多張，會自動壓縮上傳到 Drive。</div>';return;}
@@ -3842,10 +3856,10 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
 
     <div class="mc-sec">
-      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>信件最後兩欄、固定 16:9 等高；上傳時等比縮小置中放進畫框，不裁切</small><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
+      <div class="mc-sec-h"><b>③ 現場照片</b><div style="display:flex;gap:6px;align-items:center"><small>信件最後兩欄、固定 16:9 等高；上傳時等比縮小置中放進畫框，不裁切</small><button type="button" class="mc-btn" onclick="restoreMcPhotos()" title="把最近一次寄出時封存的照片搬回來">↩ 還原上次封存</button><button type="button" class="mc-btn" onclick="addMcPhotos()">＋ 新增照片</button></div></div>
       <input type="file" id="mcPhotoInput" accept="image/*" multiple style="display:none" onchange="handleMcPhotos(this)">
       <div class="mc-photos" id="mcPhotos"></div>
-      <div class="mc-note" style="margin-top:8px">照片上傳時會等比縮小、置中放進固定 16:9 畫框（1280×720，不裁切，空白處淺灰底）後存到 Drive 的 EHS-Weekly-Report 資料夾，信件裡每張等高；建議放橫式照片。之前上傳的舊照片不會自動套用，請重新上傳。<b>週報寄出後，這次寄出的照片會自動從這裡移除並封存到 Drive「已寄出／報告週」子資料夾</b>，所以這裡永遠只有「這週要寄的」。移除照片後按「儲存設定」才會生效。</div>
+      <div class="mc-note" style="margin-top:8px">照片上傳時會等比縮小、置中放進固定 16:9 畫框（1280×720，不裁切，空白處淺灰底）後存到 Drive 的 EHS-Weekly-Report 資料夾，信件裡每張等高；建議放橫式照片。之前上傳的舊照片不會自動套用，請重新上傳。<b>週報寄出後，這次寄出的照片會自動從這裡移除並封存到 Drive「已寄出／報告週」子資料夾</b>，所以這裡永遠只有「這週要寄的」。寄出後才發現要補寄或要重用，按「↩ 還原上次封存」就會把上一次寄出的照片連同標題搬回來。移除照片後按「儲存設定」才會生效。</div>
     </div>
 
     <div class="mc-sec">

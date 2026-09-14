@@ -414,6 +414,10 @@ function doGet(e) {
     try { return jsonOut_(makeKpiSlideAndStore_('slides', true)); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
+  if (action === 'restoreArchivedPhotos') {   // 把「已寄出/<報告週>」的照片搬回待寄清單；range 省略 = 最近一次
+    try { return jsonOut_(restoreArchivedPhotos_(e.parameter.range || '', e.parameter.captions ? JSON.parse(e.parameter.captions) : null)); }
+    catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
   if (action === 'removeKpiSummary') {
     try { return jsonOut_(removeKpiSummary_()); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
@@ -1045,6 +1049,8 @@ function markMailSent_(sentPhotos, range) {
       var it2 = archive.getFoldersByName(name);
       sub = it2.hasNext() ? it2.next() : archive.createFolder(name);
     } catch(e) { Logger.log('建立封存資料夾失敗：' + e.message); }
+    // 照片標題／地點／日期一起存進封存資料夾，之後用 restoreArchivedPhotos 可原樣還原
+    try { if (sub) sub.createFile('photos.json', JSON.stringify(sentPhotos), MimeType.PLAIN_TEXT); } catch(e) { Logger.log('寫入 photos.json 失敗：' + e.message); }
     sentIds.forEach(function(id) {
       if (!sub) return;
       try { DriveApp.getFileById(id).moveTo(sub); } catch(e) { Logger.log('封存照片失敗 ' + id + '：' + e.message); }
@@ -1053,6 +1059,48 @@ function markMailSent_(sentPhotos, range) {
     Logger.log('已封存 ' + sentIds.length + ' 張照片' + (sub ? '到 ' + sub.getName() : ''));
   }
   getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(cfg));
+}
+// 把「已寄出/<報告週>」的照片搬回 EHS-Weekly-Report 並加回待寄清單（uploadedAt = 現在 → 會進下一封週報）
+// rangeName：'2026-09-07~2026-09-13'；空或 'latest' = 最近建立的封存資料夾
+// captions：選填 [{title,location,date}]，依檔案建立時間順序對應；封存資料夾裡有 photos.json 時以它為準
+function restoreArchivedPhotos_(rangeName, captions) {
+  var root = getWeeklyFolder_();
+  var it = root.getFoldersByName('已寄出');
+  if (!it.hasNext()) throw new Error('沒有「已寄出」封存資料夾');
+  var archive = it.next(), sub = null;
+  if (!rangeName || rangeName === 'latest') {
+    var fs = archive.getFolders();
+    while (fs.hasNext()) { var f = fs.next(); if (!sub || f.getDateCreated() > sub.getDateCreated()) sub = f; }
+  } else {
+    var it2 = archive.getFoldersByName(rangeName);
+    sub = it2.hasNext() ? it2.next() : null;
+  }
+  if (!sub) throw new Error('找不到封存資料夾：' + (rangeName || 'latest'));
+  var meta = {}, mj = sub.getFilesByName('photos.json');
+  if (mj.hasNext()) {
+    try { (JSON.parse(mj.next().getBlob().getDataAsString()) || []).forEach(function(p){ if (p && p.fileId) meta[p.fileId] = p; }); }
+    catch(e) { Logger.log('photos.json 讀取失敗：' + e.message); }
+  }
+  var files = [], fit = sub.getFiles();
+  while (fit.hasNext()) { var fl = fit.next(); if (String(fl.getMimeType()).indexOf('image/') === 0) files.push(fl); }
+  files.sort(function(a, b){ return a.getDateCreated() - b.getDateCreated(); });
+  var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
+  cfg.photos = cfg.photos || [];
+  var have = {}; cfg.photos.forEach(function(p){ if (p && p.fileId) have[p.fileId] = true; });
+  var now = new Date().toISOString(), restored = [];
+  files.forEach(function(fl, i) {
+    var id = fl.getId();
+    try { fl.moveTo(root); } catch(e) { Logger.log('搬回失敗 ' + id + '：' + e.message); return; }
+    if (have[id]) return;
+    var m = meta[id] || (captions && captions[i]) || {};
+    var p = { fileId: id, url: bulImageUrl_(id), title: String(m.title || fl.getName().replace(/\.[^.]+$/, '')),
+              location: String(m.location || ''), date: String(m.date || ''), uploadedAt: now,
+              framed: (m.framed === undefined) ? true : !!m.framed };
+    cfg.photos.push(p); restored.push(p);
+  });
+  getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(cfg));
+  Logger.log('已從「' + sub.getName() + '」還原 ' + restored.length + ' 張照片');
+  return { ok: true, folder: sub.getName(), restored: restored.length, total: cfg.photos.length, photos: restored };
 }
 
 // ── Drive：週報資料夾 / 上傳 ──
