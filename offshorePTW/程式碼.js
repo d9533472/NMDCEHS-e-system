@@ -2611,11 +2611,56 @@ var TestModeService = (function () {
    */
   var KEEP_ADMIN_EMAIL = 'paultong.ehs@gmail.com';
 
+  /** 危險操作（清除全部 PTW／一鍵重置）：先寄 6 位數驗證碼到指定信箱，10 分鐘內輸入正確才執行 */
+  var DANGER_OTP_EMAIL = 'paul.tong@nmdc-group.com';
+  var DANGER_ACTIONS = {
+    clearPtws: 'Clear all PTWs & restart numbering 清除全部 PTW 並歸零編號',
+    factoryReset: 'Factory Reset 一鍵重置系統'
+  };
+  function dangerOtpEmail_() {
+    var v = ''; try { v = String(getSetting_('dangerOtpEmail') || '').trim(); } catch (e) {}
+    return v || DANGER_OTP_EMAIL;
+  }
+  function requestDangerCode(user, payload) {
+    SecurityService.requireAdmin(user);
+    var action = String((payload && payload.action) || '');
+    if (!DANGER_ACTIONS[action]) throw ApiError_('BAD_ACTION', 'Unknown action', '未知的操作');
+    var code = String(Math.floor(100000 + Math.random() * 900000));
+    CacheService.getScriptCache().put('danger_' + action + '_' + user.id, code, 600);
+    var to = dangerOtpEmail_();
+    var who = (user.nameEn || '') + ' / ' + (user.nameZh || '') + ' (' + user.email + ')';
+    MailApp.sendEmail({
+      to: to, name: 'NMDC Offshore PTW System Notification',
+      subject: '[Offshore PTW] Verification code 危險操作驗證碼：' + code,
+      htmlBody: '<div style="font-family:Arial,\'Microsoft JhengHei\',sans-serif;font-size:14px;line-height:1.8">' +
+        '<p><b>Action 操作：</b>' + DANGER_ACTIONS[action] + '</p>' +
+        '<p><b>Requested by 申請人：</b>' + who + '<br><b>Time 時間：</b>' + fmtDateTime_() + ' (Asia/Taipei)</p>' +
+        '<p style="font-size:26px;letter-spacing:6px;font-weight:700;color:#c62828;margin:14px 0">' + code + '</p>' +
+        '<p>This code is valid for <b>10 minutes</b> and can be used once. The action runs only after this code is entered in the system.<br>' +
+        '驗證碼 <b>10 分鐘內</b>有效、僅能使用一次；在系統輸入此驗證碼後才會執行該操作。</p>' +
+        '<p style="color:#777;font-size:12px">If you did not request this, ignore this email — nothing will be deleted without the code.<br>若非您本人操作，請忽略本信；未輸入驗證碼不會刪除任何資料。</p></div>'
+    });
+    AuditService.log({ user: user, actionType: 'DANGER_OTP_SENT', entityType: 'System',
+      comment: action + ' → ' + to, success: true });
+    return ok_({ sentTo: to.replace(/^(.{2}).*(@.*)$/, '$1***$2'), validMin: 10 });
+  }
+  function checkDangerCode_(user, action, otp) {
+    var key = 'danger_' + action + '_' + user.id;
+    var expect = CacheService.getScriptCache().get(key);
+    if (!expect) {
+      throw ApiError_('OTP_EXPIRED', 'Verification code expired or not requested — please request a new code',
+        '驗證碼已過期或尚未取得，請重新取得驗證碼');
+    }
+    if (String(otp || '').trim() !== expect) {
+      AuditService.log({ user: user, actionType: 'DANGER_OTP_FAILED', entityType: 'System', comment: action, success: false });
+      throw ApiError_('OTP_INVALID', 'Verification code is incorrect', '驗證碼錯誤');
+    }
+    CacheService.getScriptCache().remove(key);
+  }
+
   function factoryReset(user, payload) {
     SecurityService.requireAdmin(user);
-    if (String(payload && payload.confirm) !== 'RESET') {
-      throw ApiError_('CONFIRM_REQUIRED', 'Type RESET to confirm', '請輸入 RESET 以確認執行');
-    }
+    checkDangerCode_(user, 'factoryReset', payload && payload.otp);
     var keep = Repo.findOne('Users', function (u) { return normEmail_(u.email) === KEEP_ADMIN_EMAIL; });
     if (!keep) {
       throw ApiError_('KEEP_ADMIN_MISSING',
@@ -2657,9 +2702,7 @@ var TestModeService = (function () {
   /** 清除全部 PTW 並將編號歸零（保留帳號、公司、訓練／考試紀錄、題庫、設定）— 測試結束後使用 */
   function clearAllPtws(user, payload) {
     SecurityService.requireAdmin(user);
-    if (String(payload && payload.confirm) !== 'CLEAR') {
-      throw ApiError_('CONFIRM_REQUIRED', 'Type CLEAR to confirm', '請輸入 CLEAR 以確認執行');
-    }
+    checkDangerCode_(user, 'clearPtws', payload && payload.otp);
     var n = 0;
     Repo.readAll('PTW_Master').forEach(function (p) {
       n++;
@@ -2679,7 +2722,7 @@ var TestModeService = (function () {
   }
 
   return { enable: enable, personas: personas, impersonate: impersonate, reset: reset,
-    factoryReset: factoryReset, clearAllPtws: clearAllPtws };
+    factoryReset: factoryReset, clearAllPtws: clearAllPtws, requestDangerCode: requestDangerCode };
 })();
 
 /* ============================== DashboardService.gs ============================== */
@@ -9019,6 +9062,7 @@ function routes_() {
     'admin.mail.test':         function (u, p) { return NotificationService.mailTest(u, p); },
     'admin.system.factoryReset': function (u, p) { return TestModeService.factoryReset(u, p); },
     'admin.system.clearPtws':    function (u, p) { return TestModeService.clearAllPtws(u, p); },
+    'admin.system.requestDangerCode': function (u, p) { return TestModeService.requestDangerCode(u, p); },
     // 關單文件規則：檢視全表＋將「建議」項目升級為「必要」
     'admin.closeout.rules': function (u) {
       SecurityService.requireAdmin(u);
@@ -11622,7 +11666,7 @@ main{position:relative;z-index:1}
       <!-- 🧹 清除全部 PTW／編號歸零（測試結束後） -->
       <div class="card-x p-3 mt-3" style="border:2px solid #e08a00;background:#fff9ef">
         <h6 style="color:#9a5b00">🧹 <span data-l>清除全部 PTW 並將編號歸零 Clear all PTWs &amp; restart numbering</span></h6>
-        <div class="small mb-2" style="color:#6b4a00" data-l>測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！ Use after testing: deletes ALL PTWs (certificates, approvals, attachments, Drive folders); numbering restarts from 0001. Keeps all accounts, companies, training/exam records, question bank and settings. This CANNOT be undone!</div>
+        <div class="small mb-2" style="color:#6b4a00" data-l>測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！執行前系統會先寄驗證碼到指定信箱，輸入驗證碼後才會刪除。 Use after testing: deletes all PTWs (certificates, approvals, attachments, Drive folders); numbering restarts from 0001; keeps all accounts, companies, training/exam records, question bank and settings. This cannot be undone. A verification code is emailed first and nothing is deleted until it is entered.</div>
         <button class="btn btn-warning fw-bold" onclick="doClearPtws()">🧹 <span data-l>清除全部 PTW 並歸零編號 Clear all PTWs</span></button>
       </div>
       <!-- ⚠️ 一鍵重置（Danger Zone） -->
@@ -14286,16 +14330,34 @@ function tmExit(){
   clearDataCaches();
   enter();
 }
-/* 🧹 清除全部 PTW 並歸零編號：輸入 CLEAR 才執行（保留帳號／公司） */
+/* 危險操作共用流程：確認 → 寄送驗證碼到指定信箱 → 輸入 6 位數驗證碼 → 回傳驗證碼（取消回 null） */
+function dangerOtpFlow(action,intro){
+  var Z=(lang==='zh');
+  return uiConfirm(intro).then(function(ok){
+    if(!ok) return null;
+    toast(Z?'📧 正在寄送驗證碼…':'📧 Sending verification code…',true);
+    return api('admin.system.requestDangerCode',{action:action}).then(function(r){
+      if(!r.ok){ toast(apiMsg(r)); return null; }
+      return uiPrompt((Z?'📧 驗證碼已寄至 ':'📧 A verification code has been sent to ')+r.data.sentTo+
+        (Z?'（10 分鐘內有效）。\\n\\n請輸入 6 位數驗證碼後按確定，系統才會執行：':' (valid for 10 minutes).\\n\\nEnter the 6-digit code and press OK to run the action:'))
+      .then(function(v){
+        if(v===null||v===undefined) return null;
+        var code=String(v).trim();
+        if(!/^\\d{6}$/.test(code)){ toast(Z?'⚠️ 驗證碼須為 6 位數字，已取消':'⚠️ The code must be 6 digits — cancelled'); return null; }
+        return code;
+      });
+    });
+  });
+}
+/* 🧹 清除全部 PTW 並歸零編號：Email 驗證碼確認後才執行（保留帳號／公司） */
 function doClearPtws(){
   var Z=(lang==='zh');
-  uiPrompt(Z
-    ?'🧹 將刪除所有 PTW（含證書、簽核、附件、Drive 資料夾），編號自 0001 重新開始；帳號與公司保留。無法復原！\\n\\n請輸入大寫 CLEAR 確認執行：'
-    :'🧹 This deletes ALL PTWs (certificates, approvals, attachments, Drive folders) and restarts numbering from 0001; accounts and companies are kept. This CANNOT be undone!\\n\\nType CLEAR (uppercase) to confirm:')
-  .then(function(v){
-    if(v===null||v===undefined) return;
-    if(String(v).trim()!=='CLEAR'){ toast(Z?'⚠️ 未輸入 CLEAR，已取消':'⚠️ CLEAR not entered — cancelled'); return; }
-    api('admin.system.clearPtws',{confirm:'CLEAR'}).then(function(res){
+  dangerOtpFlow('clearPtws',Z
+    ?'🧹 將刪除所有 PTW（含證書、簽核、附件、Drive 資料夾），編號自 0001 重新開始；帳號與公司保留。無法復原！\\n\\n系統會先寄送驗證碼到指定信箱，輸入驗證碼後才會執行。要繼續嗎？'
+    :'🧹 This deletes all PTWs (certificates, approvals, attachments, Drive folders) and restarts numbering from 0001; accounts and companies are kept. This cannot be undone!\\n\\nA verification code will be emailed first; nothing is deleted until you enter it. Continue?')
+  .then(function(code){
+    if(!code) return;
+    api('admin.system.clearPtws',{otp:code}).then(function(res){
       if(!res.ok){ toast(apiMsg(res)); return; }
       clearDataCaches();
       uiAlert(Z
@@ -14305,16 +14367,15 @@ function doClearPtws(){
     });
   });
 }
-/* ☢️ 一鍵重置：輸入 RESET 才執行 */
+/* ☢️ 一鍵重置：Email 驗證碼確認後才執行 */
 function doFactoryReset(){
   var Z=(lang==='zh');
-  uiPrompt(Z
-    ?'☢️ 一鍵重置將刪除所有 PTW、公司與人員（只留 paultong.ehs@gmail.com），編號歸零，無法復原！\\n\\n請輸入大寫 RESET 確認執行：'
-    :'☢️ Factory reset will delete ALL PTWs, companies and users (keeps only paultong.ehs@gmail.com) and restart numbering. This CANNOT be undone!\\n\\nType RESET (uppercase) to confirm:')
-  .then(function(v){
-    if(v===null||v===undefined) return;
-    if(String(v).trim()!=='RESET'){ toast(Z?'⚠️ 未輸入 RESET，已取消':'⚠️ RESET not entered — cancelled'); return; }
-    api('admin.system.factoryReset',{confirm:'RESET'}).then(function(res){
+  dangerOtpFlow('factoryReset',Z
+    ?'☢️ 一鍵重置將刪除所有 PTW、公司與人員（只留 paultong.ehs@gmail.com），編號歸零，無法復原！\\n\\n系統會先寄送驗證碼到指定信箱，輸入驗證碼後才會執行。要繼續嗎？'
+    :'☢️ Factory reset will delete all PTWs, companies and users (keeps only paultong.ehs@gmail.com) and restart numbering. This cannot be undone!\\n\\nA verification code will be emailed first; nothing is deleted until you enter it. Continue?')
+  .then(function(code){
+    if(!code) return;
+    api('admin.system.factoryReset',{otp:code}).then(function(res){
       if(!res.ok){ toast(apiMsg(res)); return; }
       clearDataCaches();
       uiAlert(Z
