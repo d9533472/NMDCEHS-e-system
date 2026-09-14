@@ -11666,13 +11666,13 @@ main{position:relative;z-index:1}
       <!-- 🧹 清除全部 PTW／編號歸零（測試結束後） -->
       <div class="card-x p-3 mt-3" style="border:2px solid #e08a00;background:#fff9ef">
         <h6 style="color:#9a5b00">🧹 <span data-l>清除全部 PTW 並將編號歸零 Clear all PTWs &amp; restart numbering</span></h6>
-        <div class="small mb-2" style="color:#6b4a00" data-l>測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！執行前系統會先寄驗證碼到指定信箱，輸入驗證碼後才會刪除。 Use after testing: deletes all PTWs (certificates, approvals, attachments, Drive folders); numbering restarts from 0001; keeps all accounts, companies, training/exam records, question bank and settings. This cannot be undone. A verification code is emailed first and nothing is deleted until it is entered.</div>
+        <div class="small mb-2" style="color:#6b4a00" data-i18n="tm.clearDesc"></div>
         <button class="btn btn-warning fw-bold" onclick="doClearPtws()">🧹 <span data-l>清除全部 PTW 並歸零編號 Clear all PTWs</span></button>
       </div>
       <!-- ⚠️ 一鍵重置（Danger Zone） -->
       <div class="card-x p-3 mt-3" style="border:2px solid #c62828;background:#fff5f5">
         <h6 style="color:#c62828">☢️ <span data-l>一鍵重置系統 Factory Reset</span></h6>
-        <div class="small mb-2" style="color:#8a1f1f" data-l>刪除「所有 PTW（含證書、簽核、附件紀錄）、所有公司（NMDC 保留）、所有人員及其訓練/考試紀錄」，只保留 paultong.ehs@gmail.com 管理員；PTW 與證書編號自 0001 重新開始；Drive 的 PTW 資料夾移至垃圾桶。保留：題庫、訓練課程、系統設定、下載專區、公告、稽核紀錄。此操作無法復原！ Deletes ALL PTWs, companies (NMDC kept) and users (keeps only paultong.ehs@gmail.com); numbering restarts from 0001; Drive PTW folders are moved to trash. Question bank, courses, settings, downloads, announcements and the audit trail are kept. This CANNOT be undone!</div>
+        <div class="small mb-2" style="color:#8a1f1f" data-i18n="tm.resetDesc"></div>
         <button class="btn btn-danger fw-bold" onclick="doFactoryReset()">☢️ <span data-l>執行一鍵重置 Factory Reset</span></button>
       </div>
     </div>
@@ -12166,6 +12166,10 @@ var STRINGS = {
  'tm.admin':{en:'👑 Admin (my real account)',zh:'👑 管理員（原始身分）'},
  'tm.enable':{en:'Enable / refresh personas',zh:'啟用／重新整理測試人員'},
  'tm.reset':{en:'Clear test PTW data',zh:'清除測試 PTW 資料'},
+ 'tm.clearDesc':{en:'Use after testing: deletes all PTWs (certificates, approvals, attachments, Drive folders); PTW and certificate numbering restarts from 0001. Keeps all accounts, companies, training/exam records, question bank and settings. This cannot be undone. A verification code is emailed to the designated mailbox first, and nothing is deleted until it is entered.',
+   zh:'測試結束後使用：刪除「所有 PTW（含證書、簽核、附件紀錄、Drive 資料夾）」，PTW 與證書編號自 0001 重新開始。保留：所有帳號、公司、訓練／考試紀錄、題庫、系統設定。此操作無法復原！執行前系統會先寄驗證碼到指定信箱，輸入驗證碼後才會刪除。'},
+ 'tm.resetDesc':{en:'Deletes all PTWs (certificates, approvals, attachments), all companies (NMDC kept) and all users with their training/exam records — keeps only the paultong.ehs@gmail.com administrator; PTW and certificate numbering restarts from 0001; Drive PTW folders are moved to trash. Keeps the question bank, courses, settings, downloads, announcements and the audit trail. This cannot be undone. A verification code is emailed to the designated mailbox first, and nothing is deleted until it is entered.',
+   zh:'刪除「所有 PTW（含證書、簽核、附件紀錄）、所有公司（NMDC 保留）、所有人員及其訓練／考試紀錄」，只保留 paultong.ehs@gmail.com 管理員；PTW 與證書編號自 0001 重新開始；Drive 的 PTW 資料夾移至垃圾桶。保留：題庫、訓練課程、系統設定、下載專區、公告、稽核紀錄。此操作無法復原！執行前系統會先寄驗證碼到指定信箱，輸入驗證碼後才會刪除。'},
  'tm.exit':{en:'Exit test mode',zh:'退出測試模式'},
  'tm.desc':{en:'Creates two test contractors and one user per tier, then lets you switch identity from the top bar — no need to register accounts. Test users are ordinary accounts (marked as test) and follow the normal permission flow, so nothing in the existing system changes.',zh:'建立兩家測試承商與各 Tier 測試人員，之後可從頁面上方下拉選單直接切換身分測試，不必自己申請帳號。測試人員就是一般帳號（標記為測試），走完全相同的權限流程，不會動到既有系統架構。'},
  'tm.enabled':{en:'Test mode ready — switch identity from the top bar',zh:'測試模式已啟用 — 請用頁面上方下拉選單切換身分'},
