@@ -924,6 +924,15 @@ var NotificationService = (function () {
   }
 
   /** 寫入站內通知 */
+  /** 測試帳號信箱（假網域）→ 轉寄到 SystemSettings.testMailRedirect（預設 paul.tong@nmdc-group.com），主旨加註原收件人 */
+  var TEST_MAIL_DOMAIN = /@[^@\s]+\.(test|local|invalid|example)$/i;
+  function mailRoute_(to) {
+    var t = String(to || '').trim();
+    if (!TEST_MAIL_DOMAIN.test(t)) return { to: t, tag: '' };
+    var redir = ''; try { redir = String(getSetting_('testMailRedirect') || '').trim(); } catch (e) {}
+    return { to: redir || 'paul.tong@nmdc-group.com', tag: '[TEST → ' + t + '] ' };
+  }
+
   function push_(userId, type, ptwId, titleEn, titleZh, msgEn, msgZh, emailTo) {
     var n = Repo.insert('Notifications', {
       userId: userId, type: type,
@@ -933,10 +942,11 @@ var NotificationService = (function () {
     }, 'system');
     if (emailTo) {
       try {
+        var rt = mailRoute_(emailTo);
         MailApp.sendEmail({
-          to: emailTo,
+          to: rt.to,
           name: SENDER_NAME,
-          subject: '[' + systemName_() + '] ' + titleEn + ' / ' + titleZh,
+          subject: rt.tag + '[' + systemName_() + '] ' + titleEn + ' / ' + titleZh,
           htmlBody: emailBody_(titleEn, titleZh, msgEn, msgZh, ptwId, type)
         });
         Repo.update('Notifications', n.id, { emailSent: true, emailSentAt: fmtDateTime_() }, 'system');
@@ -1258,10 +1268,11 @@ var NotificationService = (function () {
     var url = link ? (link + (link.indexOf('?') < 0 ? '?' : '&') + 'resetToken=' + encodeURIComponent(token) +
       '&email=' + encodeURIComponent(user.email)) : '';
     try {
+      var rtP = mailRoute_(user.email);
       MailApp.sendEmail({
-        to: user.email,
+        to: rtP.to,
         name: SENDER_NAME,
-        subject: '[' + systemName_() + '] Password reset 密碼重設',
+        subject: rtP.tag + '[' + systemName_() + '] Password reset 密碼重設',
         htmlBody: '<div style="font-family:Arial,\'Microsoft JhengHei\',sans-serif">' +
           '<p>A password reset was requested for your account. This link is valid for ' + CFG.RESET_TOKEN_MINUTES + ' minutes.</p>' +
           '<p>您的帳號申請了密碼重設，連結有效期 ' + CFG.RESET_TOKEN_MINUTES + ' 分鐘。</p>' +
@@ -1963,15 +1974,28 @@ var UserService = (function () {
     if (!(Number(payload.tier) >= 1 && Number(payload.tier) <= 5)) {
       throw ApiError_('BAD_TIER', 'Tier must be 1–5', 'Tier 須為 1–5');
     }
+    // 管理員快速建立選項：簽名檔（base64 PNG）、視為已通過訓練、免強制改密碼
+    var sigFileId = '';
+    if (payload.signatureBase64) {
+      try { sigFileId = DriveService.saveAccountSignature(payload.signatureBase64, email); }
+      catch (eS) { throw ApiError_('SIGNATURE_SAVE_FAILED', 'Signature save failed: ' + eS.message, '簽名檔儲存失敗：' + eS.message); }
+    }
+    var trained = asBool_(payload.trainingPassed);
     var salt = randomToken_(32);
     var created = Repo.insert('Users', {
       email: email, nameZh: payload.nameZh, nameEn: payload.nameEn,
       companyId: payload.companyId, title: payload.title, phone: payload.phone || '',
       vessel: payload.vessel || '', tier: Number(payload.tier),
       isAdmin: asBool_(payload.isAdmin) && Number(payload.tier) === 5,
+      isHse: asBool_(payload.isHse),
       badgeNo: payload.badgeNo || '', department: String(payload.department || ''),
+      signatureFileId: sigFileId,
       passwordSalt: salt, passwordHash: hashPassword_(String(payload.password), salt), hashIter: CFG.HASH_ITERATIONS,
-      status: 'Active', failedLoginCount: 0, mustChangePassword: true, langPref: 'en'
+      status: 'Active', failedLoginCount: 0,
+      mustChangePassword: (payload.mustChangePassword === undefined) ? true : asBool_(payload.mustChangePassword),
+      trainingPassedAt: trained ? fmtDateTime_() : '',
+      trainingValidUntil: trained ? fmtDate_(new Date(Date.now() + 3 * 365 * 86400000)) : '',
+      langPref: 'en'
     }, user.id);
     AuditService.log({ user: user, actionType: 'USER_CREATE', entityType: 'User', entityId: created.id,
       newValue: { email: email, tier: payload.tier }, success: true });
@@ -11427,6 +11451,39 @@ main{position:relative;z-index:1}
       <div id="profileReqList" class="table-responsive"></div>
     </div>
     <div class="tab-pane fade" id="tabUsers">
+      <!-- ➕ 快速新增帳號（免註冊、免審核；可用假信箱，通知信會轉寄到指定信箱） -->
+      <div class="border rounded p-2 mb-3" style="background:#f6f9fc;border-color:#9ec5e8 !important">
+        <div class="d-flex justify-content-between align-items-center flex-wrap" style="cursor:pointer" onclick="$('quickAddBody').classList.toggle('d-none')">
+          <b>➕ <span data-l>快速新增帳號 Quick Add User</span></b>
+          <span class="small text-muted">免註冊、免審核；可用假信箱（@ptw.test），通知信會轉寄到指定測試信箱</span>
+        </div>
+        <div id="quickAddBody" class="d-none mt-2">
+          <div class="row g-2">
+            <div class="col-md-3"><label class="form-label small mb-0">中文姓名 Name (ZH)</label><input id="qaNameZh" class="form-control form-control-sm"></div>
+            <div class="col-md-3"><label class="form-label small mb-0">英文姓名 Name (EN) ＊</label><input id="qaNameEn" class="form-control form-control-sm" oninput="qaSuggestEmail()"></div>
+            <div class="col-md-3"><label class="form-label small mb-0">公司 Company ＊</label><select id="qaCompany" class="form-select form-select-sm"><option value="">--</option></select></div>
+            <div class="col-md-3"><label class="form-label small mb-0">Tier ＊</label>
+              <select id="qaTier" class="form-select form-select-sm" onchange="qaTierChanged()">
+                <option value="1">Tier 1 — 承商持有人／申請人</option><option value="2">Tier 2 — 承商職安衛</option>
+                <option value="3">Tier 3 — NMDC 施工部門</option><option value="4">Tier 4 — NMDC 安衛</option><option value="5">Tier 5 — PTW 協調員</option>
+              </select></div>
+            <div class="col-md-3 d-none" id="qaDeptWrap"><label class="form-label small mb-0">所屬部門 Department ＊</label>
+              <select id="qaDept" class="form-select form-select-sm"><option value="">--</option><option value="NMDC D&amp;M">NMDC D&amp;M</option><option value="NMDC Energy">NMDC Energy</option></select></div>
+            <div class="col-md-3"><label class="form-label small mb-0">職稱 Title</label><input id="qaTitle" class="form-control form-control-sm" value="Tester"></div>
+            <div class="col-md-2"><label class="form-label small mb-0">HSE 人員？</label>
+              <select id="qaIsHse" class="form-select form-select-sm"><option value="N">否 No</option><option value="Y">是 Yes</option></select></div>
+            <div class="col-md-4"><label class="form-label small mb-0">Email（登入帳號）＊</label><input id="qaEmail" class="form-control form-control-sm" placeholder="自動依英文姓名產生 xxx@ptw.test"></div>
+            <div class="col-md-3"><label class="form-label small mb-0">密碼 Password ＊</label><input id="qaPw" class="form-control form-control-sm" value="Bb7710182"></div>
+            <div class="col-md-9 d-flex flex-wrap gap-3 align-items-end pb-1">
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="qaTrained" checked><label class="form-check-label small" for="qaTrained">視為已通過訓練（效期 3 年）</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="qaSig" checked><label class="form-check-label small" for="qaSig">自動產生簽名檔（英文姓名手寫風）</label></div>
+              <div class="form-check"><input class="form-check-input" type="checkbox" id="qaNoPwChange" checked><label class="form-check-label small" for="qaNoPwChange">登入後不強制改密碼</label></div>
+              <button class="btn btn-sm btn-navy" id="btnQuickAdd" onclick="doQuickAdd()">➕ 建立帳號 Create</button>
+            </div>
+          </div>
+          <div class="small text-muted mt-1">建立後立即可登入；簽名檔之後可在 ✏️ 編輯視窗換成真實簽名照片。</div>
+        </div>
+      </div>
       <div class="d-flex gap-2 mb-2 flex-wrap align-items-center">
         <input id="userSearch" class="form-control" style="max-width:240px" data-i18n-ph="common.search" oninput="loadUsers()">
         <select id="ufCompany" class="form-select" style="max-width:220px" onchange="loadUsers()"></select>
@@ -14093,8 +14150,51 @@ function fillUserFilterCompanies(){
   (companies||[]).forEach(function(c){ h+='<option value="'+esc(c.id)+'">'+esc(lang==='zh'?(c.nameZh||c.nameEn):(c.nameEn||c.nameZh))+'</option>'; });
   sel.innerHTML=h;
 }
+/* ---- 快速新增帳號 ---- */
+function qaTierChanged(){
+  var t3=($('qaTier').value==='3');
+  $('qaDeptWrap').classList.toggle('d-none',!t3);
+  if(!t3) $('qaDept').value='';
+}
+function qaSuggestEmail(){
+  var el=$('qaEmail'); if(!el||el.dataset.touched==='1') return;
+  var base=String($('qaNameEn').value||'').toLowerCase().replace(/[^a-z0-9]+/g,'.').replace(/^\\.+|\\.+$/g,'');
+  el.value=base?(base+'@ptw.test'):'';
+}
+/* 以英文姓名產生手寫風簽名 PNG（透明背景） */
+function genSigDataUrl(name){
+  var c=document.createElement('canvas'); c.width=600; c.height=200; var ctx=c.getContext('2d');
+  var size=64, fam='"Segoe Script","Brush Script MT","Lucida Handwriting","Apple Chancery","Comic Sans MS",cursive';
+  ctx.font='italic '+size+'px '+fam;
+  while(ctx.measureText(name).width>540&&size>22){ size-=4; ctx.font='italic '+size+'px '+fam; }
+  ctx.fillStyle='#1a237e'; ctx.textBaseline='middle'; ctx.fillText(name,30,95);
+  var w=ctx.measureText(name).width;
+  ctx.strokeStyle='#1a237e'; ctx.lineWidth=2.2; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(26,150); ctx.quadraticCurveTo(30+w*0.5,128,34+w,152); ctx.stroke();
+  return c.toDataURL('image/png');
+}
+function doQuickAdd(){
+  var nameEn=$('qaNameEn').value.trim(), nameZh=$('qaNameZh').value.trim()||nameEn;
+  var companyId=$('qaCompany').value, tier=$('qaTier').value, dept=$('qaDept').value, email=$('qaEmail').value.trim(), pw=$('qaPw').value;
+  if(!nameEn||!companyId||!email||!pw){ toast('請填寫英文姓名、公司、Email、密碼'); return; }
+  if(tier==='3'&&!dept){ toast('Tier 3 請選擇所屬部門'); return; }
+  var p={nameZh:nameZh,nameEn:nameEn,companyId:companyId,tier:Number(tier),department:tier==='3'?dept:'',
+    title:$('qaTitle').value.trim()||'Tester',isHse:$('qaIsHse').value==='Y',email:email,password:pw,
+    trainingPassed:$('qaTrained').checked,mustChangePassword:!$('qaNoPwChange').checked};
+  if($('qaSig').checked){ try{ p.signatureBase64=genSigDataUrl(nameEn).split(',')[1]; }catch(e){} }
+  $('btnQuickAdd').disabled=true;
+  api('user.create',p).then(function(res){
+    $('btnQuickAdd').disabled=false;
+    if(!res.ok){ toast(apiMsg(res)); return; }
+    toast('✅ 已建立 '+email+'（密碼 '+pw+'）',true);
+    $('qaNameZh').value=''; $('qaNameEn').value=''; $('qaEmail').value=''; $('qaEmail').dataset.touched='';
+    clearDataCaches(); loadUsers();
+  });
+}
 function loadUsers(pre){
   fillUserFilterCompanies();
+  var qc=$('qaCompany'); if(qc&&qc.options.length<=1&&typeof companies!=='undefined'&&companies.length) qc.innerHTML='<option value="">--</option>'+companyOptions();
+  var qe=$('qaEmail'); if(qe&&!qe.dataset.bound){ qe.dataset.bound='1'; qe.addEventListener('input',function(){ qe.dataset.touched=qe.value?'1':''; }); }
   var handle=function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     // (1) 前端篩選：公司 / Tier / 狀態
