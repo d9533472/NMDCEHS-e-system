@@ -2566,8 +2566,7 @@ async function saveMailCfg(silent){
 // ── 現場照片 ──
 async function restoreMcPhotos(){
   if(_mcBusy)return;
-  if(!confirm('把最近一次寄出時封存的照片（含標題／地點／日期）搬回這裡？
-搬回後會出現在下一封週報。'))return;
+  if(!confirm('把最近一次寄出時封存的照片（含標題／地點／日期）搬回這裡？\n搬回後會出現在下一封週報。'))return;
   _mcBusy=true;setMailCfgStatus('⏳ 還原封存照片中…');
   try{
     const d=await gasGet('restoreArchivedPhotos',{},90000);
