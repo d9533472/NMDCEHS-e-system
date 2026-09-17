@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // NMDC 通霄二期 — 查驗紀錄管理系統 (Backend: Google Apps Script)
-// v4.0.0  三階段流程版
+// v4.1.0  三階段流程 + 一表多項目
 // ═══════════════════════════════════════════════════════════════════
 //
 // 【v4 變更重點】
@@ -16,6 +16,8 @@
 //    - 留空時，會自動尋找母資料夾中同「查驗編號」的既有資料夾並連結（不重複建立）
 //    - 若既有資料夾名稱是以查驗編號開頭，會自動改名為新格式
 // 5. 附件不限總量；單檔上限由前端控制（40MB，Apps Script 單次請求上限約 50MB）
+// 6. 一張查驗表可含多個預算項目：同 group_id 的多列＝一張表，明細編號為「表編號-序號」，
+//    整張表共用工區／日期／階段／Drive 資料夾
 //
 // 【部署步驟】
 // 1. 貼上此檔案內容至 Code.gs 並儲存
@@ -44,15 +46,15 @@ const COL_ID = 1, COL_DATE = 2, COL_BUDGET_ID = 3, COL_ITEM_NAME = 4,
       COL_ATT_IDS = 9, COL_ATT_NAMES = 10, COL_CREATED_AT = 11, COL_CREATED_BY = 12,
       COL_UPDATED_AT = 13, COL_UPDATED_BY = 14, COL_DELETED = 15,
       COL_SUBMIT = 16, COL_APPROVE = 17, COL_STAGE = 18,
-      COL_WORK_AREA = 19, COL_FOLDER_ID = 20, COL_FOLDER_NAME = 21;
-const INSPECT_COLS = 21;
+      COL_WORK_AREA = 19, COL_FOLDER_ID = 20, COL_FOLDER_NAME = 21, COL_GROUP_ID = 22;
+const INSPECT_COLS = 22;
 
 const INSPECT_HEADERS = [
   'inspection_id','inspection_date','budget_item_id','item_name_snapshot',
   'inspected_qty','unit_price_snapshot','inspected_amount','note',
   'attachment_ids','attachment_names','created_at','created_by',
   'updated_at','updated_by','deleted','submit_date','approve_date','stage',
-  'work_area','folder_id','folder_name'
+  'work_area','folder_id','folder_name','group_id'
 ];
 
 // 階段設定：3 = 已提交台電 = 計入已查驗金額
@@ -120,11 +122,11 @@ function upgradeToV4() {
 function migrateStagesToV4() {
   return _ensureV4Stages();
 }
-
 /**
- * 依新規則重新命名／連結所有查驗紀錄的 Drive 子資料夾。
- * 名稱 = 查驗編號 工區 項目
- * 沒有資料夾的紀錄會去母資料夾找同編號的舊資料夾；找不到才建立。
+ * 依新規則重新命名／連結所有「查驗表」的 Drive 子資料夾（以 group_id 為單位）。
+ * 名稱 = 查驗編號 工區 項目（多項目：第一項 等N項）
+ * 沒有資料夾的查驗表會去母資料夾找同編號的舊資料夾；找不到才建立。
+ * 同時補寫空白的 group_id。
  */
 function renameAllFolders() {
   const sheet = _ensureInspectColumns();
@@ -132,36 +134,57 @@ function renameAllFolders() {
 
   const n = sheet.getLastRow() - 1;
   const rows = sheet.getRange(2, 1, n, INSPECT_COLS).getValues();
-  let renamed = 0, linked = 0, created = 0;
 
-  for (let i = 0; i < rows.length; i++) {
-    const r = rows[i];
+  // ── 依 group_id 分組 ──
+  const order = [], groups = {};
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
     if (r[COL_DELETED - 1] === true || r[COL_DELETED - 1] === 'TRUE') continue;
-    const id = String(r[COL_ID - 1] || '').trim();
+    var id = String(r[COL_ID - 1] || '').trim();
     if (!id) continue;
+    var g = String(r[COL_GROUP_ID - 1] || '').trim() || _groupIdOf(id);
+    if (!groups[g]) { groups[g] = []; order.push(g); }
+    groups[g].push({ idx: i + 2, v: r, groupMissing: String(r[COL_GROUP_ID - 1] || '').trim() === '' });
+  }
 
-    const name = _folderName(id, r[COL_WORK_AREA - 1], r[COL_ITEM_NAME - 1]);
-    const curId = String(r[COL_FOLDER_ID - 1] || '').trim();
+  var renamed = 0, linked = 0, created = 0, filled = 0;
+  for (var k = 0; k < order.length; k++) {
+    var gid = order[k], list = groups[gid];
+    var names = list.map(function (x) { return x.v[COL_ITEM_NAME - 1]; });
+    var area = '';
+    for (var a = 0; a < list.length; a++) { if (list[a].v[COL_WORK_AREA - 1]) { area = list[a].v[COL_WORK_AREA - 1]; break; } }
+    var want = _folderName(gid, area, names);
 
+    var curId = '';
+    for (var c = 0; c < list.length; c++) { if (list[c].v[COL_FOLDER_ID - 1]) { curId = String(list[c].v[COL_FOLDER_ID - 1]); break; } }
+
+    var fid = curId, fname = want;
     try {
       if (curId) {
-        const f = DriveApp.getFolderById(curId);
-        if (f.getName() !== name && f.getName().indexOf(id) === 0) { f.setName(name); renamed++; }
-        sheet.getRange(i + 2, COL_FOLDER_NAME).setValue(f.getName());
+        var f = DriveApp.getFolderById(curId);
+        if (f.getName() !== want && f.getName().indexOf(gid) === 0) { f.setName(want); renamed++; }
+        fname = f.getName();
       } else {
-        const res = _resolveInspectionFolder(id, name, '');
-        sheet.getRange(i + 2, COL_FOLDER_ID).setValue(res.id);
-        sheet.getRange(i + 2, COL_FOLDER_NAME).setValue(res.name);
+        var res = _resolveInspectionFolder(gid, want, '');
+        fid = res.id; fname = res.name;
         if (res.created) created++; else { linked++; if (res.renamed) renamed++; }
       }
     } catch (e) {
-      Logger.log('資料夾處理失敗 ' + id + ': ' + e.message);
+      Logger.log('資料夾處理失敗 ' + gid + ': ' + e.message);
+      continue;
+    }
+
+    // 寫回整張表的每一列
+    for (var m = 0; m < list.length; m++) {
+      sheet.getRange(list[m].idx, COL_FOLDER_ID).setValue(fid);
+      sheet.getRange(list[m].idx, COL_FOLDER_NAME).setValue(fname);
+      if (list[m].groupMissing) { sheet.getRange(list[m].idx, COL_GROUP_ID).setValue(gid); filled++; }
     }
   }
 
-  const msg = '連結 ' + linked + ' 個、改名 ' + renamed + ' 個、新建 ' + created + ' 個';
+  const msg = '查驗表 ' + order.length + ' 張：連結 ' + linked + '、改名 ' + renamed + '、新建 ' + created + '（補 group_id ' + filled + ' 列）';
   _addLog('UPDATE', 'folder', 'ALL', '重新整理 Drive 資料夾：' + msg, 'System');
-  return { success: true, message: msg, renamed: renamed, linked: linked, created: created };
+  return { success: true, message: msg, renamed: renamed, linked: linked, created: created, forms: order.length };
 }
 
 // ══════════════════════════════════
@@ -198,7 +221,7 @@ function doGet(e) {
         result = _findFolderByNumber(e.parameter.inspection_no || e.parameter.inspection_id);
         break;
       case 'ping':
-        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.0.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
+        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.1.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
         break;
       default:
         result = { error: 'Unknown action: ' + action };
@@ -344,11 +367,63 @@ function _shortItem(name) {
   return last || t;
 }
 
-/** 資料夾名稱 = 查驗編號 工區 項目 */
-function _folderName(inspectionId, workArea, itemName) {
-  return [String(inspectionId || '').trim(), String(workArea || '').trim(), _shortItem(itemName)]
+/**
+ * 由明細編號取得查驗表編號：
+ *   NMDC-POE-BOQ-E-016-2 → NMDC-POE-BOQ-E-016   （-2 是明細序號）
+ *   NMDC-POE-BOQ-E-016   → NMDC-POE-BOQ-E-016   （本身就是表編號，不可再砍）
+ */
+function _groupIdOf(id) {
+  var s = String(id == null ? '' : id).trim();
+  var m = s.match(/^(.*-\d+)-\d+$/);
+  return m ? m[1] : s;
+}
+
+/** 多項目時：第一項 等N項 */
+function _itemsLabel(names) {
+  var arr = (Object.prototype.toString.call(names) === '[object Array]' ? names : [names])
+    .map(_shortItem).filter(function (x) { return x !== ''; });
+  if (!arr.length) return '';
+  return arr.length === 1 ? arr[0] : arr[0] + ' 等' + arr.length + '項';
+}
+
+/** 資料夾名稱 = 查驗編號 工區 項目（多項目：第一項 等N項） */
+function _folderName(inspectionId, workArea, itemNames) {
+  return [String(inspectionId || '').trim(), String(workArea || '').trim(), _itemsLabel(itemNames)]
     .filter(function (x) { return x !== ''; })
     .join(' ');
+}
+
+/** 取得同一張查驗表（同 group_id）的所有列 → [{idx, v}] */
+function _findGroupRows(sheet, groupId) {
+  if (!groupId || sheet.getLastRow() <= 1) return [];
+  var gid = String(groupId).trim();
+  var n = sheet.getLastRow() - 1;
+  var data = sheet.getRange(2, 1, n, INSPECT_COLS).getValues();
+  var out = [];
+  for (var i = 0; i < data.length; i++) {
+    var r = data[i];
+    if (r[COL_DELETED - 1] === true || r[COL_DELETED - 1] === 'TRUE') continue;
+    var g = String(r[COL_GROUP_ID - 1] || '').trim() || _groupIdOf(r[COL_ID - 1]);
+    if (g === gid) out.push({ idx: i + 2, v: r });
+  }
+  return out;
+}
+
+/** 某預算項目已開立的數量（排除指定查驗表） */
+function _getQtyExcludeGroup(sheet, budgetItemId, groupId) {
+  if (sheet.getLastRow() <= 1) return 0;
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, INSPECT_COLS).getValues();
+  var gid = String(groupId || '').trim();
+  var total = 0;
+  for (var i = 0; i < data.length; i++) {
+    var r = data[i];
+    if (r[COL_DELETED - 1] === true || r[COL_DELETED - 1] === 'TRUE') continue;
+    if (r[COL_BUDGET_ID - 1] !== budgetItemId) continue;
+    var g = String(r[COL_GROUP_ID - 1] || '').trim() || _groupIdOf(r[COL_ID - 1]);
+    if (gid && g === gid) continue;
+    total += parseFloat(r[COL_QTY - 1] || 0);
+  }
+  return total;
 }
 
 /** 從連結或 ID 字串取出 Drive folder id */
@@ -428,64 +503,73 @@ function _findFolderByNumber(noOrId) {
 // CRUD: 查驗紀錄
 // ══════════════════════════════════
 
+/**
+ * 新增查驗表（可含多個預算項目）
+ * data: { inspection_no, work_area, inspection_date, submit_date, note, stage, link_folder_url,
+ *         items: [{budget_item_id, inspected_qty, note}], attachments:[] }
+ * 亦相容舊版單一項目格式（budget_item_id / inspected_qty）。
+ */
 function _addInspection(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = _ensureInspectColumns();
   const budgetSheet = ss.getSheetByName(SHEET_BUDGET);
 
-  const budget = _findBudgetItem(budgetSheet, data.budget_item_id);
-  if (!budget) throw new Error('找不到預算項目: ' + data.budget_item_id);
+  var items = (data.items && data.items.length) ? data.items
+    : [{ budget_item_id: data.budget_item_id, inspected_qty: data.inspected_qty, note: data.note }];
+  if (!items.length) throw new Error('至少需要一個查驗項目');
 
-  const qty = parseFloat(data.inspected_qty);
-  if (isNaN(qty) || qty <= 0) throw new Error('查驗數量必須大於 0');
+  // ── 驗證每個項目 ──
+  var prepared = [], seen = {};
+  for (var i = 0; i < items.length; i++) {
+    var it = items[i];
+    var b = _findBudgetItem(budgetSheet, it.budget_item_id);
+    if (!b) throw new Error('找不到預算項目: ' + it.budget_item_id);
+    if (seen[it.budget_item_id]) throw new Error('同一張查驗表中有重複的項目: ' + b.item_name_cn);
+    seen[it.budget_item_id] = 1;
 
-  const existingQty = _getInspectedQty(sheet, data.budget_item_id);
-  if (existingQty + qty > budget.budget_qty) {
-    throw new Error('超過預算數量！預算: ' + budget.budget_qty + ', 已開立: ' + existingQty + ', 剩餘: ' + (budget.budget_qty - existingQty));
+    var q = parseFloat(it.inspected_qty);
+    if (isNaN(q) || q <= 0) throw new Error('查驗數量必須大於 0（' + b.item_name_cn + '）');
+
+    var used = _getInspectedQty(sheet, it.budget_item_id);
+    if (used + q > b.budget_qty + 1e-9) {
+      throw new Error('超過預算數量！' + b.item_name_cn + ' 預算 ' + b.budget_qty + '，已開立 ' + used + '，剩餘 ' + (b.budget_qty - used));
+    }
+    prepared.push({ b: b, q: q, note: it.note || '' });
   }
 
-  // 產生 ID — 自動遞增或使用者指定
-  var inspectionId;
+  // ── 查驗表編號 ──
+  var groupId;
   if (data.inspection_no && String(data.inspection_no).trim() !== '') {
-    inspectionId = ID_PREFIX + String(data.inspection_no).trim();
+    groupId = ID_PREFIX + String(data.inspection_no).trim();
   } else {
-    var nextNum = _getNextNum(sheet);
-    inspectionId = ID_PREFIX + String(nextNum).padStart(3, '0');
+    groupId = ID_PREFIX + String(_getNextNum(sheet)).padStart(3, '0');
   }
-
-  if (_findInspectionRow(sheet, inspectionId) > 0) {
-    throw new Error('查驗編號已存在: ' + inspectionId);
+  if (_findGroupRows(sheet, groupId).length > 0 || _findInspectionRow(sheet, groupId) > 0) {
+    throw new Error('查驗編號已存在: ' + groupId);
   }
 
   const workArea = String(data.work_area || '').trim();
   const stage = Math.min(Math.max(parseInt(data.stage) || 1, 1), STAGE_COUNT);
-
-  // 階段 3（已提交台電）→ 沒填提送日期就帶今天
   var submitDate = data.submit_date || '';
-  if (stage >= FINAL_STAGE && !String(submitDate).trim()) {
-    submitDate = new Date().toISOString().slice(0, 10);
-  }
+  if (stage >= FINAL_STAGE && !String(submitDate).trim()) submitDate = new Date().toISOString().slice(0, 10);
 
-  // 建立 / 連結子資料夾
-  var folderInfo = { id: '', name: '' };
-  const wantName = _folderName(inspectionId, workArea, budget.item_name_cn);
+  // ── 建立／連結子資料夾 ──
+  var folderInfo = { id: '', name: '', linked: false };
+  var wantName = _folderName(groupId, workArea, prepared.map(function (p) { return p.b.item_name_cn; }));
   try {
-    folderInfo = _resolveInspectionFolder(inspectionId, wantName, data.link_folder_url || data.folder_id || '');
+    folderInfo = _resolveInspectionFolder(groupId, wantName, data.link_folder_url || data.folder_id || '');
   } catch (e) {
     Logger.log('無法建立/連結子資料夾: ' + e.message);
   }
 
-  // 處理附件（上傳到子資料夾，失敗不擋紀錄建立）
-  var attachmentIds = '';
-  var attachmentNames = '';
-  var attachmentWarning = '';
+  // ── 附件（掛在第一個明細列）──
+  var attachmentIds = '', attachmentNames = '', attachmentWarning = '';
   if (data.attachments && data.attachments.length > 0) {
     try {
       var results = [];
       for (var ai = 0; ai < data.attachments.length; ai++) {
         var att = data.attachments[ai];
-        if (folderInfo.id) results.push(_uploadToFolder_internal(att, folderInfo.id));
-        else results.push(_uploadAttachment(att));
+        results.push(folderInfo.id ? _uploadToFolder_internal(att, folderInfo.id) : _uploadAttachment(att));
       }
       attachmentIds = results.map(function (r) { return r.file_id; }).join(',');
       attachmentNames = results.map(function (r) { return r.file_name; }).join(',');
@@ -495,189 +579,231 @@ function _addInspection(data) {
     }
   }
 
+  // ── 寫入（每個項目一列，共用查驗表編號）──
   var now = new Date().toISOString();
-  var amount = qty * budget.unit_price;
+  var by = data.created_by || 'Admin';
+  var out = [], total = 0;
+  for (var k = 0; k < prepared.length; k++) {
+    var p = prepared[k], amt = p.q * p.b.unit_price;
+    total += amt;
+    out.push([
+      groupId + '-' + (k + 1), data.inspection_date, p.b.id, p.b.item_name_cn,
+      p.q, p.b.unit_price, amt, p.note,
+      k === 0 ? attachmentIds : '', k === 0 ? attachmentNames : '',
+      now, by, '', '', 'FALSE',
+      submitDate, data.approve_date || '', stage,
+      workArea, folderInfo.id || '', folderInfo.name || '', groupId
+    ]);
+  }
+  sheet.getRange(sheet.getLastRow() + 1, 1, out.length, INSPECT_COLS).setValues(out);
 
-  sheet.appendRow([
-    inspectionId,
-    data.inspection_date,
-    data.budget_item_id,
-    budget.item_name_cn,
-    qty,
-    budget.unit_price,
-    amount,
-    data.note || '',
-    attachmentIds,
-    attachmentNames,
-    now,
-    data.created_by || 'Admin',
-    '',
-    '',
-    'FALSE',
-    submitDate,
-    data.approve_date || '',
-    stage,
-    workArea,
-    folderInfo.id || '',
-    folderInfo.name || ''
-  ]);
-
-  _addLog('CREATE', 'inspection', inspectionId,
-    '新增查驗 ' + inspectionId + ' (' + budget.item_no + ' ' + budget.item_name_cn +
-    ', 工區: ' + (workArea || '—') + ', 數量: ' + qty + ', 金額: ' + amount +
-    ', 階段: ' + STAGE_LABELS[stage - 1] + ')',
-    data.created_by || 'Admin');
+  _addLog('CREATE', 'inspection', groupId,
+    '新增查驗表 ' + groupId + '（' + prepared.length + ' 個項目：' +
+    prepared.map(function (p) { return p.b.item_no; }).join('、') +
+    '，工區: ' + (workArea || '—') + '，合計: ' + total + '，階段: ' + STAGE_LABELS[stage - 1] + '）', by);
 
   return {
     success: true,
-    inspection_id: inspectionId,
-    inspected_amount: amount,
+    inspection_id: groupId,
+    group_id: groupId,
+    row_ids: out.map(function (r) { return r[0]; }),
+    item_count: prepared.length,
+    inspected_amount: total,
     stage: stage,
     work_area: workArea,
     folder_id: folderInfo.id || '',
     folder_name: folderInfo.name || '',
     folder_linked: !!folderInfo.linked,
-    message: '查驗紀錄已新增' +
+    message: '查驗表已新增（' + prepared.length + ' 個項目）' +
       (folderInfo.linked ? '（已連結既有資料夾「' + folderInfo.name + '」）' : '') +
       (attachmentWarning ? '（' + attachmentWarning + '）' : '')
   };
 }
 
+/**
+ * 更新查驗表：共用欄位（編號／工區／日期／階段／資料夾）＋明細同步（新增／修改／移除）
+ * 也相容只帶 {inspection_id, stage} 的階段推進呼叫。
+ */
 function _updateInspection(data) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = _ensureInspectColumns();
   const budgetSheet = ss.getSheetByName(SHEET_BUDGET);
 
-  const rowIdx = _findInspectionRow(sheet, data.inspection_id);
-  if (rowIdx < 0) throw new Error('找不到查驗紀錄: ' + data.inspection_id);
+  var gid = String(data.inspection_id || '').trim();
+  var rows = _findGroupRows(sheet, gid);
+  if (!rows.length) {
+    // 也可能傳的是單一明細編號 → 取其所屬查驗表
+    var one = _findInspectionRow(sheet, gid);
+    if (one < 0) throw new Error('找不到查驗紀錄: ' + gid);
+    var v = sheet.getRange(one, 1, 1, INSPECT_COLS).getValues()[0];
+    gid = String(v[COL_GROUP_ID - 1] || '').trim() || _groupIdOf(v[COL_ID - 1]);
+    rows = _findGroupRows(sheet, gid);
+    if (!rows.length) rows = [{ idx: one, v: v }];
+  }
+  var head = rows[0].v;
 
-  const row = sheet.getRange(rowIdx, 1, 1, INSPECT_COLS).getValues()[0];
-  const budgetItemId = row[COL_BUDGET_ID - 1];
-  const budget = _findBudgetItem(budgetSheet, budgetItemId);
-
-  // ── 編號 ──
-  var currentId = String(row[COL_ID - 1]);
+  // ── 新編號 ──
+  var newGroup = gid;
   if (data.inspection_no && String(data.inspection_no).trim() !== '') {
-    const newId = ID_PREFIX + String(data.inspection_no).trim();
-    if (newId !== currentId) {
-      const dupRow = _findInspectionRow(sheet, newId);
-      if (dupRow > 0) throw new Error('查驗編號已存在: ' + newId);
-      sheet.getRange(rowIdx, COL_ID).setValue(newId);
-      currentId = newId;
+    newGroup = ID_PREFIX + String(data.inspection_no).trim();
+    if (newGroup !== gid && _findGroupRows(sheet, newGroup).length > 0) {
+      throw new Error('查驗編號已存在: ' + newGroup);
     }
   }
 
-  // ── 數量 ──
-  if (data.inspected_qty !== undefined) {
-    const newQty = parseFloat(data.inspected_qty);
-    if (isNaN(newQty) || newQty <= 0) throw new Error('查驗數量必須大於 0');
+  // ── 共用欄位 ──
+  var workArea = data.work_area !== undefined ? String(data.work_area || '').trim() : String(head[COL_WORK_AREA - 1] || '');
+  var inspDate = data.inspection_date !== undefined ? data.inspection_date : head[COL_DATE - 1];
+  var stage = data.stage !== undefined
+    ? Math.min(Math.max(parseInt(data.stage) || 1, 1), STAGE_COUNT)
+    : _normStage(head[COL_STAGE - 1], head[COL_SUBMIT - 1], head[COL_APPROVE - 1]);
+  var submitDate = data.submit_date !== undefined ? data.submit_date : (head[COL_SUBMIT - 1] || '');
+  if (stage >= FINAL_STAGE && !String(submitDate).trim()) submitDate = new Date().toISOString().slice(0, 10);
+  var approveDate = data.approve_date !== undefined ? data.approve_date : (head[COL_APPROVE - 1] || '');
+  var groupNote = data.note !== undefined ? data.note : null;
 
-    const existingQty = _getInspectedQty(sheet, budgetItemId, data.inspection_id);
-    if (existingQty + newQty > budget.budget_qty) {
-      throw new Error('超過預算數量！剩餘: ' + (budget.budget_qty - existingQty));
-    }
+  // ── 明細同步 ──
+  var finals = [];   // {rowIdx(可空), b, q, note, att, attN, created, createdBy}
+  if (data.items && data.items.length) {
+    var seen = {};
+    for (var i = 0; i < data.items.length; i++) {
+      var it = data.items[i];
+      var b = _findBudgetItem(budgetSheet, it.budget_item_id);
+      if (!b) throw new Error('找不到預算項目: ' + it.budget_item_id);
+      if (seen[it.budget_item_id]) throw new Error('同一張查驗表中有重複的項目: ' + b.item_name_cn);
+      seen[it.budget_item_id] = 1;
 
-    sheet.getRange(rowIdx, COL_QTY).setValue(newQty);
-    sheet.getRange(rowIdx, COL_AMOUNT).setValue(newQty * budget.unit_price);
-  }
-
-  if (data.inspection_date !== undefined) sheet.getRange(rowIdx, COL_DATE).setValue(data.inspection_date);
-  if (data.note !== undefined) sheet.getRange(rowIdx, COL_NOTE).setValue(data.note);
-  if (data.submit_date !== undefined) sheet.getRange(rowIdx, COL_SUBMIT).setValue(data.submit_date);
-  if (data.approve_date !== undefined) sheet.getRange(rowIdx, COL_APPROVE).setValue(data.approve_date);
-
-  var workArea = String(row[COL_WORK_AREA - 1] || '');
-  if (data.work_area !== undefined) {
-    workArea = String(data.work_area || '').trim();
-    sheet.getRange(rowIdx, COL_WORK_AREA).setValue(workArea);
-  }
-
-  // ── 階段 ──
-  var stage = _normStage(row[COL_STAGE - 1], row[COL_SUBMIT - 1], row[COL_APPROVE - 1]);
-  if (data.stage !== undefined) {
-    stage = Math.min(Math.max(parseInt(data.stage) || 1, 1), STAGE_COUNT);
-    sheet.getRange(rowIdx, COL_STAGE).setValue(stage);
-    // 階段3 = 已提交台電 → 自動帶入提送日期（如果還沒填）
-    if (stage >= FINAL_STAGE && !data.submit_date) {
-      const curSubmit = row[COL_SUBMIT - 1] ? String(row[COL_SUBMIT - 1]).trim() : '';
-      if (!curSubmit) sheet.getRange(rowIdx, COL_SUBMIT).setValue(new Date().toISOString().slice(0, 10));
-    }
-  }
-
-  // ── 資料夾（改編號／工區／指定連結 → 重新解析或改名）──
-  var folderId = String(row[COL_FOLDER_ID - 1] || '');
-  var folderNm = String(row[COL_FOLDER_NAME - 1] || '');
-  const wantName = _folderName(currentId, workArea, row[COL_ITEM_NAME - 1]);
-  const linkRef = data.link_folder_url || '';
-  try {
-    if (linkRef || !folderId) {
-      const res = _resolveInspectionFolder(currentId, wantName, linkRef);
-      folderId = res.id; folderNm = res.name;
-      sheet.getRange(rowIdx, COL_FOLDER_ID).setValue(folderId);
-      sheet.getRange(rowIdx, COL_FOLDER_NAME).setValue(folderNm);
-    } else if (folderNm !== wantName) {
-      const f = DriveApp.getFolderById(folderId);
-      if (f.getName().indexOf(currentId) === 0 || f.getName() === folderNm) {
-        f.setName(wantName);
-        folderNm = wantName;
-      } else {
-        folderNm = f.getName();
+      var q = parseFloat(it.inspected_qty);
+      if (isNaN(q) || q <= 0) throw new Error('查驗數量必須大於 0（' + b.item_name_cn + '）');
+      var used = _getQtyExcludeGroup(sheet, it.budget_item_id, gid);
+      if (used + q > b.budget_qty + 1e-9) {
+        throw new Error('超過預算數量！' + b.item_name_cn + ' 剩餘 ' + (b.budget_qty - used));
       }
-      sheet.getRange(rowIdx, COL_FOLDER_NAME).setValue(folderNm);
+
+      // 對應既有列：先比對明細編號，再比對預算項目
+      var match = null;
+      for (var j = 0; j < rows.length; j++) {
+        if (it.row_id && String(rows[j].v[COL_ID - 1]) === String(it.row_id)) { match = rows[j]; break; }
+      }
+      if (!match) {
+        for (var j2 = 0; j2 < rows.length; j2++) {
+          if (!rows[j2]._used && rows[j2].v[COL_BUDGET_ID - 1] === it.budget_item_id) { match = rows[j2]; break; }
+        }
+      }
+      if (match) match._used = true;
+      finals.push({ row: match, b: b, q: q, note: it.note || '' });
+    }
+  } else {
+    // 沒帶明細（例如只推進階段）→ 保留原有明細
+    for (var m = 0; m < rows.length; m++) {
+      var rv = rows[m].v;
+      rows[m]._used = true;
+      finals.push({
+        row: rows[m],
+        b: { id: rv[COL_BUDGET_ID - 1], item_name_cn: rv[COL_ITEM_NAME - 1], unit_price: parseFloat(rv[COL_PRICE - 1]) || 0 },
+        q: parseFloat(rv[COL_QTY - 1]) || 0,
+        note: rv[COL_NOTE - 1] || ''
+      });
+    }
+  }
+
+  // ── 移除未出現的舊明細（軟刪除）──
+  var removed = 0;
+  for (var d = 0; d < rows.length; d++) {
+    if (!rows[d]._used) {
+      sheet.getRange(rows[d].idx, COL_DELETED).setValue('TRUE');
+      sheet.getRange(rows[d].idx, COL_UPDATED_AT).setValue(new Date().toISOString());
+      removed++;
+    }
+  }
+
+  // ── 資料夾 ──
+  var folderId = String(head[COL_FOLDER_ID - 1] || '');
+  var folderNm = String(head[COL_FOLDER_NAME - 1] || '');
+  var wantName = _folderName(newGroup, workArea, finals.map(function (f) { return f.b.item_name_cn; }));
+  try {
+    if (data.link_folder_url || !folderId) {
+      var res = _resolveInspectionFolder(newGroup, wantName, data.link_folder_url || '');
+      folderId = res.id; folderNm = res.name;
+    } else if (folderNm !== wantName) {
+      var fo = DriveApp.getFolderById(folderId);
+      if (fo.getName().indexOf(gid) === 0 || fo.getName().indexOf(newGroup) === 0 || fo.getName() === folderNm) {
+        fo.setName(wantName); folderNm = wantName;
+      } else {
+        folderNm = fo.getName();
+      }
     }
   } catch (e) {
     Logger.log('資料夾處理失敗: ' + e.message);
   }
 
-  // ── 附件（相容舊前端：整包帶上來時直接傳到該紀錄的資料夾）──
-  if (data.new_attachments && data.new_attachments.length > 0) {
-    try {
-      const results = data.new_attachments.map(function (att) {
-        return folderId ? _uploadToFolder_internal(att, folderId) : _uploadAttachment(att);
-      });
-      const existingIds = row[COL_ATT_IDS - 1] ? row[COL_ATT_IDS - 1].toString() : '';
-      const existingNames = row[COL_ATT_NAMES - 1] ? row[COL_ATT_NAMES - 1].toString() : '';
-      const newIds = results.map(function (r) { return r.file_id; }).join(',');
-      const newNames = results.map(function (r) { return r.file_name; }).join(',');
-      sheet.getRange(rowIdx, COL_ATT_IDS).setValue(existingIds ? existingIds + ',' + newIds : newIds);
-      sheet.getRange(rowIdx, COL_ATT_NAMES).setValue(existingNames ? existingNames + ',' + newNames : newNames);
-    } catch (e) {
-      Logger.log('附件上傳失敗（不影響查驗更新）: ' + e.message);
+  // ── 寫回每一列 ──
+  var now = new Date().toISOString();
+  var by = data.updated_by || 'Admin';
+  var total = 0;
+  for (var k = 0; k < finals.length; k++) {
+    var f = finals[k], amt = f.q * (parseFloat(f.b.unit_price) || 0);
+    total += amt;
+    var rowId = newGroup + '-' + (k + 1);
+    if (f.row) {
+      var idx = f.row.idx, ov = f.row.v;
+      sheet.getRange(idx, 1, 1, INSPECT_COLS).setValues([[
+        rowId, inspDate, f.b.id, f.b.item_name_cn, f.q, f.b.unit_price, amt,
+        (groupNote !== null && rows.length === 1 && !data.items) ? groupNote : f.note,
+        ov[COL_ATT_IDS - 1] || '', ov[COL_ATT_NAMES - 1] || '',
+        ov[COL_CREATED_AT - 1] || now, ov[COL_CREATED_BY - 1] || by,
+        now, by, 'FALSE', submitDate, approveDate, stage, workArea, folderId, folderNm, newGroup
+      ]]);
+    } else {
+      sheet.appendRow([
+        rowId, inspDate, f.b.id, f.b.item_name_cn, f.q, f.b.unit_price, amt, f.note,
+        '', '', now, by, now, by, 'FALSE', submitDate, approveDate, stage, workArea, folderId, folderNm, newGroup
+      ]);
     }
   }
 
-  const now = new Date().toISOString();
-  sheet.getRange(rowIdx, COL_UPDATED_AT).setValue(now);
-  sheet.getRange(rowIdx, COL_UPDATED_BY).setValue(data.updated_by || 'Admin');
-
-  _addLog('UPDATE', 'inspection', currentId,
-    '修改查驗 ' + currentId + '（階段: ' + STAGE_LABELS[stage - 1] + '，工區: ' + (workArea || '—') + '）',
-    data.updated_by || 'Admin');
+  _addLog('UPDATE', 'inspection', newGroup,
+    '修改查驗表 ' + newGroup + '（' + finals.length + ' 個項目' + (removed ? '、移除 ' + removed + ' 項' : '') +
+    '，階段: ' + STAGE_LABELS[stage - 1] + '，工區: ' + (workArea || '—') + '）', by);
 
   return {
     success: true,
-    inspection_id: currentId,
+    inspection_id: newGroup,
+    group_id: newGroup,
+    item_count: finals.length,
+    removed: removed,
+    inspected_amount: total,
     stage: stage,
     work_area: workArea,
     folder_id: folderId,
     folder_name: folderNm,
-    message: '查驗紀錄已更新'
+    message: '查驗表已更新'
   };
 }
 
+/** 刪除：傳查驗表編號＝整張刪除；傳明細編號＝只刪該項目（軟刪除） */
 function _deleteInspection(inspectionId, deletedBy) {
   const sheet = _ensureInspectColumns();
+  const now = new Date().toISOString();
+
+  var rows = _findGroupRows(sheet, inspectionId);
+  if (rows.length) {
+    for (var i = 0; i < rows.length; i++) {
+      sheet.getRange(rows[i].idx, COL_DELETED).setValue('TRUE');
+      sheet.getRange(rows[i].idx, COL_UPDATED_AT).setValue(now);
+      sheet.getRange(rows[i].idx, COL_UPDATED_BY).setValue(deletedBy);
+    }
+    _addLog('DELETE', 'inspection', inspectionId, '刪除查驗表 ' + inspectionId + '（' + rows.length + ' 個項目）', deletedBy);
+    return { success: true, deleted: rows.length, message: '查驗表已刪除（' + rows.length + ' 個項目）' };
+  }
 
   const rowIdx = _findInspectionRow(sheet, inspectionId);
   if (rowIdx < 0) throw new Error('找不到查驗紀錄: ' + inspectionId);
-
   sheet.getRange(rowIdx, COL_DELETED).setValue('TRUE');
-  sheet.getRange(rowIdx, COL_UPDATED_AT).setValue(new Date().toISOString());
+  sheet.getRange(rowIdx, COL_UPDATED_AT).setValue(now);
   sheet.getRange(rowIdx, COL_UPDATED_BY).setValue(deletedBy);
-
-  _addLog('DELETE', 'inspection', inspectionId, '刪除查驗 ' + inspectionId, deletedBy);
-
-  return { success: true, message: '查驗紀錄已刪除（軟刪除）' };
+  _addLog('DELETE', 'inspection', inspectionId, '刪除查驗明細 ' + inspectionId, deletedBy);
+  return { success: true, deleted: 1, message: '查驗明細已刪除（軟刪除）' };
 }
 
 // ══════════════════════════════════
@@ -706,7 +832,9 @@ function _getInspections() {
   return data.filter(r => r[COL_DELETED - 1] !== true && r[COL_DELETED - 1] !== 'TRUE').map(r => {
     const stage = _normStage(r[COL_STAGE - 1], r[COL_SUBMIT - 1], r[COL_APPROVE - 1]);
     const workArea = r[COL_WORK_AREA - 1] || '';
+    const groupId = String(r[COL_GROUP_ID - 1] || '').trim() || _groupIdOf(r[COL_ID - 1]);
     return {
+      group_id: groupId,
       id: r[COL_ID - 1], inspection_date: r[COL_DATE - 1], budget_item_id: r[COL_BUDGET_ID - 1],
       item_name_snapshot: r[COL_ITEM_NAME - 1], inspected_qty: r[COL_QTY - 1],
       unit_price_snapshot: r[COL_PRICE - 1], inspected_amount: r[COL_AMOUNT - 1], note: r[COL_NOTE - 1],
@@ -718,7 +846,7 @@ function _getInspections() {
       stage: stage,
       work_area: workArea,
       folder_id: r[COL_FOLDER_ID - 1] || '',
-      folder_name: r[COL_FOLDER_NAME - 1] || _folderName(r[COL_ID - 1], workArea, r[COL_ITEM_NAME - 1])
+      folder_name: r[COL_FOLDER_NAME - 1] || _folderName(groupId, workArea, r[COL_ITEM_NAME - 1])
     };
   });
 }
@@ -783,6 +911,19 @@ function _getSummary() {
     globalStageCounts[stg - 1]++;
   });
 
+  // 以「查驗表」為單位（同 group_id 的明細合併）
+  const formMap = {};
+  inspections.forEach(i => {
+    const g = i.group_id || _groupIdOf(i.id);
+    const stg = Math.min(Math.max(parseInt(i.stage) || 1, 1), STAGE_COUNT);
+    if (!formMap[g]) formMap[g] = { stage: stg, items: 0 };
+    formMap[g].items++;
+    formMap[g].stage = Math.min(formMap[g].stage, stg);
+  });
+  const formList = Object.keys(formMap).map(k => formMap[k]);
+  const formStageCounts = [0, 0, 0];
+  formList.forEach(f => { formStageCounts[f.stage - 1]++; });
+
   return {
     budgetItems: summaries,
     inspections: inspections,
@@ -799,7 +940,10 @@ function _getSummary() {
       wipRecords: globalStageCounts[0] + globalStageCounts[1],
       stageCounts: globalStageCounts,
       stageLabels: STAGE_LABELS,
-      finalStage: FINAL_STAGE
+      finalStage: FINAL_STAGE,
+      totalForms: formList.length,
+      formStageCounts: formStageCounts,
+      formsSubmitted: formStageCounts[FINAL_STAGE - 1]
     },
     drive_folder_id: folderId,
     stage_scheme: _isV4() ? 'v4' : 'legacy',
@@ -882,7 +1026,9 @@ function _uploadToExistingFolder(data) {
 
   if (data.inspection_id) {
     const sheet = _ensureInspectColumns();
-    const rowIdx = _findInspectionRow(sheet, data.inspection_id);
+    // 傳查驗表編號時，附件掛在該表第一個明細列
+    const grp = _findGroupRows(sheet, data.inspection_id);
+    const rowIdx = grp.length ? grp[0].idx : _findInspectionRow(sheet, data.inspection_id);
     if (rowIdx > 0) {
       const row = sheet.getRange(rowIdx, 1, 1, INSPECT_COLS).getValues()[0];
       const existingIds = row[COL_ATT_IDS - 1] ? row[COL_ATT_IDS - 1].toString() : '';
