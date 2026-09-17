@@ -8,7 +8,7 @@
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+<!-- xlsx 只有「匯入 Excel」會用到，改成需要時才載入（省下每次開頁約 0.9MB / 0.3 秒） -->
 <style>
 :root{
   --bg:#1e2430;--bg2:#252c3a;--card:#272f3d;--card2:#2d3645;
@@ -82,7 +82,7 @@ tbody tr{transition:background .12s}tbody tr:hover{background:rgba(255,255,255,.
 <body>
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#7c8ba0"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
 <script type="text/babel">
-const VER='4.1.0';
+const VER='4.2.0';
 /* 三階段流程；stage 3（已提交台電）= 計入「已查驗金額」 */
 const STAGES=[
   {n:1,l:'NMDC自檢完成',s:'自檢',c:'#8c96cc',bg:'rgba(140,150,204,.14)'},
@@ -112,7 +112,22 @@ const{useState,useEffect,useMemo,useCallback,useRef}=React;
 
 const mkApi=u=>({
   get:async(a,p={})=>{const url=new URL(u);url.searchParams.set('action',a);Object.entries(p).forEach(([k,v])=>url.searchParams.set(k,v));const r=await fetch(url);if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();if(d.error)throw Error(d.error);return d},
-  post:async(a,d={})=>{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:a,data:d})});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(j.error)throw Error(j.error);return j},
+  /* wantSummary=true：後端在同一個回應裡順便回傳最新統計，省掉一次 3 秒的 getSummary */
+  post:async(a,d={},wantSummary)=>{const r=await fetch(u,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:a,data:d,want_summary:!!wantSummary})});if(!r.ok)throw Error('HTTP '+r.status);const j=await r.json();if(j.error)throw Error(j.error);return j},
+});
+
+/* 本機快取：開頁先用上次的資料立刻渲染，再於背景更新 */
+const CACHE_KEY='nmdc_insp_cache_v1';
+const cacheLoad=()=>{try{const c=JSON.parse(localStorage.getItem(CACHE_KEY));return(c&&c.data&&c.ts)?c:null}catch{return null}};
+const cacheSave=d=>{try{localStorage.setItem(CACHE_KEY,JSON.stringify({ts:new Date().toISOString(),data:d}))}catch(e){}};
+
+/* xlsx 需要時才載入 */
+const loadXLSX=()=>new Promise((res,rej)=>{
+  if(window.XLSX)return res(window.XLSX);
+  const s=document.createElement('script');
+  s.src='https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+  s.onload=()=>res(window.XLSX);s.onerror=()=>rej(Error('無法載入 Excel 解析元件'));
+  document.head.appendChild(s);
 });
 
 const fmt=n=>(n==null||isNaN(n))?'—':new Intl.NumberFormat('zh-TW').format(Math.round(n));
@@ -337,25 +352,38 @@ function App(){
 
   const toast=(m,t='ok')=>{const id=Date.now();sTs(x=>[...x,{id,m,t}]);setTimeout(()=>sTs(x=>x.filter(z=>z.id!==id)),4000)};
 
-  /* 開網頁就載入雲端資料 */
-  const sync=useCallback(async()=>{
-    if(!api.current)api.current=mkApi(DEFAULT_API);
-    sSs('syncing');
-    try{const r=await api.current.get('getSummary');if(r&&Array.isArray(r.inspections))r.inspections=r.inspections.map(i=>({...i,stage:mapStage(i.stage)}));sData(r);sLs(new Date().toISOString());sSs('done')}
-    catch(e){sSs('error');toast('同步失敗: '+e.message,'err')}
+  /* 把一份 summary 套用到畫面（含階段正規化與本機快取） */
+  const applySummary=useCallback((r,fromCache)=>{
+    if(r&&Array.isArray(r.inspections))r.inspections=r.inspections.map(i=>({...i,stage:mapStage(i.stage)}));
+    sData(r);sLs(new Date().toISOString());sSs('done');
+    if(!fromCache)cacheSave(r);
   },[]);
 
-  useEffect(()=>{api.current=mkApi(DEFAULT_API);sync();},[]);
+  /* 開網頁就載入雲端資料（fresh=true 會略過後端快取） */
+  const sync=useCallback(async(fresh)=>{
+    if(!api.current)api.current=mkApi(DEFAULT_API);
+    sSs('syncing');
+    try{const r=await api.current.get('getSummary',fresh?{fresh:1}:{});applySummary(r)}
+    catch(e){sSs('error');toast('同步失敗: '+e.message,'err')}
+  },[applySummary]);
+
+  /* 先吃本機快取立刻渲染，再於背景抓最新 */
+  useEffect(()=>{
+    api.current=mkApi(DEFAULT_API);
+    const c=cacheLoad();
+    if(c){applySummary(c.data,true);sLs(c.ts);}
+    sync();
+  },[]);
 
   const doLogout=()=>{sAuth(false);toast('已登出')};
 
   const addI=async d=>{sSub(true);try{
     /* 分離附件：先建紀錄（不帶附件），再逐一上傳 */
     const files=d.attachments||[];
-    const payload={...d,attachments:[]};/* 先不帶附件 */
-    const r=await api.current.post('addInspection',payload);
-    toast('☁ '+r.inspection_id+' 紀錄已建立');
-    /* 逐一上傳附件到子資料夾 */
+    const payload={...d,attachments:[]};
+    /* 沒有附件時請後端順便回傳最新統計，省掉一次 getSummary */
+    const r=await api.current.post('addInspection',payload,files.length===0);
+    toast('☁ '+r.inspection_id+(r.item_count>1?'（'+r.item_count+' 個項目）':'')+' 已建立');
     if(files.length>0&&r.folder_id){
       for(let i=0;i<files.length;i++){
         try{
@@ -365,11 +393,13 @@ function App(){
       }
       toast('☁ '+files.length+' 個附件已上傳');
     }
-    sMl(null);await sync()
+    sMl(null);
+    if(r.summary&&files.length===0)applySummary(r.summary);else await sync();
   }catch(e){toast(e.message,'err')}finally{sSub(false)}};
+
   const updI=async(gid,d)=>{sSub(true);try{
     const files=d.attachments||[];
-    const r=await api.current.post('updateInspection',{inspection_id:gid,inspection_no:d.inspection_no,work_area:d.work_area,inspection_date:d.inspection_date,submit_date:d.submit_date,note:d.note,stage:d.stage,link_folder_url:d.link_folder_url,items:d.items});
+    const r=await api.current.post('updateInspection',{inspection_id:gid,inspection_no:d.inspection_no,work_area:d.work_area,inspection_date:d.inspection_date,submit_date:d.submit_date,note:d.note,stage:d.stage,link_folder_url:d.link_folder_url,items:d.items},files.length===0);
     toast('☁ 已更新至雲端');
     const fid=r.folder_id;const newId=r.inspection_id||gid;
     if(files.length>0&&fid){
@@ -379,11 +409,14 @@ function App(){
       }
       toast('☁ '+files.length+' 個附件已上傳');
     }
-    sMl(null);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
-  const updStage=async(gid,stage)=>{try{await api.current.post('updateInspection',{inspection_id:gid,stage});toast('☁ 階段已更新');await sync()}catch(e){toast(e.message,'err')}};
-  const delI=async(id,label)=>{if(!confirm('確定刪除'+(label||id)+'？'))return;try{await api.current.post('deleteInspection',{inspection_id:id});toast('☁ 已從雲端刪除');sMl(null);await sync()}catch(e){toast(e.message,'err')}};
-  const updBudget=async(id,d)=>{try{await api.current.post('updateBudgetItem',{budget_item_id:id,...d});toast('☁ 已更新');await sync()}catch(e){toast(e.message,'err')}};
-  const importBudget=async(items)=>{sSub(true);try{const r=await api.current.post('importBudgetData',{items});toast('☁ '+r.message);await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
+    sMl(null);
+    if(r.summary&&files.length===0)applySummary(r.summary);else await sync();
+  }catch(e){toast(e.message,'err')}finally{sSub(false)}};
+
+  const updStage=async(gid,stage)=>{try{const r=await api.current.post('updateInspection',{inspection_id:gid,stage},true);toast('☁ 階段已更新');if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}};
+  const delI=async(id,label)=>{if(!confirm('確定刪除'+(label||id)+'？'))return;try{const r=await api.current.post('deleteInspection',{inspection_id:id},true);toast('☁ 已從雲端刪除');sMl(null);if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}};
+  const updBudget=async(id,d)=>{try{const r=await api.current.post('updateBudgetItem',{budget_item_id:id,...d},true);toast('☁ 已更新');if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}};
+  const importBudget=async(items)=>{sSub(true);try{const r=await api.current.post('importBudgetData',{items},true);toast('☁ '+r.message);if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
   const ldLogs=async()=>{try{sLogs(await api.current.get('getLogs',{limit:200}))}catch(e){toast(e.message,'err')}};
 
   const sm=data?.budgetItems||[];const ins=data?.inspections||[];
@@ -463,7 +496,7 @@ function App(){
   if(!data&&ss==='error')return<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>{TL}<div style={{textAlign:'center'}}><div style={{fontSize:40,marginBottom:12}}>⚠️</div><div style={{fontSize:14,fontWeight:600}}>無法連線至 Google Sheets</div><button className="bp" onClick={sync} style={{marginTop:16}}>重試</button></div></div>;
 
   const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗總表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
-  const SyncBtn=<button className="bg" disabled={ss==='syncing'} onClick={sync} title="從 Google Sheets 讀取最新資料">{ss==='syncing'?<span className="spinner"/>:'☁↓'} 從雲端同步</button>;
+  const SyncBtn=<button className="bg" disabled={ss==='syncing'} onClick={()=>sync(true)} title="略過快取，從 Google Sheets 讀取最新資料">{ss==='syncing'?<span className="spinner"/>:'☁↓'} 從雲端同步</button>;
 
   return<div style={{display:'flex',minHeight:'100vh'}}>
     {TL}
@@ -704,13 +737,13 @@ function App(){
             <strong>「☁↓ 從雲端同步」</strong> = 從 Google Sheets 讀取最新資料<br/>
             <strong>新增/編輯/刪除操作</strong> = 即時儲存至 Google Sheets（無需手動儲存）
           </div>
-          <button className="bg" onClick={sync}>☁↓ 從雲端同步</button>
+          <button className="bg" onClick={()=>sync(true)}>☁↓ 從雲端同步</button>
         </div>
         {data?.drive_folder_id&&<div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:24,boxShadow:'var(--shadow)'}}><h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>📁 Google Drive 附件</h3><a href={'https://drive.google.com/drive/folders/'+data.drive_folder_id} target="_blank" rel="noopener" style={{color:'var(--accent)',fontSize:13}}>🔗 開啟附件資料夾</a><div style={{fontSize:11,color:'var(--muted)',marginTop:6,lineHeight:1.7}}>子資料夾名稱格式：<strong className="mono">查驗編號 工區 項目</strong><br/>例：<span className="mono">NMDC-POE-BOQ-E-012 A區 水質監測</span><br/>「項目」＝預算項目名稱最後一個「，」之後的文字；同編號的舊資料夾會自動連結，不會重複建立。</div></div>}
         {auth&&<div style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',padding:24,boxShadow:'var(--shadow)'}}>
           <h3 style={{fontSize:14,fontWeight:700,marginBottom:14}}>📥 匯入/更新預算項目</h3>
           <div style={{fontSize:12,color:'var(--muted)',marginBottom:12,lineHeight:1.8}}>上傳 Excel (.xlsx) 來更新預算數量、單價、金額。<br/>以 <strong>budget_item_id</strong> 比對：有的更新、沒有的新增。</div>
-          <input type="file" accept=".xlsx,.xls,.csv" style={{display:'none'}} id="budgetFile" onChange={async e=>{const file=e.target.files[0];if(!file)return;toast('解析 Excel...');try{const ab=await file.arrayBuffer();const wb=XLSX.read(ab);const wsN=wb.SheetNames.find(n=>n.includes('預算'))||wb.SheetNames[0];const rows=XLSX.utils.sheet_to_json(wb.Sheets[wsN]);if(!rows.length){toast('無資料','err');return}const items=rows.map(r=>({budget_item_id:r.budget_item_id||'',item_no:r.item_no||'',category:r.category||'',category_en:r.category_en||'',item_name_cn:r.item_name_cn||'',item_name_en:r.item_name_en||'',unit:r.unit||'',budget_qty:r.budget_qty||0,unit_price:r.unit_price||0,budget_total:r.budget_total||0,remarks:r.remarks||'',code:r.code||''})).filter(i=>i.budget_item_id);if(!items.length){toast('需要 budget_item_id 欄位','err');return}if(confirm('匯入 '+items.length+' 筆？'))await importBudget(items)}catch(err){toast('失敗: '+err.message,'err')}e.target.value=''}}/>
+          <input type="file" accept=".xlsx,.xls,.csv" style={{display:'none'}} id="budgetFile" onChange={async e=>{const file=e.target.files[0];if(!file)return;toast('載入 Excel 元件...');try{const XL=await loadXLSX();toast('解析 Excel...');const ab=await file.arrayBuffer();const wb=XL.read(ab);const wsN=wb.SheetNames.find(n=>n.includes('預算'))||wb.SheetNames[0];const rows=XL.utils.sheet_to_json(wb.Sheets[wsN]);if(!rows.length){toast('無資料','err');return}const items=rows.map(r=>({budget_item_id:r.budget_item_id||'',item_no:r.item_no||'',category:r.category||'',category_en:r.category_en||'',item_name_cn:r.item_name_cn||'',item_name_en:r.item_name_en||'',unit:r.unit||'',budget_qty:r.budget_qty||0,unit_price:r.unit_price||0,budget_total:r.budget_total||0,remarks:r.remarks||'',code:r.code||''})).filter(i=>i.budget_item_id);if(!items.length){toast('需要 budget_item_id 欄位','err');return}if(confirm('匯入 '+items.length+' 筆？'))await importBudget(items)}catch(err){toast('失敗: '+err.message,'err')}e.target.value=''}}/>
           <button className="bp" onClick={()=>document.getElementById('budgetFile')?.click()} disabled={sub}>{sub?<><span className="spinner"/> 匯入中...</>:'📥 選擇 Excel 匯入'}</button>
           <div style={{fontSize:10,color:'var(--muted)',marginTop:6}}>支援 .xlsx / .xls / .csv</div>
         </div>}

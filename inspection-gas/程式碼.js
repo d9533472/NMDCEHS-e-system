@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // NMDC 通霄二期 — 查驗紀錄管理系統 (Backend: Google Apps Script)
-// v4.1.0  三階段流程 + 一表多項目
+// v4.2.0  三階段流程 + 一表多項目 + 讀取快取加速
 // ═══════════════════════════════════════════════════════════════════
 //
 // 【v4 變更重點】
@@ -188,11 +188,51 @@ function renameAllFolders() {
 }
 
 // ══════════════════════════════════
+// getSummary 快取（加速讀取；任何寫入都會清掉）
+// ══════════════════════════════════
+const SUMMARY_CACHE_KEY = 'summary_v42';
+const SUMMARY_CACHE_SEC = 180;
+
+function _cacheGetSummary() {
+  try { return CacheService.getScriptCache().get(SUMMARY_CACHE_KEY); } catch (e) { return null; }
+}
+function _cachePutSummary(str) {
+  try { if (str && str.length < 95000) CacheService.getScriptCache().put(SUMMARY_CACHE_KEY, str, SUMMARY_CACHE_SEC); } catch (e) {}
+}
+function _cacheClearSummary() {
+  try { CacheService.getScriptCache().remove(SUMMARY_CACHE_KEY); } catch (e) {}
+}
+/** 手動清快取用 */
+function clearSummaryCache() { _cacheClearSummary(); Logger.log('快取已清除'); }
+
+// 會改動資料的 action（執行後要清快取）
+const WRITE_ACTIONS = {
+  addInspection: 1, updateInspection: 1, deleteInspection: 1, uploadAttachment: 1,
+  deleteAttachment: 1, updateBudgetItem: 1, uploadToFolder: 1,
+  importBudgetData: 1, importBudget: 1, renameFolders: 1
+};
+
+// ══════════════════════════════════
 // Web App 入口 (GET / POST)
 // ══════════════════════════════════
 function doGet(e) {
   const action = e.parameter.action;
   let result;
+
+  // 讀取統計：先吃快取（前端按「從雲端同步」會帶 fresh=1 略過）
+  if (action === 'getSummary') {
+    try {
+      if (String(e.parameter.fresh || '') !== '1') {
+        const hit = _cacheGetSummary();
+        if (hit) return ContentService.createTextOutput(hit).setMimeType(ContentService.MimeType.JSON);
+      }
+      const str = JSON.stringify(_getSummary());
+      _cachePutSummary(str);
+      return ContentService.createTextOutput(str).setMimeType(ContentService.MimeType.JSON);
+    } catch (err) {
+      return _jsonResponse({ error: err.message });
+    }
+  }
 
   try {
     switch (action) {
@@ -221,7 +261,7 @@ function doGet(e) {
         result = _findFolderByNumber(e.parameter.inspection_no || e.parameter.inspection_id);
         break;
       case 'ping':
-        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.1.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
+        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.2.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
         break;
       default:
         result = { error: 'Unknown action: ' + action };
@@ -280,6 +320,19 @@ function doPost(e) {
         break;
       default:
         result = { error: 'Unknown action: ' + action };
+    }
+
+    // 有寫入 → 清快取；前端要的話順便回傳最新統計（省掉一次 getSummary 往返）
+    if (WRITE_ACTIONS[action] && result && !result.error) {
+      _cacheClearSummary();
+      if (payload.want_summary) {
+        try {
+          result.summary = _getSummary();
+          _cachePutSummary(JSON.stringify(result.summary));
+        } catch (e) {
+          Logger.log('附帶 summary 失敗（不影響寫入）: ' + e.message);
+        }
+      }
     }
   } catch (err) {
     result = { error: err.message };
