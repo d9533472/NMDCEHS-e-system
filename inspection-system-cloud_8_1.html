@@ -11,43 +11,40 @@
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 <style>
 :root{
-  --bg:#070b14;--bg2:#0d1526;--card:#0f1828;--card2:#141f33;
-  --border:#1e2b42;--border2:#2b3b57;
-  --fg:#dbe4f0;--fg2:#f4f8ff;--muted:#8194ae;--muted2:#5d6f8a;
-  --accent:#38bdf8;--accent2:#22d3ee;--accent3:#0ea5e9;
-  --green:#34d399;--green2:#10b981;--greenBg:rgba(52,211,153,.12);
-  --amber:#fbbf24;--amberBg:rgba(251,191,36,.12);
-  --red:#f87171;--redBg:rgba(248,113,113,.12);
-  --violet:#a78bfa;
-  --radius:9px;--radius-lg:14px;
-  --shadow:0 1px 2px rgba(0,0,0,.4);
-  --shadow-lg:0 18px 45px rgba(0,0,0,.55);
-  --glow:0 0 22px rgba(56,189,248,.28);
+  --bg:#1e2430;--bg2:#252c3a;--card:#272f3d;--card2:#2d3645;
+  --border:#353f51;--border2:#434e63;
+  --fg:#d6dde8;--fg2:#eef2f8;--muted:#9aa7b8;--muted2:#7d8a9d;
+  --accent:#5fa8b5;--accent2:#6fb6a7;--accent3:#4d94a3;
+  --green:#6cbf9a;--green2:#5aab88;--greenBg:rgba(108,191,154,.13);
+  --amber:#d6a55c;--amberBg:rgba(214,165,92,.13);
+  --red:#d98282;--redBg:rgba(217,130,130,.13);
+  --violet:#9b8fc7;
+  --radius:9px;--radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.22);
+  --shadow-lg:0 14px 34px rgba(0,0,0,.34);
 }
 *{box-sizing:border-box;margin:0;padding:0}html,body,#root{height:100%}
-body{background:var(--bg);color:var(--fg);font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif;-webkit-font-smoothing:antialiased;
-  background-image:radial-gradient(900px 480px at 78% -8%,rgba(56,189,248,.12),transparent 62%),radial-gradient(760px 420px at 4% 8%,rgba(167,139,250,.09),transparent 60%);background-attachment:fixed}
-::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#3b4f73}
-input,select,textarea{background:#0a1220;color:var(--fg);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 12px;font-size:13px;font-family:inherit;outline:none;width:100%;transition:all .18s}
+body{background:var(--bg);color:var(--fg);font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#556278}
+input,select,textarea{background:#222937;color:var(--fg);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 12px;font-size:13px;font-family:inherit;outline:none;width:100%;transition:all .18s}
 input::placeholder,textarea::placeholder{color:var(--muted2)}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.16)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(95,168,181,.15)}
 input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
 select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238194ae'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-select option{background:#0d1526;color:var(--fg)}
+select option{background:#272f3d;color:var(--fg)}
 button{cursor:pointer;font-size:13px;font-family:inherit;border:none;border-radius:var(--radius);padding:8px 16px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.bp{background:linear-gradient(135deg,var(--accent3),var(--accent2));color:#04121f;box-shadow:0 2px 14px rgba(34,211,238,.25)}
-.bp:hover{filter:brightness(1.1);box-shadow:0 4px 20px rgba(34,211,238,.4)}.bp:disabled{opacity:.45;pointer-events:none}
-.bg{background:rgba(255,255,255,.03);color:var(--muted);border:1px solid var(--border2)}.bg:hover{background:rgba(56,189,248,.1);color:var(--fg2);border-color:var(--accent)}
-.bd{background:var(--redBg);color:var(--red);border:1px solid rgba(248,113,113,.3)}.bd:hover{background:rgba(248,113,113,.2)}
+.bp{background:var(--accent3);color:#f4fbfc}
+.bp:hover{background:var(--accent)}.bp:disabled{opacity:.45;pointer-events:none}
+.bg{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border2)}.bg:hover{background:rgba(255,255,255,.08);color:var(--fg2);border-color:var(--muted2)}
+.bd{background:var(--redBg);color:var(--red);border:1px solid rgba(217,130,130,.28)}.bd:hover{background:rgba(217,130,130,.2)}
 table{width:100%;border-collapse:collapse;font-size:12.5px}thead{position:sticky;top:0;z-index:2}
 th{background:var(--card2);color:var(--muted);font-weight:600;font-size:10.5px;text-align:left;padding:10px 12px;white-space:nowrap;border-bottom:1px solid var(--border2);text-transform:uppercase;letter-spacing:.5px}
 td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;word-break:break-word;white-space:normal}
-tbody tr{transition:background .12s}tbody tr:hover{background:rgba(56,189,248,.06)}
+tbody tr{transition:background .12s}tbody tr:hover{background:rgba(255,255,255,.035)}
 .mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}.num{text-align:right;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace;font-size:12px}
 .tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
 .fi{animation:fadeIn .35s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes pulseGlow{0%,100%{opacity:.55}50%{opacity:1}}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
 .tw{position:fixed;bottom:24px;right:24px;z-index:9999}
 .toast{padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;animation:su .3s ease;border:1px solid;margin-top:8px;box-shadow:var(--shadow-lg);backdrop-filter:blur(8px)}
@@ -57,24 +54,23 @@ tbody tr{transition:background .12s}tbody tr:hover{background:rgba(56,189,248,.0
 .fl{display:block;font-size:10.5px;color:var(--muted);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
 .pt{height:6px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}.pf{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.22,1,.36,1)}
 .ov{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
-.ob{position:fixed;inset:0;background:rgba(2,6,15,.72);backdrop-filter:blur(6px)}
-.md{position:relative;background:linear-gradient(180deg,#132036,#0d1626);border-radius:var(--radius-lg);padding:28px;border:1px solid var(--border2);box-shadow:var(--shadow-lg);animation:fadeIn .25s ease}
+.ob{position:fixed;inset:0;background:rgba(15,19,26,.62);backdrop-filter:blur(3px)}
+.md{position:relative;background:var(--card);border-radius:var(--radius-lg);padding:28px;border:1px solid var(--border2);box-shadow:var(--shadow-lg);animation:fadeIn .25s ease}
 .cb{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px}
-.cok{background:var(--greenBg);color:var(--green);border:1px solid rgba(52,211,153,.3)}
-.csy{background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.3)}
-.login-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(56,189,248,.12);color:var(--accent);border:1px solid rgba(56,189,248,.3)}
+.cok{background:var(--greenBg);color:var(--green);border:1px solid rgba(108,191,154,.28)}
+.csy{background:rgba(95,168,181,.14);color:var(--accent);border:1px solid rgba(95,168,181,.3)}
+.login-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(95,168,181,.14);color:var(--accent);border:1px solid rgba(95,168,181,.3)}
 /* ── 卡片 ── */
-.card{background:linear-gradient(180deg,rgba(24,36,58,.9),rgba(13,21,38,.9));border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);position:relative;overflow:hidden}
-.card:before{content:'';position:absolute;inset:0 0 auto 0;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,.5),transparent)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);position:relative;overflow:hidden}
 /* ── 達成儀表 ── */
-.gauge-num{font-family:'JetBrains Mono',monospace;font-weight:800;letter-spacing:-1px;text-shadow:0 0 26px rgba(56,189,248,.45)}
-.ring-bg{stroke:rgba(255,255,255,.07)}
-.hero-amt{font-family:'JetBrains Mono',monospace;font-weight:800;letter-spacing:-1.5px;background:linear-gradient(92deg,#67e8f9,#38bdf8 45%,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:rgba(255,255,255,.03)}
-.dotp{width:7px;height:7px;border-radius:50%;animation:pulseGlow 2.4s ease-in-out infinite}
+.gauge-num{font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:-.5px}
+.ring-bg{stroke:rgba(255,255,255,.08)}
+.hero-amt{font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:-.5px;color:var(--fg2)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.035)}
+.dotp{width:7px;height:7px;border-radius:50%}
 .navi{padding:10px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;transition:all .15s;display:flex;align-items:center;gap:9px;border:1px solid transparent}
-.navi:hover{background:rgba(56,189,248,.07);color:var(--fg2)}
-.navi.on{background:linear-gradient(90deg,rgba(56,189,248,.18),rgba(56,189,248,.03));color:var(--accent);border-color:rgba(56,189,248,.3);font-weight:600}
+.navi:hover{background:rgba(255,255,255,.05);color:var(--fg2)}
+.navi.on{background:rgba(95,168,181,.14);color:var(--accent);border-color:rgba(95,168,181,.25);font-weight:600}
 /* 查驗總表：欄位多，改成水平捲動不擠壓 */
 .tbl-wide{min-width:1240px}
 .tbl-wide td{white-space:nowrap}
@@ -89,9 +85,9 @@ tbody tr{transition:background .12s}tbody tr:hover{background:rgba(56,189,248,.0
 const VER='4.1.0';
 /* 三階段流程；stage 3（已提交台電）= 計入「已查驗金額」 */
 const STAGES=[
-  {n:1,l:'NMDC自檢完成',s:'自檢',c:'#6366f1',bg:'#eef2ff'},
-  {n:2,l:'POE查驗完成',s:'POE完成',c:'#0ea5e9',bg:'#f0f9ff'},
-  {n:3,l:'已提交台電',s:'已提交',c:'#059669',bg:'#ecfdf5'},
+  {n:1,l:'NMDC自檢完成',s:'自檢',c:'#8c96cc',bg:'rgba(140,150,204,.14)'},
+  {n:2,l:'POE查驗完成',s:'POE完成',c:'#5fa8b5',bg:'rgba(95,168,181,.14)'},
+  {n:3,l:'已提交台電',s:'已提交',c:'#6cbf9a',bg:'rgba(108,191,154,.14)'},
 ];
 const FINAL_STAGE=3;
 /* 後端已負責把舊 5 階段換算成 1~3（1,2→1 / 3→2 / 4,5→3），前端只做範圍保護（不可重複換算） */
@@ -134,7 +130,7 @@ function EC({val,field,id,onSave,ok,isN,style:st}){
   useEffect(()=>{if(e&&r.current){r.current.focus();if(r.current.select)r.current.select()}},[e]);
   const save=()=>{sE(false);const nv=isN?parseFloat(v)||0:v;if(String(nv)!==String(val))onSave(id,{[field]:nv})};
   if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed #cbd5e1':'none'}} title={ok?'點擊編輯':''}>{isN?fmt(val):(val||'—')}</span>;
-  return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'rgba(56,189,248,.12)',outline:'none'}}/>;
+  return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'rgba(95,168,181,.14)',outline:'none'}}/>;
 }
 /* ── StageBadge ── */
 function SB({stage,small}){const st=STAGES[mapStage(stage)-1]||STAGES[0];return<span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:small?9:10,fontWeight:600,padding:small?'2px 6px':'3px 10px',borderRadius:20,background:st.bg,color:st.c,whiteSpace:'nowrap',border:'1px solid '+st.c+'22'}}><span style={{width:small?5:6,height:small?5:6,borderRadius:'50%',background:st.c}}/>{small?st.s:st.l}</span>}
@@ -145,14 +141,14 @@ function Ring({pct,size,label,sub,c1,c2}){
   const gid=useMemo(()=>'rg'+Math.random().toString(36).slice(2,8),[]);
   const S=size||150,W=Math.round(S*.085),r=(S-W)/2,C=2*Math.PI*r;
   const p=Math.max(0,Math.min(parseFloat(pct)||0,1));
-  const a=c1||'#22d3ee',b=c2||'#38bdf8';
+  const a=c1||'#5fa8b5',b=c2||'#6fb6a7';
   return<div style={{textAlign:'center',flex:'0 0 auto'}}>
     <div style={{position:'relative',width:S,height:S}}>
       <svg width={S} height={S} style={{transform:'rotate(-90deg)'}}>
         <defs><linearGradient id={gid} x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor={a}/><stop offset="100%" stopColor={b}/></linearGradient></defs>
         <circle className="ring-bg" cx={S/2} cy={S/2} r={r} strokeWidth={W} fill="none"/>
         <circle cx={S/2} cy={S/2} r={r} strokeWidth={W} fill="none" stroke={'url(#'+gid+')'} strokeLinecap="round"
-          strokeDasharray={C} strokeDashoffset={C*(1-p)} style={{transition:'stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)',filter:'drop-shadow(0 0 7px '+a+'99)'}}/>
+          strokeDasharray={C} strokeDashoffset={C*(1-p)} style={{transition:'stroke-dashoffset 1.2s cubic-bezier(.22,1,.36,1)'}}/>
       </svg>
       <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:2}}>
         <div className="gauge-num" style={{fontSize:S*.2,color:'var(--fg2)'}}>{(p*100).toFixed(1)}<span style={{fontSize:S*.1}}>%</span></div>
@@ -237,7 +233,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
           const q=parseFloat(r.qty)||0;const over=b&&q>rem;
           return<div key={i} style={{background:'rgba(255,255,255,.025)',border:'1px solid '+(over?'var(--red)':'var(--border)'),borderRadius:'var(--radius)',padding:'11px 12px'}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-              <span style={{width:22,height:22,flexShrink:0,borderRadius:6,background:'rgba(56,189,248,.14)',color:'var(--accent)',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono'"}}>{i+1}</span>
+              <span style={{width:22,height:22,flexShrink:0,borderRadius:6,background:'rgba(95,168,181,.16)',color:'var(--accent)',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono'"}}>{i+1}</span>
               <select value={r.budget_item_id} onChange={e=>setRow(i,{budget_item_id:e.target.value})} style={{fontSize:12.5}}><option value="">— 選擇預算項目 —</option>{bi.map(x=><option key={x.id} value={x.id}>{x.item_no} {x.item_name_cn}</option>)}</select>
               {rows.length>1&&<button onClick={()=>delRow(i)} title="移除此項目" style={{flexShrink:0,background:'none',border:'none',color:'var(--muted2)',fontSize:15,padding:'0 2px'}}>✕</button>}
             </div>
@@ -258,7 +254,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
           </div>;
         })}
       </div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,padding:'10px 14px',borderRadius:'var(--radius)',background:'linear-gradient(90deg,rgba(56,189,248,.12),rgba(167,139,250,.08))',border:'1px solid var(--border2)'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,padding:'10px 14px',borderRadius:'var(--radius)',background:'rgba(255,255,255,.04)',border:'1px solid var(--border2)'}}>
         <span style={{fontSize:12,fontWeight:600,color:'var(--muted)'}}>本張查驗表合計</span>
         <span className="hero-amt" style={{fontSize:20}}>{fN(total)}</span>
       </div>
@@ -278,7 +274,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
 
     <div style={{marginBottom:16}}>
       <label className="fl">查驗階段（整張表一起推進）</label>
-      <div style={{display:'flex',flexWrap:'wrap',gap:6}}>{STAGES.map(st=><button key={st.n} onClick={()=>{const upd={stage:st.n};if(st.n===FINAL_STAGE&&!f.submit_date)upd.submit_date=td();sF(x=>({...x,...upd}))}} style={{fontSize:11,fontWeight:600,padding:'7px 15px',borderRadius:20,border:'1px solid '+(f.stage===st.n?st.c:'var(--border2)'),background:f.stage===st.n?st.bg:'transparent',color:f.stage===st.n?st.c:'var(--muted)',boxShadow:f.stage===st.n?'0 0 16px '+st.c+'33':'none'}}>{st.n}. {st.l}</button>)}</div>
+      <div style={{display:'flex',flexWrap:'wrap',gap:6}}>{STAGES.map(st=><button key={st.n} onClick={()=>{const upd={stage:st.n};if(st.n===FINAL_STAGE&&!f.submit_date)upd.submit_date=td();sF(x=>({...x,...upd}))}} style={{fontSize:11,fontWeight:600,padding:'7px 15px',borderRadius:20,border:'1px solid '+(f.stage===st.n?st.c:'var(--border2)'),background:f.stage===st.n?st.bg:'transparent',color:f.stage===st.n?st.c:'var(--muted)'}}>{st.n}. {st.l}</button>)}</div>
       <div style={{fontSize:10,color:'var(--muted2)',marginTop:6}}>※ 到「{STAGES[FINAL_STAGE-1].l}」整張表 {fN(total)} 即計入<strong style={{color:'var(--green)'}}>已查驗金額</strong></div>
     </div>
 
@@ -530,7 +526,7 @@ function App(){
     {pg==='dash'&&<div className="fi">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-end',marginBottom:20,flexWrap:'wrap',gap:12}}>
         <div>
-          <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:25,fontWeight:800,color:'var(--fg2)',letterSpacing:-.5}}>Dashboard</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
+          <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:700,color:'var(--fg2)'}}>Dashboard</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
           <p style={{fontSize:11.5,color:'var(--muted)',marginTop:3}}>環境保護費 (Item 6) · 查驗金額達成追蹤</p>
         </div>
         <div style={{display:'flex',gap:8}}>{SyncBtn}{auth&&<button className="bp" onClick={()=>sMl({t:'add'})}>＋ 新增查驗表</button>}</div>
@@ -540,15 +536,15 @@ function App(){
       <div className="card" style={{padding:'26px 28px',marginBottom:16}}>
         <div style={{display:'flex',flexWrap:'wrap',gap:30,alignItems:'center',justifyContent:'space-between'}}>
           <div style={{flex:'1 1 340px',minWidth:290}}>
-            <div style={{fontSize:10.5,letterSpacing:2.4,color:'var(--muted)',fontWeight:700,textTransform:'uppercase'}}>已查驗金額 · 已提交台電</div>
-            <div className="hero-amt" style={{fontSize:'clamp(30px,4.2vw,46px)',lineHeight:1.15,margin:'4px 0 2px'}}>NT$ {fmt(TT.to)}</div>
+            <div style={{fontSize:10.5,letterSpacing:1.2,color:'var(--muted)',fontWeight:600}}>已查驗金額 · 已提交台電</div>
+            <div className="hero-amt" style={{fontSize:'clamp(28px,3.8vw,42px)',lineHeight:1.2,margin:'6px 0 2px'}}>NT$ {fmt(TT.to)}</div>
             <div style={{fontSize:11.5,color:'var(--muted)',marginBottom:14}}>
               佔總預算 <strong style={{color:'var(--accent)'}}>{fP(TT.ratio)}</strong> · 距總預算還差 <strong style={{color:'var(--amber)'}}>{fN(TT.tb-TT.to)}</strong>
               {tMA>0&&<> · 本月新增 <strong style={{color:'var(--green)'}}>{fN(tMA)}</strong></>}
             </div>
             <div style={{display:'flex',height:11,borderRadius:7,overflow:'hidden',background:'rgba(255,255,255,.06)'}}>
-              <div style={{width:Math.min(TT.ratio*100,100)+'%',background:'linear-gradient(90deg,#22d3ee,#34d399)',transition:'width .9s cubic-bezier(.22,1,.36,1)',boxShadow:'0 0 14px rgba(52,211,153,.6)'}}/>
-              <div style={{width:Math.min(TT.tb>0?TT.tp/TT.tb*100:0,100)+'%',background:'repeating-linear-gradient(115deg,rgba(56,189,248,.5),rgba(56,189,248,.5) 5px,rgba(56,189,248,.24) 5px,rgba(56,189,248,.24) 10px)',transition:'width .9s'}}/>
+              <div style={{width:Math.min(TT.ratio*100,100)+'%',background:'var(--green)',transition:'width .9s cubic-bezier(.22,1,.36,1)'}}/>
+              <div style={{width:Math.min(TT.tb>0?TT.tp/TT.tb*100:0,100)+'%',background:'rgba(95,168,181,.42)',transition:'width .9s'}}/>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:10.5,color:'var(--muted)',marginTop:7}}>
               <span style={{color:'var(--green)'}}>● 已查驗 {fN(TT.to)}</span>
@@ -565,7 +561,7 @@ function App(){
           </div>
           <div style={{display:'flex',gap:26,flexWrap:'wrap',justifyContent:'center',flex:'0 1 auto'}}>
             <Ring pct={TT.qRatio} label="可量化項目 達成率" sub={fmt(TT.qo)+' / '+fmt(TT.qb)}/>
-            <Ring pct={TT.lRatio} label="不可量化項目 請款比例" sub={fmt(TT.lo)+' / '+fmt(TT.lb)} c1="#a78bfa" c2="#f472b6"/>
+            <Ring pct={TT.lRatio} label="不可量化項目 請款比例" sub={fmt(TT.lo)+' / '+fmt(TT.lb)} c1="#9b8fc7" c2="#b490b8"/>
           </div>
         </div>
       </div>
@@ -595,7 +591,7 @@ function App(){
             <td className="num"><span style={{color:'var(--green)',fontWeight:600}}>{fQ(g.qo)}</span><br/><span style={{fontSize:10,color:'var(--muted2)'}}>{fP(g.oRatio)}</span></td>
             <td className="num"><span style={{color:g.qp>0?'var(--accent)':'var(--muted2)',fontWeight:600}}>{g.qp>0?fQ(g.qp):'—'}</span><br/>{g.qp>0&&<span style={{fontSize:10,color:'var(--muted2)'}}>{fP(wipPct)}</span>}</td>
             <td className="num"><span style={{color:g.rq<=0?'var(--green)':'var(--amber)',fontWeight:600}}>{fQ(g.rq)}</span><br/><span style={{fontSize:10,color:'var(--muted2)'}}>{fP(g.bq>0?g.rq/g.bq:0)}</span></td>
-            <td style={{minWidth:82}}><div className="pt"><div className="pf" style={{width:Math.min(g.sRatio*100,100)+'%',background:'rgba(56,189,248,.45)'}}/></div><div className="pt" style={{marginTop:3}}><div className="pf" style={{width:Math.min(g.oRatio*100,100)+'%',background:'linear-gradient(90deg,#22d3ee,#34d399)'}}/></div></td>
+            <td style={{minWidth:82}}><div className="pt"><div className="pf" style={{width:Math.min(g.sRatio*100,100)+'%',background:'rgba(95,168,181,.4)'}}/></div><div className="pt" style={{marginTop:3}}><div className="pf" style={{width:Math.min(g.oRatio*100,100)+'%',background:'var(--green)'}}/></div></td>
           </tr>})}
         </tbody></table></div>
       </div>
@@ -612,7 +608,7 @@ function App(){
         <table className="tbl-wide"><thead><tr>{['項次','類別','項目名稱','單位'].map(h=><th key={h}>{h}</th>)}{['預算數量','單價','預算總價','已查驗金額 (已提交台電)','進行中金額 (自檢／POE)','未查驗金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['進度','狀態',''].map(h=><th key={h}>{h}</th>)}</tr></thead>
         <tbody>{fSm.map(s=>{const g=gS(s);return<tr key={s.id}>
           <td style={{fontWeight:700,color:'var(--accent)',fontSize:12,fontFamily:"'JetBrains Mono'"}}>{s.item_no}</td>
-          <td><span className="tag" style={{background:'rgba(56,189,248,.12)',color:'var(--accent)'}}>{s.category}</span></td>
+          <td><span className="tag" style={{background:'rgba(95,168,181,.14)',color:'var(--accent)'}}>{s.category}</span></td>
           <td style={{minWidth:180,fontSize:12}}><div style={{fontWeight:600}}><EC val={s.item_name_cn} field="item_name_cn" id={s.id} onSave={updBudget} ok={auth}/></div><div style={{fontSize:10,color:'var(--muted)'}}><EC val={s.item_name_en} field="item_name_en" id={s.id} onSave={updBudget} ok={auth}/></div></td>
           <td style={{fontSize:11}}><EC val={s.unit} field="unit" id={s.id} onSave={updBudget} ok={auth}/></td>
           <td className="num"><EC val={s.budget_qty} field="budget_qty" id={s.id} onSave={(id,d)=>{d.budget_total=parseFloat(d.budget_qty||0)*s.unit_price;updBudget(id,d)}} ok={auth} isN/></td>
@@ -632,7 +628,7 @@ function App(){
     {/* ═══ RECORDS（以查驗表為單位） ═══ */}
     {pg==='rec'&&<div className="fi">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18,flexWrap:'wrap',gap:12}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:25,fontWeight:800,color:'var(--fg2)',letterSpacing:-.5}}>查驗紀錄</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
+        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:700,color:'var(--fg2)'}}>查驗紀錄</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
         <div style={{display:'flex',gap:8}}>{SyncBtn}<button className="bg" onClick={csv}>📥 CSV</button>{auth&&<button className="bp" onClick={()=>sMl({t:'add'})}>＋ 新增查驗表</button>}</div>
       </div>
       <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋編號/項目/工區..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:220}}/><input type="date" value={fD1} onChange={e=>sFD1(e.target.value)} style={{width:150}}/><span style={{alignSelf:'center',color:'var(--muted)',fontSize:12}}>～</span><input type="date" value={fD2} onChange={e=>sFD2(e.target.value)} style={{width:150}}/>{(fC||fS||fD1||fD2)&&<button className="bg" onClick={clr} style={{fontSize:11}}>✕ 清除</button>}</div>
