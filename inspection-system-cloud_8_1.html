@@ -142,6 +142,8 @@ const loadXLSX=()=>new Promise((res,rej)=>{
 });
 
 const fmt=n=>(n==null||isNaN(n))?'—':new Intl.NumberFormat('zh-TW').format(Math.round(n));
+/* 數量一律顯示到小數點第二位（金額仍取整數） */
+const fQty=n=>(n==null||n===''||isNaN(n))?'—':new Intl.NumberFormat('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n));
 const fN=n=>(n==null||isNaN(n))?'—':'NT$ '+fmt(n);
 const fP=n=>(n==null||isNaN(n))?'—':(n*100).toFixed(1)+'%';
 const fD=d=>{if(!d)return'—';try{const x=new Date(d);return isNaN(x)?String(d).slice(0,10):x.toLocaleDateString('zh-TW')}catch{return String(d).slice(0,10)}};
@@ -150,12 +152,12 @@ const td=()=>new Date().toISOString().slice(0,10);
 
 const Dot=({r})=>{const c=r===0?'#5d6f8a':r<1?'var(--amber)':'var(--green)';return<span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:c}}/>{r===0?'未開始':r<1?'進行中':'已完成'}</span>};
 /* ── EditCell: 點擊即編輯，blur/Enter 存雲端 ── */
-function EC({val,field,id,onSave,ok,isN,style:st}){
+function EC({val,field,id,onSave,ok,isN,qty,style:st}){
   const[e,sE]=useState(false);const[v,sV]=useState(val);const r=useRef();
   useEffect(()=>{sV(val)},[val]);
   useEffect(()=>{if(e&&r.current){r.current.focus();if(r.current.select)r.current.select()}},[e]);
   const save=()=>{sE(false);const nv=isN?parseFloat(v)||0:v;if(String(nv)!==String(val))onSave(id,{[field]:nv})};
-  if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed #cbd5e1':'none'}} title={ok?'點擊編輯':''}>{isN?fmt(val):(val||'—')}</span>;
+  if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed #cbd5e1':'none'}} title={ok?'點擊編輯':''}>{isN?(qty?fQty(val):fmt(val)):(val||'—')}</span>;
   return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'rgba(95,168,181,.14)',outline:'none'}}/>;
 }
 /* ── StageBadge ── */
@@ -231,7 +233,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
       const q=parseFloat(r.qty);
       if(isNaN(q)||q<=0)return alert(n+'的數量必須大於 0');
       const rem=(parseFloat(b.budget_qty)||0)-used(r.budget_item_id,i);
-      if(q>rem)return alert(n+'（'+b.item_name_cn+'）超過剩餘量，最多 '+(isLS(b)?fP(rem):fmt(rem)));
+      if(q>rem)return alert(n+'（'+b.item_name_cn+'）超過剩餘量，最多 '+(isLS(b)?fP(rem):fQty(rem)));
     }
     onOk({inspection_no:f.inspection_no,work_area:f.work_area,inspection_date:f.inspection_date,submit_date:f.submit_date,note:f.note,stage:f.stage,link_folder_url:f.link_folder_url,
       items:rows.map(r=>({row_id:r.row_id||'',budget_item_id:r.budget_item_id,inspected_qty:parseFloat(r.qty),note:r.note||''})),attachments:files});
@@ -270,7 +272,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
               </div>
               <div style={{fontSize:10.5,lineHeight:1.7,paddingBottom:4}}>
                 <div style={{color:'var(--muted)'}}>單價 <span className="mono">{fmt(b.unit_price)}</span></div>
-                <div style={{color:over?'var(--red)':'var(--amber)'}}>剩餘 <span className="mono">{isLS(b)?fP(rem):fmt(rem)}</span>{over&&' ⚠ 超過'}</div>
+                <div style={{color:over?'var(--red)':'var(--amber)'}}>剩餘 <span className="mono">{isLS(b)?fP(rem):fQty(rem)}</span>{over&&' ⚠ 超過'}</div>
               </div>
               <div style={{textAlign:'right',paddingBottom:4}}>
                 {isLS(b)&&q>0&&<div style={{fontSize:10,color:'var(--muted)'}}>＝ {fP(q)}</div>}
@@ -333,11 +335,11 @@ function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
   const qO=okR.reduce((s,i)=>s+(parseFloat(i.inspected_qty)||0),0),aO=okR.reduce((s,i)=>s+amtOf(i),0);
   return<div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:18,fontSize:12.5}}><div>類別: <strong>{it.category}</strong></div><div>單位: <strong>{it.unit}</strong></div><div>編碼: <span className="mono" style={{fontSize:11}}>{it.code}</span></div></div>
-    <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fmt(bq)} a="var(--muted)" i="📦"/><Kpi l="已查驗（已提交台電）" v={fmt(qO)} s={fN(aO)} a="var(--green)" i="✅"/>{(qA-qO)>0&&<Kpi l="進行中（自檢／POE）" v={fmt(qA-qO)} s={fN(aA-aO)} a="#0ea5e9" i="⏳"/>}<Kpi l="未查驗" v={fmt(Math.max(bq-qA,0))} s={fN(Math.max(bt-aA,0))} a="var(--amber)" i="📋"/><Kpi l="查驗比例" v={fP(bq>0?qO/bq:0)} a="var(--accent)" i="📊"/></div>
+    <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fQty(bq)} a="var(--muted)" i="📦"/><Kpi l="已查驗（已提交台電）" v={fQty(qO)} s={fN(aO)} a="var(--green)" i="✅"/>{(qA-qO)>0&&<Kpi l="進行中（自檢／POE）" v={fQty(qA-qO)} s={fN(aA-aO)} a="#0ea5e9" i="⏳"/>}<Kpi l="未查驗" v={fQty(Math.max(bq-qA,0))} s={fN(Math.max(bt-aA,0))} a="var(--amber)" i="📋"/><Kpi l="查驗比例" v={fP(bq>0?qO/bq:0)} a="var(--accent)" i="📊"/></div>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h4 style={{fontSize:14,fontWeight:700}}>歷次查驗 ({recs.length}筆)</h4>{auth&&<button className="bp" style={{fontSize:12,padding:'5px 14px'}} onClick={onAdd}>＋ 新增</button>}</div>
     {recs.length===0?<div style={{padding:32,textAlign:'center',color:'var(--muted)'}}>尚無查驗紀錄</div>
     :<div className="hscroll"><table><thead><tr><th>編號</th><th>階段</th><th>工區</th><th>查驗日期</th><th>提交台電日</th><th style={{textAlign:'right'}}>數量</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>資料夾／附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
-      {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td><SB stage={r.stage} small/></td><td style={{fontSize:11,whiteSpace:'nowrap'}}>{r.work_area||'—'}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.inspection_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.submit_date)}</td><td className="num">{fmt(r.inspected_qty)}</td><td className="num" style={{color:mapStage(r.stage)>=FINAL_STAGE?'var(--green)':'var(--muted)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,minWidth:100}}>{r.note||'—'}</td>
+      {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td><SB stage={r.stage} small/></td><td style={{fontSize:11,whiteSpace:'nowrap'}}>{r.work_area||'—'}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.inspection_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.submit_date)}</td><td className="num">{fQty(r.inspected_qty)}</td><td className="num" style={{color:mapStage(r.stage)>=FINAL_STAGE?'var(--green)':'var(--muted)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,minWidth:100}}>{r.note||'—'}</td>
       <td style={{whiteSpace:'nowrap'}}>{r.folder_id&&<a href={'https://drive.google.com/drive/folders/'+r.folder_id} target="_blank" rel="noopener" title={r.folder_name||''} style={{fontSize:11,color:'var(--accent)',marginRight:5}}>📁</a>}{r.attachment_ids?.length>0?r.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):(r.folder_id?'':'—')}</td>
       {auth&&<td><div style={{display:'flex',gap:4}}><button className="bg" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onEdit(r)}>編輯</button><button className="bd" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onDel(r.id,'此明細 '+r.id+'（'+shortItem(r.item_name_snapshot)+'）')}>刪除</button></div></td>}</tr>)}
     </tbody></table></div>}
@@ -497,7 +499,7 @@ function App(){
 
   const csv=()=>{if(!data)return;const rows=[['查驗表編號','明細編號','階段','工區','查驗日期','提交台電日','項次','項目','項目簡稱','數量','單價','金額','計入已查驗','資料夾名稱','備註']];
     groups.forEach(g=>g.rows.forEach(i=>{const b=bItem(i.budget_item_id);
-      rows.push([g.id,i.id,g.stage+'. '+STAGES[g.stage-1].l,g.work_area||'',String(i.inspection_date||'').slice(0,10),String(g.submit_date||'').slice(0,10),b?.item_no||'',i.item_name_snapshot,shortItem(i.item_name_snapshot),i.inspected_qty,i.unit_price_snapshot,amtOf(i),g.stage>=FINAL_STAGE?'是':'否',g.folder_name||folderName(g.id,g.work_area,g.items),i.note||''])}));
+      rows.push([g.id,i.id,g.stage+'. '+STAGES[g.stage-1].l,g.work_area||'',String(i.inspection_date||'').slice(0,10),String(g.submit_date||'').slice(0,10),b?.item_no||'',i.item_name_snapshot,shortItem(i.item_name_snapshot),(parseFloat(i.inspected_qty)||0).toFixed(2),i.unit_price_snapshot,amtOf(i),g.stage>=FINAL_STAGE?'是':'否',g.folder_name||folderName(g.id,g.work_area,g.items),i.note||''])}));
     const c=rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
     const bl=new Blob(['﻿'+c],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(bl);
     Object.assign(document.createElement('a'),{href:u,download:'inspection_'+td()+'.csv'}).click()};
@@ -629,7 +631,7 @@ function App(){
         </tr></thead><tbody>
         {sm.map(s=>{
           const g=gS(s);const pctMode=isLS(s);
-          const fQ=v=>pctMode?fP(v):fmt(v);
+          const fQ=v=>pctMode?fP(v):fQty(v);
           const wipPct=g.bq>0?g.qp/g.bq:0;
           return<tr key={s.id} onClick={()=>sMl({t:'item',p:s})} style={{cursor:'pointer'}}>
             <td style={{fontWeight:700,color:'var(--accent)',fontSize:11,fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap'}}>{s.item_no}</td>
@@ -657,7 +659,7 @@ function App(){
           <td style={{fontWeight:700,color:'var(--accent)',fontSize:12,fontFamily:"'JetBrains Mono'"}}>{s.item_no}</td>
           <td style={{minWidth:168,fontSize:12}}><div style={{display:'flex',alignItems:'center',gap:6,fontWeight:600}}><span className="tag" style={{background:'rgba(95,168,181,.14)',color:'var(--accent)',flexShrink:0,fontSize:9.5,padding:'1px 6px'}}>{s.category}</span><EC val={s.item_name_cn} field="item_name_cn" id={s.id} onSave={updBudget} ok={auth}/></div><div style={{fontSize:10,color:'var(--muted)'}}><EC val={s.item_name_en} field="item_name_en" id={s.id} onSave={updBudget} ok={auth}/></div></td>
           <td style={{fontSize:11}}><EC val={s.unit} field="unit" id={s.id} onSave={updBudget} ok={auth}/></td>
-          <td className="num"><EC val={s.budget_qty} field="budget_qty" id={s.id} onSave={(id,d)=>{d.budget_total=parseFloat(d.budget_qty||0)*s.unit_price;updBudget(id,d)}} ok={auth} isN/></td>
+          <td className="num"><EC val={s.budget_qty} field="budget_qty" id={s.id} onSave={(id,d)=>{d.budget_total=parseFloat(d.budget_qty||0)*s.unit_price;updBudget(id,d)}} ok={auth} isN qty/></td>
           <td className="num"><EC val={s.unit_price} field="unit_price" id={s.id} onSave={(id,d)=>{d.budget_total=s.budget_qty*parseFloat(d.unit_price||0);updBudget(id,d)}} ok={auth} isN/></td>
           <td className="num" style={{fontWeight:600}}>{fmt(s.budget_total)}</td>
           <td className="num" style={{color:'var(--green)',fontWeight:600}}>{fmt(g.ao)}</td>
@@ -713,7 +715,7 @@ function App(){
                 <td className="mono" style={{fontSize:10.5,color:'var(--muted)'}}>{r.id}</td>
                 <td style={{fontWeight:600,color:'var(--accent)',fontSize:11.5}}>{b?.item_no}</td>
                 <td style={{fontSize:12,minWidth:150}}>{r.item_name_snapshot}<div style={{fontSize:10,color:'var(--muted2)'}}>{shortItem(r.item_name_snapshot)}</div></td>
-                <td className="num">{isLS(b)?fP(r.inspected_qty):fmt(r.inspected_qty)}</td>
+                <td className="num">{isLS(b)?fP(r.inspected_qty):fQty(r.inspected_qty)}</td>
                 <td className="num" style={{color:'var(--muted)'}}>{fmt(r.unit_price_snapshot)}</td>
                 <td className="num" style={{fontWeight:600,color:g.stage>=FINAL_STAGE?'var(--green)':'var(--muted)'}}>{fmt(amtOf(r))}</td>
                 <td style={{fontSize:11,color:'var(--muted)'}}>{r.note||'—'}</td>

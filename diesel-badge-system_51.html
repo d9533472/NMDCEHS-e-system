@@ -411,7 +411,7 @@ function renderExport(root){
       </div>
       <div id="recPicker" style="max-height:300px;overflow-y:auto;border:1px solid var(--bd);border-radius:6px"></div>
     </div>
-    <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><button class="btn bp" onclick="App.expExcel()" style="background:var(--info)">📊 匯出 Excel</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
+    <div class="exp-actions"><button class="btn bp" onclick="App.genPrev()">👁️ 預覽 / 列印</button><button class="btn bp" onclick="App.expExcel()" style="background:var(--info)">📊 匯出 Excel</button><button class="btn bp" onclick="App.expTPC()" style="background:var(--ok)">📄 匯出台電格式</button><span id="eCnt" style="font-size:12px;color:var(--t2);font-family:'JetBrains Mono',monospace"></span></div>
   </div><div id="expA" class="exp-area"></div>`;
   updPicker();
 }
@@ -653,6 +653,123 @@ function bCls(r){if(r.hasBadge!=='是')return'bno';if(r.badgeLevel==='金級')re
 function zoomPhoto(src){if(!src)return;const m=document.getElementById('photoZoom');const img=document.getElementById('photoZoomImg');img.src=src;m.style.display='flex';}
 
 // === Excel Export ===
+// ══════════════════════════════════════════════════════
+// 台電格式車輛機具標章清冊（Excel）
+//   中英對照表，要改直接改這三行
+// ══════════════════════════════════════════════════════
+const TPC_CAT={'運輸車輛':'Vehicle','施工機具':'Machinery'};
+const TPC_FUEL={'柴油':'Diesel','汽油':'Gasoline'};
+const TPC_LEVEL={'新購六期車':'Euro 6','新購五期車':'Euro 5','合格':'General','普級':'General','優級':'Premium','金級':'Gold','銀級':'Silver'};
+const TPC_TITLE_EN='Tung-Hsiao Power Plant 2nd Stage Renewal Project Turn-key Contract of Subsea Gas Pipeline';
+const TPC_TITLE_TW='通霄電廠二期更新改建計畫海底輸氣管線統包工程';
+
+async function expTPC(){
+  if(!R.length){toast('沒有資料',true);return;}
+  // 與「匯出 Excel」相同的取用邏輯：有勾選就用勾選的，否則用未排除的全部
+  const pickerChks=document.querySelectorAll('.expRecChk');
+  let active;
+  if(pickerChks.length>0){
+    const ids=new Set([...document.querySelectorAll('.expRecChk:checked')].map(c=>c.value));
+    active=getFiltered().filter(r=>ids.has(r.id));
+    if(!active.length){toast('請先勾選要匯出的紀錄',true);return;}
+  }else{
+    active=R.filter(r=>!r.excluded);
+    if(!active.length){toast('沒有可匯出的資料',true);return;}
+  }
+  active=active.filter(r=>!r.excluded);
+  if(!active.length){toast('勾選的紀錄都被排除了',true);return;}
+  toast('📄 產生台電格式（'+active.length+' 筆）...');
+
+  // 運輸車輛在前，再依種類、編號排序（同種類會集中在一起）
+  const ord={'運輸車輛':0,'施工機具':1};
+  const rows=[...active].sort((a,b)=>
+    ((ord[a.category]??9)-(ord[b.category]??9))||
+    String(a.vehicleType).localeCompare(String(b.vehicleType),'zh-Hant')||
+    String(a.plateNumber).localeCompare(String(b.plateNumber))
+  );
+
+  const wb=new ExcelJS.Workbook();
+  wb.creator='NMDC EHS';
+  wb.created=new Date();
+  const ws=wb.addWorksheet('車輛機具標章清冊',{views:[{state:'frozen',ySplit:3}]});
+
+  const F='Microsoft JhengHei';
+  const thin={style:'thin',color:{argb:'FF000000'}};
+  const bd={top:thin,bottom:thin,left:thin,right:thin};
+  const ct={horizontal:'center',vertical:'middle',wrapText:true};
+  const setBd=rn=>{for(let c=1;c<=6;c++)ws.getCell(rn,c).border=bd;};
+
+  ws.columns=[{width:15},{width:15},{width:28},{width:18},{width:20},{width:14}];
+
+  // ── 標題（兩行，跨 A~F）──
+  ws.mergeCells('A1:F1');
+  ws.getCell('A1').value=TPC_TITLE_EN;
+  ws.getCell('A1').font={name:F,bold:true,size:13};
+  ws.getCell('A1').alignment=ct;
+  ws.getRow(1).height=24;
+  setBd(1);
+  ws.mergeCells('A2:F2');
+  ws.getCell('A2').value=TPC_TITLE_TW;
+  ws.getCell('A2').font={name:F,bold:true,size:13};
+  ws.getCell('A2').alignment=ct;
+  ws.getRow(2).height=24;
+  setBd(2);
+
+  // ── 表頭（中英並列）──
+  const hdr=[
+    '車牌 / 機具\nVehicle / Machinery',
+    '編號\nNumber',
+    '車輛/機具 種類\nType of Vehicle/Machinery',
+    '汽油 / 柴油\nGasoline/Diesel',
+    '標章等級\nLevel of the label',
+    '標章到期日'
+  ];
+  hdr.forEach((v,i)=>{
+    const c=ws.getCell(3,i+1);
+    c.value=v;c.font={name:F,bold:true,size:11};c.alignment=ct;c.border=bd;
+  });
+  ws.getRow(3).height=52;
+
+  // ── 資料 ──
+  let rn=4;
+  rows.forEach(r=>{
+    const vals=[
+      TPC_CAT[r.category]||r.category||'',
+      r.plateNumber||'',
+      r.vehicleType||'',
+      TPC_FUEL[r.fuelType]||r.fuelType||'',
+      r.hasBadge==='是'?(TPC_LEVEL[r.badgeLevel]||r.badgeLevel||''):'',
+      ''   // 標章到期日：系統尚無此欄位，留空白給人工填
+    ];
+    vals.forEach((v,i)=>{
+      const c=ws.getCell(rn,i+1);
+      c.value=v;c.border=bd;
+      c.font={name:F,size:11,color:{argb:i===2?'FF1F4E79':'FF000000'}};
+      c.alignment=i===5?{horizontal:'right',vertical:'middle'}:ct;
+      if(i===5)c.numFmt='yyyy/m/d';   // 之後手填日期會自動套格式
+    });
+    ws.getRow(rn).height=18;
+    rn++;
+  });
+
+  // ── 列印設定：直向、寬度縮成一頁、每頁重複表頭 ──
+  ws.pageSetup={
+    paperSize:9,orientation:'portrait',fitToPage:true,fitToWidth:1,fitToHeight:0,
+    horizontalCentered:true,printTitlesRow:'1:3',
+    margins:{left:0.4,right:0.4,top:0.5,bottom:0.5,header:0.2,footer:0.2}
+  };
+  ws.headerFooter={oddFooter:'&C&P / &N'};
+
+  const buf=await wb.xlsx.writeBuffer();
+  const blob=new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  const url=URL.createObjectURL(blob);
+  const t=new Date();
+  const fn='車輛機具標章清冊_台電格式_'+t.getFullYear()+p2(t.getMonth()+1)+p2(t.getDate())+'.xlsx';
+  const a=document.createElement('a');a.href=url;a.download=fn;a.click();
+  URL.revokeObjectURL(url);
+  toast('📄 已匯出 '+fn+'（'+rows.length+' 筆）');
+}
+
 async function expExcel(){
   if(!R.length){toast('沒有資料',true);return;}
   // Use picker if on export page, otherwise use non-excluded
@@ -913,7 +1030,7 @@ if(API){
   document.getElementById('syncOverlay').remove();
 }
 
-return{go,fl,doSearch,clearSearch,togEx,zoomPhoto,expExcel,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile};
+return{go,fl,doSearch,clearSearch,togEx,zoomPhoto,expExcel,expTPC,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile};
 })();
 </script>
 
