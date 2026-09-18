@@ -11,36 +11,37 @@
 <!-- xlsx 只有「匯入 Excel」會用到，改成需要時才載入（省下每次開頁約 0.9MB / 0.3 秒） -->
 <style>
 :root{
-  --bg:#1e2430;--bg2:#252c3a;--card:#272f3d;--card2:#2d3645;
-  --border:#353f51;--border2:#434e63;
-  --fg:#d6dde8;--fg2:#eef2f8;--muted:#9aa7b8;--muted2:#7d8a9d;
-  --accent:#5fa8b5;--accent2:#6fb6a7;--accent3:#4d94a3;
-  --green:#6cbf9a;--green2:#5aab88;--greenBg:rgba(108,191,154,.13);
-  --amber:#d6a55c;--amberBg:rgba(214,165,92,.13);
-  --red:#d98282;--redBg:rgba(217,130,130,.13);
-  --violet:#9b8fc7;
+  /* 淺灰藍底 · 森林綠＋金重點色（語意：綠=已完成 / 金=進行中 / 灰=未開始） */
+  --bg:#eef1f6;--bg2:#e4e9f1;--card:#ffffff;--card2:#f2f5f9;
+  --border:#dce2ea;--border2:#c4cdda;
+  --fg:#29323d;--fg2:#141b24;--muted:#5d6a7a;--muted2:#8a95a3;
+  --accent:#2e7d5b;--accent3:#1f5e45;--accentBg:rgba(46,125,91,.10);
+  --green:#2e7d5b;--greenBg:rgba(46,125,91,.11);
+  --gold:#c9a227;--goldText:#8a6c11;--goldBg:rgba(201,162,39,.16);
+  --rest:#76818f;--restBg:rgba(118,129,143,.12);
+  --red:#b3403e;--redBg:rgba(179,64,62,.09);
+  --hov:rgba(31,94,69,.05);
   --radius:9px;--radius-lg:12px;
-  --shadow:0 1px 3px rgba(0,0,0,.22);
-  --shadow-lg:0 14px 34px rgba(0,0,0,.34);
+  --shadow:0 1px 2px rgba(20,27,36,.05),0 2px 6px rgba(20,27,36,.05);
+  --shadow-lg:0 14px 34px rgba(20,27,36,.15);
 }
 *{box-sizing:border-box;margin:0;padding:0}html,body,#root{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:'Plus Jakarta Sans','Noto Sans TC',sans-serif;-webkit-font-smoothing:antialiased}
-::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#556278}
-input,select,textarea{background:#222937;color:var(--fg);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 12px;font-size:13px;font-family:inherit;outline:none;width:100%;transition:all .18s}
+::-webkit-scrollbar{width:7px;height:7px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:#9aa6b5}
+input,select,textarea{background:var(--card);color:var(--fg);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 12px;font-size:13px;font-family:inherit;outline:none;width:100%;transition:all .18s}
 input::placeholder,textarea::placeholder{color:var(--muted2)}
-input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(95,168,181,.15)}
-input[type=date]::-webkit-calendar-picker-indicator{filter:invert(.7)}
-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%238194ae'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-select option{background:#272f3d;color:var(--fg)}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(46,125,91,.14)}
+select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7787'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+select option{background:#fff;color:var(--fg)}
 button{cursor:pointer;font-size:13px;font-family:inherit;border:none;border-radius:var(--radius);padding:8px 16px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
-.bp{background:var(--accent3);color:#f4fbfc}
+.bp{background:var(--accent3);color:#fff;box-shadow:0 1px 2px rgba(31,94,69,.25)}
 .bp:hover{background:var(--accent)}.bp:disabled{opacity:.45;pointer-events:none}
-.bg{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border2)}.bg:hover{background:rgba(255,255,255,.08);color:var(--fg2);border-color:var(--muted2)}
-.bd{background:var(--redBg);color:var(--red);border:1px solid rgba(217,130,130,.28)}.bd:hover{background:rgba(217,130,130,.2)}
+.bg{background:var(--card);color:var(--muted);border:1px solid var(--border2)}.bg:hover{background:var(--hov);color:var(--accent3);border-color:var(--accent)}
+.bd{background:var(--redBg);color:var(--red);border:1px solid rgba(179,64,62,.22)}.bd:hover{background:rgba(179,64,62,.16)}
 table{width:100%;border-collapse:collapse;font-size:12.5px}thead{position:sticky;top:0;z-index:2}
 th{background:var(--card2);color:var(--muted);font-weight:600;font-size:10.5px;text-align:left;padding:10px 12px;white-space:nowrap;border-bottom:1px solid var(--border2);text-transform:uppercase;letter-spacing:.5px}
 td{padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:middle;word-break:break-word;white-space:normal}
-tbody tr{transition:background .12s}tbody tr:hover{background:rgba(255,255,255,.035)}
+tbody tr{transition:background .12s}tbody tr:hover{background:var(--hov)}
 .mono{font-family:'JetBrains Mono',monospace;font-size:11.5px}.num{text-align:right;font-variant-numeric:tabular-nums;font-family:'JetBrains Mono',monospace;font-size:12px}
 .tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
 .fi{animation:fadeIn .35s ease}@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -52,32 +53,37 @@ tbody tr{transition:background .12s}tbody tr:hover{background:rgba(255,255,255,.
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
 .fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
 .fl{display:block;font-size:10.5px;color:var(--muted);font-weight:600;margin-bottom:5px;text-transform:uppercase;letter-spacing:.6px}
-.pt{height:6px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}.pf{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.pt{height:6px;background:rgba(20,27,36,.08);border-radius:4px;overflow:hidden}.pf{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.22,1,.36,1)}
 .ov{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center}
-.ob{position:fixed;inset:0;background:rgba(15,19,26,.62);backdrop-filter:blur(3px)}
+.ob{position:fixed;inset:0;background:rgba(30,40,52,.34);backdrop-filter:blur(3px)}
 .md{position:relative;background:var(--card);border-radius:var(--radius-lg);padding:28px;border:1px solid var(--border2);box-shadow:var(--shadow-lg);animation:fadeIn .25s ease}
 .cb{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px}
-.cok{background:var(--greenBg);color:var(--green);border:1px solid rgba(108,191,154,.28)}
-.csy{background:rgba(95,168,181,.14);color:var(--accent);border:1px solid rgba(95,168,181,.3)}
-.login-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(95,168,181,.14);color:var(--accent);border:1px solid rgba(95,168,181,.3)}
+.cok{background:var(--greenBg);color:var(--green);border:1px solid rgba(46,125,91,.24)}
+.csy{background:var(--goldBg);color:var(--goldText);border:1px solid rgba(201,162,39,.35)}
+.login-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--accentBg);color:var(--accent);border:1px solid rgba(46,125,91,.26)}
 /* ── 卡片 ── */
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);position:relative;overflow:hidden}
 /* ── 達成儀表 ── */
 .gauge-num{font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:-.5px}
-.ring-bg{stroke:rgba(255,255,255,.08)}
+.ring-bg{stroke:rgba(20,27,36,.09)}
 .hero-amt{font-family:'JetBrains Mono',monospace;font-weight:700;letter-spacing:-.5px;color:var(--fg2)}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:rgba(255,255,255,.035)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card2)}
 .dotp{width:7px;height:7px;border-radius:50%}
 .navi{padding:10px 14px;border-radius:var(--radius);cursor:pointer;font-size:13px;transition:all .15s;display:flex;align-items:center;gap:9px;border:1px solid transparent}
-.navi:hover{background:rgba(255,255,255,.05);color:var(--fg2)}
-.navi.on{background:rgba(95,168,181,.14);color:var(--accent);border-color:rgba(95,168,181,.25);font-weight:600}
+.navi:hover{background:var(--hov);color:var(--accent3)}
+.navi.on{background:var(--accentBg);color:var(--accent3);border-color:rgba(46,125,91,.22);font-weight:600}
 /* 寬表格：橫向捲軸永遠顯示，不要偷偷藏起來 */
-.hscroll{overflow-x:scroll;overflow-y:hidden;padding-bottom:3px;scrollbar-width:thin;scrollbar-color:var(--border2) rgba(255,255,255,.07)}
+.hscroll{overflow-x:scroll;overflow-y:hidden;padding-bottom:3px;scrollbar-width:thin;scrollbar-color:var(--border2) rgba(20,27,36,.06)}
 .hscroll::-webkit-scrollbar{height:11px}
-.hscroll::-webkit-scrollbar-track{background:rgba(255,255,255,.07);border-radius:6px}
+.hscroll::-webkit-scrollbar-track{background:rgba(20,27,36,.06);border-radius:6px}
 .hscroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:6px;border:2px solid transparent;background-clip:content-box}
 .hscroll::-webkit-scrollbar-thumb:hover{background:var(--muted2);background-clip:content-box}
-/* 查驗總表：欄位壓縮到一般螢幕塞得下 */
+/* ── 分段切換（數量／金額） ── */
+.seg{display:inline-flex;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:2px;gap:2px;flex-shrink:0}
+.seg button{background:none;border:none;color:var(--muted);font-size:11.5px;font-weight:600;padding:5px 15px;border-radius:16px;transition:all .15s}
+.seg button.on{background:var(--card);color:var(--accent3);box-shadow:0 1px 2px rgba(20,27,36,.13)}
+.seg button:not(.on):hover{color:var(--fg2)}
+/* 查驗項目表：欄位壓縮到一般螢幕塞得下 */
 .tbl-wide{min-width:940px;font-size:11.5px}
 .tbl-wide th,.tbl-wide td{padding:7px 8px}
 .tbl-wide td{white-space:nowrap}
@@ -91,14 +97,14 @@ tbody tr{transition:background .12s}tbody tr:hover{background:rgba(255,255,255,.
 </style>
 </head>
 <body>
-<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#7c8ba0"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
+<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5d6a7a"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
 <script type="text/babel">
 const VER='4.3.0';
 /* 三階段流程；stage 3（已提交台電）= 計入「已查驗金額」 */
 const STAGES=[
-  {n:1,l:'NMDC自檢完成',s:'自檢',c:'#8c96cc',bg:'rgba(140,150,204,.14)'},
-  {n:2,l:'POE查驗完成',s:'POE完成',c:'#5fa8b5',bg:'rgba(95,168,181,.14)'},
-  {n:3,l:'已提交台電',s:'已提交',c:'#6cbf9a',bg:'rgba(108,191,154,.14)'},
+  {n:1,l:'NMDC自檢完成',s:'自檢',c:'#8a6c11',bg:'rgba(201,162,39,.16)'},
+  {n:2,l:'POE查驗完成',s:'POE完成',c:'#4f9472',bg:'rgba(79,148,114,.16)'},
+  {n:3,l:'已提交台電',s:'已提交',c:'#1f5e45',bg:'rgba(31,94,69,.13)'},
 ];
 const FINAL_STAGE=3;
 /* 後端已負責把舊 5 階段換算成 1~3（1,2→1 / 3→2 / 4,5→3），前端只做範圍保護（不可重複換算） */
@@ -150,15 +156,15 @@ const fD=d=>{if(!d)return'—';try{const x=new Date(d);return isNaN(x)?String(d)
 const fT=d=>{if(!d)return'';try{return new Date(d).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})}catch{return''}};
 const td=()=>new Date().toISOString().slice(0,10);
 
-const Dot=({r})=>{const c=r===0?'#5d6f8a':r<1?'var(--amber)':'var(--green)';return<span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:c}}/>{r===0?'未開始':r<1?'進行中':'已完成'}</span>};
+const Dot=({r})=>{const c=r===0?'var(--muted2)':r<1?'var(--goldText)':'var(--green)';return<span style={{display:'inline-flex',alignItems:'center',gap:5,fontSize:11,fontWeight:600}}><span style={{width:7,height:7,borderRadius:'50%',background:c}}/>{r===0?'未開始':r<1?'進行中':'已完成'}</span>};
 /* ── EditCell: 點擊即編輯，blur/Enter 存雲端 ── */
 function EC({val,field,id,onSave,ok,isN,qty,style:st}){
   const[e,sE]=useState(false);const[v,sV]=useState(val);const r=useRef();
   useEffect(()=>{sV(val)},[val]);
   useEffect(()=>{if(e&&r.current){r.current.focus();if(r.current.select)r.current.select()}},[e]);
   const save=()=>{sE(false);const nv=isN?parseFloat(v)||0:v;if(String(nv)!==String(val))onSave(id,{[field]:nv})};
-  if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed #cbd5e1':'none'}} title={ok?'點擊編輯':''}>{isN?(qty?fQty(val):fmt(val)):(val||'—')}</span>;
-  return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'rgba(95,168,181,.14)',outline:'none'}}/>;
+  if(!ok||!e)return<span onClick={ev=>{ev.stopPropagation();if(ok)sE(true)}} style={{...st,cursor:ok?'pointer':'default',borderBottom:ok?'1px dashed var(--border2)':'none'}} title={ok?'點擊編輯':''}>{isN?(qty?fQty(val):fmt(val)):(val||'—')}</span>;
+  return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'var(--accentBg)',outline:'none'}}/>;
 }
 /* ── StageBadge ── */
 function SB({stage,small}){const st=STAGES[mapStage(stage)-1]||STAGES[0];return<span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:small?9:10,fontWeight:600,padding:small?'2px 6px':'3px 10px',borderRadius:20,background:st.bg,color:st.c,whiteSpace:'nowrap',border:'1px solid '+st.c+'22'}}><span style={{width:small?5:6,height:small?5:6,borderRadius:'50%',background:st.c}}/>{small?st.s:st.l}</span>}
@@ -169,7 +175,7 @@ function Ring({pct,size,label,sub,c1,c2}){
   const gid=useMemo(()=>'rg'+Math.random().toString(36).slice(2,8),[]);
   const S=size||150,W=Math.round(S*.085),r=(S-W)/2,C=2*Math.PI*r;
   const p=Math.max(0,Math.min(parseFloat(pct)||0,1));
-  const a=c1||'#5fa8b5',b=c2||'#6fb6a7';
+  const a=c1||'#1f5e45',b=c2||'#4f9472';
   return<div style={{textAlign:'center',flex:'0 0 auto'}}>
     <div style={{position:'relative',width:S,height:S}}>
       <svg width={S} height={S} style={{transform:'rotate(-90deg)'}}>
@@ -242,7 +248,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
   return<div>
     <div className="fr">
       <div><label className="fl">查驗編號 {isEdit?'*':''}</label>
-        <div style={{display:'flex'}}><span style={{background:'rgba(255,255,255,.04)',border:'1px solid var(--border2)',borderRight:'none',borderRadius:'var(--radius) 0 0 var(--radius)',padding:'9px 12px',fontSize:13,color:'var(--muted)',fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap',fontWeight:600}}>{ID_PREFIX}</span><input value={f.inspection_no} onChange={e=>sF(x=>({...x,inspection_no:e.target.value}))} placeholder={autoNo||'自動產生'} style={{borderRadius:'0 var(--radius) var(--radius) 0',fontFamily:"'JetBrains Mono'",fontWeight:600}}/></div>
+        <div style={{display:'flex'}}><span style={{background:'var(--card2)',border:'1px solid var(--border2)',borderRight:'none',borderRadius:'var(--radius) 0 0 var(--radius)',padding:'9px 12px',fontSize:13,color:'var(--muted)',fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap',fontWeight:600}}>{ID_PREFIX}</span><input value={f.inspection_no} onChange={e=>sF(x=>({...x,inspection_no:e.target.value}))} placeholder={autoNo||'自動產生'} style={{borderRadius:'0 var(--radius) var(--radius) 0',fontFamily:"'JetBrains Mono'",fontWeight:600}}/></div>
         <div style={{fontSize:10,color:'var(--muted2)',marginTop:4}}>{isEdit?'整張查驗表共用此編號':'留空 = 自動遞增，也可手動指定（可接既有編號的資料夾）'}</div>
       </div>
       <div><label className="fl">工區 *</label><select value={f.work_area} onChange={e=>sF(x=>({...x,work_area:e.target.value}))}><option value="">— 請選擇工區 —</option>{WORK_AREAS.map(w=><option key={w} value={w}>{w}</option>)}{f.work_area&&!WORK_AREAS.includes(f.work_area)&&<option value={f.work_area}>{f.work_area}</option>}</select></div>
@@ -259,9 +265,9 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
           const b=bItem(r.budget_item_id);
           const rem=b?(parseFloat(b.budget_qty)||0)-used(r.budget_item_id,i):0;
           const q=parseFloat(r.qty)||0;const over=b&&q>rem;
-          return<div key={i} style={{background:'rgba(255,255,255,.025)',border:'1px solid '+(over?'var(--red)':'var(--border)'),borderRadius:'var(--radius)',padding:'11px 12px'}}>
+          return<div key={i} style={{background:'var(--card2)',border:'1px solid '+(over?'var(--red)':'var(--border)'),borderRadius:'var(--radius)',padding:'11px 12px'}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-              <span style={{width:22,height:22,flexShrink:0,borderRadius:6,background:'rgba(95,168,181,.16)',color:'var(--accent)',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono'"}}>{i+1}</span>
+              <span style={{width:22,height:22,flexShrink:0,borderRadius:6,background:'var(--accentBg)',color:'var(--accent)',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono'"}}>{i+1}</span>
               <select value={r.budget_item_id} onChange={e=>setRow(i,{budget_item_id:e.target.value})} style={{fontSize:12.5}}><option value="">— 選擇預算項目 —</option>{bi.map(x=><option key={x.id} value={x.id}>{x.item_no} {x.item_name_cn}</option>)}</select>
               {rows.length>1&&<button onClick={()=>delRow(i)} title="移除此項目" style={{flexShrink:0,background:'none',border:'none',color:'var(--muted2)',fontSize:15,padding:'0 2px'}}>✕</button>}
             </div>
@@ -272,7 +278,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
               </div>
               <div style={{fontSize:10.5,lineHeight:1.7,paddingBottom:4}}>
                 <div style={{color:'var(--muted)'}}>單價 <span className="mono">{fmt(b.unit_price)}</span></div>
-                <div style={{color:over?'var(--red)':'var(--amber)'}}>剩餘 <span className="mono">{isLS(b)?fP(rem):fQty(rem)}</span>{over&&' ⚠ 超過'}</div>
+                <div style={{color:over?'var(--red)':'var(--rest)'}}>剩餘 <span className="mono">{isLS(b)?fP(rem):fQty(rem)}</span>{over&&' ⚠ 超過'}</div>
               </div>
               <div style={{textAlign:'right',paddingBottom:4}}>
                 {isLS(b)&&q>0&&<div style={{fontSize:10,color:'var(--muted)'}}>＝ {fP(q)}</div>}
@@ -282,7 +288,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
           </div>;
         })}
       </div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,padding:'10px 14px',borderRadius:'var(--radius)',background:'rgba(255,255,255,.04)',border:'1px solid var(--border2)'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,padding:'10px 14px',borderRadius:'var(--radius)',background:'var(--card2)',border:'1px solid var(--border2)'}}>
         <span style={{fontSize:12,fontWeight:600,color:'var(--muted)'}}>本張查驗表合計</span>
         <span className="hero-amt" style={{fontSize:20}}>{fN(total)}</span>
       </div>
@@ -294,7 +300,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
       <div><label className="fl">備註</label><input value={f.note} placeholder="查驗說明..." onChange={e=>sF(x=>({...x,note:e.target.value}))}/></div>
     </div>
 
-    <div style={{background:'rgba(255,255,255,.025)',border:'1px dashed var(--border2)',borderRadius:'var(--radius)',padding:'11px 13px',marginBottom:16}}>
+    <div style={{background:'var(--card2)',border:'1px dashed var(--border2)',borderRadius:'var(--radius)',padding:'11px 13px',marginBottom:16}}>
       <div style={{fontSize:12}}>📁 Drive 資料夾：<strong className="mono" style={{fontSize:12,color:'var(--accent)'}}>{folderName(fullNo,f.work_area||'(工區)',names.length?names:'(項目)')}</strong></div>
       <div style={{fontSize:10,color:'var(--muted2)',marginTop:4,lineHeight:1.6}}>「項目」取預算項目名稱最後一個「，」之後的文字；多項目時為「第一項 等N項」。<br/>同編號的資料夾若已存在，會直接連結上去（不會重複建立）。</div>
       <div style={{marginTop:8}}><label className="fl">連結指定資料夾（選填）</label><input value={f.link_folder_url} placeholder="貼上現有 Drive 資料夾連結或 ID；留空＝依查驗編號自動連結／新建" onChange={e=>sF(x=>({...x,link_folder_url:e.target.value}))} style={{fontSize:12}}/></div>
@@ -313,11 +319,11 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
         const r=new FileReader();r.onload=()=>sFiles(p=>[...p,{filename:file.name,mimeType:file.type,size:file.size,content:r.result.split(',')[1]}]);r.readAsDataURL(file)});e.target.value=''}} style={{display:'none'}} accept="image/*,.pdf,.xlsx,.xls,.doc,.docx"/>
       <button className="bg" onClick={()=>fr.current?.click()} style={{marginBottom:6}}>📎 選擇檔案 <span style={{fontSize:10,color:'var(--muted2)'}}>(不限張數，單檔 ≤{MAX_FILE_MB}MB)</span></button>
       {files.length>0&&<div style={{fontSize:10,color:'var(--muted)',marginBottom:4}}>共 {files.length} 檔 · {(files.reduce((s,f)=>s+f.size,0)/1024/1024).toFixed(1)} MB（逐檔上傳，總量不限）</div>}
-      {files.map((x,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,background:'rgba(255,255,255,.03)',padding:'5px 10px',borderRadius:6,border:'1px solid var(--border)',marginBottom:3}}>📄 {x.filename} <span style={{color:'var(--muted2)'}}>({(x.size/1024).toFixed(1)}KB)</span><button onClick={()=>sFiles(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--red)',marginLeft:'auto'}}>✕</button></div>)}
+      {files.map((x,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,background:'var(--card2)',padding:'5px 10px',borderRadius:6,border:'1px solid var(--border)',marginBottom:3}}>📄 {x.filename} <span style={{color:'var(--muted2)'}}>({(x.size/1024).toFixed(1)}KB)</span><button onClick={()=>sFiles(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--red)',marginLeft:'auto'}}>✕</button></div>)}
     </div>
 
     {init?.folder_id&&<div style={{marginBottom:14}}><label className="fl">目前連結的資料夾</label><a href={'https://drive.google.com/drive/folders/'+init.folder_id} target="_blank" rel="noopener" style={{fontSize:12,color:'var(--accent)',textDecoration:'none'}}>📁 {init.folder_name||init.folder_id}</a></div>}
-    {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'rgba(255,255,255,.03)',padding:'4px 10px',borderRadius:6,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
+    {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'4px 10px',borderRadius:6,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
 
     <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:14,borderTop:'1px solid var(--border)'}}>
       <button className="bg" onClick={onNo}>取消</button>
@@ -335,7 +341,7 @@ function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
   const qO=okR.reduce((s,i)=>s+(parseFloat(i.inspected_qty)||0),0),aO=okR.reduce((s,i)=>s+amtOf(i),0);
   return<div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:18,fontSize:12.5}}><div>類別: <strong>{it.category}</strong></div><div>單位: <strong>{it.unit}</strong></div><div>編碼: <span className="mono" style={{fontSize:11}}>{it.code}</span></div></div>
-    <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fQty(bq)} a="var(--muted)" i="📦"/><Kpi l="已查驗（已提交台電）" v={fQty(qO)} s={fN(aO)} a="var(--green)" i="✅"/>{(qA-qO)>0&&<Kpi l="進行中（自檢／POE）" v={fQty(qA-qO)} s={fN(aA-aO)} a="#0ea5e9" i="⏳"/>}<Kpi l="未查驗" v={fQty(Math.max(bq-qA,0))} s={fN(Math.max(bt-aA,0))} a="var(--amber)" i="📋"/><Kpi l="查驗比例" v={fP(bq>0?qO/bq:0)} a="var(--accent)" i="📊"/></div>
+    <div style={{display:'flex',gap:12,marginBottom:18,flexWrap:'wrap'}}><Kpi l="預算數量" v={fQty(bq)} a="var(--muted)" i="📦"/><Kpi l="已查驗（已提交台電）" v={fQty(qO)} s={fN(aO)} a="var(--green)" i="✅"/>{(qA-qO)>0&&<Kpi l="進行中（自檢／POE）" v={fQty(qA-qO)} s={fN(aA-aO)} a="var(--gold)" i="⏳"/>}<Kpi l="未查驗" v={fQty(Math.max(bq-qA,0))} s={fN(Math.max(bt-aA,0))} a="var(--rest)" i="📋"/><Kpi l="查驗比例" v={fP(bq>0?qO/bq:0)} a="var(--accent)" i="📊"/></div>
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><h4 style={{fontSize:14,fontWeight:700}}>歷次查驗 ({recs.length}筆)</h4>{auth&&<button className="bp" style={{fontSize:12,padding:'5px 14px'}} onClick={onAdd}>＋ 新增</button>}</div>
     {recs.length===0?<div style={{padding:32,textAlign:'center',color:'var(--muted)'}}>尚無查驗紀錄</div>
     :<div className="hscroll"><table><thead><tr><th>編號</th><th>階段</th><th>工區</th><th>查驗日期</th><th>提交台電日</th><th style={{textAlign:'right'}}>數量</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>資料夾／附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
@@ -351,6 +357,8 @@ function App(){
   const[auth,sAuth]=useState(false);
   const doLogin=()=>{sAuth(true);toast('已登入，可進行新增/編輯/刪除')};  const[data,sData]=useState(null);const[ss,sSs]=useState('idle');const[ls,sLs]=useState(null);
   const[pg,sPg]=useState('dash');const[ml,sMl]=useState(null);const[ts,sTs]=useState([]);const[openG,sOpenG]=useState({});
+  /* 查驗項目表：已查驗／進行中／未查驗三欄要看「數量」還是「金額」 */
+  const[qMode,sQMode]=useState('amt');
   /* ── 備註 ── */
   const NOTES_KEY='nmdc_insp_notes';
   const[notes,sNotes]=useState(()=>{try{return JSON.parse(localStorage.getItem(NOTES_KEY))||[]}catch{return[]}});
@@ -504,14 +512,14 @@ function App(){
     const bl=new Blob(['﻿'+c],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(bl);
     Object.assign(document.createElement('a'),{href:u,download:'inspection_'+td()+'.csv'}).click()};
 
-  const TL=<div className="tw">{ts.map(t=><div key={t.id} className="toast" style={{background:t.t==='err'?'var(--redBg)':'var(--greenBg)',color:t.t==='err'?'var(--red)':'var(--green)',borderColor:t.t==='err'?'rgba(248,113,113,.4)':'rgba(52,211,153,.4)'}}>{t.m}</div>)}</div>;
+  const TL=<div className="tw">{ts.map(t=><div key={t.id} className="toast" style={{background:t.t==='err'?'#fbeceb':'#e8f2ec',color:t.t==='err'?'var(--red)':'var(--accent3)',borderColor:t.t==='err'?'rgba(179,64,62,.35)':'rgba(46,125,91,.3)'}}>{t.m}</div>)}</div>;
 
   /* 首次載入中 */
   if(!data&&ss==='syncing')return<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>{TL}<div style={{textAlign:'center'}}><div className="spinner" style={{width:28,height:28,marginBottom:16}}/><div style={{fontSize:14,fontWeight:600,color:'var(--fg)'}}>從 Google Sheets 載入資料...</div></div></div>;
 
   if(!data&&ss==='error')return<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>{TL}<div style={{textAlign:'center'}}><div style={{fontSize:40,marginBottom:12}}>⚠️</div><div style={{fontSize:14,fontWeight:600}}>無法連線至 Google Sheets</div><button className="bp" onClick={sync} style={{marginTop:16}}>重試</button></div></div>;
 
-  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗總表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
+  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗項目表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
   const SyncBtn=<button className="bg" disabled={ss==='syncing'} onClick={()=>sync(true)} title="略過快取，從 Google Sheets 讀取最新資料">{ss==='syncing'?<span className="spinner"/>:'☁↓'} 從雲端同步</button>;
 
   return<div style={{display:'flex',minHeight:'100vh'}}>
@@ -588,20 +596,20 @@ function App(){
             <div style={{fontSize:10.5,letterSpacing:1.2,color:'var(--muted)',fontWeight:600}}>已查驗金額 · 已提交台電</div>
             <div className="hero-amt" style={{fontSize:'clamp(28px,3.8vw,42px)',lineHeight:1.2,margin:'6px 0 2px'}}>NT$ {fmt(TT.to)}</div>
             <div style={{fontSize:11.5,color:'var(--muted)',marginBottom:14}}>
-              佔總預算 <strong style={{color:'var(--accent)'}}>{fP(TT.ratio)}</strong> · 距總預算還差 <strong style={{color:'var(--amber)'}}>{fN(TT.tb-TT.to)}</strong>
+              佔總預算 <strong style={{color:'var(--accent)'}}>{fP(TT.ratio)}</strong> · 距總預算還差 <strong style={{color:'var(--rest)'}}>{fN(TT.tb-TT.to)}</strong>
               {tMA>0&&<> · 本月新增 <strong style={{color:'var(--green)'}}>{fN(tMA)}</strong></>}
             </div>
-            <div style={{display:'flex',height:11,borderRadius:7,overflow:'hidden',background:'rgba(255,255,255,.06)'}}>
+            <div style={{display:'flex',height:11,borderRadius:7,overflow:'hidden',background:'rgba(20,27,36,.08)'}}>
               <div style={{width:Math.min(TT.ratio*100,100)+'%',background:'var(--green)',transition:'width .9s cubic-bezier(.22,1,.36,1)'}}/>
-              <div style={{width:Math.min(TT.tb>0?TT.tp/TT.tb*100:0,100)+'%',background:'rgba(95,168,181,.42)',transition:'width .9s'}}/>
+              <div style={{width:Math.min(TT.tb>0?TT.tp/TT.tb*100:0,100)+'%',background:'rgba(201,162,39,.65)',transition:'width .9s'}}/>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:10.5,color:'var(--muted)',marginTop:7}}>
               <span style={{color:'var(--green)'}}>● 已查驗 {fN(TT.to)}</span>
-              <span style={{color:'var(--accent)'}}>● 進行中 {fN(TT.tp)}</span>
+              <span style={{color:'var(--goldText)'}}>● 進行中 {fN(TT.tp)}</span>
               <span>● 未查驗 {fN(TT.tr)}</span>
             </div>
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginTop:14}}>
-              {[.1,.25,.5,.75,1].map(m=>{const hit=TT.ratio>=m;return<span key={m} className="chip" style={{fontSize:10,padding:'4px 10px',borderColor:hit?'rgba(52,211,153,.45)':'var(--border)',color:hit?'var(--green)':'var(--muted2)',background:hit?'var(--greenBg)':'rgba(255,255,255,.02)'}}>{hit?'🏁':'○'} {Math.round(m*100)}%</span>})}
+              {[.1,.25,.5,.75,1].map(m=>{const hit=TT.ratio>=m;return<span key={m} className="chip" style={{fontSize:10,padding:'4px 10px',borderColor:hit?'rgba(46,125,91,.4)':'var(--border)',color:hit?'var(--green)':'var(--muted2)',background:hit?'var(--greenBg)':'var(--card)'}}>{hit?'🏁':'○'} {Math.round(m*100)}%</span>})}
             </div>
             <div style={{display:'flex',gap:7,flexWrap:'wrap',marginTop:12}}>
               {STAGES.map((st,i)=><span key={st.n} className="chip" style={{fontSize:10.5}}><span className="dotp" style={{background:st.c,animationDelay:(i*.4)+'s'}}/>{st.l} <strong style={{color:st.c,fontFamily:"'JetBrains Mono'"}}>{TT.sc[i]}</strong></span>)}
@@ -610,7 +618,7 @@ function App(){
           </div>
           <div style={{display:'flex',gap:26,flexWrap:'wrap',justifyContent:'center',flex:'0 1 auto'}}>
             <Ring pct={TT.qRatio} label="可量化項目 達成率" sub={fmt(TT.qo)+' / '+fmt(TT.qb)}/>
-            <Ring pct={TT.lRatio} label="不可量化項目 請款比例" sub={fmt(TT.lo)+' / '+fmt(TT.lb)} c1="#9b8fc7" c2="#b490b8"/>
+            <Ring pct={TT.lRatio} label="不可量化項目 請款比例" sub={fmt(TT.lo)+' / '+fmt(TT.lb)} c1="#b8901f" c2="#d8bc63"/>
           </div>
         </div>
       </div>
@@ -618,57 +626,49 @@ function App(){
       {/* ── KPI ── */}
       <div style={{display:'flex',flexWrap:'wrap',gap:12,marginBottom:18}}>
         <Kpi l="總預算" v={fN(TT.tb)} a="var(--accent)" i="💰"/>
-        <Kpi l="進行中金額（自檢／POE）" v={fN(TT.tp)} s={TT.nWip+' 張查驗表'} a="#22d3ee" i="⏳"/>
-        <Kpi l="未查驗金額" v={fN(TT.tr)} a="var(--amber)" i="📋"/>
-        <Kpi l="查驗表" v={TT.nOk+' / '+TT.nAll} s={'已提交／全部（共 '+TT.nRows+' 項明細）'} a="var(--violet)" i="📊"/>
-      </div>
-
-      <div className="card" style={{padding:22}}>
-        <h3 style={{fontSize:13.5,fontWeight:700,marginBottom:14,color:'var(--fg2)'}}>各項目查驗狀態總覽</h3>
-        <div className="hscroll"><table><thead><tr>
-          <th>項次</th><th>項目名稱</th><th style={{textAlign:'right'}}>預算數量</th>
-          <th style={{textAlign:'right'}}>已查驗<br/>(已提交台電)</th><th style={{textAlign:'right'}}>進行中<br/>(自檢／POE)</th><th style={{textAlign:'right'}}>未查驗</th><th>進度</th>
-        </tr></thead><tbody>
-        {sm.map(s=>{
-          const g=gS(s);const pctMode=isLS(s);
-          const fQ=v=>pctMode?fP(v):fQty(v);
-          const wipPct=g.bq>0?g.qp/g.bq:0;
-          return<tr key={s.id} onClick={()=>sMl({t:'item',p:s})} style={{cursor:'pointer'}}>
-            <td style={{fontWeight:700,color:'var(--accent)',fontSize:11,fontFamily:"'JetBrains Mono'",whiteSpace:'nowrap'}}>{s.item_no}</td>
-            <td style={{fontSize:12,minWidth:140}}>{s.item_name_cn}</td>
-            <td className="num" style={{fontWeight:600}}>{fQ(g.bq)}</td>
-            <td className="num"><span style={{color:'var(--green)',fontWeight:600}}>{fQ(g.qo)}</span><br/><span style={{fontSize:10,color:'var(--muted2)'}}>{fP(g.oRatio)}</span></td>
-            <td className="num"><span style={{color:g.qp>0?'var(--accent)':'var(--muted2)',fontWeight:600}}>{g.qp>0?fQ(g.qp):'—'}</span><br/>{g.qp>0&&<span style={{fontSize:10,color:'var(--muted2)'}}>{fP(wipPct)}</span>}</td>
-            <td className="num"><span style={{color:g.rq<=0?'var(--green)':'var(--amber)',fontWeight:600}}>{fQ(g.rq)}</span><br/><span style={{fontSize:10,color:'var(--muted2)'}}>{fP(g.bq>0?g.rq/g.bq:0)}</span></td>
-            <td style={{minWidth:82}}><div className="pt"><div className="pf" style={{width:Math.min(g.sRatio*100,100)+'%',background:'rgba(95,168,181,.4)'}}/></div><div className="pt" style={{marginTop:3}}><div className="pf" style={{width:Math.min(g.oRatio*100,100)+'%',background:'var(--green)'}}/></div></td>
-          </tr>})}
-        </tbody></table></div>
+        <Kpi l="進行中金額（自檢／POE）" v={fN(TT.tp)} s={TT.nWip+' 張查驗表'} a="var(--gold)" i="⏳"/>
+        <Kpi l="未查驗金額" v={fN(TT.tr)} a="var(--rest)" i="📋"/>
+        <Kpi l="查驗表" v={TT.nOk+' / '+TT.nAll} s={'已提交／全部（共 '+TT.nRows+' 項明細）'} a="var(--muted)" i="📊"/>
       </div>
     </div>}
 
     {/* ═══ SUMMARY ═══ */}
     {pg==='sum'&&<div className="fi">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:800}}>查驗總表</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
+        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:800}}>查驗項目表</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
         <div style={{display:'flex',gap:8}}>{SyncBtn}{auth&&<button className="bp" onClick={()=>sMl({t:'add'})}>＋ 新增</button>}</div>
       </div>
-      <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋項次/名稱..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:240}}/></div>
+      <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap',alignItems:'center'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋項次/名稱..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:240}}/>
+        <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:9}}>
+          <span style={{fontSize:10.5,color:'var(--muted)',fontWeight:600,letterSpacing:.4}}>已查驗／進行中／未查驗</span>
+          <div className="seg">
+            <button className={qMode==='qty'?'on':''} onClick={()=>sQMode('qty')}>數量</button>
+            <button className={qMode==='amt'?'on':''} onClick={()=>sQMode('amt')}>金額</button>
+          </div>
+        </div>
+      </div>
       <div className="hscroll" style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',boxShadow:'var(--shadow)'}}>
-        <table className="tbl-wide"><thead><tr>{['項次','項目名稱','單位'].map(h=><th key={h}>{h}</th>)}{['預算數量','單價','預算金額','已查驗','進行中','未查驗'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['進度',''].map(h=><th key={h}>{h}</th>)}</tr></thead>
-        <tbody>{fSm.map(s=>{const g=gS(s);return<tr key={s.id}>
+        <table className="tbl-wide"><thead><tr>{['項次','項目名稱','單位'].map(h=><th key={h}>{h}</th>)}{['預算數量','單價','預算金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}{['已查驗','進行中','未查驗'].map(h=><th key={h} style={{textAlign:'right'}}>{h}<br/><span style={{fontWeight:500,fontSize:9,color:'var(--muted2)',textTransform:'none',letterSpacing:0}}>{qMode==='qty'?'數量':'NT$'}</span></th>)}{['進度',''].map(h=><th key={h}>{h}</th>)}</tr></thead>
+        <tbody>{fSm.map(s=>{const g=gS(s);const qm=qMode==='qty';const fQ=v=>isLS(s)?fP(v):fQty(v);
+          const vOk=qm?fQ(g.qo):fmt(g.ao),vWip=qm?(g.qp>0?fQ(g.qp):'—'):(g.ap>0?fmt(g.ap):'—'),vRest=qm?fQ(g.rq):fmt(g.ra);
+          return<tr key={s.id}>
           <td style={{fontWeight:700,color:'var(--accent)',fontSize:12,fontFamily:"'JetBrains Mono'"}}>{s.item_no}</td>
-          <td style={{minWidth:168,fontSize:12}}><div style={{display:'flex',alignItems:'center',gap:6,fontWeight:600}}><span className="tag" style={{background:'rgba(95,168,181,.14)',color:'var(--accent)',flexShrink:0,fontSize:9.5,padding:'1px 6px'}}>{s.category}</span><EC val={s.item_name_cn} field="item_name_cn" id={s.id} onSave={updBudget} ok={auth}/></div><div style={{fontSize:10,color:'var(--muted)'}}><EC val={s.item_name_en} field="item_name_en" id={s.id} onSave={updBudget} ok={auth}/></div></td>
+          <td style={{minWidth:168,fontSize:12}}><div style={{display:'flex',alignItems:'center',gap:6,fontWeight:600}}><span className="tag" style={{background:'var(--accentBg)',color:'var(--accent)',flexShrink:0,fontSize:9.5,padding:'1px 6px'}}>{s.category}</span><EC val={s.item_name_cn} field="item_name_cn" id={s.id} onSave={updBudget} ok={auth}/></div><div style={{fontSize:10,color:'var(--muted)'}}><EC val={s.item_name_en} field="item_name_en" id={s.id} onSave={updBudget} ok={auth}/></div></td>
           <td style={{fontSize:11}}><EC val={s.unit} field="unit" id={s.id} onSave={updBudget} ok={auth}/></td>
           <td className="num"><EC val={s.budget_qty} field="budget_qty" id={s.id} onSave={(id,d)=>{d.budget_total=parseFloat(d.budget_qty||0)*s.unit_price;updBudget(id,d)}} ok={auth} isN qty/></td>
           <td className="num"><EC val={s.unit_price} field="unit_price" id={s.id} onSave={(id,d)=>{d.budget_total=s.budget_qty*parseFloat(d.unit_price||0);updBudget(id,d)}} ok={auth} isN/></td>
           <td className="num" style={{fontWeight:600}}>{fmt(s.budget_total)}</td>
-          <td className="num" style={{color:'var(--green)',fontWeight:600}}>{fmt(g.ao)}</td>
-          <td className="num" style={{color:g.ap>0?'#0ea5e9':'var(--muted)'}}>{g.ap>0?fmt(g.ap):'—'}</td>
-          <td className="num" style={{color:'var(--amber)'}}>{fmt(g.ra)}</td>
-          <td><div className="pt" style={{width:64}}><div className="pf" style={{width:Math.min(g.ratio*100,100)+'%',background:g.ratio>=1?'var(--green)':g.ratio>0?'var(--accent)':'transparent'}}/></div><div style={{fontSize:10,marginTop:2,fontFamily:"'JetBrains Mono'"}}>{fP(g.ratio)}</div></td>
+          <td className="num" style={{color:'var(--green)',fontWeight:600}}>{vOk}</td>
+          <td className="num" style={{color:(qm?g.qp>0:g.ap>0)?'var(--goldText)':'var(--muted2)',fontWeight:600}}>{vWip}</td>
+          <td className="num" style={{color:(qm?g.rq<=0:g.ra<=0)?'var(--green)':'var(--rest)',fontWeight:600}}>{vRest}</td>
+          <td title={'已提交 '+fP(g.oRatio)+'　含進行中 '+fP(g.sRatio)}><div className="pt" style={{width:64,display:'flex'}}><div className="pf" style={{width:Math.min(g.oRatio*100,100)+'%',height:'100%',background:'var(--green)'}}/><div className="pf" style={{width:Math.min(Math.max(g.sRatio-g.oRatio,0)*100,100)+'%',height:'100%',background:'rgba(201,162,39,.75)'}}/></div><div style={{fontSize:10,marginTop:2,fontFamily:"'JetBrains Mono'",color:g.ratio>=1?'var(--green)':'var(--muted)'}}>{fP(g.ratio)}</div></td>
           <td><button className="bg" title="查看明細" style={{fontSize:12,padding:'3px 7px'}} onClick={()=>sMl({t:'item',p:s})}>🔍</button></td>
         </tr>})}</tbody>
-        <tfoot><tr style={{fontWeight:700,background:'var(--bg2)'}}><td colSpan={5} style={{textAlign:'right',color:'var(--muted)'}}>合計</td><td className="num">{fmt(fSm.reduce((s,b)=>s+(parseFloat(b.budget_total)||0),0))}</td><td className="num" style={{color:'var(--green)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ao,0))}</td><td className="num" style={{color:'#0ea5e9'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ap,0))}</td><td className="num" style={{color:'var(--amber)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ra,0))}</td><td colSpan={2}/></tr></tfoot></table>
+        <tfoot><tr style={{fontWeight:700,background:'var(--bg2)'}}><td colSpan={5} style={{textAlign:'right',color:'var(--muted)'}}>合計</td><td className="num">{fmt(fSm.reduce((s,b)=>s+(parseFloat(b.budget_total)||0),0))}</td>
+        {qMode==='qty'
+          ?<td colSpan={3} style={{textAlign:'center',color:'var(--muted2)',fontWeight:500,fontSize:10}}>各項單位不同，數量不合計（切到「金額」看合計）</td>
+          :<><td className="num" style={{color:'var(--green)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ao,0))}</td><td className="num" style={{color:'var(--goldText)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ap,0))}</td><td className="num" style={{color:'var(--rest)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ra,0))}</td></>}
+        <td colSpan={2}/></tr></tfoot></table>
       </div>
     </div>}
 
@@ -722,7 +722,7 @@ function App(){
                 {auth&&<td style={{textAlign:'right'}}>{g.rows.length>1&&<button className="bd" style={{fontSize:9.5,padding:'2px 7px'}} onClick={()=>delI(r.id,'此明細（'+shortItem(r.item_name_snapshot)+'）')}>移除</button>}</td>}
               </tr>})}</tbody>
               <tfoot><tr><td colSpan={5} style={{textAlign:'right',color:'var(--muted)',fontWeight:600}}>本表合計</td><td className="num" style={{fontWeight:800,color:'var(--fg2)'}}>{fmt(g.amount)}</td><td colSpan={auth?2:1}/></tr></tfoot></table>
-              {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'rgba(255,255,255,.03)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
+              {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
             </div>}
           </div>;
         })}
@@ -737,7 +737,7 @@ function App(){
         <table><thead><tr>{['時間','操作','對象','說明','操作者'].map(h=><th key={h}>{h}</th>)}</tr></thead>
         <tbody>{!logs?<tr><td colSpan={5} style={{textAlign:'center',padding:48,color:'var(--muted)'}}><span className="spinner"/> 載入中</td></tr>
         :logs.length===0?<tr><td colSpan={5} style={{textAlign:'center',padding:48,color:'var(--muted)'}}>尚無日誌</td></tr>
-        :logs.map(l=><tr key={l.id}><td style={{fontSize:11,whiteSpace:'nowrap'}}>{fD(l.timestamp)}</td><td><span className="tag" style={{background:l.action==='CREATE'?'var(--greenBg)':l.action==='DELETE'?'var(--redBg)':'#eff6ff',color:l.action==='CREATE'?'var(--green)':l.action==='DELETE'?'var(--red)':'var(--accent)'}}>{l.action}</span></td><td style={{fontSize:11}}>{l.target}</td><td style={{fontSize:12}}>{l.detail}</td><td style={{fontSize:11}}>{l.action_by}</td></tr>)}</tbody></table>
+        :logs.map(l=><tr key={l.id}><td style={{fontSize:11,whiteSpace:'nowrap'}}>{fD(l.timestamp)}</td><td><span className="tag" style={{background:l.action==='CREATE'?'var(--greenBg)':l.action==='DELETE'?'var(--redBg)':'var(--goldBg)',color:l.action==='CREATE'?'var(--green)':l.action==='DELETE'?'var(--red)':'var(--goldText)'}}>{l.action}</span></td><td style={{fontSize:11}}>{l.target}</td><td style={{fontSize:12}}>{l.detail}</td><td style={{fontSize:11}}>{l.action_by}</td></tr>)}</tbody></table>
       </div>
     </div>}
 

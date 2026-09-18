@@ -657,9 +657,7 @@ function zoomPhoto(src){if(!src)return;const m=document.getElementById('photoZoo
 // 台電格式車輛機具標章清冊（Excel）
 //   中英對照表，要改直接改這三行
 // ══════════════════════════════════════════════════════
-const TPC_CAT={'運輸車輛':'Vehicle','施工機具':'Machinery'};
-const TPC_FUEL={'柴油':'Diesel','汽油':'Gasoline'};
-const TPC_LEVEL={'新購六期車':'Euro 6','新購五期車':'Euro 5','合格':'General','普級':'General','優級':'Premium','金級':'Gold','銀級':'Silver'};
+// 內容直接抓系統裡的值，不做任何翻譯（運輸車輛／施工機具、柴油、金級…原樣輸出）
 const TPC_TITLE_EN='Tung-Hsiao Power Plant 2nd Stage Renewal Project Turn-key Contract of Subsea Gas Pipeline';
 const TPC_TITLE_TW='通霄電廠二期更新改建計畫海底輸氣管線統包工程';
 
@@ -734,12 +732,12 @@ async function expTPC(){
   let rn=4;
   rows.forEach(r=>{
     const vals=[
-      TPC_CAT[r.category]||r.category||'',
+      r.category||'',        // 運輸車輛 / 施工機具
       r.plateNumber||'',
       r.vehicleType||'',
-      TPC_FUEL[r.fuelType]||r.fuelType||'',
-      r.hasBadge==='是'?(TPC_LEVEL[r.badgeLevel]||r.badgeLevel||''):'',
-      ''   // 標章到期日：系統尚無此欄位，留空白給人工填
+      r.fuelType||'',        // 柴油 / 汽油
+      r.hasBadge==='是'?(r.badgeLevel||''):'',   // 未取得標章就留空，不寫殘留的等級
+      ''                     // 標章到期日：系統尚無此欄位，留空白給人工填
     ];
     vals.forEach((v,i)=>{
       const c=ws.getCell(rn,i+1);
