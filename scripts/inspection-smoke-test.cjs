@@ -135,8 +135,10 @@ const baseFetch = async (url, opt) => {
   if (opt && opt.method === 'POST') {
     const body = JSON.parse(opt.body);
     calls.push({ kind: 'POST', action: body.action, data: body.data, want: !!body.want_summary });
-    if (body.action === 'addInspection') return json({ success: true, inspection_id: P + '0' + (nextNo++), folder_id: 'FAKEFOLDER', item_count: (body.data.items || []).length });
-    if (body.action === 'updateInspection') return json({ success: true, inspection_id: body.data.inspection_id, folder_id: 'FAKEFOLDER' });
+    if (body.action === 'addInspection') return json({ success: true, inspection_id: P + '0' + (nextNo++), folder_id: 'FAKEFOLDER', item_count: (body.data.items || []).length, snapshot: '2026-09-18_1000-00_addInspection.json' });
+    if (body.action === 'updateInspection') return json({ success: true, inspection_id: body.data.inspection_id, folder_id: 'FAKEFOLDER', snapshot: '2026-09-18_1000-01_updateInspection.json' });
+    if (body.action === 'deleteInspection') return json({ success: true, deleted: 1, snapshot: '2026-09-18_1000-02_deleteInspection.json' });
+    if (body.action === 'createSnapshot') return json({ success: true, snapshot: '2026-09-18_1000-03_manual.json', url: 'https://drive.google.com/x', message: '快照已建立：2026-09-18_1000-03_manual.json' });
     return json({ success: true, message: 'ok' });
   }
   const sp = new URL(u).searchParams;
@@ -145,6 +147,9 @@ const baseFetch = async (url, opt) => {
   if (action === 'getSummary') return json(JSON.parse(JSON.stringify(summary)));
   if (action === 'getNextNumber') return json({ next_number: 16, formatted: P + '016' });
   if (action === 'getLogs') return json([{ id: 'LOG-1', action: 'CREATE', target: 'inspection', detail: '測試日誌', timestamp: '2026-09-17T00:00:00Z', action_by: 'Admin' }]);
+  if (action === 'listSnapshots') return json({ folder_id: 'SNAPDIR', folder_url: 'https://drive.google.com/snap', count: 2, files: [
+    { id: 's1', name: '2026-09-18_1000-01_updateInspection_' + P + '002.json', size: 41000, created: '2026-09-18T02:00:01Z', url: 'https://drive.google.com/s1' },
+    { id: 's2', name: '2026-09-18_1000-00_addInspection_' + P + '016.json', size: 40500, created: '2026-09-18T02:00:00Z', url: 'https://drive.google.com/s2' }] });
   return json({});
 };
 global.fetch = baseFetch;
@@ -343,6 +348,7 @@ function finish() {
   await act(async () => { await sleep(60); });
   check(!!calls.slice(n3).find(c => c.action === 'deleteInspection'), '刪除送出 deleteInspection');
   check(confirms.some(c => /整張查驗表/.test(c)), '刪除前有確認提示');
+  check(/已留快照/.test(txt()), '存檔／刪除後提示已留快照');
 
   console.log('\n── CSV 匯出 ──');
   let blob = null;
@@ -369,6 +375,22 @@ function finish() {
   check(/匯入\/更新預算項目/.test(stx), 'Excel 匯入區塊');
   const VER = (html.match(/const VER='([^']+)'/) || [])[1];
   check(stx.includes('v' + VER), '版本號顯示', 'v' + VER);
+
+  console.log('\n── 資料快照 ──');
+  check(/資料快照（自動備份）/.test(stx), '設定頁有資料快照區塊');
+  check(/before/.test(stx) && /還原/.test(stx), '說明提到 before 欄位可還原');
+  const n5 = calls.length;
+  await click(findByText(/載入清單/, 'button'));
+  await act(async () => { await sleep(60); });
+  check(calls.slice(n5).some(c => c.action === 'listSnapshots'), '載入快照清單');
+  check(/updateInspection/.test(txt()) && /addInspection/.test(txt()), '快照檔名列出');
+  check(/共 2 份快照/.test(flat()), '顯示快照總數');
+  check(all('a').some(a => /開啟快照資料夾/.test(a.textContent)), '有開啟資料夾連結');
+  const n6 = calls.length;
+  await click(findByText(/立即建立快照/, 'button'));
+  await act(async () => { await sleep(80); });
+  check(calls.slice(n6).some(c => c.action === 'createSnapshot'), '可手動建立快照');
+  check(calls.slice(n6).filter(c => c.action === 'listSnapshots').length >= 1, '建立後自動重新載入清單');
 
   console.log('\n── 備註（localStorage） ──');
   await click(findByText(/^📒\s*備註$/, '.navi'));

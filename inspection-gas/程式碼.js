@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // NMDC 通霄二期 — 查驗紀錄管理系統 (Backend: Google Apps Script)
-// v4.2.0  三階段流程 + 一表多項目 + 讀取快取加速
+// v4.3.0  三階段流程 + 一表多項目 + 讀取快取 + 每次存檔自動 JSON 快照
 // ═══════════════════════════════════════════════════════════════════
 //
 // 【v4 變更重點】
@@ -212,6 +212,86 @@ const WRITE_ACTIONS = {
   importBudgetData: 1, importBudget: 1, renameFolders: 1
 };
 
+// 會改動「資料內容」的 action → 存檔後自動留一份 JSON 快照
+const SNAPSHOT_ACTIONS = {
+  addInspection: 1, updateInspection: 1, deleteInspection: 1,
+  updateBudgetItem: 1, importBudgetData: 1, importBudget: 1
+};
+
+// ══════════════════════════════════
+// 資料快照：每次存檔自動在 Drive 留一份 JSON，可用來還原誤刪／誤改
+// ══════════════════════════════════
+const SNAPSHOT_FOLDER_NAME = '00-資料快照 (自動備份)';
+
+function _snapshotFolder() {
+  const root = _rootFolder();
+  const it = root.getFoldersByName(SNAPSHOT_FOLDER_NAME);
+  return it.hasNext() ? it.next() : root.createFolder(SNAPSHOT_FOLDER_NAME);
+}
+
+/**
+ * 寫一份快照檔。失敗不會影響存檔本身。
+ * @param action  觸發的動作
+ * @param target  對象（查驗表編號 / 預算項目 id）
+ * @param summary 已經算好的 summary（有的話直接重用，不重算）
+ * @param before  變更前的原始資料（誤改／誤刪時最關鍵）
+ * @param by      操作者
+ */
+function _saveSnapshot(action, target, summary, before, by) {
+  try {
+    const s = summary || _getSummary();
+    const now = new Date();
+    const stamp = Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd_HHmm-ss');
+    const name = stamp + '_' + action + (target ? '_' + target : '') + '.json';
+    const payload = {
+      snapshot_version: 1,
+      saved_at: now.toISOString(),
+      saved_at_local: Utilities.formatDate(now, 'Asia/Taipei', 'yyyy-MM-dd HH:mm:ss'),
+      action: action,
+      target: target || '',
+      by: by || 'Admin',
+      note: '自動快照：這是存檔當下的完整資料。before 欄位是本次變更前的原始內容，可用來還原誤刪／誤改。',
+      before: before || null,
+      data: {
+        budgetItems: s.budgetItems,
+        inspections: s.inspections,
+        totals: s.totals
+      }
+    };
+    const file = _snapshotFolder().createFile(name, JSON.stringify(payload, null, 1), 'application/json');
+    Logger.log('快照已建立: ' + name);
+    return { id: file.getId(), name: name, url: file.getUrl() };
+  } catch (e) {
+    Logger.log('快照失敗（不影響存檔）: ' + e.message);
+    return null;
+  }
+}
+
+/** 列出最近的快照 */
+function _listSnapshots(limit) {
+  const fo = _snapshotFolder();
+  const it = fo.getFiles();
+  const arr = [];
+  while (it.hasNext()) {
+    const f = it.next();
+    arr.push({ id: f.getId(), name: f.getName(), size: f.getSize(), created: f.getDateCreated().toISOString(), url: f.getUrl() });
+  }
+  arr.sort(function (a, b) { return String(b.name).localeCompare(String(a.name)); });
+  return {
+    folder_id: fo.getId(),
+    folder_url: fo.getUrl(),
+    count: arr.length,
+    files: arr.slice(0, parseInt(limit) || 30)
+  };
+}
+
+/** 手動建立一份快照（重要操作前可以先按一下） */
+function createSnapshotNow() {
+  const r = _saveSnapshot('manual', '', null, null, 'Admin');
+  Logger.log(r ? ('已建立 ' + r.name) : '建立失敗');
+  return r;
+}
+
 // ══════════════════════════════════
 // Web App 入口 (GET / POST)
 // ══════════════════════════════════
@@ -260,8 +340,11 @@ function doGet(e) {
       case 'findFolder':
         result = _findFolderByNumber(e.parameter.inspection_no || e.parameter.inspection_id);
         break;
+      case 'listSnapshots':
+        result = _listSnapshots(e.parameter.limit);
+        break;
       case 'ping':
-        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.2.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
+        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.3.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
         break;
       default:
         result = { error: 'Unknown action: ' + action };
@@ -318,6 +401,12 @@ function doPost(e) {
       case 'renameFolders':
         result = renameAllFolders();
         break;
+      case 'createSnapshot': {
+        const snap = _saveSnapshot('manual', '', null, null, (payload.data && payload.data.by) || 'Admin');
+        result = snap ? { success: true, snapshot: snap.name, url: snap.url, message: '快照已建立：' + snap.name }
+                      : { error: '快照建立失敗，請看執行記錄' };
+        break;
+      }
       default:
         result = { error: 'Unknown action: ' + action };
     }
@@ -332,6 +421,17 @@ function doPost(e) {
         } catch (e) {
           Logger.log('附帶 summary 失敗（不影響寫入）: ' + e.message);
         }
+      }
+      // 每次存檔留一份 JSON 快照（含變更前的原始資料）
+      if (SNAPSHOT_ACTIONS[action]) {
+        const snap = _saveSnapshot(
+          action,
+          result.inspection_id || (payload.data && (payload.data.budget_item_id || payload.data.inspection_id)) || '',
+          result.summary || null,
+          result.before || null,
+          (payload.data && (payload.data.updated_by || payload.data.created_by || payload.data.deleted_by)) || 'Admin'
+        );
+        if (snap) result.snapshot = snap.name;
       }
     }
   } catch (err) {
@@ -460,6 +560,21 @@ function _findGroupRows(sheet, groupId) {
     if (g === gid) out.push({ idx: i + 2, v: r });
   }
   return out;
+}
+
+/** 把一列原始資料轉成物件（給快照的 before 用） */
+function _rowToObj(r) {
+  return {
+    id: r[COL_ID - 1],
+    group_id: String(r[COL_GROUP_ID - 1] || '').trim() || _groupIdOf(r[COL_ID - 1]),
+    inspection_date: r[COL_DATE - 1], budget_item_id: r[COL_BUDGET_ID - 1],
+    item_name_snapshot: r[COL_ITEM_NAME - 1], inspected_qty: r[COL_QTY - 1],
+    unit_price_snapshot: r[COL_PRICE - 1], inspected_amount: r[COL_AMOUNT - 1],
+    note: r[COL_NOTE - 1],
+    attachment_ids: String(r[COL_ATT_IDS - 1] || ''), attachment_names: String(r[COL_ATT_NAMES - 1] || ''),
+    submit_date: r[COL_SUBMIT - 1], approve_date: r[COL_APPROVE - 1], stage: r[COL_STAGE - 1],
+    work_area: r[COL_WORK_AREA - 1], folder_id: r[COL_FOLDER_ID - 1], folder_name: r[COL_FOLDER_NAME - 1]
+  };
 }
 
 /** 某預算項目已開立的數量（排除指定查驗表） */
@@ -823,6 +938,7 @@ function _updateInspection(data) {
     success: true,
     inspection_id: newGroup,
     group_id: newGroup,
+    before: rows.map(function (r) { return _rowToObj(r.v); }),   // 給快照：變更前的原始明細
     item_count: finals.length,
     removed: removed,
     inspected_amount: total,
@@ -847,7 +963,9 @@ function _deleteInspection(inspectionId, deletedBy) {
       sheet.getRange(rows[i].idx, COL_UPDATED_BY).setValue(deletedBy);
     }
     _addLog('DELETE', 'inspection', inspectionId, '刪除查驗表 ' + inspectionId + '（' + rows.length + ' 個項目）', deletedBy);
-    return { success: true, deleted: rows.length, message: '查驗表已刪除（' + rows.length + ' 個項目）' };
+    return { success: true, inspection_id: inspectionId, deleted: rows.length,
+             before: rows.map(function (r) { return _rowToObj(r.v); }),
+             message: '查驗表已刪除（' + rows.length + ' 個項目）' };
   }
 
   const rowIdx = _findInspectionRow(sheet, inspectionId);
@@ -856,7 +974,9 @@ function _deleteInspection(inspectionId, deletedBy) {
   sheet.getRange(rowIdx, COL_UPDATED_AT).setValue(now);
   sheet.getRange(rowIdx, COL_UPDATED_BY).setValue(deletedBy);
   _addLog('DELETE', 'inspection', inspectionId, '刪除查驗明細 ' + inspectionId, deletedBy);
-  return { success: true, deleted: 1, message: '查驗明細已刪除（軟刪除）' };
+  return { success: true, inspection_id: inspectionId, deleted: 1,
+           before: [_rowToObj(sheet.getRange(rowIdx, 1, 1, INSPECT_COLS).getValues()[0])],
+           message: '查驗明細已刪除（軟刪除）' };
 }
 
 // ══════════════════════════════════
@@ -1129,7 +1249,10 @@ function _updateBudgetItem(data) {
       if (data.remarks !== undefined) sheet.getRange(rowIdx, 11).setValue(data.remarks);
 
       _addLog('UPDATE', 'budget', targetId, '修改預算項目 ' + targetId + ' ' + (data.item_name_cn || rows[i][4]), data.updated_by || 'Admin');
-      return { success: true, message: '預算項目已更新' };
+      return { success: true, inspection_id: targetId,
+               before: [{ budget_item_id: rows[i][0], item_no: rows[i][1], item_name_cn: rows[i][4], item_name_en: rows[i][5],
+                          unit: rows[i][6], budget_qty: rows[i][7], unit_price: rows[i][8], budget_total: rows[i][9], remarks: rows[i][10] }],
+               message: '預算項目已更新' };
     }
   }
   throw new Error('找不到預算項目: ' + targetId);
