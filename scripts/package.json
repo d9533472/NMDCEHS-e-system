@@ -1,0 +1,14 @@
+{
+  "name": "nmdc-esystem-tests",
+  "private": true,
+  "description": "本機測試用相依套件（不會上傳到 GitHub Pages，也不影響任何網頁）",
+  "scripts": {
+    "test:inspection": "node inspection-smoke-test.cjs"
+  },
+  "devDependencies": {
+    "@babel/standalone": "^7.23.9",
+    "jsdom": "^30.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}

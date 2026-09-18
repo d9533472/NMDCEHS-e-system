@@ -1,2 +1,6 @@
 # 本機用的小工具，不需要上傳到 GitHub
 更新.bat
+
+# 測試用的 node 套件（本機才需要）
+node_modules/
+scripts/package-lock.json
