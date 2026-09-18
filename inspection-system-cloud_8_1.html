@@ -359,6 +359,8 @@ function App(){
   const[pg,sPg]=useState('dash');const[ml,sMl]=useState(null);const[ts,sTs]=useState([]);const[openG,sOpenG]=useState({});
   /* 查驗項目表：已查驗／進行中／未查驗三欄要看「數量」還是「金額」 */
   const[qMode,sQMode]=useState('amt');
+  /* 提送批次頁：展開中的批次（日期）與批次內的查驗表 */
+  const[openB,sOpenB]=useState({});const[openBG,sOpenBG]=useState({});
   /* ── 備註 ── */
   const NOTES_KEY='nmdc_insp_notes';
   const[notes,sNotes]=useState(()=>{try{return JSON.parse(localStorage.getItem(NOTES_KEY))||[]}catch{return[]}});
@@ -486,6 +488,17 @@ function App(){
       qb,qo,qRatio:qb>0?qo/qb:0,lb,lo,lRatio:lb>0?lo/lb:0,
       sc,nAll:gl.length,nOk:sc[2],nWip:sc[0]+sc[1],nRows:ins.length}},[sm,ins,ST,GR]);
 
+  /* ── 提送批次：同一天提交台電的查驗表＝一批（沒有提交日的不列入） ── */
+  const BATCHES=useMemo(()=>{const m={};
+    groups.forEach(g=>{const d=String(g.submit_date||'').slice(0,10);if(!d)return;
+      if(!m[d])m[d]={date:d,groups:[],amount:0,nRows:0};
+      const B=m[d];B.groups.push(g);B.amount+=g.amount;B.nRows+=g.rows.length});
+    Object.values(m).forEach(B=>{
+      B.groups.sort((a,b)=>String(a.id).localeCompare(String(b.id)));
+      B.areas=[...new Set(B.groups.map(g=>g.work_area).filter(Boolean))];
+    });
+    return Object.values(m).sort((a,b)=>b.date.localeCompare(a.date))},[groups]);
+
   const okG=groups.filter(g=>g.stage>=FINAL_STAGE);
   const liD=okG.length?[...okG].sort((a,b)=>String(b.submit_date||b.inspection_date).localeCompare(String(a.submit_date||a.inspection_date)))[0]?.submit_date||null:null;
   const tM=new Date().toISOString().slice(0,7);
@@ -519,7 +532,7 @@ function App(){
 
   if(!data&&ss==='error')return<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>{TL}<div style={{textAlign:'center'}}><div style={{fontSize:40,marginBottom:12}}>⚠️</div><div style={{fontSize:14,fontWeight:600}}>無法連線至 Google Sheets</div><button className="bp" onClick={sync} style={{marginTop:16}}>重試</button></div></div>;
 
-  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗項目表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
+  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗項目表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'batch',i:'📤',l:'提送批次'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
   const SyncBtn=<button className="bg" disabled={ss==='syncing'} onClick={()=>sync(true)} title="略過快取，從 Google Sheets 讀取最新資料">{ss==='syncing'?<span className="spinner"/>:'☁↓'} 從雲端同步</button>;
 
   return<div style={{display:'flex',minHeight:'100vh'}}>
@@ -728,6 +741,73 @@ function App(){
         })}
       </div>}
       <div style={{marginTop:12,fontSize:11,color:'var(--muted)'}}>顯示 {fGr.length} 張查驗表（{fGr.reduce((s,g)=>s+g.rows.length,0)} 個項目） · 合計 {fN(fGr.reduce((s,g)=>s+g.amount,0))} · <span style={{color:'var(--green)',fontWeight:600}}>已查驗 {fN(fGr.filter(g=>g.stage>=FINAL_STAGE).reduce((s,g)=>s+g.amount,0))}</span></div>
+    </div>}
+
+    {/* ═══ BATCHES（依提交台電日分組的提送批次） ═══ */}
+    {pg==='batch'&&<div className="fi">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:700,color:'var(--fg2)'}}>提送批次</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
+        <div style={{display:'flex',gap:8}}>{SyncBtn}</div>
+      </div>
+      <p style={{fontSize:11.5,color:'var(--muted)',marginBottom:16}}>同一天提交台電的查驗表歸成一批 · 共 <strong style={{color:'var(--fg2)'}}>{BATCHES.length}</strong> 次提送 · 合計 <strong style={{color:'var(--green)'}}>{fN(BATCHES.reduce((s,B)=>s+B.amount,0))}</strong></p>
+
+      {BATCHES.length===0?<div className="card" style={{padding:56,textAlign:'center',color:'var(--muted)'}}>尚無提交台電的紀錄<div style={{fontSize:11,color:'var(--muted2)',marginTop:6}}>查驗表填了「提交台電日期」之後就會出現在這裡</div></div>
+      :<div style={{display:'flex',flexDirection:'column',gap:10}}>
+        {BATCHES.map((B,bi)=>{
+          const open=openB[B.date]!==undefined?openB[B.date]:bi===0;
+          return<div key={B.date} className="card" style={{padding:0,borderLeft:'3px solid var(--green)'}}>
+            <div onClick={()=>sOpenB(p=>({...p,[B.date]:!open}))} style={{display:'flex',alignItems:'center',gap:14,padding:'15px 18px',cursor:'pointer',flexWrap:'wrap'}}>
+              <span style={{color:'var(--muted2)',fontSize:11,width:10}}>{open?'▾':'▸'}</span>
+              <div style={{minWidth:132}}>
+                <div style={{fontSize:15,fontWeight:800,color:'var(--fg2)',fontFamily:"'JetBrains Mono'"}}>{fD(B.date)}</div>
+                <div style={{fontSize:9.5,color:'var(--muted2)',marginTop:2,letterSpacing:.4}}>提交台電</div>
+              </div>
+              <div style={{flex:'1 1 210px',minWidth:180,fontSize:12,color:'var(--muted)'}}>
+                <strong style={{color:'var(--fg2)'}}>{B.groups.length}</strong> 張查驗表 · <strong style={{color:'var(--fg2)'}}>{B.nRows}</strong> 項明細
+                <div style={{fontSize:10.5,color:'var(--muted2)',marginTop:2}}>{B.areas.length?B.areas.join('、'):'—'}</div>
+              </div>
+              <div style={{textAlign:'right',minWidth:140}}>
+                <div style={{fontSize:17,fontWeight:800,fontFamily:"'JetBrains Mono'",color:'var(--green)'}}>{fN(B.amount)}</div>
+                <div style={{fontSize:9.5,color:'var(--muted2)'}}>佔總預算 {fP(TT.tb>0?B.amount/TT.tb:0)}</div>
+              </div>
+            </div>
+            {open&&<div style={{borderTop:'1px solid var(--border)',background:'var(--card2)',padding:'9px 10px 11px',display:'flex',flexDirection:'column',gap:6}}>
+              {B.groups.map(g=>{const og=!!openBG[g.id];
+                return<div key={g.id} style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'var(--radius)'}}>
+                  <div onClick={()=>sOpenBG(p=>({...p,[g.id]:!p[g.id]}))} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 14px',cursor:'pointer',flexWrap:'wrap'}}>
+                    <span style={{color:'var(--muted2)',fontSize:10,width:9}}>{og?'▾':'▸'}</span>
+                    <div className="mono" style={{color:'var(--accent)',fontSize:11.5,fontWeight:600,minWidth:168}}>{g.id}</div>
+                    <div style={{fontSize:11,color:'var(--muted)',minWidth:66}}>{g.work_area||'—'}</div>
+                    <div style={{flex:'1 1 170px',minWidth:150,fontSize:11.5,color:'var(--fg2)'}}>{itemsLabel(g.items)||'—'}<span style={{color:'var(--muted2)',marginLeft:6}}>{g.rows.length} 項</span></div>
+                    <SB stage={g.stage} small/>
+                    <div className="num" style={{minWidth:104,fontWeight:700,fontSize:13,color:'var(--green)'}}>{fN(g.amount)}</div>
+                    <div style={{display:'flex',gap:5,alignItems:'center'}} onClick={e=>e.stopPropagation()}>
+                      {g.folder_id&&<a href={'https://drive.google.com/drive/folders/'+g.folder_id} target="_blank" rel="noopener" title={g.folder_name||''} style={{fontSize:13,textDecoration:'none'}}>📁</a>}
+                      {g.attachment_ids.length>0&&<span style={{fontSize:10,color:'var(--muted)'}}>📎{g.attachment_ids.length}</span>}
+                      {auth&&<button className="bg" style={{fontSize:10,padding:'3px 9px'}} onClick={()=>openEdit(g)}>編輯</button>}
+                    </div>
+                  </div>
+                  {og&&<div className="hscroll" style={{borderTop:'1px solid var(--border)',padding:'4px 14px 10px'}}>
+                    <table><thead><tr>{['明細編號','項次','項目'].map(h=><th key={h}>{h}</th>)}{['數量','單價','金額'].map(h=><th key={h} style={{textAlign:'right'}}>{h}</th>)}<th>備註</th></tr></thead>
+                    <tbody>{g.rows.map(r=>{const b=bItem(r.budget_item_id);return<tr key={r.id}>
+                      <td className="mono" style={{fontSize:10.5,color:'var(--muted)'}}>{r.id}</td>
+                      <td style={{fontWeight:600,color:'var(--accent)',fontSize:11.5}}>{b?.item_no}</td>
+                      <td style={{fontSize:12,minWidth:150}}>{r.item_name_snapshot}<div style={{fontSize:10,color:'var(--muted2)'}}>{shortItem(r.item_name_snapshot)}</div></td>
+                      <td className="num">{isLS(b)?fP(r.inspected_qty):fQty(r.inspected_qty)}</td>
+                      <td className="num" style={{color:'var(--muted)'}}>{fmt(r.unit_price_snapshot)}</td>
+                      <td className="num" style={{fontWeight:600,color:'var(--green)'}}>{fmt(amtOf(r))}</td>
+                      <td style={{fontSize:11,color:'var(--muted)'}}>{r.note||'—'}</td>
+                    </tr>})}</tbody>
+                    <tfoot><tr><td colSpan={5} style={{textAlign:'right',color:'var(--muted)',fontWeight:600}}>本表合計</td><td className="num" style={{fontWeight:800,color:'var(--fg2)'}}>{fmt(g.amount)}</td><td/></tr></tfoot></table>
+                    {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
+                  </div>}
+                </div>})}
+              <div style={{display:'flex',justifyContent:'flex-end',gap:14,padding:'4px 6px 0',fontSize:11,color:'var(--muted)'}}>
+                <span>本批合計 <strong style={{color:'var(--green)',fontFamily:"'JetBrains Mono'",fontSize:12.5}}>{fN(B.amount)}</strong></span>
+              </div>
+            </div>}
+          </div>})}
+      </div>}
     </div>}
 
     {/* ═══ LOGS ═══ */}
