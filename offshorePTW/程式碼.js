@@ -171,7 +171,7 @@ var SHEETS = {
                           'createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Downloads: ['id','title','titleZh','titleEn','description','category','fileName','driveFileId','fileUrl',
               'uploadedBy','uploadedAt','createdAt','createdBy','updatedAt','updatedBy','isActive'],
-  Announcements: ['id','textZh','textEn','level','createdAt','createdBy','updatedAt','updatedBy','isActive'],
+  Announcements: ['id','textZh','textEn','level','linkUrl','linkText','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PasswordResets: ['id','userId','tokenHash','expiresAt','usedAt','createdAt']
 };
 
@@ -265,6 +265,14 @@ function sanitizeCell_(v) {
   var s = String(v);
   if (/^[=+\-@]/.test(s)) return "'" + s;
   return s;
+}
+
+/** 外部連結白名單：僅允許 http/https（阻擋 javascript:／data: 等）；空字串代表不接受 */
+function safeHttpUrl_(u) {
+  var s = String(u || '').trim();
+  if (!s) return '';
+  if (!/^https?:\/\/[^\s]+$/i.test(s)) return '';
+  return s.substring(0, 500);
 }
 
 /** email 正規化與檢核 */
@@ -2850,7 +2858,10 @@ var DashboardService = (function () {
   /** 首頁看板（公開）：執行中（淺綠框）/ 逾期未關（淺紅框），附件下載區上方；
    *  未登入＝全部公司；登入承商（Tier 1–2）＝本公司；測試 PTW 僅管理員/測試身分可見
    *  欄位：PTW編號、執行日期、船舶、工作區域、工作內容、持有人 */
-  function board(user) {
+  function board(user, payload) {
+    var lim = Number(payload && payload.limit) || 12;
+    if (lim < 1) lim = 12;
+    if (lim > 300) lim = 300;
     var rows = Repo.find('PTW_Master', function (p) { return asBool_(p.isActive); });
     var all;
     if (!user) {
@@ -2867,8 +2878,11 @@ var DashboardService = (function () {
     var pendingSet = [S.SUBMITTED, S.PENDING_T2, S.PENDING_T3, S.PENDING_T4, S.PENDING_T5];
     var userMap = {};
     Repo.readAll('Users').forEach(function (u) { userMap[u.id] = u; });
+    var companyMap = {};
+    Repo.readAll('Companies').forEach(function (co) { companyMap[co.id] = co; });
     var row = function (p) {
       var h = userMap[p.holderUserId] || {};
+      var co = companyMap[p.companyId] || {};
       return {
         id: p.id, number: p.ptwNumber || p.tempNumber,
         executionDate: String(p.executionDate || '').substring(0, 10),
@@ -2876,6 +2890,7 @@ var DashboardService = (function () {
         vessel: p.vessel || '', areaLocation: p.areaLocation || '',
         workDescription: p.workDescription || '',
         holderZh: h.nameZh || '', holderEn: h.nameEn || '',
+        companyId: p.companyId || '', companyEn: co.nameEn || '', companyZh: co.nameZh || '',
         validTo: String(p.validTo || '').substring(0, 10), status: p.status
       };
     };
@@ -2884,11 +2899,11 @@ var DashboardService = (function () {
     // 已逾期者只出現在 Overdue 清單（不重複顯示）
     var active = all.filter(function (p) {
       return ptwTimeState_(p, nowStr) === 'active';
-    }).map(row).slice(0, 12);
+    }).map(row).slice(0, lim);
     var closedSet = [S.CLOSED, S.CANCELLED, S.DRAFT];
     var overdue = all.filter(function (p) {
       return p.validTo && p.validTo < nowStr && closedSet.indexOf(p.status) < 0 && pendingSet.indexOf(p.status) < 0;
-    }).map(row).slice(0, 12);
+    }).map(row).slice(0, lim);
     return ok_({ active: active, overdue: overdue });
   }
 
@@ -4371,13 +4386,18 @@ var DriveService = (function () {
     return ok_({ disabled: true });
   }
 
-  /** (公告) 新增系統公告 */
+  /** (公告) 新增系統公告（可附一個外部連結；首頁公告文字後以 icon 呈現） */
   function announceAdd(user, payload) {
     SecurityService.requireAdmin(user);
     requireFields_(payload, ['textZh', 'textEn']);
+    var url = safeHttpUrl_(payload.linkUrl);
+    if (payload.linkUrl && !url) {
+      throw ApiError_('BAD_URL', 'Link must start with http:// or https://', '連結網址必須以 http:// 或 https:// 開頭');
+    }
     var row = Repo.insert('Announcements', {
       textZh: payload.textZh, textEn: payload.textEn,
-      level: payload.level || 'info'
+      level: payload.level || 'info',
+      linkUrl: url, linkText: String(payload.linkText || '').substring(0, 120)
     }, user.id);
     AuditService.log({ user: user, actionType: 'ANNOUNCE_ADD', entityType: 'Announcement', entityId: row.id, success: true });
     return ok_({ id: row.id });
@@ -4387,8 +4407,30 @@ var DriveService = (function () {
     var rows = Repo.find('Announcements', function (a) { return asBool_(a.isActive); });
     rows.sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
     return ok_(rows.slice(0, 5).map(function (a) {
-      return { id: a.id, textZh: a.textZh, textEn: a.textEn, level: a.level || 'info', createdAt: a.createdAt };
+      return { id: a.id, textZh: a.textZh, textEn: a.textEn, level: a.level || 'info',
+        linkUrl: safeHttpUrl_(a.linkUrl), linkText: a.linkText || '', createdAt: a.createdAt };
     }));
+  }
+  /** (公告) 上傳附件（多為 PDF）到 Drive 並回傳公開連結，供公告的 icon 連結使用（Admin） */
+  function announceUploadFile(user, payload) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['fileName', 'mimeType', 'base64']);
+    var ext = String(payload.fileName).split('.').pop().toLowerCase();
+    if (ALLOWED_EXT.indexOf(ext) < 0) {
+      throw ApiError_('BAD_FILE_TYPE', 'File type not allowed: .' + ext, '不允許的檔案類型：.' + ext);
+    }
+    var bytes;
+    try { bytes = Utilities.base64Decode(payload.base64); }
+    catch (e) { throw ApiError_('BAD_FILE', 'Invalid file data', '檔案資料無效'); }
+    var maxMb = Number(getSetting_('maxUploadMb')) || 25;
+    if (bytes.length > maxMb * 1024 * 1024) throw ApiError_('FILE_TOO_LARGE', 'Max ' + maxMb + 'MB', '檔案過大');
+    var folder = sub_(sub_(root_(), '_system'), 'announcements');
+    var f = folder.createFile(Utilities.newBlob(bytes, payload.mimeType, payload.fileName));
+    try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); }
+    catch (e) { console.error('setSharing failed: ' + e.message); }
+    AuditService.log({ user: user, actionType: 'ANNOUNCE_FILE_UPLOAD', entityType: 'Announcement', entityId: '',
+      newValue: { fileName: payload.fileName }, success: true });
+    return ok_({ fileUrl: f.getUrl(), fileName: payload.fileName });
   }
   function announceDisable(user, payload) {
     SecurityService.requireAdmin(user);
@@ -4438,6 +4480,7 @@ var DriveService = (function () {
   return { uploadAttachment: uploadAttachment, listAttachments: listAttachments,
     ptwFolderUrl: ptwFolderUrl, savePtwFile: savePtwFile, saveSitePdf: saveSitePdf,
     announceAdd: announceAdd, announceList: announceList, announceDisable: announceDisable,
+    announceUploadFile: announceUploadFile,
     disableAttachment: disableAttachment, saveSignature: saveSignature,
     saveAccountSignature: saveAccountSignature, getSignatureBase64: getSignatureBase64,
     uploadPublicDoc: uploadPublicDoc, listDownloads: listDownloads, disableDownload: disableDownload };
@@ -8982,6 +9025,7 @@ function initSystem() {
 var PUBLIC_ACTIONS = {
   'ptw.board': true,
   'home.public': true,
+  'home.landing': true,
   'downloads.list': true,
   'company.options': true,
   'announce.list': true,
@@ -9064,7 +9108,7 @@ function routes_() {
 
     // Dashboard
     'ptw.dashboard':   function (u) { return DashboardService.dashboard(u); },
-    'ptw.board':       function (u) { return DashboardService.board(u); },
+    'ptw.board':       function (u, p) { return DashboardService.board(u, p); },
     'contact.get':     function () { return ok_({ info: String(getSetting_('contactInfo') || ''),
       infoEn: String(getSetting_('contactInfoEn') || '') }); },
     'admin.contact.set': function (u, p) {
@@ -9181,6 +9225,13 @@ function routes_() {
 
     // ---- 合併端點（一個畫面一次呼叫，大幅減少往返） ----
     'home.bootstrap': function (u) { return ok_(homeBundle_(u)); },
+    // 登入／註冊首頁（未登入著陸頁）：公告 ＋ Active PTW 總表（唯讀）一次取回
+    'home.landing': function (u) {
+      return ok_({
+        announcements: DriveService.announceList().data,
+        board: DashboardService.board(u, { limit: 200 }).data
+      });
+    },
     'home.public': function (u) {   // 未登入首頁一次取回（原本 3 支呼叫）
       return ok_({
         downloads: DriveService.listDownloads().data,
@@ -9224,6 +9275,7 @@ function routes_() {
     'announce.list':          function () { return DriveService.announceList(); },
     'admin.announce.add':     function (u, p) { return DriveService.announceAdd(u, p); },
     'admin.announce.disable': function (u, p) { return DriveService.announceDisable(u, p); },
+    'admin.announce.upload':  function (u, p) { return DriveService.announceUploadFile(u, p); },
     'admin.download.upload':   function (u, p) { return DriveService.uploadPublicDoc(u, p); },
     'admin.download.disable':  function (u, p) { return DriveService.disableDownload(u, p); },
     // 使用者詳情 / 簽名
@@ -11312,8 +11364,12 @@ main{position:relative;z-index:1}
 </header>
 
 <!-- ==================== 登入區 ==================== -->
-<main class="container" style="max-width:980px" id="viewAuth">
-  <div class="mt-3"><a href="#" onclick="enter();return false">← <span data-i18n="app.title">Offshore PTW System</span></a></div>
+<main class="container" style="max-width:1150px" id="viewAuth">
+  <!-- ① 系統公告（登入／註冊框上方；管理員可附連結 icon） -->
+  <div id="authAnnWrap" class="mt-3 mb-3"></div>
+  <!-- 已登入者才顯示的返回首頁連結 -->
+  <div class="mb-2 d-none" id="authBackHome"><a href="#" onclick="enter();return false">← <span data-i18n="app.title">Offshore PTW System</span></a></div>
+  <!-- ② 登入／註冊 -->
   <div class="row justify-content-center g-4 mt-0">
     <div class="col-md-6" id="panelLogin">
       <div class="card-x p-4">
@@ -11419,6 +11475,19 @@ main{position:relative;z-index:1}
         <div class="mt-3"><a href="#" onclick="showPanel('Login');return false" data-i18n="login.title"></a></div>
       </div>
     </div>
+  </div>
+
+  <!-- ③ Active PTW 總表（公開唯讀；可依公司篩選） -->
+  <div class="card-x p-3 mt-4 mb-3" id="authBoardWrap">
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+      <h5 class="mb-0 flex-grow-1" style="color:#0b3a5c">📋 <span data-i18n="lb.title">Active PTW Overview</span>
+        <span id="abCount" class="badge bg-success ms-1"></span></h5>
+      <select id="abCompany" class="form-select form-select-sm" style="max-width:260px" onchange="renderLandingBoard()"></select>
+      <input id="abSearch" class="form-control form-control-sm" style="max-width:210px" data-i18n-ph="lb.search" oninput="renderLandingBoard()">
+      <button class="btn btn-sm btn-outline-secondary" onclick="loadLandingBoard(true)" title="Refresh">⟳</button>
+    </div>
+    <div class="small text-muted mb-2">🔒 <span data-i18n="lb.readonly">View only — this table cannot be edited.</span></div>
+    <div id="abTable" class="table-responsive small">—</div>
   </div>
 </main>
 
@@ -11608,15 +11677,24 @@ main{position:relative;z-index:1}
     <div class="tab-pane fade" id="tabAnnounce">
       <h6>📢 <span data-i18n="ann.title">System Announcements 系統公告</span>（<span class="small text-muted" data-i18n="ann.hint">shown at the top of the home page 顯示於首頁頂部</span>）</h6>
       <div class="row g-2 mb-2">
-        <div class="col-md-4"><input id="annZh" class="form-control form-control-sm" placeholder="公告內容（中文）＊"></div>
-        <div class="col-md-4"><input id="annEn" class="form-control form-control-sm" placeholder="Announcement (English) ＊"></div>
+        <div class="col-md-5"><input id="annZh" class="form-control form-control-sm" placeholder="公告內容（中文）＊"></div>
+        <div class="col-md-5"><input id="annEn" class="form-control form-control-sm" placeholder="Announcement (English) ＊"></div>
         <div class="col-md-2"><select id="annLevel" class="form-select form-select-sm">
           <option value="info" data-l>ℹ️ 一般 Info</option>
           <option value="warning" data-l>⚠️ 注意 Warning</option>
           <option value="danger" data-l>🚨 重要 Critical</option>
         </select></div>
+      </div>
+      <div class="row g-2 mb-2 align-items-center">
+        <div class="col-md-4"><input id="annLinkUrl" class="form-control form-control-sm" data-i18n-ph="ann.linkUrl" placeholder="https://…"></div>
+        <div class="col-md-3"><input id="annLinkText" class="form-control form-control-sm" data-i18n-ph="ann.linkText" placeholder=""></div>
+        <div class="col-md-3 d-flex gap-1">
+          <input type="file" id="annFile" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+          <button class="btn btn-sm btn-outline-primary text-nowrap" id="btnAnnUpload" onclick="adminUploadAnnounceFile()">📎 <span data-i18n="ann.uploadPdf">Upload PDF</span></button>
+        </div>
         <div class="col-md-2"><button class="btn btn-sm btn-navy w-100" onclick="adminAddAnnounce()">📢 <span data-i18n="ann.publish">Publish 發布</span></button></div>
       </div>
+      <div id="annLinkMsg" class="small text-muted mb-2"></div>
       <div id="adminAnnList"></div>
     </div>
     <div class="tab-pane fade" id="tabReports">
@@ -12213,6 +12291,21 @@ var STRINGS = {
  'ann.title':{en:'System Announcements',zh:'系統公告'},
  'ann.hint':{en:'shown at the top of the home page',zh:'顯示於首頁頂部'},
  'ann.publish':{en:'Publish',zh:'發布'},
+ 'ann.linkUrl':{en:'Link URL (optional) — shown as an icon',zh:'連結網址（選填）— 公告後方顯示為 icon'},
+ 'ann.linkText':{en:'Link label (optional)',zh:'連結說明（選填）'},
+ 'ann.uploadPdf':{en:'Upload PDF',zh:'上傳 PDF'},
+ 'ann.uploaded':{en:'File uploaded — link filled in below',zh:'檔案已上傳，連結已自動填入'},
+ 'ann.openLink':{en:'Open attached link',zh:'開啟附件連結'},
+ 'lb.title':{en:'Active PTW Overview',zh:'執行中 PTW 總表'},
+ 'lb.search':{en:'Search PTW no. / vessel / area…',zh:'搜尋 PTW 編號／船舶／區域…'},
+ 'lb.readonly':{en:'View only — this table cannot be edited.',zh:'此總表僅供檢視，無法進行任何修改。'},
+ 'lb.allCompanies':{en:'All companies',zh:'全部公司'},
+ 'lb.company':{en:'Company',zh:'公司'},
+ 'lb.status':{en:'Status',zh:'狀態'},
+ 'lb.stActive':{en:'Active',zh:'執行中'},
+ 'lb.stOverdue':{en:'Overdue (not closed)',zh:'逾期未關'},
+ 'lb.none':{en:'No active PTW at the moment.',zh:'目前沒有執行中的 PTW。'},
+ 'lb.loginHint':{en:'Sign in to view details, apply for a PTW or review.',zh:'登入後即可檢視明細、申請 PTW 或進行審核。'},
  'admin.consoleTitle':{en:'System Administration Console',zh:'系統管理主控台'},
  'admin.consoleSub':{en:'Offshore PTW System · Tongxiao P2 Subsea Gas Pipeline (P2913)',zh:'離岸工作許可系統 · 通霄二期海管統包工程 (P2913)'},
  'admin.numbers':{en:'Numbers',zh:'編號總表'},
@@ -12445,6 +12538,9 @@ function switchLang(l){
     }catch(e){}
   }
   if(currentView==='home') renderHome();
+  if(currentView==='auth'){
+    try{ renderAnnouncements(window._annCache||[]); fillLandingCompanies(landingRows||[]); renderLandingBoard(); }catch(e){}
+  }
   if(currentView==='training'){ try{ if($('examArea').classList.contains('d-none')) loadTraining(); }catch(e){} }
   if(currentView==='ptw'){
     try{
@@ -12614,6 +12710,7 @@ function showView(v){
   $('viewAccount').classList.toggle('d-none',v!=='account');
   $('viewCertified').classList.toggle('d-none',v!=='certified');
   if(v!=='training') stopYtTracking();
+  if(v==='auth'){ try{ loadLandingBoard(); }catch(e){} }
   var u=(getToken()&&getUser())||null;
   renderAcctMenu(u);
   $('subtitle').textContent=u?(bi(u.nameEn,u.nameZh)+' · Tier '+u.tier+(u.isAdmin?' · Admin':'')):T('app.project');
@@ -12807,6 +12904,113 @@ function loadPublicDownloads(){
     loadPublicAnnounces();
   });
 }
+/* ===================================================================
+   登入／註冊首頁（未登入著陸頁）
+   版面：① 系統公告（可附連結 icon） ② 登入／註冊框 ③ Active PTW 總表（唯讀、可依公司篩選）
+   =================================================================== */
+var landingRows=null, landingLoadedAt=0;
+function showLanding(panel){
+  showView('auth');
+  showPanel(panel||'Login');
+}
+/* 載入著陸頁資料（公告＋總表）：先用快取即時顯示，再背景更新 */
+function loadLandingBoard(force){
+  var bh=$('authBackHome'); if(bh) bh.classList.toggle('d-none',!(getToken()&&getUser()));
+  if(!force&&landingRows&&(Date.now()-landingLoadedAt)<15000){ renderLandingBoard(); return; }
+  var key='ptw_landing_cache';
+  if(!landingRows){
+    var env=null; try{ env=JSON.parse(sget(key)||'null'); }catch(e){}
+    if(env&&env.data&&env.data.rows){
+      landingRows=env.data.rows;
+      if(env.data.announcements) renderAnnouncements(env.data.announcements);
+      fillLandingCompanies(landingRows); renderLandingBoard();
+    }
+  }
+  api('home.landing',{},{silent:!!landingRows}).then(function(res){
+    if(!res.ok){
+      if(!landingRows) $('abTable').innerHTML='<div class="text-danger small p-2">'+esc(apiMsg(res))+'</div>';
+      return;
+    }
+    var b=res.data.board||{}, rows=[];
+    (b.active||[]).forEach(function(r){ r.kind='active'; rows.push(r); });
+    (b.overdue||[]).forEach(function(r){ r.kind='overdue'; rows.push(r); });
+    landingRows=rows; landingLoadedAt=Date.now();
+    renderAnnouncements(res.data.announcements||[]);
+    try{ sset(key,JSON.stringify({__t:Date.now(),data:{rows:rows,announcements:res.data.announcements||[]}})); }catch(e){}
+    fillLandingCompanies(rows);
+    renderLandingBoard();
+  });
+}
+/* 公司篩選下拉（依總表實際出現的公司建立；保留目前選擇） */
+function landingCoKey(r){
+  return r.companyId||(lang==='zh'?(r.companyZh||r.companyEn||''):(r.companyEn||r.companyZh||''));
+}
+function fillLandingCompanies(rows){
+  var sel=$('abCompany'); if(!sel) return;
+  var cur=sel.value, seen={}, list=[];
+  (rows||[]).forEach(function(r){
+    var nm=(lang==='zh'?(r.companyZh||r.companyEn):(r.companyEn||r.companyZh))||'';
+    if(!nm) return;
+    var k=landingCoKey(r);
+    if(!seen[k]){ seen[k]=1; list.push({k:k,nm:nm}); }
+  });
+  list.sort(function(a,b){ return a.nm<b.nm?-1:1; });
+  var h='<option value="">🏢 '+esc(T('lb.allCompanies'))+'</option>';
+  list.forEach(function(c){ h+='<option value="'+esc(c.k)+'">'+esc(c.nm)+'</option>'; });
+  sel.innerHTML=h;
+  if(cur){ sel.value=cur; if(sel.selectedIndex<0) sel.value=''; }
+}
+/* Active PTW 總表（唯讀：不可點、不可編輯） */
+function renderLandingBoard(){
+  var el=$('abTable'); if(!el) return;
+  var Z=(lang==='zh');
+  var rows=landingRows;
+  if(!rows){ el.innerHTML='<div class="text-muted p-2">'+(Z?'載入中…':'Loading…')+'</div>'; return; }
+  var co=($('abCompany')&&$('abCompany').value)||'';
+  var q=(($('abSearch')&&$('abSearch').value)||'').trim().toLowerCase();
+  var view=rows.filter(function(r){
+    if(co&&landingCoKey(r)!==co) return false;
+    if(q){
+      var hay=[r.number,r.vessel,r.areaLocation,r.workDescription,r.companyEn,r.companyZh,r.holderEn,r.holderZh]
+        .join(' ').toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+  view.sort(function(a,b){
+    if(a.kind!==b.kind) return a.kind==='overdue'?-1:1;         // 逾期未關排最前
+    return String(a.validTo||'')<String(b.validTo||'')?-1:1;    // 再依到期日
+  });
+  $('abCount').textContent=view.length||'';
+  if(!view.length){ el.innerHTML='<div class="text-muted p-2">'+esc(T('lb.none'))+'</div>'; return; }
+  var h='<table class="table table-sm table-hover align-middle mb-0"><thead><tr>'+
+    '<th>'+(Z?'PTW 編號':'PTW No.')+'</th>'+
+    '<th>'+esc(T('lb.company'))+'</th>'+
+    '<th>'+esc(T('lb.status'))+'</th>'+
+    '<th>'+(Z?'有效期間':'Valid Period')+'</th>'+
+    '<th>'+(Z?'船舶':'Vessel')+'</th>'+
+    '<th>'+(Z?'工作區域':'Area')+'</th>'+
+    '<th>'+(Z?'工作內容':'Work Description')+'</th>'+
+    '<th>'+(Z?'持有人':'Holder')+'</th></tr></thead><tbody>';
+  view.forEach(function(r){
+    var od=(r.kind==='overdue');
+    var wd=String(r.workDescription||'—'); if(wd.length>70) wd=wd.substring(0,70)+'…';
+    h+='<tr>'+
+      '<td class="text-nowrap"><b'+(od?' class="text-danger"':'')+'>'+esc(r.number)+'</b></td>'+
+      '<td>'+esc((Z?(r.companyZh||r.companyEn):(r.companyEn||r.companyZh))||'—')+'</td>'+
+      '<td class="text-nowrap"><span class="badge '+(od?'bg-danger':'bg-success')+'">'+
+        (od?'🔴 ':'🟢 ')+esc(T(od?'lb.stOverdue':'lb.stActive'))+'</span>'+
+        '<div class="small text-muted">'+esc(SN(r.status))+'</div></td>'+
+      '<td class="text-nowrap small">'+esc(r.validFrom||'—')+'<br>→ '+esc(r.validTo||'—')+'</td>'+
+      '<td>'+esc(r.vessel||'—')+'</td>'+
+      '<td>'+esc(r.areaLocation||'—')+'</td>'+
+      '<td>'+esc(wd)+'</td>'+
+      '<td>'+esc((Z?(r.holderZh||r.holderEn):(r.holderEn||r.holderZh))||'—')+'</td></tr>';
+  });
+  h+='</tbody></table><div class="small text-muted mt-2">🔐 '+esc(T('lb.loginHint'))+'</div>';
+  el.innerHTML=h;
+}
+
 /* (7) 系統流程圖 */
 function renderFlowBar(){
   var steps=[['👤','flow.t0'],['🔎','flow.t0b'],['🎓','flow.t1'],['📝','flow.t2'],['🦺','flow.t3'],['🏗️','flow.t4'],['🛡️','flow.t5'],['✅','flow.t6'],['⚙️','flow.t7'],['🏁','flow.t8']];
@@ -13189,9 +13393,11 @@ function comingSoon(){ toast(T('home.comingSoon'),true); }
 function openPtwFromQueue(id){ showView('ptw'); $('ptwListWrap').classList.add('d-none'); openPtwForm(id); }
 function gotoLogin(){ showView('auth'); showPanel('Login'); }
 function gotoApply(){ showView('auth'); showPanel('Apply'); }
-function goHome(){ enter(); }
-/** 捲到首頁「附件下載專區」（本視窗內） */
+/* ⚓ 回首頁：已登入 → 功能首頁；未登入 → 登入／註冊首頁 */
+function goHome(){ if(getToken()&&getUser()) enter(); else showLanding('Login'); }
+/** 捲到首頁「附件下載專區」（本視窗內）— 下載專區僅登入後可見 */
 function scrollToDownloads(){
+  if(!(getToken()&&getUser())){ showLanding('Login'); toast(T('home.loginFirst'),true); return; }
   goHome();
   // 首頁的下載清單是非同步載入的，元素位置會變 → 重試數次直到捲到定位
   var tries=0;
@@ -13344,7 +13550,11 @@ function acChangePw(){
   });
 }
 function doLogout(){
-  api('auth.logout',{}).then(function(){ clearAuthStorage(); pendingAction=null; clearDataCaches(); enter(); });
+  api('auth.logout',{}).then(function(){
+    clearAuthStorage(); pendingAction=null; clearDataCaches();
+    landingRows=null; landingLoadedAt=0;
+    showLanding('Login'); loadLandingBoard(true);
+  });
 }
 /* (1) 簽名檔處理：載入→清除背景（亮度門檻+透明化）→品質檢查 */
 var sigState={};
@@ -13931,13 +14141,37 @@ function loadAdminDownloads(){
 /* ===== 系統公告（首頁頂部） ===== */
 function adminAddAnnounce(){
   var z=$('annZh').value.trim(), e=$('annEn').value.trim();
+  var url=$('annLinkUrl').value.trim(), ltx=$('annLinkText').value.trim();
   if(!z||!e){ toast(lang==='zh'?'中文與英文公告內容皆必填':'Both Chinese and English texts are required'); return; }
-  api('admin.announce.add',{textZh:z,textEn:e,level:$('annLevel').value}).then(function(res){
+  if(url&&!/^https?:\\/\\//i.test(url)){ toast(lang==='zh'?'連結網址必須以 http:// 或 https:// 開頭':'Link must start with http:// or https://'); return; }
+  api('admin.announce.add',{textZh:z,textEn:e,level:$('annLevel').value,linkUrl:url,linkText:ltx}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
-    $('annZh').value='';$('annEn').value='';
+    $('annZh').value='';$('annEn').value='';$('annLinkUrl').value='';$('annLinkText').value='';
+    $('annLinkMsg').textContent='';
     toast(lang==='zh'?'公告已發布':'Published',true);
     loadAdminAnnounces();
   });
+}
+/* 公告附件（PDF…）上傳 → 自動填入「連結網址」 */
+function adminUploadAnnounceFile(){
+  var f=$('annFile').files[0];
+  if(!f){ toast(lang==='zh'?'請先選擇檔案':'Please choose a file first'); return; }
+  if(f.size>25*1024*1024){ toast('Max 25 MB'); return; }
+  var btn=$('btnAnnUpload'); btn.disabled=true; var old=btn.innerHTML; btn.innerHTML='⏳';
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    api('admin.announce.upload',{fileName:f.name,mimeType:f.type||'application/octet-stream',
+      base64:String(ev.target.result).split(',')[1]}).then(function(res){
+      btn.disabled=false; btn.innerHTML=old;
+      if(!res.ok){ toast(apiMsg(res)); return; }
+      $('annLinkUrl').value=res.data.fileUrl;
+      if(!$('annLinkText').value.trim()) $('annLinkText').value=res.data.fileName;
+      $('annLinkMsg').textContent='📎 '+T('ann.uploaded')+'：'+res.data.fileName;
+      $('annFile').value='';
+      toast(T('ann.uploaded'),true);
+    });
+  };
+  reader.readAsDataURL(f);
 }
 function loadAdminAnnounces(){
   api('announce.list',{}).then(function(res){
@@ -13947,7 +14181,9 @@ function loadAdminAnnounces(){
     var h='<table class="table table-sm"><tbody>';
     res.data.forEach(function(a){
       h+='<tr><td style="width:30px">'+(lv[a.level]||'ℹ️')+'</td>'+
-        '<td><b>'+esc(a.textZh)+'</b><br><small class="text-muted">'+esc(a.textEn)+'</small></td>'+
+        '<td><b>'+esc(a.textZh)+'</b>'+annLinkIcon(a,'#0b6bcb')+
+        '<br><small class="text-muted">'+esc(a.textEn)+'</small>'+
+        (a.linkUrl?'<br><small style="opacity:.6">🔗 '+esc(a.linkUrl)+'</small>':'')+'</td>'+
         '<td class="small text-nowrap">'+esc(String(a.createdAt||'').substring(0,10))+'</td>'+
         '<td><button class="btn btn-sm btn-outline-danger" onclick="removeAnnounce(\\''+a.id+'\\')">✕</button></td></tr>';
     });
@@ -13961,12 +14197,35 @@ function removeAnnounce(id){
     });
   });
 }
-/* 首頁公告欄（常駐顯示；登入前後皆可見） */
+/* 公告內文：支援 [文字](網址) 與裸網址自動轉連結；其餘一律逸出（不接受 HTML） */
+function annText(s,color){
+  var out='', last=0, src=String(s==null?'':s);
+  var re=/\\[([^\\]]{1,120})\\]\\((https?:\\/\\/[^\\s)]+)\\)|(https?:\\/\\/[^\\s<]+)/g, m;
+  var a=function(url,txt){
+    return '<a href="'+esc(url)+'" target="_blank" rel="noopener" style="color:'+color+';text-decoration:underline">'+esc(txt)+'</a>';
+  };
+  while((m=re.exec(src))!==null){
+    out+=esc(src.substring(last,m.index));
+    if(m[2]) out+=a(m[2],m[1]); else out+=a(m[3],m[3]);
+    last=re.lastIndex;
+  }
+  return out+esc(src.substring(last));
+}
+/* 公告附加連結 → 文字後方的 icon（PDF 顯示 📄，其他 🔗） */
+function annLinkIcon(a,color){
+  if(!a||!a.linkUrl) return '';
+  var isPdf=/\\.pdf(\\?|$)/i.test(a.linkUrl)||/\\.pdf$/i.test(String(a.linkText||''));
+  var tip=(a.linkText||T('ann.openLink'));
+  return ' <a href="'+esc(a.linkUrl)+'" target="_blank" rel="noopener" title="'+esc(tip)+'" '+
+    'style="text-decoration:none;font-size:1.05rem;color:'+color+'">'+(isPdf?'📄':'🔗')+'</a>';
+}
+/* 首頁公告欄（常駐顯示；登入前後皆可見；同時渲染登入頁上方公告） */
 function renderAnnouncements(rows){
-  var w=$('annWrap'),Z=(lang==='zh');
+  window._annCache=rows||[];
   var style={info:['rgba(49,195,240,.14)','rgba(49,195,240,.5)','#bfe8ff','ℹ️'],
              warning:['rgba(240,197,109,.16)','rgba(240,197,109,.55)','#ffe1a3','⚠️'],
              danger:['rgba(255,120,120,.16)','rgba(255,120,120,.55)','#ffc4c4','🚨']};
+  var Z=(lang==='zh');
   var items='';
   if(rows&&rows.length){
     rows.forEach(function(a){
@@ -13974,16 +14233,19 @@ function renderAnnouncements(rows){
       items+='<div style="background:'+st[0]+';border:1px solid '+st[1]+';color:'+st[2]+';border-radius:10px;'+
         'padding:7px 12px;margin-bottom:6px;display:flex;gap:9px;align-items:flex-start">'+
         '<span>'+st[3]+'</span>'+
-        '<div><b>'+esc(Z?a.textZh:a.textEn)+'</b>'+
+        '<div><b>'+annText(Z?a.textZh:a.textEn,st[2])+'</b>'+annLinkIcon(a,st[2])+
         '<span class="small ms-2" style="opacity:.6">'+esc(String(a.createdAt||'').substring(0,10))+'</span></div></div>';
     });
   }else{
     items='<div class="small" style="opacity:.6">'+(Z?'（目前無公告 — 一切正常，安全作業！）':'(No announcements — all clear, work safe!)')+'</div>';
   }
-  w.innerHTML='<div class="annBoard">'+
+  var html='<div class="annBoard">'+
     '<div class="annHead">📢 '+(Z?'系統公告 Announcements':'System Announcements')+
     '<span class="annLive">LIVE</span></div>'+items+'</div>';
-  w.classList.remove('d-none');
+  ['annWrap','authAnnWrap'].forEach(function(id){
+    var w=$(id); if(!w) return;
+    w.innerHTML=html; w.classList.remove('d-none');
+  });
 }
 function loadPublicAnnounces(){
   api('announce.list',{}).then(function(res){ if(res.ok) renderAnnouncements(res.data); });
@@ -16745,9 +17007,9 @@ function renderPracticeReview(results){
   return h+'</div>';
 }
 
-/* ---------- init：首頁公開，點功能才登入；QR 直達 ?ptw=<id> ---------- */
+/* ---------- init：首頁＝登入／註冊頁（公告＋Active PTW 總表）；登入後進入功能首頁；QR 直達 ?ptw=<id> ---------- */
 switchLang(lang);
-enter();
+if(getToken()&&getUser()) enter(); else showLanding('Login');
 try{ if(window.PTW_VIEWS>0) $('viewCountVal').textContent=Number(window.PTW_VIEWS).toLocaleString(); }catch(e){}
 if(window.PTW_OPEN_ID){
   requireLogin(function(){ openPtwFromQueue(window.PTW_OPEN_ID); });
