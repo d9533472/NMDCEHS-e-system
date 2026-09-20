@@ -101,6 +101,10 @@ var CFG = {
 /** NMDC 施工部門（Tier 3）所屬部門選項 */
 var NMDC_DEPARTMENTS = ['NMDC D&M', 'NMDC Energy'];
 
+/** 唯一可重複建立帳號的測試信箱（系統管理員控台）。
+ *  其餘 Email 一律不得重複建立；此清單外的重複建立會被 EMAIL_EXISTS 擋下。 */
+var DUP_ACCOUNT_ALLOWED_EMAILS = ['paul.tong@nmdc-group.com'];
+
 /** 所有工作表結構（首列欄名）。initSystem() 依此建表。 */
 var SHEETS = {
   Users: ['id','email','nameZh','nameEn','companyId','title','phone','vessel','tier','isAdmin','badgeNo',
@@ -108,6 +112,8 @@ var SHEETS = {
           'applyReason','appliedTier','trainingPassedAt','trainingValidUntil','langPref','isTestUser','isHse','department',
           'createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Companies: ['id','nameZh','nameEn','type','createdAt','createdBy','updatedAt','updatedBy','isActive'],
+  // 工程範疇（Scope）：決定第 3 關送 NMDC D&M 或 NMDC Energy
+  Scopes: ['id','nameZh','nameEn','department','sortOrder','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Roles: ['id','code','nameZh','nameEn','pickerFilter','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   UserRoles: ['id','userId','roleId','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PTW_Master: ['id','ptwNumber','tempNumber','version','status','companyId','applicantUserId','vessel',
@@ -117,6 +123,7 @@ var SHEETS = {
                'gasTestRequired','gasTestInterval','gasTestIntervalOther','cssIsoRequired',
                'psOthers','hzOthers','cssOthers','pcOthers',
                'holderUserId','coHolderUserId','paUserId','paDeclarationAccepted',
+               'scopeId','scopeDepartment',
                'currentTier','currentReviewerId','submittedAt','approvedAt','activatedAt','closedAt',
                'wcDeclarationAccepted','driveFolderId',
                'coT2UserId','coT2At','coT3UserId','coT3At','coT4UserId','coT4At','coT5UserId','coT5At','coCurrentTier',
@@ -171,7 +178,7 @@ var SHEETS = {
                           'createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Downloads: ['id','title','titleZh','titleEn','description','category','fileName','driveFileId','fileUrl',
               'uploadedBy','uploadedAt','createdAt','createdBy','updatedAt','updatedBy','isActive'],
-  Announcements: ['id','textZh','textEn','level','linkUrl','linkText','createdAt','createdBy','updatedAt','updatedBy','isActive'],
+  Announcements: ['id','textZh','textEn','level','linkUrl','linkText','showOnLanding','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PasswordResets: ['id','userId','tokenHash','expiresAt','usedAt','createdAt']
 };
 
@@ -278,6 +285,23 @@ function safeHttpUrl_(u) {
 /** email 正規化與檢核 */
 function normEmail_(email) { return String(email || '').trim().toLowerCase(); }
 function isValidEmail_(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+/** 此 Email 是否允許重複建立帳號（僅測試信箱） */
+function isDupAllowedEmail_(email) {
+  return DUP_ACCOUNT_ALLOWED_EMAILS.indexOf(normEmail_(email)) >= 0;
+}
+
+/** 依 Email 取帳號。同一 Email 若有多筆（只有測試信箱可能發生），
+ *  取「最新建立的啟用帳號」，讓重複建立後最後一組帳密仍可正常登入。 */
+function findUserByEmail_(email) {
+  var e = normEmail_(email);
+  var rows = Repo.find('Users', function (u) { return normEmail_(u.email) === e; });
+  if (rows.length <= 1) return rows[0] || null;
+  var live = rows.filter(function (u) { return asBool_(u.isActive) && u.status === 'Active'; });
+  var pool = live.length ? live : rows;
+  pool.sort(function (a, b) { return String(b.createdAt || '').localeCompare(String(a.createdAt || '')); });
+  return pool[0];
+}
 
 /** 隨機 salt / token */
 function randomToken_(bytes) {
@@ -1655,7 +1679,7 @@ var AuthService = (function () {
     var email = normEmail_(payload.email);
     SecurityService.rateLimit('login_' + email, 30);
 
-    var user = Repo.findOne('Users', function (u) { return normEmail_(u.email) === email; });
+    var user = findUserByEmail_(email);   // 測試信箱可能有多筆 → 取最新的啟用帳號
     var fail = function (reason, msgEn, msgZh) {
       Repo.insert('LoginAttempts', {
         email: email, success: false, reason: reason,
@@ -1798,7 +1822,7 @@ var AuthService = (function () {
     requireFields_(payload, ['email']);
     var email = normEmail_(payload.email);
     SecurityService.rateLimit('forgot_' + email, 5);
-    var user = Repo.findOne('Users', function (u) { return normEmail_(u.email) === email; });
+    var user = findUserByEmail_(email);
     // 一律回成功，避免帳號探測
     if (user && user.status === 'Active') {
       var token = randomToken_(32);
@@ -1816,7 +1840,7 @@ var AuthService = (function () {
   function resetPassword(payload) {
     requireFields_(payload, ['email', 'token', 'newPassword']);
     var email = normEmail_(payload.email);
-    var user = Repo.findOne('Users', function (u) { return normEmail_(u.email) === email; });
+    var user = findUserByEmail_(email);
     if (!user) throw ApiError_('BAD_TOKEN', 'Invalid reset token', '重設連結無效');
     var tokenHash = sha256_(payload.token);
     var reset = Repo.findOne('PasswordResets', function (r) {
@@ -1973,8 +1997,12 @@ var UserService = (function () {
     requireFields_(payload, ['email', 'nameZh', 'nameEn', 'companyId', 'title', 'tier', 'password']);
     var email = normEmail_(payload.email);
     if (!isValidEmail_(email)) throw ApiError_('BAD_EMAIL', 'Invalid email', 'Email 格式錯誤');
-    if (Repo.findOne('Users', function (u) { return normEmail_(u.email) === email; })) {
-      throw ApiError_('EMAIL_EXISTS', 'Email already exists', '此 Email 已存在');
+    // 同一 Email 不得重複建立帳號；僅 DUP_ACCOUNT_ALLOWED_EMAILS 內的測試信箱例外
+    if (!isDupAllowedEmail_(email) &&
+        Repo.findOne('Users', function (u) { return normEmail_(u.email) === email; })) {
+      throw ApiError_('EMAIL_EXISTS',
+        'This email already has an account — duplicate accounts are not allowed',
+        '此 Email 已有帳號 — 不可重複建立帳號');
     }
     if (!isStrongPassword_(payload.password)) {
       throw ApiError_('WEAK_PASSWORD', 'Password must be ≥8 chars with letters and numbers', '密碼強度不足');
@@ -2444,6 +2472,130 @@ var CompanyService = (function () {
 
   return { list: list, create: create, update: update, disable: disable, enable: enable, stats: stats, options: options };
 })();
+
+/* ============================== ScopeService.gs ============================== */
+/**
+ * ScopeService.gs — 工程範疇（Scope）管理（Admin 設定）
+ *
+ * 用途：Tier 2 送審／核准、需指定第 3 關（NMDC 施工部門）時先選擇 Scope，
+ *       由 Scope 所屬部門（NMDC D&M／NMDC Energy）決定第 3 關送往哪個部門。
+ * 規則：已被 PTW 使用過的 Scope 不得物理刪除，只能停用（沿用 Companies 的作法）。
+ */
+
+var ScopeService = (function () {
+
+  function sortRows_(rows) {
+    return rows.slice().sort(function (a, b) {
+      var sa = Number(a.sortOrder || 0), sb = Number(b.sortOrder || 0);
+      if (sa !== sb) return sa - sb;
+      return String(a.nameEn || '').localeCompare(String(b.nameEn || ''));
+    });
+  }
+
+  function toDto_(s) {
+    return { id: s.id, nameZh: s.nameZh, nameEn: s.nameEn, department: s.department,
+      sortOrder: Number(s.sortOrder || 0), isActive: asBool_(s.isActive) };
+  }
+
+  /** 清單：管理員看全部（含停用）；一般使用者僅看啟用中（送審選單用） */
+  function list(user) {
+    var rows = Repo.readAll('Scopes');
+    if (!user || !asBool_(user.isAdmin)) {
+      rows = rows.filter(function (s) { return asBool_(s.isActive); });
+    }
+    return ok_(sortRows_(rows).map(toDto_));
+  }
+
+  /** 啟用中的 Scope（後端內部用；回傳原始列） */
+  function activeRows_() {
+    return sortRows_(Repo.find('Scopes', function (s) { return asBool_(s.isActive); }));
+  }
+
+  /** 依 id 取得啟用中的 Scope；查無則丟錯 */
+  function mustGetActive_(scopeId) {
+    var s = Repo.getById('Scopes', String(scopeId));
+    if (!s || !asBool_(s.isActive)) {
+      throw ApiError_('SCOPE_NOT_FOUND', 'Scope not found or disabled', '找不到或已停用的工程範疇（Scope）');
+    }
+    return s;
+  }
+
+  function create(user, payload) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['nameEn', 'department']);
+    var nameEn = String(payload.nameEn).trim();
+    var nameZh = String(payload.nameZh || '').trim() || nameEn;
+    var department = String(payload.department).trim();
+    if (NMDC_DEPARTMENTS.indexOf(department) < 0) {
+      throw ApiError_('BAD_DEPARTMENT', 'department must be one of: ' + NMDC_DEPARTMENTS.join(' / '),
+        '所屬部門須為：' + NMDC_DEPARTMENTS.join('／'));
+    }
+    var dup = Repo.findOne('Scopes', function (s) {
+      return asBool_(s.isActive) && (String(s.nameEn) === nameEn || String(s.nameZh) === nameZh);
+    });
+    if (dup) throw ApiError_('DUPLICATE', 'Scope already exists', '工程範疇已存在');
+    var row = Repo.insert('Scopes', {
+      nameZh: nameZh, nameEn: nameEn, department: department,
+      sortOrder: Number(payload.sortOrder || 0)
+    }, user.id);
+    AuditService.log({ user: user, actionType: 'SCOPE_CREATE', entityType: 'Scope', entityId: row.id,
+      newValue: { nameEn: nameEn, nameZh: nameZh, department: department }, success: true });
+    return ok_(toDto_(row));
+  }
+
+  function update(user, payload) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['scopeId']);
+    var target = Repo.getById('Scopes', payload.scopeId);
+    if (!target) throw ApiError_('NOT_FOUND', 'Scope not found', '找不到工程範疇');
+    var patch = {};
+    ['nameZh', 'nameEn'].forEach(function (k) {
+      if (payload[k] !== undefined) patch[k] = String(payload[k]).trim();
+    });
+    if (payload.department !== undefined) {
+      var dep = String(payload.department).trim();
+      if (NMDC_DEPARTMENTS.indexOf(dep) < 0) {
+        throw ApiError_('BAD_DEPARTMENT', 'department must be one of: ' + NMDC_DEPARTMENTS.join(' / '),
+          '所屬部門須為：' + NMDC_DEPARTMENTS.join('／'));
+      }
+      patch.department = dep;
+    }
+    if (payload.sortOrder !== undefined) patch.sortOrder = Number(payload.sortOrder || 0);
+    var updated = Repo.update('Scopes', target.id, patch, user.id);
+    AuditService.log({ user: user, actionType: 'SCOPE_UPDATE', entityType: 'Scope', entityId: target.id,
+      oldValue: target, newValue: patch, success: true });
+    return ok_(toDto_(updated));
+  }
+
+  function setActive_(user, payload, active, actionType) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['scopeId']);
+    var target = Repo.getById('Scopes', payload.scopeId);
+    if (!target) throw ApiError_('NOT_FOUND', 'Scope not found', '找不到工程範疇');
+    Repo.update('Scopes', target.id, { isActive: active }, user.id);
+    AuditService.log({ user: user, actionType: actionType, entityType: 'Scope', entityId: target.id, success: true });
+    return ok_({ id: target.id, isActive: active });
+  }
+
+  function disable(user, payload) { return setActive_(user, payload, false, 'SCOPE_DISABLE'); }
+  function enable(user, payload) { return setActive_(user, payload, true, 'SCOPE_ENABLE'); }
+
+  return { list: list, create: create, update: update, disable: disable, enable: enable,
+    activeRows: activeRows_, mustGetActive: mustGetActive_, toDto: toDto_ };
+})();
+
+/** Tier 3 路由：驗證送往第 3 關時所選的 Scope。
+ *  有建檔任何啟用中的 Scope → 必填；尚未建檔 → 回 null（沿用舊行為，不強制）。 */
+function resolveTier3Scope_(scopeId) {
+  if (!ScopeService.activeRows().length) return null;
+  if (!scopeId) {
+    throw ApiError_('SCOPE_REQUIRED',
+      'Please select a Scope — the Scope decides whether Step 3 goes to NMDC D&M or NMDC Energy',
+      '請選擇工程範疇（Scope）— 由 Scope 決定第 3 關送 NMDC D&M 或 NMDC Energy');
+  }
+  var s = ScopeService.mustGetActive(scopeId);
+  return { scopeId: s.id, scopeDepartment: String(s.department || '') };
+}
 
 /* ============================== TestModeService.gs ============================== */
 /**
@@ -3930,7 +4082,9 @@ var PTWService = (function () {
       // 起始關卡：承商職安衛（Tier 2）自行申請 → 不得自審，跳過 Tier 2 直接送 Tier 3
       var applicantU = Repo.getById('Users', m.applicantUserId) || user;
       var startTier = (Number(applicantU.tier) === 2) ? 3 : 2;
-      // (通知) 指定審閱人（選填；可多位）：須為起始關卡之有效人員（Tier 2 限本公司；Tier 3 依部門挑選）
+      // 直接送第 3 關（Tier 2 自行申請）：先選 Scope，由 Scope 決定送 NMDC D&M 或 NMDC Energy
+      var scopeInfo = (startTier === 3) ? resolveTier3Scope_(payload.scopeId || m.scopeId) : null;
+      // (通知) 指定審閱人（選填；可多位）：須為起始關卡之有效人員（Tier 2 限本公司；Tier 3 依 Scope 部門挑選）
       var desigIds = [];
       var rawRev = [];
       if (payload.reviewerIds && payload.reviewerIds.length) rawRev = payload.reviewerIds;
@@ -3942,15 +4096,23 @@ var PTWService = (function () {
           throw ApiError_('BAD_REVIEWER', 'Selected reviewer is not a valid Tier ' + startTier + ' reviewer',
             '指定的審閱人非有效的 Tier ' + startTier + ' 審閱人員');
         }
+        // Scope 已指定部門時，被指定的 Tier 3 審閱人必須屬於該部門
+        if (scopeInfo && scopeInfo.scopeDepartment && String(ru.department || '') !== scopeInfo.scopeDepartment) {
+          throw ApiError_('REVIEWER_DEPT_MISMATCH',
+            'Selected reviewer does not belong to ' + scopeInfo.scopeDepartment,
+            '指定的審閱人不屬於 ' + scopeInfo.scopeDepartment + '（請依所選 Scope 挑選）');
+        }
         if (desigIds.indexOf(ru.id) < 0) desigIds.push(ru.id);
       });
       var designated = desigIds.length === 1 ? Repo.getById('Users', desigIds[0]) : null;
       var newStatus = (startTier === 3) ? CFG.STATUS.PENDING_T3 : CFG.STATUS.PENDING_T2;
-      Repo.update('PTW_Master', m.id, {
+      var mPatch = {
         status: newStatus, version: newVersion, currentTier: startTier,
         currentReviewerId: designated ? designated.id : '',
         submittedAt: fmtDateTime_()
-      }, user.id);
+      };
+      if (scopeInfo) { mPatch.scopeId = scopeInfo.scopeId; mPatch.scopeDepartment = scopeInfo.scopeDepartment; }
+      Repo.update('PTW_Master', m.id, mPatch, user.id);
       Repo.insert('PTW_StatusHistory', {
         ptwId: m.id, fromStatus: m.status, toStatus: newStatus, byUserId: user.id,
         reason: isResubmit ? 'Resubmitted v' + newVersion : 'Submitted', timestamp: fmtDateTime_()
@@ -3963,8 +4125,12 @@ var PTWService = (function () {
         var targets = desigIds.length
           ? desigIds.map(function (id) { return Repo.getById('Users', id); }).filter(Boolean)
           : Repo.find('Users', function (u2) {
-              return Number(u2.tier) === startTier && (startTier !== 2 || u2.companyId === m.companyId) &&
-                u2.status === 'Active' && asBool_(u2.isActive) && u2.id !== m.applicantUserId;
+              if (Number(u2.tier) !== startTier || u2.status !== 'Active' || !asBool_(u2.isActive)) return false;
+              if (u2.id === m.applicantUserId) return false;
+              if (startTier === 2) return u2.companyId === m.companyId;
+              // Tier 3 未指定個人 → 僅通知 Scope 所屬部門（未設定 Scope 時通知全部）
+              if (scopeInfo && scopeInfo.scopeDepartment) return String(u2.department || '') === scopeInfo.scopeDepartment;
+              return true;
             });
         targets.forEach(function (r) {
           NotificationService.push(r.id, 'PTW_PENDING_REVIEW', m.id,
@@ -4053,7 +4219,8 @@ var PTWService = (function () {
     NotificationService.adminCc('ptwDeleted', titleEn, titleZh, msgEn, msgZh, snap);
   }
 
-  /** (通知) 下一關審閱人候選清單：草稿/退回 → Tier 2（本公司）；審核中 → currentTier+1 */
+  /** (通知) 下一關審閱人候選清單：草稿/退回 → Tier 2（本公司）；審核中 → currentTier+1
+   *  目標為 Tier 3 時一併回傳 Scope 選單；帶 payload.scopeId 則只列該 Scope 所屬部門（D&M／Energy）的人員。 */
   function nextReviewers(user, payload) {
     requireFields_(payload, ['ptwId']);
     var m = mustGet_(payload.ptwId);
@@ -4061,16 +4228,25 @@ var PTWService = (function () {
     var applicantU = Repo.getById('Users', m.applicantUserId);
     var startTier = (applicantU && Number(applicantU.tier) === 2) ? 3 : 2; // T2 自行申請 → 起始關卡為 T3
     var target = (EDIT_STATUSES.indexOf(m.status) >= 0) ? startTier : Number(m.currentTier) + 1;
-    if (!(target >= 2 && target <= 5)) return ok_({ tier: null, users: [] });
+    if (!(target >= 2 && target <= 5)) return ok_({ tier: null, users: [], scopes: [] });
+    // Tier 3：Scope 決定送往哪個 NMDC 部門
+    var scopes = (target === 3) ? ScopeService.activeRows().map(ScopeService.toDto) : [];
+    var wantDept = '';
+    if (target === 3 && payload.scopeId) {
+      var sc = ScopeService.mustGetActive(payload.scopeId);
+      wantDept = String(sc.department || '');
+    }
     var rows = Repo.find('Users', function (u2) {
       if (Number(u2.tier) !== target || u2.status !== 'Active' || !asBool_(u2.isActive)) return false;
       if (u2.id === m.applicantUserId) return false; // 不得自審
       if (target === 2) return u2.companyId === m.companyId;
+      if (wantDept) return String(u2.department || '') === wantDept;
       return true;
     });
-    return ok_({ tier: target, users: rows.map(function (u2) {
-      return { id: u2.id, nameZh: u2.nameZh, nameEn: u2.nameEn, title: u2.title || '', department: u2.department || '' };
-    }) });
+    return ok_({ tier: target, scopes: scopes, scopeId: String(payload.scopeId || m.scopeId || ''),
+      users: rows.map(function (u2) {
+        return { id: u2.id, nameZh: u2.nameZh, nameEn: u2.nameEn, title: u2.title || '', department: u2.department || '' };
+      }) });
   }
 
   /** 人員選擇器：主持有人/副持有人 — 承商 Tier 1（可兼申請人/持有人）、訓練有效者（T1/T2 限本公司；T3+ 可見全部） */
@@ -4397,7 +4573,8 @@ var DriveService = (function () {
     var row = Repo.insert('Announcements', {
       textZh: payload.textZh, textEn: payload.textEn,
       level: payload.level || 'info',
-      linkUrl: url, linkText: String(payload.linkText || '').substring(0, 120)
+      linkUrl: url, linkText: String(payload.linkText || '').substring(0, 120),
+      showOnLanding: asBool_(payload.showOnLanding)
     }, user.id);
     AuditService.log({ user: user, actionType: 'ANNOUNCE_ADD', entityType: 'Announcement', entityId: row.id, success: true });
     return ok_({ id: row.id });
@@ -4408,8 +4585,19 @@ var DriveService = (function () {
     rows.sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
     return ok_(rows.slice(0, 5).map(function (a) {
       return { id: a.id, textZh: a.textZh, textEn: a.textEn, level: a.level || 'info',
-        linkUrl: safeHttpUrl_(a.linkUrl), linkText: a.linkText || '', createdAt: a.createdAt };
+        linkUrl: safeHttpUrl_(a.linkUrl), linkText: a.linkText || '',
+        showOnLanding: asBool_(a.showOnLanding), createdAt: a.createdAt };
     }));
+  }
+  /** (公告) 切換「是否顯示於登入／註冊頁」（Admin） */
+  function announceSetLanding(user, payload) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['id']);
+    var show = asBool_(payload.show);
+    Repo.update('Announcements', payload.id, { showOnLanding: show }, user.id);
+    AuditService.log({ user: user, actionType: 'ANNOUNCE_SET_LANDING', entityType: 'Announcement',
+      entityId: payload.id, newValue: { showOnLanding: show }, success: true });
+    return ok_({ id: payload.id, showOnLanding: show });
   }
   /** (公告) 上傳附件（多為 PDF）到 Drive 並回傳公開連結，供公告的 icon 連結使用（Admin） */
   function announceUploadFile(user, payload) {
@@ -4480,7 +4668,7 @@ var DriveService = (function () {
   return { uploadAttachment: uploadAttachment, listAttachments: listAttachments,
     ptwFolderUrl: ptwFolderUrl, savePtwFile: savePtwFile, saveSitePdf: saveSitePdf,
     announceAdd: announceAdd, announceList: announceList, announceDisable: announceDisable,
-    announceUploadFile: announceUploadFile,
+    announceUploadFile: announceUploadFile, announceSetLanding: announceSetLanding,
     disableAttachment: disableAttachment, saveSignature: saveSignature,
     saveAccountSignature: saveAccountSignature, getSignatureBase64: getSignatureBase64,
     uploadPublicDoc: uploadPublicDoc, listDownloads: listDownloads, disableDownload: disableDownload };
@@ -4561,6 +4749,9 @@ var ApprovalService = (function () {
         userAgent: (meta && meta.userAgent) || '', clientInfo: '', decidedAt: fmtDateTime_()
       }, user.id);
 
+      // Tier 2 核准 → 第 3 關：先選 Scope，由 Scope 決定送 NMDC D&M 或 NMDC Energy
+      var scopeInfo = (tier === 2) ? resolveTier3Scope_(payload.scopeId || m.scopeId) : null;
+
       // (通知) 指定下一關審閱人（選填；可多位 — 例如不同船別分屬不同施工組）
       var nextRevIds = [];
       if (tier < 5) {
@@ -4573,6 +4764,12 @@ var ApprovalService = (function () {
             throw ApiError_('BAD_REVIEWER', 'Selected next reviewer is not a valid Tier ' + (tier + 1) + ' user',
               '指定的審閱人非有效的 Tier ' + (tier + 1) + ' 人員');
           }
+          // Scope 已指定部門時，被指定的 Tier 3 審閱人必須屬於該部門
+          if (scopeInfo && scopeInfo.scopeDepartment && String(u2.department || '') !== scopeInfo.scopeDepartment) {
+            throw ApiError_('REVIEWER_DEPT_MISMATCH',
+              'Selected reviewer does not belong to ' + scopeInfo.scopeDepartment,
+              '指定的審閱人不屬於 ' + scopeInfo.scopeDepartment + '（請依所選 Scope 挑選）');
+          }
           if (nextRevIds.indexOf(u2.id) < 0) nextRevIds.push(u2.id);
         });
       }
@@ -4582,6 +4779,7 @@ var ApprovalService = (function () {
         newStatus = TIER_STATUS[tier + 1];
         // 單一指定 → 記錄為當前審閱人；多位指定 → 不鎖定（被通知者任一人可審）
         patch = { status: newStatus, currentTier: tier + 1, currentReviewerId: nextRev ? nextRev.id : '' };
+        if (scopeInfo) { patch.scopeId = scopeInfo.scopeId; patch.scopeDepartment = scopeInfo.scopeDepartment; }
       } else {
         // Tier 5 簽發：產生正式編號，核准即生效（Active，依有效期間工作，無需另行啟用）
         newStatus = CFG.STATUS.ACTIVE;
@@ -4601,11 +4799,20 @@ var ApprovalService = (function () {
         userAgent: (meta && meta.userAgent) || '', success: true });
 
       if (tier < 5) {
+        // 未指定個人且已選 Scope → 僅通知該 Scope 所屬部門（D&M／Energy）的 Tier 3 人員
+        var notifyIds = nextRevIds.length ? nextRevIds : null;
+        if (!notifyIds && scopeInfo && scopeInfo.scopeDepartment) {
+          notifyIds = Repo.find('Users', function (u2) {
+            return Number(u2.tier) === 3 && u2.status === 'Active' && asBool_(u2.isActive) &&
+              String(u2.department || '') === scopeInfo.scopeDepartment;
+          }).map(function (u2) { return u2.id; });
+          if (!notifyIds.length) notifyIds = null; // 該部門無人 → 退回通知全部 Tier 3
+        }
         notifyTier_(m, tier + 1, 'PTW_PENDING_REVIEW',
           (nextRevIds.length ? '👤 PTW assigned to YOU for review: ' : 'PTW pending your review: ') + num,
           (nextRevIds.length ? '👤 指定由您審閱的 PTW：' : '待您審核的 PTW：') + num,
           'Approved by ' + TIER_NAMES[tier] + '. Now at your step.', '已通過 ' + TIER_NAMES[tier] + '，輪到您審核。',
-          nextRevIds.length ? nextRevIds : null);
+          notifyIds);
         notifyApplicant_(m, 'PTW_PROGRESS',
           'PTW ' + num + ' passed Tier ' + tier, 'PTW ' + num + ' 已通過第 ' + tier + ' 關',
           'Now pending: ' + TIER_NAMES[tier + 1], '目前待審：' + TIER_NAMES[tier + 1]);
@@ -9106,6 +9313,13 @@ function routes_() {
     'company.enable':  function (u, p) { return CompanyService.enable(u, p); },
     'company.stats':   function (u, p) { return CompanyService.stats(u, p); },
 
+    // 工程範疇 Scope（Tier 3 送 D&M／Energy 的依據；建檔僅限管理員，清單所有登入者可讀）
+    'scope.list':    function (u) { return ScopeService.list(u); },
+    'scope.create':  function (u, p) { return ScopeService.create(u, p); },
+    'scope.update':  function (u, p) { return ScopeService.update(u, p); },
+    'scope.disable': function (u, p) { return ScopeService.disable(u, p); },
+    'scope.enable':  function (u, p) { return ScopeService.enable(u, p); },
+
     // Dashboard
     'ptw.dashboard':   function (u) { return DashboardService.dashboard(u); },
     'ptw.board':       function (u, p) { return DashboardService.board(u, p); },
@@ -9225,10 +9439,11 @@ function routes_() {
 
     // ---- 合併端點（一個畫面一次呼叫，大幅減少往返） ----
     'home.bootstrap': function (u) { return ok_(homeBundle_(u)); },
-    // 登入／註冊首頁（未登入著陸頁）：公告 ＋ Active PTW 總表（唯讀）一次取回
+    // 登入／註冊首頁（未登入著陸頁）：公告（限勾選「顯示於登入頁」者）＋ Active PTW 總表（唯讀）
     'home.landing': function (u) {
+      var ann = DriveService.announceList().data.filter(function (a) { return a.showOnLanding; });
       return ok_({
-        announcements: DriveService.announceList().data,
+        announcements: ann,
         board: DashboardService.board(u, { limit: 200 }).data
       });
     },
@@ -9249,6 +9464,7 @@ function routes_() {
         attachments: safe(function () { return DriveService.listAttachments(u, p).data; }, []),
         pickers: safe(function () { return PTWService.pickerUsers(u, p).data; }, []),   // 依該 PTW 的申請公司過濾
         companies: safe(function () { return CompanyService.list(u).data; }, []),       // 申請公司下拉／名稱對照
+        scopes: safe(function () { return ScopeService.list(u).data; }, []),            // 工程範疇 Scope（名稱對照／Tier 3 路由）
         closeoutDocs: safe(function () { return CloseoutRules.forPtw(g); }, []),        // 依作業類型算出的關單文件清單
         mySignature: safe(function () { return DriveService.getSignatureBase64(u.signatureFileId); }, ''),
         certForms: CERT_FIELD_DEFS
@@ -9260,6 +9476,7 @@ function routes_() {
       var safe = function (fn) { try { return fn().data; } catch (e) { console.error('admin.bootstrap part failed: ' + e.message); return null; } };
       return ok_({
         companies: safe(function () { return CompanyService.list(u); }),
+        scopes: safe(function () { return ScopeService.list(u); }),
         pendingUsers: safe(function () { return UserService.list(u, { status: 'PendingApproval' }); }),
         users: safe(function () { return UserService.list(u, {}); }),
         profileReqs: safe(function () { return UserService.profileRequestList(u); }),
@@ -9276,6 +9493,7 @@ function routes_() {
     'admin.announce.add':     function (u, p) { return DriveService.announceAdd(u, p); },
     'admin.announce.disable': function (u, p) { return DriveService.announceDisable(u, p); },
     'admin.announce.upload':  function (u, p) { return DriveService.announceUploadFile(u, p); },
+    'admin.announce.landing': function (u, p) { return DriveService.announceSetLanding(u, p); },
     'admin.download.upload':   function (u, p) { return DriveService.uploadPublicDoc(u, p); },
     'admin.download.disable':  function (u, p) { return DriveService.disableDownload(u, p); },
     // 使用者詳情 / 簽名
@@ -11016,6 +11234,22 @@ function ensurePtwProcessQuestion_() {
   } catch (e) { console.error('ensurePtwProcessQuestion_: ' + e.message); }
 }
 
+/** 既有部署自動升級（僅執行一次）：新增「顯示於登入／註冊頁」欄位後，
+ *  既有公告一律預設為「顯示」，避免升級後登入頁突然沒有公告。 */
+function ensureAnnounceLandingDefault_() {
+  var sp;
+  try { sp = PropertiesService.getScriptProperties(); } catch (e) { return; }
+  if (sp.getProperty('annLandingDefaultDone') === '1') return;
+  try {
+    Repo.readAll('Announcements').forEach(function (a) {
+      if (asBool_(a.isActive) && String(a.showOnLanding === undefined ? '' : a.showOnLanding) === '') {
+        Repo.update('Announcements', a.id, { showOnLanding: true }, 'system');
+      }
+    });
+    sp.setProperty('annLandingDefaultDone', '1');
+  } catch (e) { console.error('ensureAnnounceLandingDefault_ failed: ' + e.message); }
+}
+
 /** 既有部署自動升級：Tier 0 已取消 → 所有 Tier 0 使用者（含待審申請）自動轉為 Tier 1 */
 function ensureNoTierZero_() {
   try {
@@ -11034,6 +11268,7 @@ function doGet(e) {
   ensurePtwProcessQuestion_();
   ensureNoTierZero_();
   ensureTestNmdcAdmin_();
+  ensureAnnounceLandingDefault_();
   if (e && e.parameter && e.parameter.api) {
     return ContentService.createTextOutput(JSON.stringify(
       ok_({ service: 'Offshore PTW System API', time: fmtDateTime_(), version: 'M4.1-onefile' })
@@ -11216,69 +11451,66 @@ var INDEX_HTML_ = `<!DOCTYPE html>
 <title>Offshore PTW System</title>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
 <style>
-:root { --navy:#0b3a5c; --navy2:#072a44; --accent:#f0a500; --cyan:#31c3f0; --foam:#e9f6ff; }
-/* ===== 海事科技感 Maritime-Tech Theme ===== */
+/* ===== NMDC 企業識別配色（墨藍 #002038 ／ NMDC 綠 #00B050） ===== */
+:root { --navy:#002038; --navy2:#0a3a5e; --accent:#00b050; --accent2:#00913f; --cyan:#0a6ea8;
+        --ink:#1f2a37; --muted:#5f6f7e; --line:#d3dde7; --bg:#e7edf4; --foam:#eaf0f6; }
 body { font-family:'Segoe UI','Microsoft JhengHei',Arial,sans-serif; overflow-x:hidden;
- background:linear-gradient(180deg,#051d31 0%,#0a3352 38%,#0d466b 100%) fixed; min-height:100vh; position:relative; }
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
- background-image:linear-gradient(rgba(90,190,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(90,190,255,.05) 1px,transparent 1px);
- background-size:34px 34px}
-body::after{content:'';position:fixed;left:0;right:0;bottom:0;height:180px;pointer-events:none;z-index:0;opacity:.5;
- background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 180'><path d='M0 90 Q150 40 300 90 T600 90 T900 90 T1200 90 V180 H0 Z' fill='rgba(49,195,240,0.10)'/><path d='M0 120 Q150 75 300 120 T600 120 T900 120 T1200 120 V180 H0 Z' fill='rgba(49,195,240,0.14)'/></svg>") bottom/1200px 180px repeat-x}
+ background:var(--bg); color:var(--ink); min-height:100vh; position:relative; }
 main{position:relative;z-index:1}
-.ptw-header { background:linear-gradient(90deg,#051d31,#0b3a5c 60%,#0f5e8e); color:#fff; padding:.6rem 1rem;
+.ptw-header { background:var(--navy); color:#fff; padding:.55rem 1rem;
  display:flex; align-items:center; gap:.75rem; position:relative; z-index:2;
- border-bottom:2px solid rgba(49,195,240,.55); box-shadow:0 4px 20px rgba(3,20,35,.5); }
-.ptw-header::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;
- background:linear-gradient(90deg,transparent 0%,transparent 35%,var(--cyan) 50%,transparent 65%,transparent 100%);
- background-size:220% 100%;background-repeat:no-repeat;
- animation:scanline 3.5s linear infinite}
-/* 以 background-position 位移（不影響版面寬度，杜絕水平卷軸） */
-@keyframes scanline{0%{background-position-x:120%}100%{background-position-x:-120%}}
-.ptw-header .title { font-weight:800; letter-spacing:1px; text-shadow:0 0 12px rgba(49,195,240,.5); }
-.ptw-header .subtitle { font-size:.75rem; opacity:.85; }
-.lang button { background:transparent; border:1px solid rgba(255,255,255,.5); color:#fff; border-radius:4px; padding:2px 10px; font-size:.8rem; }
-.lang button.active { background:var(--accent); border-color:var(--accent); color:#072a44; font-weight:700; }
-.card-x { background:rgba(255,255,255,.96); border:1px solid rgba(158,197,232,.55); border-radius:14px;
- box-shadow:0 6px 22px rgba(3,24,42,.30); backdrop-filter:blur(3px); }
-.btn-navy { background:linear-gradient(135deg,#0b3a5c,#1173b8); border:0; color:#fff;
- box-shadow:0 3px 10px rgba(11,90,160,.35); transition:box-shadow .15s,transform .12s; }
-.btn-navy:hover { background:linear-gradient(135deg,#0d4a75,#1a8ad0); color:#fff;
- box-shadow:0 5px 16px rgba(49,195,240,.45); transform:translateY(-1px); }
-/* 深色背景上的直排標題 */
-#homeLoggedIn > h5{color:#e9f6ff;text-shadow:0 1px 6px rgba(2,18,32,.7)}
-.footer{color:#9dc4de !important}
-.badge-status-PendingApproval { background:#f0a500; color:#072a44; }
+ border-bottom:3px solid var(--accent); box-shadow:0 1px 6px rgba(0,32,56,.18); }
+.ptw-header .brandLogo{height:30px;width:auto;display:block}
+.ptw-header .title { font-weight:700; letter-spacing:.3px; font-size:1.02rem; }
+.ptw-header .subtitle { font-size:.74rem; opacity:.78; }
+.lang button { background:transparent; border:1px solid rgba(255,255,255,.45); color:#fff; border-radius:4px; padding:2px 10px; font-size:.8rem; }
+.lang button.active { background:var(--accent); border-color:var(--accent); color:#fff; font-weight:700; }
+.card-x { background:#fff; border:1px solid var(--line); border-radius:10px;
+ box-shadow:0 1px 3px rgba(0,32,56,.06); }
+.btn-navy { background:var(--navy); border:1px solid var(--navy); color:#fff;
+ transition:background .15s,border-color .15s; }
+.btn-navy:hover { background:#0a3a5e; border-color:#0a3a5e; color:#fff; }
+.btn-outline-primary{ --bs-btn-color:var(--navy); --bs-btn-border-color:#b9c6d3;
+ --bs-btn-hover-bg:var(--navy); --bs-btn-hover-border-color:var(--navy); --bs-btn-hover-color:#fff; }
+a{ color:#0a5c8f; }
+a:hover{ color:var(--navy); }
+h1,h2,h3,h4,h5,h6{ color:var(--navy); }
+.table thead th{ background:var(--foam); color:var(--navy); border-bottom:2px solid var(--line); font-weight:600; }
+#homeLoggedIn > h5{color:var(--navy)}
+.footer{color:var(--muted) !important}
+.badge-status-PendingApproval { background:#b26a00; color:#fff; }
 .badge-status-Active { background:#1e7e34; }
 .badge-status-Disabled { background:#6c757d; }
 .badge-status-Locked { background:#c62828; }
-.footer { color:#7a8ca0; font-size:.75rem; text-align:center; padding:1.2rem 0; }
+.footer { color:var(--muted); font-size:.75rem; text-align:center; padding:1.2rem 0; }
 @media (max-width:576px){ .ptw-header .subtitle{display:none;} }
 .chkpill{display:inline-flex;align-items:center;gap:5px;border:1px solid #cfdcea;border-radius:18px;
  padding:4px 12px 4px 8px;font-size:.82rem;background:#fff;cursor:pointer;user-select:none;margin:0;
  transition:background .1s,border-color .1s}
-.chkpill.on{background:#e3f0ff;border-color:#0b6bcb;font-weight:600}
+.chkpill.on{background:#e8f6ee;border-color:var(--accent);font-weight:600}
 .chkpill input{margin:0}
-.stepcard{border-left:5px solid var(--navy);border-radius:8px}
-.stepcard h6.sect{background:linear-gradient(90deg,#eef4fa,#fff);border-left:4px solid #f0a500;
+.stepcard{border-left:4px solid var(--navy);border-radius:8px}
+.stepcard h6.sect{background:var(--foam);border-left:4px solid var(--accent);
  padding:6px 10px;border-radius:4px;margin:14px 0 8px;font-weight:700}
-.hbtn{border:0;border-radius:14px;padding:18px 8px 14px;text-align:center;width:100%;cursor:pointer;
- background:linear-gradient(160deg,#ffffff,#eef4fa);box-shadow:0 3px 10px rgba(11,58,92,.10);
- border:1px solid #dbe4ee;transition:transform .12s,box-shadow .12s}
-.hbtn:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(49,195,240,.4);border-color:#7fd4f5}
+/* 首頁功能按鈕（四顆等高） */
+.hbtn{border-radius:10px;padding:18px 8px 14px;text-align:center;width:100%;height:100%;cursor:pointer;
+ display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+ background:#fff;box-shadow:0 1px 3px rgba(0,32,56,.06);
+ border:1px solid var(--line);transition:border-color .12s,box-shadow .12s}
+.hbtn:hover{box-shadow:0 4px 14px rgba(0,32,56,.12);border-color:var(--accent)}
 .hbtn .ic{width:52px;height:52px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;
- font-size:1.5rem;margin-bottom:8px;color:#fff;box-shadow:inset 0 -3px 6px rgba(0,0,0,.15)}
-.hbtn .lb{font-weight:600;font-size:.92rem;color:#123}
-.flowbar{background:rgba(255,255,255,.93);border:1px solid rgba(158,197,232,.6);border-radius:14px;
- padding:10px 6px 12px;margin-bottom:14px;box-shadow:0 6px 22px rgba(3,24,42,.30);backdrop-filter:blur(3px)}
-.fbtitle{text-align:center;font-weight:700;color:#0b3a5c;font-size:1rem;margin-bottom:6px}
+ font-size:1.5rem;margin-bottom:8px;color:#fff;position:relative}
+.hbtn .lb{font-weight:600;font-size:.92rem;color:var(--navy)}
+.flowbar{background:#fff;border:1px solid var(--line);border-radius:10px;
+ padding:10px 6px 12px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,32,56,.06)}
+.fbtitle{text-align:center;font-weight:700;color:var(--navy);font-size:1rem;margin-bottom:6px}
 .fbrow{display:flex;flex-wrap:nowrap;align-items:flex-start;justify-content:center;gap:0}
 .flowstep{display:flex;flex-direction:column;align-items:center;flex:1 1 0;min-width:0;padding:4px 1px}
 .flowstep .fi{width:48px;height:48px;border-radius:50%;background:#fff;
- border:2px solid #9ec5e8;box-shadow:0 1px 4px rgba(11,58,92,.15);color:#0b3a5c;
+ border:2px solid #c9d4de;color:var(--navy);
  display:flex;align-items:center;justify-content:center;font-size:1.5rem}
-.flowstep .ft{font-size:.68rem;font-weight:600;color:#234;margin-top:3px;text-align:center;line-height:1.15}
-.flowarrow{color:#f0a500;font-weight:bold;font-size:1rem;padding:0;margin-top:18px;flex:0 0 auto}
+.flowstep .ft{font-size:.68rem;font-weight:600;color:#3b4a58;margin-top:3px;text-align:center;line-height:1.15}
+.flowarrow{color:var(--accent);font-weight:bold;font-size:1rem;padding:0;margin-top:18px;flex:0 0 auto}
 @media(max-width:860px){
  .flowstep .fi{width:34px;height:34px;font-size:1.05rem;border-width:1.5px}
  .flowstep .ft{font-size:.58rem}
@@ -11286,7 +11518,7 @@ main{position:relative;z-index:1}
 }
 .flowstep .fi{position:relative}
 .fnum{display:none;position:absolute;top:-5px;left:-5px;width:16px;height:16px;border-radius:50%;
- background:#f0a500;color:#fff;font-size:.62rem;font-weight:700;align-items:center;justify-content:center;
+ background:var(--accent);color:#fff;font-size:.62rem;font-weight:700;align-items:center;justify-content:center;
  box-shadow:0 1px 3px rgba(0,0,0,.25)}
 @media(max-width:576px){
  .fbrow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px 4px;justify-items:center}
@@ -11297,36 +11529,32 @@ main{position:relative;z-index:1}
  .fnum{display:flex}
  .fbtitle{font-size:.92rem}
 }
-#netbar{position:fixed;top:0;left:0;height:3px;width:100%;z-index:2000;display:none;overflow:hidden;background:rgba(240,165,0,.25)}
-/* 首頁公告欄（常駐） */
-.annBoard{background:linear-gradient(135deg,rgba(6,29,48,.92),rgba(11,58,92,.92));color:#dff1ff;
- border:1px solid rgba(49,195,240,.45);border-radius:14px;padding:12px 16px;
- box-shadow:0 6px 22px rgba(3,24,42,.4),inset 0 0 30px rgba(49,195,240,.05)}
-.annBoard .annHead{font-weight:800;letter-spacing:.5px;display:flex;align-items:center;gap:8px;
- border-bottom:1px solid rgba(49,195,240,.3);padding-bottom:6px;margin-bottom:8px}
-.annBoard .annLive{margin-left:auto;font-size:.7rem;color:#37e08b;letter-spacing:2px}
+#netbar{position:fixed;top:0;left:0;height:3px;width:100%;z-index:2000;display:none;overflow:hidden;background:rgba(0,176,80,.2)}
+/* 系統公告欄 */
+.annBoard{background:#fff;color:var(--ink);
+ border:1px solid var(--line);border-left:4px solid var(--navy);border-radius:10px;padding:12px 16px;
+ box-shadow:0 1px 3px rgba(0,32,56,.06)}
+.annBoard .annHead{font-weight:700;letter-spacing:.3px;display:flex;align-items:center;gap:8px;color:var(--navy);
+ border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+.annBoard .annLive{margin-left:auto;font-size:.7rem;color:var(--accent);letter-spacing:2px}
 .annBoard .annLive::before{content:'●';margin-right:4px;animation:pulse 1.6s infinite}
-/* (3) 系統管理頁 科技感 */
+/* (3) 系統管理頁 */
 #viewAdmin .nav-tabs{border:0;gap:6px;flex-wrap:wrap;margin-bottom:4px}
-#viewAdmin .nav-tabs .nav-link{border:1px solid #cfe0ef;border-radius:9px;color:#0b3a5c;background:#fff;
+#viewAdmin .nav-tabs .nav-link{border:1px solid var(--line);border-radius:8px;color:var(--navy);background:#fff;
  font-weight:600;font-size:.85rem;padding:.45rem .8rem;transition:all .15s}
-#viewAdmin .nav-tabs .nav-link:hover{border-color:#1173b8;box-shadow:0 2px 8px rgba(17,115,184,.18)}
-#viewAdmin .nav-tabs .nav-link.active{background:linear-gradient(135deg,#0b3a5c,#1173b8);color:#fff;
- border-color:transparent;box-shadow:0 4px 14px rgba(11,90,160,.35)}
+#viewAdmin .nav-tabs .nav-link:hover{border-color:var(--accent)}
+#viewAdmin .nav-tabs .nav-link.active{background:var(--navy);color:#fff;border-color:var(--navy)}
 #viewAdmin .tab-content>.tab-pane{padding-top:10px}
-#viewAdmin .card-x{border:1px solid #dbe8f4;border-top:3px solid #1173b8;border-radius:12px;
- box-shadow:0 4px 16px rgba(11,58,92,.07)}
-#viewAdmin .table thead th{background:#f0f6fb;color:#0b3a5c;border-bottom:2px solid #cfe0ef}
-.adminBanner{background:linear-gradient(120deg,#081f33 0%,#0b3a5c 55%,#0f5e8e 100%);color:#fff;border-radius:14px;
+#viewAdmin .card-x{border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:10px;
+ box-shadow:0 1px 3px rgba(0,32,56,.06)}
+#viewAdmin .table thead th{background:var(--foam);color:var(--navy);border-bottom:2px solid var(--line)}
+.adminBanner{background:var(--navy);color:#fff;border-radius:10px;
  padding:16px 22px;margin-bottom:14px;position:relative;overflow:hidden;
- box-shadow:0 8px 24px rgba(8,31,51,.35)}
-.adminBanner::before{content:'';position:absolute;inset:0;
- background-image:linear-gradient(rgba(120,200,255,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(120,200,255,.07) 1px,transparent 1px);
- background-size:26px 26px}
-.adminBanner h5{margin:0;font-weight:800;letter-spacing:.5px}
-.adminBanner .sub{opacity:.75;font-size:.8rem}
-.adminBanner .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#37e08b;
- box-shadow:0 0 8px #37e08b;margin-right:6px;animation:pulse 1.6s infinite}
+ border-bottom:3px solid var(--accent)}
+.adminBanner h5{margin:0;font-weight:700;letter-spacing:.3px;color:#fff}
+.adminBanner .sub{opacity:.8;font-size:.8rem}
+.adminBanner .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);
+ margin-right:6px;animation:pulse 1.6s infinite}
 @keyframes pulse{50%{opacity:.35}}
 #netbar::after{content:'';display:block;height:100%;width:38%;background:var(--accent);
  animation:netslide 1s linear infinite;border-radius:2px}
@@ -11344,7 +11572,7 @@ main{position:relative;z-index:1}
 </div>
 
 <header class="ptw-header">
-  <span style="font-size:1.4rem;cursor:pointer" onclick="goHome()" title="Home 首頁">⚓</span>
+  <img class="brandLogo" src="data:image/png;base64,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" alt="NMDC" style="cursor:pointer" onclick="goHome()" title="Home 首頁">
   <div class="flex-grow-1" style="cursor:pointer" onclick="goHome()" title="Home 首頁">
     <div class="title" data-i18n="app.title">Offshore PTW System</div>
     <div class="subtitle" id="subtitle" data-i18n="app.project"></div>
@@ -11364,14 +11592,14 @@ main{position:relative;z-index:1}
 </header>
 
 <!-- ==================== 登入區 ==================== -->
-<main class="container" style="max-width:1150px" id="viewAuth">
-  <!-- ① 系統公告（登入／註冊框上方；管理員可附連結 icon） -->
+<main class="container" style="max-width:1400px" id="viewAuth">
+  <!-- ① 系統公告（登入／註冊框上方；僅顯示勾選「顯示於登入頁」者；管理員可附連結 icon） -->
   <div id="authAnnWrap" class="mt-3 mb-3"></div>
   <!-- 已登入者才顯示的返回首頁連結 -->
   <div class="mb-2 d-none" id="authBackHome"><a href="#" onclick="enter();return false">← <span data-i18n="app.title">Offshore PTW System</span></a></div>
-  <!-- ② 登入／註冊 -->
-  <div class="row justify-content-center g-4 mt-0">
-    <div class="col-md-6" id="panelLogin">
+  <!-- ② 左：登入框（1/4）　右：Active PTW 總表（3/4） -->
+  <div class="row g-4 mt-0">
+    <div class="col-lg-3 col-md-5" id="panelLogin">
       <div class="card-x p-4">
         <h4 data-i18n="login.title">Sign in</h4>
         <div id="loginAlert" class="alert alert-danger d-none"></div>
@@ -11391,22 +11619,29 @@ main{position:relative;z-index:1}
           <label class="form-check-label small text-muted" for="keepSignedIn" data-i18n="login.keep">Keep me signed in on this computer</label>
         </div>
         <button class="btn btn-navy w-100" id="btnLogin" onclick="doLogin()"><span data-i18n="login.submit">Sign in</span></button>
-        <div class="d-flex justify-content-between mt-3">
-          <a href="#" onclick="showPanel('Apply');return false" data-i18n="login.apply">Apply for an account</a>
-          <a href="#" onclick="showPanel('Forgot');return false" data-i18n="login.forgot">Forgot password?</a>
+        <div class="d-grid gap-2 mt-3">
+          <button class="btn btn-outline-primary btn-sm" onclick="showPanel('Apply')">🪪 <span data-i18n="login.apply">Apply for an account</span></button>
+          <a class="small text-center" href="#" onclick="showPanel('Forgot');return false" data-i18n="login.forgot">Forgot password?</a>
         </div>
       </div>
     </div>
 
-    <div class="col-md-8 d-none" id="panelApply">
-      <div class="card-x p-4">
-        <h4 data-i18n="apply.title">Account Application</h4>
+    <!-- 帳號申請：浮動視窗（覆蓋整頁） -->
+    <div class="d-none" id="panelApply" style="position:fixed;inset:0;z-index:1900;background:rgba(5,25,42,.66);
+      overflow:auto;padding:26px 12px" onclick="applyModalBackdrop(event)">
+      <div class="card-x p-4 mx-auto" style="max-width:900px" onclick="event.stopPropagation()">
+        <div class="d-flex align-items-start">
+          <h4 class="flex-grow-1" data-i18n="apply.title">Account Application</h4>
+          <button type="button" class="btn-close" aria-label="Close" onclick="showPanel('Login')"></button>
+        </div>
         <div id="applyAlert" class="alert d-none"></div>
         <div class="row g-3">
           <div class="col-md-6"><label class="form-label" data-i18n="apply.nameZh"></label><input id="apNameZh" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.nameEn"></label><input id="apNameEn" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.company"></label>
-            <select id="apCompany" class="form-select"><option value="">--</option></select></div>
+            <select id="apCompany" class="form-select"><option value="">--</option></select>
+            <a href="#" class="small d-inline-block mt-1" style="text-decoration:none"
+               onclick="showCompanyHelp();return false">❓ <span data-i18n="apply.noCompany">Can't see your company?</span></a></div>
           <div class="col-md-3"><label class="form-label" data-i18n="apply.title2"></label><input id="apTitle" class="form-control"></div>
           <div class="col-md-3"><label class="form-label" data-i18n="apply.isHse">是否為 HSE 人員？</label>
             <select id="apIsHse" class="form-select">
@@ -11459,7 +11694,7 @@ main{position:relative;z-index:1}
       </div>
     </div>
 
-    <div class="col-md-6 d-none" id="panelForgot">
+    <div class="col-lg-3 col-md-5 d-none" id="panelForgot">
       <div class="card-x p-4">
         <h4 data-i18n="forgot.title">Password Reset</h4>
         <div id="forgotAlert" class="alert d-none"></div>
@@ -11475,19 +11710,21 @@ main{position:relative;z-index:1}
         <div class="mt-3"><a href="#" onclick="showPanel('Login');return false" data-i18n="login.title"></a></div>
       </div>
     </div>
-  </div>
 
-  <!-- ③ Active PTW 總表（公開唯讀；可依公司篩選） -->
-  <div class="card-x p-3 mt-4 mb-3" id="authBoardWrap">
-    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
-      <h5 class="mb-0 flex-grow-1" style="color:#0b3a5c">📋 <span data-i18n="lb.title">Active PTW Overview</span>
-        <span id="abCount" class="badge bg-success ms-1"></span></h5>
-      <select id="abCompany" class="form-select form-select-sm" style="max-width:260px" onchange="renderLandingBoard()"></select>
-      <input id="abSearch" class="form-control form-control-sm" style="max-width:210px" data-i18n-ph="lb.search" oninput="renderLandingBoard()">
-      <button class="btn btn-sm btn-outline-secondary" onclick="loadLandingBoard(true)" title="Refresh">⟳</button>
+    <!-- ③ Active PTW 總表（公開唯讀；可依公司篩選）— 右側 3/4 -->
+    <div class="col-lg-9 col-md-7" id="authBoardCol">
+      <div class="card-x p-3 h-100" id="authBoardWrap">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+          <h5 class="mb-0 flex-grow-1" style="color:#0b3a5c">📋 <span data-i18n="lb.title">Active PTW Overview</span>
+            <span id="abCount" class="badge bg-success ms-1"></span></h5>
+          <select id="abCompany" class="form-select form-select-sm" style="max-width:240px" onchange="renderLandingBoard()"></select>
+          <input id="abSearch" class="form-control form-control-sm" style="max-width:200px" data-i18n-ph="lb.search" oninput="renderLandingBoard()">
+          <button class="btn btn-sm btn-outline-secondary" onclick="loadLandingBoard(true)" title="Refresh">⟳</button>
+        </div>
+        <div class="small text-muted mb-2">🔒 <span data-i18n="lb.readonly">View only — this table cannot be edited.</span></div>
+        <div id="abTable" class="table-responsive small">—</div>
+      </div>
     </div>
-    <div class="small text-muted mb-2">🔒 <span data-i18n="lb.readonly">View only — this table cannot be edited.</span></div>
-    <div id="abTable" class="table-responsive small">—</div>
   </div>
 </main>
 
@@ -11502,6 +11739,7 @@ main{position:relative;z-index:1}
       <span data-i18n="admin.pending">Pending</span> <span id="pendingCount" class="badge bg-danger"></span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabUsers" type="button" data-i18n="admin.users">Users</button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabCompanies" type="button" data-i18n="admin.companies">Companies</button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabScopes" type="button" onclick="loadScopes()">🧭 <span data-i18n="admin.scopes">Scope</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTraining" type="button" data-i18n="trAdmin.title">Training</button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabDownloads" type="button" onclick="loadAdminDownloads()">📥 <span data-i18n="dl.title">Downloads</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAnnounce" type="button" onclick="loadAdminAnnounces()">📢 <span data-i18n="ann.title">Announcements</span></button></li>
@@ -11527,6 +11765,12 @@ main{position:relative;z-index:1}
           <span class="small text-muted">免註冊、免審核；可用假信箱（@ptw.test），通知信會轉寄到指定測試信箱</span>
         </div>
         <div id="quickAddBody" class="d-none mt-2">
+          <div class="small mb-2 p-2 rounded" style="background:#fff3cd;border:1px solid #f0d58c" data-l>
+            ⚠️ <b>同一 Email 不可重複建立帳號</b>（Email 即登入帳號）。唯一例外：測試用信箱
+            <code>paul.tong@nmdc-group.com</code> 可重複建立，登入時以<b>最後建立</b>的那組帳密為準。
+            One account per email — duplicates are rejected. Only the test address above may be created repeatedly;
+            the most recently created one is the account that logs in.
+          </div>
           <div class="row g-2">
             <div class="col-md-3"><label class="form-label small mb-0">中文姓名 Name (ZH)</label><input id="qaNameZh" class="form-control form-control-sm"></div>
             <div class="col-md-3"><label class="form-label small mb-0">英文姓名 Name (EN) ＊</label><input id="qaNameEn" class="form-control form-control-sm" oninput="qaSuggestEmail()"></div>
@@ -11588,6 +11832,25 @@ main{position:relative;z-index:1}
         </select>
       </div>
       <div id="companyList" class="table-responsive"></div>
+    </div>
+    <!-- 工程範疇 Scope：決定第 3 關送 NMDC D&amp;M 或 NMDC Energy -->
+    <div class="tab-pane fade" id="tabScopes">
+      <div class="border rounded p-2 mb-3 small" style="background:#f6f9fc;border-color:#9ec5e8 !important" data-l>
+        🧭 <b>工程範疇 Scope</b>：承商職安衛（Tier 2）送審或核准、要把 PTW 送到第 3 關時，必須先選擇 Scope；
+        系統依 Scope 對應的部門，自動把第 3 關送給 <b>NMDC D&amp;M</b> 或 <b>NMDC Energy</b>。
+        When Tier 2 sends a PTW to Step 3 they must pick a Scope first; the Scope routes Step 3 to NMDC D&amp;M or NMDC Energy.
+      </div>
+      <div class="row g-2 mb-3">
+        <div class="col-md-3"><input id="scNameEn" class="form-control" placeholder="Scope Name (EN)"></div>
+        <div class="col-md-3"><input id="scNameZh" class="form-control" data-l-ph placeholder="範疇名稱（中文，可留空）"></div>
+        <div class="col-md-3"><select id="scDept" class="form-select">
+          <option value="NMDC D&amp;M">NMDC D&amp;M</option>
+          <option value="NMDC Energy">NMDC Energy</option>
+        </select></div>
+        <div class="col-md-1"><input id="scSort" type="number" class="form-control" value="0" title="排序 Sort"></div>
+        <div class="col-md-2"><button class="btn btn-navy w-100" onclick="addScope()">＋ <span data-l>新增 Add</span></button></div>
+      </div>
+      <div id="scopeList" class="table-responsive"></div>
     </div>
     <div class="tab-pane fade" id="tabTraining">
       <h6 data-i18n="trAdmin.title">Training Management</h6>
@@ -11693,6 +11956,10 @@ main{position:relative;z-index:1}
           <button class="btn btn-sm btn-outline-primary text-nowrap" id="btnAnnUpload" onclick="adminUploadAnnounceFile()">📎 <span data-i18n="ann.uploadPdf">Upload PDF</span></button>
         </div>
         <div class="col-md-2"><button class="btn btn-sm btn-navy w-100" onclick="adminAddAnnounce()">📢 <span data-i18n="ann.publish">Publish 發布</span></button></div>
+      </div>
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="annShowLanding" checked>
+        <label class="form-check-label small" for="annShowLanding" data-i18n="ann.showLanding">Also show on the sign-in / sign-up page</label>
       </div>
       <div id="annLinkMsg" class="small text-muted mb-2"></div>
       <div id="adminAnnList"></div>
@@ -11820,20 +12087,13 @@ main{position:relative;z-index:1}
   <!-- 系統公告區（取代舊歡迎橫幅；無公告時自動隱藏） -->
   <div id="annWrap" class="d-none mb-3"></div>
 
-  <!-- 5.2 待您審核（緊接公告下方；未登入隱藏） -->
-  <div id="queueWrap" class="card-x p-3 mb-3 d-none" style="background:#fdecea;border-color:#f1b0b7">
-    <h5 class="mb-2">⚠️ <span data-i18n="home.actionRequired">Action Required 待您審核</span>
-      <span id="queueCount" class="badge bg-danger"></span></h5>
-    <div id="queueList" class="table-responsive"></div>
+  <!-- 5.1 PTW 總表（KPI）— 緊接公告下方 -->
+  <div id="homeKpiWrap" class="d-none mb-3">
+    <h5 class="mb-2">📊 <span data-i18n="home.kpiTitle">PTW Dashboard</span></h5>
+    <div id="kpiRow" class="row g-2"></div>
   </div>
 
-  <!-- (7) 系統流程圖 -->
-  <div class="flowbar" id="flowBar"></div>
-
-  <!-- 5.3 功能按鈕（永遠可見） -->
-  <div class="row g-3 mb-3" id="homeButtons"></div>
-
-  <!-- 執行中 / 逾期未關 看板（公開；附件下載區上方兩框） -->
+  <!-- 執行中 / 逾期未關 看板（公開）— 總表下方、待您審核上方 -->
   <div class="row g-3 mb-3" id="boardWrap">
     <div class="col-md-6">
       <div class="card-x p-3 h-100" style="background:#e9f7ef;border-top:4px solid #146c43">
@@ -11851,6 +12111,19 @@ main{position:relative;z-index:1}
     </div>
   </div>
 
+  <!-- 5.2 待您審核（未登入隱藏） -->
+  <div id="queueWrap" class="card-x p-3 mb-3 d-none" style="background:#fdecea;border-color:#f1b0b7">
+    <h5 class="mb-2">⚠️ <span data-i18n="home.actionRequired">Action Required 待您審核</span>
+      <span id="queueCount" class="badge bg-danger"></span></h5>
+    <div id="queueList" class="table-responsive"></div>
+  </div>
+
+  <!-- (7) 系統流程圖 -->
+  <div class="flowbar" id="flowBar"></div>
+
+  <!-- 5.3 功能按鈕（永遠可見） -->
+  <div class="row g-3 mb-3" id="homeButtons"></div>
+
   <!-- (6) 附件下載專區（公開） -->
   <div class="card-x p-3 mb-3" id="downloadsWrap">
     <h5 class="mb-2">📥 <span data-i18n="dl.title">Downloads 附件下載專區</span></h5>
@@ -11859,10 +12132,6 @@ main{position:relative;z-index:1}
 
   <!-- 登入後才顯示的區塊 -->
   <div id="homeLoggedIn" class="d-none">
-    <!-- 5.1 KPI Dashboard -->
-    <h5 class="mb-2">📊 <span data-i18n="home.kpiTitle">PTW Dashboard</span></h5>
-    <div id="kpiRow" class="row g-2 mb-3"></div>
-
     <!-- 我的通知面板 -->
     <div class="card-x p-3 mb-4 d-none" id="notifyPanel">
       <div class="d-flex justify-content-between align-items-center mb-2">
@@ -11972,6 +12241,7 @@ main{position:relative;z-index:1}
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
         <div>
           <b id="pfNumber">—</b> <span id="pfStatusBadge" class="badge bg-secondary">Draft</span>
+          <span id="pfScopeBadge" class="ms-1"></span>
           <span id="pfSaveState" class="small text-muted ms-2"></span>
         </div>
         <div class="d-flex gap-2">
@@ -12086,6 +12356,12 @@ main{position:relative;z-index:1}
     <div class="mb-2"><textarea id="apComment" class="form-control form-control-sm mt-2" rows="2"
       data-l-ph placeholder="Comment 意見（選填 optional）"></textarea></div>
     <div id="apNextRevWrap" class="d-none mb-2">
+      <!-- 工程範疇 Scope：決定第 3 關送 NMDC D&amp;M 或 NMDC Energy -->
+      <div id="apScopeWrap" class="d-none mb-2">
+        <label class="form-label small mb-1 fw-bold" for="apScopeSel" data-i18n="rv.scope">Scope</label>
+        <select id="apScopeSel" class="form-select form-select-sm" onchange="onApproveScopeChange()"></select>
+        <div class="small text-muted mt-1" data-i18n="rv.scopeHint">The Scope decides whether Step 3 goes to NMDC D&amp;M or NMDC Energy.</div>
+      </div>
       <label class="form-label small mb-1 fw-bold" data-i18n="rv.nextReviewer">Next-tier reviewer</label>
       <select id="apNextRev" class="form-select form-select-sm"></select>
       <div id="apNextRevMulti" class="d-none border rounded p-2" style="max-height:170px;overflow:auto;background:#fff"></div>
@@ -12163,7 +12439,7 @@ main{position:relative;z-index:1}
 </style>
 <div id="uiModal" style="display:none;position:fixed;inset:0;background:rgba(8,26,42,.55);z-index:2000;align-items:center;justify-content:center;padding:16px">
   <div id="uiModalCard" style="background:#fff;border-radius:14px;max-width:480px;width:100%;box-shadow:0 18px 52px rgba(0,0,0,.38);overflow:hidden">
-    <div id="uiModalHead" class="d-none" style="background:linear-gradient(135deg,#0b3a5c 0%,#17608e 100%);color:#fff;padding:15px 20px">
+    <div id="uiModalHead" class="d-none" style="background:#002038;color:#fff;padding:15px 20px">
       <div style="display:flex;align-items:center;gap:10px">
         <span id="uiModalIcon" style="font-size:1.5rem;line-height:1"></span>
         <div style="min-width:0">
@@ -12188,21 +12464,23 @@ main{position:relative;z-index:1}
   backdrop-filter:blur(2px);align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:16px;padding:28px 46px;text-align:center;
     box-shadow:0 12px 44px rgba(0,0,0,.35);min-width:240px">
-    <div style="position:relative;width:74px;height:74px;margin:0 auto 12px">
-      <div style="position:absolute;inset:0;border-radius:50%;border:5px solid #dbe8f4;border-top-color:#0b6bcb;animation:ldspin .9s linear infinite"></div>
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem">⚓</div>
+    <div style="position:relative;width:86px;height:86px;margin:0 auto 14px">
+      <div style="position:absolute;inset:0;border-radius:50%;border:5px solid #e4eaf0;border-top-color:#00b050;animation:ldspin .9s linear infinite"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+        <img src="data:image/png;base64,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" alt="NMDC" style="width:54px;height:auto;display:block">
+      </div>
     </div>
-    <div id="loadingPillText" style="font-weight:700;color:#0b3a5c;font-size:1.05rem">讀取中，請稍候…</div>
+    <div id="loadingPillText" style="font-weight:700;color:#002038;font-size:1.05rem">讀取中，請稍候…</div>
     <div style="color:#8aa4b8;font-size:.8rem;margin-top:4px">Offshore PTW System</div>
   </div>
 </div>
 <style>@keyframes ldspin{to{transform:rotate(360deg)}}</style>
 <button id="helpFab" onclick="showContact()" title="聯繫系統管理員 Contact Administrator"
  style="position:fixed;right:18px;bottom:18px;z-index:2500;width:54px;height:54px;border-radius:50%;border:0;
- background:linear-gradient(135deg,#0b3a5c,#1173b8);color:#fff;font-size:1.5rem;box-shadow:0 6px 18px rgba(3,24,42,.5);cursor:pointer">💬</button>
+ background:#002038;color:#fff;font-size:1.5rem;box-shadow:0 4px 14px rgba(0,32,56,.35);cursor:pointer">💬</button>
 <div id="contactModal" style="position:fixed;inset:0;background:rgba(6,24,40,.6);z-index:3000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(2px)">
   <div style="width:430px;max-width:92vw;border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 20px 60px rgba(2,16,30,.55)">
-    <div style="background:linear-gradient(120deg,#081f33,#0b3a5c 55%,#0f5e8e);color:#fff;padding:16px 20px;position:relative">
+    <div style="background:#002038;color:#fff;padding:16px 20px;position:relative">
       <div style="font-size:1.9rem">🧑‍💼</div>
       <div style="font-weight:800;font-size:1.05rem;letter-spacing:.5px" data-l>聯繫系統管理員 Contact Administrator</div>
       <div class="small" style="opacity:.85" data-l>NMDC Offshore PTW System</div>
@@ -12215,8 +12493,8 @@ main{position:relative;z-index:1}
 <script>window.PTW_OPEN_ID=null;window.PTW_VIEWS=0;window.PTW_APP_URL='';window.PTW_GOTO='';</script>
 
 <!-- 瀏覽次數（左下角） -->
-<div id="viewCounter" style="position:fixed;left:10px;bottom:8px;z-index:1200;background:rgba(11,42,64,.72);
-  color:#cfe3f5;border:1px solid rgba(255,255,255,.18);border-radius:16px;padding:2px 12px;
+<div id="viewCounter" style="position:fixed;left:10px;bottom:8px;z-index:1200;background:rgba(255,255,255,.9);
+  color:#5f6f7e;border:1px solid #dde4ec;border-radius:16px;padding:2px 12px;
   font-size:.74rem;backdrop-filter:blur(3px);pointer-events:none">
   👁 <span data-l>瀏覽次數 Views</span>：<b id="viewCountVal">—</b>
 </div>
@@ -12254,6 +12532,7 @@ var STRINGS = {
  'reset.success':{en:'Password reset. Please sign in.',zh:'密碼已重設，請重新登入。'},
  'admin.pending':{en:'Pending Approvals',zh:'待審核帳號'},'admin.users':{en:'User Management',zh:'使用者管理'},
  'admin.companies':{en:'Company Management',zh:'公司管理'},'admin.audit':{en:'Audit Trail',zh:'稽核紀錄'},
+ 'admin.scopes':{en:'Scope',zh:'工程範疇 Scope'},
  'admin.approve':{en:'Approve',zh:'核准'},'admin.rejectBtn':{en:'Reject',zh:'拒絕'},
  'admin.assignCompany':{en:'Assign Company',zh:'指定公司'},'admin.assignTier':{en:'Assign Tier',zh:'指定 Tier'},
  'admin.disable':{en:'Disable',zh:'停用'},'admin.enable':{en:'Enable',zh:'啟用'},'admin.unlock':{en:'Unlock',zh:'解鎖'},
@@ -12282,6 +12561,13 @@ var STRINGS = {
  'rv.noAccSig':{en:'No signature on file — please draw below, or upload one in My Account.',zh:'尚未設定簽名檔 — 請於下方手寫，或到「帳號設定」上傳簽名檔。'},
  'rv.nextReviewer':{en:'Assign next-tier reviewer (optional)',zh:'指定下一關審閱人（選填）'},
  'rv.notifyAll':{en:'Notify ALL reviewers at next tier (any one may review)',zh:'通知下一關全部人員（任一人審閱即可）'},
+ 'rv.scope':{en:'🧭 Scope * (decides the Step 3 department)',zh:'🧭 工程範疇 Scope ＊（決定第 3 關部門）'},
+ 'rv.scopeHint':{en:'The Scope decides whether Step 3 goes to NMDC D&M or NMDC Energy.',
+                 zh:'由 Scope 決定第 3 關送 NMDC D&M 或 NMDC Energy。'},
+ 'rv.scopePick':{en:'— Select a Scope —',zh:'— 請選擇 Scope —'},
+ 'rv.scopeRequired':{en:'Please select a Scope first',zh:'請先選擇工程範疇 Scope'},
+ 'rv.scopeNoUser':{en:'No active Tier 3 reviewer in this department — all Tier 3 users will be notified.',
+                   zh:'此部門目前沒有啟用中的 Tier 3 人員 — 將通知全部 Tier 3。'},
  'rv.signConfirm':{en:'Sign & Approve',zh:'簽名並核准'},
  'rv.signClear':{en:'Clear',zh:'清除'},
  'rv.stepGate':{en:'Please review each step in order — the Approve/Return buttons unlock after Step 8',zh:'請依序逐步檢視內容 — 看完第 8 步後才可核准/退回'},
@@ -12296,6 +12582,9 @@ var STRINGS = {
  'ann.uploadPdf':{en:'Upload PDF',zh:'上傳 PDF'},
  'ann.uploaded':{en:'File uploaded — link filled in below',zh:'檔案已上傳，連結已自動填入'},
  'ann.openLink':{en:'Open attached link',zh:'開啟附件連結'},
+ 'apply.noCompany':{en:"Can't see your company?",zh:'沒有看見您的公司嗎？'},
+ 'ann.showLanding':{en:'Also show on the sign-in / sign-up page',zh:'同時顯示於登入／註冊頁'},
+ 'ann.landingCol':{en:'Sign-in page',zh:'登入頁'},
  'lb.title':{en:'Active PTW Overview',zh:'執行中 PTW 總表'},
  'lb.search':{en:'Search PTW no. / vessel / area…',zh:'搜尋 PTW 編號／船舶／區域…'},
  'lb.readonly':{en:'View only — this table cannot be edited.',zh:'此總表僅供檢視，無法進行任何修改。'},
@@ -12597,9 +12886,9 @@ var DLG_LEAD=['⚠️','⚠','☢️','☢','🗑️','🗑','❌','🚫','✅',
 var DLG_DANGER=['⚠️','⚠','☢️','☢','🗑️','🗑','❌','🚫','🔴'];
 var DLG_OK=['✅','✔️','🟢','🏁'];
 function dlgHeadColor_(icon){
-  if(DLG_DANGER.indexOf(icon)>=0) return 'linear-gradient(135deg,#8d1f1f 0%,#c0392b 100%)';
-  if(DLG_OK.indexOf(icon)>=0)     return 'linear-gradient(135deg,#155d32 0%,#1e8449 100%)';
-  return 'linear-gradient(135deg,#0b3a5c 0%,#17608e 100%)';
+  if(DLG_DANGER.indexOf(icon)>=0) return '#9b2226';
+  if(DLG_OK.indexOf(icon)>=0)     return '#00913f';
+  return '#002038';
 }
 /** 依對話框種類與訊息內容，推導圖示、標題與已排版的內文 */
 function dlgAuto_(o){
@@ -12711,6 +13000,7 @@ function showView(v){
   $('viewCertified').classList.toggle('d-none',v!=='certified');
   if(v!=='training') stopYtTracking();
   if(v==='auth'){ try{ loadLandingBoard(); }catch(e){} }
+  else { try{ $('panelApply').classList.add('d-none'); document.body.style.overflow=''; }catch(e){} }
   var u=(getToken()&&getUser())||null;
   renderAcctMenu(u);
   $('subtitle').textContent=u?(bi(u.nameEn,u.nameZh)+' · Tier '+u.tier+(u.isAdmin?' · Admin':'')):T('app.project');
@@ -12726,6 +13016,24 @@ function loadCompanyOptions(){
     });
     sel.innerHTML=h;
   });
+}
+/* 帳號申請：公司下拉選單找不到自家公司時的說明 */
+function showCompanyHelp(){
+  var Z=(lang==='zh');
+  var h='<div style="text-align:left;line-height:1.7">'+(Z
+    ?'<p class="mb-2">若下拉選單中沒有貴公司的名稱，表示貴公司尚未建檔於本系統；須由 NMDC 系統管理員完成公司建檔後，才能以該公司名義申請帳號。</p>'+
+     '<p class="mb-1">請透過以下任一方式與我們聯繫：</p>'+
+     '<ul class="mb-0" style="padding-left:1.25rem">'+
+     '<li>點選畫面<b>右下角的 💬 諮詢按鈕</b>，與 NMDC 系統管理員聯繫</li>'+
+     '<li>或直接聯繫目前與您對接的 <b>NMDC 窗口</b></li></ul>'
+    :'<p class="mb-2">If your company is not on the list, it has not been registered in this system yet. An NMDC administrator must add your company before an account can be requested under its name.</p>'+
+     '<p class="mb-1">Please reach us in either of these ways:</p>'+
+     '<ul class="mb-0" style="padding-left:1.25rem">'+
+     '<li>Click the <b>💬 help button at the bottom-right</b> of the screen to contact the NMDC system administrator</li>'+
+     '<li>Or contact your usual <b>NMDC point of contact</b> directly</li></ul>')+'</div>';
+  uiDialog({icon:'🏢',title:T('apply.noCompany'),html:h,width:540,
+    okText:'💬 '+(Z?'聯繫系統管理員':'Contact administrator'),
+    cancelText:(Z?'關閉':'Close')}).then(function(ok){ if(ok) showContact(); });
 }
 function showTierHelp(){
   var Z=(lang==='zh');
@@ -12750,11 +13058,32 @@ function showTierHelp(){
   });
   uiAlert(null,h+'</div>');
 }
+/* 登入／註冊頁面板切換：Apply＝浮動視窗（蓋在登入頁上），Login／Forgot＝左欄卡片 */
 function showPanel(name){
-  ['Login','Apply','Forgot'].forEach(function(p){ $('panel'+p).classList.add('d-none'); });
-  $('panel'+name).classList.remove('d-none');
-  if(name==='Apply') loadCompanyOptions();
+  var ap=$('panelApply');
+  if(name==='Apply'){
+    $('panelLogin').classList.remove('d-none');
+    $('panelForgot').classList.add('d-none');
+    ap.classList.remove('d-none');
+    try{ document.body.style.overflow='hidden'; }catch(e){}
+    loadCompanyOptions();
+    try{ ap.scrollTop=0; }catch(e){}
+    return;
+  }
+  ap.classList.add('d-none');
+  try{ document.body.style.overflow=''; }catch(e){}
+  $('panelLogin').classList.toggle('d-none',name!=='Login');
+  $('panelForgot').classList.toggle('d-none',name!=='Forgot');
 }
+/* 點浮動視窗外的灰底 → 關閉（避免誤按內容區） */
+function applyModalBackdrop(ev){
+  if(ev&&ev.target&&ev.target.id==='panelApply') showPanel('Login');
+}
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Escape') return;
+  var ap=$('panelApply');
+  if(ap&&!ap.classList.contains('d-none')) showPanel('Login');
+});
 function toast(msg,okType){
   var div=document.createElement('div');
   div.className='toast align-items-center text-bg-'+(okType?'success':'danger')+' border-0 show mb-2';
@@ -13027,6 +13356,7 @@ function renderHome(){
   renderFlowBar();
 
   $('homeLoggedIn').classList.toggle('d-none',!u);
+  $('homeKpiWrap').classList.toggle('d-none',!u);
   if(!u) $('queueWrap').classList.add('d-none');
   if(!u){ loadPublicDownloads(); return; }
   // 先用上次快取立即渲染（0 延遲），背景更新
@@ -13768,6 +14098,7 @@ function renderAdmin(){
     loadProfileReqs(d.profileReqs);
     loadUsers(d.users);
     loadCompanies(d.companies);
+    loadScopes(d.scopes);
     loadAudit(d.audit);
     loadTrainingAdmin(d);
     applyI18n();
@@ -14144,7 +14475,8 @@ function adminAddAnnounce(){
   var url=$('annLinkUrl').value.trim(), ltx=$('annLinkText').value.trim();
   if(!z||!e){ toast(lang==='zh'?'中文與英文公告內容皆必填':'Both Chinese and English texts are required'); return; }
   if(url&&!/^https?:\\/\\//i.test(url)){ toast(lang==='zh'?'連結網址必須以 http:// 或 https:// 開頭':'Link must start with http:// or https://'); return; }
-  api('admin.announce.add',{textZh:z,textEn:e,level:$('annLevel').value,linkUrl:url,linkText:ltx}).then(function(res){
+  api('admin.announce.add',{textZh:z,textEn:e,level:$('annLevel').value,linkUrl:url,linkText:ltx,
+    showOnLanding:$('annShowLanding').checked}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     $('annZh').value='';$('annEn').value='';$('annLinkUrl').value='';$('annLinkText').value='';
     $('annLinkMsg').textContent='';
@@ -14178,16 +14510,34 @@ function loadAdminAnnounces(){
     if(!res.ok){ return; }
     if(!res.data.length){ $('adminAnnList').innerHTML='<div class="text-muted small">'+(lang==='zh'?'（目前無公告）':'(No announcements)')+'</div>'; return; }
     var lv={info:'ℹ️',warning:'⚠️',danger:'🚨'};
-    var h='<table class="table table-sm"><tbody>';
+    var h='<table class="table table-sm align-middle"><thead><tr><th></th><th></th>'+
+      '<th class="small text-nowrap">🏠 '+esc(T('ann.landingCol'))+'</th><th></th><th></th></tr></thead><tbody>';
     res.data.forEach(function(a){
       h+='<tr><td style="width:30px">'+(lv[a.level]||'ℹ️')+'</td>'+
         '<td><b>'+esc(a.textZh)+'</b>'+annLinkIcon(a,'#0b6bcb')+
         '<br><small class="text-muted">'+esc(a.textEn)+'</small>'+
         (a.linkUrl?'<br><small style="opacity:.6">🔗 '+esc(a.linkUrl)+'</small>':'')+'</td>'+
+        '<td class="text-center" style="width:90px"><div class="form-check d-inline-block m-0">'+
+          '<input class="form-check-input" type="checkbox" title="'+esc(T('ann.showLanding'))+'"'+
+          (a.showOnLanding?' checked':'')+' onchange="toggleAnnounceLanding(\\''+a.id+'\\',this)"></div></td>'+
         '<td class="small text-nowrap">'+esc(String(a.createdAt||'').substring(0,10))+'</td>'+
         '<td><button class="btn btn-sm btn-outline-danger" onclick="removeAnnounce(\\''+a.id+'\\')">✕</button></td></tr>';
     });
-    $('adminAnnList').innerHTML=h+'</tbody></table>';
+    $('adminAnnList').innerHTML=h+'</tbody></table>'+
+      '<div class="small text-muted">🏠 '+esc(T('ann.showLanding'))+'</div>';
+  });
+}
+/* 後台清單：切換「是否顯示於登入／註冊頁」 */
+function toggleAnnounceLanding(id,el){
+  var want=!!el.checked;
+  el.disabled=true;
+  api('admin.announce.landing',{id:id,show:want}).then(function(res){
+    el.disabled=false;
+    if(!res.ok){ el.checked=!want; toast(apiMsg(res)); return; }
+    toast(want?(lang==='zh'?'已加到登入／註冊頁':'Shown on the sign-in page')
+              :(lang==='zh'?'已從登入／註冊頁移除':'Removed from the sign-in page'),true);
+    try{ sessionStorage.removeItem('ptw_landing_cache'); }catch(e){}
+    landingRows=null; landingLoadedAt=0;
   });
 }
 function removeAnnounce(id){
@@ -14219,33 +14569,35 @@ function annLinkIcon(a,color){
   return ' <a href="'+esc(a.linkUrl)+'" target="_blank" rel="noopener" title="'+esc(tip)+'" '+
     'style="text-decoration:none;font-size:1.05rem;color:'+color+'">'+(isPdf?'📄':'🔗')+'</a>';
 }
-/* 首頁公告欄（常駐顯示；登入前後皆可見；同時渲染登入頁上方公告） */
+/* 首頁公告欄：登入後首頁顯示「全部」公告；登入／註冊頁只顯示勾選「顯示於登入頁」者 */
 function renderAnnouncements(rows){
   window._annCache=rows||[];
-  var style={info:['rgba(49,195,240,.14)','rgba(49,195,240,.5)','#bfe8ff','ℹ️'],
-             warning:['rgba(240,197,109,.16)','rgba(240,197,109,.55)','#ffe1a3','⚠️'],
-             danger:['rgba(255,120,120,.16)','rgba(255,120,120,.55)','#ffc4c4','🚨']};
+  var style={info:['#f2f7fb','#d4e2ee','#123b5c','ℹ️'],
+             warning:['#fdf6e8','#f0dcb0','#7a5200','⚠️'],
+             danger:['#fdeeee','#f2c4c4','#98201f','🚨']};
   var Z=(lang==='zh');
-  var items='';
-  if(rows&&rows.length){
-    rows.forEach(function(a){
-      var st=style[a.level]||style.info;
-      items+='<div style="background:'+st[0]+';border:1px solid '+st[1]+';color:'+st[2]+';border-radius:10px;'+
-        'padding:7px 12px;margin-bottom:6px;display:flex;gap:9px;align-items:flex-start">'+
-        '<span>'+st[3]+'</span>'+
-        '<div><b>'+annText(Z?a.textZh:a.textEn,st[2])+'</b>'+annLinkIcon(a,st[2])+
-        '<span class="small ms-2" style="opacity:.6">'+esc(String(a.createdAt||'').substring(0,10))+'</span></div></div>';
-    });
-  }else{
-    items='<div class="small" style="opacity:.6">'+(Z?'（目前無公告 — 一切正常，安全作業！）':'(No announcements — all clear, work safe!)')+'</div>';
-  }
-  var html='<div class="annBoard">'+
-    '<div class="annHead">📢 '+(Z?'系統公告 Announcements':'System Announcements')+
-    '<span class="annLive">LIVE</span></div>'+items+'</div>';
-  ['annWrap','authAnnWrap'].forEach(function(id){
-    var w=$(id); if(!w) return;
-    w.innerHTML=html; w.classList.remove('d-none');
-  });
+  var build=function(list){
+    var items='';
+    if(list&&list.length){
+      list.forEach(function(a){
+        var st=style[a.level]||style.info;
+        items+='<div style="background:'+st[0]+';border:1px solid '+st[1]+';color:'+st[2]+';border-radius:10px;'+
+          'padding:7px 12px;margin-bottom:6px;display:flex;gap:9px;align-items:flex-start">'+
+          '<span>'+st[3]+'</span>'+
+          '<div><b>'+annText(Z?a.textZh:a.textEn,st[2])+'</b>'+annLinkIcon(a,st[2])+
+          '<span class="small ms-2" style="opacity:.6">'+esc(String(a.createdAt||'').substring(0,10))+'</span></div></div>';
+      });
+    }else{
+      items='<div class="small" style="opacity:.6">'+(Z?'（目前無公告 — 一切正常，安全作業！）':'(No announcements — all clear, work safe!)')+'</div>';
+    }
+    return '<div class="annBoard">'+
+      '<div class="annHead">📢 '+(Z?'系統公告 Announcements':'System Announcements')+
+      '<span class="annLive">LIVE</span></div>'+items+'</div>';
+  };
+  var all=rows||[];
+  var landing=all.filter(function(a){ return a.showOnLanding; });
+  var w1=$('annWrap');      if(w1){ w1.innerHTML=build(all);     w1.classList.remove('d-none'); }
+  var w2=$('authAnnWrap');  if(w2){ w2.innerHTML=build(landing); w2.classList.remove('d-none'); }
 }
 function loadPublicAnnounces(){
   api('announce.list',{}).then(function(res){ if(res.ok) renderAnnouncements(res.data); });
@@ -14805,6 +15157,70 @@ function addCompany(){
 function companyAction(action,id){
   api(action,{companyId:id}).then(function(res){ if(res.ok){ toast('OK',true); loadCompanies(); } else toast(apiMsg(res)); });
 }
+/* ---- 工程範疇 Scope（Admin）：決定第 3 關送 NMDC D&M 或 NMDC Energy ---- */
+var NMDC_DEPTS=['NMDC D&M','NMDC Energy'];
+function deptBadge(d){
+  var c=(d==='NMDC Energy')?'#00b050':'#002038';
+  return '<span class="badge" style="background:'+c+'">'+esc(d||'—')+'</span>';
+}
+function loadScopes(pre){
+  var Z=(lang==='zh');
+  var handle=function(res){
+    if(!res.ok){ $('scopeList').innerHTML='<div class="text-muted p-3">'+esc(apiMsg(res))+'</div>'; return; }
+    if(!res.data.length){
+      $('scopeList').innerHTML='<div class="text-muted small p-3 border rounded">'+
+        (Z?'尚未建立任何 Scope。建立之後，Tier 2 把 PTW 送到第 3 關時就必須選擇 Scope。'
+          :'No Scope defined yet. Once you add one, Tier 2 must pick a Scope when sending a PTW to Step 3.')+'</div>';
+      return;
+    }
+    var h='<table class="table table-sm table-hover align-middle"><thead><tr>'+
+      '<th style="min-width:180px">Scope (EN)</th><th style="min-width:160px">'+(Z?'名稱（中文）':'Name (ZH)')+'</th>'+
+      '<th style="min-width:190px">'+(Z?'第 3 關送往':'Step 3 goes to')+'</th>'+
+      '<th style="width:90px">'+(Z?'排序':'Sort')+'</th><th>'+T('admin.status')+'</th><th></th></tr></thead><tbody>';
+    res.data.forEach(function(s){
+      var opts=NMDC_DEPTS.map(function(d){
+        return '<option value="'+esc(d)+'"'+(s.department===d?' selected':'')+'>'+esc(d)+'</option>';
+      }).join('');
+      h+='<tr><td><input class="form-control form-control-sm" value="'+esc(s.nameEn)+'"'+
+          ' onchange="scopeSet(\\''+s.id+'\\',\\'nameEn\\',this.value)"></td>'+
+        '<td><input class="form-control form-control-sm" value="'+esc(s.nameZh)+'"'+
+          ' onchange="scopeSet(\\''+s.id+'\\',\\'nameZh\\',this.value)"></td>'+
+        '<td class="d-flex align-items-center gap-2">'+deptBadge(s.department)+
+          '<select class="form-select form-select-sm" onchange="scopeSet(\\''+s.id+'\\',\\'department\\',this.value)">'+opts+'</select></td>'+
+        '<td><input type="number" class="form-control form-control-sm" value="'+esc(s.sortOrder)+'"'+
+          ' onchange="scopeSet(\\''+s.id+'\\',\\'sortOrder\\',this.value)"></td>'+
+        '<td>'+(s.isActive?'<span class="badge bg-success">Active</span>':'<span class="badge bg-secondary">Disabled</span>')+'</td>'+
+        '<td class="text-nowrap">'+(s.isActive
+          ?'<button class="btn btn-sm btn-outline-secondary" onclick="scopeAction(\\'scope.disable\\',\\''+s.id+'\\')">'+T('admin.disable')+'</button>'
+          :'<button class="btn btn-sm btn-success" onclick="scopeAction(\\'scope.enable\\',\\''+s.id+'\\')">'+T('admin.enable')+'</button>')+
+        '</td></tr>';
+    });
+    $('scopeList').innerHTML=h+'</tbody></table>';
+  };
+  if(pre){ handle({ok:true,data:pre}); return; }
+  api('scope.list',{}).then(handle);
+}
+function addScope(){
+  var nameEn=$('scNameEn').value.trim();
+  if(!nameEn){ toast(lang==='zh'?'請輸入 Scope 名稱（英文）':'Scope name (EN) is required'); return; }
+  api('scope.create',{nameEn:nameEn,nameZh:$('scNameZh').value.trim(),
+    department:$('scDept').value,sortOrder:Number($('scSort').value||0)}).then(function(res){
+    if(!res.ok){ toast(apiMsg(res)); return; }
+    toast(lang==='zh'?'Scope 已新增':'Scope added',true);
+    $('scNameEn').value=''; $('scNameZh').value='';
+    loadScopes();
+  });
+}
+function scopeSet(id,field,val){
+  var p={scopeId:id};
+  p[field]=(field==='sortOrder')?Number(val||0):String(val).trim();
+  api('scope.update',p).then(function(res){
+    if(res.ok){ toast('OK',true); loadScopes(); } else { toast(apiMsg(res)); loadScopes(); }
+  });
+}
+function scopeAction(action,id){
+  api(action,{scopeId:id}).then(function(res){ if(res.ok){ toast('OK',true); loadScopes(); } else toast(apiMsg(res)); });
+}
 var auditPage=1;
 function loadAudit(pre,page){
   var handle=function(res){
@@ -14996,6 +15412,7 @@ function openPtwForm(ptwId){
     var d=res.data;
     pickerCache=d.pickers||pickerCache;
     companyCache=d.companies||companyCache;
+    scopeCache=d.scopes||scopeCache;
     CERT_FORMS=d.certForms||CERT_FORMS;
     cur=d.ptw;
     cur._closeoutDocs=d.closeoutDocs||[];   // 關單文件規則（後端 CloseoutRules 依作業類型算出）
@@ -15015,6 +15432,10 @@ function openPtwForm(ptwId){
     $('ptwFormWrap').classList.remove('d-none');
     $('pfNumber').textContent=cur.ptwNumber||cur.tempNumber;
     $('pfStatusBadge').outerHTML='<span id="pfStatusBadge">'+statusBadge(cur.status)+'</span>';
+    // 工程範疇 Scope（已送第 3 關者顯示，讓 Tier 3 一眼看出屬 D&M 或 Energy）
+    $('pfScopeBadge').innerHTML=cur.scopeDepartment
+      ?('<span class="badge" style="background:'+(cur.scopeDepartment==='NMDC Energy'?'#00b050':'#002038')+'">🧭 '+
+        esc(scopeNameOf(cur.scopeId)||cur.scopeDepartment)+' · '+esc(cur.scopeDepartment)+'</span>'):'';
     // 現場聯／完整主表／證書：Tier 5 核准簽發後才可下載
     var pdfReady=['Approved','Active','Extended','Suspended','WorkCompleted','PendingCloseout','Closed'].indexOf(cur.status)>=0;
     ['btnPdfSite','btnPdf','btnPdfCert'].forEach(function(id){ $(id).classList.toggle('d-none',!pdfReady); });
@@ -15510,23 +15931,32 @@ function openApprove(){
   $('apMsRaLabel').textContent='📋 '+(lang==='zh'?MSRA_TEXT.zh:MSRA_TEXT.en);
   // (通知) 下一關審閱人選擇（T5 簽發時無下一關）
   $('apNextRevWrap').classList.add('d-none');
+  $('apScopeWrap').classList.add('d-none');
+  _anrPool={users:[],scopes:[]};
   if(Number(cur.currentTier)<5){
-    var toTier3=(Number(cur.currentTier)===2); // T2→T3：可複選多位（不同船別不同施工組）
+    var toTier3=(Number(cur.currentTier)===2); // T2→T3：先選 Scope（決定 D&M／Energy），再複選施工組人員
     api('ptw.nextReviewers',{ptwId:cur.id}).then(function(res){
-      if(!res.ok||!res.data.users||!res.data.users.length) return;
+      if(!res.ok) return;
+      var users=res.data.users||[], scopes=res.data.scopes||[];
+      _anrPool={users:users,scopes:scopes};
+      var needScope=(toTier3&&scopes.length>0);
+      $('apScopeWrap').classList.toggle('d-none',!needScope);
+      if(needScope) $('apScopeSel').innerHTML=scopeOptionsHtml(scopes,cur.scopeId||'');
+      if(!users.length&&!needScope) return;
       $('apNextRev').classList.toggle('d-none',toTier3);
       $('apNextRevMulti').classList.toggle('d-none',!toTier3);
       $('apNextRevHint').classList.toggle('d-none',!toTier3);
       if(toTier3){
-        $('apNextRevMulti').innerHTML=revGroupHtml(res.data.users,'anr_');
+        renderScopedReviewers('apNextRevMulti',_anrPool,needScope?$('apScopeSel').value:'','anr_');
       }else{
         var h='<option value="">📣 '+T('rv.notifyAll')+'</option>';
-        res.data.users.forEach(function(p){
+        users.forEach(function(p){
           h+='<option value="'+esc(p.id)+'">👤 '+esc(lang==='zh'?(p.nameZh||p.nameEn):(p.nameEn||p.nameZh))+'</option>';
         });
         $('apNextRev').innerHTML=h;
       }
-      if(res.data.users.length>1) $('apNextRevWrap').classList.remove('d-none');
+      if(users.length>1||needScope) $('apNextRevWrap').classList.remove('d-none');
+      applyI18n();
     });
   }
   if(!(cur&&cur._mySignature)){ showSigSetupDialog(); return; }
@@ -15577,6 +16007,47 @@ function initSigPad(){
 function clearSig(){
   var c=$('sigCanvas'); c.getContext('2d').clearRect(0,0,c.width,c.height); sigDrawn=false;
 }
+/* ---- 工程範疇 Scope：決定第 3 關送 NMDC D&M 或 NMDC Energy ---- */
+var scopeCache=[];
+function scopeNameOf(id){
+  var hit=scopeCache.filter(function(s){ return s.id===id; })[0];
+  if(!hit) return '';
+  return (lang==='zh')?(hit.nameZh||hit.nameEn):(hit.nameEn||hit.nameZh);
+}
+function scopeOptionsHtml(scopes,sel){
+  var Z=(lang==='zh');
+  return '<option value="">'+esc(T('rv.scopePick'))+'</option>'+
+    (scopes||[]).map(function(s){
+      return '<option value="'+esc(s.id)+'"'+(s.id===sel?' selected':'')+'>'+
+        esc(Z?(s.nameZh||s.nameEn):(s.nameEn||s.nameZh))+' → '+esc(s.department)+'</option>';
+    }).join('');
+}
+function scopeDeptOf(scopes,id){
+  var hit=(scopes||[]).filter(function(s){ return s.id===id; })[0];
+  return hit?(hit.department||''):'';
+}
+function usersOfDept(users,dept){
+  if(!dept) return users||[];
+  return (users||[]).filter(function(p){ return String(p.department||'')===dept; });
+}
+/** 依所選 Scope 重繪 Tier 3 審閱人清單；未選 Scope 顯示提示 */
+function renderScopedReviewers(boxId,pool,scopeId,prefix){
+  var box=$(boxId); if(!box) return;
+  if(pool.scopes.length&&!scopeId){
+    box.innerHTML='<span class="small text-muted">'+esc(T('rv.scopeRequired'))+'</span>'; return;
+  }
+  var list=usersOfDept(pool.users,scopeDeptOf(pool.scopes,scopeId));
+  box.innerHTML=list.length?revGroupHtml(list,prefix)
+    :'<span class="small text-muted">'+esc(T('rv.scopeNoUser'))+'</span>';
+}
+var _anrPool={users:[],scopes:[]};   // 核准對話框：Tier 3 候選人 + Scope
+var _snrPool={users:[],scopes:[]};   // 送審對話框：Tier 3 候選人 + Scope
+function onApproveScopeChange(){
+  renderScopedReviewers('apNextRevMulti',_anrPool,$('apScopeSel').value,'anr_');
+}
+function onSubmitScopeChange(){
+  renderScopedReviewers('nextRevMulti',_snrPool,$('submitScopeSel').value,'snr_');
+}
 /* 審閱人複選清單（Tier 3 依部門 NMDC D&M / NMDC Energy 分組顯示人名） */
 function revGroupHtml(users,prefix){
   var groups={},order=[];
@@ -15607,6 +16078,12 @@ function confirmApprove(){
     toast(lang==='zh'?'核准前請先勾選「已完整審閱 MS 與 RA，內容無意見」':'Please confirm you have fully reviewed the MS and RA before approving');
     return;
   }
+  // Tier 2 → Tier 3：必須先選 Scope（決定送 NMDC D&M 或 NMDC Energy）
+  var scopeId='';
+  if(!$('apScopeWrap').classList.contains('d-none')){
+    scopeId=$('apScopeSel').value;
+    if(!scopeId){ toast(T('rv.scopeRequired')); return; }
+  }
   $('sigModal').classList.add('d-none');
   var nrvIds=[];
   if(!$('apNextRevWrap').classList.contains('d-none')){
@@ -15614,7 +16091,7 @@ function confirmApprove(){
       document.querySelectorAll('#apNextRevMulti input:checked').forEach(function(el){ nrvIds.push(el.id.substring(4)); });
     }else if($('apNextRev').value){ nrvIds=[$('apNextRev').value]; }
   }
-  api('approval.approve',{ptwId:cur.id,comment:$('apComment').value.trim(),signatureDataUrl:dataUrl,nextReviewerIds:nrvIds,msRaReviewed:$('apMsRa').checked}).then(function(res){
+  api('approval.approve',{ptwId:cur.id,comment:$('apComment').value.trim(),signatureDataUrl:dataUrl,nextReviewerIds:nrvIds,scopeId:scopeId,msRaReviewed:$('apMsRa').checked}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     try{ sset('ptw_rv_'+cur.id,''); }catch(e){}
     toast((lang==='zh'?'已核准 → ':'Approved → ')+res.data.newStatus+(res.data.newStatus==='Approved'?' · '+res.data.number:''),true);
@@ -16635,11 +17112,23 @@ function previewSubmit(){
   // (通知) 起始關卡審閱人選擇：T1 申請 → 本公司 Tier 2（單選）；T2 申請 → 直接送 Tier 3（依部門複選，顯示人名）
   api('ptw.nextReviewers',{ptwId:cur.id}).then(function(rv){
     var users=(rv.ok&&rv.data.users)||[];
+    var scopes=(rv.ok&&rv.data.scopes)||[];
     var startTier=(rv.ok&&Number(rv.data.tier))||2;
+    var needScope=(startTier===3&&scopes.length>0);
+    _snrPool={users:users,scopes:scopes};
     if(startTier===3){
-      html+='<div class="mt-3 text-start"><label class="form-label small fw-bold mb-1">👥 '+(Z?'指定 NMDC 施工部門審閱人（依部門 D&M／Energy，可複選；全不勾＝通知全部 Tier 3）':'Assign NMDC construction reviewers (by department D&M / Energy, multi-select; none = notify all Tier 3)')+'</label>'+
+      if(needScope){
+        html+='<div class="mt-3 text-start"><label class="form-label small fw-bold mb-1" for="submitScopeSel">'+esc(T('rv.scope'))+'</label>'+
+          '<select id="submitScopeSel" class="form-select form-select-sm" onchange="onSubmitScopeChange()">'+
+          scopeOptionsHtml(scopes,cur.scopeId||'')+'</select>'+
+          '<div class="small text-muted mt-1">'+esc(T('rv.scopeHint'))+'</div></div>';
+      }
+      html+='<div class="mt-3 text-start"><label class="form-label small fw-bold mb-1">👥 '+(Z?'指定 NMDC 施工部門審閱人（可複選；全不勾＝通知該部門全部 Tier 3）':'Assign NMDC construction reviewers (multi-select; none = notify all Tier 3 in that department)')+'</label>'+
         '<div id="nextRevMulti" class="border rounded p-2" style="max-height:190px;overflow:auto;background:#fff">'+
-        (users.length?revGroupHtml(users,'snr_'):'<span class="small text-muted">—</span>')+'</div></div>';
+        (needScope&&!(cur.scopeId||'')
+          ?'<span class="small text-muted">'+esc(T('rv.scopeRequired'))+'</span>'
+          :(users.length?revGroupHtml(usersOfDept(users,scopeDeptOf(scopes,cur.scopeId||'')),'snr_'):'<span class="small text-muted">—</span>'))+
+        '</div></div>';
     }else if(users.length>1){
       html+='<div class="mt-3 text-start"><label class="form-label small fw-bold mb-1">👥 '+esc(T('rv.nextReviewer'))+'</label>'+
         '<select id="nextRevSel" class="form-select form-select-sm">'+
@@ -16656,6 +17145,10 @@ function previewSubmit(){
     if(!ok) return;
     var revSel=document.getElementById('nextRevSel');
     var reviewerId=revSel?revSel.value:'';
+    // Tier 2 自行申請 → 直接進第 3 關：必須先選 Scope（決定送 NMDC D&M 或 NMDC Energy）
+    var scopeSel=document.getElementById('submitScopeSel');
+    var scopeId=scopeSel?scopeSel.value:'';
+    if(needScope&&!scopeId){ toast(T('rv.scopeRequired')); return; }
     var reviewerIds=[];
     document.querySelectorAll('#nextRevMulti input:checked').forEach(function(el){ reviewerIds.push(el.id.substring(4)); });
     var btn=$('btnSubmitPtw'); btn.disabled=true;
@@ -16666,7 +17159,7 @@ function previewSubmit(){
         toast(Z?'草稿儲存失敗，尚未提交 — 請再按一次提交':'Draft save failed — NOT submitted. Please try again.');
         return;
       }
-      api('ptw.submit',{ptwId:cur.id,reviewerId:reviewerId||'',reviewerIds:reviewerIds}).then(function(res){
+      api('ptw.submit',{ptwId:cur.id,reviewerId:reviewerId||'',reviewerIds:reviewerIds,scopeId:scopeId}).then(function(res){
         btn.disabled=false;
         if(!res.ok){
           // 後端擋下（罕見）：同樣以逐項清單顯示
@@ -16929,7 +17422,7 @@ function ptwFlowDiagram(){
     ['Confirm completion & sign-off by relevant parties','確認完工並由相關方簽認']
   ];
   var marks=['①','②','③','④','⑤','⑥'];
-  var h='<div class="mb-2" style="background:linear-gradient(160deg,#0d2a40,#123a58);border-radius:12px;padding:14px">'+
+  var h='<div class="mb-2" style="background:#002038;border-radius:10px;padding:14px">'+
     '<div class="text-center mb-2" style="color:#cfe3f5;font-weight:700;letter-spacing:.5px">🔄 PTW PROCESS FLOW '+(Z?'作業流程':'')+'</div>'+
     '<div class="d-flex flex-wrap justify-content-center align-items-stretch" style="gap:6px">';
   steps.forEach(function(s,i){

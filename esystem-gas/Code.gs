@@ -1405,6 +1405,51 @@ function trkTaskTable_(rows, today, doTr) {
   return h + '</table>';
 }
 
+// ── 本報告期間內完成的追蹤事項（打勾時前端寫入 doneAt） ──
+function trkDoneTable_(rows, doTr) {
+  if (!rows.length) return '';
+  var TH = 'padding:9px 10px;background-color:#14532d;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:1px;' + TRK_FONT;
+  var priLabel = { high: '高', mid: '中', low: '低' };
+  var priEn    = { high: 'High', mid: 'Mid', low: 'Low' };
+  var priColor = { high: '#dc2626', mid: '#d97706', low: '#16a34a' };
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;border:1px solid #cfe3d6;margin-top:10px;">';
+  h += '<tr bgcolor="#14532d">' +
+       '<td bgcolor="#14532d" width="11%" style="' + TH + '">優先</td>' +
+       '<td bgcolor="#14532d" width="53%" style="' + TH + '">事項 Item</td>' +
+       '<td bgcolor="#14532d" width="14%" style="' + TH + '">負責人</td>' +
+       '<td bgcolor="#14532d" width="22%" style="' + TH + '">完成日 Done</td></tr>';
+  rows.forEach(function(t, i) {
+    var bg = i % 2 === 0 ? '#ffffff' : '#f4faf6';
+    var pri = t.priority || 'mid';
+    var persons = String(t.person || '').split(',').map(function(p){ return p.trim(); }).filter(Boolean).join('、');
+    var notes = trkNoteLines_(t.note);
+    var TD = 'padding:9px 10px;border-top:1px solid #e0eee6;font-size:13px;color:#1e293b;vertical-align:top;word-wrap:break-word;' + TRK_FONT;
+    var noteHtml = '';
+    notes.forEach(function(l) {
+      noteHtml += trkP_(trkEsc_(l), 'font-size:11px;color:#64748b;margin-top:3px;line-height:1.5;');
+      var en = doTr ? tr_(l) : '';
+      if (en) noteHtml += trkP_(trkEsc_(en), 'font-size:10px;color:#a3aec0;line-height:1.4;');
+    });
+    var late = trkDaysLeft_(t.deadline, t.doneAt); // 完成日 - 期限：負數代表逾期完成
+    var lateZh = late == null ? '' : late < 0 ? '逾期 ' + Math.abs(late) + ' 天完成' : late === 0 ? '當天完成' : '提前 ' + late + ' 天完成';
+    var lateEn = late == null ? '' : late < 0 ? Math.abs(late) + 'd late' : late === 0 ? 'on time' : late + 'd early';
+    var lateColor = late != null && late < 0 ? '#b45309' : '#15803d';
+    h += '<tr bgcolor="' + bg + '">';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' +
+           trkP_('<span style="color:' + priColor[pri] + ';' + TRK_FONT + '">●</span> ' + priLabel[pri], 'font-size:12px;font-weight:bold;color:' + priColor[pri] + ';') +
+           trkP_(priEn[pri] + ' · #' + (i + 1), 'font-size:10px;color:#94a3b8;margin-top:2px;') + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' +
+           trkZhEn_(t.name, 'font-size:13px;font-weight:bold;color:#0f172a;text-decoration:none;', '', doTr) + noteHtml + '</td>';
+    h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';font-size:12px;">' + trkEsc_(persons || '—') + '</td>';
+    h += '<td bgcolor="#f0fdf4" style="' + TD + 'background-color:#f0fdf4;">' +
+           trkP_('✅ ' + trkEsc_(t.doneAt || ''), 'font-size:12px;font-weight:bold;color:#15803d;') +
+           (lateZh ? trkP_(lateZh + '<br><span style="font-weight:normal;color:#94a3b8;' + TRK_FONT + '">' + lateEn + '</span>', 'font-size:11px;font-weight:bold;color:' + lateColor + ';margin-top:2px;line-height:1.4;') : '') +
+           trkP_('原期限 ' + trkEsc_(t.deadline || '—'), 'font-size:10px;color:#94a3b8;margin-top:3px;') + '</td>';
+    h += '</tr>';
+  });
+  return h + '</table>';
+}
+
 // ── 改善單：從改善單系統 GAS 抓「全部紀錄」，同前端公告欄的算法（未結案 + 期限在 days 天內或已逾期） ──
 function getNcrOpenFromGas_(days) {
   var resp = UrlFetchApp.fetch(NCR_GAS_URL + '?action=index&_=' + Date.now(), { muteHttpExceptions: true, followRedirects: true });
@@ -1556,6 +1601,12 @@ function buildTrackerMail_(opts) {
   var range = reportRange_();
   var data  = getAllData();
   var tasks = (data.tasks || []).filter(function(t){ return t && !t.done; });
+  // 本報告期間內（週一～週日）打勾完成的事項；doneAt 由前端打勾時寫入，舊資料沒有就不列
+  var doneInRange = (data.tasks || []).filter(function(t){
+    if (!t || !t.done || !t.doneAt) return false;
+    var d = String(t.doneAt).slice(0, 10);
+    return d >= range.fromIso && d <= range.toIso;
+  }).sort(function(a, b){ return String(a.doneAt).localeCompare(String(b.doneAt)); });
 
   var priOrd = { high: 0, mid: 1, low: 2 };
   tasks.sort(function(a, b) {
@@ -1647,11 +1698,18 @@ function buildTrackerMail_(opts) {
   if (ncrSoon.length)    { body += trkSubHead_('🟠 7 天內到期（' + ncrSoon.length + ' 筆）Due within 7 days', '#b45309'); body += trkNcrTable_(ncrSoon, doTr); }
 
   // 追蹤事項
-  body += trkSectionTitle_('📋', '追蹤事項', 'Tracker Items', '依優先度與期限排序 · Sorted by priority and deadline', '#16a34a');
-  if (!total) body += trkEmptyNote_('目前沒有未完成的追蹤事項。', 'No open tracker items.');
+  body += trkSectionTitle_('📋', '追蹤事項', 'Tracker Items',
+    '依優先度與期限排序 · Sorted by priority and deadline' +
+    (doneInRange.length ? '<br><b>✅ 本期完成 ' + doneInRange.length + ' 項</b>（列於最後）· ' + doneInRange.length + ' item(s) completed this period, listed at the end' : ''), '#16a34a');
+  if (!total) body += trkEmptyNote_('目前沒有未完成的追蹤事項。' + (doneInRange.length ? '本期完成 ' + doneInRange.length + ' 項，詳見下表。' : ''),
+    'No open tracker items.' + (doneInRange.length ? ' ' + doneInRange.length + ' item(s) completed this period, listed below.' : ''));
   if (overdue.length)  { body += trkSubHead_('🔴 已逾期（' + overdue.length + ' 項）Overdue', '#b91c1c'); body += trkTaskTable_(overdue, today, doTr); }
   if (thisWeek.length) { body += trkSubHead_('🟠 本週到期（' + thisWeek.length + ' 項）Due this week', '#b45309'); body += trkTaskTable_(thisWeek, today, doTr); }
   if (later.length)    { body += trkSubHead_('🔵 排程中（' + later.length + ' 項）Scheduled', '#0369a1'); body += trkTaskTable_(later, today, doTr); }
+  if (doneInRange.length) {
+    body += trkSubHead_('✅ 本期完成（' + doneInRange.length + ' 項）Completed this period · ' + range.from + ' ~ ' + range.to, '#15803d');
+    body += trkDoneTable_(doneInRange, doTr);
+  }
 
   // 本週活動（照片上方）
   var evHtml = '';
