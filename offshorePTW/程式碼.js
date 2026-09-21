@@ -11703,7 +11703,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
         <input id="fgEmail" type="email" class="form-control mb-2">
         <button class="btn btn-navy" onclick="doForgot()" data-i18n="forgot.submit"></button>
         <hr>
-        <p class="small text-muted" data-l>Have a reset code from email? 已收到重設碼？</p>
+        <p class="small text-muted" data-l>已收到重設碼？｜Have a reset code from email?</p>
         <input id="rsToken" class="form-control mb-2" data-l-ph placeholder="Reset code 重設碼">
         <input id="rsPw" type="password" class="form-control mb-2" data-l-ph placeholder="New password 新密碼">
         <button class="btn btn-outline-primary" onclick="doReset()" data-i18n="reset.submit"></button>
@@ -11766,9 +11766,9 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
         </div>
         <div id="quickAddBody" class="d-none mt-2">
           <div class="small mb-2 p-2 rounded" style="background:#fff3cd;border:1px solid #f0d58c" data-l>
-            ⚠️ <b>同一 Email 不可重複建立帳號</b>（Email 即登入帳號）。唯一例外：測試用信箱
-            <code>paul.tong@nmdc-group.com</code> 可重複建立，登入時以<b>最後建立</b>的那組帳密為準。
-            One account per email — duplicates are rejected. Only the test address above may be created repeatedly;
+            ⚠️ 同一 Email 不可重複建立帳號（Email 即登入帳號）。唯一例外：測試用信箱
+            paul.tong@nmdc-group.com 可重複建立，登入時以「最後建立」的那組帳密為準。
+            ｜⚠️ One account per email — duplicates are rejected. Only the test address above may be created repeatedly;
             the most recently created one is the account that logs in.
           </div>
           <div class="row g-2">
@@ -11801,12 +11801,12 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
         <input id="userSearch" class="form-control" style="max-width:240px" data-i18n-ph="common.search" oninput="loadUsers()">
         <select id="ufCompany" class="form-select" style="max-width:220px" onchange="loadUsers()"></select>
         <select id="ufTier" class="form-select" style="max-width:150px" onchange="loadUsers()">
-          <option value="" data-l>Tier（全部 All）</option>
+          <option value="" data-l>Tier（全部）｜Tier (All)</option>
           <option value="1">Tier 1</option><option value="2">Tier 2</option>
           <option value="3">Tier 3</option><option value="4">Tier 4</option><option value="5">Tier 5</option>
         </select>
         <select id="ufStatus" class="form-select" style="max-width:170px" onchange="loadUsers()">
-          <option value="" data-l>狀態（全部 Status）</option>
+          <option value="" data-l>狀態（全部）｜Status (All)</option>
           <option value="Active">Active</option><option value="PendingApproval">PendingApproval</option>
           <option value="Locked">Locked</option><option value="Disabled">Disabled</option>
         </select>
@@ -11827,7 +11827,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       <div class="d-flex gap-2 mb-2 flex-wrap">
         <input id="coSearch" class="form-control" style="max-width:240px" data-l-ph placeholder="搜尋公司 Search company…" oninput="loadCompanies()">
         <select id="cofType" class="form-select" style="max-width:180px" onchange="loadCompanies()">
-          <option value="" data-l>類型（全部 Type）</option>
+          <option value="" data-l>類型（全部）｜Type (All)</option>
           <option value="Contractor" data-l>Contractor 承商</option><option value="NMDC">NMDC</option><option value="TPC" data-l>TPC 台電</option>
         </select>
       </div>
@@ -11836,13 +11836,13 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
     <!-- 工程範疇 Scope：決定第 3 關送 NMDC D&amp;M 或 NMDC Energy -->
     <div class="tab-pane fade" id="tabScopes">
       <div class="border rounded p-2 mb-3 small" style="background:#f6f9fc;border-color:#9ec5e8 !important" data-l>
-        🧭 <b>工程範疇 Scope</b>：承商職安衛（Tier 2）送審或核准、要把 PTW 送到第 3 關時，必須先選擇 Scope；
-        系統依 Scope 對應的部門，自動把第 3 關送給 <b>NMDC D&amp;M</b> 或 <b>NMDC Energy</b>。
-        When Tier 2 sends a PTW to Step 3 they must pick a Scope first; the Scope routes Step 3 to NMDC D&amp;M or NMDC Energy.
+        🧭 工程範疇 Scope：承商職安衛（Tier 2）送審或核准、要把 PTW 送到第 3 關時，必須先選擇 Scope；
+        系統依 Scope 對應的部門，自動把第 3 關送給 NMDC D&amp;M 或 NMDC Energy。
+        ｜🧭 When Tier 2 sends a PTW to Step 3 they must pick a Scope first; the Scope routes Step 3 to NMDC D&amp;M or NMDC Energy.
       </div>
       <div class="row g-2 mb-3">
         <div class="col-md-3"><input id="scNameEn" class="form-control" placeholder="Scope Name (EN)"></div>
-        <div class="col-md-3"><input id="scNameZh" class="form-control" data-l-ph placeholder="範疇名稱（中文，可留空）"></div>
+        <div class="col-md-3"><input id="scNameZh" class="form-control" data-l-ph placeholder="範疇名稱（中文，可留空）｜Scope name (ZH, optional)"></div>
         <div class="col-md-3"><select id="scDept" class="form-select">
           <option value="NMDC D&amp;M">NMDC D&amp;M</option>
           <option value="NMDC Energy">NMDC Energy</option>
@@ -11855,7 +11855,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
     <div class="tab-pane fade" id="tabTraining">
       <h6 data-i18n="trAdmin.title">Training Management</h6>
       <div class="border rounded p-2 mb-2" style="background:#f6f9fc">
-        <b class="small">🇹🇼 <span data-l>中文版課程 Chinese Course（介面為中文的學員觀看）</span></b>
+        <b class="small">🇹🇼 <span data-l>中文版課程（介面為中文的學員觀看）｜Chinese Course (for trainees using the Chinese UI)</span></b>
         <div class="row g-2 mt-1">
           <div class="col-md-4"><input id="tcTitle" class="form-control" data-i18n-ph="trAdmin.courseTitle"></div>
           <div class="col-md-4"><textarea id="tcVideo" class="form-control" rows="3" data-i18n-ph="trAdmin.videoId"></textarea></div>
@@ -11864,7 +11864,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
         </div>
       </div>
       <div class="border rounded p-2 mb-3" style="background:#f6f9fc">
-        <b class="small">🇬🇧 <span data-l>英文版課程 English Course（介面為英文的學員觀看）</span></b>
+        <b class="small">🇬🇧 <span data-l>英文版課程（介面為英文的學員觀看）｜English Course (for trainees using the English UI)</span></b>
         <div class="row g-2 mt-1">
           <div class="col-md-4"><input id="tcTitleEn" class="form-control" data-i18n-ph="trAdmin.courseTitle"></div>
           <div class="col-md-4"><textarea id="tcVideoEn" class="form-control" rows="3" data-i18n-ph="trAdmin.videoId"></textarea></div>
@@ -12013,7 +12013,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
     </div>
     <div class="tab-pane fade" id="tabNumbers">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
-        <h6 class="mb-0">🔢 <span data-l>編號總表 PTW & Certificate Numbers</span></h6>
+        <h6 class="mb-0">🔢 <span data-l>編號總表｜PTW & Certificate Numbers</span></h6>
         <button class="btn btn-sm btn-outline-primary" onclick="loadNumbers()">🔄 <span data-l>重新整理 Refresh</span></button>
       </div>
       <div id="numGaps"></div>
@@ -12021,24 +12021,24 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
     </div>
     <div class="tab-pane fade" id="tabIssueMail">
       <h6>📬 <span data-l>PTW 核發通知清單 Issue Notification List</span></h6>
-      <div class="small text-muted mb-2" data-l>Tier 5 核准簽發時，除審查流程所有人外，以下信箱也會收到核發通知（一行一個 Email）。 When a PTW is issued at Tier 5, everyone in the review chain is notified — the emails below are additionally notified (one per line).</div>
+      <div class="small text-muted mb-2" data-l>Tier 5 核准簽發時，除審查流程所有人外，以下信箱也會收到核發通知（一行一個 Email）。｜When a PTW is issued at Tier 5, everyone in the review chain is notified — the emails below are additionally notified (one per line).</div>
       <textarea id="issueMailList" class="form-control" rows="6" placeholder="ehs@example.com&#10;pm@example.com"></textarea>
       <button class="btn btn-navy mt-2" onclick="saveIssueList()">💾 <span data-l>儲存清單 Save List</span></button>
       <span id="issueMailState" class="small text-muted ms-2"></span>
       <hr>
       <h6>📮 <span data-l>狀態變動副本清單 Status-Change CC List</span></h6>
-      <div class="small text-muted mb-2" data-l>系統發生下列事件時，除當事人外，以下信箱會收到副本通知（一行一個 Email）；可勾選要啟用哪些事件。 When any of the events below occurs, the emails listed here receive a CC notification (one per line); tick which events are enabled.</div>
+      <div class="small text-muted mb-2" data-l>系統發生下列事件時，除當事人外，以下信箱會收到副本通知（一行一個 Email）；可勾選要啟用哪些事件。｜When any of the events below occurs, the emails listed here receive a CC notification (one per line); tick which events are enabled.</div>
       <textarea id="ccMailList" class="form-control" rows="4" placeholder="ehs@example.com&#10;pm@example.com"></textarea>
       <div id="ccEventChecks" class="row g-1 mt-2 small"></div>
       <hr>
       <h6>🗓 <span data-l>每週摘要收件清單 Weekly Summary List</span></h6>
-      <div class="small text-muted mb-2" data-l>每週日 20:00（台北時間）自動寄出 PTW 每週摘要（執行中／逾期未關明細）給以下信箱（一行一個 Email）。 Every Sunday 20:00 (Taipei) a PTW weekly summary (active / overdue details) is emailed to the addresses below (one per line).</div>
+      <div class="small text-muted mb-2" data-l>每週日 20:00（台北時間）自動寄出 PTW 每週摘要（執行中／逾期未關明細）給以下信箱（一行一個 Email）。｜Every Sunday 20:00 (Taipei) a PTW weekly summary (active / overdue details) is emailed to the addresses below (one per line).</div>
       <textarea id="weeklyMailList" class="form-control" rows="3" placeholder="manager@example.com"></textarea>
-      <button class="btn btn-navy mt-2" onclick="saveCcMail()">💾 <span data-l>儲存副本與週報設定 Save CC & Weekly Settings</span></button>
+      <button class="btn btn-navy mt-2" onclick="saveCcMail()">💾 <span data-l>儲存副本與週報設定｜Save CC & Weekly Settings</span></button>
       <span id="ccMailState" class="small text-muted ms-2"></span>
       <hr>
       <h6>🧪 <span data-l>測試寄信 Send Test Email</span></h6>
-      <div class="small text-muted mb-2" data-l>選擇寄信時機並填寫信箱，寄出一封測試信查看內容（週報會使用目前實際資料）。 Choose a mail timing and enter an email to receive a sample (the weekly summary uses live data).</div>
+      <div class="small text-muted mb-2" data-l>選擇寄信時機並填寫信箱，寄出一封測試信查看內容（週報會使用目前實際資料）。｜Choose a mail timing and enter an email to receive a sample (the weekly summary uses live data).</div>
       <div class="d-flex gap-2 flex-wrap">
         <select id="mailTestEvent" class="form-select form-select-sm" style="max-width:320px"></select>
         <input id="mailTestEmail" type="email" class="form-control form-control-sm" style="max-width:280px" placeholder="test@example.com">
@@ -12047,7 +12047,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       </div>
       <hr>
       <h6>💬 <span data-l>右下角聯繫視窗內容 Contact Popup Content</span></h6>
-      <div class="small text-muted mb-2" data-l>所有使用者點右下角 💬 按鈕看到的內容，依介面語言顯示對應版本。 Shown via the 💬 button; the version matching the UI language is displayed.</div>
+      <div class="small text-muted mb-2" data-l>所有使用者點右下角 💬 按鈕看到的內容，依介面語言顯示對應版本。｜Shown via the 💬 button; the version matching the UI language is displayed.</div>
       <div class="row g-2"><div class="col-md-6">
         <b class="small">🇹🇼 中文版</b>
         <textarea id="contactText" class="form-control" rows="7"></textarea>
@@ -12067,7 +12067,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       </div>
       <!-- 🧹 清除全部 PTW／編號歸零（測試結束後） -->
       <div class="card-x p-3 mt-3" style="border:2px solid #e08a00;background:#fff9ef">
-        <h6 style="color:#9a5b00">🧹 <span data-l>清除全部 PTW 並將編號歸零 Clear all PTWs &amp; restart numbering</span></h6>
+        <h6 style="color:#9a5b00">🧹 <span data-l>清除全部 PTW 並將編號歸零｜Clear all PTWs &amp; restart numbering</span></h6>
         <div class="small mb-2" style="color:#6b4a00" data-i18n="tm.clearDesc"></div>
         <button class="btn btn-warning fw-bold" onclick="doClearPtws()">🧹 <span data-l>清除全部 PTW 並歸零編號 Clear all PTWs</span></button>
       </div>
@@ -12289,7 +12289,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
             </select></div>
           <div class="col-md-3"><label class="form-label small mb-0" data-i18n="rv.target">Return To 退回對象</label>
             <select id="rvTarget" class="form-select form-select-sm">
-              <option value="applicant" data-l>申請人 Applicant（全部重簽）</option>
+              <option value="applicant" data-l>申請人（全部重簽）｜Applicant (re-sign all)</option>
               <option value="previousTier" id="rvPrevOpt" data-l>上一關 Previous Tier</option>
             </select></div>
           <div class="col-md-6"><label class="form-label small mb-0" data-i18n="rv.comment">Comment ＊（必填 required）</label>
@@ -12365,7 +12365,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       <label class="form-label small mb-1 fw-bold" data-i18n="rv.nextReviewer">Next-tier reviewer</label>
       <select id="apNextRev" class="form-select form-select-sm"></select>
       <div id="apNextRevMulti" class="d-none border rounded p-2" style="max-height:170px;overflow:auto;background:#fff"></div>
-      <div id="apNextRevHint" class="small text-muted mt-1 d-none" data-l>可複選：不同船別分屬不同施工組，勾選要通知的施工組人員；全不勾＝通知全部。任一被通知者審核即可。 Multi-select: tick the Tier-3 reviewers to notify (different vessels → different construction teams); none ticked = notify all. Any notified person may review.</div>
+      <div id="apNextRevHint" class="small text-muted mt-1 d-none" data-l>可複選：不同船別分屬不同施工組，勾選要通知的施工組人員；全不勾＝通知全部。任一被通知者審核即可。｜Multi-select: tick the Tier-3 reviewers to notify (different vessels → different construction teams); none ticked = notify all. Any notified person may review.</div>
     </div>
     <div class="d-flex gap-2">
       <button class="btn btn-success flex-grow-1" onclick="confirmApprove()">✅ <span data-i18n="rv.signConfirm">Sign & Approve 簽名並核准</span></button>
@@ -12377,24 +12377,24 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
 
 <!-- ==================== 訓練 + 考試（規格 §6） ==================== -->
 <main class="container-fluid mt-3 d-none" id="viewCertified" style="max-width:1250px">
-  <div class="p-3 rounded-4" style="background:#0d1b2e;border:1px solid #1e3a5c;box-shadow:0 8px 30px rgba(2,12,24,.5)">
+  <div class="card-x p-3">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
       <div>
-        <h5 class="mb-0" style="color:#e8f2fc">👤 <span data-l>合格人員 Certified Personnel</span> <span id="cpCount" style="color:#7fb2e5"></span></h5>
-        <div class="small" id="cpStats" style="color:#7f95b0"></div>
+        <h5 class="mb-0">👤 <span data-l>合格人員｜Certified Personnel</span> <span id="cpCount" style="color:var(--muted);font-weight:600"></span></h5>
+        <div class="small" id="cpStats" style="color:var(--muted)"></div>
       </div>
       <div class="d-flex gap-2 flex-wrap">
-        <input id="cpSearch" class="form-control form-control-sm" style="max-width:220px;background:#12243c;border-color:#1e3a5c;color:#dce9f7"
-          data-l-ph placeholder="搜尋姓名/公司/職稱… Search name/company/title…" oninput="renderCertified()">
-        <select id="cpType" class="form-select form-select-sm" style="max-width:150px;background:#12243c;border-color:#1e3a5c;color:#dce9f7" onchange="renderCertified()">
-          <option value="" data-l>全部類型 All Types</option>
+        <input id="cpSearch" class="form-control form-control-sm" style="max-width:220px"
+          data-l-ph placeholder="搜尋姓名/公司/職稱…｜Search name/company/title…" oninput="renderCertified()">
+        <select id="cpType" class="form-select form-select-sm" style="max-width:150px" onchange="renderCertified()">
+          <option value="" data-l>全部類型｜All Types</option>
           <option value="Issuing">Issuing</option>
           <option value="Performing">Performing</option>
         </select>
-        <select id="cpCompany" class="form-select form-select-sm" style="max-width:180px;background:#12243c;border-color:#1e3a5c;color:#dce9f7" onchange="renderCertified()">
-          <option value="" data-l>全部公司 All Companies</option>
+        <select id="cpCompany" class="form-select form-select-sm" style="max-width:180px" onchange="renderCertified()">
+          <option value="" data-l>全部公司｜All Companies</option>
         </select>
-        <button class="btn btn-sm btn-outline-light" onclick="showView('home');renderHome()">← <span data-l>回首頁 Home</span></button>
+        <button class="btn btn-sm btn-outline-primary" onclick="showView('home');renderHome()">← <span data-l>回首頁｜Home</span></button>
       </div>
     </div>
     <div class="table-responsive mt-2" id="cpTable">Loading…</div>
@@ -12756,10 +12756,21 @@ var lang='en';
 try{ var sv=localStorage.getItem('ptw_lang')||sessionStorage.getItem('ptw_lang');
      if(sv==='zh'||sv==='en') lang=sv; }catch(e){}
 function T(k){ var s=STRINGS[k]; return s?(s[lang]||s.en):k; }
-/* (8) 單語顯示：雙語混寫字串依語言拆分（中文取 CJK＋縮寫；英文取拉丁詞） */
+/* (8) 單語顯示：雙語混寫字串依語言拆分
+   優先用全形直線「｜」明確分段：「中文段｜English part」（順序不拘，依有無中文字判斷）；
+   沒有分隔符時才退回舊的猜測法（中文取 CJK＋縮寫；英文取拉丁詞），適用「新增 Add」這類短標籤。 */
 function L(str){
   if(!str) return str;
   var s0=String(str);
+  if(s0.indexOf('｜')>=0){
+    var zhSeg=[], enSeg=[];
+    s0.split('｜').forEach(function(p){
+      var t=p.trim(); if(!t) return;
+      if(/[\\u4e00-\\u9fff]/.test(t)) zhSeg.push(t); else enSeg.push(t);
+    });
+    var pick=(lang==='zh'?zhSeg:enSeg).join(' ').trim();
+    return pick||s0.split('｜').join(' ').trim();
+  }
   if(!/[\\u4e00-\\u9fff]/.test(s0)) return s0;
   var toks=s0.split(/\\s+/), zh=[], en=[];
   toks.forEach(function(t){
@@ -13626,29 +13637,29 @@ function renderCertified(){
     :('Issuing: '+iss+' | Performing: '+(rows.length-iss)+' | Total: '+rows.length));
   var today=localDate();
   var soon=localDate(new Date(Date.now()+60*86400000));
-  var h='<table class="table table-sm mb-0" style="--bs-table-bg:transparent;color:#dce9f7">'+
-    '<thead><tr style="border-bottom:2px solid #1e3a5c">'+
+  var h='<table class="table table-sm table-hover align-middle mb-0">'+
+    '<thead><tr>'+
     ['#',Z?'類型':'Type',Z?'部門':'Dept.',Z?'公司':'Company',Z?'姓名':'Name',Z?'職稱':'Title',Z?'訓練日期':'Trained',Z?'效期':'Valid Until']
-      .map(function(t){ return '<th style="color:#7fb2e5;border:0;background:#12243c">'+t+'</th>'; }).join('')+'</tr></thead><tbody>';
+      .map(function(t){ return '<th>'+t+'</th>'; }).join('')+'</tr></thead><tbody>';
   rows.forEach(function(r,i){
     var typeBadge=r.type==='Issuing'
-      ?'<span class="badge" style="background:#2a2a72;color:#b9c8ff">Issuing</span>'
-      :'<span class="badge" style="background:#0f3d2e;color:#7fe5b2">Performing</span>';
+      ?'<span class="badge" style="background:var(--navy)">Issuing</span>'
+      :'<span class="badge" style="background:var(--accent)">Performing</span>';
     var vu=r.validUntil||'';
-    var vuHtml=!vu?'-':(vu<today?'<span style="color:#ff7b7b;font-weight:700">'+esc(vu)+' ⚠</span>'
-      :(vu<=soon?'<span style="color:#f0a500;font-weight:700">'+esc(vu)+'</span>':'<span style="color:#7f95b0">'+esc(vu)+'</span>'));
-    h+='<tr style="border-bottom:1px solid #14283f">'+
-      '<td style="border:0;color:#5f7790">'+(i+1)+'</td>'+
-      '<td style="border:0">'+typeBadge+'</td>'+
-      '<td style="border:0;color:#a9bdd4" class="small">'+esc((Z?r.dept.split('|')[0]:(r.dept.split('|')[1]||r.dept.split('|')[0]))||'-')+'</td>'+
-      '<td style="border:0"><span class="badge" style="background:#123a5c;color:#7fd0ff">'+esc((Z?(r.companyZh||r.companyEn):(r.companyEn||r.companyZh)).substring(0,14))+'</span></td>'+
-      '<td style="border:0;font-weight:700;color:#eef6ff">'+esc(Z?(r.nameZh||r.nameEn):(r.nameEn||r.nameZh))+(r.nameEn&&r.nameZh&&r.nameEn!==r.nameZh?' <span class="small" style="color:#7f95b0">'+esc(Z?r.nameEn:r.nameZh)+'</span>':'')+'</td>'+
-      '<td style="border:0;color:#cfe0f2">'+esc(r.title||'-')+(r.isHse?' <span class="badge" style="background:#5c2a12;color:#ffb27f">HSE</span>':'')+'</td>'+
-      '<td style="border:0;color:#a9bdd4">'+esc(r.trainedAt||'-')+'</td>'+
-      '<td style="border:0">'+vuHtml+'</td></tr>';
+    var vuHtml=!vu?'-':(vu<today?'<span style="color:#c62828;font-weight:700">'+esc(vu)+' ⚠</span>'
+      :(vu<=soon?'<span style="color:#b26a00;font-weight:700">'+esc(vu)+'</span>':'<span style="color:var(--muted)">'+esc(vu)+'</span>'));
+    h+='<tr>'+
+      '<td style="color:var(--muted)">'+(i+1)+'</td>'+
+      '<td>'+typeBadge+'</td>'+
+      '<td class="small" style="color:var(--muted)">'+esc((Z?r.dept.split('|')[0]:(r.dept.split('|')[1]||r.dept.split('|')[0]))||'-')+'</td>'+
+      '<td><span class="badge" style="background:#e8f0f7;color:var(--navy);border:1px solid var(--line)">'+esc((Z?(r.companyZh||r.companyEn):(r.companyEn||r.companyZh)).substring(0,14))+'</span></td>'+
+      '<td style="font-weight:700;color:var(--navy)">'+esc(Z?(r.nameZh||r.nameEn):(r.nameEn||r.nameZh))+(r.nameEn&&r.nameZh&&r.nameEn!==r.nameZh?' <span class="small fw-normal" style="color:var(--muted)">'+esc(Z?r.nameEn:r.nameZh)+'</span>':'')+'</td>'+
+      '<td>'+esc(r.title||'-')+(r.isHse?' <span class="badge" style="background:#b26a00">HSE</span>':'')+'</td>'+
+      '<td style="color:var(--muted)">'+esc(r.trainedAt||'-')+'</td>'+
+      '<td>'+vuHtml+'</td></tr>';
   });
   $('cpTable').innerHTML=h+'</tbody></table>'+
-    (rows.length?'':'<div class="small p-3" style="color:#7f95b0">'+(Z?'無符合條件的人員':'No matching personnel')+'</div>');
+    (rows.length?'':'<div class="small p-3" style="color:var(--muted)">'+(Z?'無符合條件的人員':'No matching personnel')+'</div>');
 }
 /* 編號總表（系統管理） */
 function loadNumbers(){
