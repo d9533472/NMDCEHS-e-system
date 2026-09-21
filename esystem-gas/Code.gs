@@ -402,6 +402,18 @@ function doGet(e) {
     try { return jsonOut_(sendTrackerMail_(e.parameter.to || '', 'manual')); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
+  if (action === 'authInfo') {         // 診斷用：看後端目前是用哪個帳號執行、授權是否完整
+    try {
+      var ai = ScriptApp.getAuthorizationInfo(ScriptApp.AuthMode.FULL);
+      var gmailOk = true, gmailErr = '';
+      try { GmailApp.search('subject:__probe__', 0, 1); } catch (ge) { gmailOk = false; gmailErr = ge.message; }
+      return jsonOut_({ ok: true,
+        effectiveUser: Session.getEffectiveUser().getEmail(),
+        status: String(ai.getAuthorizationStatus()),
+        authUrl: ai.getAuthorizationStatus() === ScriptApp.AuthorizationStatus.REQUIRED ? ai.getAuthorizationUrl() : '',
+        gmailOk: gmailOk, gmailError: gmailErr });
+    } catch (err) { return jsonOut_({ ok: false, error: err.message }); }
+  }
   if (action === 'mailLog') {          // 寄送紀錄（最近 N 筆，含退信檢查）
     try { return jsonOut_(listMailLog_(parseInt(e.parameter.limit, 10) || 30)); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
