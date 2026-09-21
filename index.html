@@ -1218,7 +1218,7 @@ function fixData(){
   if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
-  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.archivedScopes)D.archivedScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length&&!D.archivedScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -1613,7 +1613,7 @@ function saveDocNote(){D.docNotes=$('rteBody2').innerHTML.trim();if(D.docNotes==
 function delDoc(id){if(!confirm('刪除？'))return;D.documents=D.documents.filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 3.5 環保委外項目 ENV SCOPE ═══
-let eScopeId=null,scopeFilter='All';
+let eScopeId=null,scopeFilter='All',showScopeArchive=false;
 function scopeBadge(k){const s=scopeSt(k);return `<span class="scope-badge" style="background:${s.bg};color:${s.fg}">${s.key}<small>${s.zh}</small></span>`;}
 function renderScopeHTML(){if(!D.envScopes)D.envScopes=[];
   const list=D.envScopes;
@@ -1629,10 +1629,34 @@ function renderScopeHTML(){if(!D.envScopes)D.envScopes=[];
   if(!filtered.length)h+=`<tr><td colspan="${isEditor?7:6}" class="tracker-empty">${list.length?'此狀態沒有項目':'尚無委外項目'}</td></tr>`;
   else filtered.forEach(r=>{const ri=list.indexOf(r);
     const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('envScopes',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('envScopes',${ri},1)" ${ri===list.length-1?'disabled':''}>▼</button>`:'';
-    h+=`<tr><td class="doc-num">${ri+1}</td><td style="font-weight:600">${esc(r.supplier||'TBC')}</td><td style="font-family:ui-monospace,monospace;font-size:12px">${esc(r.sr||'—')}</td><td>${esc(r.scope||'')}</td><td style="text-align:center">${scopeBadge(r.status)}</td><td class="doc-note">${r.note?renderHtml(r.note):'—'}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openScopeM('${r.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delScope('${r.id}')">${SV.trash}</button></td>`:''}</tr>`;});
+    // 已完成的項目可以封存，收進下方的封存區
+    const arcBtn=(isEditor&&r.status==='Complete')?`<button class="icon-btn" onclick="archiveScope('${r.id}')" title="封存">📦</button>`:'';
+    h+=`<tr><td class="doc-num">${ri+1}</td><td style="font-weight:600">${esc(r.supplier||'TBC')}</td><td style="font-family:ui-monospace,monospace;font-size:12px">${esc(r.sr||'—')}</td><td>${esc(r.scope||'')}</td><td style="text-align:center">${scopeBadge(r.status)}</td><td class="doc-note">${r.note?renderHtml(r.note):'—'}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openScopeM('${r.id}')">${SV.edit}</button>${arcBtn}<button class="icon-btn danger" onclick="delScope('${r.id}')">${SV.trash}</button></td>`:''}</tr>`;});
   h+='</tbody></table>';
   if(isEditor)h+=`<button class="btn-add-row" onclick="openScopeM()">＋ 新增委外項目</button>`;
+  // ── 封存區（已完成且已封存的項目；不會出現在上面的表格，也不會寄進週報） ──
+  const arc=D.archivedScopes||[];
+  if(arc.length){
+    h+=`<button class="bul-archive-btn" onclick="showScopeArchive=!showScopeArchive;renderTab()">
+      📦 封存項目 <span style="background:var(--bg2);padding:1px 8px;border-radius:10px;font-size:12px">${arc.length}</span>
+      <span style="font-size:11px">${showScopeArchive?'▲ 收起':'▼ 展開'}</span>
+    </button>`;
+    if(showScopeArchive){
+      h+=`<table class="doc-table scope-table" style="margin-top:8px;opacity:.78"><thead><tr><th style="width:44px">#</th><th style="width:110px">Supplier<small>廠商</small></th><th style="width:150px">SR No.<small>請購單號</small></th><th>Scope<small>工作範疇</small></th><th style="width:120px;text-align:center">封存日期</th><th style="width:180px">備註</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
+      arc.forEach((r,i)=>{
+        h+=`<tr><td class="doc-num">${i+1}</td><td style="font-weight:600;color:var(--muted)">${esc(r.supplier||'TBC')}</td><td style="font-family:ui-monospace,monospace;font-size:12px;color:var(--muted)">${esc(r.sr||'—')}</td><td style="color:var(--muted)">${esc(r.scope||'')}</td><td style="text-align:center;font-size:12px;color:var(--muted)">📦 ${esc(r.archivedAt||'')}</td><td class="doc-note">${r.note?renderHtml(r.note):'—'}</td>${isEditor?`<td style="white-space:nowrap"><button class="icon-btn" onclick="unarchiveScope('${r.id}')" title="取消封存" style="opacity:.7">📤</button><button class="icon-btn danger" onclick="delArchivedScope('${r.id}')" title="永久刪除">${SV.trash}</button></td>`:''}</tr>`;});
+      h+='</tbody></table>';
+    }
+  }
   return h+'</div>';}
+function archiveScope(id){const i=(D.envScopes||[]).findIndex(x=>x.id===id);if(i<0)return;
+  const r=D.envScopes.splice(i,1)[0];r.archivedAt=todayS();
+  if(!D.archivedScopes)D.archivedScopes=[];D.archivedScopes.unshift(r);save();renderTab();}
+function unarchiveScope(id){if(!D.archivedScopes)return;const i=D.archivedScopes.findIndex(x=>x.id===id);if(i<0)return;
+  const r=D.archivedScopes.splice(i,1)[0];delete r.archivedAt;
+  if(!D.envScopes)D.envScopes=[];D.envScopes.push(r);save();renderTab();}
+function delArchivedScope(id){const r=(D.archivedScopes||[]).find(x=>x.id===id);if(!confirm('永久刪除封存項目「'+(r?.scope||'')+'」？此動作無法復原。'))return;
+  D.archivedScopes=D.archivedScopes.filter(x=>x.id!==id);save();renderTab();}
 function openScopeM(id){eScopeId=id||null;$('mScT').textContent=id?'編輯委外項目':'新增委外項目';$('bScope').textContent=id?'儲存':'新增';
   const r=id?D.envScopes.find(x=>x.id===id):null;
   $('inScSup').value=r?r.supplier||'':'';$('inScSR').value=r?r.sr||'':'';$('inScScope').value=r?r.scope||'':'';

@@ -3736,7 +3736,8 @@ var ExamService = (function () {
 var PTWService = (function () {
 
   /** saveDraft 可寫入的主表欄位白名單 */
-  var EDITABLE = ['vessel', 'executionDate', 'continuationOfPermitNo', 'areaLocation',
+  // 註：executionDate（申請日期）刻意不列入白名單 —— 於 createDraft 寫入建立當日後即固定，不接受前端覆寫
+  var EDITABLE = ['vessel', 'continuationOfPermitNo', 'areaLocation',
     'workDescription', 'toolsEquipment',
     'wtHotWork', 'wtColdWork', 'wtDiving', 'wtRadiography', 'wtConfinedSpace', 'wtExcavation', 'wtElectricalIso', 'wtProcessIso',
     'validFrom', 'validTo', 'validHours', 'scaffoldingRequired',
@@ -3813,7 +3814,8 @@ var PTWService = (function () {
     var m = Repo.insert('PTW_Master', {
       tempNumber: temp, ptwNumber: '', version: 1, status: CFG.STATUS.DRAFT,
       companyId: user.companyId, applicantUserId: user.id,
-      vessel: user.vessel || '', executionDate: '', areaLocation: '',
+      // 申請日期＝建立草稿當下的台北日期，建立後永久固定（不在 EDITABLE 白名單內，前後端皆不可改）
+      vessel: user.vessel || '', executionDate: fmtDate_(new Date()), areaLocation: '',
       workDescription: '', toolsEquipment: '',
       wtHotWork: false, wtColdWork: false, wtDiving: false, wtRadiography: false,
       wtConfinedSpace: false, wtExcavation: false, wtElectricalIso: false, wtProcessIso: false,
@@ -9846,6 +9848,19 @@ function runAllTests_M33() {
     ptwId = a.data.ptwId;
     // 取消第二張
     PTWService.withdraw(t1, { ptwId: b.data.ptwId });
+  });
+
+  t('T22b 申請日期：建單即鎖定為當日，saveDraft 不可覆寫', function () {
+    var d = PTWService.createDraft(t1), today = fmtDate_(new Date());
+    var g0 = PTWService.get(t1, { ptwId: d.data.ptwId });
+    assert(String(g0.data.executionDate).substring(0, 10) === today,
+      'executionDate not stamped with today: ' + g0.data.executionDate);
+    PTWService.saveDraft(t1, { ptwId: d.data.ptwId, executionDate: '2020-01-01', vessel: 'V-LOCK' });
+    var g1 = PTWService.get(t1, { ptwId: d.data.ptwId });
+    assert(String(g1.data.executionDate).substring(0, 10) === today,
+      'executionDate was overwritten by saveDraft: ' + g1.data.executionDate);
+    assert(g1.data.vessel === 'V-LOCK', 'other editable fields must still save');
+    PTWService.withdraw(t1, { ptwId: d.data.ptwId });
   });
 
   t('T23 儲存草稿與讀回（欄位 + 勾選 + 氣測列）', function () {
@@ -16308,9 +16323,15 @@ function renderStepContent(){
     h+=sect('1-1. PTW 基本資料 Permit Information')+
       companyFld(ro)+
       '<div class="row"><div class="col-md-4">'+fld('vessel','工作船舶 Vessel','t',cur.vessel,ro)+'</div>'+
-      '<div class="col-md-4">'+fld('executionDate','申請日期 Application Date','d',String(cur.executionDate||'').substring(0,10),ro)+'</div>'+
+      '<div class="col-md-4">'+fld('executionDate','申請日期 Application Date','d',String(cur.executionDate||'').substring(0,10),true)+
+        '<div class="small text-muted" style="margin-top:-.4rem;font-size:.72rem">'+(lang==='zh'
+          ?'由系統於建單時自動帶入當日日期，不可修改。'
+          :'Set automatically to the date the permit was created; cannot be changed.')+'</div></div>'+
       '<div class="col-md-4">'+fld('continuationOfPermitNo','延續許可證號 Continuation Permit No','t',cur.continuationOfPermitNo,ro)+'</div></div>'+
       fld('areaLocation','區域/位置（請詳述）Area / Location (describe in detail)','ta',cur.areaLocation,ro)+
+      '<div class="small text-muted mb-2" style="margin-top:-.4rem">'+(lang==='zh'
+        ?'請完整描述作業位置：除海域管線位置（如 KP52～KP54）外，亦須一併載明船上之作業區域與項目，例如於工作船艙內進行動火、輻射作業等。'
+        :'Describe the work location in full: besides the subsea pipeline location (e.g. KP52–KP54), also state the on-board work areas and activities, such as hot work or radiography carried out inside a hold or compartment of the work vessel.')+'</div>'+
       sect('1-2. 作業類型 Work Type')+
       '<div class="small text-muted mb-1">'+(lang==='zh'?'勾選後需於 Step 5 完成對應證書；請參考各類型說明勾選':'Checked types require the matching certificate in Step 5 — see the description of each type')+'</div>';
     var Z0=(lang==='zh');
@@ -16704,13 +16725,11 @@ function attachDirtyListeners(){
     el.addEventListener('change',function(){ markDirty(); });
     if(el.tagName==='TEXTAREA'||el.type==='text') el.addEventListener('input',function(){ markDirty(); });
   });
-  var ed=$('f_executionDate');
-  if(ed) ['change','input'].forEach(function(ev){ ed.addEventListener(ev,function(){
-    var a=$('f_validFrom'),b2=$('f_validTo');
-    if(!a||!b2||!/^\\d{4}-\\d{2}-\\d{2}$/.test(ed.value)) return;
-    if(a.value) return;                     // 開始日期已填 → 不覆寫使用者指定的日期
-    a.value=ed.value; syncValidDays(true);  // 未填 → 帶入申請日期並自動排出 7 天
-  }); });
+  // 申請日期已由系統鎖定（不可修改）→ 不需監聽變更，改為渲染當下直接把開始日期帶入
+  var ed=$('f_executionDate'), edFrom=$('f_validFrom');
+  if(ed&&edFrom&&!edFrom.value&&/^\\d{4}-\\d{2}-\\d{2}$/.test(ed.value)){
+    edFrom.value=ed.value; syncValidDays(true);   // 未填 → 帶入申請日期並自動排出 7 天
+  }
   var vf=$('f_validFrom'),vt=$('f_validTo'),vd=$('f_validDays');
   if(vf) ['change','input'].forEach(function(ev){ vf.addEventListener(ev,function(){ syncValidDays(true); }); });
   if(vt) ['change','input'].forEach(function(ev){ vt.addEventListener(ev,function(){ syncValidDays(false); }); });
@@ -16982,7 +17001,8 @@ function saveNow(showToast,silent){
   if(saveTimer){ clearTimeout(saveTimer); saveTimer=null; }
   $('pfSaveState').textContent=T('pw.saving');
   var payload={ptwId:cur.id,checksJson:JSON.stringify(cur._checks),gasTestsJson:JSON.stringify(cur._gas),docChecksJson:JSON.stringify(cur._docs)};
-  ['vessel','executionDate','continuationOfPermitNo','areaLocation','workDescription','toolsEquipment',
+  // executionDate（申請日期）不送出：後端於建單時鎖定，saveDraft 白名單已排除
+  ['vessel','continuationOfPermitNo','areaLocation','workDescription','toolsEquipment',
    'validFrom','validTo','scaffoldingRequired','gasTestRequired','gasTestInterval','gasTestIntervalOther','cssIsoRequired',
    'psOthers','hzOthers','cssOthers','pcOthers','holderUserId','coHolderUserId','paDeclarationAccepted']
    .forEach(function(k){ payload[k]=cur[k]===undefined?'':cur[k]; });
