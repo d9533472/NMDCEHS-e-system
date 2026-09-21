@@ -1536,6 +1536,57 @@ function trkWeekEvents_(data, today) {
   var to = new Date(from.getTime() + 6 * 86400000);
   return { list: list, from: trkFmt_(from, '/'), to: trkFmt_(to, '/') };
 }
+// ── 環保委外項目（放在現場照片下方，小字；狀態不常變動，所以只做精簡列表） ──
+var ENV_SCOPE_ST = [
+  { key: 'Bidding',    zh: '招標中', bg: '#facc15', fg: '#713f12' },
+  { key: 'SO waiting', zh: '待簽約', bg: '#dc2626', fg: '#ffffff' },
+  { key: 'Ongoing',    zh: '執行中', bg: '#16a34a', fg: '#ffffff' },
+  { key: 'Complete',   zh: '已完成', bg: '#9ca3af', fg: '#ffffff' }
+];
+function trkScopeHtml_(data) {
+  var rows = (data && data.envScopes) || [];
+  if (!rows.length) return '';
+  var order = {}, stOf = {};
+  ENV_SCOPE_ST.forEach(function (s, i) { order[s.key] = i; stOf[s.key] = s; });
+  var sorted = rows.slice().sort(function (a, b) {
+    var oa = order[a.status] == null ? 99 : order[a.status];
+    var ob = order[b.status] == null ? 99 : order[b.status];
+    return oa - ob;
+  });
+  var counts = [];
+  ENV_SCOPE_ST.forEach(function (s) {
+    var n = rows.filter(function (r) { return r.status === s.key; }).length;
+    if (n) counts.push(s.zh + ' ' + n);
+  });
+  var h = trkSectionTitle_('🧭', '環保委外項目', 'ENV Scope',
+    counts.join('　·　') + '　·　共 ' + rows.length + ' 項 · Outsourced environmental services', '#0369a1');
+  var TD = 'padding:7px 10px;border-top:1px solid #e5e9ef;vertical-align:top;word-wrap:break-word;' + TRK_FONT;
+  h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
+  h += '<tr bgcolor="#eef2f7">' +
+       '<td bgcolor="#eef2f7" width="17%" style="padding:6px 10px;background-color:#eef2f7;' + TRK_FONT + '">' + trkP_('Supplier 廠商', 'font-size:10px;font-weight:bold;color:#475569;') + '</td>' +
+       '<td bgcolor="#eef2f7" width="22%" style="padding:6px 10px;background-color:#eef2f7;' + TRK_FONT + '">' + trkP_('SR No. 請購單號', 'font-size:10px;font-weight:bold;color:#475569;') + '</td>' +
+       '<td bgcolor="#eef2f7" style="padding:6px 10px;background-color:#eef2f7;' + TRK_FONT + '">' + trkP_('Scope 工作範疇', 'font-size:10px;font-weight:bold;color:#475569;') + '</td>' +
+       '<td bgcolor="#eef2f7" width="15%" align="center" style="padding:6px 10px;background-color:#eef2f7;' + TRK_FONT + '">' + trkP_('Status 狀態', 'font-size:10px;font-weight:bold;color:#475569;') + '</td>' +
+       '</tr>';
+  sorted.forEach(function (r, i) {
+    var bg = i % 2 === 0 ? '#ffffff' : '#f8fafc';
+    var s = stOf[r.status] || ENV_SCOPE_ST[0];
+    var notes = trkNoteLines_(r.note);
+    var scopeCell = trkP_(trkEsc_(r.scope || ''), 'font-size:12px;color:#0f172a;line-height:1.5;');
+    if (notes.length) scopeCell += trkP_(trkEsc_(notes.join(' / ')), 'font-size:10px;color:#94a3b8;margin-top:2px;line-height:1.45;');
+    h += '<tr bgcolor="' + bg + '">' +
+      '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + trkP_(trkEsc_(r.supplier || 'TBC'), 'font-size:11px;font-weight:bold;color:#334155;') + '</td>' +
+      '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + trkP_(trkEsc_(r.sr || '—'), 'font-size:11px;color:#64748b;') + '</td>' +
+      '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + scopeCell + '</td>' +
+      '<td bgcolor="' + bg + '" align="center" style="' + TD + 'background-color:' + bg + ';">' +
+        '<table cellpadding="0" cellspacing="0" border="0" align="center"><tr><td bgcolor="' + s.bg + '" align="center" style="background-color:' + s.bg + ';padding:3px 8px;">' +
+          trkP_(trkEsc_(s.key), 'font-size:10px;font-weight:bold;color:' + s.fg + ';white-space:nowrap;') +
+          trkP_(trkEsc_(s.zh), 'font-size:9px;font-weight:bold;color:' + s.fg + ';white-space:nowrap;') +
+        '</td></tr></table>' +
+      '</td></tr>';
+  });
+  return h + '</table>';
+}
 function trkEventsHtml_(data, today, doTr) {
   var w = trkWeekEvents_(data, today);
   var types = (data.eventTypes && data.eventTypes.length) ? data.eventTypes : EVT_DEFAULT_TYPES;
@@ -1733,6 +1784,10 @@ function buildTrackerMail_(opts) {
     body += trkSectionTitle_('📸', '現場照片', 'Site Photos', '報告期間 ' + range.from + ' ~ ' + range.to + ' 的環保活動與現場紀錄 · Environmental activities and site records for the report period', '#0ea5e9');
     body += trkPhotosHtml_(photos, doTr);
   }
+
+  // 環保委外項目（照片下方）
+  try { body += trkScopeHtml_(data); } catch(e) { Logger.log('委外項目區塊產生失敗：' + e.message); }
+
   trFlush_();
 
   var html =

@@ -78,6 +78,11 @@ textarea{resize:vertical}
 .tracker-empty{text-align:center;padding:24px;color:var(--muted);font-size:13px}.done-row td{opacity:.4;text-decoration:line-through}.done-row td:nth-child(4){opacity:1;text-decoration:none}.done-date{font-family:inherit;font-size:12px;padding:3px 6px;margin-top:4px;border:1px solid var(--border);border-radius:6px;background:var(--card2);color:var(--text);cursor:pointer}.done-date:hover{border-color:var(--accent)}
 .doc-table{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}.doc-table th{text-align:left;font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;padding:8px 10px;border-bottom:2px solid var(--border);white-space:nowrap}.doc-table td{padding:8px 10px;border-bottom:1px solid var(--bg2);vertical-align:middle}.doc-table tr:last-child td{border-bottom:none}.doc-table tr:hover td{background:var(--accent-light)}
 .doc-num{color:var(--muted);font-weight:600;font-size:12px;text-align:center}
+/* 環保委外項目 */
+.scope-table th small{display:block;font-size:10px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--muted);opacity:.75;margin-top:1px}
+.scope-table td{vertical-align:top}
+.scope-badge{display:inline-block;min-width:92px;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:700;line-height:1.25;text-align:center}
+.scope-badge small{display:block;font-size:10px;font-weight:600;opacity:.85}
 .doc-status{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;font-size:14px;font-weight:700}.doc-status.s-o{background:#dcfce7;color:#16a34a}.doc-status.s-x{background:#fee2e2;color:#dc2626}.doc-status.s-na{background:var(--bg2);color:var(--muted);font-size:10px;font-weight:600}
 .doc-complete.yes{color:var(--accent)}.doc-complete.no{color:var(--danger)}.doc-note{font-size:12px;color:var(--muted);max-width:200px;line-height:1.5}
 .section-block{background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--border);transition:.2s;margin-bottom:12px;box-shadow:var(--shadow)}.section-block:hover{box-shadow:var(--shadow2)}
@@ -749,6 +754,14 @@ body.is-editor .hdr-search{padding:7px 9px;font-size:14px;line-height:1}
 </div></div></div>
 <div class="modal-overlay hidden" id="mDocNote" onclick="closeDocNoteM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title">📝 編輯文件備註</div><div class="modal-form"><div><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd2('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd2('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd2('underline')"><u>U</u></button><button class="rte-btn" onclick="rteCmd2('strikeThrough')"><s>S</s></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd2('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd2('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd2('foreColor',this.value)"><input type="color" class="rte-color" value="#fef08a" onchange="rteCmd2('hiliteColor',this.value)"><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd2('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="rteBody2"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeDocNoteM()">取消</button><button class="btn-primary" onclick="saveDocNote()">儲存</button></div></div></div></div>
 
+<div class="modal-overlay hidden" id="mScope" onclick="closeScopeM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mScT">新增委外項目</div><div class="modal-form">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label class="form-label">Supplier 廠商</label><input class="form-input" id="inScSup" placeholder="未定可留空（顯示 TBC）"></div><div><label class="form-label">SR No. 請購單號</label><input class="form-input" id="inScSR" placeholder="PRJ-SEC-2026-626"></div></div>
+  <div><label class="form-label">Scope 工作範疇（必填）</label><input class="form-input" id="inScScope" placeholder="Construction Waste management service onshore"></div>
+  <div><label class="form-label">Status 狀態</label><select class="form-select" id="inScSt"><option value="Bidding">Bidding 招標中</option><option value="SO waiting">SO waiting 待簽約</option><option value="Ongoing">Ongoing 執行中</option><option value="Complete">Complete 已完成</option></select></div>
+  <div><label class="form-label">備註</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd5('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd5('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd5('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd5('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd5('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd5('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inScNote" style="min-height:60px"></div></div>
+  <div class="modal-actions"><button class="btn-secondary" onclick="closeScopeM()">取消</button><button class="btn-primary" onclick="saveScope()" id="bScope">新增</button></div>
+</div></div></div>
+
 <div class="modal-overlay hidden" id="mMerge" onclick="closeMergeM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mMrgT">合併儲存格</div><div class="modal-form">
   <div><label class="form-label">月份</label><select class="form-select" id="inMMo"></select></div>
   <div><label class="form-label">人員</label><select class="form-select" id="inMP"></select></div>
@@ -796,8 +809,31 @@ const DEFAULT_EVENT_TYPES=[
   {key:'other',label:'其他',color:'#374151',bg:'#f3f4f6'},
 ];
 const EVENT_AREAS=['台中','通霄','專案','離岸','其他'];
+/* 環保委外項目：狀態固定四種，順序＝表格預設排序（招標中 → 待簽約 → 執行中 → 已完成） */
+const SCOPE_STATUS=[
+  {key:'Bidding',    zh:'招標中', bg:'#facc15', fg:'#713f12'},
+  {key:'SO waiting', zh:'待簽約', bg:'#dc2626', fg:'#ffffff'},
+  {key:'Ongoing',    zh:'執行中', bg:'#16a34a', fg:'#ffffff'},
+  {key:'Complete',   zh:'已完成', bg:'#9ca3af', fg:'#ffffff'},
+];
+const scopeSt=k=>SCOPE_STATUS.find(s=>s.key===k)||SCOPE_STATUS[0];
+/* 首次啟用時帶入的現況（來源：2026-09-21 Scope of ENV 表），之後以系統內的編輯為準 */
+const DEFAULT_SCOPES=[
+  {supplier:'TBC',       sr:'',                 scope:'Pest control @ Taichung site',                                       status:'Bidding'},
+  {supplier:'TBC',       sr:'PRJ-SEC-2026-626', scope:'Construction Waste management service onshore',                      status:'Bidding'},
+  {supplier:'TBC',       sr:'',                 scope:'71 pcs steel plate @ TungHsiao',                                     status:'Bidding'},
+  {supplier:'HongYi',    sr:'PRJ-SEC-2025-610', scope:'Taiwan Cetacean Observer Operation Campaign 2',                      status:'SO waiting'},
+  {supplier:'Taigoliter',sr:'PRJ-SEC-2025-1431',scope:'Environmental Impact Simulation Study (Post-Trenching vs. Pre-Trenching)',status:'SO waiting'},
+  {supplier:'Taigoliter',sr:'',                 scope:'Offshore emergency oil spill response drill',                        status:'SO waiting'},
+  {supplier:'BinYang',   sr:'PRJ-SEC-2025-775', scope:'General Waste management onshore',                                   status:'Ongoing'},
+  {supplier:'HongYi',    sr:'PRJ-SEC-2025-788', scope:'Little tern protection',                                             status:'Ongoing'},
+  {supplier:'Taigoliter',sr:'PRJ-SEC-2026-55',  scope:'Oil pollution emergency response',                                   status:'Ongoing'},
+  {supplier:'NOVA',      sr:'PRJ-SEC-2025-557', scope:'Environmental monitoring, Site discharge water, Pre-comm water lab test',status:'Ongoing'},
+  {supplier:'HongYi',    sr:'PRJ-SEC-2025-610', scope:'Taiwan Cetacean Observer Operation Campaign 1',                      status:'Complete'},
+  {supplier:'LeBay',     sr:'PRJ-SEC-2025-1332',scope:'Beach cleanup event',                                                status:'Complete'},
+];
 function makeDefault(){return{hiddenTabs:[],vessels:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
-  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'}],
+  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'envscope',icon:'🧭',title:'環保委外項目'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'}],
   bulletins:[{id:gid(),text:'<b>歡迎使用 Environmental E-System！</b><br>本系統用於管理環保相關工具連結、追蹤事項及公告。',date:todayS()}],
   tasks:[],documents:DEFAULT_DOCS.map(d=>({...d,id:gid()})),docLastUpdated:'',docNotes:'',
   sections:[],schedule:[{url:'',label:'班表 1'},{url:'',label:'班表 2'}],scheduleData:{},schMonths:['2026-03','2026-04']
@@ -1182,7 +1218,7 @@ function fixData(){
   if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
-  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -1269,6 +1305,7 @@ function rteCmd(cmd,val){document.execCommand(cmd,false,val||null);}
 function rteCmd2(cmd,val){$('rteBody2').focus();document.execCommand(cmd,false,val||null);}
 function rteCmd3(cmd,val){$('inDR').focus();document.execCommand(cmd,false,val||null);}
 function rteCmd4(cmd,val){$('inTNote').focus();document.execCommand(cmd,false,val||null);}
+function rteCmd5(cmd,val){$('inScNote').focus();document.execCommand(cmd,false,val||null);}
 
 // ═══ Date helpers ═══
 function daysBetween(a,b){if(!a||!b)return NaN;const p=s=>{const[y,m,d]=String(s).split('-').map(Number);return Date.UTC(y,m-1,d);};return Math.round((p(b)-p(a))/86400000);}
@@ -1451,7 +1488,7 @@ function canTabEdit(){editingTabKey=null;renderTabs();}
 function switchTab(k){activeTab=k;renderTabs();renderTab();}
 function renderTab(){window.renderTab=renderTab;window.activeTab=activeTab;let h='';
   // (listener wiring below)
-  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
+  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='envscope')h=renderScopeHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
   $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});try{renderInfoBar();}catch(e){}}
 
 // ═══ 1 BULLETIN ═══
@@ -1574,6 +1611,42 @@ function openDocNoteM(){$('rteBody2').innerHTML=D.docNotes||'';$('mDocNote').cla
 function closeDocNoteM(){$('mDocNote').classList.add('hidden');}
 function saveDocNote(){D.docNotes=$('rteBody2').innerHTML.trim();if(D.docNotes==='<br>')D.docNotes='';save();renderTab();closeDocNoteM();}
 function delDoc(id){if(!confirm('刪除？'))return;D.documents=D.documents.filter(x=>x.id!==id);save();renderTab();}
+
+// ═══ 3.5 環保委外項目 ENV SCOPE ═══
+let eScopeId=null,scopeFilter='All';
+function scopeBadge(k){const s=scopeSt(k);return `<span class="scope-badge" style="background:${s.bg};color:${s.fg}">${s.key}<small>${s.zh}</small></span>`;}
+function renderScopeHTML(){if(!D.envScopes)D.envScopes=[];
+  const list=D.envScopes;
+  const filtered=scopeFilter==='All'?list:list.filter(r=>r.status===scopeFilter);
+  let h='<div class="card" style="overflow-x:auto">';
+  // 狀態篩選列（含件數）
+  h+='<div class="trk-tabs" style="margin-bottom:12px">';
+  h+=`<button class="trk-tab ${scopeFilter==='All'?'active':''}" onclick="scopeFilter='All';renderTab()">全部<span class="tab-count">${list.length}</span></button>`;
+  SCOPE_STATUS.forEach(s=>{const cnt=list.filter(r=>r.status===s.key).length;
+    h+=`<button class="trk-tab ${scopeFilter===s.key?'active':''}" onclick="scopeFilter='${s.key}';renderTab()">${s.zh}<span class="tab-count">${cnt}</span></button>`;});
+  h+='</div>';
+  h+=`<table class="doc-table scope-table"><thead><tr><th style="width:44px">#</th><th style="width:110px">Supplier<small>廠商</small></th><th style="width:150px">SR No.<small>請購單號</small></th><th>Scope<small>工作範疇</small></th><th style="width:120px;text-align:center">Status<small>狀態</small></th><th style="width:180px">備註</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
+  if(!filtered.length)h+=`<tr><td colspan="${isEditor?7:6}" class="tracker-empty">${list.length?'此狀態沒有項目':'尚無委外項目'}</td></tr>`;
+  else filtered.forEach(r=>{const ri=list.indexOf(r);
+    const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('envScopes',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('envScopes',${ri},1)" ${ri===list.length-1?'disabled':''}>▼</button>`:'';
+    h+=`<tr><td class="doc-num">${ri+1}</td><td style="font-weight:600">${esc(r.supplier||'TBC')}</td><td style="font-family:ui-monospace,monospace;font-size:12px">${esc(r.sr||'—')}</td><td>${esc(r.scope||'')}</td><td style="text-align:center">${scopeBadge(r.status)}</td><td class="doc-note">${r.note?renderHtml(r.note):'—'}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openScopeM('${r.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delScope('${r.id}')">${SV.trash}</button></td>`:''}</tr>`;});
+  h+='</tbody></table>';
+  if(isEditor)h+=`<button class="btn-add-row" onclick="openScopeM()">＋ 新增委外項目</button>`;
+  return h+'</div>';}
+function openScopeM(id){eScopeId=id||null;$('mScT').textContent=id?'編輯委外項目':'新增委外項目';$('bScope').textContent=id?'儲存':'新增';
+  const r=id?D.envScopes.find(x=>x.id===id):null;
+  $('inScSup').value=r?r.supplier||'':'';$('inScSR').value=r?r.sr||'':'';$('inScScope').value=r?r.scope||'':'';
+  $('inScSt').value=r?r.status:'Bidding';$('inScNote').innerHTML=r?r.note||'':'';
+  $('mScope').classList.remove('hidden');setTimeout(()=>$('inScSup').focus(),50);}
+function closeScopeM(){$('mScope').classList.add('hidden');}
+function saveScope(){const scope=$('inScScope').value.trim();if(!scope){alert('請填寫 Scope（工作範疇）');return;}
+  const supplier=$('inScSup').value.trim()||'TBC',sr=$('inScSR').value.trim(),status=$('inScSt').value;
+  let note=$('inScNote').innerHTML.trim();if(note==='<br>')note='';
+  if(!D.envScopes)D.envScopes=[];
+  if(eScopeId){const r=D.envScopes.find(x=>x.id===eScopeId);if(r){r.supplier=supplier;r.sr=sr;r.scope=scope;r.status=status;r.note=note;}}
+  else D.envScopes.push({id:gid(),supplier,sr,scope,status,note});
+  save();renderTab();closeScopeM();}
+function delScope(id){const r=(D.envScopes||[]).find(x=>x.id===id);if(!confirm('刪除「'+(r?.scope||'')+'」？'))return;D.envScopes=D.envScopes.filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 4 LINKS ═══
 function renderLinksHTML(){let h='';
