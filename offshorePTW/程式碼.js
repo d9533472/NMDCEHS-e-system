@@ -3858,6 +3858,8 @@ var PTWService = (function () {
         }
       }
     }
+    // 申請日期：新草稿於 createDraft 已蓋章；此處只補「改版前建立、欄位仍空白」的舊草稿，蓋一次後即固定
+    if (!String(m.executionDate || '').trim()) patch.executionDate = fmtDate_(new Date());
     // 日期簡化（僅日期）：From 補 00:00:00、To 補 23:59:59
     if (patch.validFrom !== undefined && /^\d{4}-\d{2}-\d{2}$/.test(String(patch.validFrom))) {
       patch.validFrom = patch.validFrom + ' 00:00:00';
@@ -3897,6 +3899,11 @@ var PTWService = (function () {
     out.certs = certDetails;
     out.completion = completion_(m);
     out.editable = (m.applicantUserId === user.id && EDIT_STATUSES.indexOf(m.status) >= 0);
+    // 改版前建立、申請日期仍空白的「可編輯草稿」→ 先以今天顯示（saveDraft 會真正寫入固定）；
+    // 已送審／已核准的舊單維持空白，不假造日期
+    if (!String(out.executionDate || '').trim() && EDIT_STATUSES.indexOf(m.status) >= 0) {
+      out.executionDate = fmtDate_(new Date());
+    }
     return ok_(out);
   }
 
@@ -3962,6 +3969,203 @@ var PTWService = (function () {
             (!!p.companyId && String(p.companyId) === String(user.companyId)) };
       })
     });
+  }
+
+  // ---------- 延續許可證（Continuation Permit） ----------
+
+  /** 延續來源可複製的主表欄位（不含申請日期／有效期限／聲明／編號／狀態） */
+  var CONTINUATION_FIELDS = ['vessel', 'areaLocation', 'workDescription', 'toolsEquipment',
+    'wtHotWork', 'wtColdWork', 'wtDiving', 'wtRadiography', 'wtConfinedSpace', 'wtExcavation',
+    'wtElectricalIso', 'wtProcessIso',
+    'scaffoldingRequired', 'gasTestRequired', 'gasTestInterval', 'gasTestIntervalOther', 'cssIsoRequired',
+    'psOthers', 'hzOthers', 'cssOthers', 'pcOthers',
+    'checksJson', 'gasTestsJson', 'docChecksJson',
+    'holderUserId', 'coHolderUserId', 'paUserId'];
+
+  /**
+   * 延續許可證下拉選項：同一申請公司、已核發正式 PTW 編號者，依申請日期新到舊。
+   * 草稿／審核中（僅有 TMP 編號）不列入——尚未核發者無從延續。
+   */
+  function continuationOptions(user, payload) {
+    requireFields_(payload, ['ptwId']);
+    var m = mustGet_(payload.ptwId);
+    SecurityService.assertCanViewPtw(user, m);
+    var rows = Repo.find('PTW_Master', function (p) {
+      return asBool_(p.isActive) && p.id !== m.id &&
+        String(p.companyId) === String(m.companyId) &&
+        String(p.ptwNumber || '').trim() !== '';
+    });
+    rows.sort(function (a, b) {
+      return String(b.executionDate || b.createdAt || '').localeCompare(String(a.executionDate || a.createdAt || ''));
+    });
+    return ok_(rows.slice(0, 200).map(function (p) {
+      return {
+        id: p.id, ptwNumber: p.ptwNumber, status: p.status,
+        executionDate: String(p.executionDate || '').substring(0, 10),
+        validFrom: String(p.validFrom || '').substring(0, 10),
+        validTo: String(p.validTo || '').substring(0, 10),
+        vessel: p.vessel || '',
+        areaLocation: String(p.areaLocation || '').substring(0, 60),
+        workDescription: String(p.workDescription || '').substring(0, 60)
+      };
+    }));
+  }
+
+  /** 延續來源／目標的共同檢查（每個分段步驟都要重跑一次，前端多次呼叫之間狀態可能已變） */
+  function contPair_(user, payload) {
+    requireFields_(payload, ['ptwId', 'sourcePtwId']);
+    var m = mustGet_(payload.ptwId);
+    assertOwnerEditable_(user, m);
+    var src = mustGet_(payload.sourcePtwId);
+    if (String(src.companyId) !== String(m.companyId)) {
+      throw ApiError_('FORBIDDEN', 'Source permit belongs to another company', '來源許可證屬於其他公司');
+    }
+    if (!String(src.ptwNumber || '').trim()) {
+      throw ApiError_('BAD_STATE', 'Source permit has no issued PTW number', '來源許可證尚未核發正式編號');
+    }
+    return { m: m, src: src };
+  }
+
+  /** 依（已複製的）作業類型旗標，算出這張單要跟著搬過來的證書類型 */
+  function contCertTypes_(m, src) {
+    return Object.keys(CFG.CERT_TYPES).filter(function (ct) {
+      var type = CFG.CERT_TYPES[ct];
+      if (type.noCert || !asBool_(m[type.workTypeFlag])) return false;
+      return !!Repo.findOne('PTW_Certificates', function (c) {
+        return c.ptwId === src.id && c.certType === ct && asBool_(c.isActive);
+      });
+    });
+  }
+
+  /**
+   * 帶入前的清單：前端據此顯示實際進度（共幾份證書、幾個附件），本身不寫入任何資料。
+   */
+  function continuationPlan(user, payload) {
+    var pair = contPair_(user, payload), src = pair.src;
+    // 證書類型以「來源單的作業類型」判斷——主表步驟跑完後目標單才會有這些旗標
+    var certTypes = contCertTypes_(src, src);
+    return ok_({
+      sourcePtwNumber: src.ptwNumber,
+      certTypes: certTypes.map(function (ct) {
+        var t = CFG.CERT_TYPES[ct];
+        return { certType: ct, nameEn: t.nameEn, nameZh: t.nameZh };
+      }),
+      attachments: DriveService.listCopyableAttachments(src, pair.m)
+    });
+  }
+
+  /** 步驟 1／3：Step 1–6 主表欄位 */
+  function continuationApplyMaster(user, payload) {
+    var pair = contPair_(user, payload);
+    contApplyMaster_(user, pair.m, pair.src);
+    return ok_({ sourcePtwNumber: pair.src.ptwNumber });
+  }
+
+  /** 步驟 2／3：單一份證書（前端逐份呼叫，才有「2／5」這種實際進度） */
+  function continuationApplyCert(user, payload) {
+    requireFields_(payload, ['certType']);
+    var pair = contPair_(user, payload);
+    var done = contApplyCert_(user, pair.m, pair.src, payload.certType);
+    return ok_({ certType: payload.certType, copied: done });
+  }
+
+  /** 步驟 3／3：單一個附件（同上，逐檔呼叫） */
+  function continuationApplyAttachment(user, payload) {
+    requireFields_(payload, ['attachmentId']);
+    var pair = contPair_(user, payload);
+    var r = DriveService.copyOneAttachment(user, payload.attachmentId, pair.src, pair.m);
+    return ok_(r);
+  }
+
+  /** 收尾：寫一筆稽核紀錄（數量由前端彙總回報） */
+  function continuationFinish(user, payload) {
+    var pair = contPair_(user, payload);
+    AuditService.log({ user: user, actionType: 'PTW_CONTINUATION_APPLY', entityType: 'PTW', entityId: pair.m.id,
+      ptwNumber: pair.m.ptwNumber || pair.m.tempNumber, success: true,
+      newValue: { sourcePtwNumber: pair.src.ptwNumber,
+        certsCopied: Number(payload.certsCopied || 0),
+        attachmentsCopied: Number(payload.attsCopied || 0),
+        attachmentsFailed: Number(payload.attsFailed || 0) } });
+    return ok_({ sourcePtwNumber: pair.src.ptwNumber });
+  }
+
+  /**
+   * 套用延續來源：Step 1–6 的表單內容整份覆寫至目前草稿（前端已取得使用者確認）。
+   * 申請階段附件（Method Statement／JSA 等）一併複製一份，讓延續單不必重傳同樣的文件。
+   * 不複製：申請日期（建單即鎖定）、有效期限（延續須自訂新期間）、申請人聲明（須重新確認）、
+   *         結案文件附件、編號／狀態／簽核歷程。
+   * 前端走分段版（有進度條）；此一次做完版保留給測試與其他呼叫端。
+   */
+  function applyContinuation(user, payload) {
+    var pair = contPair_(user, payload), m = pair.m, src = pair.src;
+    contApplyMaster_(user, m, src);
+    m = mustGet_(m.id);
+
+    var certCount = 0;
+    contCertTypes_(m, src).forEach(function (ct) { if (contApplyCert_(user, m, src, ct)) certCount++; });
+
+    var att = { copied: 0, failed: 0 };
+    try { att = DriveService.copyApplicationAttachments(user, src, m); }
+    catch (e) { console.error('continuation attachment copy failed: ' + e.message); }
+
+    AuditService.log({ user: user, actionType: 'PTW_CONTINUATION_APPLY', entityType: 'PTW', entityId: m.id,
+      ptwNumber: m.ptwNumber || m.tempNumber, success: true,
+      newValue: { sourcePtwNumber: src.ptwNumber, certsCopied: certCount,
+        attachmentsCopied: att.copied, attachmentsFailed: att.failed } });
+
+    return ok_({ sourcePtwNumber: src.ptwNumber, certsCopied: certCount,
+      attsCopied: att.copied, attsFailed: att.failed });
+  }
+
+  /** Step 1–6 主表欄位覆寫（不含日期／聲明） */
+  function contApplyMaster_(user, m, src) {
+    var patch = {};
+    CONTINUATION_FIELDS.forEach(function (k) { patch[k] = src[k]; });
+    patch.continuationOfPermitNo = src.ptwNumber;
+    patch.paDeclarationAccepted = false;   // 聲明不繼承，申請人須於 Step 6 重新確認
+
+    // 持有人／共同持有人：僅保留仍在職且屬本公司者，避免送審才被擋
+    var keep = function (raw) {
+      return JSON.stringify(idList_(raw).filter(function (id) {
+        var u2 = Repo.getById('Users', id);
+        return u2 && asBool_(u2.isActive) && String(u2.companyId) === String(m.companyId);
+      }));
+    };
+    patch.holderUserId = keep(src.holderUserId);
+    patch.coHolderUserId = keep(src.coHolderUserId);
+    if (patch.paUserId && !Repo.getById('Users', patch.paUserId)) patch.paUserId = '';
+
+    Repo.update('PTW_Master', m.id, patch, user.id);
+  }
+
+  /** Step 5 單一證書：把來源同型證書的表單內容搬過來（狀態回 Draft，新證書重新取號） */
+  function contApplyCert_(user, m, src, ct) {
+    var type = CFG.CERT_TYPES[ct];
+    if (!type || type.noCert) return false;
+    var srcCert = Repo.findOne('PTW_Certificates', function (c) {
+      return c.ptwId === src.id && c.certType === ct && asBool_(c.isActive);
+    });
+    if (!srcCert) return false;
+    var srcRow = Repo.findOne(type.sheet, function (r) {
+      return r.certificateId === srcCert.id && asBool_(r.isActive);
+    });
+    var dataJson = (srcRow && srcRow.dataJson) ? srcRow.dataJson : '{}';
+    var cert = Repo.findOne('PTW_Certificates', function (c) {
+      return c.ptwId === m.id && c.certType === ct && asBool_(c.isActive);
+    });
+    if (!cert) {
+      var certNo = SequenceService.next(ct);
+      cert = Repo.insert('PTW_Certificates', {
+        ptwId: m.id, certType: ct, certNo: certNo, status: 'Draft'
+      }, user.id);
+      Repo.insert(type.sheet, { certificateId: cert.id, ptwId: m.id, certNo: certNo, dataJson: dataJson }, user.id);
+    } else {
+      var row = Repo.findOne(type.sheet, function (r) { return r.certificateId === cert.id && asBool_(r.isActive); });
+      if (row) Repo.update(type.sheet, row.id, { dataJson: dataJson }, user.id);
+      else Repo.insert(type.sheet, { certificateId: cert.id, ptwId: m.id, certNo: cert.certNo, dataJson: dataJson }, user.id);
+      Repo.update('PTW_Certificates', cert.id, { status: 'Draft' }, user.id);
+    }
+    return true;
   }
 
   // ---------- 提交 ----------
@@ -4282,6 +4486,10 @@ var PTWService = (function () {
 
   return { createDraft: createDraft, saveDraft: saveDraft, get: get, list: list,
     submit: submit, withdraw: withdraw, deletePtw: deletePtw, pickerUsers: pickerUsers, nextReviewers: nextReviewers,
+    continuationOptions: continuationOptions, applyContinuation: applyContinuation,
+    continuationPlan: continuationPlan, continuationApplyMaster: continuationApplyMaster,
+    continuationApplyCert: continuationApplyCert, continuationApplyAttachment: continuationApplyAttachment,
+    continuationFinish: continuationFinish,
     requiredCerts: requiredCerts, validateForSubmit: validateForSubmit_ };
 })();
 
@@ -4480,6 +4688,64 @@ var DriveService = (function () {
     return ok_({ disabled: true });
   }
 
+  /**
+   * 延續許可證：把來源單「申請階段」的附件複製到目標單（05_Close_out_evidence 的結案文件不複製）。
+   * Drive 檔案實體複製一份，不共用 driveFileId —— 日後在延續單刪檔不會動到來源單。
+   * 單一檔案複製失敗只記 log 不中斷，避免整批延續因一個壞檔而失敗。
+   */
+  function copyApplicationAttachments(user, srcM, dstM) {
+    var rows = listCopyableAttachments(srcM, dstM);
+    var out = { copied: 0, failed: 0 };
+    rows.forEach(function (a) {
+      var r = copyOneAttachment(user, a.id, srcM, dstM);
+      if (r.copied) out.copied++;
+      else if (r.failed) out.failed++;
+    });
+    return out;
+  }
+
+  /** 延續可複製的附件清單（排除結案文件、排除目標單同分類已有的同名檔）；唯讀，供前端顯示進度 */
+  function listCopyableAttachments(srcM, dstM) {
+    return Repo.find('PTW_Attachments', function (a) {
+      return a.ptwId === srcM.id && asBool_(a.isActive) &&
+        CATEGORIES[a.category] !== '05_Close_out_evidence';
+    }).filter(function (a) {
+      var cat = CATEGORIES[a.category] ? a.category : 'Supporting';
+      return !Repo.findOne('PTW_Attachments', function (b) {
+        return b.ptwId === dstM.id && asBool_(b.isActive) &&
+          b.category === cat && b.fileName === a.fileName;
+      });
+    }).map(function (a) {
+      return { id: a.id, fileName: a.fileName, category: a.category,
+        sizeKb: Math.round(Number(a.fileSizeBytes || 0) / 1024) };
+    });
+  }
+
+  /** 複製單一附件（前端逐檔呼叫以顯示進度）；失敗回 failed，不擲出中斷整批 */
+  function copyOneAttachment(user, attachmentId, srcM, dstM) {
+    var a = Repo.getById('PTW_Attachments', attachmentId);
+    if (!a || !asBool_(a.isActive) || a.ptwId !== srcM.id) return { copied: false, failed: false, skipped: true };
+    var cat = CATEGORIES[a.category] ? a.category : 'Supporting';
+    if (CATEGORIES[cat] === '05_Close_out_evidence') return { copied: false, failed: false, skipped: true };
+    var dup = Repo.findOne('PTW_Attachments', function (b) {
+      return b.ptwId === dstM.id && asBool_(b.isActive) && b.category === cat && b.fileName === a.fileName;
+    });
+    if (dup) return { copied: false, failed: false, skipped: true, fileName: a.fileName };
+    try {
+      var f = DriveApp.getFileById(a.driveFileId).makeCopy(a.fileName, sub_(ptwFolder_(dstM), CATEGORIES[cat]));
+      Repo.insert('PTW_Attachments', {
+        ptwId: dstM.id, certificateId: '',
+        fileName: a.fileName, driveFileId: f.getId(), fileUrl: f.getUrl(),
+        fileType: a.fileType, fileSizeBytes: a.fileSizeBytes, category: cat,
+        uploadedBy: user.id, uploadedAt: fmtDateTime_()
+      }, user.id);
+      return { copied: true, failed: false, fileName: a.fileName };
+    } catch (e) {
+      console.error('continuation attachment copy failed (' + a.fileName + '): ' + e.message);
+      return { copied: false, failed: true, fileName: a.fileName, error: e.message };
+    }
+  }
+
   /** 儲存電子簽名 PNG → Drive；回傳 PTW_Signatures.id */
   function saveSignature(user, m, roleCode, signatureDataUrl) {
     var fileId = '', hash = '';
@@ -4671,7 +4937,9 @@ var DriveService = (function () {
     ptwFolderUrl: ptwFolderUrl, savePtwFile: savePtwFile, saveSitePdf: saveSitePdf,
     announceAdd: announceAdd, announceList: announceList, announceDisable: announceDisable,
     announceUploadFile: announceUploadFile, announceSetLanding: announceSetLanding,
-    disableAttachment: disableAttachment, saveSignature: saveSignature,
+    disableAttachment: disableAttachment, copyApplicationAttachments: copyApplicationAttachments,
+    listCopyableAttachments: listCopyableAttachments, copyOneAttachment: copyOneAttachment,
+    saveSignature: saveSignature,
     saveAccountSignature: saveAccountSignature, getSignatureBase64: getSignatureBase64,
     uploadPublicDoc: uploadPublicDoc, listDownloads: listDownloads, disableDownload: disableDownload };
 })();
@@ -9395,6 +9663,14 @@ function routes_() {
     'ptw.delete':      function (u, p) { return PTWService.deletePtw(u, p); },
     'ptw.pickerUsers': function (u, p) { return PTWService.pickerUsers(u, p); },
     'ptw.nextReviewers': function (u, p) { return PTWService.nextReviewers(u, p); },
+    'ptw.continuationOptions': function (u, p) { return PTWService.continuationOptions(u, p); },
+    'ptw.applyContinuation':   function (u, p) { return PTWService.applyContinuation(u, p); },
+    // 分段版（前端進度條逐步呼叫）
+    'ptw.continuationPlan':       function (u, p) { return PTWService.continuationPlan(u, p); },
+    'ptw.continuationMaster':     function (u, p) { return PTWService.continuationApplyMaster(u, p); },
+    'ptw.continuationCert':       function (u, p) { return PTWService.continuationApplyCert(u, p); },
+    'ptw.continuationAttachment': function (u, p) { return PTWService.continuationApplyAttachment(u, p); },
+    'ptw.continuationFinish':     function (u, p) { return PTWService.continuationFinish(u, p); },
     'cert.save':       function (u, p) { return CertificateService.save(u, p); },
     'cert.deactivate': function (u, p) { return CertificateService.deactivate(u, p); },
 
@@ -9468,6 +9744,7 @@ function routes_() {
         companies: safe(function () { return CompanyService.list(u).data; }, []),       // 申請公司下拉／名稱對照
         scopes: safe(function () { return ScopeService.list(u).data; }, []),            // 工程範疇 Scope（名稱對照／Tier 3 路由）
         closeoutDocs: safe(function () { return CloseoutRules.forPtw(g); }, []),        // 依作業類型算出的關單文件清單
+        continuations: safe(function () { return PTWService.continuationOptions(u, p).data; }, []), // 延續許可證下拉（本公司已核發者）
         mySignature: safe(function () { return DriveService.getSignatureBase64(u.signatureFileId); }, ''),
         certForms: CERT_FIELD_DEFS
       });
@@ -9861,6 +10138,50 @@ function runAllTests_M33() {
       'executionDate was overwritten by saveDraft: ' + g1.data.executionDate);
     assert(g1.data.vessel === 'V-LOCK', 'other editable fields must still save');
     PTWService.withdraw(t1, { ptwId: d.data.ptwId });
+  });
+
+  t('T22c 延續許可證：只列本公司已核發者，套用後整份帶入且不動日期/聲明', function () {
+    // 來源：造一筆已核發（有正式編號）的單
+    var s = PTWService.createDraft(t1).data;
+    Repo.update('PTW_Master', s.ptwId, {
+      status: CFG.STATUS.ACTIVE, ptwNumber: 'PTW-TEST-9001',
+      vessel: 'DLB-SRC', areaLocation: 'KP9+000 來源區域', workDescription: '來源工作描述',
+      toolsEquipment: '來源工具', wtHotWork: true, scaffoldingRequired: 'Y',
+      gasTestRequired: 'Y', cssIsoRequired: 'N', holderUserId: JSON.stringify([t1.id]),
+      checksJson: JSON.stringify({ hzFireExplosion: true }),
+      validFrom: '2026-08-01 00:00:00', validTo: '2026-08-07 23:59:59'
+    }, 'test');
+    // 目標：新草稿，先填一點東西確認會被覆寫
+    var d = PTWService.createDraft(t1).data;
+    PTWService.saveDraft(t1, { ptwId: d.ptwId, vessel: '舊值', validFrom: '2026-12-01',
+      validTo: '2026-12-07', paDeclarationAccepted: true });
+    var before = PTWService.get(t1, { ptwId: d.ptwId }).data;
+
+    var opts = PTWService.continuationOptions(t1, { ptwId: d.ptwId }).data;
+    assert(opts.some(function (o) { return o.ptwNumber === 'PTW-TEST-9001'; }),
+      'issued permit missing from continuation options');
+    assert(!opts.some(function (o) { return o.id === d.ptwId; }), 'draft itself must not be listed');
+    assert(opts.every(function (o) { return String(o.ptwNumber || '').trim() !== ''; }),
+      'options must only contain issued permits');
+
+    PTWService.applyContinuation(t1, { ptwId: d.ptwId, sourcePtwId: s.ptwId });
+    var g = PTWService.get(t1, { ptwId: d.ptwId }).data;
+    assert(g.continuationOfPermitNo === 'PTW-TEST-9001', 'continuation no not set: ' + g.continuationOfPermitNo);
+    assert(g.vessel === 'DLB-SRC' && g.areaLocation === 'KP9+000 來源區域' &&
+      g.workDescription === '來源工作描述' && g.toolsEquipment === '來源工具',
+      'step 1 fields not copied: ' + JSON.stringify([g.vessel, g.areaLocation]));
+    assert(asBool_(g.wtHotWork) && g.gasTestRequired === 'Y', 'work type / gas flag not copied');
+    assert(JSON.parse(g.checksJson || '{}').hzFireExplosion === true, 'checks not copied');
+    assert(String(g.holderUserId || '').indexOf(t1.id) >= 0, 'holder not copied: ' + g.holderUserId);
+    // 不繼承：申請日期、有效期限、申請人聲明
+    assert(String(g.executionDate).substring(0, 10) === String(before.executionDate).substring(0, 10),
+      'executionDate must not change: ' + g.executionDate);
+    assert(String(g.validFrom).substring(0, 10) === '2026-12-01' &&
+      String(g.validTo).substring(0, 10) === '2026-12-07', 'validity dates must not be copied');
+    assert(!asBool_(g.paDeclarationAccepted), 'declaration must be reset');
+
+    Repo.update('PTW_Master', s.ptwId, { isActive: false }, 'test');
+    PTWService.withdraw(t1, { ptwId: d.ptwId });
   });
 
   t('T23 儲存草稿與讀回（欄位 + 勾選 + 氣測列）', function () {
@@ -11342,6 +11663,25 @@ function ensureQuickAdmin_() {
   return '✅ 已建立快速管理員：帳號 admin ／ 密碼 admin';
 }
 
+/** 唯讀診斷：列出每筆 PTW 的編號／公司／狀態，用來查「延續許可證下拉為何是空的」 */
+function diagContinuation() {
+  var co = {};
+  Repo.readAll('Companies').forEach(function (c) { co[c.id] = (c.nameEn || c.nameZh) + (asBool_(c.isActive) ? '' : '（停用）'); });
+  console.log('— 公司 —');
+  Object.keys(co).forEach(function (id) { console.log(id + ' = ' + co[id]); });
+  console.log('— PTW —');
+  Repo.readAll('PTW_Master').forEach(function (p) {
+    console.log([
+      'ptwNumber=[' + (p.ptwNumber || '') + ']',
+      'tempNumber=[' + (p.tempNumber || '') + ']',
+      'status=' + p.status,
+      'isActive=' + p.isActive + '(' + asBool_(p.isActive) + ')',
+      'companyId=' + p.companyId + ' → ' + (co[p.companyId] || '⚠ 對不到公司'),
+      'applicant=' + p.applicantUserId
+    ].join(' | '));
+  });
+}
+
 /** 手動建立/修復快速管理員（在編輯器直接執行本函式即可） */
 function createQuickAdmin() {
   console.log(ensureQuickAdmin_());
@@ -12345,8 +12685,9 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
 
 <!-- 簽名視窗 -->
 <div class="position-fixed top-0 start-0 w-100 h-100 d-none" id="sigModal"
-     style="background:rgba(0,0,0,.5);z-index:1090">
-  <div class="card-x p-3 mx-auto mt-5" style="max-width:520px;background:#fff">
+     style="background:rgba(0,0,0,.5);z-index:1090;display:flex;padding:16px;overflow:auto">
+  <!-- margin:auto（非 align-items:center）：內容比畫面高時不會被切掉上緣，遮罩本身可捲動 -->
+  <div class="card-x p-3" style="max-width:520px;width:100%;margin:auto;background:#fff">
     <h6 data-i18n="rv.signTitle">Electronic Signature 電子簽名</h6>
     <div class="small text-muted mb-1" id="sigWho"></div>
     <!-- 帳號簽名檔（預設；一鍵確認即可） -->
@@ -12467,7 +12808,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       <div id="uiModalMsg" style="white-space:pre-wrap"></div>
       <input id="uiModalInput" class="form-control mt-3 d-none" onkeydown="if(event.key==='Enter')uiModalDone(true)">
     </div>
-    <div class="text-end" style="padding:12px 20px;background:#f6f9fc;border-top:1px solid #e6edf4">
+    <div id="uiModalFoot" class="text-end" style="padding:12px 20px;background:#f6f9fc;border-top:1px solid #e6edf4">
       <button class="btn btn-outline-secondary me-2" id="uiModalCancel" onclick="uiModalDone(false)">取消</button>
       <button class="btn btn-navy" id="uiModalOk" onclick="uiModalDone(true)">確定</button>
     </div>
@@ -12899,6 +13240,40 @@ function uiDialog(o){
     $('uiModal').style.display='flex';
     if(o.prompt) setTimeout(function(){ inp.focus(); },60);
   });
+}
+/* ---- 進度視窗：沿用 uiModal 的外框，隱藏按鈕，內容換成進度條（長時間作業專用） ---- */
+function uiProgressOpen(o){
+  uiModalResolve=null; uiModalIsPrompt=false;     // 進行中不可被按鍵/其他流程 resolve
+  $('uiModalIcon').textContent=o.icon||'⏳';
+  $('uiModalTitle').textContent=o.title||'';
+  $('uiModalSub').textContent=o.sub||'';
+  $('uiModalSub').style.display=o.sub?'':'none';
+  $('uiModalHead').style.background=o.headColor||'#002038';
+  $('uiModalHead').classList.remove('d-none');
+  $('uiModalCard').style.maxWidth=(o.width||480)+'px';
+  $('uiModalInput').classList.add('d-none');
+  $('uiModalFoot').style.display='none';          // 沒有取消鍵：中途離開會留下半套資料
+  $('uiModalMsg').style.whiteSpace='normal';
+  $('uiModalMsg').innerHTML=
+    '<div id="uiPgLabel" style="font-weight:600;color:#1b2c3d;margin-bottom:8px">'+esc(o.label||'')+'</div>'+
+    '<div style="background:#e8eef4;border-radius:999px;height:14px;overflow:hidden">'+
+      '<div id="uiPgBar" style="height:100%;width:0%;border-radius:999px;background:linear-gradient(90deg,#00913f,#00b050);'+
+      'transition:width .35s ease"></div></div>'+
+    '<div class="d-flex justify-content-between" style="font-size:.76rem;color:#6b7f92;margin-top:6px">'+
+      '<span id="uiPgStep"></span><span id="uiPgPct">0%</span></div>'+
+    (o.note||'');                                 // note 由呼叫端提供完整 HTML（含樣式）
+  $('uiModal').style.display='flex';
+}
+function uiProgressSet(done,total,label){
+  var pct=total>0?Math.round(done/total*100):0;
+  var bar=$('uiPgBar'); if(bar) bar.style.width=pct+'%';
+  var p=$('uiPgPct'); if(p) p.textContent=pct+'%';
+  var s=$('uiPgStep'); if(s) s.textContent=done+' / '+total;
+  if(label){ var l=$('uiPgLabel'); if(l) l.textContent=label; }
+}
+function uiProgressClose(){
+  $('uiModal').style.display='none';
+  $('uiModalFoot').style.display='';              // 還原給一般對話框使用
 }
 function uiModalDone(ok){
   var r=uiModalResolve; uiModalResolve=null;
@@ -15440,6 +15815,8 @@ function openPtwForm(ptwId){
     companyCache=d.companies||companyCache;
     scopeCache=d.scopes||scopeCache;
     CERT_FORMS=d.certForms||CERT_FORMS;
+    continuationCache=d.continuations||[];   // 延續許可證下拉（本公司已核發者）
+    contManualMode=false;
     cur=d.ptw;
     cur._closeoutDocs=d.closeoutDocs||[];   // 關單文件規則（後端 CloseoutRules 依作業類型算出）
     pickerCacheCo=cur.companyId||'';   // 此清單是依這份 PTW 的申請公司取回的
@@ -16177,6 +16554,167 @@ function ensureCompanies(cb){
   });
 }
 
+/* ---- 延續許可證號：下拉選本公司已核發的 PTW，選定後整份帶入 Step 1–6 ---- */
+var continuationCache=[];     // ptw.open 一併帶回（本公司已核發正式編號者）
+var contManualMode=false;     // 使用者選了「其他（手動輸入）」
+/** 目前的延續編號是否來自清單（否則視為手動輸入的舊編號） */
+function contMatched(){
+  var no=String(cur.continuationOfPermitNo||'').trim();
+  if(!no) return null;
+  return (continuationCache||[]).filter(function(x){ return String(x.ptwNumber)===no; })[0]||null;
+}
+function contOptLabel(x){
+  var bits=[x.ptwNumber];
+  if(x.status) bits.push(SN(x.status));      // 已關閉／執行中…都可延續，狀態直接標在選項上
+  if(x.validFrom) bits.push(x.validFrom+(x.validTo?('～'+x.validTo):''));
+  else if(x.executionDate) bits.push(x.executionDate);
+  if(x.vessel) bits.push(x.vessel);
+  if(x.areaLocation) bits.push(x.areaLocation);
+  return bits.join(' · ');
+}
+function continuationFld(ro){
+  var Z=(lang==='zh');
+  var label=Z?'延續許可證號｜Continuation Permit No':'Continuation Permit No｜延續許可證號';
+  var d='<div class="mb-2"><label class="form-label small mb-0">'+esc(L(label))+'</label>';
+  var no=String(cur.continuationOfPermitNo||'').trim();
+  var hit=contMatched();
+  var manual=contManualMode||(!!no&&!hit);
+  if(ro){
+    return d+'<input class="form-control form-control-sm" value="'+esc(no||'—')+'" disabled></div>';
+  }
+  var sel='<select class="form-select form-select-sm" id="contSel" onchange="onContinuationPick(this)">'+
+    '<option value=""'+((!no&&!manual)?' selected':'')+'>'+esc(Z?'— 無（非延續單）—':'— None —')+'</option>';
+  (continuationCache||[]).forEach(function(x){
+    sel+='<option value="'+esc(x.id)+'"'+((hit&&hit.id===x.id&&!contManualMode)?' selected':'')+'>'+esc(contOptLabel(x))+'</option>';
+  });
+  sel+='<option value="__manual__"'+(manual?' selected':'')+'>'+
+    esc(Z?'其他（手動輸入舊編號）':'Other (type an old permit number)')+'</option></select>';
+  d+=sel;
+  if(manual){
+    d+='<input class="form-control form-control-sm pfld mt-1" id="f_continuationOfPermitNo" value="'+esc(no)+'"'+
+       ' placeholder="'+esc(Z?'例：PTW-2025-0123':'e.g. PTW-2025-0123')+'">';
+  }
+  d+='<div class="small text-muted" style="font-size:.72rem">'+(Z
+    ?(continuationCache&&continuationCache.length
+      ?'清單為本公司已核發過編號的許可證（含已關閉、已到期者），選定後可將其 Step 1～6 內容整份帶入。'
+      :('「'+esc(ptwCompanyName(cur.companyId)||'—')+'」尚無已核發編號的許可證可延續；如需填寫舊編號請選「其他」。'))
+    :(continuationCache&&continuationCache.length
+      ?'Lists every permit of this company that has been issued a number — closed and expired ones included; picking one copies its Steps 1–6 into this application.'
+      :('No issued permit is available for “'+esc(ptwCompanyName(cur.companyId)||'—')+'” yet; choose Other to type an old number.')))+'</div>';
+  return d+'</div>';
+}
+function onContinuationPick(sel){
+  var v=sel.value, Z=(lang==='zh');
+  collectStep();                           // 先收下同一步驟其他欄位，重繪才不會洗掉使用者剛打的字
+  if(v==='__manual__'){
+    contManualMode=true; cur.continuationOfPermitNo=''; renderStepContent(); markDirty(); return;
+  }
+  contManualMode=false;
+  if(!v){                                  // 選「無」→ 只清掉編號，不動已帶入的內容
+    cur.continuationOfPermitNo=''; markDirty(); renderStepContent(); saveNow(false,true); return;
+  }
+  var src=(continuationCache||[]).filter(function(x){ return x.id===v; })[0];
+  if(!src){ renderStepContent(); return; }
+  var warn=(Z
+    ?'<p style="margin:0 0 10px;font-size:15px;font-weight:600;color:#1b2c3d">將以 '+esc(src.ptwNumber)+' 的內容帶入本申請單。</p>'+
+     '<div class="small" style="color:#4a5b6d;line-height:1.7">整份覆寫 <b>Step 1～6</b>：工作船舶、區域／位置、工作描述、工具設備、作業類型、危害與預防措施勾選、氣體測試列、人員，以及附加證書內容。<br>'+
+     '<b style="color:#9b2226">目前已填寫的內容會被取代，且無法復原。</b><br>'+
+     '申請階段附件（Method Statement、JSA／風險評估等）會一併複製一份過來，如內容有異動請自行移除後重傳。<br>'+
+     '不會帶入：申請日期、有效期限、申請人聲明、結案文件附件（證書會重新取號並回到草稿狀態）。</div>'
+    :'<p style="margin:0 0 10px;font-size:15px;font-weight:600;color:#1b2c3d">Copy the contents of '+esc(src.ptwNumber)+' into this application.</p>'+
+     '<div class="small" style="color:#4a5b6d;line-height:1.7">This overwrites <b>Steps 1–6</b>: vessel, area/location, description of work, tools &amp; equipment, work types, hazard and precaution ticks, gas test rows, personnel and the attached certificates.<br>'+
+     '<b style="color:#9b2226">Anything already filled in will be replaced and cannot be undone.</b><br>'+
+     'Application attachments (Method Statement, JSA / Risk Assessment, etc.) are copied across — remove and re-upload them if they have changed.<br>'+
+     'Not copied: application date, validity dates, applicant declaration and close-out evidence (certificates are re-numbered and reset to Draft).</div>');
+  warn+=contWaitNote_(Z);                     // 黃底提醒：帶入過程請勿關閉視窗
+  uiDialog({html:warn,icon:'⚠️',title:(Z?'帶入延續許可證內容':'Copy continuation permit'),
+    okText:(Z?'帶入':'Copy'),okClass:'btn-danger',width:580}).then(function(ok){
+    if(!ok){ renderStepContent(); return; }   // 取消 → 下拉回復原狀
+    dirty=false;                              // 丟掉未存的編輯，避免自動儲存把複製結果蓋回去
+    runContinuation(src);
+  });
+}
+/** 帶入期間的黃底提醒（確認視窗與進度視窗共用同一段文字） */
+function contWaitNote_(Z){
+  return '<div style="margin-top:12px;background:#fff8e1;border:1px solid #ffe08a;border-left:4px solid #f0a500;'+
+    'border-radius:8px;padding:10px 12px;font-size:.84rem;color:#6b5200;line-height:1.65">'+(Z
+    ?'<b>⏳ 帶入期間請勿關閉或重新整理本視窗</b><br>'+
+     '系統會將 Step 1～6 的表單內容、附加證書與申請階段附件逐項複製，資料量較多時約需 10～30 秒；'+
+     '請待完成訊息出現後再進行其他操作。'
+    :'<b>⏳ Do not close or refresh this window while copying</b><br>'+
+     'Steps 1–6, the attached certificates and the application attachments are copied one by one, '+
+     'which can take 10–30 seconds. Please wait for the confirmation message before doing anything else.')+'</div>';
+}
+/**
+ * 分段帶入：主表 → 逐份證書 → 逐個附件 → 收尾，每步回來才推進進度條，
+ * 顯示的百分比就是實際完成的項目數（GAS 單次呼叫沒有進度事件，只能這樣拿到真進度）。
+ */
+function runContinuation(src){
+  var Z=(lang==='zh'), ptwId=cur.id, sourcePtwId=src.id;
+  var ask={ptwId:ptwId,sourcePtwId:sourcePtwId};
+  uiProgressOpen({icon:'📥',title:(Z?'帶入延續許可證內容':'Copying continuation permit'),
+    sub:src.ptwNumber, width:520, label:(Z?'準備中…':'Preparing…'), note:contWaitNote_(Z)});
+  // 全程靜默：進度視窗自己就是讀取指示，不要再疊一層「讀取中」遮罩
+  var call=function(action,extra){
+    var p={ptwId:ptwId,sourcePtwId:sourcePtwId};
+    if(extra) Object.keys(extra).forEach(function(k){ p[k]=extra[k]; });
+    return api(action,p,{silent:true});
+  };
+  var fail=function(res){
+    uiProgressClose();
+    toast(apiMsg(res));
+    openPtwForm(ptwId);                       // 半途失敗：重載表單，讓使用者看到實際結果
+  };
+  call('ptw.continuationPlan').then(function(res){
+    if(!res.ok) return fail(res);
+    var certs=res.data.certTypes||[], atts=res.data.attachments||[];
+    var total=1+certs.length+atts.length, done=0, certOk=0, attOk=0, attFail=0;
+    uiProgressSet(0,total,(Z?'複製 Step 1～6 表單欄位…':'Copying the Step 1–6 form fields…'));
+    var step=function(label){ done++; uiProgressSet(done,total,label); };
+
+    var chain=call('ptw.continuationMaster').then(function(r){
+      if(!r.ok) throw r;
+      step(certs.length?(Z?'複製附加證書…':'Copying certificates…')
+                       :(atts.length?(Z?'複製附件…':'Copying attachments…'):(Z?'收尾…':'Finishing…')));
+    });
+    certs.forEach(function(c,i){
+      chain=chain.then(function(){
+        return call('ptw.continuationCert',{certType:c.certType}).then(function(r){
+          if(!r.ok) throw r;
+          if(r.data.copied) certOk++;
+          var nx=certs[i+1];
+          step(nx?((Z?'複製證書：':'Copying certificate: ')+(Z?nx.nameZh:nx.nameEn))
+                 :(atts.length?(Z?'複製附件…':'Copying attachments…'):(Z?'收尾…':'Finishing…')));
+        });
+      });
+    });
+    atts.forEach(function(a,i){
+      chain=chain.then(function(){
+        return call('ptw.continuationAttachment',{attachmentId:a.id}).then(function(r){
+          if(!r.ok) throw r;
+          if(r.data.copied) attOk++; else if(r.data.failed) attFail++;
+          var nx=atts[i+1];
+          step(nx?((Z?'複製附件：':'Copying attachment: ')+nx.fileName):(Z?'收尾…':'Finishing…'));
+        });
+      });
+    });
+    chain.then(function(){
+      return call('ptw.continuationFinish',{certsCopied:certOk,attsCopied:attOk,attsFailed:attFail});
+    }).then(function(r){
+      uiProgressClose();
+      if(r&&!r.ok) return fail(r);
+      var extra=[];
+      if(certOk) extra.push(Z?(certOk+' 份證書'):(certOk+' certificates'));
+      if(attOk)  extra.push(Z?(attOk+' 份附件'):(attOk+' attachments'));
+      toast((Z?'已帶入 ':'Copied from ')+src.ptwNumber+
+        (extra.length?(Z?('（含 '+extra.join('、')+'）'):(' (+'+extra.join(', ')+')')):'')+
+        (attFail?(Z?('；有 '+attFail+' 份附件複製失敗，請手動上傳'):
+          ('; '+attFail+' attachment(s) failed to copy — please upload manually')):''),true);
+      openPtwForm(ptwId);                     // 重新載入整份表單
+    })['catch'](function(e){ fail(e&&e.ok===false?e:{msgZh:String(e&&e.message||e),msgEn:String(e&&e.message||e)}); });
+  });
+}
+
 /* ---- 表單元件 ---- */
 function fld(id,label,type,val,ro){
   var d='<div class="mb-2"><label class="form-label small mb-0">'+esc(L(label))+'</label>';
@@ -16238,6 +16776,10 @@ function onCompanyChange(){
   api('ptw.saveDraft',{ptwId:cur.id,companyId:newId,holderUserId:'',coHolderUserId:''},{silent:true})
     .then(function(){
       dirty=false;
+      // 延續許可證清單是依申請公司取回的 → 換公司要跟著重抓，否則會停在舊公司（看起來像「沒有可延續的單」）
+      api('ptw.continuationOptions',{ptwId:cur.id},{silent:true}).then(function(rc){
+        if(rc&&rc.ok){ continuationCache=rc.data||[]; contManualMode=false; renderStepContent(); }
+      });
       loadPickerUsers(function(){
         toast((lang==='zh'?'已切換申請公司：':'Applicant company set to: ')+ptwCompanyName(newId)+
           '（'+(lang==='zh'?'持有人清單已更新':'holder list updated')+'）',true);
@@ -16327,8 +16869,8 @@ function renderStepContent(){
         '<div class="small text-muted" style="margin-top:-.4rem;font-size:.72rem">'+(lang==='zh'
           ?'由系統於建單時自動帶入當日日期，不可修改。'
           :'Set automatically to the date the permit was created; cannot be changed.')+'</div></div>'+
-      '<div class="col-md-4">'+fld('continuationOfPermitNo','延續許可證號 Continuation Permit No','t',cur.continuationOfPermitNo,ro)+'</div></div>'+
-      fld('areaLocation','區域/位置（請詳述）Area / Location (describe in detail)','ta',cur.areaLocation,ro)+
+      '<div class="col-md-4">'+continuationFld(ro)+'</div></div>'+
+      fld('areaLocation','區域／位置（請詳述）｜Area / Location (describe in detail)','ta',cur.areaLocation,ro)+
       '<div class="small text-muted mb-2" style="margin-top:-.4rem">'+(lang==='zh'
         ?'請完整描述作業位置：除海域管線位置（如 KP52～KP54）外，亦須一併載明船上之作業區域與項目，例如於工作船艙內進行動火、輻射作業等。'
         :'Describe the work location in full: besides the subsea pipeline location (e.g. KP52–KP54), also state the on-board work areas and activities, such as hot work or radiography carried out inside a hold or compartment of the work vessel.')+'</div>'+
@@ -16397,7 +16939,7 @@ function renderStepContent(){
           'border-radius:8px;padding:4px 12px;font-weight:800;margin:2px 6px 2px 0">'+icon+' '+txt+'</span>'; };
         var timing=[
           [Z?'作業開始前':'Before work starts', Z?'實施初測，<b>合格方可開始作業</b>':'Initial test — work may begin <b>only after acceptable results</b>'],
-          [Z?'作業期間':'During work', Z?'<b>連續監測</b>，或至少<b>每小時複測一次</b>':'<b>Continuous monitoring</b>, or re-test at least <b>every hour</b>'],
+          [Z?'作業期間':'During work', Z?'<b>連續監測</b>，並<b>每小時記錄一次測值</b>':'<b>Continuous monitoring</b>, and <b>record the readings every hour</b>'],
           [Z?'中斷 ≥30 分鐘':'Interruption ≥30 min', Z?'恢復作業前<b>重新測試</b>':'<b>Re-test</b> before resuming work']];
         return '<div class="alert alert-light border py-2 small mb-2">📖 <b>'+
           (Z?'何時需要氣體測試？':'When is a gas test required?')+'</b><div class="mt-2">'+

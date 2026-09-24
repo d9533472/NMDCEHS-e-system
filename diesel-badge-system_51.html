@@ -162,8 +162,9 @@ const MOENV = 'https://mobile.moenv.gov.tw/dce/Detect_Search.aspx';
 const API = 'https://script.google.com/macros/s/AKfycbwKTKaXyvy-tN5PfF3eS7nGVjLmx_1XuQt16cj1MwHcHpRc0A7ydGVXespF5xRIzFyT/exec';
 
 const App=(()=>{
-const SK='dbs5r',CK='dbs5c';
+const SK='dbs5r',CK='dbs5c',BK='dbs5base';
 let R=[],C=[],dupId=null,delId=null,tab='list',editId='',PD={v1:'',v2:'',web:''};
+let BASE=null,DIFF=null,onlyDiff=false,printedPending=false,diffTouched=false;
 
 // === Drive JSON API (XHR for GAS redirect compatibility) ===
 function dPost(b){
@@ -238,6 +239,51 @@ async function pickFile(id){
 // === Storage ===
 function ld(){try{R=JSON.parse(localStorage.getItem(SK))||[];}catch{R=[];}try{C=JSON.parse(localStorage.getItem(CK))||[];}catch{C=[];}}
 function sav(){try{const l=R.map(r=>{const c={...r};['photo1','photo2','photoWeb'].forEach(k=>{if(c[k]&&!c[k].startsWith('https://'))c[k]='';});return c;});localStorage.setItem(SK,JSON.stringify(l));}catch{}try{localStorage.setItem(CK,JSON.stringify(C));}catch{}document.getElementById('rc').textContent=R.length+' 筆';}
+
+// === 增量列印：比對基準（只印有異動的頁） ===
+// 指紋只計算「會印在紙上」的欄位，改照片 / 改標章 / 改車號才算異動
+const FPK=['category','plateNumber','vehicleType','fuelType','hasBadge','badgeLevel','badgeNumber','photo1','photo2','photoWeb'];
+function nph(v){v=v||'';return v.indexOf('https://')===0?v:(v?'#local':'');}
+function fpOf(r){return FPK.map(k=>k.indexOf('photo')===0?nph(r[k]):(r[k]||'')).join('|');}
+function fpMap(recs){const m={};(recs||[]).forEach(r=>{if(r&&r.id)m[r.id]=fpOf(r);});return m;}
+function ldBase(){try{BASE=JSON.parse(localStorage.getItem(BK))||null;}catch{BASE=null;}}
+function setBase(label,recs,when){
+  BASE={label:label,savedAt:when||new Date().toISOString(),count:(recs||[]).length,map:fpMap(recs)};
+  try{localStorage.setItem(BK,JSON.stringify(BASE));}catch(e){toast('⚠️ 基準太大無法保存',true);}
+  computeDiff();
+}
+function computeDiff(){
+  if(!BASE||!BASE.map){DIFF=null;return;}
+  const m=BASE.map,added=new Set(),changed=new Set();
+  R.forEach(r=>{if(!(r.id in m))added.add(r.id);else if(m[r.id]!==fpOf(r))changed.add(r.id);});
+  const live=new Set(R.map(r=>r.id));
+  DIFF={added:added,changed:changed,removed:Object.keys(m).filter(id=>!live.has(id))};
+}
+function isDiff(id){return !!DIFF&&(DIFF.added.has(id)||DIFF.changed.has(id));}
+function markPrinted(){
+  setBase('上次列印',R);printedPending=false;
+  toast('✅ 已更新比對基準（'+R.length+' 筆）— 下次只會印之後改過的');
+  render();
+}
+function clearBase(){try{localStorage.removeItem(BK);}catch{}BASE=null;DIFF=null;onlyDiff=false;diffTouched=false;toast('♻️ 已清除比對基準');render();}
+function baseFromFile(ev){
+  const f=ev.target.files[0];ev.target.value='';if(!f)return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      const recs=d.records||(Array.isArray(d)?d:null);
+      if(!recs||!recs.length)throw new Error('no records');
+      setBase('上一版檔案：'+f.name,recs,d.exportDate||d.savedAt);
+      const n=DIFF?DIFF.added.size+DIFF.changed.size:0;
+      onlyDiff=n>0;diffTouched=false;
+      toast('📂 已載入基準（'+recs.length+' 筆）— 有異動 '+n+' 筆');
+      render();
+    }catch(err){toast('❌ 檔案格式錯誤，請選擇本系統匯出的 JSON',true);}
+  };
+  rd.readAsText(f);
+}
+function togOnlyDiff(v){onlyDiff=v;diffTouched=true;updPicker();}
 
 // === Toast ===
 function toast(m,e){const t=document.getElementById('toast');t.textContent=m;t.className='toast show'+(e?' err':'');setTimeout(()=>t.className='toast',3000);}
@@ -374,15 +420,52 @@ function renderDash(root){
 function dtbl(recs){const ty={};recs.forEach(r=>{if(!ty[r.vehicleType])ty[r.vehicleType]={t:0,p:0};ty[r.vehicleType].t++;if(r.hasBadge==='是')ty[r.vehicleType].p++;});const en=Object.entries(ty).sort((a,b)=>b[1].t-a[1].t);if(!en.length)return'<div class="es" style="padding:20px"><p>尚無資料</p></div>';let tA=0,pA=0;let rows=en.map(([k,d])=>{tA+=d.t;pA+=d.p;const p=d.t?Math.round(d.p/d.t*100):0;const c=p>=80?'var(--ok)':p>=50?'var(--acc)':'var(--no)';return`<tr><td style="text-align:left;font-weight:500">${esc(k)}</td><td>${d.t}</td><td>${d.p}</td><td>${d.t-d.p}</td><td><div style="display:flex;align-items:center;gap:6px;justify-content:center"><div class="pb" style="width:70px"><div class="pf" style="width:${p}%;background:${c}"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${c}">${p}%</span></div></td></tr>`;}).join('');const tp=tA?Math.round(pA/tA*100):0;rows+=`<tr><td style="text-align:left">合計</td><td>${tA}</td><td>${pA}</td><td>${tA-pA}</td><td><span style="font-family:'JetBrains Mono',monospace;font-weight:700;color:var(--acc)">${tp}%</span></td></tr>`;return`<table class="dt"><thead><tr><th style="text-align:left">車輛機具型式</th><th>查驗量</th><th>通過量</th><th>未通過</th><th>通過率</th></tr></thead><tbody>${rows}</tbody></table>`;}
 
 // === EXPORT ===
+function diffTag(txt,col){return'<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;background:'+col+'22;color:'+col+';border:1px solid '+col+'55">'+txt+'</span>';}
+function diffPanel(){
+  computeDiff();
+  const upl='<label class="btn bsm bs" style="cursor:pointer">📂 上傳上一版 JSON 當基準<input type="file" accept=".json" onchange="App.baseFromFile(event)" style="display:none"></label>';
+  if(!BASE){
+    return `<div class="card np fi-anim" style="border-color:var(--acc)">
+      <div class="ctit">🆕 增量列印 — 只印這次有更新的頁</div>
+      <p style="font-size:12px;color:var(--t2);line-height:1.7;margin-bottom:10px">尚未建立比對基準。<br>
+      ・<b style="color:var(--acc)">方法 A（推薦）</b>：這次全部印完後，按「✅ 標記為已列印」把目前內容存成基準；以後回到這頁就只會勾選之後改過的紀錄。<br>
+      ・<b style="color:var(--acc)">方法 B</b>：上傳上一版匯出的 JSON（設定頁 → 匯出 JSON 的檔案），系統會逐筆比對車號／標章／照片，只列出有差異的。</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${upl}<button class="btn bsm bp" onclick="App.markPrinted()">✅ 把目前 ${R.length} 筆設為基準</button></div>
+    </div>`;
+  }
+  const d=new Date(BASE.savedAt),a=DIFF.added.size,c=DIFF.changed.size,rm=DIFF.removed.length,un=R.length-a-c;
+  const tot=a+c;
+  return `<div class="card np fi-anim" style="border-color:${tot?'var(--acc)':'var(--bd)'}">
+    <div class="ctit">🆕 增量列印 — 只印這次有更新的頁</div>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:10px">比對基準：<b style="color:var(--ok)">${esc(BASE.label||'')}</b>
+      <span style="font-family:'JetBrains Mono',monospace;color:var(--t3)">　${isNaN(d)?'':d.toLocaleString('zh-TW')}　共 ${BASE.count||0} 筆</span></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      ${diffTag('🆕 新增 '+a,'#10b981')}${diffTag('✏️ 內容異動 '+c,'#f59e0b')}${diffTag('⏸ 未變動 '+un,'#5a6e82')}${rm?diffTag('🗑️ 已刪除 '+rm,'#ef4444'):''}
+    </div>
+    ${tot?`<div style="background:var(--accd);border:1px solid var(--acc);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--acc);font-weight:700">🖨️ 這次只需列印 ${tot} 頁${document.getElementById('expSummary')?.checked===false?'':'（＋統計總表 1 頁）'}，可省下約 ${Math.max(0,un)} 頁<span style="display:block;font-weight:400;font-size:11px;color:var(--t2);margin-top:4px">要整本重印時，把下面「只顯示／只輸出有異動的紀錄」取消勾選即可</span></div>`
+      :`<div style="background:var(--okd);border:1px solid var(--ok);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:13px;color:var(--ok);font-weight:700">✅ 與基準相比沒有任何異動，不需重印</div>`}
+    <div class="chk-grid" style="margin-bottom:12px">
+      <label class="chk-item${onlyDiff?' checked':''}" style="font-size:12px"><input type="checkbox" ${onlyDiff?'checked':''} onchange="this.parentElement.classList.toggle('checked',this.checked);App.togOnlyDiff(this.checked)"> 只顯示／只輸出有異動的紀錄</label>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn bsm bp" onclick="App.markPrinted()" ${printedPending?'style="animation:none;box-shadow:0 0 0 2px var(--ok)"':''}>✅ 標記為已列印（更新基準）</button>
+      ${upl}
+      <button class="btn bsm bs" onclick="App.clearBase()">♻️ 清除基準</button>
+    </div>
+    ${printedPending?'<p style="font-size:11px;color:var(--ok);margin-top:8px">👆 列印完成後記得按「標記為已列印」，下次才知道哪些是新的</p>':''}
+  </div>`;
+}
 function renderExport(root){
   if(!R.length){root.innerHTML='<div class="es"><p>尚無資料</p></div>';return;}
   const dates=R.map(r=>r.updatedAt?.slice(0,10)).filter(Boolean).sort();
   const minD=dates[0]||new Date().toISOString().slice(0,10),maxD=dates[dates.length-1]||minD;
-  root.innerHTML=`<div class="card np fi-anim"><div class="ctit">🔎 篩選</div>
+  computeDiff();
+  if(!diffTouched&&DIFF&&(DIFF.added.size+DIFF.changed.size)>0)onlyDiff=true;
+  root.innerHTML=diffPanel()+`<div class="card np fi-anim"><div class="ctit">🔎 篩選</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:16px">
       <div class="fi"><label style="color:var(--acc);font-weight:700">輸出範圍</label><div class="rg"><label class="ro"><input type="radio" name="expR" value="all" checked onchange="document.getElementById('drB').style.display='none';App.updPicker()"> 全部</label><label class="ro"><input type="radio" name="expR" value="date" onchange="document.getElementById('drB').style.display='block';App.updPicker()"> 日期區間</label></div><div id="drB" style="display:none;margin-top:6px"><div style="display:flex;gap:6px;align-items:center"><input type="date" id="eDF" value="${minD}" style="width:auto" onchange="App.updPicker()"><span style="color:var(--t3)">～</span><input type="date" id="eDT" value="${maxD}" style="width:auto" onchange="App.updPicker()"></div></div></div>
       <div class="fi"><label style="color:var(--acc);font-weight:700">機具種類</label><div class="chk-grid"><label class="chk-item checked"><input type="checkbox" value="施工機具" checked onchange="this.parentElement.classList.toggle('checked',this.checked);App.updPicker()"> 施工機具</label><label class="chk-item checked"><input type="checkbox" value="運輸車輛" checked onchange="this.parentElement.classList.toggle('checked',this.checked);App.updPicker()"> 運輸車輛</label></div></div>
-      <div class="fi"><label style="color:var(--acc);font-weight:700">車輛清冊</label><div class="chk-grid"><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expRoster" onchange="this.parentElement.classList.toggle('checked',this.checked)"> 輸出車輛清冊</label></div></div>
+      <div class="fi"><label style="color:var(--acc);font-weight:700">附加頁面</label><div class="chk-grid"><label class="chk-item checked" style="font-size:11px"><input type="checkbox" id="expSummary" checked onchange="this.parentElement.classList.toggle('checked',this.checked)"> 統計總表</label><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expRoster" onchange="this.parentElement.classList.toggle('checked',this.checked)"> 車輛清冊</label></div></div>
       <div class="fi"><label style="color:var(--acc);font-weight:700">排除項目</label><div class="chk-grid"><label class="chk-item" style="font-size:11px"><input type="checkbox" id="expInclEx" onchange="this.parentElement.classList.toggle('checked',this.checked);App.updPicker()"> 包含已排除統計的紀錄</label></div></div>
     </div>
     <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--bd)">
@@ -420,7 +503,7 @@ function getFiltered(){
   const df=document.getElementById('eDF')?.value||'',dt=document.getElementById('eDT')?.value||'';
   const cats=[...document.querySelectorAll('.chk-item input:checked')].map(c=>c.value).filter(v=>v==='施工機具'||v==='運輸車輛');
   const inclEx=document.getElementById('expInclEx')?.checked;
-  return R.filter(r=>{if(!inclEx&&r.excluded)return false;if(!isAll&&df&&dt&&r.updatedAt){const d=r.updatedAt.slice(0,10);if(d<df||d>dt)return false;}if(cats.length&&!cats.includes(r.category))return false;return true;});
+  return R.filter(r=>{if(!inclEx&&r.excluded)return false;if(onlyDiff&&DIFF&&!isDiff(r.id))return false;if(!isAll&&df&&dt&&r.updatedAt){const d=r.updatedAt.slice(0,10);if(d<df||d>dt)return false;}if(cats.length&&!cats.includes(r.category))return false;return true;});
 }
 function updPicker(){
   const f=getFiltered();
@@ -438,7 +521,8 @@ function updPicker(){
   el.innerHTML=filtered.map(r=>{
     const bc=r.category==='施工機具'?'#b45309':'#0e7490';
     const badge=r.hasBadge==='是'?'<span style="color:#16a34a;font-weight:700">✓ '+r.badgeLevel+'</span>':'<span style="color:#dc2626">✗ 未取得</span>';
-    return'<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:12px" onmouseover="this.style.background=\'var(--accd)\'" onmouseout="this.style.background=\'\'"><input type="checkbox" class="expRecChk" value="'+r.id+'" '+(isFirst||prevChecked.has(r.id)?'checked':'')+' style="accent-color:var(--ok);width:15px;height:15px;flex-shrink:0" onchange="App.updCnt()"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+bc+';flex-shrink:0"></span><span style="font-weight:600;font-family:JetBrains Mono,monospace;min-width:100px">'+esc(r.plateNumber)+'</span><span style="color:var(--t2)">'+esc(r.vehicleType)+'</span><span style="margin-left:auto">'+badge+'</span></label>';
+    const dTag=DIFF?(DIFF.added.has(r.id)?'<span style="font-size:10px;font-weight:700;color:#10b981;background:#10b98122;border-radius:8px;padding:1px 7px">🆕 新增</span>':DIFF.changed.has(r.id)?'<span style="font-size:10px;font-weight:700;color:#f59e0b;background:#f59e0b22;border-radius:8px;padding:1px 7px">✏️ 異動</span>':'<span style="font-size:10px;color:var(--t3)">⏸ 未變動</span>'):'';
+    return'<label style="display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);cursor:pointer;font-size:12px" onmouseover="this.style.background=\'var(--accd)\'" onmouseout="this.style.background=\'\'"><input type="checkbox" class="expRecChk" value="'+r.id+'" '+(isFirst||prevChecked.has(r.id)?'checked':'')+' style="accent-color:var(--ok);width:15px;height:15px;flex-shrink:0" onchange="App.updCnt()"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:'+bc+';flex-shrink:0"></span><span style="font-weight:600;font-family:JetBrains Mono,monospace;min-width:100px">'+esc(r.plateNumber)+'</span><span style="color:var(--t2)">'+esc(r.vehicleType)+'</span>'+dTag+'<span style="margin-left:auto">'+badge+'</span></label>';
   }).join('');
   if(!filtered.length) el.innerHTML='<p style="padding:16px;text-align:center;color:var(--t3)">無符合條件的紀錄</p>';
   updCnt();
@@ -454,7 +538,9 @@ function updCnt(){const sel=document.querySelectorAll('.expRecChk:checked').leng
 function genPrev(){
   const f=getSelectedRecords();const a=document.getElementById('expA');if(!a)return;
   if(!f.length){a.innerHTML='<div class="es" style="padding:30px"><p>請先勾選要輸出的紀錄</p></div>';return;}
-  let h=`<div class="np" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--t2)">預覽 ${f.length+1} 頁（含總表）</span><button class="btn bp" onclick="window.print()">🖨️ 列印 / PDF</button></div>`;
+  const showSummary=document.getElementById('expSummary')?.checked!==false;
+  const nPages=f.length+(showSummary?1:0);
+  let h=`<div class="np" style="margin-bottom:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;color:var(--t2)">預覽 ${nPages} 頁${showSummary?'（含總表）':'（不含總表）'}${onlyDiff?'　<b style="color:var(--acc)">僅異動紀錄</b>':''}</span><button class="btn bp" onclick="App.doPrint()">🖨️ 列印 / PDF</button></div>`;
 
   // === 第一頁：總表（一頁內） ===
   const eq=f.filter(r=>r.category==='施工機具'),tr=f.filter(r=>r.category==='運輸車輛');
@@ -479,7 +565,7 @@ function genPrev(){
     return'<div style="margin-bottom:8px"><div style="font-size:12px;font-weight:700;padding:5px 8px;background:'+color+';color:#fff;border-radius:4px 4px 0 0;letter-spacing:1px">'+icon+' '+title+'</div><table style="width:100%;border-collapse:collapse;border:1px solid #ddd;border-top:none"><thead><tr style="background:#f5f5f5"><th style="padding:4px 8px;text-align:left;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">車輛機具型式</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">數量</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">有標章數</th><th style="padding:4px 8px;text-align:center;font-size:10px;font-weight:700;color:#555;border-bottom:2px solid #ccc">通過率</th></tr></thead><tbody>'+rows+'</tbody></table>'+blTbl+'</div>';
   }
 
-  h+=`<div class="pp2">
+  if(showSummary) h+=`<div class="pp2">
     <div class="print-header"><div>通霄電廠二期更新改建計畫海底輸氣管線統包工程</div></div>
     <div class="page-content"><div>
     <h2 style="font-size:16px;border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:2px;text-align:center">柴油運輸車輛及施工機具管理標章 — 統計總表</h2>
@@ -625,6 +711,11 @@ function genPrev(){
   const pages=a.querySelectorAll('.pp2');
   if(pages.length) pages[pages.length-1].style.pageBreakAfter='auto';
   a.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function doPrint(){
+  window.print();
+  printedPending=true;
+  setTimeout(()=>{toast('🖨️ 列印完成後，請回到上方按「✅ 標記為已列印」，下次才只印新改的');},600);
 }
 
 // === SETTINGS ===
@@ -984,7 +1075,7 @@ async function expExcel(){
 }
 
 // === INIT ===
-ld();renderTabs();render();
+ld();ldBase();computeDiff();renderTabs();render();
 
 // Auto-load latest JSON from Drive
 if(API){
@@ -1028,7 +1119,7 @@ if(API){
   document.getElementById('syncOverlay').remove();
 }
 
-return{go,fl,doSearch,clearSearch,togEx,zoomPhoto,expExcel,expTPC,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile};
+return{go,fl,doSearch,clearSearch,togEx,zoomPhoto,expExcel,expTPC,newRec,editRec,saveForm,cancel,catCh,badgeCh,upP,rmP,chkDup,showDup,closeDup,loadDup,queryMoenv,confirmDel,closeDel,doDel,expJSON,impJSON,clearAll,genPrev,updPicker,updCnt,selAll,selFiltered,saveDrive,openPicker,closePicker,pickFile,markPrinted,clearBase,baseFromFile,togOnlyDiff,doPrint};
 })();
 </script>
 

@@ -49,6 +49,9 @@ var STORAGE = {
   rosterData:        'A16',
   eventTypes:        'A17',
   vessels:           'A18',
+  envScopes:         'A19',
+  archivedScopes:    'A20',
+  envScopeSeeded:    'A21',
 };
 var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';
@@ -83,16 +86,17 @@ function jsonOut_(obj) {
 // ─────────────────────────────────────────
 function getAllData() {
   var sheet = getSheet();
-  var range = sheet.getRange('A1:A18').getValues();
-  var data = {};
   var keys = Object.keys(STORAGE);
+  // 欄位數以 STORAGE 為準，之後新增欄位不用再改範圍
+  var range = sheet.getRange(1, 1, keys.length, 1).getValues();
+  var data = {};
 
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     var raw = range[i][0];
     if (!raw) {
       // 預設值
-      data[key] = (key === 'docNotes' || key === 'docLastUpdated') ? ''
+      data[key] = (key === 'docNotes' || key === 'docLastUpdated' || key === 'envScopeSeeded') ? ''
                   : (key === 'scheduleData' || key === 'otRecords' || key === 'leaveRecords' || key === 'rosterData') ? {}
                   : [];
       continue;
@@ -143,8 +147,8 @@ function saveAllData(payload) {
     updates.push([serialized]);
   }
 
-  // 批次寫入 A1:A18
-  sheet.getRange('A1:A18').setValues(updates);
+  // 批次寫入 A1:A<欄位數>
+  sheet.getRange(1, 1, updates.length, 1).setValues(updates);
   sheet.getRange(LAST_SYNC_CELL).setValue(new Date().toLocaleString('zh-TW'));
   return { ok: true, savedKeys: keys.length };
 }

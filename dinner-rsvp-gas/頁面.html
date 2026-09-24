@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>蟹蟹你們・大安港聚餐報名</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+
+  /* ===== 台味喜氣派對配色：正紅 × 金黃 × 台啤綠 ===== */
+  :root{
+    --ground:#FFF7E8;
+    --dot-a:rgba(210,35,42,.09);
+    --dot-b:rgba(245,178,29,.18);
+    --surface:#FFFFFF;
+    --surface-2:#FFF4DE;
+    --line:#F0D6A2;
+    --line-soft:#F8E9C8;
+    --ink:#2A1A13;
+    --ink-2:#6B4F3F;
+    --ink-3:#9C8370;
+    --red:#D2232A;
+    --red-deep:#9E151B;
+    --gold:#F5B21D;
+    --gold-deep:#D0900A;
+    --green:#1C7A46;
+    --green-ink:#FFFFFF;
+    --sign:#D2232A;
+    --sign-ink:#FFEFC8;
+    --sign-dim:#F6C9A6;
+    --shadow:0 2px 0 var(--line), 0 10px 26px -14px rgba(120,50,20,.55);
+    --shadow-lift:0 3px 0 var(--gold-deep), 0 16px 30px -14px rgba(120,50,20,.6);
+    --crab:#D2472F;
+    --crab-dark:#A83320;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ground:#1B100C;
+      --dot-a:rgba(245,178,29,.10);
+      --dot-b:rgba(210,35,42,.16);
+      --surface:#26170F;
+      --surface-2:#321E14;
+      --line:#573320;
+      --line-soft:#3E2517;
+      --ink:#FCEFDD;
+      --ink-2:#D6BBA0;
+      --ink-3:#A78B74;
+      --red:#F0564F;
+      --red-deep:#B8231F;
+      --gold:#F8C348;
+      --gold-deep:#C79320;
+      --green:#43AC70;
+      --green-ink:#08150E;
+      --sign:#9A1218;
+      --sign-ink:#FFE9B8;
+      --sign-dim:#F0B98F;
+      --shadow:0 2px 0 rgba(0,0,0,.45), 0 12px 28px -14px rgba(0,0,0,.85);
+      --shadow-lift:0 3px 0 var(--gold-deep), 0 18px 32px -14px rgba(0,0,0,.9);
+      --crab:#E2604A;
+      --crab-dark:#B03A26;
+    }
+  }
+
+  *{box-sizing:border-box}
+  html,body{overflow-x:hidden}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;
+    color:var(--ink);
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.75;
+    background-color:var(--ground);
+    background-image:
+      radial-gradient(var(--dot-a) 2px, transparent 2.2px),
+      radial-gradient(var(--dot-b) 2px, transparent 2.2px);
+    background-size:30px 30px, 30px 30px;
+    background-position:0 0, 15px 15px;
+  }
+  .num{font-family:"Bebas Neue","Noto Sans TC",sans-serif;font-weight:400;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+
+  .wrap{
+    max-width:740px;
+    margin:0 auto;
+    padding:clamp(14px,3.5vw,28px) clamp(14px,4vw,24px) 60px;
+    display:flex;
+    flex-direction:column;
+    gap:clamp(20px,4.5vw,30px);
+  }
+
+  /* ---------- 招牌：紅底金字 ---------- */
+  .sign{
+    position:relative;
+    display:flex;
+    background:var(--sign);
+    color:var(--sign-ink);
+    border:3px solid var(--gold);
+    outline:3px solid var(--red-deep);
+    border-radius:10px;
+    box-shadow:0 14px 30px -16px rgba(120,20,20,.8);
+    overflow:hidden;
+  }
+  .sign::after{
+    content:"";
+    position:absolute;inset:0;
+    pointer-events:none;
+    background:
+      radial-gradient(circle at 12% 18%, rgba(255,232,180,.22) 0 18%, transparent 19%),
+      radial-gradient(circle at 88% 78%, rgba(255,232,180,.16) 0 16%, transparent 17%);
+  }
+  .sign-rail{
+    flex:0 0 auto;
+    writing-mode:vertical-rl;
+    text-orientation:upright;
+    background:var(--gold);
+    color:var(--red-deep);
+    font-family:"Noto Serif TC",serif;
+    font-weight:900;
+    font-size:clamp(15px,3.4vw,19px);
+    letter-spacing:.32em;
+    padding:16px 9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:inset -3px 0 0 var(--gold-deep);
+  }
+  .sign-body{padding:clamp(22px,5vw,34px) clamp(16px,4.5vw,30px);position:relative;z-index:1}
+  .eyebrow{
+    margin:0 0 12px;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.24em;
+    color:var(--gold);
+    background:rgba(0,0,0,.18);
+    display:inline-block;
+    padding:4px 11px;
+    border-radius:99px;
+  }
+  .sign h1{
+    margin:0;
+    font-family:"Noto Serif TC","Songti TC",serif;
+    font-weight:900;
+    font-size:clamp(40px,11.5vw,66px);
+    line-height:1.06;
+    letter-spacing:.02em;
+    text-wrap:balance;
+    text-shadow:3px 3px 0 var(--red-deep);
+  }
+  .sign h1 .tone{color:var(--gold)}
+  .sign h1 .h1-sub{
+    display:block;
+    font-size:clamp(17px,4.2vw,23px);
+    font-weight:700;
+    letter-spacing:.3em;
+    color:var(--sign-dim);
+    margin-top:14px;
+    text-shadow:none;
+  }
+  .lede{margin:16px 0 0;color:#FFE7C4;font-size:15px;max-width:34em}
+  .poem{
+    margin-top:20px;
+    display:grid;
+    gap:1px;
+    max-width:none;
+    font-family:"Noto Serif TC",serif;
+    font-weight:700;
+    font-size:clamp(16px,4.1vw,21px);
+    line-height:1.9;
+    letter-spacing:.18em;
+    color:var(--gold);
+    text-shadow:2px 2px 0 var(--red-deep);
+  }
+  .poem span{display:block}
+
+  /* ---------- 三角彩旗 ---------- */
+  .bunting{
+    display:flex;
+    gap:4px;
+    margin:-14px 0 -6px;
+    padding:0 4px;
+  }
+  .bunting i{
+    flex:1 1 0;
+    height:26px;
+    clip-path:polygon(0 0, 100% 0, 50% 100%);
+    transform-origin:50% 0;
+    animation:flagSway 3.2s ease-in-out infinite;
+  }
+  .bunting i:nth-child(3n+1){background:var(--red)}
+  .bunting i:nth-child(3n+2){background:var(--gold)}
+  .bunting i:nth-child(3n+3){background:var(--green)}
+  .bunting i:nth-child(2n){animation-delay:.4s}
+  .bunting i:nth-child(3n){animation-delay:.8s}
+  @keyframes flagSway{
+    0%,100%{transform:rotate(-2.5deg)}
+    50%{transform:rotate(2.5deg)}
+  }
+
+  /* ---------- 價目表式資訊 ---------- */
+  .board{
+    margin:0;
+    background:var(--surface);
+    border:2px solid var(--line);
+    border-radius:10px;
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .board-row{
+    display:flex;
+    align-items:baseline;
+    gap:14px;
+    padding:13px clamp(14px,4vw,22px);
+    border-bottom:1px dashed var(--line);
+  }
+  .board-row:last-child{border-bottom:0}
+  .board dt{
+    flex:0 0 3.6em;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:.18em;
+    color:var(--red);
+  }
+  .board dd{margin:0;flex:1;min-width:0}
+  .board dd .big{font-size:29px;line-height:1.1;color:var(--ink);margin-right:8px}
+  .board dd .sub{color:var(--ink-2);font-size:14px}
+  .board .place{font-weight:900;font-size:19px;color:var(--red)}
+  .countdown{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:13px clamp(14px,4vw,22px);
+    background:var(--green);
+    color:var(--green-ink);
+    font-weight:900;
+    letter-spacing:.04em;
+  }
+  .countdown .days{font-size:30px;line-height:1;color:var(--gold)}
+
+  /* ---------- 一般區塊 ---------- */
+  .card{
+    position:relative;
+    background:var(--surface);
+    border:2px solid var(--line);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:clamp(20px,4.5vw,30px);
+  }
+  .card > :first-child{margin-top:0}
+  .card > :last-child{margin-bottom:0}
+  h2{
+    margin:0 0 14px;
+    padding-bottom:9px;
+    font-family:"Noto Serif TC",serif;
+    font-weight:900;
+    font-size:23px;
+    letter-spacing:.04em;
+    color:var(--red);
+    border-bottom:3px dotted var(--gold);
+  }
+  .sec-note{margin:-6px 0 20px;color:var(--ink-3);font-size:13px}
+  .invite p{margin:0 0 14px;max-width:32em}
+  .invite p:last-child{margin-bottom:0}
+  .invite .kicker{
+    font-family:"Noto Serif TC",serif;
+    font-weight:900;
+    font-size:20px;
+    line-height:1.7;
+    color:var(--red);
+  }
+  .invite .quiet{color:var(--ink-2)}
+  .invite em{
+    font-style:normal;
+    color:var(--red);
+    font-weight:900;
+    background:linear-gradient(transparent 62%, rgba(245,178,29,.55) 0);
+  }
+  .invite .wu{font-size:.78em;color:var(--ink-3);letter-spacing:.02em}
+
+  /* ---------- 螃蟹 ---------- */
+  .crab-box{
+    position:relative;
+    background:
+      radial-gradient(circle at 50% 30%, rgba(245,178,29,.22), transparent 62%),
+      var(--surface-2);
+    border:2px dashed var(--gold);
+    border-radius:12px;
+    box-shadow:var(--shadow);
+    padding:10px 8px 22px;
+    text-align:center;
+  }
+  .crab-box svg{
+    width:100%;max-width:380px;height:auto;display:block;margin:0 auto;
+    transform-origin:50% 82%;
+    animation:crabSway 4.6s ease-in-out infinite;
+  }
+  @keyframes crabSway{
+    0%,100%{transform:rotate(-2.2deg)}
+    50%{transform:rotate(2.2deg)}
+  }
+  .crab-cap{
+    margin:0;
+    font-family:"Noto Serif TC",serif;
+    font-weight:900;
+    font-size:clamp(17px,4.6vw,23px);
+    letter-spacing:.06em;
+    color:var(--red);
+  }
+  .crab-sub{margin:7px 0 0;font-size:13px;color:var(--ink-3)}
+
+  /* ---------- 表單 ---------- */
+  .field{margin-bottom:20px}
+  .field:last-of-type{margin-bottom:0}
+  .label{
+    display:block;
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:.1em;
+    color:var(--ink-2);
+    margin-bottom:8px;
+  }
+  .label .req{color:var(--red);margin-left:4px}
+  .label .opt{color:var(--ink-3);font-weight:400;letter-spacing:0;margin-left:6px}
+  input[type="text"], textarea{
+    width:100%;
+    font:inherit;
+    color:var(--ink);
+    background:var(--surface-2);
+    border:2px solid var(--line);
+    border-radius:8px;
+    padding:11px 13px;
+    transition:border-color .18s, box-shadow .18s;
+  }
+  input[type="text"]:focus, textarea:focus{
+    border-color:var(--gold);
+    box-shadow:0 0 0 4px rgba(245,178,29,.25);
+    outline:none;
+  }
+  textarea{resize:vertical;min-height:78px;line-height:1.6}
+  input[type="text"]::placeholder, textarea::placeholder{color:var(--ink-3)}
+  input[type="text"]:focus-visible, textarea:focus-visible,
+  .pick:focus-visible, .step-btn:focus-visible, .submit:focus-visible{
+    outline:3px solid var(--green);
+    outline-offset:2px;
+  }
+
+  .picks{display:flex;gap:10px;flex-wrap:wrap}
+  .pick{
+    flex:1 1 140px;
+    font:inherit;
+    font-weight:900;
+    cursor:pointer;
+    padding:13px 14px;
+    background:var(--surface-2);
+    color:var(--ink-2);
+    border:2px solid var(--line);
+    border-radius:9px;
+    text-align:center;
+    transition:transform .14s, background .16s, color .16s, border-color .16s, box-shadow .16s;
+  }
+  .pick:hover{transform:translateY(-2px);border-color:var(--gold)}
+  .pick:active{transform:translateY(1px)}
+  .pick .pick-sub{display:block;font-size:12px;font-weight:400;opacity:.85;margin-top:2px}
+  .pick[aria-pressed="true"]{
+    background:var(--green);
+    color:var(--green-ink);
+    border-color:var(--green);
+    box-shadow:0 3px 0 #145c34;
+  }
+  .picks.units .pick{flex:1 1 90px;font-size:14px;padding:9px 10px}
+  .picks.units .pick[aria-pressed="true"]{
+    background:var(--red);color:#FFF1DB;border-color:var(--red);box-shadow:0 3px 0 var(--red-deep);
+  }
+
+  .stepper{display:flex;align-items:center;gap:12px}
+  .step-btn{
+    width:48px;height:48px;
+    font:inherit;font-size:24px;line-height:1;font-weight:900;
+    cursor:pointer;
+    background:var(--gold);
+    color:var(--red-deep);
+    border:2px solid var(--gold-deep);
+    border-radius:50%;
+    box-shadow:0 3px 0 var(--gold-deep);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .step-btn:hover{transform:translateY(-2px);box-shadow:0 5px 0 var(--gold-deep)}
+  .step-btn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--gold-deep)}
+  .step-val{
+    min-width:78px;
+    text-align:center;
+    font-family:"Bebas Neue",sans-serif;
+    font-size:40px;
+    line-height:1;
+    color:var(--red);
+    font-variant-numeric:tabular-nums;
+  }
+  .step-hint{color:var(--ink-3);font-size:13px}
+  .is-off{display:none}
+
+  .submit{
+    width:100%;
+    font:inherit;
+    font-weight:900;
+    font-size:18px;
+    letter-spacing:.16em;
+    cursor:pointer;
+    padding:16px;
+    margin-top:26px;
+    background:var(--red);
+    color:#FFF1DB;
+    border:2px solid var(--gold);
+    border-radius:11px;
+    box-shadow:0 5px 0 var(--red-deep);
+    transition:transform .12s, box-shadow .12s, filter .16s;
+  }
+  .submit:hover{filter:brightness(1.08);transform:translateY(-2px);box-shadow:0 7px 0 var(--red-deep)}
+  .submit:active{transform:translateY(3px);box-shadow:0 2px 0 var(--red-deep)}
+  .submit[disabled]{opacity:.6;cursor:progress;transform:none;box-shadow:0 5px 0 var(--red-deep)}
+  .form-note{margin:13px 0 0;font-size:13px;color:var(--ink-3);text-align:center}
+  .msg{margin:15px 0 0;padding:12px 14px;border-radius:9px;font-size:14.5px;font-weight:700}
+  .msg.ok{background:rgba(28,122,70,.13);color:var(--green);border:2px solid rgba(28,122,70,.4)}
+  .msg.err{background:rgba(210,35,42,.12);color:var(--red);border:2px solid rgba(210,35,42,.4)}
+
+  /* ---------- 統計與名單 ---------- */
+  .tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+  .tile{
+    background:var(--surface-2);
+    border:2px solid var(--line);
+    border-radius:10px;
+    padding:14px 12px;
+    text-align:center;
+  }
+  .tile.lead{background:var(--red);border-color:var(--red-deep);box-shadow:0 4px 0 var(--red-deep)}
+  .tile.lead .tile-num{color:var(--gold)}
+  .tile.lead .tile-lab{color:#FFD9AE}
+  .tile-num{
+    display:block;
+    font-family:"Bebas Neue",sans-serif;
+    font-size:42px;
+    line-height:1;
+    color:var(--red);
+    font-variant-numeric:tabular-nums;
+  }
+  .tile-lab{display:block;font-size:12px;letter-spacing:.1em;color:var(--ink-3);margin-top:5px;font-weight:700}
+
+  .roster{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+  .roster li{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:baseline;
+    gap:10px;
+    padding:11px 2px;
+    border-bottom:1px dashed var(--line);
+  }
+  .roster li:last-child{border-bottom:0}
+  .r-name{font-weight:900;white-space:nowrap}
+  .r-unit{
+    font-size:11px;
+    letter-spacing:.08em;
+    padding:2px 8px;
+    border-radius:99px;
+    background:var(--gold);
+    border:1px solid var(--gold-deep);
+    color:var(--red-deep);
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .r-count{margin-left:auto;font-family:"Bebas Neue",sans-serif;font-size:22px;color:var(--green);white-space:nowrap}
+  .r-note{flex-basis:100%;font-size:13px;color:var(--ink-3);margin:-4px 0 0}
+  .roster.away li{color:var(--ink-3)}
+  .roster.away .r-name{font-weight:500}
+  .roster.away .r-unit{background:var(--surface-2);border-color:var(--line);color:var(--ink-3)}
+  .away-head{margin:24px 0 2px;font-size:12px;letter-spacing:.16em;color:var(--ink-3);font-weight:900}
+  .empty{
+    margin:0;
+    padding:28px 10px;
+    text-align:center;
+    color:var(--ink-3);
+    border:2px dashed var(--line);
+    border-radius:10px;
+  }
+
+  /* ---------- 拍立得照片 ---------- */
+  .photos{
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    gap:clamp(18px,5vw,34px);
+    flex-wrap:wrap;
+    padding:4px 0;
+  }
+  .polaroid{
+    position:relative;
+    margin:0;
+    background:#FBF9F3;
+    padding:11px 11px 0;
+    border-radius:3px;
+    box-shadow:0 2px 5px rgba(90,40,15,.2), 0 18px 32px -16px rgba(90,40,15,.6);
+    transform:rotate(var(--rot,0deg));
+    transition:transform .25s ease;
+  }
+  .photos.solo .polaroid{width:min(430px,100%)}
+  .photos.duo .polaroid{flex:1 1 250px;max-width:330px}
+  .polaroid:hover{transform:rotate(0deg) translateY(-6px) scale(1.02)}
+  .polaroid::before{
+    content:"";
+    position:absolute;
+    top:-9px;left:50%;
+    width:78px;height:20px;
+    transform:translateX(-50%) rotate(-3.5deg);
+    background:rgba(245,178,29,.62);
+    border-left:1px dashed rgba(255,255,255,.55);
+    border-right:1px dashed rgba(255,255,255,.55);
+    box-shadow:0 1px 2px rgba(90,40,15,.25);
+  }
+  .polaroid:nth-of-type(even)::before{
+    transform:translateX(-50%) rotate(3deg);
+    background:rgba(210,35,42,.5);
+  }
+  .polaroid img.pp{width:100%;height:auto;display:block;background:#E8E3D8}
+  .polaroid figcaption{padding:11px 6px 13px;text-align:center}
+  .pc-t{
+    display:block;
+    font-family:"Noto Serif TC",serif;
+    font-weight:900;
+    font-size:15px;
+    letter-spacing:.02em;
+    color:#8E1319;
+  }
+  .pc-s{display:block;font-size:11.5px;line-height:1.55;color:#7A6552;margin-top:3px}
+
+  /* ---------- 餐廳：插畫 + 地圖 ---------- */
+  .venue svg{width:100%;max-width:430px;height:auto;display:block;margin:2px auto 20px}
+  .venue-info{margin:0 0 16px;display:grid;gap:9px}
+  .venue-info > div{display:flex;gap:14px;align-items:baseline}
+  .venue-info dt{flex:0 0 3.2em;font-size:12px;font-weight:900;letter-spacing:.18em;color:var(--red)}
+  .venue-info dd{margin:0;font-weight:700;min-width:0}
+  .venue-info a{color:var(--ink);text-decoration:none;border-bottom:2px solid var(--gold)}
+  .venue-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .venue-btns a{
+    flex:1 1 150px;
+    text-align:center;
+    text-decoration:none;
+    font-weight:900;
+    font-size:15px;
+    letter-spacing:.08em;
+    padding:14px 14px;
+    border-radius:10px;
+    border:2px solid var(--gold);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .btn-nav{background:var(--green);color:#FFF;box-shadow:0 4px 0 #145C34}
+  .btn-tel{background:var(--surface-2);color:var(--red);box-shadow:0 4px 0 var(--line)}
+  .venue-btns a:hover{transform:translateY(-2px)}
+  .venue-btns a:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+  .map{
+    border:2px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--surface-2);
+  }
+  .map iframe{display:block;width:100%;height:270px;border:0}
+  .venue-note{margin:10px 0 0;font-size:12px;color:var(--ink-3);text-align:center}
+
+  /* ---------- 散落的大頭貼 ---------- */
+  img.sticker{
+    position:absolute;
+    width:72px;height:72px;
+    border-radius:50%;
+    object-fit:cover;
+    border:3px solid var(--gold);
+    box-shadow:0 5px 14px -4px rgba(90,40,15,.6);
+    z-index:3;
+    pointer-events:none;
+    /* 傾斜角用獨立的 rotate 屬性，keyframes 才不必寫 var()
+       （keyframes 內的 var() 在 Chrome 會被判定為計算時無效，整組動畫會失效） */
+    rotate:var(--rot,0deg);
+    animation:headBob var(--dur,7s) ease-in-out var(--delay,0s) infinite;
+  }
+  @keyframes headBob{
+    0%,100%{transform:translate(0,0) rotate(0deg)}
+    25%{transform:translate(5px,-8px) rotate(6deg)}
+    50%{transform:translate(0,-12px) rotate(0deg)}
+    75%{transform:translate(-5px,-6px) rotate(-6deg)}
+  }
+
+  /* ---------- 紙屑 ---------- */
+  .confetti{
+    position:fixed;
+    top:-16px;
+    width:10px;height:15px;
+    z-index:80;
+    pointer-events:none;
+    animation:confettiFall linear forwards;
+  }
+  @keyframes confettiFall{
+    0%{transform:translateY(0) rotate(0deg);opacity:1}
+    100%{transform:translateY(106vh) rotate(760deg);opacity:.85}
+  }
+
+  /* ---------- 滾動浮現 ---------- */
+  .reveal{opacity:0;transform:translateY(18px)}
+  .reveal.in{
+    opacity:1;
+    transform:none;
+    transition:opacity .55s ease, transform .55s cubic-bezier(.2,.75,.3,1);
+  }
+
+  .foot{
+    position:relative;
+    text-align:center;
+    font-size:13px;
+    color:var(--ink-2);
+    line-height:2;
+    font-weight:700;
+  }
+  .foot .sep{color:var(--gold-deep)}
+
+  @media (max-width:430px){
+    .sign-rail{letter-spacing:.2em;padding:12px 6px;font-size:14px}
+    .sign h1{text-shadow:2px 2px 0 var(--red-deep)}
+    .tiles{gap:7px}
+    .tile-num{font-size:33px}
+    .tile{padding:12px 6px}
+    .tile-lab{font-size:11px;letter-spacing:.04em}
+    img.sticker{width:52px;height:52px;border-width:2.5px}
+    img.sticker.tuck{display:none}
+    .bunting i{height:20px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none !important;animation:none !important}
+    .polaroid:hover{transform:rotate(var(--rot,0deg))}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="sign">
+    <div class="sign-rail" aria-hidden="true"><span>五甲海產</span></div>
+    <div class="sign-body">
+      <p class="eyebrow">施工組 × 環安衛組　慰勞聚餐</p>
+      <h1><span class="tone">蟹蟹</span>你們<span class="h1-sub">辛苦了，來吃一頓</span></h1>
+      <p class="lede poem"><span>工地碼頭日日忙</span><span>安全帽戴到天光</span><span>今晚脫帽放輕鬆</span><span>海鮮啤酒配歌唱</span></p>
+    </div>
+  </header>
+
+  <div class="bunting" id="bunting" aria-hidden="true"></div>
+
+  <dl class="board">
+    <div class="board-row">
+      <dt>日期</dt>
+      <dd><span class="num big">10 / 01</span><span class="sub">星期四</span></dd>
+    </div>
+    <div class="board-row">
+      <dt>開桌</dt>
+      <dd><span class="num big">18:00</span><span class="sub">晚上六點，人到就開動</span></dd>
+    </div>
+    <div class="board-row">
+      <dt>地點</dt>
+      <dd><span class="place">大安港・五甲海產餐廳</span></dd>
+    </div>
+    <div class="board-row">
+      <dt>回覆</dt>
+      <dd><span class="sub">請在 <b>9/28（一）</b> 前填好，才好跟老闆訂桌</span></dd>
+    </div>
+    <div class="countdown" id="countdown">
+      <span class="num days" id="cdDays">—</span>
+      <span id="cdText">計算中</span>
+    </div>
+  </dl>
+
+  <div class="photos" data-pics="5"></div>
+
+  <section class="card invite">
+    <p class="kicker">這一年，工地的風沒有一天是客氣的。</p>
+    <p class="quiet">吊掛、巡檢、動火、防塵網、稽核、一張又一張的改善單——大家把它們一件一件做完了，而且做得很乾淨。雖然工地目前沒有甚麼進度<span class="wu">(誤)</span>但還是這次特地安排一攤，謝謝施工組與環安衛組每一位同仁的辛勞。</p>
+    <p class="quiet">當天<em>不談進度、不談缺失、不開改善單</em>。只有現撈的、冰的，還有麥克風。吃飽、喝足、唱爽，明天起床再一起繼續拚。</p>
+  </section>
+
+  <div class="photos" data-pics="0,1"></div>
+
+  <div class="crab-box">
+    <svg viewBox="0 0 400 250" role="img" aria-label="一隻戴工地安全帽的螃蟹，一邊舉啤酒一邊拿麥克風">
+      <ellipse cx="200" cy="226" rx="104" ry="11" fill="var(--ink)" opacity=".10"/>
+
+      <!-- 腳 -->
+      <g stroke="var(--crab-dark)" stroke-width="9" stroke-linecap="round" fill="none">
+        <path d="M143 190 Q118 208 104 226"/>
+        <path d="M167 199 Q152 216 145 232"/>
+        <path d="M257 190 Q282 208 296 226"/>
+        <path d="M233 199 Q248 216 255 232"/>
+      </g>
+
+      <!-- 左手：舉啤酒 -->
+      <g stroke="var(--crab)" stroke-width="13" stroke-linecap="round" fill="none">
+        <path d="M133 160 Q104 146 92 118"/>
+      </g>
+      <g transform="translate(86 108) rotate(-28)">
+        <ellipse cx="0" cy="0" rx="21" ry="14" fill="var(--crab)"/>
+        <path d="M4 -5 L30 -19 L31 -3 Z" fill="var(--crab)"/>
+        <path d="M4 5 L30 17 L31 3 Z" fill="var(--crab-dark)"/>
+      </g>
+      <g transform="translate(52 42)">
+        <rect x="0" y="16" width="46" height="58" rx="6" fill="var(--gold-bright)"/>
+        <rect x="0" y="16" width="46" height="58" rx="6" fill="none" stroke="var(--crab-dark)" stroke-width="3" opacity=".25"/>
+        <path d="M46 30 q16 4 16 16 t-16 16" fill="none" stroke="var(--gold)" stroke-width="7" stroke-linecap="round"/>
+        <rect x="-4" y="4" width="54" height="17" rx="8" fill="#FFFDF5"/>
+        <circle cx="6" cy="6" r="7" fill="#FFFDF5"/>
+        <circle cx="24" cy="2" r="8" fill="#FFFDF5"/>
+        <circle cx="42" cy="6" r="7" fill="#FFFDF5"/>
+        <circle cx="13" cy="42" r="4" fill="#FFFDF5" opacity=".7"/>
+        <circle cx="30" cy="56" r="3" fill="#FFFDF5" opacity=".7"/>
+      </g>
+
+      <!-- 右手：拿麥克風 -->
+      <g stroke="var(--crab)" stroke-width="13" stroke-linecap="round" fill="none">
+        <path d="M267 160 Q296 150 310 128"/>
+      </g>
+      <g transform="translate(316 118) rotate(28) scale(-1 1)">
+        <ellipse cx="0" cy="0" rx="21" ry="14" fill="var(--crab)"/>
+        <path d="M4 -5 L30 -19 L31 -3 Z" fill="var(--crab)"/>
+        <path d="M4 5 L30 17 L31 3 Z" fill="var(--crab-dark)"/>
+      </g>
+      <g transform="translate(330 60) rotate(18)">
+        <rect x="-7" y="20" width="14" height="42" rx="6" fill="#4A4F55"/>
+        <circle cx="0" cy="12" r="17" fill="#8D959D"/>
+        <circle cx="0" cy="12" r="17" fill="none" stroke="#4A4F55" stroke-width="3"/>
+        <circle cx="-6" cy="7" r="3" fill="#FFFFFF" opacity=".45"/>
+      </g>
+
+      <!-- 身體 -->
+      <ellipse cx="200" cy="160" rx="72" ry="50" fill="var(--crab)"/>
+      <path d="M134 174 Q200 204 266 174 Q200 216 134 174 Z" fill="var(--crab-dark)" opacity=".45"/>
+
+      <!-- 安全帽 -->
+      <path d="M143 118 A58 52 0 0 1 257 118 Z" fill="var(--gold-bright)"/>
+      <path d="M196 70 L204 70 L204 118 L196 118 Z" fill="var(--gold)" opacity=".7"/>
+      <rect x="128" y="114" width="144" height="13" rx="6.5" fill="var(--gold)"/>
+
+      <!-- 眼睛 -->
+      <circle cx="176" cy="150" r="15" fill="#FFFDF5"/>
+      <circle cx="224" cy="150" r="15" fill="#FFFDF5"/>
+      <circle cx="179" cy="152" r="7" fill="#1A1A1A"/>
+      <circle cx="227" cy="152" r="7" fill="#1A1A1A"/>
+      <circle cx="176" cy="148" r="2.6" fill="#FFFFFF"/>
+      <circle cx="224" cy="148" r="2.6" fill="#FFFFFF"/>
+
+      <!-- 腮紅與笑 -->
+      <ellipse cx="156" cy="173" rx="11" ry="7" fill="#FF8A6E" opacity=".55"/>
+      <ellipse cx="244" cy="173" rx="11" ry="7" fill="#FF8A6E" opacity=".55"/>
+      <path d="M182 176 Q200 192 218 176" fill="none" stroke="#5A1C12" stroke-width="4.5" stroke-linecap="round"/>
+
+      <!-- 音符 -->
+      <g fill="var(--green)" opacity=".85">
+        <circle cx="300" cy="196" r="6"/><rect x="304" y="170" width="3.5" height="28" rx="1.7"/>
+        <circle cx="332" cy="182" r="5"/><rect x="335" y="160" width="3" height="24" rx="1.5"/>
+      </g>
+    </svg>
+    <p class="crab-cap">「蟹蟹你們，我也是有在工作的。」</p>
+    <p class="crab-sub">—— 當晚的主角，本人親自到場（躺著）</p>
+  </div>
+
+  <div class="photos" data-pics="2"></div>
+
+  <section class="card" id="formCard">
+    <h2>我要報名</h2>
+    <p class="sec-note">填完按送出就好。同一個姓名再填一次，會直接更新你原本那一筆，不會重複。</p>
+
+    <div class="field">
+      <label class="label" for="fName">姓名<span class="req">＊</span></label>
+      <input type="text" id="fName" placeholder="例：王大明" autocomplete="name" maxlength="20">
+    </div>
+
+    <div class="field">
+      <span class="label" id="unitLabel">單位<span class="opt">選填</span></span>
+      <div class="picks units" role="group" aria-labelledby="unitLabel" id="unitPicks">
+        <button type="button" class="pick" data-unit="施工組" aria-pressed="false">施工組</button>
+        <button type="button" class="pick" data-unit="環安衛組" aria-pressed="false">環安衛組</button>
+        <button type="button" class="pick" data-unit="其他" aria-pressed="false">其他</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <span class="label" id="goLabel">是否參加<span class="req">＊</span></span>
+      <div class="picks" role="group" aria-labelledby="goLabel" id="goPicks">
+        <button type="button" class="pick" data-go="參加" aria-pressed="true">
+          參加<span class="pick-sub">我要去吃</span>
+        </button>
+        <button type="button" class="pick" data-go="不克參加" aria-pressed="false">
+          不克參加<span class="pick-sub">這次去不了</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="field" id="countField">
+      <span class="label" id="cntLabel">人數<span class="opt">含你自己，有帶家人請一起算</span></span>
+      <div class="stepper" role="group" aria-labelledby="cntLabel">
+        <button type="button" class="step-btn" id="minus" aria-label="減少一人">−</button>
+        <span class="step-val" id="countVal" aria-live="polite">1</span>
+        <button type="button" class="step-btn" id="plus" aria-label="增加一人">＋</button>
+        <span class="step-hint">人</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="fNote">備註<span class="opt">選填，例：吃素、會晚到、點歌先卡位</span></label>
+      <textarea id="fNote" maxlength="200" placeholder="有什麼要先說的，寫在這裡"></textarea>
+    </div>
+
+    <button type="button" class="submit" id="submitBtn">送 出 報 名</button>
+    <p class="form-note" id="formNote">送出後下面的名單會立刻更新</p>
+    <div id="msg"></div>
+  </section>
+
+  <div class="photos" data-pics="3,4"></div>
+
+  <section class="card" id="statsCard">
+    <h2>目前報名狀況</h2>
+    <p class="sec-note" id="listNote">讀取中…</p>
+
+    <div class="tiles">
+      <div class="tile lead">
+        <span class="tile-num" id="tHead">—</span>
+        <span class="tile-lab">出席總人數</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num" id="tGo">—</span>
+        <span class="tile-lab">報名筆數</span>
+      </div>
+      <div class="tile">
+        <span class="tile-num" id="tTable">—</span>
+        <span class="tile-lab">預估桌數</span>
+      </div>
+    </div>
+
+    <div id="rosterBox"><p class="empty">讀取中…</p></div>
+  </section>
+
+  <div class="photos" data-pics="6,7"></div>
+
+  <section class="card venue">
+    <h2>怎麼去五甲海產</h2>
+    <p class="sec-note">大安港邊的老海產店。開車的可以直接按下面的導航。</p>
+
+      <svg viewBox="0 0 400 250" role="img" aria-label="五甲海產餐廳店面插畫：金色招牌、紅白遮陽棚、紅燈籠與水族箱">
+        <defs>
+          <clipPath id="awning">
+            <path d="M56 78 L344 78 L352 108 L48 108 Z"/>
+          </clipPath>
+        </defs>
+
+        <rect x="0" y="212" width="400" height="38" fill="#DAD3C3"/>
+        <rect x="0" y="212" width="400" height="4" fill="#C2BAA7"/>
+
+        <rect x="58" y="62" width="284" height="150" rx="4" fill="#F6EFE0" stroke="#C9B896" stroke-width="3"/>
+
+        <rect x="66" y="26" width="268" height="46" rx="5" fill="#F5B21D" stroke="#9E151B" stroke-width="4"/>
+        <text x="200" y="58" text-anchor="middle" font-family="Noto Serif TC, serif" font-weight="900" font-size="27" letter-spacing="7" fill="#9E151B">五甲海產</text>
+
+        <g clip-path="url(#awning)">
+          <rect x="40" y="76" width="320" height="34" fill="#FFF6E4"/>
+          <rect x="48" y="76" width="25" height="34" fill="#D2232A"/>
+          <rect x="98" y="76" width="25" height="34" fill="#D2232A"/>
+          <rect x="148" y="76" width="25" height="34" fill="#D2232A"/>
+          <rect x="198" y="76" width="25" height="34" fill="#D2232A"/>
+          <rect x="248" y="76" width="25" height="34" fill="#D2232A"/>
+          <rect x="298" y="76" width="25" height="34" fill="#D2232A"/>
+        </g>
+        <path d="M56 78 L344 78 L352 108 L48 108 Z" fill="none" stroke="#9E151B" stroke-width="3" stroke-linejoin="round"/>
+
+        <g>
+          <line x1="96" y1="108" x2="96" y2="118" stroke="#6B4A2A" stroke-width="3"/>
+          <rect x="86" y="116" width="20" height="6" rx="2" fill="#D0900A"/>
+          <ellipse cx="96" cy="139" rx="18" ry="20" fill="#D2232A"/>
+          <ellipse cx="96" cy="139" rx="7" ry="20" fill="#B41C22" opacity=".5"/>
+          <rect x="86" y="156" width="20" height="6" rx="2" fill="#D0900A"/>
+          <line x1="96" y1="162" x2="96" y2="176" stroke="#F5B21D" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <g>
+          <line x1="304" y1="108" x2="304" y2="118" stroke="#6B4A2A" stroke-width="3"/>
+          <rect x="294" y="116" width="20" height="6" rx="2" fill="#D0900A"/>
+          <ellipse cx="304" cy="139" rx="18" ry="20" fill="#D2232A"/>
+          <ellipse cx="304" cy="139" rx="7" ry="20" fill="#B41C22" opacity=".5"/>
+          <rect x="294" y="156" width="20" height="6" rx="2" fill="#D0900A"/>
+          <line x1="304" y1="162" x2="304" y2="176" stroke="#F5B21D" stroke-width="4" stroke-linecap="round"/>
+        </g>
+
+        <rect x="128" y="130" width="98" height="64" rx="4" fill="#BEE3EC" stroke="#3F6672" stroke-width="3"/>
+        <rect x="128" y="130" width="98" height="12" fill="#8FC9D8" opacity=".7"/>
+        <g fill="#E8853B">
+          <ellipse cx="160" cy="158" rx="13" ry="8"/>
+          <path d="M147 158 L136 151 L136 165 Z"/>
+        </g>
+        <circle cx="165" cy="156" r="1.8" fill="#2A1A13"/>
+        <g fill="#5FA9C4">
+          <ellipse cx="196" cy="177" rx="11" ry="7"/>
+          <path d="M207 177 L217 171 L217 183 Z"/>
+        </g>
+        <circle cx="191" cy="175" r="1.6" fill="#2A1A13"/>
+        <circle cx="178" cy="145" r="3" fill="#FFFFFF" opacity=".75"/>
+        <circle cx="187" cy="152" r="2" fill="#FFFFFF" opacity=".6"/>
+        <circle cx="172" cy="138" r="2" fill="#FFFFFF" opacity=".6"/>
+
+        <rect x="244" y="126" width="72" height="86" rx="3" fill="#3A2A1E"/>
+        <rect x="250" y="132" width="60" height="80" fill="#F2C15C" opacity=".85"/>
+        <rect x="244" y="126" width="72" height="16" fill="#D2232A"/>
+        <rect x="273" y="132" width="5" height="80" fill="#3A2A1E" opacity=".55"/>
+
+        <g>
+          <rect x="64" y="176" width="58" height="36" rx="4" fill="#EFEDE4" stroke="#B9B4A4" stroke-width="2.5"/>
+          <path d="M70 182 L78 174 L86 182 Z" fill="#DCEEF3"/>
+          <path d="M86 182 L94 174 L102 182 Z" fill="#DCEEF3"/>
+          <path d="M102 182 L110 174 L118 182 Z" fill="#DCEEF3"/>
+          <path d="M104 176 L118 164 L120 178 Z" fill="#5FA9C4"/>
+        </g>
+      </svg>
+
+    <dl class="venue-info">
+      <div><dt>地址</dt><dd>臺中市大安區五甲南路 3 號</dd></div>
+      <div><dt>電話</dt><dd><a href="tel:+886426862369">04-2686-2369</a></dd></div>
+      <div><dt>開桌</dt><dd>10/01（四）18:00，人到就開動</dd></div>
+    </dl>
+
+    <div class="venue-btns">
+      <a class="btn-nav" href="https://www.google.com/maps/dir/?api=1&amp;destination=%E5%A4%A7%E5%AE%89%E6%B8%AF%E4%BA%94%E7%94%B2%E6%B5%B7%E7%94%A2%E9%A4%90%E5%BB%B3%20%E5%8F%B0%E4%B8%AD%E5%B8%82%E5%A4%A7%E5%AE%89%E5%8D%80%E4%BA%94%E7%94%B2%E5%8D%97%E8%B7%AF3%E8%99%9F" target="_blank" rel="noopener">開啟導航</a>
+      <a class="btn-tel" href="tel:+886426862369">打電話問路</a>
+    </div>
+
+    <div class="map">
+      <iframe src="https://maps.google.com/maps?q=%E5%A4%A7%E5%AE%89%E6%B8%AF%E4%BA%94%E7%94%B2%E6%B5%B7%E7%94%A2%E9%A4%90%E5%BB%B3%20%E5%8F%B0%E4%B8%AD%E5%B8%82%E5%A4%A7%E5%AE%89%E5%8D%80%E4%BA%94%E7%94%B2%E5%8D%97%E8%B7%AF3%E8%99%9F&amp;z=16&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="五甲海產餐廳位置地圖"></iframe>
+    </div>
+    <p class="venue-note">地圖載不出來的話，直接按上面的「開啟導航」。</p>
+  </section>
+
+  <p class="foot">
+    主辦：環安衛組<span class="sep">　｜　</span>有問題請在群組敲一聲<br>
+    大安港・五甲海產餐廳　2026.10.01（四）18:00
+  </p>
+
+</div>
+
+<?!= include('圖片') ?>
+
+<script>
+(function () {
+  'use strict';
+
+  var 目前參加 = '參加';
+  var 目前單位 = '';
+  var 目前人數 = 1;
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  // ---- 倒數 ----
+  (function 倒數() {
+    var 今天 = new Date();
+    今天.setHours(0, 0, 0, 0);
+    var 當天 = new Date(2026, 9, 1);
+    var 天 = Math.round((當天 - 今天) / 86400000);
+    if (天 > 1) {
+      $('cdDays').textContent = 天;
+      $('cdText').textContent = '天後開桌，記得先報名';
+    } else if (天 === 1) {
+      $('cdDays').textContent = '1';
+      $('cdText').textContent = '天後開桌，明天見';
+    } else if (天 === 0) {
+      $('cdDays').textContent = '今天';
+      $('cdText').textContent = '晚上六點，五甲海產見';
+    } else {
+      $('cdDays').textContent = '吃飽了';
+      $('cdText').textContent = '這一攤結束了，感謝大家';
+    }
+  })();
+
+  // ---- 選項按鈕 ----
+  function 設定群組(容器, 屬性, 回呼) {
+    容器.addEventListener('click', function (e) {
+      var 鈕 = e.target.closest('.pick');
+      if (!鈕) return;
+      var 值 = 鈕.getAttribute(屬性);
+      var 全部 = 容器.querySelectorAll('.pick');
+      var 已選 = 鈕.getAttribute('aria-pressed') === 'true';
+      for (var i = 0; i < 全部.length; i++) 全部[i].setAttribute('aria-pressed', 'false');
+      回呼(已選 && 可取消(容器) ? '' : 值);
+      if (!(已選 && 可取消(容器))) 鈕.setAttribute('aria-pressed', 'true');
+    });
+  }
+  function 可取消(容器) { return 容器.id === 'unitPicks'; }
+
+  設定群組($('unitPicks'), 'data-unit', function (值) { 目前單位 = 值; });
+  設定群組($('goPicks'), 'data-go', function (值) {
+    目前參加 = 值 || '參加';
+    $('countField').classList.toggle('is-off', 目前參加 !== '參加');
+    $('formNote').textContent = 目前參加 === '參加'
+      ? '送出後下面的名單會立刻更新'
+      : '沒關係，還是幫你記一筆，下次一定揪到';
+  });
+
+  // ---- 人數 ----
+  function 更新人數(差) {
+    目前人數 = Math.min(20, Math.max(1, 目前人數 + 差));
+    $('countVal').textContent = 目前人數;
+  }
+  $('minus').addEventListener('click', function () { 更新人數(-1); });
+  $('plus').addEventListener('click', function () { 更新人數(1); });
+
+  // ---- 記住自己填過的名字 ----
+  try {
+    var 存的 = window.localStorage.getItem('rsvp_name');
+    if (存的) $('fName').value = 存的;
+  } catch (e) {}
+
+  // ---- 畫面渲染 ----
+  var 想省電 = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function 跳字(元素, 值) {
+    if (值 !== 0 && !值) { 元素.textContent = '—'; return; }
+    var 從 = Number(元素.textContent) || 0;
+    var 到 = Number(值) || 0;
+    if (從 === 到 || 想省電 || !window.requestAnimationFrame) { 元素.textContent = 到; return; }
+    var 起 = performance.now(), 長 = 650;
+    requestAnimationFrame(function 跑(現在) {
+      var p = Math.min(1, (現在 - 起) / 長);
+      元素.textContent = Math.round(從 + (到 - 從) * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) requestAnimationFrame(跑);
+    });
+  }
+
+  /** 報名成功時灑一把紙屑 */
+  function 灑紙屑() {
+    if (想省電) return;
+    var 色 = ['#D2232A', '#F5B21D', '#1C7A46', '#FFF1DB', '#E2604A'];
+    for (var i = 0; i < 46; i++) {
+      var 片 = document.createElement('div');
+      片.className = 'confetti';
+      片.style.left = (Math.random() * 100) + 'vw';
+      片.style.background = 色[i % 色.length];
+      片.style.width = (7 + Math.random() * 6).toFixed(1) + 'px';
+      片.style.height = (11 + Math.random() * 8).toFixed(1) + 'px';
+      片.style.animationDuration = (2.2 + Math.random() * 1.6).toFixed(2) + 's';
+      片.style.animationDelay = (Math.random() * 0.5).toFixed(2) + 's';
+      if (i % 3 === 0) 片.style.borderRadius = '50%';
+      document.body.appendChild(片);
+      (function (節點) {
+        setTimeout(function () { if (節點.parentNode) 節點.parentNode.removeChild(節點); }, 4800);
+      })(片);
+    }
+  }
+
+  function 渲染(狀態) {
+    跳字($('tHead'), 狀態.總人數);
+    跳字($('tGo'), 狀態.參加筆數);
+    跳字($('tTable'), 狀態.桌數);
+
+    var 總筆數 = 狀態.參加筆數 + 狀態.不參加筆數;
+    $('listNote').textContent = 總筆數
+      ? '共 ' + 總筆數 + ' 位同仁回覆，預估開 ' + 狀態.桌數 + ' 桌（以十人一桌估）'
+      : '還沒有人回覆，第一個就是你。';
+
+    var 盒 = $('rosterBox');
+    盒.innerHTML = '';
+
+    if (!總筆數) {
+      var 空 = document.createElement('p');
+      空.className = 'empty';
+      空.textContent = '名單還是空的 — 填上面的表就會出現在這裡。';
+      盒.appendChild(空);
+      return;
+    }
+
+    if (狀態.參加名單.length) {
+      盒.appendChild(建名單(狀態.參加名單, false));
+    }
+    if (狀態.不參加名單.length) {
+      var 標 = document.createElement('p');
+      標.className = 'away-head';
+      標.textContent = '這次不克參加';
+      盒.appendChild(標);
+      盒.appendChild(建名單(狀態.不參加名單, true));
+    }
+  }
+
+  function 建名單(名單, 是否缺席) {
+    var ul = document.createElement('ul');
+    ul.className = 是否缺席 ? 'roster away' : 'roster';
+    名單.forEach(function (人) {
+      var li = document.createElement('li');
+
+      var 名 = document.createElement('span');
+      名.className = 'r-name';
+      名.textContent = 人.name;
+      li.appendChild(名);
+
+      if (人.unit) {
+        var 單 = document.createElement('span');
+        單.className = 'r-unit';
+        單.textContent = 人.unit;
+        li.appendChild(單);
+      }
+
+      var 數 = document.createElement('span');
+      數.className = 'r-count';
+      數.textContent = 是否缺席 ? '—' : 人.count + ' 人';
+      li.appendChild(數);
+
+      if (人.note) {
+        var 註 = document.createElement('span');
+        註.className = 'r-note';
+        註.textContent = '「' + 人.note + '」';
+        li.appendChild(註);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  function 顯示訊息(文字, 種類) {
+    var 盒 = $('msg');
+    盒.innerHTML = '';
+    if (!文字) return;
+    var p = document.createElement('p');
+    p.className = 'msg ' + 種類;
+    p.textContent = 文字;
+    盒.appendChild(p);
+  }
+
+  function 後端不通(e) {
+    $('listNote').textContent = '名單讀不到。';
+    $('rosterBox').innerHTML = '';
+    var p = document.createElement('p');
+    p.className = 'empty';
+    p.textContent = '連不上伺服器，請重新整理這一頁；還是不行就在群組敲一聲。';
+    $('rosterBox').appendChild(p);
+  }
+
+  // ---- 與後端往來 ----
+  function 有後端() {
+    return typeof google !== 'undefined' && google.script && google.script.run;
+  }
+
+  function 載入() {
+    if (!有後端()) { 後端不通(); return; }
+    google.script.run.withSuccessHandler(渲染).withFailureHandler(後端不通).getRsvpData();
+  }
+
+  $('submitBtn').addEventListener('click', function () {
+    var 姓名 = $('fName').value.trim();
+    if (!姓名) {
+      顯示訊息('請先填姓名，才知道要留幾個位子給誰。', 'err');
+      $('fName').focus();
+      return;
+    }
+    if (!有後端()) {
+      顯示訊息('連不上伺服器，請重新整理這一頁再送一次。', 'err');
+      return;
+    }
+
+    var 鈕 = $('submitBtn');
+    鈕.disabled = true;
+    鈕.textContent = '送出中…';
+    顯示訊息('', '');
+
+    try { window.localStorage.setItem('rsvp_name', 姓名); } catch (e) {}
+
+    google.script.run
+      .withSuccessHandler(function (狀態) {
+        鈕.disabled = false;
+        鈕.textContent = '送 出 報 名';
+        渲染(狀態);
+        顯示訊息(
+          狀態.動作 === '更新'
+            ? '已更新 ' + 狀態.我的姓名 + ' 的報名資料，蟹蟹你！'
+            : (目前參加 === '參加'
+                ? '報名完成，' + 狀態.我的姓名 + ' 的位子留好了，10/1 見！'
+                : '收到了，' + 狀態.我的姓名 + ' 這次不克參加，下次再揪。'),
+          'ok'
+        );
+        灑紙屑();
+      })
+      .withFailureHandler(function (err) {
+        鈕.disabled = false;
+        鈕.textContent = '送 出 報 名';
+        顯示訊息((err && err.message) ? err.message : '送出失敗，請再按一次。', 'err');
+      })
+      .submitRsvp({
+        name: 姓名,
+        unit: 目前單位,
+        attending: 目前參加,
+        count: 目前人數,
+        note: $('fNote').value.trim()
+      });
+  });
+
+  // ---- 照片：拍立得散貼在各區塊之間 ----
+  var 照片說明 = [
+    ['每天早上的 TBM', '龍井區 9/14。手舉高，代表今天狀況良好。'],
+    ['現場巡檢', '綠背心走在最前面，一段一段看過去。'],
+    ['世界工安日', '「安全第一」這四個字，在這裡是真的在做。'],
+    ['淨灘暨除草活動', '9/10。粉紅袋子一字排開，裝滿為止。'],
+    ['淨灘日的綠色大隊', '太陽很大，比讚的手一隻也沒少。'],
+    ['上一攤的圓桌', '火鍋、飲料、一整桌的人。這次換五甲海產。'],
+    ['包廂裡的那一夜', '麥克風沒停過，隔天嗓子全啞。'],
+    ['下班後的牌桌', '戰場換了，對手沒換。']
+  ];
+  var 照片角度 = [-2.6, 2.1, -1.6, 2.6, -2.1, 1.7, -2.4, 1.4];
+  var 圖庫 = (window.相片 && window.相片.大圖) || [];
+  var 頭像庫 = (window.相片 && window.相片.大頭照) || [];
+
+  (function 貼照片() {
+    var 位子 = document.querySelectorAll('.photos');
+    for (var i = 0; i < 位子.length; i++) {
+      var 盒 = 位子[i];
+      var 清單 = (盒.getAttribute('data-pics') || '').split(',');
+      盒.classList.add(清單.length > 1 ? 'duo' : 'solo');
+      清單.forEach(function (號) {
+        var n = Number(號);
+        var 張 = 圖庫[n];
+        if (!張) return;
+        var 說 = 照片說明[n] || ['', ''];
+
+        var fig = document.createElement('figure');
+        fig.className = 'polaroid';
+        fig.style.setProperty('--rot', (照片角度[n] || 0) + 'deg');
+
+        var img = document.createElement('img');
+        img.className = 'pp';
+        img.src = 張.src;
+        img.alt = 說[0] || '現場照片';
+        img.style.aspectRatio = 張.w + ' / ' + 張.h;
+
+        var cap = document.createElement('figcaption');
+        var t = document.createElement('b');
+        t.className = 'pc-t';
+        t.textContent = 說[0];
+        var s = document.createElement('span');
+        s.className = 'pc-s';
+        s.textContent = 說[1];
+        cap.appendChild(t);
+        cap.appendChild(s);
+
+        fig.appendChild(img);
+        fig.appendChild(cap);
+        盒.appendChild(fig);
+      });
+    }
+  })();
+
+  // ---- 十八張大頭照：散貼在各區塊與照片的邊角 ----
+  (function 貼紙() {
+    if (!頭像庫.length) return;
+    var 用到 = 0;
+    function 貼(元素, 位置, 角度, 收) {
+      if (!元素 || 用到 >= 頭像庫.length) return;
+      var img = document.createElement('img');
+      img.className = 'sticker' + (收 ? ' tuck' : '');
+      img.src = 頭像庫[用到++];
+      img.alt = '';
+      img.setAttribute('aria-hidden', 'true');
+      Object.keys(位置).forEach(function (k) { img.style[k] = 位置[k]; });
+      img.style.setProperty('--rot', 角度 + 'deg');
+      // 每張晃的速度與起始時間都不同，才不會整排一起動
+      img.style.setProperty('--dur', (5.4 + (用到 % 7) * 0.62).toFixed(2) + 's');
+      img.style.setProperty('--delay', ((用到 * 0.73) % 4.2).toFixed(2) + 's');
+      元素.appendChild(img);
+    }
+
+    // 十八張全部集中在「目前報名狀況」之前，那之後不再出現大頭照
+    [['.invite',    { top: '-24px', right: '18px' },    -9, false],
+     ['.invite',    { bottom: '-22px', left: '24px' },   8, true],
+     ['.invite',    { top: '44%', left: '-16px' },     -14, true],
+     ['.crab-box',  { top: '14px', left: '14px' },     -13, false],
+     ['.crab-box',  { top: '12px', right: '16px' },      9, false],
+     ['.crab-box',  { bottom: '16px', right: '18px' },  11, true],
+     ['#formCard',  { top: '-24px', left: '22px' },      7, false],
+     ['#formCard',  { top: '-26px', right: '34px' },    -9, false],
+     ['#formCard',  { bottom: '-22px', right: '26px' }, -6, true]
+    ].forEach(function (項) { 貼(document.querySelector(項[0]), 項[1], 項[2], 項[3]); });
+
+    // 只貼在「目前報名狀況」之前的那六張拍立得；最後兩張（包廂、牌桌）在下面，不貼
+    var 拍立得 = document.querySelectorAll('.polaroid');
+    [[0, { top: '-22px', left: '-10px' },    -12, false],
+     [0, { bottom: '-14px', right: '-10px' },  9, true],
+     [1, { top: '-22px', left: '-10px' },    -11, false],
+     [2, { top: '-22px', right: '-10px' },    10, false],
+     [3, { top: '-20px', right: '-10px' },    12, false],
+     [3, { bottom: '-16px', left: '-10px' },  -9, true],
+     [4, { bottom: '-16px', left: '-10px' }, -10, true],
+     [5, { top: '-22px', right: '-10px' },     8, false],
+     [5, { bottom: '-14px', right: '-10px' }, -7, false]
+    ].forEach(function (項) { 貼(拍立得[項[0]], 項[1], 項[2], 項[3]); });
+  })();
+
+  // ---- 三角彩旗 ----
+  (function 掛彩旗() {
+    var 旗 = $('bunting');
+    if (!旗) return;
+    var 數 = Math.max(9, Math.min(19, Math.round(window.innerWidth / 46)));
+    for (var i = 0; i < 數; i++) 旗.appendChild(document.createElement('i'));
+  })();
+
+  // ---- 區塊隨捲動浮現（第一屏直接顯示，不等捲動）----
+  (function 浮現() {
+    if (想省電 || !('IntersectionObserver' in window)) return;
+    var 全部 = document.querySelectorAll('.wrap > *');
+    var 待 = [];
+    for (var i = 3; i < 全部.length; i++) {
+      全部[i].classList.add('reveal');
+      待.push(全部[i]);
+    }
+    if (!待.length) return;
+    var 觀察 = new IntersectionObserver(function (項目) {
+      項目.forEach(function (項) {
+        if (項.isIntersecting) { 項.target.classList.add('in'); 觀察.unobserve(項.target); }
+      });
+    }, { rootMargin: '0px 0px -6% 0px', threshold: 0.03 });
+    待.forEach(function (el) { 觀察.observe(el); });
+    // 保險：兩秒半後，凡是已經在畫面內卻還沒浮現的，直接顯示
+    setTimeout(function () {
+      待.forEach(function (el) {
+        var r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('in');
+      });
+    }, 2500);
+  })();
+
+  載入();
+})();
+</script>
+</body>
+</html>
