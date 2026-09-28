@@ -4,8 +4,8 @@
  *
  * 輸出格式對齊範本：HSE Walkthrough Inspection_中英.docx
  *   A4 橫式、7 欄主表（S/N｜OBSERVATIONS｜RECOMMENDATIONS｜ACTION BY｜STATUS｜TARGET DATE｜CLOSE-OUT DATE）
- *   表頭含 NMDC 標誌、Team Members／Project and Location／Date／Time
- *   每筆下方加一列跨欄的「改善前 BEFORE／改善後 AFTER」照片列
+ *   表頭含 NMDC 標誌、Team Members（固定班底）／Project and Location／Date
+ *   每筆下方加一列照片列，左右對半切成「改善前 BEFORE｜改善後 AFTER」兩格
  *   文末 Distribution 分發對象表
  *
  * 注意：本檔只處理自己的試算表與 Drive 資料夾，與既有的環安衛管理系統完全獨立。
@@ -31,7 +31,7 @@ var PHO_COLS = ['id', 'recordId', 'kind', 'fileId', 'name', 'createdAt', 'delete
 var REP_COLS = ['date', 'docId', 'pdfId', 'docxId', 'generatedAt'];
 
 var DEFAULTS = {
-  members: ['Jin', 'Ben', 'Raymond', 'Elson'],
+  members: ['Jin', 'Ben', 'Elson', 'Raymond'],   // 固定班底，報告抬頭照這個順序印
   actionBy: ['Construction 施工', 'Piping 配管', 'Structure 結構', 'Painting 塗裝',
     'E&I 電儀', 'Scaffolding 鷹架', 'Lifting 吊掛', 'Logistics 物流',
     'Subcontractor 協力廠商', 'HSE 環安衛'],
@@ -74,7 +74,7 @@ function doGet(e) {
   t.KEY = ACCESS_KEY;
   t.LOGO = LOGO_B64;   // 與報告共用同一張範本標誌，不另外畫
   return t.evaluate()
-    .setTitle('HSE 現場巡查紀錄')
+    .setTitle(SITE + ' HSE 現場巡查紀錄')
     .addMetaTag('viewport', 'width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
@@ -561,7 +561,17 @@ function hseSaveConfig(key, obj) {
 
 /* ============================ 報告產生 ============================ */
 
-var COL_W = [28.4, 242.5, 241.9, 61, 56.7, 63.8, 70.5];   // pt，對齊範本 twips/20
+/**
+ * 主表實際是 8 欄，但看起來是範本的 7 欄：
+ * RECOMMENDATIONS（241.9pt）被拆成 111.5 + 130.4 兩欄，表頭與每一筆資料列都再合併回一格。
+ * 這樣做唯一的目的，是讓照片列可以剛好切在整張表的正中央（左右各 382.4pt）——
+ * Google 文件只能沿著既有欄線合併，原本的 7 欄沒有一條落在中線上。
+ */
+var COL_W = [28.4, 242.5, 111.5, 130.4, 61, 56.7, 63.8, 70.5];   // pt，合計 764.8＝範本表寬
+var NCOL = COL_W.length;
+var REC_C = 2;        // RECOMMENDATIONS 的第一欄（與第 3 欄合併）
+var RIGHT_C = 3;      // 照片列右半邊的第一欄；左半邊是 0..2
+var SITE = 'NMDC 通霄工區';
 var HDR_BG = '#f2f2f2';
 var NAVY = '#002038';
 var FONT = 'Arial';
@@ -641,12 +651,9 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
 
   /* ---- 表頭 ---- */
   // 時間只用來排序當天的紀錄，不印在報告上
-  var memberSet = {};
-  recs.forEach(function (x) {
-    String(x.members || '').split(',').forEach(function (s) { s = s.trim(); if (s) memberSet[s] = 1; });
-    if (x.reporter) memberSet[String(x.reporter).trim()] = 1;
-  });
-  var members = Object.keys(memberSet).join('、');
+  // 巡查成員是固定班底，不隨每筆紀錄變動；順序照設定裡的清單
+  var roster = (cfg.members && cfg.members.length) ? cfg.members : DEFAULTS.members;
+  var members = roster.join(', ');
   var project = recs[0].project || cfg.project || DEFAULTS.project;
 
   var hdr = doc.getHeader() || doc.addHeader();
@@ -668,7 +675,7 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   var tc = ht.getCell(0, 1);
   para_(tc, 0, 'NMDC ENERGY', { FONT_SIZE: 11, BOLD: true, FOREGROUND_COLOR: NAVY });
   para_(tc, null, 'HSE INSPECTION walkthrough – ' + project, { FONT_SIZE: 14, BOLD: true, FOREGROUND_COLOR: NAVY });
-  para_(tc, null, 'HSE 現場巡查紀錄', { FONT_SIZE: 12, BOLD: true, FOREGROUND_COLOR: NAVY });
+  para_(tc, null, SITE + ' HSE 現場巡查紀錄', { FONT_SIZE: 12, BOLD: true, FOREGROUND_COLOR: NAVY });
   tc.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
   for (var pi = 0; pi < tc.getNumChildren(); pi++) {
     tc.getChild(pi).asParagraph().setAlignment(DocumentApp.HorizontalAlignment.CENTER);
@@ -684,16 +691,20 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   tm.setSpacingBefore(2).setSpacingAfter(2);
 
   /* ---- 主表 ---- */
+  // null＝那一欄只是為了切中線而存在，內容留空，稍後合併進左邊那格
   var head = [['S/N', '項次'], ['OBSERVATIONS', '巡查發現'], ['RECOMMENDATIONS', '改善建議'],
-  ['ACTION BY', '權責單位'], ['STATUS', '改善狀態'], ['TARGET DATE', '預定完成日期'],
+    null, ['ACTION BY', '權責單位'], ['STATUS', '改善狀態'], ['TARGET DATE', '預定完成日期'],
   ['CLOSE- OUT DATE', '結案日期']];
-  var blankRow = [BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK];
+  var blankRow = [];
+  for (var bc = 0; bc < NCOL; bc++) blankRow.push(BLANK);
 
-  var grid = [head.map(function (h) { return h[0]; })];
+  var grid = [blankRow.slice()];
+  var dataRows = [];    // 主表中屬於「資料列」的 row index（含表頭，都要合併 RECOMMENDATIONS）
   var photoRows = [];   // 主表中屬於「照片列」的 row index
   var rowMeta = [];     // 每一列對應的紀錄
   recs.forEach(function (x, i) {
     grid.push(blankRow.slice());
+    dataRows.push(grid.length - 1);
     rowMeta.push({ type: 'data', rec: x, sn: i + 1 });
     grid.push(blankRow.slice());
     photoRows.push(grid.length - 1);
@@ -705,12 +716,13 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   for (var c = 0; c < COL_W.length; c++) tbl.setColumnWidth(c, COL_W[c]);
 
   // 表頭列
-  for (var c2 = 0; c2 < 7; c2++) {
+  for (var c2 = 0; c2 < NCOL; c2++) {
     var hc = tbl.getCell(0, c2);
     hc.setBackgroundColor(HDR_BG);
     hc.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
     hc.setPaddingTop(3).setPaddingBottom(3).setPaddingLeft(3).setPaddingRight(3);
-    setCellMulti_(hc, head[c2], { FONT_SIZE: 9, BOLD: true }, DocumentApp.HorizontalAlignment.CENTER);
+    if (head[c2]) setCellMulti_(hc, head[c2], { FONT_SIZE: 9, BOLD: true }, DocumentApp.HorizontalAlignment.CENTER);
+    else hc.clear();
   }
 
   // 資料列 + 照片列
@@ -756,7 +768,8 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
 
   doc.saveAndClose();
 
-  var merged = mergePhotoRows_(docId, photoRows);
+  var merged = mergeCells_(docId, dataRows, photoRows);
+  if (merged) tidyMergedCells_(docId);
   return { docId: docId, name: name, merged: merged };
 }
 
@@ -771,42 +784,47 @@ function fillDataRow_(row, x, sn) {
 
   setCellPlain_(row.getCell(0), String(sn), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
   setCellBilingual_(row.getCell(1), obsZh, obsEn);
-  setCellBilingual_(row.getCell(2), x.recZh, x.recEn);
-  setCellPlain_(row.getCell(3), String(x.actionBy || ''), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
-  setCellMulti_(row.getCell(4), statusTxt.split('\n'), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
-  setCellPlain_(row.getCell(5), ymd_(x.targetDate), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
-  setCellPlain_(row.getCell(6), ymd_(x.closeOutDate), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
+  setCellBilingual_(row.getCell(REC_C), x.recZh, x.recEn);
+  row.getCell(REC_C + 1).clear();   // 切中線用的空欄，等一下併進 RECOMMENDATIONS
+  setCellPlain_(row.getCell(4), String(x.actionBy || ''), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
+  setCellMulti_(row.getCell(5), statusTxt.split('\n'), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
+  setCellPlain_(row.getCell(6), ymd_(x.targetDate), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
+  setCellPlain_(row.getCell(7), ymd_(x.closeOutDate), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
 
-  for (var i = 0; i < 7; i++) {
+  for (var i = 0; i < NCOL; i++) {
     var c = row.getCell(i);
     c.setPaddingTop(3).setPaddingBottom(3).setPaddingLeft(4).setPaddingRight(4);
-    c.setVerticalAlignment(i === 1 || i === 2
+    c.setVerticalAlignment(i === 1 || i === REC_C || i === REC_C + 1
       ? DocumentApp.VerticalAlignment.TOP : DocumentApp.VerticalAlignment.CENTER);
   }
 }
 
-/** 改善前／後排在同一列，盡量不佔版面高度。 */
+/**
+ * 照片列切成左右兩格：左半（欄 0..2）放 BEFORE、右半（欄 3..7）放 AFTER。
+ * 內容先寫進各自那一半的第一格，剩下的格子清空，之後由 mergeCells_ 併起來。
+ */
 function fillPhotoRow_(row, x, photos) {
-  var cell = row.getCell(0);
-  cell.setPaddingTop(3).setPaddingBottom(4).setPaddingLeft(6).setPaddingRight(6);
-  cell.setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
-
   var before = photos.filter(function (p) { return p.kind === 'before'; });
   var after = photos.filter(function (p) { return p.kind === 'after'; });
 
-  var p = firstPara_(cell);
-  p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);
+  fillPhotoHalf_(row.getCell(0), 'BEFORE 改善前 ', '#546e7a', before);
+  fillPhotoHalf_(row.getCell(RIGHT_C), 'AFTER 改善後 ', '#1b6e3c', after);
 
-  appendGroup_(p, 'BEFORE 改善前 ', '#546e7a', before);
-  appendStyled_(p, '      ', {});
-  appendGroup_(p, 'AFTER 改善後 ', '#1b6e3c', after);
-
-  // 其餘欄位清空（合併後會併入第一格）
-  for (var i = 1; i < 7; i++) {
+  // 兩個半邊的其餘格子清空（合併後會併進各自的第一格）
+  for (var i = 0; i < NCOL; i++) {
+    if (i === 0 || i === RIGHT_C) continue;
     var c = row.getCell(i);
     c.clear();
     c.setPaddingTop(0).setPaddingBottom(0).setPaddingLeft(0).setPaddingRight(0);
   }
+}
+
+function fillPhotoHalf_(cell, label, color, list) {
+  cell.setPaddingTop(3).setPaddingBottom(4).setPaddingLeft(6).setPaddingRight(6);
+  cell.setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
+  var p = firstPara_(cell);
+  p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);
+  appendGroup_(p, label, color, list);
 }
 
 var PHOTO_H = 100;   // pt，並排時的照片高度
@@ -925,11 +943,13 @@ function styleCell_(cell, o) {
 }
 
 /**
- * 把照片列的 7 格合併成一格（Word 範本沒有照片欄，合併後才不會被欄寬切斷）。
- * DocumentApp 無法合併儲存格，改用 Docs 進階服務；失敗時照片仍留在第一格。
+ * 把 8 欄的實體表格收成看得到的樣子：
+ *   表頭列與每一筆資料列 → 合併欄 2、3，變回一格 RECOMMENDATIONS
+ *   照片列               → 合併欄 0..2（BEFORE）與欄 3..7（AFTER），切在正中央
+ * DocumentApp 無法合併儲存格，只能走 Docs 進階服務。
+ * 由下往上、由右往左送，索引才不會跑掉；失敗時整張表維持 8 欄未合併。
  */
-function mergePhotoRows_(docId, photoRows) {
-  if (!photoRows.length) return true;
+function mergeCells_(docId, dataRows, photoRows) {
   try {
     var d = Docs.Documents.get(docId);
     var content = d.body.content || [];
@@ -938,17 +958,27 @@ function mergePhotoRows_(docId, photoRows) {
       if (content[i].table) { tableStart = content[i].startIndex; break; }
     }
     if (tableStart === null) return false;
-    var reqs = photoRows.slice().sort(function (a, b) { return b - a; }).map(function (r) {
+
+    var plan = [];
+    plan.push({ row: 0, col: REC_C, span: 2 });                                  // 表頭
+    dataRows.forEach(function (r) { plan.push({ row: r, col: REC_C, span: 2 }); });
+    photoRows.forEach(function (r) {
+      plan.push({ row: r, col: RIGHT_C, span: NCOL - RIGHT_C });
+      plan.push({ row: r, col: 0, span: RIGHT_C });
+    });
+    plan.sort(function (a, b) { return b.row - a.row || b.col - a.col; });
+
+    var reqs = plan.map(function (m) {
       return {
         mergeTableCells: {
           tableRange: {
             tableCellLocation: {
               tableStartLocation: { index: tableStart },
-              rowIndex: r,
-              columnIndex: 0
+              rowIndex: m.row,
+              columnIndex: m.col
             },
             rowSpan: 1,
-            columnSpan: 7
+            columnSpan: m.span
           }
         }
       };
@@ -956,9 +986,47 @@ function mergePhotoRows_(docId, photoRows) {
     Docs.Documents.batchUpdate({ requests: reqs }, docId);
     return true;
   } catch (e) {
-    console.warn('mergePhotoRows_ 失敗，照片列維持未合併：' + e);
+    console.warn('mergeCells_ 失敗，表格維持未合併：' + e);
     return false;
   }
+}
+
+/**
+ * 合併儲存格時，被併掉那幾格的空段落會原封不動接到主格後面，
+ * 在 Word 裡就是一排多出來的空行（尤其 AFTER 沒照片時特別明顯）。
+ * 這裡把每一格尾端的空段落清掉，每格至少保留一個段落（文件格式要求）。
+ */
+function tidyMergedCells_(docId) {
+  try {
+    var doc = DocumentApp.openById(docId);
+    var tbls = doc.getBody().getTables();
+    if (!tbls.length) return;
+    var tbl = tbls[0];
+    for (var r = 0; r < tbl.getNumRows(); r++) {
+      var row = tbl.getRow(r);
+      for (var c = 0; c < row.getNumCells(); c++) {
+        var cell = row.getCell(c);
+        for (var i = cell.getNumChildren() - 1; i > 0; i--) {
+          if (!emptyPara_(cell.getChild(i))) break;
+          cell.removeChild(cell.getChild(i));
+        }
+      }
+    }
+    doc.saveAndClose();
+  } catch (e) {
+    console.warn('tidyMergedCells_ 失敗，合併後的空行保留：' + e);
+  }
+}
+
+/** 段落是不是「真的空的」——只有空白、也沒有夾帶行內圖片。 */
+function emptyPara_(el) {
+  if (el.getType() !== DocumentApp.ElementType.PARAGRAPH) return false;
+  var p = el.asParagraph();
+  if (p.getText().trim() !== '') return false;
+  for (var i = 0; i < p.getNumChildren(); i++) {
+    if (p.getChild(i).getType() === DocumentApp.ElementType.INLINE_IMAGE) return false;
+  }
+  return true;
 }
 
 function exportDoc_(docId, name, reportFolderId) {

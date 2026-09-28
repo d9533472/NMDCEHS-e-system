@@ -17,8 +17,33 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .hd h1{font-size:17px;font-weight:800;letter-spacing:.6px;color:#002038}
 .hd small{color:#7d8ea0;font-size:10px;letter-spacing:1px;display:block;margin-top:1px}
 .lgo{width:74px;height:25px;flex:0 0 auto;display:block}
-.lg{flex:0 0 auto;margin-left:10px;background:#eef3f8;border:1px solid #d3dde8;color:#16324f;
- border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer}
+.lg{flex:0 0 auto;background:#eef3f8;border:1px solid #d3dde8;color:#16324f;
+ border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer}
+.hdr{display:flex;align-items:center;gap:6px;flex:0 0 auto;margin-left:8px}
+.ico{flex:0 0 auto;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid #d3dde8;
+ background:#eef3f8;color:#16324f;font-size:17px;font-weight:800;cursor:pointer;
+ display:flex;align-items:center;justify-content:center;transition:transform .1s}
+.ico:active{transform:scale(.93)}
+.ico.p{background:linear-gradient(135deg,#002038,#00B050);border-color:#002038;color:#fff;
+ box-shadow:0 3px 10px rgba(0,32,56,.28)}
+
+/* 浮動視窗：手機從下往上推，桌機置中 */
+.mask{position:fixed;inset:0;z-index:40;display:none;background:rgba(10,22,35,.45);
+ align-items:flex-end;justify-content:center}
+.mask.on{display:flex}
+.sheet{background:#fff;width:100%;max-width:660px;max-height:92vh;border-radius:20px 20px 0 0;
+ display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(16,24,40,.28);animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(26px);opacity:.5}to{transform:none;opacity:1}}
+.shd{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:14px 16px 11px;
+ border-bottom:1px solid #eef1f4}
+.shd .ft{flex:1;margin:0;padding:0;border:0}
+.x{flex:0 0 auto;width:34px;height:34px;padding:0;border-radius:11px;border:1px solid #e3e9f0;
+ background:#f5f8fb;color:#56657a;font-size:15px;font-weight:700;cursor:pointer}
+.sbd{padding:2px 16px 18px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+@media(min-width:680px){
+ .mask{align-items:center;padding:20px}
+ .sheet{border-radius:20px}
+}
 
 .wrap{padding:14px;max-width:660px;margin:0 auto}
 .card{background:#fff;border-radius:18px;padding:15px 16px;margin-bottom:11px;border:1px solid #e8ecf1;
@@ -141,15 +166,7 @@ details summary::-webkit-details-marker{display:none}
 
 @media(min-width:980px){
  .hd{padding:15px max(16px,calc(50% - 540px))}
- .wrap{max-width:1100px;display:grid;grid-template-columns:400px minmax(0,1fr);gap:0 24px;align-items:start;
-  grid-template-areas:"kpis kpis" "dbar dbar" "form list" "exp list" "cfg list" "foot foot"}
- .kpis{grid-area:kpis}
- #dwrap{grid-area:dbar}
- #formZone{grid-area:form;position:sticky;top:86px}
- #expCard{grid-area:exp}
- #cfgCard{grid-area:cfg}
- #list{grid-area:list}
- #foot{grid-area:foot}
+ .wrap{max-width:880px}
 }
 @media(hover:hover){
  .kpi:hover{transform:translateY(-2px)}
@@ -165,11 +182,16 @@ details summary::-webkit-details-marker{display:none}
  <div class="hdl">
   <img class="lgo" src="data:image/png;base64,<?!= LOGO ?>" alt="NMDC ENERGY">
   <div>
-   <h1 id="tTitle">HSE 現場巡查紀錄</h1>
-   <small id="tSub">HSE INSPECTION WALKTHROUGH</small>
+   <h1 id="tTitle">NMDC 通霄工區</h1>
+   <small id="tSub">HSE 現場巡查紀錄 · WALKTHROUGH</small>
   </div>
  </div>
- <button class="lg" id="lang" onclick="setLang(LG=='zh'?'en':'zh')">EN</button>
+ <div class="hdr">
+  <button class="ico p" id="bAdd" onclick="newRec()">✚</button>
+  <button class="ico" id="bExp" onclick="openM('exp')">📄</button>
+  <button class="ico" id="bCfg" onclick="openM('cfg')">⚙</button>
+  <button class="lg" id="lang" onclick="setLang(LG=='zh'?'en':'zh')">EN</button>
+ </div>
 </div>
 
 <div class="wrap">
@@ -191,10 +213,13 @@ details summary::-webkit-details-marker{display:none}
   <div class="dsum" id="dsum"></div>
  </div>
 
- <div id="formZone">
-  <button class="btn" id="rep" onclick="repTog()"></button>
-  <div class="card" id="repCard" style="display:none">
-   <h2 class="ft" data-i="ftit"></h2>
+ <div class="mask" id="mRep" onclick="maskClick(event,'rep')">
+  <div class="sheet">
+   <div class="shd">
+    <h2 class="ft" data-i="ftit"></h2>
+    <button class="x" onclick="closeM('rep')">✕</button>
+   </div>
+   <div class="sbd">
 
    <label class="req" data-i="lTime"></label>
    <div class="dtrow">
@@ -206,10 +231,6 @@ details summary::-webkit-details-marker{display:none}
    <label class="req" data-i="lReporter"></label>
    <div class="opts" id="opReporter"></div>
    <input id="f_reporterOther" style="margin-top:7px;display:none" data-p="pOther">
-
-   <label data-i="lMembers"></label>
-   <div class="opts" id="opMembers"></div>
-   <input id="f_membersOther" style="margin-top:7px" data-p="pMembersOther">
 
    <label data-i="lProject"></label>
    <input id="f_project">
@@ -250,15 +271,21 @@ details summary::-webkit-details-marker{display:none}
 
    <div style="height:14px"></div>
    <button class="btn" id="send" onclick="submit0()" style="margin-bottom:0"></button>
-   <button class="btn btn2" id="cancelEdit" onclick="resetForm()" style="margin:9px 0 0;display:none"></button>
+   <button class="btn btn2" id="cancelEdit" onclick="cancelEdit0()" style="margin:9px 0 0;display:none"></button>
+   </div>
   </div>
  </div>
 
  <div id="list"><div class="muted" data-i="lding"></div></div>
 
- <div class="card" id="expCard">
-  <h2 class="ft" data-i="etit"></h2>
-  <div class="tiny" data-i="eHint" style="margin-bottom:10px"></div>
+ <div class="mask" id="mExp" onclick="maskClick(event,'exp')">
+  <div class="sheet">
+   <div class="shd">
+    <h2 class="ft" data-i="etit"></h2>
+    <button class="x" onclick="closeM('exp')">✕</button>
+   </div>
+   <div class="sbd">
+  <div class="tiny" data-i="eHint" style="margin:8px 0 10px"></div>
   <label data-i="eDate"></label>
   <input id="expDt" type="date" onchange="expTouch()">
   <select id="expPick" onchange="expPickSel()" style="margin-top:7px"></select>
@@ -266,12 +293,19 @@ details summary::-webkit-details-marker{display:none}
   <div style="height:13px"></div>
   <button class="btn btn3" id="expBtn" onclick="buildReport()"></button>
   <div class="out" id="expOut"></div>
+   </div>
+  </div>
  </div>
 
- <div class="card" id="cfgCard">
-  <details>
-   <summary><h2 class="ft" style="margin:0" data-i="ctit"></h2></summary>
+ <div class="mask" id="mCfg" onclick="maskClick(event,'cfg')">
+  <div class="sheet">
+   <div class="shd">
+    <h2 class="ft" data-i="ctit"></h2>
+    <button class="x" onclick="closeM('cfg')">✕</button>
+   </div>
+   <div class="sbd">
    <label data-i="cMembers"></label><textarea id="c_members" style="height:60px"></textarea>
+   <div class="hint" data-i="cMembersH"></div>
    <label data-i="cAction"></label><textarea id="c_actionBy" style="height:86px"></textarea>
    <label data-i="cContractors"></label><textarea id="c_contractors" style="height:76px"></textarea>
    <label data-i="cProject"></label><input id="c_project">
@@ -284,7 +318,8 @@ details summary::-webkit-details-marker{display:none}
    <label data-i="cSecRep"></label><input id="c_sectionRep">
    <div style="height:12px"></div>
    <button class="btn btn2" onclick="saveCfg()" data-i="cSave" style="margin:0"></button>
-  </details>
+   </div>
+  </div>
  </div>
 
  <div class="muted" id="foot" data-i="foot" style="padding-top:2px"></div>
@@ -302,14 +337,14 @@ var EDIT="", AFID="", TRB=0, BUSY=0;
 var REP_OTHER="__other__";
 
 var L={zh:{
- title:"HSE 現場巡查紀錄", sub:"HSE INSPECTION WALKTHROUGH",
+ title:"NMDC 通霄工區", sub:"HSE 現場巡查紀錄 · INSPECTION WALKTHROUGH",
  kAll:"全部", kOpen:"開放中", kPend:"待複查", kOver:"逾期",
  btnToday:"今天",
  rep:"✚ 新增巡查發現", repC:"✕ 收合表單",
  ftit:"巡查發現 Walkthrough Finding",
  lTime:"巡查日期時間 Date & Time", lReporter:"填報人 Reporter",
  hDT:"預設為現在，可自行修改（補登前幾天的紀錄就改這裡）。",
- lMembers:"巡查成員 Team Members（可複選）", pMembersOther:"其他成員，用逗號分隔",
+ cMembersH:"固定班底，不用每次選；報告抬頭會照這個順序印。",
  lProject:"專案及地點 Project and Location",
  lCon:"承包商 Contractor", hCon:"只用於手機端篩選與統計，不會印在報告上。",
  lObs:"巡查發現 OBSERVATIONS（中文）", pObs:"例：二樓平台開口未設護欄",
@@ -353,14 +388,14 @@ var L={zh:{
  fail:"失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
  foot:"NMDC ENERGY · HSE 現場巡查紀錄｜手機填報 → 每日匯出報告"
 },en:{
- title:"HSE Walkthrough Record", sub:"HSE INSPECTION WALKTHROUGH",
+ title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
  kAll:"All", kOpen:"Open", kPend:"Pending", kOver:"Overdue",
  btnToday:"Today",
  rep:"✚ New finding", repC:"✕ Close form",
  ftit:"Walkthrough Finding",
  lTime:"Date & Time", lReporter:"Reporter",
  hDT:"Defaults to now; change it to back-date a finding.",
- lMembers:"Team Members (multi-select)", pMembersOther:"Other members, comma separated",
+ cMembersH:"Fixed roster; printed in this order on the report header.",
  lProject:"Project and Location",
  lCon:"Contractor", hCon:"Used for filtering on this app only; not printed on the report.",
  lObs:"OBSERVATIONS (Chinese)", pObs:"e.g. 二樓平台開口未設護欄",
@@ -418,7 +453,6 @@ function applyLang(){
  $("tTitle").textContent=t("title");$("tSub").textContent=t("sub");
  document.querySelectorAll("[data-i]").forEach(function(el){el.textContent=t(el.getAttribute("data-i"))});
  document.querySelectorAll("[data-p]").forEach(function(el){el.placeholder=t(el.getAttribute("data-p"))});
- $("rep").textContent=t($("repCard").style.display=="block"?"repC":"rep");
  $("send").textContent=t(EDIT?"save":"send");
  $("cancelEdit").textContent=t("cancel");
  buildDateOpts();updTargetHint();updExpBtn();
@@ -438,7 +472,7 @@ function load(){
   if(!r||!r.ok){$("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'</div>';return}
   TODAY=r.today; if(!$("dt").value)$("dt").value=r.date;
   // 表單沒開也不在編輯中時，讓新增用的巡查日跟著上面切換的日期走。
-  if(!EDIT&&$("repCard").style.display!=="block")$("f_date").value=$("dt").value||TODAY;
+  if(!EDIT&&!isOpen("rep"))$("f_date").value=$("dt").value||TODAY;
   CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[];
   buildOptions(); buildDateOpts(); fillCfgForm(); paint();
  }).withFailureHandler(function(e){
@@ -459,7 +493,6 @@ function flt(f){
 function buildOptions(){
  if(!CFG)return;
  var rp="";try{rp=localStorage.getItem("HSEWT_RP")||""}catch(e){}
- var mem=[];try{mem=JSON.parse(localStorage.getItem("HSEWT_MEM")||"[]")}catch(e){}
 
  var or=$("opReporter");
  if(!or.dataset.built||or.dataset.sig!==CFG.members.join("|")){
@@ -470,15 +503,6 @@ function buildOptions(){
    d.onclick=function(){pickReporter(m)};or.appendChild(d);
   });
   if(rp)pickReporter(CFG.members.indexOf(rp)>=0?rp:REP_OTHER,rp);
- }
-
- var om=$("opMembers");
- if(!om.dataset.built||om.dataset.sig!==CFG.members.join("|")){
-  om.dataset.sig=CFG.members.join("|");om.dataset.built="1";om.innerHTML="";
-  CFG.members.forEach(function(m){
-   var d=document.createElement("div");d.className="opt g"+(mem.indexOf(m)>=0?" on":"");d.dataset.v=m;
-   d.textContent=m;d.onclick=function(){d.classList.toggle("on")};om.appendChild(d);
-  });
  }
 
  fillSel("f_con",CFG.contractors,true);
@@ -512,30 +536,44 @@ function getReporter(){
  if(!on)return "";
  return on.dataset.v===REP_OTHER?$("f_reporterOther").value.trim():on.dataset.v;
 }
-function getMembers(){
- var out=[];
- $("opMembers").querySelectorAll(".opt.on").forEach(function(d){out.push(d.dataset.v)});
- $("f_membersOther").value.split(/[,、，]/).forEach(function(s){s=s.trim();if(s)out.push(s)});
- return out;
-}
+/** 巡查成員是固定班底，填報時不用選；直接存設定裡的清單，報告也照那個順序印。 */
+function getMembers(){return (CFG&&CFG.members)?CFG.members.slice():[]}
 function selVal(id){
  var s=$(id);
  if(s.value===REP_OTHER)return $(id+"Other").value.trim();
  return s.value;
 }
 
-/* ---------- 表單 ---------- */
-function repTog(){
- var c=$("repCard"),o=c.style.display==="block";
- c.style.display=o?"none":"block";
- $("rep").textContent=t(o?"rep":"repC");
- $("rep").className="btn"+(o?"":" btn2");
- if(!o){
+/* ---------- 浮動視窗 ---------- */
+var MKEY={rep:"mRep",exp:"mExp",cfg:"mCfg"};
+
+function isOpen(k){var m=$(MKEY[k]);return !!m&&m.classList.contains("on")}
+function openM(k){
+ Object.keys(MKEY).forEach(function(o){if(o!==k)$(MKEY[o]).classList.remove("on")});
+ if(k==="rep"){
   if(!$("f_time").value)$("f_time").value=nowHM();
   if(!$("f_date").value)$("f_date").value=curDate();
-  c.scrollIntoView({behavior:"smooth",block:"nearest"});
  }
+ var m=$(MKEY[k]);
+ m.classList.add("on");
+ document.body.style.overflow="hidden";
+ m.querySelector(".sbd").scrollTop=0;
+ // GAS 是把網頁塞進 iframe 跑的，position:fixed 有時會黏在 iframe 而不是可視範圍；
+ // 捲一下保險，視窗本來就看得到的話這行不會有任何效果。
+ try{m.querySelector(".sheet").scrollIntoView({block:"center"})}catch(e){}
 }
+function closeM(k){
+ $(MKEY[k]).classList.remove("on");
+ document.body.style.overflow="";
+ if(k==="rep"&&EDIT)resetForm();   // 編輯到一半關掉，下次打開是乾淨的新增表單
+}
+/** 只有點到灰色遮罩本身才關，點視窗內容不關。 */
+function maskClick(e,k){if(e.target===$(MKEY[k]))closeM(k)}
+function cancelEdit0(){resetForm();closeM("rep")}
+/** header 的 ✚ 一律開乾淨的新增表單，不會接到上一次編輯到一半的內容。 */
+function newRec(){resetForm();openM("rep")}
+
+/* ---------- 表單 ---------- */
 function nowHM(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
 /** 新增表單的預設巡查日＝目前瀏覽的那一天（一開始就是今天）。 */
 function curDate(){return $("dt").value||TODAY||fmt(new Date())}
@@ -639,7 +677,6 @@ function submit0(retry){
  $("send").textContent=t("up");
 
  try{localStorage.setItem("HSEWT_RP",reporter)}catch(e){}
- try{localStorage.setItem("HSEWT_MEM",JSON.stringify(getMembers()))}catch(e){}
 
  var pay={
   id:EDIT||"",
@@ -665,7 +702,7 @@ function submit0(retry){
   if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
   // 存到別天時把清單跳過去，不然剛填的那筆會看不見。
   if(pay.date&&pay.date!==$("dt").value)$("dt").value=pay.date;
-  toast(t("okSave"));resetForm();load();
+  toast(t("okSave"));resetForm();closeM("rep");load();
  }).withFailureHandler(function(e){
   BUSY=0;$("send").disabled=false;$("send").textContent=t(EDIT?"save":"send");
   toast(t("fail")+(e&&e.message||e));
@@ -691,12 +728,10 @@ function resetForm(){
 function editRec(id){
  var x=DATA.filter(function(r){return r.id===id})[0];if(!x)return;
  EDIT=id;
- if($("repCard").style.display!=="block")repTog();
+ openM("rep");
  $("f_time").value=x.time||nowHM();
  $("f_date").value=x.date||curDate();
  pickReporter(CFG.members.indexOf(x.reporter)>=0?x.reporter:REP_OTHER,x.reporter);
- $("opMembers").querySelectorAll(".opt").forEach(function(d){d.classList.toggle("on",x.members.indexOf(d.dataset.v)>=0)});
- $("f_membersOther").value=x.members.filter(function(m){return CFG.members.indexOf(m)<0}).join(", ");
  $("f_project").value=x.project||"";
  setSel("f_con",x.contractor);
  $("f_obsZh").value=x.obsZh;$("f_obsEn").value=x.obsEn;
@@ -709,7 +744,6 @@ function editRec(id){
  $("cancelEdit").style.display="block";
  $("send").textContent=t("save");
  updTargetHint();
- $("repCard").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function setSel(id,v){
  var s=$(id),ot=$(id+"Other");
@@ -917,7 +951,7 @@ function saveCfg(){
  };
  google.script.run.withSuccessHandler(function(r){
   if(r&&r.ok){CFG=r.config;$("c_members").dataset.filled="";
-   ["opReporter","opMembers"].forEach(function(i){$(i).dataset.built=""});
+   $("opReporter").dataset.built="";
    $("f_con").dataset.sig="";$("f_action").dataset.sig="";
    buildOptions();fillCfgForm();toast(t("okSave"))}
   else toast(t("fail")+((r&&r.error)||"?"));
@@ -938,6 +972,10 @@ function saveCfg(){
  $("f_recEn").addEventListener("input",function(){this.dataset.auto=""});
  ["f_obsZh","f_recZh"].forEach(function(id){
   $(id).addEventListener("input",function(){this.classList.remove("err")});
+ });
+ document.addEventListener("keydown",function(e){
+  if(e.key!=="Escape")return;
+  Object.keys(MKEY).forEach(function(k){if(isOpen(k))closeM(k)});
  });
  load();
 })();
