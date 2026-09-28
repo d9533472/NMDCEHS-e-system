@@ -640,9 +640,7 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
     .setMarginTop(31).setMarginBottom(36).setMarginLeft(22).setMarginRight(27);
 
   /* ---- 表頭 ---- */
-  var times = recs.map(function (x) { return hm_(x.time); }).filter(String).sort();
-  var timeTxt = times.length ? (times[0] === times[times.length - 1]
-    ? times[0] : times[0] + ' – ' + times[times.length - 1]) : '';
+  // 時間只用來排序當天的紀錄，不印在報告上
   var memberSet = {};
   recs.forEach(function (x) {
     String(x.members || '').split(',').forEach(function (s) { s = s.trim(); if (s) memberSet[s] = 1; });
@@ -679,7 +677,6 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   var ic = ht.getCell(0, 2);
   para_(ic, 0, 'Project and Location 專案及地點：' + project, { FONT_SIZE: 9 });
   para_(ic, null, 'Date 日期：' + date, { FONT_SIZE: 9 });
-  para_(ic, null, 'Time 時間：' + (timeTxt || '—'), { FONT_SIZE: 9 });
   ic.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
 
   var tm = newPara_(hdr);
@@ -788,22 +785,21 @@ function fillDataRow_(row, x, sn) {
   }
 }
 
+/** 改善前／後排在同一列，盡量不佔版面高度。 */
 function fillPhotoRow_(row, x, photos) {
   var cell = row.getCell(0);
-  cell.clear();
-  cell.setPaddingTop(4).setPaddingBottom(5).setPaddingLeft(6).setPaddingRight(6);
+  cell.setPaddingTop(3).setPaddingBottom(4).setPaddingLeft(6).setPaddingRight(6);
   cell.setVerticalAlignment(DocumentApp.VerticalAlignment.TOP);
 
   var before = photos.filter(function (p) { return p.kind === 'before'; });
   var after = photos.filter(function (p) { return p.kind === 'after'; });
 
-  var p0 = setText_(firstPara_(cell), 'BEFORE 改善前', { FONT_SIZE: 8, BOLD: true, FOREGROUND_COLOR: '#546e7a' });
-  p0.setSpacingBefore(0).setSpacingAfter(1);
-  appendImages_(cell, before);
+  var p = firstPara_(cell);
+  p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1);
 
-  var p1 = setText_(newPara_(cell), 'AFTER 改善後', { FONT_SIZE: 8, BOLD: true, FOREGROUND_COLOR: '#1b6e3c' });
-  p1.setSpacingBefore(4).setSpacingAfter(1);
-  appendImages_(cell, after);
+  appendGroup_(p, 'BEFORE 改善前 ', '#546e7a', before);
+  appendStyled_(p, '      ', {});
+  appendGroup_(p, 'AFTER 改善後 ', '#1b6e3c', after);
 
   // 其餘欄位清空（合併後會併入第一格）
   for (var i = 1; i < 7; i++) {
@@ -813,13 +809,10 @@ function fillPhotoRow_(row, x, photos) {
   }
 }
 
-function appendImages_(cell, list) {
-  var p = newPara_(cell);
-  p.setSpacingBefore(0).setSpacingAfter(0);
-  if (!list.length) {
-    setText_(p, '（尚無照片 no photo）', { FONT_SIZE: 8, ITALIC: true, FOREGROUND_COLOR: '#888888' });
-    return;
-  }
+var PHOTO_H = 100;   // pt，並排時的照片高度
+
+function appendGroup_(p, label, color, list) {
+  appendStyled_(p, label, { size: 8, bold: true, color: color });
   var n = 0;
   list.forEach(function (ph) {
     if (n >= 4) return;
@@ -827,13 +820,28 @@ function appendImages_(cell, list) {
       var blob = DriveApp.getFileById(ph.fileId).getBlob();
       var im = p.appendInlineImage(blob);
       var w = im.getWidth(), h = im.getHeight();
-      var H = 140;
-      if (h > 0) { im.setHeight(H); im.setWidth(Math.round(w * H / h)); }
-      p.appendText('  ');
+      if (h > 0) { im.setHeight(PHOTO_H); im.setWidth(Math.round(w * PHOTO_H / h)); }
+      appendStyled_(p, ' ', {});
       n++;
     } catch (e) { }
   });
-  if (!n) setText_(p, '（照片讀取失敗 photo unavailable）', { FONT_SIZE: 8, ITALIC: true, FOREGROUND_COLOR: '#c62828' });
+  if (!n) appendStyled_(p, list.length ? '（照片讀取失敗 unavailable）' : '（尚無照片 none）',
+    { size: 8, italic: true, color: '#8a97a5' });
+}
+
+/** 只替新加的這段文字上樣式；editAsText 的位移會略過行內圖片，所以與圖片混排也安全。 */
+function appendStyled_(p, txt, o) {
+  if (!txt) return;
+  var te = p.editAsText();
+  var start = te.getText().length;
+  te.appendText(txt);
+  var end = start + txt.length - 1;
+  if (end < start) return;
+  te.setFontFamily(start, end, FONT);
+  te.setFontSize(start, end, o.size || 8);
+  te.setBold(start, end, !!o.bold);
+  te.setItalic(start, end, !!o.italic);
+  te.setForegroundColor(start, end, o.color || '#1c2732');
 }
 
 /* ---- 文字小工具 ---- */

@@ -252,6 +252,11 @@ details summary::-webkit-details-marker{display:none}
  <div class="card" id="expCard">
   <h2 class="ft" data-i="etit"></h2>
   <div class="tiny" data-i="eHint" style="margin-bottom:10px"></div>
+  <label data-i="eDate"></label>
+  <input id="expDt" type="date" onchange="expTouch()">
+  <select id="expPick" onchange="expPickSel()" style="margin-top:7px"></select>
+  <div class="hint" id="expCnt"></div>
+  <div style="height:13px"></div>
   <button class="btn btn3" id="expBtn" onclick="buildReport()"></button>
   <div class="out" id="expOut"></div>
  </div>
@@ -284,7 +289,8 @@ details summary::-webkit-details-marker{display:none}
 
 <script>
 var KEY="<?!= KEY ?>";
-var LG="zh", CFG=null, DATA=[], COUNTS={}, TODAY="", FILTER="", RISK="", PH=[], PBUSY=0;
+var LG="zh", CFG=null, DATA=[], COUNTS={}, DATES=[], TODAY="", FILTER="", RISK="", PH=[], PBUSY=0;
+var EXPTOUCH=0;
 var EDIT="", AFID="", TRB=0, BUSY=0;
 var REP_OTHER="__other__";
 
@@ -323,6 +329,8 @@ var L={zh:{
  okSave:"已儲存 ✓", okDel:"已刪除 ✓", okPhoto:"照片已上傳 ✓",
  etit:"匯出當日報告 Daily Report",
  eHint:"依照 HSE Walkthrough Inspection 範本格式產生（A4 橫式、中英對照、每筆下方含改善前後照片）。",
+ eDate:"報告日期（可選其他天）", ePick:"↓ 從有紀錄的日期挑…",
+ eCnt1:"這天有 ", eCnt2:" 筆紀錄", eCnt0:"這天沒有巡查紀錄，無法產生報告",
  eBtn1:"產生 ", eBtn2:" 報告", eBusy:"產生中…（含照片，約 10–40 秒）",
  eDoc:"📝 Google 文件（可編輯）", ePdf:"📕 PDF 預覽 / 下載", eDocx:"📄 下載 Word (.docx)",
  eOk:"報告已產生 ✓", eNone:"當天沒有紀錄",
@@ -371,6 +379,8 @@ var L={zh:{
  okSave:"Saved ✓", okDel:"Deleted ✓", okPhoto:"Photos uploaded ✓",
  etit:"Daily Report Export",
  eHint:"Generated in the HSE Walkthrough Inspection template format (A4 landscape, bilingual, before/after photos under each item).",
+ eDate:"Report date (any day)", ePick:"↓ Pick a date with findings…",
+ eCnt1:"", eCnt2:" finding(s) on this day", eCnt0:"No findings on this day",
  eBtn1:"Generate ", eBtn2:" report", eBusy:"Generating… (with photos, 10–40 s)",
  eDoc:"📝 Google Doc (editable)", ePdf:"📕 PDF view / download", eDocx:"📄 Download Word (.docx)",
  eOk:"Report ready ✓", eNone:"No findings on that date",
@@ -402,7 +412,7 @@ function applyLang(){
  $("rep").textContent=t($("repCard").style.display=="block"?"repC":"rep");
  $("send").textContent=t(EDIT?"save":"send");
  $("cancelEdit").textContent=t("cancel");
- updTargetHint();updExpBtn();
+ buildDateOpts();updTargetHint();updExpBtn();
 }
 
 /* ---------- 日期 ---------- */
@@ -418,8 +428,8 @@ function load(){
  google.script.run.withSuccessHandler(function(r){
   if(!r||!r.ok){$("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'</div>';return}
   TODAY=r.today; if(!$("dt").value)$("dt").value=r.date;
-  CFG=r.config; COUNTS=r.counts; DATA=r.records;
-  buildOptions(); fillCfgForm(); paint();
+  CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[];
+  buildOptions(); buildDateOpts(); fillCfgForm(); paint();
  }).withFailureHandler(function(e){
   $("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'<br><small>'+esc(e&&e.message||e)+'</small></div>';
  }).hseBoot(KEY,$("dt").value||"");
@@ -807,14 +817,34 @@ function delPhoto(pid){
 }
 
 /* ---------- 匯出 ---------- */
+function expTouch(){EXPTOUCH=1;$("expOut").innerHTML="";updExpBtn()}
+function expPickSel(){
+ var v=$("expPick").value;
+ if(v){$("expDt").value=v;expTouch()}
+ $("expPick").value="";
+}
+function buildDateOpts(){
+ var s=$("expPick"),sig=LG+"|"+DATES.map(function(d){return d.date+":"+d.n}).join(",");
+ if(s.dataset.sig===sig)return;
+ s.dataset.sig=sig;s.innerHTML="";
+ var o0=document.createElement("option");o0.value="";o0.textContent=t("ePick");s.appendChild(o0);
+ DATES.forEach(function(d){
+  var o=document.createElement("option");o.value=d.date;
+  o.textContent=d.date+"　("+d.n+")";s.appendChild(o);
+ });
+}
+function dayCount(d){var n=0;DATES.forEach(function(x){if(x.date===d)n=x.n});return n}
 function updExpBtn(){
  var b=$("expBtn");if(!b)return;
- b.textContent=t("eBtn1")+($("dt").value||TODAY)+t("eBtn2");
- b.disabled=!DATA.length;
+ if(!EXPTOUCH)$("expDt").value=$("dt").value||TODAY;
+ var d=$("expDt").value||TODAY,n=dayCount(d);
+ b.textContent=t("eBtn1")+d+t("eBtn2");
+ b.disabled=!n;
+ $("expCnt").textContent=n?(t("eCnt1")+n+t("eCnt2")):t("eCnt0");
 }
 function buildReport(){
- var d=$("dt").value||TODAY;
- if(!DATA.length){toast(t("eNone"));return}
+ var d=$("expDt").value||TODAY;
+ if(!dayCount(d)){toast(t("eNone"));return}
  var b=$("expBtn");b.disabled=true;b.textContent=t("eBusy");
  $("expOut").innerHTML="";
  google.script.run.withSuccessHandler(function(r){
