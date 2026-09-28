@@ -767,8 +767,13 @@ function fillDataRow_(row, x, sn) {
   var status = x.status || 'Open';
   var statusTxt = { Open: 'Open\n開放中', Pending: 'Pending\n待複查', Closed: 'Closed\n已結案' }[status] || status;
 
+  // 範本沒有承包商欄，所以把承包商掛在巡查發現開頭
+  var con = String(x.contractor || '').trim();
+  var obsZh = con ? '【' + con + '】' + x.obsZh : x.obsZh;
+  var obsEn = x.obsEn ? (con ? '[' + con + '] ' + x.obsEn : x.obsEn) : '';
+
   setCellPlain_(row.getCell(0), String(sn), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
-  setCellBilingual_(row.getCell(1), x.obsZh, x.obsEn);
+  setCellBilingual_(row.getCell(1), obsZh, obsEn);
   setCellBilingual_(row.getCell(2), x.recZh, x.recEn);
   setCellPlain_(row.getCell(3), String(x.actionBy || ''), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
   setCellMulti_(row.getCell(4), statusTxt.split('\n'), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
