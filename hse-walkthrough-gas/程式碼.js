@@ -829,14 +829,19 @@ function appendGroup_(p, label, color, list) {
     { size: 8, italic: true, color: '#8a97a5' });
 }
 
-/** 只替新加的這段文字上樣式；editAsText 的位移會略過行內圖片，所以與圖片混排也安全。 */
+/**
+ * 接在段落尾端並只替這一段上樣式。
+ * 一定要用 Paragraph.appendText（會新增一個 Text 子節點，排在圖片後面）；
+ * editAsText() 會略過行內圖片，文字會全部被塞回第一段、圖片被擠到行尾。
+ * appendText 有時會與前一段文字合併，所以樣式用位移只套在新加的尾巴上。
+ */
 function appendStyled_(p, txt, o) {
   if (!txt) return;
-  var te = p.editAsText();
-  var start = te.getText().length;
-  te.appendText(txt);
-  var end = start + txt.length - 1;
-  if (end < start) return;
+  var te = p.appendText(txt);
+  var full = te.getText();
+  var end = full.length - 1;
+  var start = full.length - txt.length;
+  if (end < start || start < 0) return;
   te.setFontFamily(start, end, FONT);
   te.setFontSize(start, end, o.size || 8);
   te.setBold(start, end, !!o.bold);

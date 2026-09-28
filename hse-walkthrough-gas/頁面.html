@@ -41,6 +41,9 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 
 .dbar{display:flex;align-items:center;gap:8px;margin-bottom:11px}
 .dbar input[type=date]{flex:1;text-align:center;font-weight:700;color:#16324f}
+.dtrow{display:flex;gap:8px}
+.dtrow input{flex:1;min-width:0}
+.dtrow input[type=time]{flex:0 0 40%}
 .nav{flex:0 0 auto;width:42px;height:44px;border-radius:13px;border:0;background:#fff;color:#16324f;
  font-size:18px;font-weight:800;box-shadow:0 1px 3px rgba(16,24,40,.08);cursor:pointer}
 .nav:active{transform:scale(.95)}
@@ -194,7 +197,11 @@ details summary::-webkit-details-marker{display:none}
    <h2 class="ft" data-i="ftit"></h2>
 
    <label class="req" data-i="lTime"></label>
-   <input id="f_time" type="time">
+   <div class="dtrow">
+    <input id="f_date" type="date" onchange="dateChg()">
+    <input id="f_time" type="time">
+   </div>
+   <div class="hint" data-i="hDT"></div>
 
    <label class="req" data-i="lReporter"></label>
    <div class="opts" id="opReporter"></div>
@@ -300,7 +307,8 @@ var L={zh:{
  btnToday:"今天",
  rep:"✚ 新增巡查發現", repC:"✕ 收合表單",
  ftit:"巡查發現 Walkthrough Finding",
- lTime:"時間 Time", lReporter:"填報人 Reporter",
+ lTime:"巡查日期時間 Date & Time", lReporter:"填報人 Reporter",
+ hDT:"預設為現在，可自行修改（補登前幾天的紀錄就改這裡）。",
  lMembers:"巡查成員 Team Members（可複選）", pMembersOther:"其他成員，用逗號分隔",
  lProject:"專案及地點 Project and Location",
  lCon:"承包商 Contractor", hCon:"只用於手機端篩選與統計，不會印在報告上。",
@@ -350,7 +358,8 @@ var L={zh:{
  btnToday:"Today",
  rep:"✚ New finding", repC:"✕ Close form",
  ftit:"Walkthrough Finding",
- lTime:"Time", lReporter:"Reporter",
+ lTime:"Date & Time", lReporter:"Reporter",
+ hDT:"Defaults to now; change it to back-date a finding.",
  lMembers:"Team Members (multi-select)", pMembersOther:"Other members, comma separated",
  lProject:"Project and Location",
  lCon:"Contractor", hCon:"Used for filtering on this app only; not printed on the report.",
@@ -428,6 +437,8 @@ function load(){
  google.script.run.withSuccessHandler(function(r){
   if(!r||!r.ok){$("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'</div>';return}
   TODAY=r.today; if(!$("dt").value)$("dt").value=r.date;
+  // 表單沒開也不在編輯中時，讓新增用的巡查日跟著上面切換的日期走。
+  if(!EDIT&&$("repCard").style.display!=="block")$("f_date").value=$("dt").value||TODAY;
   CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[];
   buildOptions(); buildDateOpts(); fillCfgForm(); paint();
  }).withFailureHandler(function(e){
@@ -519,16 +530,30 @@ function repTog(){
  c.style.display=o?"none":"block";
  $("rep").textContent=t(o?"rep":"repC");
  $("rep").className="btn"+(o?"":" btn2");
- if(!o){if(!$("f_time").value)$("f_time").value=nowHM();c.scrollIntoView({behavior:"smooth",block:"nearest"})}
+ if(!o){
+  if(!$("f_time").value)$("f_time").value=nowHM();
+  if(!$("f_date").value)$("f_date").value=curDate();
+  c.scrollIntoView({behavior:"smooth",block:"nearest"});
+ }
 }
 function nowHM(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
+/** 新增表單的預設巡查日＝目前瀏覽的那一天（一開始就是今天）。 */
+function curDate(){return $("dt").value||TODAY||fmt(new Date())}
+/** 改了巡查日期就重算預定完成日（＝巡查日＋風險天數）。 */
+function dateChg(){
+ if(RISK&&CFG){
+  var d=(CFG.riskDays&&CFG.riskDays[RISK])||7;
+  $("f_target").value=addDays($("f_date").value||curDate(),d);
+ }
+ updTargetHint();
+}
 
 function pick(r){
  RISK=RISK===r?"":r;
  ["P1","P2","P3"].forEach(function(x){$("r"+x).className="risk"+(RISK===x?" on-"+x:"")});
  if(RISK&&CFG){
   var d=(CFG.riskDays&&CFG.riskDays[RISK])||7;
-  $("f_target").value=addDays($("dt").value||TODAY,d);
+  $("f_target").value=addDays($("f_date").value||curDate(),d);
  }
  updTargetHint();
 }
@@ -618,7 +643,7 @@ function submit0(retry){
 
  var pay={
   id:EDIT||"",
-  date:$("dt").value||TODAY,
+  date:$("f_date").value||curDate(),
   time:$("f_time").value||nowHM(),
   reporter:reporter,
   members:getMembers(),
@@ -638,6 +663,8 @@ function submit0(retry){
  google.script.run.withSuccessHandler(function(r){
   BUSY=0;$("send").disabled=false;$("send").textContent=t(EDIT?"save":"send");
   if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
+  // 存到別天時把清單跳過去，不然剛填的那筆會看不見。
+  if(pay.date&&pay.date!==$("dt").value)$("dt").value=pay.date;
   toast(t("okSave"));resetForm();load();
  }).withFailureHandler(function(e){
   BUSY=0;$("send").disabled=false;$("send").textContent=t(EDIT?"save":"send");
@@ -654,6 +681,7 @@ function resetForm(){
  $("f_con").value="";$("f_action").value="";
  $("f_conOther").style.display="none";$("f_actionOther").style.display="none";
  $("f_time").value=nowHM();
+ $("f_date").value=curDate();
  $("cancelEdit").style.display="none";
  $("send").textContent=t("send");
  document.querySelectorAll(".err").forEach(function(e){e.classList.remove("err")});
@@ -665,6 +693,7 @@ function editRec(id){
  EDIT=id;
  if($("repCard").style.display!=="block")repTog();
  $("f_time").value=x.time||nowHM();
+ $("f_date").value=x.date||curDate();
  pickReporter(CFG.members.indexOf(x.reporter)>=0?x.reporter:REP_OTHER,x.reporter);
  $("opMembers").querySelectorAll(".opt").forEach(function(d){d.classList.toggle("on",x.members.indexOf(d.dataset.v)>=0)});
  $("f_membersOther").value=x.members.filter(function(m){return CFG.members.indexOf(m)<0}).join(", ");
@@ -900,6 +929,7 @@ function saveCfg(){
  try{LG=localStorage.getItem("HSEWT_LANG")||"zh"}catch(e){}
  if(LG!=="zh"&&LG!=="en")LG="zh";
  $("dt").value=fmt(new Date());
+ $("f_date").value=fmt(new Date());
  $("f_time").value=nowHM();
  applyLang();
  $("f_obsZh").addEventListener("blur",function(){autoTr("f_obsZh","f_obsEn")});
