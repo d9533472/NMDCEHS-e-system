@@ -22,7 +22,7 @@ var PK = {
 };
 
 var SH = { rec: 'Records', pho: 'Photos', cfg: 'Settings', rep: 'Reports' };
-var SCHEMA = 'v2';
+var SCHEMA = 'v3';   // v3：取消 Pending 待複查，只剩 Open／Closed
 
 var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'contractor',
   'obsZh', 'obsEn', 'recZh', 'recEn', 'actionBy', 'risk', 'targetDate',
@@ -131,6 +131,7 @@ function ensure_() {
     headers_(ss, SH.rep, REP_COLS);
     headers_(ss, SH.cfg, ['key', 'value']);
     seedConfig_(ss);
+    migratePending_(ss);
     p.setProperty('HSE_WT_SCHEMA', SCHEMA + '|' + ssId);
   }
   return { ssId: ssId, rootId: rootId, photoId: photoId, reportId: reportId, ss: ss };
@@ -180,6 +181,32 @@ function seedConfig_(ss) {
     sh.getRange(2, 1, n2 - 1, 2).clearContent();
     if (vals.length) sh.getRange(2, 1, vals.length, 2).setValues(vals);
   }
+}
+
+/**
+ * 舊的 Pending 待複查已經取消：貼了改善後照片就直接結案。
+ * 既有的 Pending 紀錄一律轉成 Closed，沒有結案日期的就補上最後更新那天。
+ */
+function migratePending_(ss) {
+  var sh = ss.getSheetByName(SH.rec);
+  var n = sh.getLastRow();
+  if (n < 2) return;
+  var si = REC_COLS.indexOf('status') + 1;
+  var ci = REC_COLS.indexOf('closeOutDate') + 1;
+  var ui = REC_COLS.indexOf('updatedAt') + 1;
+  var st = sh.getRange(2, si, n - 1, 1).getValues();
+  var cd = sh.getRange(2, ci, n - 1, 1).getValues();
+  var ud = sh.getRange(2, ui, n - 1, 1).getValues();
+  var hit = false;
+  for (var i = 0; i < st.length; i++) {
+    if (String(st[i][0]) !== 'Pending') continue;
+    st[i][0] = 'Closed';
+    if (!ymd_(cd[i][0])) cd[i][0] = ymd_(String(ud[i][0]).slice(0, 10)) || today_();
+    hit = true;
+  }
+  if (!hit) return;
+  sh.getRange(2, si, n - 1, 1).setValues(st);
+  sh.getRange(2, ci, n - 1, 1).setValues(cd);
 }
 
 function cfg_(ss) {
@@ -254,7 +281,7 @@ function packRec_(r, photos) {
     actionBy: r.actionBy || '',
     risk: r.risk || '',
     targetDate: ymd_(r.targetDate),
-    status: r.status || 'Open',
+    status: status_(r.status),
     closeOutDate: ymd_(r.closeOutDate),
     photos: photos || []
   };
@@ -275,6 +302,12 @@ function photosByRecord_(ss) {
 
 /* ============================ API ============================ */
 
+/** 只有 Open／Closed 兩種狀態；舊資料的 Pending 一律當作已結案。 */
+function status_(v) {
+  var s = String(v || 'Open');
+  return (s === 'Closed' || s === 'Pending') ? 'Closed' : 'Open';
+}
+
 function hseBoot(key, date) {
   auth_(key);
   var r = ensure_();
@@ -284,14 +317,14 @@ function hseBoot(key, date) {
   var pmap = photosByRecord_(ss);
   var td = today_();
 
-  var counts = { total: 0, open: 0, pending: 0, closed: 0, overdue: 0 };
+  var counts = { total: 0, open: 0, closed: 0, overdue: 0 };
   var dates = {};
   recs.forEach(function (x) {
     counts.total++;
-    var st = x.status || 'Open';
-    if (st === 'Open') counts.open++;
-    else if (st === 'Pending') counts.pending++;
-    else if (st === 'Closed') counts.closed++;
+    var st = status_(x.status);
+    x.status = st;
+    if (st === 'Closed') counts.closed++;
+    else counts.open++;
     if (st !== 'Closed' && ymd_(x.targetDate) && ymd_(x.targetDate) < td) counts.overdue++;
     var d = ymd_(x.date);
     if (d) dates[d] = (dates[d] || 0) + 1;
@@ -328,7 +361,7 @@ function hseSearch(key, q, status) {
   var pmap = photosByRecord_(r.ss);
   var s = String(q || '').toLowerCase();
   var out = recs.filter(function (x) {
-    if (status && (x.status || 'Open') !== status) return false;
+    if (status && status_(x.status) !== status_(status)) return false;
     if (!s) return true;
     return [x.obsZh, x.obsEn, x.recZh, x.recEn, x.actionBy, x.contractor, x.reporter]
       .join(' ').toLowerCase().indexOf(s) >= 0;
@@ -384,7 +417,7 @@ function hseSave(key, payload) {
       actionBy: String(payload.actionBy || '').trim(),
       risk: String(payload.risk || '').trim(),
       targetDate: ymd_(payload.targetDate),
-      status: payload.status || 'Open',
+      status: status_(payload.status),
       closeOutDate: ymd_(payload.closeOutDate),
       createdAt: nowS,
       updatedAt: nowS,
@@ -450,11 +483,15 @@ function hseAddPhotos(key, id, photos, kind) {
     rec.date = ymd_(rec.date);
     var k = kind === 'before' ? 'before' : 'after';
     var n = addPhotos_(ss, r.photoId, rec, photos || [], k);
-    if (k === 'after' && n > 0 && (rec.status || 'Open') === 'Open') {
-      setCell_(sh, rec._row, 'status', 'Pending');
+    // 貼了改善後照片就直接結案，日期先給今天，使用者可以在卡片上改
+    var closed = false;
+    if (k === 'after' && n > 0 && status_(rec.status) === 'Open') {
+      setCell_(sh, rec._row, 'status', 'Closed');
+      if (!ymd_(rec.closeOutDate)) setCell_(sh, rec._row, 'closeOutDate', today_());
       setCell_(sh, rec._row, 'updatedAt', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss'));
+      closed = true;
     }
-    return { ok: true, photoCount: n };
+    return { ok: true, photoCount: n, closed: closed };
   } catch (err) {
     return { ok: false, error: String(err.message || err) };
   } finally {
@@ -477,9 +514,11 @@ function hseSetStatus(key, id, status, closeOutDate) {
     var rec = null;
     for (var i = 0; i < all.length; i++) if (all[i].id === id) { rec = all[i]; break; }
     if (!rec) throw new Error('找不到這筆紀錄');
-    if (['Open', 'Pending', 'Closed'].indexOf(status) < 0) throw new Error('狀態不正確');
+    if (['Open', 'Closed'].indexOf(status) < 0) throw new Error('狀態不正確');
     setCell_(sh, rec._row, 'status', status);
-    setCell_(sh, rec._row, 'closeOutDate', status === 'Closed' ? (ymd_(closeOutDate) || today_()) : '');
+    // 結案日期：有指定就用指定的，沒指定就沿用原本的，再沒有才給今天
+    setCell_(sh, rec._row, 'closeOutDate',
+      status === 'Closed' ? (ymd_(closeOutDate) || ymd_(rec.closeOutDate) || today_()) : '');
     setCell_(sh, rec._row, 'updatedAt', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss'));
     return { ok: true };
   } catch (err) {
@@ -774,8 +813,8 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
 }
 
 function fillDataRow_(row, x, sn) {
-  var status = x.status || 'Open';
-  var statusTxt = { Open: 'Open\n開放中', Pending: 'Pending\n待複查', Closed: 'Closed\n已結案' }[status] || status;
+  var status = status_(x.status);
+  var statusTxt = status === 'Closed' ? 'Closed\n已結案' : 'Open\n開放中';
 
   // 範本沒有承包商欄，所以把承包商掛在巡查發現開頭
   var con = String(x.contractor || '').trim();

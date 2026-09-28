@@ -9,23 +9,30 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
  background:linear-gradient(180deg,#fafcfe 0,#f4f7fa 260px,#f3f6f9 560px);
  padding-bottom:48px;-webkit-font-smoothing:antialiased}
 
-.hd{padding:15px 16px;background:linear-gradient(180deg,#fff,#f7fafc);position:sticky;top:0;z-index:9;
- display:flex;align-items:center;justify-content:space-between;
+/* 手機：標題一行、三顆功能鍵折到第二行；桌機：全部擠在同一行 */
+.hd{padding:13px 16px;background:linear-gradient(180deg,#fff,#f7fafc);position:sticky;top:0;z-index:9;
+ display:flex;flex-wrap:wrap;align-items:center;gap:9px;
  box-shadow:0 2px 12px rgba(16,42,67,.10);
  border-bottom:4px solid transparent;border-image:linear-gradient(90deg,#002038,#00B050,#002038) 1}
-.hdl{display:flex;align-items:center;gap:11px;min-width:0}
+.hdl{display:flex;align-items:center;gap:11px;min-width:0;flex:1 1 auto;order:0}
 .hd h1{font-size:17px;font-weight:800;letter-spacing:.6px;color:#002038}
 .hd small{color:#7d8ea0;font-size:10px;letter-spacing:1px;display:block;margin-top:1px}
 .lgo{width:74px;height:25px;flex:0 0 auto;display:block}
-.lg{flex:0 0 auto;background:#eef3f8;border:1px solid #d3dde8;color:#16324f;
+.lg{order:2;flex:0 0 auto;background:#eef3f8;border:1px solid #d3dde8;color:#16324f;
  border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer}
-.hdr{display:flex;align-items:center;gap:6px;flex:0 0 auto;margin-left:8px}
-.ico{flex:0 0 auto;width:38px;height:38px;padding:0;border-radius:12px;border:1px solid #d3dde8;
- background:#eef3f8;color:#16324f;font-size:17px;font-weight:800;cursor:pointer;
- display:flex;align-items:center;justify-content:center;transition:transform .1s}
-.ico:active{transform:scale(.93)}
+.hdr{order:3;flex:1 1 100%;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.ico{flex:1 1 auto;min-width:0;height:40px;padding:0 10px;border-radius:12px;border:1px solid #d3dde8;
+ background:#eef3f8;color:#16324f;cursor:pointer;
+ display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .1s}
+.ico span{font-size:15px;line-height:1}
+.ico em{font-style:normal;font-size:12.5px;font-weight:800;letter-spacing:.3px;white-space:nowrap}
+.ico:active{transform:scale(.97)}
 .ico.p{background:linear-gradient(135deg,#002038,#00B050);border-color:#002038;color:#fff;
  box-shadow:0 3px 10px rgba(0,32,56,.28)}
+@media(min-width:680px){
+ .hdr{order:1;flex:0 0 auto;margin-left:auto}
+ .ico{flex:0 0 auto}
+}
 
 /* 浮動視窗：手機從下往上推，桌機置中 */
 .mask{position:fixed;inset:0;z-index:40;display:none;background:rgba(10,22,35,.45);
@@ -116,13 +123,11 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:#00B050;box-sh
 
 .it{border-left:6px solid #ccd3da;padding:14px 15px 12px}
 .it.Open{border-left-color:#c07a18}
-.it.Pending{border-left-color:#1b3a5c}
 .it.Closed{border-left-color:#1b6e3c}
 .row1{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12.5px;color:#6b7784;margin-bottom:8px}
 .sn{font-weight:900;color:#002038;font-size:15px}
 .pill{font-weight:800;font-size:12px;border-radius:999px;padding:3px 11px;white-space:nowrap}
 .pill.Open{background:#fff3df;color:#c07a18}
-.pill.Pending{background:#e3edfd;color:#1b3a5c}
 .pill.Closed{background:#e2f2e6;color:#1b6e3c}
 .lbl{font-size:11px;font-weight:800;color:#8a97a5;letter-spacing:.6px;margin-top:7px}
 .zh{font-size:15px;line-height:1.55;font-weight:500;color:#1c2732;word-break:break-word}
@@ -131,6 +136,12 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:#00B050;box-sh
 .tag{background:#eef1f4;border-radius:999px;padding:4px 11px;color:#55606b;font-weight:600}
 .tag.over{background:#fde3e3;color:#c62828;font-weight:800}
 .tag.soon{background:#fff3df;color:#c07a18;font-weight:800}
+.tag.cl{background:#e2f2e6;color:#1b6e3c;font-weight:800;padding:2px 8px 2px 11px;display:inline-flex;
+ align-items:center;gap:5px}
+/* 卡片上直接改結案日期，所以要把全域的 input 樣式縮回標籤大小 */
+.cdt{width:auto;padding:2px 5px;font-size:12px;font-weight:800;font-family:inherit;color:#1b6e3c;
+ background:#fff;border:1px solid #bcdcc6;border-radius:8px;box-shadow:none}
+.cdt:focus{border-color:#00B050;box-shadow:0 0 0 2px rgba(0,176,80,.16)}
 .ph{display:flex;gap:8px;margin-top:9px;overflow-x:auto;padding-bottom:3px}
 .phw{position:relative;flex:0 0 auto}
 .ph img{height:120px;min-width:80px;border-radius:12px;border:1px solid #dfe4ea;display:block;
@@ -186,11 +197,11 @@ details summary::-webkit-details-marker{display:none}
    <small id="tSub">HSE 現場巡查紀錄 · WALKTHROUGH</small>
   </div>
  </div>
+ <button class="lg" id="lang" onclick="setLang(LG=='zh'?'en':'zh')">EN</button>
  <div class="hdr">
-  <button class="ico p" id="bAdd" onclick="newRec()">✚</button>
-  <button class="ico" id="bExp" onclick="openM('exp')">📄</button>
-  <button class="ico" id="bCfg" onclick="openM('cfg')">⚙</button>
-  <button class="lg" id="lang" onclick="setLang(LG=='zh'?'en':'zh')">EN</button>
+  <button class="ico p" id="bAdd" onclick="newRec()"><span>✚</span><em data-i="bAdd"></em></button>
+  <button class="ico" id="bExp" onclick="openM('exp')"><span>📄</span><em data-i="bExp"></em></button>
+  <button class="ico" id="bCfg" onclick="openM('cfg')"><span>⚙</span><em data-i="bCfg"></em></button>
  </div>
 </div>
 
@@ -199,7 +210,7 @@ details summary::-webkit-details-marker{display:none}
  <div class="kpis">
   <div class="kpi k0 act" onclick="flt('')"><b id="k0">—</b><span data-i="kAll"></span></div>
   <div class="kpi k1" onclick="flt('Open')"><b id="k1">—</b><span data-i="kOpen"></span></div>
-  <div class="kpi k2" onclick="flt('Pending')"><b id="k2">—</b><span data-i="kPend"></span></div>
+  <div class="kpi k2" onclick="flt('Closed')"><b id="k2">—</b><span data-i="kClosed"></span></div>
   <div class="kpi k3" onclick="flt('overdue')"><b id="k3">—</b><span data-i="kOver"></span></div>
  </div>
 
@@ -338,9 +349,9 @@ var REP_OTHER="__other__";
 
 var L={zh:{
  title:"NMDC 通霄工區", sub:"HSE 現場巡查紀錄 · INSPECTION WALKTHROUGH",
- kAll:"全部", kOpen:"開放中", kPend:"待複查", kOver:"逾期",
+ kAll:"全部", kOpen:"開放中", kClosed:"已結案", kOver:"逾期",
  btnToday:"今天",
- rep:"✚ 新增巡查發現", repC:"✕ 收合表單",
+ bAdd:"新增巡檢紀錄", bExp:"報告產出", bCfg:"設定參數",
  ftit:"巡查發現 Walkthrough Finding",
  lTime:"巡查日期時間 Date & Time", lReporter:"填報人 Reporter",
  hDT:"預設為現在，可自行修改（補登前幾天的紀錄就改這裡）。",
@@ -360,16 +371,17 @@ var L={zh:{
  send:"送出紀錄", save:"儲存修改", cancel:"取消編輯",
  up:"上傳中…", busy:"照片處理中…", trBusy:"🌐 翻譯中…",
  need:"請填寫必填欄位", lding:"載入中…", lfail:"載入失敗，請下拉重試",
- nodata:"這天還沒有巡查紀錄", nodataH:"按上面的「✚ 新增巡查發現」開始填報。",
+ nodata:"這天還沒有巡查紀錄", nodataH:"按右上角的「✚ 新增巡檢紀錄」開始填報。",
  dsum1:"共 ", dsum2:" 筆紀錄",
- sOpen:"Open 開放中", sPending:"Pending 待複查", sClosed:"Closed 已結案",
+ sOpen:"Open 開放中", sClosed:"Closed 已結案",
  tObs:"巡查發現 OBSERVATIONS", tRec:"改善建議 RECOMMENDATIONS",
  tAction:"權責 ", tCon:"承包商 ", tTarget:"期限 ", tClose:"結案 ", tBy:"填報 ",
  over1:"逾期 ", over2:" 日", dueToday:"今日到期", dueTmr:"明日到期",
  bB:"改善前", bA:"改善後",
  aAfter:"📷 改善後照片", aClose:"✓ 結案", aReopen:"↺ 重新開啟", aEdit:"✎ 編輯", aDel:"🗑 刪除",
- cfmDel:"確定刪除這筆紀錄？", cfmPDel:"確定刪除這張照片？", cfmClose:"確認結案？結案日期會填入今天。",
+ cfmDel:"確定刪除這筆紀錄？", cfmPDel:"確定刪除這張照片？", cfmClose:"確認結案？結案日期先填今天，之後可以在卡片上改。",
  okSave:"已儲存 ✓", okDel:"已刪除 ✓", okPhoto:"照片已上傳 ✓",
+ okPhotoClosed:"照片已上傳，已自動結案 ✓（日期可在卡片上改）",
  etit:"匯出當日報告 Daily Report",
  eHint:"依照 HSE Walkthrough Inspection 範本格式產生（A4 橫式、中英對照、每筆下方含改善前後照片）。",
  eDate:"報告日期（可選其他天）", ePick:"↓ 從有紀錄的日期挑…",
@@ -389,9 +401,9 @@ var L={zh:{
  foot:"NMDC ENERGY · HSE 現場巡查紀錄｜手機填報 → 每日匯出報告"
 },en:{
  title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
- kAll:"All", kOpen:"Open", kPend:"Pending", kOver:"Overdue",
+ kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue",
  btnToday:"Today",
- rep:"✚ New finding", repC:"✕ Close form",
+ bAdd:"New finding", bExp:"Report", bCfg:"Settings",
  ftit:"Walkthrough Finding",
  lTime:"Date & Time", lReporter:"Reporter",
  hDT:"Defaults to now; change it to back-date a finding.",
@@ -411,16 +423,17 @@ var L={zh:{
  send:"Submit", save:"Save changes", cancel:"Cancel edit",
  up:"Uploading…", busy:"Processing photos…", trBusy:"🌐 Translating…",
  need:"Please fill in the required fields", lding:"Loading…", lfail:"Load failed, pull to retry",
- nodata:"No findings for this day", nodataH:'Tap "✚ New finding" above to start.',
+ nodata:"No findings for this day", nodataH:'Tap "✚ New finding" at the top right to start.',
  dsum1:"", dsum2:" finding(s)",
- sOpen:"Open", sPending:"Pending review", sClosed:"Closed",
+ sOpen:"Open", sClosed:"Closed",
  tObs:"OBSERVATIONS", tRec:"RECOMMENDATIONS",
  tAction:"Action by ", tCon:"Contractor ", tTarget:"Target ", tClose:"Closed ", tBy:"By ",
  over1:"Overdue ", over2:" d", dueToday:"Due today", dueTmr:"Due tomorrow",
  bB:"BEFORE", bA:"AFTER",
  aAfter:"📷 After photos", aClose:"✓ Close out", aReopen:"↺ Reopen", aEdit:"✎ Edit", aDel:"🗑 Delete",
- cfmDel:"Delete this finding?", cfmPDel:"Delete this photo?", cfmClose:"Close out? Today's date will be filled in.",
+ cfmDel:"Delete this finding?", cfmPDel:"Delete this photo?", cfmClose:"Close out? Today's date is filled in; you can change it on the card.",
  okSave:"Saved ✓", okDel:"Deleted ✓", okPhoto:"Photos uploaded ✓",
+ okPhotoClosed:"Photos uploaded, closed out ✓ (date editable on the card)",
  etit:"Daily Report Export",
  eHint:"Generated in the HSE Walkthrough Inspection template format (A4 landscape, bilingual, before/after photos under each item).",
  eDate:"Report date (any day)", ePick:"↓ Pick a date with findings…",
@@ -483,7 +496,7 @@ function load(){
 function flt(f){
  FILTER=(FILTER===f)?"":f;
  document.querySelectorAll(".kpi").forEach(function(el,i){
-  var k=["","Open","Pending","overdue"][i];
+  var k=["","Open","Closed","overdue"][i];
   el.classList.toggle("act", k===FILTER || (FILTER===""&&i===0));
  });
  paint();
@@ -758,7 +771,7 @@ function paint(){
  applyLangStatic();
  $("k0").textContent=COUNTS.total||0;
  $("k1").textContent=COUNTS.open||0;
- $("k2").textContent=COUNTS.pending||0;
+ $("k2").textContent=COUNTS.closed||0;
  $("k3").textContent=COUNTS.overdue||0;
 
  var list=DATA.slice();
@@ -797,7 +810,11 @@ function card(x){
   }
   tags+='<span class="'+cls+'">'+esc(txt)+'</span>';
  }
- if(x.closeOutDate)tags+='<span class="tag">'+esc(t("tClose")+x.closeOutDate)+'</span>';
+ // 已結案的紀錄，結案日期直接做成可以點的日期欄，隨時改
+ if(st==="Closed")
+  tags+='<span class="tag cl">'+esc(t("tClose"))+
+   '<input type="date" class="cdt" value="'+esc(x.closeOutDate||TODAY)+
+   '" onchange="setClose(\''+x.id+'\',this.value)"></span>';
 
  var before=x.photos.filter(function(p){return p.kind==="before"});
  var after=x.photos.filter(function(p){return p.kind==="after"});
@@ -849,22 +866,30 @@ function afAdd(fs){
    if(--left===0){
     if(!out.length){toast(t("rdFail"));return}
     google.script.run.withSuccessHandler(function(r){
-     if(r&&r.ok){toast(t("okPhoto"));load()}else toast(t("fail")+((r&&r.error)||"?"));
+     // 後端貼完改善後照片會自動結案，回傳 closed 就提示一下結案日期可以改
+     if(r&&r.ok){toast(t(r.closed?"okPhotoClosed":"okPhoto"));load()}
+     else toast(t("fail")+((r&&r.error)||"?"));
     }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))})
      .hseAddPhotos(KEY,AFID,out,"after");
    }
   });
  });
 }
+/** 沒有照片也可以手動結案；日期先給今天，卡片上再改。 */
 function closeOut(id){
  if(!confirm(t("cfmClose")))return;
- setSt(id,"Closed");
+ setSt(id,"Closed",TODAY);
 }
-function setSt(id,st){
+/** 改結案日期：狀態不動，只換日期。 */
+function setClose(id,v){
+ if(!v)return;
+ setSt(id,"Closed",v);
+}
+function setSt(id,st,cd){
  google.script.run.withSuccessHandler(function(r){
   if(r&&r.ok){toast(t("okSave"));load()}else toast(t("fail")+((r&&r.error)||"?"));
  }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))})
-  .hseSetStatus(KEY,id,st,"");
+  .hseSetStatus(KEY,id,st,cd||"");
 }
 function delRec(id){
  if(!confirm(t("cfmDel")))return;
