@@ -93,13 +93,21 @@ tbody tr{transition:background .12s}tbody tr:hover{background:var(--hov)}
 .tbl-wide tfoot td{white-space:nowrap}
 .tbl-wide th{font-size:9.5px;line-height:1.3;white-space:normal;letter-spacing:.2px}
 .tbl-wide .num{font-size:11.5px}
+/* 查驗進度表：項目與備註兩欄吃掉多餘寬度，其餘縮到內容寬 */
+.tbl-prog{min-width:980px;font-size:11.5px}
+.tbl-prog th,.tbl-prog td{padding:7px 8px}
+.tbl-prog thead th,.tbl-prog tbody td{width:1%;white-space:nowrap}
+.tbl-prog thead th:nth-child(3),.tbl-prog tbody td:nth-child(3){width:58%;min-width:160px;white-space:normal}
+.tbl-prog thead th:nth-child(9),.tbl-prog tbody td:nth-child(9){width:42%;min-width:110px;white-space:normal}
+.tbl-prog th{font-size:9.5px;line-height:1.3;white-space:normal;letter-spacing:.2px}
+.tbl-prog .num{font-size:11.5px}
 @media(max-width:900px){.fr{grid-template-columns:1fr}.fr3{grid-template-columns:1fr}.sidebar{display:none!important}.mnav{display:flex!important}}
 </style>
 </head>
 <body>
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5d6a7a"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
 <script type="text/babel">
-const VER='4.3.0';
+const VER='4.4.0';
 /* 三階段流程；stage 3（已提交台電）= 計入「已查驗金額」 */
 const STAGES=[
   {n:1,l:'NMDC自檢完成',s:'自檢',c:'#8a6c11',bg:'rgba(201,162,39,.16)'},
@@ -352,13 +360,137 @@ function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
   </div>;
 }
 
+/* ── 雙色進度條：綠＝已送（已提交台電）／橘＝已查驗（自檢＋POE，尚未提交） ── */
+const PBar=({ok,wip,h})=>{const g=Math.min(Math.max(ok,0)*100,100),y=Math.min(Math.max(wip,0)*100,100-g);
+  return<div style={{display:'flex',height:h||8,borderRadius:6,overflow:'hidden',background:'rgba(20,27,36,.08)',minWidth:64}}>
+    <div style={{width:g+'%',background:'var(--green)',transition:'width .7s cubic-bezier(.22,1,.36,1)'}}/>
+    <div style={{width:y+'%',background:'rgba(201,162,39,.8)',transition:'width .7s'}}/>
+  </div>};
+/* ── 查驗進度狀態：可／不可／已完成 ── */
+const PSTATUS=[
+  {v:'可',  i:'✔',c:'var(--green)',  bg:'var(--greenBg)',bd:'rgba(46,125,91,.24)', d:'現場條件已就緒，可安排查驗'},
+  {v:'不可',i:'✕',c:'var(--red)',    bg:'var(--redBg)',  bd:'rgba(179,64,62,.22)', d:'尚不可查驗（待施工／待文件／待天候…）'},
+  {v:'已完成',i:'✅',c:'var(--accent3)',bg:'var(--accentBg)',bd:'rgba(46,125,91,.22)',d:'這筆規劃已結案'},
+];
+const pStatOf=v=>PSTATUS.find(s=>s.v===v)||PSTATUS[0];
+const PS=({v,small})=>{const s=pStatOf(v);return<span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:small?9.5:10.5,fontWeight:700,padding:small?'2px 7px':'3px 10px',borderRadius:20,background:s.bg,color:s.c,whiteSpace:'nowrap',border:'1px solid '+s.bd}}>{s.i} {s.v}</span>};
+
+/* ── PForm：一筆查驗進度（工區＋項目＋可否查驗＋預計完成日＋連動查驗表） ── */
+function PForm({bi,groups,init,onOk,onNo,ld,progOf,qMode,onQMode,areas}){
+  const[f,sF]=useState(()=>({work_area:init?.work_area||'',budget_item_id:init?.budget_item_id||'',
+    status:init?.status||'可',due_date:init?.due_date||'',link_group_id:init?.link_group_id||'',note:init?.note||''}));
+  const set=p=>sF(x=>({...x,...p}));
+  const b=bi.find(x=>x.id===f.budget_item_id);
+  const p=b?progOf(b):null;
+  const cats=[...new Set(bi.map(x=>x.category).filter(Boolean))];
+  const qm=qMode==='qty';
+  const fv=(v,ls)=>qm?(ls?fP(v):fQty(v)):fN(v);
+  const submit=()=>{
+    if(!f.work_area)return alert('請選擇工區');
+    if(!f.budget_item_id)return alert('請選擇查驗項目');
+    onOk({plan_id:init?.id||'',work_area:f.work_area,budget_item_id:f.budget_item_id,status:f.status,
+      due_date:f.due_date,link_group_id:f.link_group_id,note:f.note});
+  };
+  return<div>
+    <div className="fr">
+      <div><label className="fl">工區 *</label>
+        <select value={f.work_area} onChange={e=>set({work_area:e.target.value})}>
+          <option value="">— 選擇工區 —</option>
+          {areas.map(a=><option key={a} value={a}>{a}</option>)}
+        </select>
+      </div>
+      <div><label className="fl">查驗預計完成日期</label>
+        <input type="date" value={f.due_date} onChange={e=>set({due_date:e.target.value})}/>
+        <div style={{fontSize:10,color:'var(--muted2)',marginTop:4}}>留空 = 尚未排定</div>
+      </div>
+    </div>
+
+    <div style={{marginBottom:14}}>
+      <label className="fl">查驗項目 *</label>
+      <select value={f.budget_item_id} onChange={e=>set({budget_item_id:e.target.value})}>
+        <option value="">— 選擇查驗項目 —</option>
+        {cats.map(c=><optgroup key={c} label={c}>
+          {bi.filter(x=>x.category===c).map(x=><option key={x.id} value={x.id}>{x.item_no}　{shortItem(x.item_name_cn)}</option>)}
+        </optgroup>)}
+      </select>
+    </div>
+
+    {/* ── 選了項目就顯示目前進度 ── */}
+    {b&&p&&<div style={{background:'var(--card2)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'13px 15px',marginBottom:16}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,flexWrap:'wrap',marginBottom:9}}>
+        <div style={{fontSize:11.5}}>
+          <strong style={{color:'var(--accent)',fontFamily:"'JetBrains Mono'"}}>{b.item_no}</strong>　{b.item_name_cn}
+          <div style={{fontSize:10,color:'var(--muted2)',marginTop:2}}>
+            預算 {b.budget_total==null?'—':fN(b.budget_total)} · {isLS(b)?'一式 (LS)':fQty(b.budget_qty)+' '+(b.unit||'')}
+          </div>
+        </div>
+        <div className="seg">
+          <button type="button" className={qm?'on':''} onClick={()=>onQMode('qty')}>數量</button>
+          <button type="button" className={!qm?'on':''} onClick={()=>onQMode('amt')}>金額</button>
+        </div>
+      </div>
+      <PBar ok={p.okP} wip={p.wipP} h={10}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginTop:10}}>
+        <div><div style={{fontSize:10,color:'var(--muted)'}}>● 已送（已提交台電）</div>
+          <div style={{fontSize:17,fontWeight:800,color:'var(--green)',fontFamily:"'JetBrains Mono'"}}>{fP(p.okP)}</div>
+          <div style={{fontSize:10,color:'var(--muted2)'}}>{fv(p.ok,p.ls)}</div></div>
+        <div><div style={{fontSize:10,color:'var(--muted)'}}>● 已查驗（自檢／POE）</div>
+          <div style={{fontSize:17,fontWeight:800,color:'var(--goldText)',fontFamily:"'JetBrains Mono'"}}>{fP(p.wipP)}</div>
+          <div style={{fontSize:10,color:'var(--muted2)'}}>{fv(p.wip,p.ls)}</div></div>
+        <div><div style={{fontSize:10,color:'var(--muted)'}}>● 剩餘未查驗</div>
+          <div style={{fontSize:17,fontWeight:800,color:'var(--rest)',fontFamily:"'JetBrains Mono'"}}>{fP(p.restP)}</div>
+          <div style={{fontSize:10,color:'var(--muted2)'}}>{fv(p.rest,p.ls)}</div></div>
+      </div>
+      <div style={{fontSize:10,color:'var(--muted2)',marginTop:8}}>※ 百分比以{qm?'數量':'金額'}為分母（{qm?'預算數量':'預算金額'}）；已有 {p.n} 筆查驗紀錄</div>
+    </div>}
+
+    <div style={{marginBottom:16}}>
+      <label className="fl">查驗狀態 *</label>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+        {PSTATUS.map(s=><button key={s.v} type="button" onClick={()=>set({status:s.v})}
+          style={{flex:'1 1 150px',textAlign:'left',padding:'10px 13px',borderRadius:'var(--radius)',
+            border:'1.5px solid '+(f.status===s.v?s.c:'var(--border2)'),
+            background:f.status===s.v?s.bg:'var(--card)',color:f.status===s.v?s.c:'var(--muted)'}}>
+          <div style={{display:'block'}}>
+            <div style={{fontSize:13,fontWeight:700}}>{s.i} {s.v}</div>
+            <div style={{fontSize:10,fontWeight:500,marginTop:2,opacity:.85}}>{s.d}</div>
+          </div>
+        </button>)}
+      </div>
+    </div>
+
+    <div className="fr">
+      <div><label className="fl">連動單號（查驗紀錄）</label>
+        <select value={f.link_group_id} onChange={e=>set({link_group_id:e.target.value})}>
+          <option value="">— 尚未連動 —</option>
+          {groups.map(g=>{const hit=f.budget_item_id&&g.rows.some(r=>r.budget_item_id===f.budget_item_id);
+            return<option key={g.id} value={g.id}>{(hit?'✓ ':'')+g.id+'　'+(g.work_area||'—')+' · '+fD(g.inspection_date)}</option>})}
+        </select>
+        <div style={{fontSize:10,color:'var(--muted2)',marginTop:4}}>「✓」= 該查驗表已含目前選的項目</div>
+      </div>
+      <div><label className="fl">備註</label>
+        <input value={f.note} placeholder="卡在哪裡／需要誰配合…" onChange={e=>set({note:e.target.value})}/>
+      </div>
+    </div>
+
+    <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:14,borderTop:'1px solid var(--border)'}}>
+      <button className="bg" onClick={onNo}>取消</button>
+      <button className="bp" disabled={ld} onClick={submit}>{ld?<><span className="spinner"/> 儲存至雲端...</>:'☁ 儲存至雲端'}</button>
+    </div>
+  </div>;
+}
+
 /* ═══ MAIN APP ═══ */
 function App(){
   const[auth,sAuth]=useState(false);
   const doLogin=()=>{sAuth(true);toast('已登入，可進行新增/編輯/刪除')};  const[data,sData]=useState(null);const[ss,sSs]=useState('idle');const[ls,sLs]=useState(null);
   const[pg,sPg]=useState('dash');const[ml,sMl]=useState(null);const[ts,sTs]=useState([]);const[openG,sOpenG]=useState({});
-  /* 查驗項目表：已查驗／進行中／未查驗三欄要看「數量」還是「金額」 */
+  /* 查驗項目總表0版／查驗進度／Dashboard 進度表：百分比與三欄要看「數量」還是「金額」 */
   const[qMode,sQMode]=useState('amt');
+  /* 查驗進度頁篩選：工區／狀態／是否顯示已完成 */
+  const[pArea,sPArea]=useState('');const[pStat,sPStat]=useState('');const[pDone,sPDone]=useState(true);
+  /* Dashboard 進度表：只看有進度的項目 */
+  const[dOnly,sDOnly]=useState(false);
   /* 提送批次頁：展開中的批次（日期）與批次內的查驗表 */
   const[openB,sOpenB]=useState({});const[openBG,sOpenBG]=useState({});
   /* ── 備註 ── */
@@ -440,12 +572,25 @@ function App(){
   const delI=async(id,label)=>{if(!confirm('確定刪除'+(label||id)+'？'))return;try{const r=await api.current.post('deleteInspection',{inspection_id:id},true);toast('☁ 已從雲端刪除'+(r.snapshot?' · 已留快照，可還原':''));sMl(null);if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}};
   const updBudget=async(id,d)=>{try{const r=await api.current.post('updateBudgetItem',{budget_item_id:id,...d},true);toast('☁ 已更新');if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}};
   const importBudget=async(items)=>{sSub(true);try{const r=await api.current.post('importBudgetData',{items},true);toast('☁ '+r.message);if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}finally{sSub(false)}};
+  /* ── 查驗進度（存 Google Sheets「查驗進度表」） ── */
+  const savePlan=async d=>{sSub(true);try{
+    const r=await api.current.post('saveProgressPlan',d,true);
+    toast('☁ '+(r.message||'已儲存'));sMl(null);
+    if(r.summary)applySummary(r.summary);else await sync();
+  }catch(e){toast(e.message,'err')}finally{sSub(false)}};
+  const delPlan=async p=>{
+    if(!confirm('確定刪除這筆查驗進度？　'+(p.work_area||'')+' · '+shortItem(p.item_name_snapshot)))return;
+    try{const r=await api.current.post('deleteProgressPlan',{plan_id:p.id},true);
+      toast('☁ 已刪除');sMl(null);
+      if(r.summary)applySummary(r.summary);else await sync();
+    }catch(e){toast(e.message,'err')}};
+
   const ldLogs=async()=>{try{sLogs(await api.current.get('getLogs',{limit:200}))}catch(e){toast(e.message,'err')}};
   /* 資料快照：每次存檔後端會自動留一份 JSON */
   const ldSnaps=async()=>{sSnapLd(true);try{sSnaps(await api.current.get('listSnapshots',{limit:30}))}catch(e){toast(e.message,'err')}finally{sSnapLd(false)}};
   const mkSnap=async()=>{sSnapLd(true);try{const r=await api.current.post('createSnapshot',{});toast('☁ '+r.message);await ldSnaps()}catch(e){toast(e.message,'err')}finally{sSnapLd(false)}};
 
-  const sm=data?.budgetItems||[];const ins=data?.inspections||[];
+  const sm=data?.budgetItems||[];const ins=data?.inspections||[];const plans=data?.progressPlans||[];
   const cats=[...new Set(sm.map(b=>b.category))];
   const bItem=id=>sm.find(x=>x.id===id);
   const amtOf=i=>parseFloat(i.inspected_amount)||((parseFloat(i.inspected_qty)||0)*(parseFloat(bItem(i.budget_item_id)?.unit_price)||0));
@@ -476,6 +621,17 @@ function App(){
   const gS=b=>{const s=ST[b.id]||{qa:0,qo:0,aa:0,ao:0,n:0,no:0};const bt=parseFloat(b.budget_total)||0;const bq=parseFloat(b.budget_qty)||0;
     return{...s,bq,bt,qp:s.qa-s.qo,ap:s.aa-s.ao,rq:Math.max(bq-s.qa,0),ra:Math.max(bt-s.aa,0),
       ratio:bq>0?s.qo/bq:0,sRatio:bq>0?Math.min(s.qa/bq,1):0,oRatio:bq>0?Math.min(s.qo/bq,1):0}};
+
+  /* ── 單一項目進度（查驗進度頁／Dashboard 進度表共用）；分母依 qMode 用金額或數量 ── */
+  const prog=useCallback(b=>{const s=ST[b.id]||{qa:0,qo:0,aa:0,ao:0,n:0,no:0};
+    const bt=parseFloat(b.budget_total)||0,bq=parseFloat(b.budget_qty)||0;
+    const amt=qMode!=='qty';
+    const base=amt?bt:bq;
+    const ok=amt?s.ao:s.qo,wip=amt?(s.aa-s.ao):(s.qa-s.qo);
+    const rest=Math.max((amt?bt:bq)-(amt?s.aa:s.qa),0);
+    const r=v=>base>0?Math.max(0,Math.min(v/base,1)):0;
+    return{amt,base,ok,wip,rest,okP:r(ok),wipP:r(wip),restP:r(rest),
+      okAmt:s.ao,wipAmt:s.aa-s.ao,restAmt:Math.max(bt-s.aa,0),n:s.n,no:s.no,ls:isLS(b)}},[ST,qMode]);
 
   /* ── 總計：可量化（有數量單位）／不可量化（LS 一式＝請款比例） ── */
   const TT=useMemo(()=>{let tb=0,ta=0,to=0,qb=0,qo=0,lb=0,lo=0;
@@ -514,7 +670,28 @@ function App(){
     const d=String(g.inspection_date||'').slice(0,10);
     if(fD1&&d<fD1)return false;if(fD2&&d>fD2)return false;
     return true}),[groups,sm,fC,fS,fD1,fD2]);
-  const clr=()=>{sFC('');sFS('');sFD1('');sFD2('')};
+  const clr=()=>{sFC('');sFS('');sFD1('');sFD2('');sPArea('');sPStat('')};
+
+  /* ── 查驗進度：工區清單（預設清單＋資料裡出現過的） ── */
+  const AREAS=useMemo(()=>[...new Set([...WORK_AREAS,...ins.map(i=>i.work_area),...plans.map(p=>p.work_area)].filter(Boolean))],[ins,plans]);
+  const fPlans=useMemo(()=>{const q=fS.trim().toLowerCase();
+    const ino=id=>String(sm.find(x=>x.id===id)?.item_no||'');
+    return plans.filter(p=>{
+      if(pArea&&p.work_area!==pArea)return false;
+      if(pStat&&p.status!==pStat)return false;
+      if(!pDone&&p.status==='已完成')return false;
+      if(q&&![p.work_area,p.item_name_snapshot,p.note,p.link_group_id,ino(p.budget_item_id)]
+        .some(v=>String(v||'').toLowerCase().includes(q)))return false;
+      return true;
+    }).sort((a,b)=>(a.due_date||'9999-12-31').localeCompare(b.due_date||'9999-12-31')
+      ||String(a.work_area).localeCompare(String(b.work_area))
+      ||ino(a.budget_item_id).localeCompare(ino(b.budget_item_id)))
+  },[plans,sm,pArea,pStat,pDone,fS]);
+  /* 進度統計：各狀態筆數＋逾期（預計完成日已過且還沒完成） */
+  const PST=useMemo(()=>{const t=td();const c={可:0,不可:0,已完成:0,late:0};
+    plans.forEach(p=>{c[p.status]=(c[p.status]||0)+1;
+      if(p.status!=='已完成'&&p.due_date&&p.due_date<t)c.late++});
+    return c},[plans]);
   const chP=p=>{sPg(p);clr();if(p==='log'&&!logs)ldLogs()};
   const openEdit=g=>sMl({t:'edit',p:g});
 
@@ -532,7 +709,7 @@ function App(){
 
   if(!data&&ss==='error')return<div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh'}}>{TL}<div style={{textAlign:'center'}}><div style={{fontSize:40,marginBottom:12}}>⚠️</div><div style={{fontSize:14,fontWeight:600}}>無法連線至 Google Sheets</div><button className="bp" onClick={sync} style={{marginTop:16}}>重試</button></div></div>;
 
-  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗項目表'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'batch',i:'📤',l:'提送批次'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
+  const nav=[{k:'dash',i:'📊',l:'Dashboard'},{k:'sum',i:'📋',l:'查驗項目總表0版'},{k:'prog',i:'📅',l:'查驗進度'},{k:'rec',i:'📝',l:'查驗紀錄'},{k:'batch',i:'📤',l:'提送批次'},{k:'log',i:'📜',l:'操作日誌'},{k:'set',i:'⚙️',l:'設定'},{k:'notes',i:'📒',l:'備註'}];
   const SyncBtn=<button className="bg" disabled={ss==='syncing'} onClick={()=>sync(true)} title="略過快取，從 Google Sheets 讀取最新資料">{ss==='syncing'?<span className="spinner"/>:'☁↓'} 從雲端同步</button>;
 
   return<div style={{display:'flex',minHeight:'100vh'}}>
@@ -643,12 +820,75 @@ function App(){
         <Kpi l="未查驗金額" v={fN(TT.tr)} a="var(--rest)" i="📋"/>
         <Kpi l="查驗表" v={TT.nOk+' / '+TT.nAll} s={'已提交／全部（共 '+TT.nRows+' 項明細）'} a="var(--muted)" i="📊"/>
       </div>
+
+      {/* ── 各查驗項目目前進度 ── */}
+      <div className="card" style={{padding:0,marginBottom:10}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',gap:10,flexWrap:'wrap',padding:'16px 20px 12px',borderBottom:'1px solid var(--border)'}}>
+          <div>
+            <h3 style={{fontSize:15,fontWeight:800,color:'var(--fg2)'}}>各查驗項目目前進度</h3>
+            <div style={{fontSize:10.5,color:'var(--muted)',marginTop:3}}>
+              <span style={{color:'var(--green)'}}>● 已送</span>（已提交台電）／<span style={{color:'var(--goldText)'}}>● 已查驗</span>（自檢·POE，未提交）／剩餘未查驗
+            </div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap'}}>
+            <label style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:11.5,color:'var(--muted)',cursor:'pointer'}}>
+              <input type="checkbox" checked={dOnly} onChange={e=>sDOnly(e.target.checked)} style={{width:'auto'}}/> 只看有進度的
+            </label>
+            <div className="seg">
+              <button className={qMode==='qty'?'on':''} onClick={()=>sQMode('qty')}>數量</button>
+              <button className={qMode==='amt'?'on':''} onClick={()=>sQMode('amt')}>金額</button>
+            </div>
+          </div>
+        </div>
+        <div className="hscroll">
+          <table className="tbl-wide"><thead><tr>
+            <th>項次</th><th>項目</th>
+            <th style={{minWidth:190}}>已查驗百分比</th>
+            <th style={{textAlign:'right'}}>已查驗金額</th>
+            <th style={{textAlign:'right'}}>剩餘百分比</th>
+            <th></th>
+          </tr></thead>
+          <tbody>{(dOnly?sm.filter(b=>prog(b).ok>0||prog(b).wip>0):sm).map(b=>{const p=prog(b);
+            return<tr key={b.id}>
+              <td style={{fontWeight:700,color:'var(--accent)',fontFamily:"'JetBrains Mono'",fontSize:11.5}}>{b.item_no}</td>
+              <td style={{whiteSpace:'normal',minWidth:180}}>{shortItem(b.item_name_cn)}
+                <div style={{fontSize:9.5,color:'var(--muted2)'}}>{isLS(b)?'一式 (LS)':fQty(b.budget_qty)+' '+(b.unit||'')} · 預算 {fmt(b.budget_total)}</div></td>
+              <td style={{minWidth:190}}>
+                <PBar ok={p.okP} wip={p.wipP} h={9}/>
+                <div style={{display:'flex',gap:10,fontSize:10,marginTop:4,fontFamily:"'JetBrains Mono'"}}>
+                  <span style={{color:'var(--green)',fontWeight:700}}>● {fP(p.okP)}</span>
+                  <span style={{color:p.wipP>0?'var(--goldText)':'var(--muted2)',fontWeight:700}}>● {fP(p.wipP)}</span>
+                  <span style={{color:'var(--muted2)'}}>{p.n>0?p.n+' 筆紀錄':'未開立'}</span>
+                </div>
+              </td>
+              <td className="num" style={{color:p.okAmt>0?'var(--green)':'var(--muted2)',fontWeight:700}}>{fmt(p.okAmt)}</td>
+              <td className="num" style={{color:p.restP<=0?'var(--green)':'var(--rest)',fontWeight:600}}>{fP(p.restP)}
+                <div style={{fontSize:9.5,color:'var(--muted2)',fontWeight:500}}>{fmt(p.restAmt)}</div></td>
+              <td><button className="bg" title="查看明細" style={{fontSize:11,padding:'3px 7px'}} onClick={()=>sMl({t:'item',p:b})}>🔍</button></td>
+            </tr>})}</tbody>
+          <tfoot><tr style={{background:'var(--card2)',fontWeight:700}}>
+            <td colSpan={2} style={{textAlign:'right',color:'var(--muted)'}}>合計</td>
+            <td>
+              <PBar ok={TT.tb>0?TT.to/TT.tb:0} wip={TT.tb>0?TT.tp/TT.tb:0} h={9}/>
+              <div style={{display:'flex',gap:10,fontSize:10,marginTop:4,fontFamily:"'JetBrains Mono'"}}>
+                <span style={{color:'var(--green)'}}>● {fP(TT.tb>0?TT.to/TT.tb:0)}</span>
+                <span style={{color:'var(--goldText)'}}>● {fP(TT.tb>0?TT.tp/TT.tb:0)}</span>
+              </div>
+            </td>
+            <td className="num" style={{color:'var(--green)'}}>{fmt(TT.to)}</td>
+            <td className="num" style={{color:'var(--rest)'}}>{fP(TT.tb>0?TT.tr/TT.tb:0)}
+              <div style={{fontSize:9.5,color:'var(--muted2)',fontWeight:500}}>{fmt(TT.tr)}</div></td>
+            <td/>
+          </tr></tfoot>
+          </table>
+        </div>
+      </div>
     </div>}
 
     {/* ═══ SUMMARY ═══ */}
     {pg==='sum'&&<div className="fi">
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:18}}>
-        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:800}}>查驗項目表</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
+        <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:800}}>查驗項目總表0版</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
         <div style={{display:'flex',gap:8}}>{SyncBtn}{auth&&<button className="bp" onClick={()=>sMl({t:'add'})}>＋ 新增</button>}</div>
       </div>
       <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap',alignItems:'center'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋項次/名稱..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:240}}/>
@@ -682,6 +922,97 @@ function App(){
           ?<td colSpan={3} style={{textAlign:'center',color:'var(--muted2)',fontWeight:500,fontSize:10}}>各項單位不同，數量不合計（切到「金額」看合計）</td>
           :<><td className="num" style={{color:'var(--green)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ao,0))}</td><td className="num" style={{color:'var(--goldText)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ap,0))}</td><td className="num" style={{color:'var(--rest)'}}>{fmt(fSm.reduce((s,b)=>s+gS(b).ra,0))}</td></>}
         <td colSpan={2}/></tr></tfoot></table>
+      </div>
+    </div>}
+
+    {/* ═══ PROGRESS（查驗進度規劃：一筆一筆自己新增） ═══ */}
+    {pg==='prog'&&<div className="fi">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6,flexWrap:'wrap',gap:12}}>
+        <div>
+          <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:700,color:'var(--fg2)'}}>查驗進度</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
+          <p style={{fontSize:11.5,color:'var(--muted)',marginTop:3}}>各工區各項目「可不可以查驗、預計何時完成、連動哪張查驗表」</p>
+        </div>
+        <div style={{display:'flex',gap:8}}>{SyncBtn}{auth&&<button className="bp" onClick={()=>sMl({t:'padd'})}>＋ 新增進度</button>}</div>
+      </div>
+
+      {/* 統計 */}
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',margin:'14px 0 12px'}}>
+        <span className="chip">共 <strong style={{color:'var(--fg2)'}}>{plans.length}</strong> 筆</span>
+        {PSTATUS.map(s=><span key={s.v} className="chip" style={{cursor:'pointer',borderColor:pStat===s.v?s.c:'var(--border)',background:pStat===s.v?s.bg:'var(--card2)',color:pStat===s.v?s.c:'inherit'}}
+          onClick={()=>sPStat(pStat===s.v?'':s.v)}>{s.i} {s.v} <strong>{PST[s.v]||0}</strong></span>)}
+        {PST.late>0&&<span className="chip" style={{color:'var(--red)',borderColor:'rgba(179,64,62,.3)',background:'var(--redBg)'}}>⏰ 逾期未完成 <strong>{PST.late}</strong></span>}
+      </div>
+
+      {/* 篩選 */}
+      <div style={{display:'flex',gap:9,flexWrap:'wrap',alignItems:'center',marginBottom:14}}>
+        <select value={pArea} onChange={e=>sPArea(e.target.value)} style={{width:'auto',minWidth:130}}>
+          <option value="">全部工區</option>{AREAS.map(a=><option key={a} value={a}>{a}</option>)}
+        </select>
+        <input value={fS} onChange={e=>sFS(e.target.value)} placeholder="搜尋 項次／項目／備註／單號" style={{width:'auto',minWidth:230,flex:'0 1 300px'}}/>
+        <label style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:11.5,color:'var(--muted)',cursor:'pointer'}}>
+          <input type="checkbox" checked={pDone} onChange={e=>sPDone(e.target.checked)} style={{width:'auto'}}/> 顯示已完成
+        </label>
+        {(pArea||pStat||fS)&&<button className="bg" style={{fontSize:11,padding:'5px 11px'}} onClick={clr}>✕ 清除篩選</button>}
+        <div style={{marginLeft:'auto',display:'flex',alignItems:'center',gap:9}}>
+          <span style={{fontSize:10.5,color:'var(--muted)',fontWeight:600,letterSpacing:.4}}>百分比基準</span>
+          <div className="seg">
+            <button className={qMode==='qty'?'on':''} onClick={()=>sQMode('qty')}>數量</button>
+            <button className={qMode==='amt'?'on':''} onClick={()=>sQMode('amt')}>金額</button>
+          </div>
+        </div>
+      </div>
+
+      {plans.length===0
+        ?<div className="card" style={{padding:56,textAlign:'center',color:'var(--muted)'}}>
+          <div style={{fontSize:40,marginBottom:12}}>📅</div>
+          <div style={{fontSize:14}}>還沒有查驗進度{auth?'，點右上角「＋ 新增進度」開始一筆一筆加':'（登入後可新增）'}</div>
+        </div>
+      :fPlans.length===0?<div className="card" style={{padding:56,textAlign:'center',color:'var(--muted)'}}>無符合條件</div>
+      :<div className="hscroll" style={{background:'var(--card)',border:'1px solid var(--border)',borderRadius:'var(--radius-lg)',boxShadow:'var(--shadow)'}}>
+        <table className="tbl-prog"><thead><tr>
+          {['工區','項次','項目'].map(h=><th key={h}>{h}</th>)}
+          <th style={{minWidth:150}}>目前進度（● 已送 ／ ● 已查驗）</th>
+          <th style={{textAlign:'right'}}>已查驗金額</th>
+          <th>查驗狀態</th><th>預計完成</th><th>連動單號</th><th>備註</th>{auth&&<th></th>}
+        </tr></thead>
+        <tbody>{fPlans.map(p=>{
+          const b=bItem(p.budget_item_id);const g=p.link_group_id?GR[p.link_group_id]:null;
+          const pr=b?prog(b):null;
+          const late=p.status!=='已完成'&&p.due_date&&p.due_date<td();
+          return<tr key={p.id}>
+            <td style={{fontWeight:600}}>{p.work_area||'—'}</td>
+            <td style={{fontWeight:700,color:'var(--accent)',fontFamily:"'JetBrains Mono'"}}>{b?.item_no||'—'}</td>
+            <td style={{whiteSpace:'normal',minWidth:170}}>{shortItem(p.item_name_snapshot)||'—'}
+              <div style={{fontSize:9.5,color:'var(--muted2)'}}>{b?(isLS(b)?'一式 (LS)':fQty(b.budget_qty)+' '+(b.unit||'')):'（項目已不在預算表）'}</div></td>
+            <td style={{minWidth:150}}>{pr?<>
+              <PBar ok={pr.okP} wip={pr.wipP}/>
+              <div style={{display:'flex',gap:8,fontSize:9.5,marginTop:3,fontFamily:"'JetBrains Mono'"}}>
+                <span style={{color:'var(--green)',fontWeight:700}}>{fP(pr.okP)}</span>
+                <span style={{color:'var(--goldText)',fontWeight:700}}>{fP(pr.wipP)}</span>
+                <span style={{color:'var(--muted2)'}}>剩 {fP(pr.restP)}</span>
+              </div></>:'—'}</td>
+            <td className="num" style={{color:'var(--green)',fontWeight:600}}>{pr?fmt(pr.okAmt):'—'}</td>
+            <td><PS v={p.status} small/></td>
+            <td style={{fontFamily:"'JetBrains Mono'",fontSize:11,color:late?'var(--red)':'var(--fg)',fontWeight:late?700:400}}>
+              {p.due_date?fD(p.due_date):'—'}{late&&<span title="已逾期"> ⏰</span>}</td>
+            <td>{p.link_group_id
+              ?<span onClick={()=>{sPg('rec');clr();sOpenG(x=>({...x,[p.link_group_id]:true}))}} title="到查驗紀錄看這張表"
+                 style={{cursor:'pointer',color:'var(--accent)',fontFamily:"'JetBrains Mono'",fontSize:10.5,borderBottom:'1px dashed var(--border2)'}}>
+                {p.link_group_id}{g?'':' ⚠'}</span>
+              :<span style={{color:'var(--muted2)'}}>—</span>}
+              {g&&<div style={{marginTop:3}}><SB stage={g.stage} small/></div>}</td>
+            <td style={{whiteSpace:'normal',minWidth:120,fontSize:11,color:'var(--muted)'}}>{p.note||'—'}</td>
+            {auth&&<td><div style={{display:'flex',gap:4}}>
+              <button className="bg" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>sMl({t:'pedit',p})}>編輯</button>
+              <button className="bd" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>delPlan(p)}>刪除</button>
+            </div></td>}
+          </tr>})}</tbody>
+        </table>
+      </div>}
+      <div style={{fontSize:10.5,color:'var(--muted2)',marginTop:10,lineHeight:1.8}}>
+        ● <span style={{color:'var(--green)'}}>已送</span> = 該項目已提交台電（計入已查驗金額）
+        ● <span style={{color:'var(--goldText)'}}>已查驗</span> = NMDC 自檢／POE 查驗完成、還沒提交台電<br/>
+        進度百分比取自查驗紀錄自動計算（不需手動維護），這頁只維護「可否查驗／預計完成日／連動單號」。
       </div>
     </div>}
 
@@ -891,6 +1222,8 @@ function App(){
     <Mdl open={ml?.t==='add'} close={()=>sMl(null)} wide title="新增查驗表"><Form bi={sm} ins={ins} onOk={addI} onNo={()=>sMl(null)} ld={sub} api={api.current}/></Mdl>
     <Mdl open={ml?.t==='addfor'} close={()=>sMl(null)} wide title={'新增查驗表 — '+(ml?.p?.item_no||'')}>{ml?.p&&<Form bi={sm} ins={ins} fixId={ml.p.id} onOk={addI} onNo={()=>sMl(null)} ld={sub} api={api.current}/>}</Mdl>
     <Mdl open={ml?.t==='edit'} close={()=>sMl(null)} wide title={'編輯查驗表 '+(ml?.p?.id||'')}>{ml?.p&&<Form bi={sm} ins={ins} init={ml.p} onOk={d=>updI(ml.p.id,d)} onNo={()=>sMl(null)} ld={sub} api={api.current}/>}</Mdl>
+    <Mdl open={ml?.t==='padd'} close={()=>sMl(null)} title="新增查驗進度"><PForm bi={sm} groups={groups} areas={AREAS} progOf={prog} qMode={qMode} onQMode={sQMode} onOk={savePlan} onNo={()=>sMl(null)} ld={sub}/></Mdl>
+    <Mdl open={ml?.t==='pedit'} close={()=>sMl(null)} title="編輯查驗進度">{ml?.p&&<PForm bi={sm} groups={groups} areas={AREAS} progOf={prog} qMode={qMode} onQMode={sQMode} init={ml.p} onOk={savePlan} onNo={()=>sMl(null)} ld={sub}/>}</Mdl>
     <Mdl open={ml?.t==='item'} close={()=>sMl(null)} wide title={ml?.p?ml.p.item_no+' — '+ml.p.item_name_cn:''}>{ml?.p&&<Detail item={ml.p} ins={ins} auth={auth} onAdd={()=>sMl({t:'addfor',p:ml.p})} onEdit={i=>{const g=grpOfRow(i);if(g)sMl({t:'edit',p:g})}} onDel={(id,label)=>delI(id,label)}/>}</Mdl>
   </div>;
 }

@@ -1,6 +1,6 @@
 // ═══════════════════════════════════════════════════════════════════
 // NMDC 通霄二期 — 查驗紀錄管理系統 (Backend: Google Apps Script)
-// v4.3.0  三階段流程 + 一表多項目 + 讀取快取 + 每次存檔自動 JSON 快照
+// v4.4.0  三階段流程 + 一表多項目 + 讀取快取 + 每次存檔自動 JSON 快照 + 查驗進度規劃表
 // ═══════════════════════════════════════════════════════════════════
 //
 // 【v4 變更重點】
@@ -29,6 +29,7 @@
 //   工作表2: 查驗紀錄表 (Inspections)
 //   工作表3: 操作日誌表 (Logs)
 //   工作表4: 系統設定 (Config)
+//   工作表5: 查驗進度表 (ProgressPlans)
 // ═══════════════════════════════════════════════════════════════════
 
 // ── 全域設定 ──
@@ -80,6 +81,8 @@ function initSystem() {
   ]);
 
   _getOrCreateSheet(ss, SHEET_CONFIG, ['key','value']);
+
+  _getOrCreateSheet(ss, SHEET_PROGRESS, PROGRESS_HEADERS);
 
   // ── Google Drive 附件資料夾 (根資料夾，每個查驗建子資料夾) ──
   let folderId = ROOT_FOLDER_ID;
@@ -209,7 +212,8 @@ function clearSummaryCache() { _cacheClearSummary(); Logger.log('快取已清除
 const WRITE_ACTIONS = {
   addInspection: 1, updateInspection: 1, deleteInspection: 1, uploadAttachment: 1,
   deleteAttachment: 1, updateBudgetItem: 1, uploadToFolder: 1,
-  importBudgetData: 1, importBudget: 1, renameFolders: 1
+  importBudgetData: 1, importBudget: 1, renameFolders: 1,
+  saveProgressPlan: 1, deleteProgressPlan: 1
 };
 
 // 會改動「資料內容」的 action → 存檔後自動留一份 JSON 快照
@@ -343,8 +347,11 @@ function doGet(e) {
       case 'listSnapshots':
         result = _listSnapshots(e.parameter.limit);
         break;
+      case 'getProgressPlans':
+        result = { plans: _getProgressPlans(), statuses: PROGRESS_STATUSES };
+        break;
       case 'ping':
-        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.3.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-17' };
+        result = { status: 'ok', timestamp: new Date().toISOString(), version: '4.4.0', stage_scheme: _isV4() ? 'v4' : 'legacy', code_updated: '2026-09-28' };
         break;
       default:
         result = { error: 'Unknown action: ' + action };
@@ -400,6 +407,13 @@ function doPost(e) {
         break;
       case 'renameFolders':
         result = renameAllFolders();
+        break;
+      case 'saveProgressPlan':
+        result = _saveProgressPlan(payload.data);
+        break;
+      case 'deleteProgressPlan':
+        result = _deleteProgressPlan(payload.data && (payload.data.plan_id || payload.data.id),
+                                     payload.data && payload.data.deleted_by);
         break;
       case 'createSnapshot': {
         const snap = _saveSnapshot('manual', '', null, null, (payload.data && payload.data.by) || 'Admin');
@@ -1100,6 +1114,7 @@ function _getSummary() {
   return {
     budgetItems: summaries,
     inspections: inspections,
+    progressPlans: _getProgressPlans(),
     totals: {
       totalBudget,
       totalInspected,          // 已查驗（已提交台電）
@@ -1507,4 +1522,125 @@ function _reimportBudget() {
   }
   _importInitialBudget(sheet);
   return { success: true, message: '預算資料已重新匯入' };
+}
+
+// ══════════════════════════════════
+// 查驗進度（規劃表）
+//   一筆 = 一個工區的一個查驗項目，記「可不可以查驗／預計完成日／連動哪張查驗表」
+//   自己一筆一筆新增，跟查驗紀錄分開存，不影響金額統計
+// ══════════════════════════════════
+const SHEET_PROGRESS = '查驗進度表';
+const PROGRESS_HEADERS = [
+  'plan_id','work_area','budget_item_id','item_name_snapshot','status',
+  'due_date','link_group_id','note',
+  'created_at','created_by','updated_at','updated_by','deleted'
+];
+const PROGRESS_COLS = 13;
+const PROGRESS_STATUSES = ['可', '不可', '已完成'];
+
+function _progressSheet() {
+  return _getOrCreateSheet(SpreadsheetApp.getActiveSpreadsheet(), SHEET_PROGRESS, PROGRESS_HEADERS);
+}
+
+/** 日期一律回傳 yyyy-MM-dd 字串（試算表可能存成 Date 物件，直接 JSON 化會時區位移一天） */
+function _dateStr(v) {
+  if (v === null || v === undefined || v === '') return '';
+  if (v instanceof Date) return Utilities.formatDate(v, 'Asia/Taipei', 'yyyy-MM-dd');
+  return String(v).slice(0, 10);
+}
+
+function _progStatus(v) {
+  const s = String(v || '').trim();
+  return PROGRESS_STATUSES.indexOf(s) >= 0 ? s : '可';
+}
+
+function _progressObj(r) {
+  return {
+    id: String(r[0] || ''),
+    work_area: r[1] || '',
+    budget_item_id: r[2] || '',
+    item_name_snapshot: r[3] || '',
+    status: _progStatus(r[4]),
+    due_date: _dateStr(r[5]),
+    link_group_id: r[6] || '',
+    note: r[7] || '',
+    created_at: r[8] || '', created_by: r[9] || '',
+    updated_at: r[10] || '', updated_by: r[11] || ''
+  };
+}
+
+function _getProgressPlans() {
+  const sheet = _progressSheet();
+  if (sheet.getLastRow() <= 1) return [];
+  const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, PROGRESS_COLS).getValues();
+  return data
+    .filter(r => String(r[0] || '').trim() !== ''
+              && r[PROGRESS_COLS - 1] !== true
+              && String(r[PROGRESS_COLS - 1]).toUpperCase() !== 'TRUE')
+    .map(_progressObj);
+}
+
+function _findProgressRow(sheet, planId) {
+  if (sheet.getLastRow() <= 1) return -1;
+  const ids = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+  for (let i = 0; i < ids.length; i++) {
+    if (String(ids[i][0]) === planId) return i + 2;
+  }
+  return -1;
+}
+
+/** 新增或更新一筆查驗進度（有帶 plan_id = 更新） */
+function _saveProgressPlan(data) {
+  if (!data) throw new Error('缺少資料');
+  const area = String(data.work_area || '').trim();
+  const bid  = String(data.budget_item_id || '').trim();
+  if (!area) throw new Error('請選擇工區');
+  if (!bid)  throw new Error('請選擇查驗項目');
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const b = _findBudgetItem(ss.getSheetByName(SHEET_BUDGET), bid);
+  if (!b) throw new Error('找不到預算項目: ' + bid);
+
+  const sheet  = _progressSheet();
+  const status = _progStatus(data.status);
+  const due    = _dateStr(data.due_date);
+  const link   = String(data.link_group_id || '').trim();
+  const note   = String(data.note || '');
+  const by     = data.updated_by || data.created_by || 'Admin';
+  const now    = new Date().toISOString();
+  const label  = area + ' ' + (b.item_no || '') + ' ' + (b.item_name_cn || '');
+
+  const planId = String(data.plan_id || data.id || '').trim();
+  if (planId) {
+    const idx = _findProgressRow(sheet, planId);
+    if (idx < 0) throw new Error('找不到查驗進度: ' + planId);
+    const old = sheet.getRange(idx, 1, 1, PROGRESS_COLS).getValues()[0];
+    sheet.getRange(idx, 1, 1, PROGRESS_COLS).setValues([[
+      planId, area, bid, b.item_name_cn, status, due, link, note,
+      old[8] || now, old[9] || by, now, by, ''
+    ]]);
+    _addLog('UPDATE', 'progress', planId, '修改查驗進度 ' + label + '（' + status + '）', by);
+    return { success: true, plan_id: planId, before: [_progressObj(old)], message: '查驗進度已更新' };
+  }
+
+  const newId = 'PP-' + Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyyMMdd-HHmmss')
+              + '-' + Math.floor(Math.random() * 900 + 100);
+  sheet.appendRow([newId, area, bid, b.item_name_cn, status, due, link, note, now, by, now, by, '']);
+  _addLog('CREATE', 'progress', newId, '新增查驗進度 ' + label + '（' + status + '）', by);
+  return { success: true, plan_id: newId, message: '查驗進度已新增' };
+}
+
+/** 刪除（軟刪除，保留列以便從快照比對） */
+function _deleteProgressPlan(planId, by) {
+  const id = String(planId || '').trim();
+  if (!id) throw new Error('缺少 plan_id');
+  const sheet = _progressSheet();
+  const idx = _findProgressRow(sheet, id);
+  if (idx < 0) throw new Error('找不到查驗進度: ' + id);
+  const old = sheet.getRange(idx, 1, 1, PROGRESS_COLS).getValues()[0];
+  sheet.getRange(idx, 11).setValue(new Date().toISOString());
+  sheet.getRange(idx, 12).setValue(by || 'Admin');
+  sheet.getRange(idx, PROGRESS_COLS).setValue(true);
+  _addLog('DELETE', 'progress', id, '刪除查驗進度 ' + (old[1] || '') + ' ' + (old[3] || ''), by || 'Admin');
+  return { success: true, plan_id: id, before: [_progressObj(old)], message: '查驗進度已刪除' };
 }

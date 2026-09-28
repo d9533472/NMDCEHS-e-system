@@ -1659,6 +1659,70 @@ function trkPhotosHtml_(photos, doTr) {
   return h + '</table>';
 }
 
+// ── 信件太大時自動縮圖 ──
+// Apps Script 沒有原生縮圖 API，借 Drive 的縮圖端點取回指定寬度的圖（和 bulImageUrl_ 同一個端點）。
+// 作法：每次挑「目前最大、而且還能再縮」的那張縮一階，總量一掉到預算以下就停手；
+// 每種圖都有寬度下限（KPI 1280px、現場照片 720px），寧可信件大一點，也不會把圖縮到看不清楚。
+var TRK_MAIL_BUDGET  = 6 * 1024 * 1024;          // 附件＋內嵌圖的原始位元組預算；base64 後約 +37%（≈8MB），連收件端常見的 10MB 上限也過得去
+var TRK_MAIL_BUDGET2 = 2.5 * 1024 * 1024;        // 第一次寄出仍被以「信太大」擋下時改用的預算
+var TRK_KPI_WIDTHS   = [2200, 1800, 1500, 1280]; // KPI 總結圖：字最小，所以下限拉到 1280px
+var TRK_PHOTO_WIDTHS = [1280, 1024, 860, 720];   // 現場照片：畫框本來就是 1280×720，下限 720px
+
+function trkBlobBytes_(b) { try { return b.getBytes().length; } catch(e) { return 0; } }
+// 登記一張「信太大時可以縮」的圖：縮好後寫回原本的容器（attachments 陣列或 inline 物件）
+function trkAddShrinkable_(list, fileId, blob, widths, holder, key) {
+  if (!fileId) return;
+  list.push({ fileId: fileId, blob: blob, widths: widths, apply: function(nb) { holder[key] = nb; } });
+}
+function trkMB_(n) { return (n / 1048576).toFixed(1) + 'MB'; }
+
+function trkThumbBlob_(fileId, width) {
+  var resp = UrlFetchApp.fetch('https://drive.google.com/thumbnail?id=' + fileId + '&sz=w' + width,
+    { headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() }, muteHttpExceptions: true, followRedirects: true });
+  if (resp.getResponseCode() !== 200) throw new Error('HTTP ' + resp.getResponseCode());
+  var blob = resp.getBlob();
+  if (String(blob.getContentType() || '').indexOf('image') !== 0) throw new Error('回傳的不是圖片');
+  return blob;
+}
+
+// items：[{ fileId, blob, widths, apply(newBlob) }]；apply 會把縮好的圖寫回 inline / attachments
+// 可以重複呼叫（用更小的預算再縮一輪），每張圖會從上次停下的寬度繼續往下縮
+function fitMailSize_(items, budget) {
+  items = items || [];
+  items.forEach(function(it) {
+    if (it.bytes == null) it.bytes = trkBlobBytes_(it.blob);
+    if (it.step == null) it.step = -1;
+  });
+  var total = function() { var s = 0; items.forEach(function(it){ s += it.bytes; }); return s; };
+  var before = total(), notes = [], shrunk = 0, guard = 0;
+  while (total() > budget && guard++ < 60) {
+    var cand = null;
+    items.forEach(function(it) {
+      if (it.step + 1 >= it.widths.length) return;         // 已經到寬度下限，不再動它
+      if (!cand || it.bytes > cand.bytes) cand = it;
+    });
+    if (!cand) break;                                      // 全部都到下限了：不再犧牲畫質
+    cand.step++;
+    var w = cand.widths[cand.step];
+    try {
+      var nb = trkThumbBlob_(cand.fileId, w);
+      var nbytes = trkBlobBytes_(nb);
+      if (!nbytes || nbytes >= cand.bytes) { cand.step = cand.widths.length; continue; }  // 沒變小就別換
+      var ext = String(nb.getContentType() || '').indexOf('png') >= 0 ? 'png' : 'jpg';
+      nb.setName(String(cand.blob.getName() || 'image').replace(/\.[^.]+$/, '') + '.' + ext);
+      cand.blob = nb; cand.bytes = nbytes; cand.apply(nb); shrunk++;
+      notes.push(nb.getName() + ' → ' + w + 'px');
+    } catch(e) {
+      cand.step = cand.widths.length;                      // 這張縮不了（Drive 縮圖還沒產生等）就跳過
+      Logger.log('縮圖失敗 ' + cand.fileId + ' @' + w + 'px：' + e.message);
+    }
+  }
+  var after = total();
+  if (shrunk) Logger.log('信件圖片自動縮小：' + trkMB_(before) + ' → ' + trkMB_(after) + '（' + notes.join('、') + '）');
+  return { before: before, after: after, shrunk: shrunk, over: after > budget,
+           note: shrunk ? ('圖片自動縮小 ' + trkMB_(before) + '→' + trkMB_(after)) : '' };
+}
+
 // ── 組信（預覽與寄送共用）。回傳 {subject, html, inline:{cid:blob}, attachments:[blob], …} ──
 function buildTrackerMail_(opts) {
   opts = opts || {};
@@ -1699,7 +1763,7 @@ function buildTrackerMail_(opts) {
   var ncrSoon    = ncr.filter(function(r){ return r.daysLeft >= 0; });
 
   // 附件與內嵌圖片
-  var inline = {}, attachments = [];
+  var inline = {}, attachments = [], sizeCtl = [];   // sizeCtl：信太大時可以縮的圖，交給 fitMailSize_
   var kpi = mc.kpi, kpiOk = false, kpiSource = '';
   // 本週（報告期間的週一之後）同步或上傳過的圖才算新；否則由系統自己畫一張
   var kpiFresh = !!(kpi && kpi.fileId && kpi.uploadedAt && kpi.uploadedAt >= range.fromIso + 'T00:00:00');
@@ -1712,6 +1776,7 @@ function buildTrackerMail_(opts) {
         var ext = (kb.getContentType() || '').indexOf('png') >= 0 ? 'png' : 'jpg';
         kb.setName('ENV_KPI_Summary_' + range.fromIso + '_' + range.toIso + '.' + ext);
         attachments.push(kb); kpiOk = true; kpiSource = kpi.source || 'upload';
+        trkAddShrinkable_(sizeCtl, kpi.fileId, kb, TRK_KPI_WIDTHS, attachments, attachments.length - 1);
       } catch(e) { Logger.log('KPI 圖讀取失敗：' + e.message); }
     }
     if (!kpiOk) {
@@ -1720,6 +1785,7 @@ function buildTrackerMail_(opts) {
         var kb2 = DriveApp.getFileById(ks.kpi.fileId).getBlob();
         kb2.setName('ENV_KPI_Summary_' + range.fromIso + '_' + range.toIso + '.png');
         attachments.push(kb2); kpiOk = true; kpiSource = 'slides';
+        trkAddShrinkable_(sizeCtl, ks.kpi.fileId, kb2, TRK_KPI_WIDTHS, attachments, attachments.length - 1);
       } catch(e) { Logger.log('KPI 圖自動產生失敗：' + e.message); }
     }
   }
@@ -1729,7 +1795,12 @@ function buildTrackerMail_(opts) {
     if (!p || !p.fileId) return;
     if (mc.lastSentAt && p.uploadedAt && p.uploadedAt <= mc.lastSentAt) return;
     if (opts.noBlobs) { photos.push(p); return; }
-    try { var b = DriveApp.getFileById(p.fileId).getBlob(); b.setName('photo' + (idx + 1) + '.jpg'); photos.push(p); inline['photo' + (photos.length - 1 - ((photos.length - 1) % 2)) + ((photos.length - 1) % 2)] = b; }
+    try {
+      var b = DriveApp.getFileById(p.fileId).getBlob(); b.setName('photo' + (idx + 1) + '.jpg'); photos.push(p);
+      var n = photos.length - 1, cid = 'photo' + (n - (n % 2)) + (n % 2);
+      inline[cid] = b;
+      trkAddShrinkable_(sizeCtl, p.fileId, b, TRK_PHOTO_WIDTHS, inline, cid);
+    }
     catch(e) { Logger.log('照片讀取失敗：' + (p.title || p.fileId) + ' ' + e.message); }
   });
 
@@ -1844,7 +1915,9 @@ function buildTrackerMail_(opts) {
     '</td></tr></table></body></html>';
 
   var subject = 'ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')';
-  return { subject: subject, html: html, inline: inline, attachments: attachments, range: range,
+  // 附件＋內嵌圖太大就先自動縮到預算內（有寬度下限，不會縮到看不清楚）
+  var size = opts.noBlobs ? null : fitMailSize_(sizeCtl, opts.sizeBudget || TRK_MAIL_BUDGET);
+  return { subject: subject, html: html, inline: inline, attachments: attachments, range: range, sizeCtl: sizeCtl, size: size,
            total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length,
            photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource };
 }
@@ -1875,7 +1948,18 @@ function sendTrackerMail_(testTo, source) {
     m.inline.logo = nmdcLogoBlob_();
     if (Object.keys(m.inline).length) opt.inlineImages = m.inline;
     if (m.attachments.length) opt.attachments = m.attachments;
-    MailApp.sendEmail(opt);
+    try {
+      MailApp.sendEmail(opt);
+    } catch(e1) {
+      // 還是被「信件太大」擋下來：用更小的預算再縮一輪重寄（縮好的圖會直接寫回 opt 裡的同一個物件）
+      if (!/size|too large|limit exceeded|attachment/i.test(String(e1.message))) throw e1;
+      Logger.log('信件太大（' + e1.message + '），自動再縮小圖片重寄一次');
+      var s2 = fitMailSize_(m.sizeCtl, TRK_MAIL_BUDGET2);
+      if (!s2.shrunk) throw new Error(e1.message + '（圖片已在畫質下限，無法再縮；請減少照片張數，目前 ' + m.photos + ' 張）');
+      m.size = { before: (m.size && m.size.before) || s2.before, after: s2.after, shrunk: ((m.size && m.size.shrunk) || 0) + s2.shrunk,
+                 over: s2.over, note: '圖片自動縮小 ' + trkMB_((m.size && m.size.before) || s2.before) + '→' + trkMB_(s2.after) + '（重寄）' };
+      MailApp.sendEmail(opt);
+    }
   } catch(err) {
     var msg = (m ? '寄送失敗：' : '組信失敗：') + err.message;
     logMail_({ type: type, source: src, to: to, cc: cc, subject: m ? m.subject : '', ok: false, note: msg });
@@ -1883,10 +1967,12 @@ function sendTrackerMail_(testTo, source) {
   }
   if (!testTo) markMailSent_(m.photoList, m.range);
   var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
-  var note = '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '');
+  var note = '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '') +
+             (m.size ? '，圖片 ' + trkMB_(m.size.after) + (m.size.shrunk ? '（自 ' + trkMB_(m.size.before) + ' 自動縮小 ' + m.size.shrunk + ' 張）' : '') : '');
   logMail_({ type: type, source: src, to: to, cc: cc, subject: opt.subject, ok: true, note: note });
   Logger.log('週報已寄出 → ' + to + (cc ? ' (cc ' + cc + ')' : '') + '；' + m.subject + '；' + note);
-  return { ok: true, to: to, cc: cc, subject: opt.subject, total: m.total, overdue: m.overdue, thisWeek: m.thisWeek, ncr: m.ncr, photos: m.photos, kpi: m.kpi, quota: quota };
+  return { ok: true, to: to, cc: cc, subject: opt.subject, total: m.total, overdue: m.overdue, thisWeek: m.thisWeek, ncr: m.ncr, photos: m.photos, kpi: m.kpi, quota: quota,
+           imgBytes: m.size ? m.size.after : 0, imgShrunk: m.size ? m.size.shrunk : 0, imgNote: (m.size && m.size.note) || '' };
 }
 
 // ── 週五 15:00 提醒信 ──
@@ -2077,7 +2163,7 @@ function explainBounce_(s) {
   if (/not found|does not exist|couldn't be found|5\.1\.1|5\.1\.10|no such user|unknown/i.test(s)) return '收件者信箱不存在，請確認拼字。';
   if (/mailbox full|over quota|5\.2\.2/i.test(s)) return '收件者信箱已滿。';
   if (/spam|blocked|policy|5\.7\./i.test(s)) return '被對方郵件伺服器的安全／垃圾信政策拒收，請 IT 把寄件者加入白名單。';
-  if (/size|too large|5\.3\.4/i.test(s)) return '信件太大被拒收，請減少照片張數。';
+  if (/size|too large|5\.3\.4/i.test(s)) return '信件太大被對方拒收（系統寄出前已自動把圖縮到 6MB 內，代表對方伺服器的上限更低）；請減少照片張數，或請 IT 調高收件大小上限。';
   return '';
 }
 // 編輯器手動執行：立刻對最近 30 筆做退信檢查（新增 Gmail 讀取權限後請先跑一次以完成授權）
