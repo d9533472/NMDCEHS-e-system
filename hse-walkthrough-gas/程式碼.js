@@ -22,11 +22,12 @@ var PK = {
 };
 
 var SH = { rec: 'Records', pho: 'Photos', cfg: 'Settings', rep: 'Reports' };
-var SCHEMA = 'v3';   // v3：取消 Pending 待複查，只剩 Open／Closed
+var SCHEMA = 'v4';   // v3：取消 Pending 待複查；v4：加入危害種類 hazard
 
+// 欄位順序＝試算表欄位順序，只能往後加，中間插欄會把既有資料整排錯開。
 var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'contractor',
   'obsZh', 'obsEn', 'recZh', 'recEn', 'actionBy', 'risk', 'targetDate',
-  'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted'];
+  'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted', 'hazard'];
 var PHO_COLS = ['id', 'recordId', 'kind', 'fileId', 'name', 'createdAt', 'deleted'];
 var REP_COLS = ['date', 'docId', 'pdfId', 'docxId', 'generatedAt'];
 
@@ -36,6 +37,19 @@ var DEFAULTS = {
     'E&I 電儀', 'Scaffolding 鷹架', 'Lifting 吊掛', 'Logistics 物流',
     'Subcontractor 協力廠商', 'HSE 環安衛'],
   contractors: ['Hi-E', 'MGT', 'HH', 'BY'],
+  // 「中文 English」一串，印報告時用第一個英文字母切開（splitBi_）
+  hazards: ['墜落防護 Fall protection', '跌倒滑倒 Slip and trips', '衝撞／碰撞 Collision',
+    '照明不足 Insufficient lighting', '捲夾危害 Nip/pinch', '穿刺危害 Puncture hazard',
+    '整理整頓 Housekeeping', '吊掛作業 Lifting operation', '高壓氣體設備 High-pressure gas equipment',
+    '動火作業 Hot Work', '切、割傷 Cuts and lacerations', '個人防護具 PPE',
+    '感電危害 Electrical hazard', '局限空間 Confined space', '物料儲存 Material storage',
+    '營建機械設備 Construction equipment/machinery', '安全通道 Pedestrian', '施工架 Scaffolding',
+    '環境危害 Environmental hazard', '工作許可 Permit to work', '門禁管制 Access control',
+    '防火防護措施 Fire Prevention Measure', '熱危害防制措施 Heat Hazard Prevention Measure',
+    '防護措施 Protective Measure', '警示／標示 Warning / Signage / Labeling',
+    '自動檢查 Self-inspection', '倒塌／崩塌 Collapse / Cave-in', '物體飛落 Falling objects',
+    '人員權責 Roles and Responsibilities', '火災／爆炸 Fire / Explosion',
+    '優點 Good practice', '其他 Other'],
   project: 'MFY',
   riskDays: { P1: 3, P2: 7, P3: 14 },
   hseRep: '',
@@ -62,6 +76,7 @@ function doGet(e) {
     try {
       if (act === 'boot') out = hseBoot(ACCESS_KEY, e.parameter.date || '');
       else if (act === 'report') out = hseBuildReport(ACCESS_KEY, e.parameter.date || '');
+      else if (act === 'stats') out = hseStats(ACCESS_KEY, e.parameter.from || '', e.parameter.to || '');
       else out = { ok: false, error: 'unknown act' };
     } catch (err) {
       out = { ok: false, error: String(err && err.message || err), stack: String(err && err.stack || '') };
@@ -276,6 +291,7 @@ function packRec_(r, photos) {
     members: r.members ? String(r.members).split(',').map(function (s) { return s.trim(); }).filter(String) : [],
     project: r.project || '',
     contractor: r.contractor || '',
+    hazard: r.hazard || '',
     obsZh: r.obsZh || '', obsEn: r.obsEn || '',
     recZh: r.recZh || '', recEn: r.recEn || '',
     actionBy: r.actionBy || '',
@@ -301,6 +317,19 @@ function photosByRecord_(ss) {
 }
 
 /* ============================ API ============================ */
+
+/**
+ * 把「墜落防護 Fall protection」這種中英合寫的項目切成兩半。
+ * 規則很土但夠用：第一個 A–Z／a–z 出現的地方就是英文的開頭。
+ * 只打中文的話 en 會是空字串，報告的英文行就不加標籤。
+ */
+function splitBi_(s) {
+  var t = String(s || '').trim();
+  if (!t) return { zh: '', en: '' };
+  var i = t.search(/[A-Za-z]/);
+  if (i <= 0) return { zh: t, en: '' };
+  return { zh: t.slice(0, i).trim(), en: t.slice(i).trim() };
+}
 
 /** 只有 Open／Closed 兩種狀態；舊資料的 Pending 一律當作已結案。 */
 function status_(v) {
@@ -352,6 +381,48 @@ function hseBoot(key, date) {
       return o;
     })
   };
+}
+
+/**
+ * 危害種類統計：日期區間內每個危害種類各幾筆，附帶開放中／已結案。
+ * from／to 留空就是不設下限／上限，兩個都留空＝全部。
+ */
+function hseStats(key, from, to) {
+  auth_(key);
+  var r = ensure_();
+  var recs = rows_(r.ss.getSheetByName(SH.rec), REC_COLS);
+  var f = ymd_(from), t = ymd_(to);
+  var tot = { total: 0, open: 0, closed: 0 };
+  var map = {};
+  var first = '', last = '';
+
+  recs.forEach(function (x) {
+    var d = ymd_(x.date);
+    if (!d) return;
+    if (f && d < f) return;
+    if (t && d > t) return;
+    if (!first || d < first) first = d;
+    if (!last || d > last) last = d;
+
+    var closed = status_(x.status) === 'Closed';
+    tot.total++;
+    if (closed) tot.closed++; else tot.open++;
+
+    var h = String(x.hazard || '').trim() || '__none__';
+    if (!map[h]) map[h] = { hazard: h, total: 0, open: 0, closed: 0 };
+    map[h].total++;
+    if (closed) map[h].closed++; else map[h].open++;
+  });
+
+  var rowsOut = Object.keys(map).map(function (k) { return map[k]; });
+  // 筆數多的排前面，一樣多就照名稱，未分類的一律墊底
+  rowsOut.sort(function (a, b) {
+    if (a.hazard === '__none__') return 1;
+    if (b.hazard === '__none__') return -1;
+    return b.total - a.total || a.hazard.localeCompare(b.hazard);
+  });
+
+  return { ok: true, from: f, to: t, first: first, last: last, totals: tot, rows: rowsOut };
 }
 
 function hseSearch(key, q, status) {
@@ -410,6 +481,7 @@ function hseSave(key, payload) {
       members: (payload.members || []).join(', '),
       project: String(payload.project || DEFAULTS.project).trim(),
       contractor: String(payload.contractor || '').trim(),
+      hazard: String(payload.hazard || '').trim(),
       obsZh: obsZh,
       obsEn: String(payload.obsEn || '').trim(),
       recZh: recZh,
@@ -816,10 +888,13 @@ function fillDataRow_(row, x, sn) {
   var status = status_(x.status);
   var statusTxt = status === 'Closed' ? 'Closed\n已結案' : 'Open\n開放中';
 
-  // 範本沒有承包商欄，所以把承包商掛在巡查發現開頭
+  // 範本沒有承包商欄也沒有危害種類欄，所以兩個都掛在巡查發現開頭
   var con = String(x.contractor || '').trim();
-  var obsZh = con ? '【' + con + '】' + x.obsZh : x.obsZh;
-  var obsEn = x.obsEn ? (con ? '[' + con + '] ' + x.obsEn : x.obsEn) : '';
+  var hz = splitBi_(x.hazard);
+  var preZh = (con ? '【' + con + '】' : '') + (hz.zh ? '【' + hz.zh + '】' : '');
+  var preEn = (con ? '[' + con + ']' : '') + (hz.en ? '[' + hz.en + ']' : '');
+  var obsZh = preZh + x.obsZh;
+  var obsEn = x.obsEn ? (preEn ? preEn + ' ' + x.obsEn : x.obsEn) : '';
 
   setCellPlain_(row.getCell(0), String(sn), { FONT_SIZE: 9 }, DocumentApp.HorizontalAlignment.CENTER);
   setCellBilingual_(row.getCell(1), obsZh, obsEn);

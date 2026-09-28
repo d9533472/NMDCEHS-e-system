@@ -136,6 +136,27 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:#00B050;box-sh
 .tag{background:#eef1f4;border-radius:999px;padding:4px 11px;color:#55606b;font-weight:600}
 .tag.over{background:#fde3e3;color:#c62828;font-weight:800}
 .tag.soon{background:#fff3df;color:#c07a18;font-weight:800}
+.tag.hz{background:#eaf0fa;color:#1b3a5c;font-weight:800}
+
+/* 危害統計 */
+.stot{display:flex;gap:8px;margin:12px 0 4px}
+.stot div{flex:1;text-align:center;background:#f5f8fb;border:1px solid #e7eef5;border-radius:13px;padding:9px 4px}
+.stot b{display:block;font-size:21px;font-weight:900;color:#1b3a5c;line-height:1.2}
+.stot.o b{color:#c07a18}.stot.c b{color:#1b6e3c}
+.stot span{font-size:10.5px;font-weight:700;color:#77808c}
+.qk{display:flex;gap:7px;margin-top:8px}
+.qk button{flex:1;padding:8px 0;border-radius:11px;border:1.5px solid #ccd3da;background:#fff;
+ font-size:12.5px;font-weight:800;color:#5a6b7c;cursor:pointer;font-family:inherit}
+.qk button.on{background:#002038;border-color:#002038;color:#fff}
+.srow{margin-top:11px}
+.srow .sl{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12.5px;
+ font-weight:700;color:#38475a;margin-bottom:3px}
+.srow .sn2{flex:0 0 auto;font-weight:900;color:#1b3a5c}
+.srow .sm{font-size:11px;font-weight:700;color:#8a97a5}
+.bar{height:9px;border-radius:999px;background:#eef1f4;overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar i.o{background:linear-gradient(90deg,#e0a63c,#c07a18)}
+.bar i.c{background:linear-gradient(90deg,#4fbf7a,#1b6e3c)}
 .tag.cl{background:#e2f2e6;color:#1b6e3c;font-weight:800;padding:2px 8px 2px 11px;display:inline-flex;
  align-items:center;gap:5px}
 /* 卡片上直接改結案日期，所以要把全域的 input 樣式縮回標籤大小 */
@@ -201,6 +222,7 @@ details summary::-webkit-details-marker{display:none}
  <div class="hdr">
   <button class="ico p" id="bAdd" onclick="newRec()"><span>✚</span><em data-i="bAdd"></em></button>
   <button class="ico" id="bExp" onclick="openM('exp')"><span>📄</span><em data-i="bExp"></em></button>
+  <button class="ico" id="bStat" onclick="openM('stat')"><span>📊</span><em data-i="bStat"></em></button>
   <button class="ico" id="bCfg" onclick="openM('cfg')"><span>⚙</span><em data-i="bCfg"></em></button>
  </div>
 </div>
@@ -250,6 +272,11 @@ details summary::-webkit-details-marker{display:none}
    <select id="f_con"></select>
    <input id="f_conOther" style="margin-top:7px;display:none" data-p="pOther">
    <div class="hint" data-i="hCon"></div>
+
+   <label class="req" data-i="lHaz"></label>
+   <select id="f_haz"></select>
+   <input id="f_hazOther" style="margin-top:7px;display:none" data-p="pOther">
+   <div class="hint" data-i="hHaz"></div>
 
    <label class="req" data-i="lObs"></label>
    <textarea id="f_obsZh" data-p="pObs"></textarea>
@@ -308,6 +335,28 @@ details summary::-webkit-details-marker{display:none}
   </div>
  </div>
 
+ <div class="mask" id="mStat" onclick="maskClick(event,'stat')">
+  <div class="sheet">
+   <div class="shd">
+    <h2 class="ft" data-i="stit"></h2>
+    <button class="x" onclick="closeM('stat')">✕</button>
+   </div>
+   <div class="sbd">
+  <div class="tiny" data-i="sHint" style="margin:8px 0 10px"></div>
+  <div class="dtrow">
+   <input id="sFrom" type="date" onchange="statRun(0)">
+   <input id="sTo" type="date" onchange="statRun(0)">
+  </div>
+  <div class="qk">
+   <button id="q_m" onclick="statQuick('m')" data-i="sQm"></button>
+   <button id="q_30" onclick="statQuick('30')" data-i="sQ30"></button>
+   <button id="q_all" onclick="statQuick('all')" data-i="sQall"></button>
+  </div>
+  <div id="statOut"></div>
+   </div>
+  </div>
+ </div>
+
  <div class="mask" id="mCfg" onclick="maskClick(event,'cfg')">
   <div class="sheet">
    <div class="shd">
@@ -319,6 +368,8 @@ details summary::-webkit-details-marker{display:none}
    <div class="hint" data-i="cMembersH"></div>
    <label data-i="cAction"></label><textarea id="c_actionBy" style="height:86px"></textarea>
    <label data-i="cContractors"></label><textarea id="c_contractors" style="height:76px"></textarea>
+   <label data-i="cHazards"></label><textarea id="c_hazards" style="height:150px"></textarea>
+   <div class="hint" data-i="cHazardsH"></div>
    <label data-i="cProject"></label><input id="c_project">
    <label data-i="cDays"></label>
    <div style="display:flex;gap:8px">
@@ -351,13 +402,20 @@ var L={zh:{
  title:"NMDC 通霄工區", sub:"HSE 現場巡查紀錄 · INSPECTION WALKTHROUGH",
  kAll:"全部", kOpen:"開放中", kClosed:"已結案", kOver:"逾期",
  btnToday:"今天",
- bAdd:"新增巡檢紀錄", bExp:"報告產出", bCfg:"設定參數",
+ bAdd:"新增巡檢紀錄", bExp:"報告產出", bStat:"危害統計", bCfg:"設定參數",
+ stit:"危害種類統計 Hazard Statistics",
+ sHint:"依危害種類統計期間內的巡查發現筆數；留白＝不限。",
+ sQm:"本月", sQ30:"近 30 天", sQall:"全部",
+ sAll:"總計", sSpan:"資料區間 ", sUncat:"（未填危害種類）",
+ sNone:"這個區間沒有巡查紀錄",
+ sLegend:"括號內為（開放中／已結案）；橫條長度代表筆數，橘色是開放中、綠色是已結案。",
  ftit:"巡查發現 Walkthrough Finding",
  lTime:"巡查日期時間 Date & Time", lReporter:"填報人 Reporter",
  hDT:"預設為現在，可自行修改（補登前幾天的紀錄就改這裡）。",
  cMembersH:"固定班底，不用每次選；報告抬頭會照這個順序印。",
  lProject:"專案及地點 Project and Location",
  lCon:"承包商 Contractor", hCon:"只用於手機端篩選與統計，不會印在報告上。",
+ lHaz:"危害種類 Hazard Type", hHaz:"報告會印在巡查發現開頭，例：【Hi-E】【墜落防護】…；清單可在設定裡調整。",
  lObs:"巡查發現 OBSERVATIONS（中文）", pObs:"例：二樓平台開口未設護欄",
  lObsEn:"OBSERVATIONS（英文，自動翻譯，可修改）", pAuto:"輸入中文後會自動翻譯到這裡",
  lRec:"改善建議 RECOMMENDATIONS（中文）", pRec:"例：立即補設固定式護欄並加掛警示標示",
@@ -391,6 +449,8 @@ var L={zh:{
  eOk:"報告已產生 ✓", eNone:"當天沒有紀錄",
  ctit:"⚙ 設定 Settings",
  cMembers:"巡查人員清單（一行一個）", cAction:"權責單位清單（一行一個）",
+ cHazards:"危害種類清單（一行一個，中文空一格接英文）",
+ cHazardsH:"例：墜落防護 Fall protection。報告會自動拆成中英兩行，順序照這裡排。",
  cContractors:"承包商清單（一行一個）", cProject:"專案及地點預設值",
  cDays:"風險等級對應天數（P1 / P2 / P3）", cDaysH:"預定完成日期 ＝ 巡查日 ＋ 對應天數。",
  cHseRep:"HSE 代表（印在報告最下方，可留白）", cSecRep:"部門代表（印在報告最下方，可留白）",
@@ -403,13 +463,20 @@ var L={zh:{
  title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
  kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue",
  btnToday:"Today",
- bAdd:"New finding", bExp:"Report", bCfg:"Settings",
+ bAdd:"New finding", bExp:"Report", bStat:"Statistics", bCfg:"Settings",
+ stit:"Hazard Statistics",
+ sHint:"Findings per hazard type over the selected period; leave a date blank for no limit.",
+ sQm:"This month", sQ30:"Last 30 days", sQall:"All",
+ sAll:"Total", sSpan:"Data range ", sUncat:"(no hazard type)",
+ sNone:"No findings in this period",
+ sLegend:"Brackets show (open / closed); bar length is the count, amber is open and green is closed.",
  ftit:"Walkthrough Finding",
  lTime:"Date & Time", lReporter:"Reporter",
  hDT:"Defaults to now; change it to back-date a finding.",
  cMembersH:"Fixed roster; printed in this order on the report header.",
  lProject:"Project and Location",
  lCon:"Contractor", hCon:"Used for filtering on this app only; not printed on the report.",
+ lHaz:"Hazard Type", hHaz:"Printed at the start of OBSERVATIONS, e.g. [Hi-E][Fall protection] …; edit the list in Settings.",
  lObs:"OBSERVATIONS (Chinese)", pObs:"e.g. 二樓平台開口未設護欄",
  lObsEn:"OBSERVATIONS (English, auto-translated, editable)", pAuto:"Auto-translated from the Chinese text",
  lRec:"RECOMMENDATIONS (Chinese)", pRec:"e.g. 立即補設固定式護欄並加掛警示標示",
@@ -443,6 +510,8 @@ var L={zh:{
  eOk:"Report ready ✓", eNone:"No findings on that date",
  ctit:"⚙ Settings",
  cMembers:"Inspector list (one per line)", cAction:"ACTION BY list (one per line)",
+ cHazards:"Hazard type list (one per line, Chinese then English)",
+ cHazardsH:"e.g. 墜落防護 Fall protection — split into the two report lines automatically.",
  cContractors:"Contractor list (one per line)", cProject:"Default Project and Location",
  cDays:"Days by risk level (P1 / P2 / P3)", cDaysH:"Target date = inspection date + days.",
  cHseRep:"HSE Representative (printed at the foot, optional)", cSecRep:"Section Representative (printed at the foot, optional)",
@@ -519,6 +588,7 @@ function buildOptions(){
  }
 
  fillSel("f_con",CFG.contractors,true);
+ fillSel("f_haz",CFG.hazards,true);
  fillSel("f_action",CFG.actionBy,true);
  if(!$("f_project").value)$("f_project").value=CFG.project||"";
 }
@@ -558,7 +628,7 @@ function selVal(id){
 }
 
 /* ---------- 浮動視窗 ---------- */
-var MKEY={rep:"mRep",exp:"mExp",cfg:"mCfg"};
+var MKEY={rep:"mRep",exp:"mExp",stat:"mStat",cfg:"mCfg"};
 
 function isOpen(k){var m=$(MKEY[k]);return !!m&&m.classList.contains("on")}
 function openM(k){
@@ -567,6 +637,8 @@ function openM(k){
   if(!$("f_time").value)$("f_time").value=nowHM();
   if(!$("f_date").value)$("f_date").value=curDate();
  }
+ if(k==="stat"&&!$("sFrom").value&&!$("sTo").value)statQuick("m");
+ else if(k==="stat")statRun(0);
  var m=$(MKEY[k]);
  m.classList.add("on");
  document.body.style.overflow="hidden";
@@ -678,6 +750,7 @@ function submit0(retry){
  var miss=[];
  var reporter=getReporter(), obs=$("f_obsZh").value.trim(), rec=$("f_recZh").value.trim();
  if(!reporter)miss.push("opReporter");
+ if(!selVal("f_haz"))miss.push("f_haz");   // 統計要靠這欄，所以設成必填
  if(!obs)miss.push("f_obsZh");
  if(!rec)miss.push("f_recZh");
  if(miss.length){
@@ -699,6 +772,7 @@ function submit0(retry){
   members:getMembers(),
   project:$("f_project").value.trim(),
   contractor:selVal("f_con"),
+  hazard:selVal("f_haz"),
   obsZh:obs, obsEn:$("f_obsEn").value.trim(),
   recZh:rec, recEn:$("f_recEn").value.trim(),
   actionBy:selVal("f_action"),
@@ -724,12 +798,12 @@ function submit0(retry){
 
 function resetForm(){
  EDIT="";RISK="";PH=[];PBUSY=0;
- ["f_obsZh","f_obsEn","f_recZh","f_recEn","f_conOther","f_actionOther"].forEach(function(id){
+ ["f_obsZh","f_obsEn","f_recZh","f_recEn","f_conOther","f_hazOther","f_actionOther"].forEach(function(id){
   var e=$(id);if(e){e.value="";e.dataset.auto="";e.dataset.last=""}});
  $("f_target").value="";$("th").innerHTML="";
  ["P1","P2","P3"].forEach(function(x){$("r"+x).className="risk"});
- $("f_con").value="";$("f_action").value="";
- $("f_conOther").style.display="none";$("f_actionOther").style.display="none";
+ $("f_con").value="";$("f_haz").value="";$("f_action").value="";
+ ["f_conOther","f_hazOther","f_actionOther"].forEach(function(id){$(id).style.display="none"});
  $("f_time").value=nowHM();
  $("f_date").value=curDate();
  $("cancelEdit").style.display="none";
@@ -747,6 +821,7 @@ function editRec(id){
  pickReporter(CFG.members.indexOf(x.reporter)>=0?x.reporter:REP_OTHER,x.reporter);
  $("f_project").value=x.project||"";
  setSel("f_con",x.contractor);
+ setSel("f_haz",x.hazard);
  $("f_obsZh").value=x.obsZh;$("f_obsEn").value=x.obsEn;
  $("f_recZh").value=x.recZh;$("f_recEn").value=x.recEn;
  $("f_obsZh").dataset.last=x.obsZh;$("f_recZh").dataset.last=x.recZh;
@@ -798,6 +873,7 @@ function applyLangStatic(){
 function card(x){
  var st=x.status||"Open";
  var tags="";
+ if(x.hazard)tags+='<span class="tag hz">'+esc(x.hazard)+'</span>';
  if(x.actionBy)tags+='<span class="tag">'+esc(t("tAction")+x.actionBy)+'</span>';
  if(x.contractor)tags+='<span class="tag">'+esc(t("tCon")+x.contractor)+'</span>';
  if(x.targetDate){
@@ -852,6 +928,52 @@ function thumb(p,cls,label){
 
 function lbShow(u,o){$("lbi").src=u;$("lba").href=o;$("lbx").style.display="flex"}
 function lbHide(){$("lbx").style.display="none";$("lbi").src=""}
+
+/* ---------- 危害統計 ---------- */
+var SQ="";   // 目前按著的快捷鍵，手動改日期就清掉
+
+function statQuick(k){
+ SQ=k;
+ var td=TODAY||fmt(new Date());
+ if(k==="all"){$("sFrom").value="";$("sTo").value=""}
+ else if(k==="m"){$("sFrom").value=td.slice(0,8)+"01";$("sTo").value=td}
+ else{$("sFrom").value=addDays(td,-29);$("sTo").value=td}
+ statRun(1);
+}
+
+function statRun(keepQuick){
+ if(!keepQuick)SQ="";
+ ["m","30","all"].forEach(function(k){$("q_"+k).classList.toggle("on",SQ===k)});
+ $("statOut").innerHTML='<div class="muted">'+esc(t("lding"))+'</div>';
+ google.script.run.withSuccessHandler(function(r){
+  if(!r||!r.ok){$("statOut").innerHTML='<div class="muted">'+esc(t("lfail"))+'</div>';return}
+  statPaint(r);
+ }).withFailureHandler(function(e){
+  $("statOut").innerHTML='<div class="muted">'+esc(t("lfail"))+'<br><small>'+esc(e&&e.message||e)+'</small></div>';
+ }).hseStats(KEY,$("sFrom").value||"",$("sTo").value||"");
+}
+
+function statPaint(r){
+ if(!r.totals.total){$("statOut").innerHTML='<div class="muted">'+esc(t("sNone"))+'</div>';return}
+ var h='<div class="stot"><div><b>'+r.totals.total+'</b><span>'+esc(t("sAll"))+'</span></div>'+
+  '<div class="o"><b>'+r.totals.open+'</b><span>'+esc(t("kOpen"))+'</span></div>'+
+  '<div class="c"><b>'+r.totals.closed+'</b><span>'+esc(t("kClosed"))+'</span></div></div>';
+ if(r.first)h+='<div class="hint">'+esc(t("sSpan")+r.first+" ~ "+r.last)+'</div>';
+
+ var max=r.rows[0]?r.rows[0].total:1;
+ r.rows.forEach(function(x){
+  var name=x.hazard==="__none__"?t("sUncat"):x.hazard;
+  var pc=Math.max(4,Math.round(x.total/max*100));
+  // 一條橫條裡用兩段顏色表示開放中與已結案的比例
+  var op=Math.round(x.open/x.total*100);
+  h+='<div class="srow"><div class="sl"><span>'+esc(name)+'</span>'+
+   '<span class="sn2">'+x.total+' <span class="sm">('+x.open+'/'+x.closed+')</span></span></div>'+
+   '<div class="bar" style="width:'+pc+'%"><i class="o" style="width:'+op+'%"></i>'+
+   '<i class="c" style="width:'+(100-op)+'%"></i></div></div>';
+ });
+ h+='<div class="hint" style="margin-top:12px">'+esc(t("sLegend"))+'</div>';
+ $("statOut").innerHTML=h;
+}
 
 /* ---------- 動作 ---------- */
 function afPick(id){AFID=id;$("af").value="";$("af").click()}
@@ -956,6 +1078,7 @@ function fillCfgForm(){
  $("c_members").value=(CFG.members||[]).join("\n");
  $("c_actionBy").value=(CFG.actionBy||[]).join("\n");
  $("c_contractors").value=(CFG.contractors||[]).join("\n");
+ $("c_hazards").value=(CFG.hazards||[]).join("\n");
  $("c_project").value=CFG.project||"";
  $("c_d1").value=(CFG.riskDays&&CFG.riskDays.P1)||3;
  $("c_d2").value=(CFG.riskDays&&CFG.riskDays.P2)||7;
@@ -969,6 +1092,7 @@ function saveCfg(){
   members:lines("c_members"),
   actionBy:lines("c_actionBy"),
   contractors:lines("c_contractors"),
+  hazards:lines("c_hazards"),
   project:$("c_project").value.trim(),
   riskDays:{P1:+$("c_d1").value||3,P2:+$("c_d2").value||7,P3:+$("c_d3").value||14},
   hseRep:$("c_hseRep").value.trim(),
@@ -977,7 +1101,7 @@ function saveCfg(){
  google.script.run.withSuccessHandler(function(r){
   if(r&&r.ok){CFG=r.config;$("c_members").dataset.filled="";
    $("opReporter").dataset.built="";
-   $("f_con").dataset.sig="";$("f_action").dataset.sig="";
+   $("f_con").dataset.sig="";$("f_haz").dataset.sig="";$("f_action").dataset.sig="";
    buildOptions();fillCfgForm();toast(t("okSave"))}
   else toast(t("fail")+((r&&r.error)||"?"));
  }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))}).hseSaveConfig(KEY,obj);
