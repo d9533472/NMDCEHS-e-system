@@ -992,6 +992,21 @@ var TRK_FONT = "font-family:'Microsoft JhengHei','微軟正黑體','PingFang TC'
                "mso-fareast-font-family:'Microsoft JhengHei';mso-ascii-font-family:'Microsoft JhengHei';" +
                "mso-hansi-font-family:'Microsoft JhengHei';mso-bidi-font-family:Arial;";
 
+// 上面這串每個元素都要寫一次，一封信會出現 500 次以上，光字型就佔掉 14 萬位元組，
+// 直接撞到 Apps Script「電子郵件內文大小」200KB 的上限（錯誤：Limit Exceeded: Email Body Size）。
+// 但 Outlook 的字型其實是靠頁首那段 <!--[if mso]> 的 !important 樣式在管（table,td,p,a,span,div,li 全含），
+// inline 這串只有非 Outlook 的信箱在用，而那些信箱會正常繼承父層字型。所以組完信後做一次瘦身：
+//   <td>/<table>/<body>：留完整字型清單，只拿掉被 mso 樣式蓋掉的 mso-*（Outlook 根本看不到這幾行）
+//   內層 <p>/<span>/<a>：改成短清單（仍明寫字型，不靠繼承），外觀一樣
+var TRK_FONT_BOX = "font-family:'Microsoft JhengHei','微軟正黑體','PingFang TC','Noto Sans TC','Segoe UI',Helvetica,Arial,sans-serif;";
+var TRK_FONT_IN  = "font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',Arial,sans-serif;";
+function trkSlimFont_(html) {
+  return String(html).replace(/<([a-zA-Z]+)([^>]*)>/g, function(tag, name, attrs) {
+    if (attrs.indexOf(TRK_FONT) < 0) return tag;
+    return '<' + name + attrs.split(TRK_FONT).join(/^(td|table|body)$/i.test(name) ? TRK_FONT_BOX : TRK_FONT_IN) + '>';
+  });
+}
+
 // ── 設定讀寫 ──
 function normalizeMails_(s) {
   return String(s || '').split(/[,;\s]+/).map(function(x){ return x.trim(); })
@@ -1668,6 +1683,30 @@ var TRK_MAIL_BUDGET2 = 2.5 * 1024 * 1024;        // 第一次寄出仍被以「�
 var TRK_KPI_WIDTHS   = [2200, 1800, 1500, 1280]; // KPI 總結圖：字最小，所以下限拉到 1280px
 var TRK_PHOTO_WIDTHS = [1280, 1024, 860, 720];   // 現場照片：畫框本來就是 1280×720，下限 720px
 
+// ── 內文大小 ──
+// Apps Script 每封信的 htmlBody 上限 200KB（超過會丟 Limit Exceeded: Email Body Size.），
+// 中文一個字就 3 個位元組，追蹤事項一多很容易撞到。留 30KB 給外框與頁首頁尾。
+var TRK_BODY_MAX = 170 * 1000;
+function trkTextBytes_(s) { try { return Utilities.newBlob(String(s)).getBytes().length; } catch(e) { return String(s).length * 2; } }
+
+// parts：[{html, order, zh, en}]；order>0 的可省略，數字小的先省略
+function trkTrimBody_(parts, maxBytes) {
+  var join = function() { return parts.map(function(p){ return p.html; }).join(''); };
+  var size = function() { return trkTextBytes_(trkSlimFont_(join())); };   // 用瘦身後的大小判斷
+  var cur = size(), before = cur, dropped = [], guard = 0;
+  while (cur > maxBytes && guard++ < 20) {
+    var next = null;
+    parts.forEach(function(p){ if (p.order > 0 && (!next || p.order < next.order)) next = p; });
+    if (!next) break;                                   // 只剩不能省略的區塊了
+    next.html = trkEmptyNote_('（本次信件內容太長，「' + next.zh + '」已省略，請到環保 E-System 查看）',
+                              'Omitted to keep this email within the size limit · ' + next.en);
+    next.order = 0; dropped.push(next.zh);
+    cur = size();
+  }
+  if (dropped.length) Logger.log('內文超過 ' + maxBytes + ' 位元組，已省略：' + dropped.join('、') + '（' + before + ' → ' + cur + '）');
+  return { body: join(), before: before, after: cur, dropped: dropped };
+}
+
 function trkBlobBytes_(b) { try { return b.getBytes().length; } catch(e) { return 0; } }
 // 登記一張「信太大時可以縮」的圖：縮好後寫回原本的容器（attachments 陣列或 inline 物件）
 function trkAddShrinkable_(list, fileId, blob, widths, holder, key) {
@@ -1806,15 +1845,19 @@ function buildTrackerMail_(opts) {
 
   var total = tasks.length;
   var dateLine = today + '（' + trkWeekdayZh_(today) + '）';
-  var body = '';
+  // 內文分段組裝：Apps Script 的「電子郵件內文大小」上限是 200KB，追蹤事項一多就會超過而整封寄不出去。
+  // add(html) 的區塊一定保留；add(html, 順序, 中文名, 英文名) 的區塊在超過上限時會依順序被換成一行說明（見 trkTrimBody_）。
+  var parts = [];
+  var add = function(html, order, zh, en) { if (html) parts.push({ html: html, order: order || 0, zh: zh || '', en: en || '' }); };
+  var body;
 
   // 開頭文字
   var intro = trkIntroHtml_(mc.intro);
-  if (intro) body += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;"><tr>' +
-    '<td bgcolor="#f6faf7" style="background-color:#f6faf7;border:1px solid #d9e7dd;border-left:5px solid #16a34a;padding:18px 22px 10px;">' + intro + '</td></tr></table>';
+  if (intro) add('<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;"><tr>' +
+    '<td bgcolor="#f6faf7" style="background-color:#f6faf7;border:1px solid #d9e7dd;border-left:5px solid #16a34a;padding:18px 22px 10px;">' + intro + '</td></tr></table>');
 
   // KPI 卡片
-  body += trkKpiStrip_(range, [
+  add(trkKpiStrip_(range, [
     trkKpiCard_(String(ncr.length), '改善單待處理', 'NCR / WM', '#ea580c',
       ncrOverdue.length ? '⚠ 逾期 ' + ncrOverdue.length + ' · 7 天內 ' + ncrSoon.length : (ncr.length ? '7 天內到期 ' + ncrSoon.length + ' 筆' : '✓ 無待處理'),
       ncrOverdue.length ? ncrOverdue.length + ' overdue · ' + ncrSoon.length + ' due in 7d' : (ncr.length ? ncrSoon.length + ' due within 7 days' : 'Nothing pending'), '筆', 'first', '🔧', '#16a34a'),
@@ -1823,47 +1866,56 @@ function buildTrackerMail_(opts) {
     trkKpiCard_(String(thisWeek.length), '本週到期', 'Due this week', '#d97706',
       thisWeek.length ? '本週內完成' : '✓ 本週無到期', thisWeek.length ? 'Due within 7 days' : 'Nothing due this week', '項', 'mid', '📅', '#16a34a'),
     trkKpiCard_(String(later.length), '排程中', 'Scheduled', '#0369a1', '7 天後到期', 'Due after 7 days', '項', 'last', '📌', '')
-  ]);
+  ]));
 
   // 改善單
-  body += trkSectionTitle_('🛠️', '改善單狀態', 'Improvement Notice Status',
+  add(trkSectionTitle_('🛠️', '改善單狀態', 'Improvement Notice Status',
     (kpiOk ? '<b>📎 統計表如附件</b>（改善單 KPI 總結圖）· Statistics: see the attached KPI summary image' + (kpiSource === 'slides' ? '，系統依最新資料自動產生' : '') + '<br>' : '') +
-    '以下列出已逾期與 7 天內到期的 NCR / WM · Overdue and due within 7 days', '#ea580c');
-  if (ncrStat) body += trkP_('目前總計 ' + ncrStat.total + ' 件，未結案 ' + ncrStat.open + ' 件、已結案 ' + ncrStat.closed + ' 件　·　Total ' + ncrStat.total + ', open ' + ncrStat.open + ', closed ' + ncrStat.closed, 'font-size:11px;color:#64748b;margin-top:8px;');
-  if (ncrErr) body += trkEmptyNote_('改善單資料暫時無法讀取：' + trkEsc_(ncrErr), 'Improvement notice data is temporarily unavailable.');
-  else if (!ncr.length) body += trkEmptyNote_('沒有逾期或 7 天內到期的改善單。', 'No overdue notices and none due within 7 days.');
-  if (ncrOverdue.length) { body += trkSubHead_('🔴 已逾期（' + ncrOverdue.length + ' 筆）Overdue', '#b91c1c'); body += trkNcrTable_(ncrOverdue, doTr); }
-  if (ncrSoon.length)    { body += trkSubHead_('🟠 7 天內到期（' + ncrSoon.length + ' 筆）Due within 7 days', '#b45309'); body += trkNcrTable_(ncrSoon, doTr); }
+    '以下列出已逾期與 7 天內到期的 NCR / WM · Overdue and due within 7 days', '#ea580c'));
+  if (ncrStat) add(trkP_('目前總計 ' + ncrStat.total + ' 件，未結案 ' + ncrStat.open + ' 件、已結案 ' + ncrStat.closed + ' 件　·　Total ' + ncrStat.total + ', open ' + ncrStat.open + ', closed ' + ncrStat.closed, 'font-size:11px;color:#64748b;margin-top:8px;'));
+  if (ncrErr) add(trkEmptyNote_('改善單資料暫時無法讀取：' + trkEsc_(ncrErr), 'Improvement notice data is temporarily unavailable.'));
+  else if (!ncr.length) add(trkEmptyNote_('沒有逾期或 7 天內到期的改善單。', 'No overdue notices and none due within 7 days.'));
+  if (ncrOverdue.length) { add(trkSubHead_('🔴 已逾期（' + ncrOverdue.length + ' 筆）Overdue', '#b91c1c') + trkNcrTable_(ncrOverdue, doTr),
+                               6, '改善單逾期明細 ' + ncrOverdue.length + ' 筆', 'Overdue improvement notices'); }
+  if (ncrSoon.length)    { add(trkSubHead_('🟠 7 天內到期（' + ncrSoon.length + ' 筆）Due within 7 days', '#b45309') + trkNcrTable_(ncrSoon, doTr),
+                               5, '改善單 7 天內到期明細 ' + ncrSoon.length + ' 筆', 'Improvement notices due within 7 days'); }
 
   // 追蹤事項
-  body += trkSectionTitle_('📋', '追蹤事項', 'Tracker Items',
+  add(trkSectionTitle_('📋', '追蹤事項', 'Tracker Items',
     '依優先度與期限排序 · Sorted by priority and deadline' +
-    (doneInRange.length ? '<br><b>✅ 本期完成 ' + doneInRange.length + ' 項</b>（列於最後）· ' + doneInRange.length + ' item(s) completed this period, listed at the end' : ''), '#16a34a');
-  if (!total) body += trkEmptyNote_('目前沒有未完成的追蹤事項。' + (doneInRange.length ? '本期完成 ' + doneInRange.length + ' 項，詳見下表。' : ''),
-    'No open tracker items.' + (doneInRange.length ? ' ' + doneInRange.length + ' item(s) completed this period, listed below.' : ''));
-  if (overdue.length)  { body += trkSubHead_('🔴 已逾期（' + overdue.length + ' 項）Overdue', '#b91c1c'); body += trkTaskTable_(overdue, today, doTr); }
-  if (thisWeek.length) { body += trkSubHead_('🟠 本週到期（' + thisWeek.length + ' 項）Due this week', '#b45309'); body += trkTaskTable_(thisWeek, today, doTr); }
-  if (later.length)    { body += trkSubHead_('🔵 排程中（' + later.length + ' 項）Scheduled', '#0369a1'); body += trkTaskTable_(later, today, doTr); }
+    (doneInRange.length ? '<br><b>✅ 本期完成 ' + doneInRange.length + ' 項</b>（列於最後）· ' + doneInRange.length + ' item(s) completed this period, listed at the end' : ''), '#16a34a'));
+  if (!total) add(trkEmptyNote_('目前沒有未完成的追蹤事項。' + (doneInRange.length ? '本期完成 ' + doneInRange.length + ' 項，詳見下表。' : ''),
+    'No open tracker items.' + (doneInRange.length ? ' ' + doneInRange.length + ' item(s) completed this period, listed below.' : '')));
+  if (overdue.length)  { add(trkSubHead_('🔴 已逾期（' + overdue.length + ' 項）Overdue', '#b91c1c') + trkTaskTable_(overdue, today, doTr),
+                             8, '逾期明細 ' + overdue.length + ' 項', 'Overdue tracker items'); }
+  if (thisWeek.length) { add(trkSubHead_('🟠 本週到期（' + thisWeek.length + ' 項）Due this week', '#b45309') + trkTaskTable_(thisWeek, today, doTr),
+                             7, '本週到期明細 ' + thisWeek.length + ' 項', 'Tracker items due this week'); }
+  if (later.length)    { add(trkSubHead_('🔵 排程中（' + later.length + ' 項）Scheduled', '#0369a1') + trkTaskTable_(later, today, doTr),
+                             3, '排程中（7 天後才到期）' + later.length + ' 項', 'Scheduled items, due after 7 days'); }
   if (doneInRange.length) {
-    body += trkSubHead_('✅ 本期完成（' + doneInRange.length + ' 項）Completed this period · ' + range.from + ' ~ ' + range.to, '#15803d');
-    body += trkDoneTable_(doneInRange, doTr);
+    add(trkSubHead_('✅ 本期完成（' + doneInRange.length + ' 項）Completed this period · ' + range.from + ' ~ ' + range.to, '#15803d') +
+        trkDoneTable_(doneInRange, doTr),
+        4, '本期完成 ' + doneInRange.length + ' 項', 'Items completed this period');
   }
 
   // 本週活動（照片上方）
   var evHtml = '';
   try { evHtml = trkEventsHtml_(data, today, doTr); } catch(e) { Logger.log('活動區塊產生失敗：' + e.message); }
-  body += evHtml;
+  add(evHtml, 2, '本週活動', 'Activities this week');
 
   // 現場照片
   if (photos.length) {
-    body += trkSectionTitle_('📸', '現場照片', 'Site Photos', '報告期間 ' + range.from + ' ~ ' + range.to + ' 的環保活動與現場紀錄 · Environmental activities and site records for the report period', '#0ea5e9');
-    body += trkPhotosHtml_(photos, doTr);
+    add(trkSectionTitle_('📸', '現場照片', 'Site Photos', '報告期間 ' + range.from + ' ~ ' + range.to + ' 的環保活動與現場紀錄 · Environmental activities and site records for the report period', '#0ea5e9') +
+        trkPhotosHtml_(photos, doTr));
   }
 
   // 環保委外項目（照片下方）
-  try { body += trkScopeHtml_(data); } catch(e) { Logger.log('委外項目區塊產生失敗：' + e.message); }
+  try { add(trkScopeHtml_(data), 1, '環保委外項目', 'Outsourced environmental scopes'); } catch(e) { Logger.log('委外項目區塊產生失敗：' + e.message); }
 
   trFlush_();
+  // 內文超過上限就依序捨棄可省略的區塊（先委外項目、活動，再排程中、本期完成），確保信一定寄得出去
+  var trim = trkTrimBody_(parts, opts.bodyMax || TRK_BODY_MAX);
+  body = trim.body;
 
   var html =
     '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -1914,10 +1966,14 @@ function buildTrackerMail_(opts) {
     '<!--[if mso]></td></tr></table><![endif]-->' +
     '</td></tr></table></body></html>';
 
+  html = trkSlimFont_(html);   // 拿掉重複的字型宣告（外觀不變，內文大小砍一半以上）
+  var bodyBytes = trkTextBytes_(html);
+
   var subject = 'ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')';
   // 附件＋內嵌圖太大就先自動縮到預算內（有寬度下限，不會縮到看不清楚）
   var size = opts.noBlobs ? null : fitMailSize_(sizeCtl, opts.sizeBudget || TRK_MAIL_BUDGET);
   return { subject: subject, html: html, inline: inline, attachments: attachments, range: range, sizeCtl: sizeCtl, size: size,
+           bodyBytes: bodyBytes, trimmed: trim.dropped,
            total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length,
            photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource };
 }
@@ -1951,14 +2007,25 @@ function sendTrackerMail_(testTo, source) {
     try {
       MailApp.sendEmail(opt);
     } catch(e1) {
-      // 還是被「信件太大」擋下來：用更小的預算再縮一輪重寄（縮好的圖會直接寫回 opt 裡的同一個物件）
-      if (!/size|too large|limit exceeded|attachment/i.test(String(e1.message))) throw e1;
-      Logger.log('信件太大（' + e1.message + '），自動再縮小圖片重寄一次');
-      var s2 = fitMailSize_(m.sizeCtl, TRK_MAIL_BUDGET2);
-      if (!s2.shrunk) throw new Error(e1.message + '（圖片已在畫質下限，無法再縮；請減少照片張數，目前 ' + m.photos + ' 張）');
-      m.size = { before: (m.size && m.size.before) || s2.before, after: s2.after, shrunk: ((m.size && m.size.shrunk) || 0) + s2.shrunk,
-                 over: s2.over, note: '圖片自動縮小 ' + trkMB_((m.size && m.size.before) || s2.before) + '→' + trkMB_(s2.after) + '（重寄）' };
-      MailApp.sendEmail(opt);
+      var em = String(e1.message || '');
+      if (/body size|內文大小/i.test(em)) {
+        // 內文還是超過 Apps Script 上限：用更嚴格的內文預算重組一次（會多省略幾個區塊）再寄
+        Logger.log('內文太大（' + em + '），改用更精簡的版本重寄一次');
+        m = buildTrackerMail_({ bodyMax: 110 * 1000 });
+        opt.htmlBody = m.html;
+        m.inline.logo = nmdcLogoBlob_();
+        opt.inlineImages = m.inline;
+        if (m.attachments.length) opt.attachments = m.attachments; else delete opt.attachments;
+        MailApp.sendEmail(opt);
+      } else if (/size|too large|limit exceeded|attachment/i.test(em)) {
+        // 附件／內嵌圖太大：用更小的預算再縮一輪重寄（縮好的圖會直接寫回 opt 裡的同一個物件）
+        Logger.log('附件太大（' + em + '），自動再縮小圖片重寄一次');
+        var s2 = fitMailSize_(m.sizeCtl, TRK_MAIL_BUDGET2);
+        if (!s2.shrunk) throw new Error(em + '（圖片已在畫質下限，無法再縮；請減少照片張數，目前 ' + m.photos + ' 張）');
+        m.size = { before: (m.size && m.size.before) || s2.before, after: s2.after, shrunk: ((m.size && m.size.shrunk) || 0) + s2.shrunk,
+                   over: s2.over, note: '圖片自動縮小 ' + trkMB_((m.size && m.size.before) || s2.before) + '→' + trkMB_(s2.after) + '（重寄）' };
+        MailApp.sendEmail(opt);
+      } else throw e1;
     }
   } catch(err) {
     var msg = (m ? '寄送失敗：' : '組信失敗：') + err.message;
@@ -1968,11 +2035,13 @@ function sendTrackerMail_(testTo, source) {
   if (!testTo) markMailSent_(m.photoList, m.range);
   var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
   var note = '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '') +
-             (m.size ? '，圖片 ' + trkMB_(m.size.after) + (m.size.shrunk ? '（自 ' + trkMB_(m.size.before) + ' 自動縮小 ' + m.size.shrunk + ' 張）' : '') : '');
+             (m.size ? '，圖片 ' + trkMB_(m.size.after) + (m.size.shrunk ? '（自 ' + trkMB_(m.size.before) + ' 自動縮小 ' + m.size.shrunk + ' 張）' : '') : '') +
+             '，內文 ' + Math.round(m.bodyBytes / 1024) + 'KB' + ((m.trimmed && m.trimmed.length) ? '（已省略：' + m.trimmed.join('、') + '）' : '');
   logMail_({ type: type, source: src, to: to, cc: cc, subject: opt.subject, ok: true, note: note });
   Logger.log('週報已寄出 → ' + to + (cc ? ' (cc ' + cc + ')' : '') + '；' + m.subject + '；' + note);
   return { ok: true, to: to, cc: cc, subject: opt.subject, total: m.total, overdue: m.overdue, thisWeek: m.thisWeek, ncr: m.ncr, photos: m.photos, kpi: m.kpi, quota: quota,
-           imgBytes: m.size ? m.size.after : 0, imgShrunk: m.size ? m.size.shrunk : 0, imgNote: (m.size && m.size.note) || '' };
+           imgBytes: m.size ? m.size.after : 0, imgShrunk: m.size ? m.size.shrunk : 0, imgNote: (m.size && m.size.note) || '',
+           bodyKB: Math.round(m.bodyBytes / 1024), trimmed: m.trimmed || [] };
 }
 
 // ── 週五 15:00 提醒信 ──
