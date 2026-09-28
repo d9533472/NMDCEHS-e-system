@@ -406,6 +406,15 @@ function doGet(e) {
     try { return jsonOut_(sendTrackerMail_(e.parameter.to || '', 'manual')); }
     catch(err) { return jsonOut_({ok:false, error:err.message}); }
   }
+  // 設定頁「測試失敗通知」：寄一封樣本警示信，確認失敗時真的收得到
+  if (action === 'testAlert') {
+    try {
+      _trkAlerted = false;
+      alertSendFailure_('測試通知（不是真的失敗）', '這是一封測試信，用來確認「週報寄送失敗」時通知信收得到。系統目前正常。',
+                        '由「📧 週報設定 → ⚠ 測試失敗通知」按鈕觸發');
+      return jsonOut_({ok:true, to: TRK_ALERT_TO});
+    } catch(err) { return jsonOut_({ok:false, error:err.message}); }
+  }
   if (action === 'authInfo') {         // 診斷用：看後端目前是用哪個帳號執行、授權是否完整
     try {
       var ai = ScriptApp.getAuthorizationInfo(ScriptApp.AuthMode.FULL);
@@ -1978,6 +1987,56 @@ function buildTrackerMail_(opts) {
            photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource };
 }
 
+// ── 寄送失敗警示信 ──
+// 週報／提醒信只要沒寄成功（排程或手動、任何原因），就另外寄一封純文字警示信通知負責人，
+// 不然失敗只會留在寄送紀錄裡，沒人打開設定頁就不會發現。
+// 這封信刻意做得很小（沒有附件、沒有內嵌圖），才不會因為同樣的大小限制一起失敗。
+var TRK_ALERT_TO = 'paul.tong@nmdc-group.com';
+var _trkAlerted = false;   // 同一次執行只寄一封，避免觸發器與 sendTrackerMail_ 各寄一次
+
+function explainSendError_(s) {
+  s = String(s || '');
+  if (/body size|內文大小/i.test(s)) return '信件內文超過 Apps Script 的 200KB 上限。系統已自動精簡（字型瘦身＋省略次要區塊）仍不夠，請到週報設定把追蹤事項的備註縮短，或先結掉一些事項。';
+  if (/attachment|附件/i.test(s)) return '附件（現場照片＋KPI 總結圖）總大小超過上限。系統已自動縮圖仍不夠，請減少這次的照片張數。';
+  if (/quota|limit exceeded/i.test(s)) return '可能是當日寄信額度用完或超過其他 Apps Script 配額，通常隔天會恢復。';
+  if (/authoriz|permission|授權|script\.external_request/i.test(s)) return '後端授權失效，請到 Apps Script 編輯器手動執行一次 testMailLog() 重新授權。';
+  if (/收件者|recipient/i.test(s)) return '收件者沒設定或格式不對，請到「📧 週報設定 ①」確認。';
+  if (/停用/.test(s)) return '週報自動寄送目前是關閉的，所以排程沒有寄出。要恢復請到「📧 週報設定 ①」勾選「啟用每週一 09:00 自動寄出」。';
+  return '';
+}
+
+function alertSendFailure_(kind, errMsg, extra) {
+  if (_trkAlerted) return;
+  _trkAlerted = true;
+  var when = '';
+  try { when = Utilities.formatDate(new Date(), MAIL_TZ, 'yyyy-MM-dd HH:mm'); } catch(e) { when = new Date().toISOString(); }
+  var hint = explainSendError_(errMsg);
+  var P = 'margin:0 0 10px;' + TRK_FONT_IN + 'font-size:14px;color:#1e293b;line-height:1.7;';
+  try {
+    MailApp.sendEmail({
+      to: TRK_ALERT_TO,
+      name: 'NMDC ENV E-System',
+      subject: '⚠️ ENV WEEKLY REPORT 寄送失敗（' + kind + '）' + when,
+      htmlBody:
+        '<div style="' + TRK_FONT_IN + 'max-width:620px;">' +
+        '<div style="background-color:#0b1f33;padding:16px 20px;">' +
+          '<p style="margin:0;' + TRK_FONT_IN + 'font-size:16px;font-weight:bold;color:#ffffff;">⚠️ 週報寄送失敗 Weekly report delivery failed</p>' +
+          '<p style="margin:4px 0 0;' + TRK_FONT_IN + 'font-size:12px;color:#86efac;">' + trkEsc_(kind) + '　·　' + trkEsc_(when) + '</p>' +
+        '</div>' +
+        '<div style="border:1px solid #d3dbe4;border-top:0;padding:18px 20px;">' +
+          '<p style="' + P + '"><b>錯誤訊息：</b><br><span style="color:#b91c1c;">' + trkEsc_(errMsg) + '</span></p>' +
+          (hint ? '<p style="' + P + 'background-color:#fff7ed;border-left:4px solid #ea580c;padding:10px 12px;"><b>可能原因與處理：</b><br>' + trkEsc_(hint) + '</p>' : '') +
+          (extra ? '<p style="' + P + 'font-size:12px;color:#64748b;">' + trkEsc_(extra) + '</p>' : '') +
+          '<p style="' + P + 'font-size:12px;color:#64748b;">處理完請到環保 E-System →「📧 週報設定」按「📤 立即寄出週報」補寄（補寄一樣會封存這次的現場照片）。完整紀錄在設定頁的「⑤ 寄送紀錄」。</p>' +
+          '<p style="margin:0;' + TRK_FONT_IN + 'font-size:11px;color:#94a3b8;">本信由環保 E-System 自動發出 · NMDC Energy EHS Department</p>' +
+        '</div></div>'
+    });
+    Logger.log('已寄出「寄送失敗」通知 → ' + TRK_ALERT_TO);
+  } catch(e) {
+    Logger.log('連「寄送失敗」通知都寄不出去：' + e.message);
+  }
+}
+
 // ── 寄送週報 ──
 // source：'trigger'（每週一排程）或 'manual'（設定頁按鈕）；testTo 有值 = 測試信
 function sendTrackerMail_(testTo, source) {
@@ -1988,6 +2047,7 @@ function sendTrackerMail_(testTo, source) {
   var src = source === 'trigger' ? '自動' : '手動';
   var fail = function(msg) {
     logMail_({ type: type, source: src, to: to || mc.to, cc: cc || mc.cc, subject: '', ok: false, note: msg });
+    if (!testTo) alertSendFailure_(type + '／' + src, msg, '收件者：' + (to || mc.to || '（未設定）'));   // 測試信失敗時人就在螢幕前，不用再寄警示
     return { ok: false, error: msg };
   };
   if (!to) {
@@ -2030,6 +2090,8 @@ function sendTrackerMail_(testTo, source) {
   } catch(err) {
     var msg = (m ? '寄送失敗：' : '組信失敗：') + err.message;
     logMail_({ type: type, source: src, to: to, cc: cc, subject: m ? m.subject : '', ok: false, note: msg });
+    if (!testTo) alertSendFailure_(type + '／' + src, err.message,
+      '收件者：' + to + (cc ? '（CC ' + cc + '）' : '') + (m ? '　·　內文 ' + Math.round(m.bodyBytes / 1024) + 'KB、照片 ' + m.photos + ' 張' : '　·　組信階段就失敗了'));
     throw new Error(msg);
   }
   if (!testTo) markMailSent_(m.photoList, m.range);
@@ -2114,6 +2176,7 @@ function sendReminderMail_(force) {
     MailApp.sendEmail({ to: r.to, subject: r.subject, htmlBody: r.html, name: mc.senderName, inlineImages: { logo: nmdcLogoBlob_() } });
   } catch(err) {
     logMail_({ type: '提醒信', source: src, to: r ? r.to : mc.reminderTo, subject: r ? r.subject : '', ok: false, note: '寄送失敗：' + err.message });
+    if (!force) alertSendFailure_('週五提醒信／自動', err.message, '收件者：' + ((r && r.to) || mc.reminderTo || '（未設定）'));
     throw err;
   }
   logMail_({ type: '提醒信', source: src, to: r.to, subject: r.subject, ok: true, note: '' });
@@ -2246,14 +2309,21 @@ function testMailLog() {
 // ── 觸發器呼叫的函式 ──
 function weeklyTrackerMail() {           // 每週一 09:00
   var r;
+  // alertSendFailure_ 內部有旗標，sendTrackerMail_ 已經寄過警示信就不會重複寄；
+  // 這裡再包一層是為了連「還沒進到 sendTrackerMail_ 就爆掉」（讀設定失敗等）也能通知到。
   try { r = sendTrackerMail_('', 'trigger'); }
-  catch(err) { Logger.log('weeklyTrackerMail 失敗：' + err.message); return { ok: false, error: err.message }; }
+  catch(err) { Logger.log('weeklyTrackerMail 失敗：' + err.message); alertSendFailure_('週報／自動排程', err.message, ''); return { ok: false, error: err.message }; }
   if (!r.ok) Logger.log('weeklyTrackerMail 未寄出：' + r.error);
   return r;
 }
 function fridayReportReminder() {        // 每週五 15:00
-  var r = sendReminderMail_(false);
-  if (!r.ok) Logger.log('fridayReportReminder 未寄出：' + r.error);
+  var r;
+  try { r = sendReminderMail_(false); }
+  catch(err) { Logger.log('fridayReportReminder 失敗：' + err.message); alertSendFailure_('週五提醒信／自動排程', err.message, ''); return { ok: false, error: err.message }; }
+  if (!r.ok) {
+    Logger.log('fridayReportReminder 未寄出：' + r.error);
+    if (!/停用/.test(String(r.error))) alertSendFailure_('週五提醒信／自動排程', r.error, '');
+  }
   return r;
 }
 

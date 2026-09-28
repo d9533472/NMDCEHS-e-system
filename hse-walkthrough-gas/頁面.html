@@ -16,7 +16,7 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .hdl{display:flex;align-items:center;gap:11px;min-width:0}
 .hd h1{font-size:17px;font-weight:800;letter-spacing:.6px;color:#002038}
 .hd small{color:#7d8ea0;font-size:10px;letter-spacing:1px;display:block;margin-top:1px}
-.lgo{width:62px;height:21px;flex:0 0 auto}
+.lgo{width:74px;height:25px;flex:0 0 auto;display:block}
 .lg{flex:0 0 auto;margin-left:10px;background:#eef3f8;border:1px solid #d3dde8;color:#16324f;
  border-radius:999px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer}
 
@@ -160,14 +160,7 @@ details summary::-webkit-details-marker{display:none}
 
 <div class="hd">
  <div class="hdl">
-  <svg class="lgo" viewBox="0 0 161 54" aria-label="NMDC ENERGY">
-   <path fill="#002038" d="M0 4h14l12 14V4h13v30H25L13 20v14H0z"/>
-   <path fill="#002038" d="M45 4h13l11 15L80 4h13v30H80V19l-11 15-11-15v15H45z"/>
-   <path fill="#00B050" d="M58 4h11L58 19z"/>
-   <path fill="#002038" d="M99 4h20c9 0 15 7 15 15s-6 15-15 15H99zm13 9v12h5c4 0 6-2 6-6s-2-6-6-6z"/>
-   <path fill="#002038" d="M138 4h23v9h-13v3h12v9h-12v3h13v6h-23z"/>
-   <text x="86" y="50" font-family="Arial" font-size="11" font-weight="700" letter-spacing="3" fill="#002038">ENERGY</text>
-  </svg>
+  <img class="lgo" src="data:image/png;base64,<?!= LOGO ?>" alt="NMDC ENERGY">
   <div>
    <h1 id="tTitle">HSE 現場巡查紀錄</h1>
    <small id="tSub">HSE INSPECTION WALKTHROUGH</small>
@@ -214,10 +207,10 @@ details summary::-webkit-details-marker{display:none}
    <label data-i="lProject"></label>
    <input id="f_project">
 
-   <label data-i="lArea"></label>
-   <select id="f_area"></select>
-   <input id="f_areaOther" style="margin-top:7px;display:none" data-p="pOther">
-   <div class="hint" data-i="hArea"></div>
+   <label data-i="lCon"></label>
+   <select id="f_con"></select>
+   <input id="f_conOther" style="margin-top:7px;display:none" data-p="pOther">
+   <div class="hint" data-i="hCon"></div>
 
    <label class="req" data-i="lObs"></label>
    <textarea id="f_obsZh" data-p="pObs"></textarea>
@@ -268,7 +261,7 @@ details summary::-webkit-details-marker{display:none}
    <summary><h2 class="ft" style="margin:0" data-i="ctit"></h2></summary>
    <label data-i="cMembers"></label><textarea id="c_members" style="height:60px"></textarea>
    <label data-i="cAction"></label><textarea id="c_actionBy" style="height:86px"></textarea>
-   <label data-i="cAreas"></label><textarea id="c_areas" style="height:76px"></textarea>
+   <label data-i="cContractors"></label><textarea id="c_contractors" style="height:76px"></textarea>
    <label data-i="cProject"></label><input id="c_project">
    <label data-i="cDays"></label>
    <div style="display:flex;gap:8px">
@@ -304,7 +297,7 @@ var L={zh:{
  lTime:"時間 Time", lReporter:"填報人 Reporter",
  lMembers:"巡查成員 Team Members（可複選）", pMembersOther:"其他成員，用逗號分隔",
  lProject:"專案及地點 Project and Location",
- lArea:"區域 Area", hArea:"只用於手機端篩選與統計，不會印在報告上。",
+ lCon:"承包商 Contractor", hCon:"只用於手機端篩選與統計，不會印在報告上。",
  lObs:"巡查發現 OBSERVATIONS（中文）", pObs:"例：二樓平台開口未設護欄",
  lObsEn:"OBSERVATIONS（英文，自動翻譯，可修改）", pAuto:"輸入中文後會自動翻譯到這裡",
  lRec:"改善建議 RECOMMENDATIONS（中文）", pRec:"例：立即補設固定式護欄並加掛警示標示",
@@ -322,7 +315,7 @@ var L={zh:{
  dsum1:"共 ", dsum2:" 筆紀錄",
  sOpen:"Open 開放中", sPending:"Pending 待複查", sClosed:"Closed 已結案",
  tObs:"巡查發現 OBSERVATIONS", tRec:"改善建議 RECOMMENDATIONS",
- tAction:"權責 ", tArea:"區域 ", tTarget:"期限 ", tClose:"結案 ", tBy:"填報 ",
+ tAction:"權責 ", tCon:"承包商 ", tTarget:"期限 ", tClose:"結案 ", tBy:"填報 ",
  over1:"逾期 ", over2:" 日", dueToday:"今日到期", dueTmr:"明日到期",
  bB:"改善前", bA:"改善後",
  aAfter:"📷 改善後照片", aClose:"✓ 結案", aReopen:"↺ 重新開啟", aEdit:"✎ 編輯", aDel:"🗑 刪除",
@@ -335,7 +328,7 @@ var L={zh:{
  eOk:"報告已產生 ✓", eNone:"當天沒有紀錄",
  ctit:"⚙ 設定 Settings",
  cMembers:"巡查人員清單（一行一個）", cAction:"權責單位清單（一行一個）",
- cAreas:"區域清單（一行一個）", cProject:"專案及地點預設值",
+ cContractors:"承包商清單（一行一個）", cProject:"專案及地點預設值",
  cDays:"風險等級對應天數（P1 / P2 / P3）", cDaysH:"預定完成日期 ＝ 巡查日 ＋ 對應天數。",
  cHseRep:"HSE 代表（印在報告最下方，可留白）", cSecRep:"部門代表（印在報告最下方，可留白）",
  cSave:"儲存設定",
@@ -352,7 +345,7 @@ var L={zh:{
  lTime:"Time", lReporter:"Reporter",
  lMembers:"Team Members (multi-select)", pMembersOther:"Other members, comma separated",
  lProject:"Project and Location",
- lArea:"Area", hArea:"Used for filtering on this app only; not printed on the report.",
+ lCon:"Contractor", hCon:"Used for filtering on this app only; not printed on the report.",
  lObs:"OBSERVATIONS (Chinese)", pObs:"e.g. 二樓平台開口未設護欄",
  lObsEn:"OBSERVATIONS (English, auto-translated, editable)", pAuto:"Auto-translated from the Chinese text",
  lRec:"RECOMMENDATIONS (Chinese)", pRec:"e.g. 立即補設固定式護欄並加掛警示標示",
@@ -370,7 +363,7 @@ var L={zh:{
  dsum1:"", dsum2:" finding(s)",
  sOpen:"Open", sPending:"Pending review", sClosed:"Closed",
  tObs:"OBSERVATIONS", tRec:"RECOMMENDATIONS",
- tAction:"Action by ", tArea:"Area ", tTarget:"Target ", tClose:"Closed ", tBy:"By ",
+ tAction:"Action by ", tCon:"Contractor ", tTarget:"Target ", tClose:"Closed ", tBy:"By ",
  over1:"Overdue ", over2:" d", dueToday:"Due today", dueTmr:"Due tomorrow",
  bB:"BEFORE", bA:"AFTER",
  aAfter:"📷 After photos", aClose:"✓ Close out", aReopen:"↺ Reopen", aEdit:"✎ Edit", aDel:"🗑 Delete",
@@ -383,7 +376,7 @@ var L={zh:{
  eOk:"Report ready ✓", eNone:"No findings on that date",
  ctit:"⚙ Settings",
  cMembers:"Inspector list (one per line)", cAction:"ACTION BY list (one per line)",
- cAreas:"Area list (one per line)", cProject:"Default Project and Location",
+ cContractors:"Contractor list (one per line)", cProject:"Default Project and Location",
  cDays:"Days by risk level (P1 / P2 / P3)", cDaysH:"Target date = inspection date + days.",
  cHseRep:"HSE Representative (printed at the foot, optional)", cSecRep:"Section Representative (printed at the foot, optional)",
  cSave:"Save settings",
@@ -467,7 +460,7 @@ function buildOptions(){
   });
  }
 
- fillSel("f_area",CFG.areas,true);
+ fillSel("f_con",CFG.contractors,true);
  fillSel("f_action",CFG.actionBy,true);
  if(!$("f_project").value)$("f_project").value=CFG.project||"";
 }
@@ -620,7 +613,7 @@ function submit0(retry){
   reporter:reporter,
   members:getMembers(),
   project:$("f_project").value.trim(),
-  area:selVal("f_area"),
+  contractor:selVal("f_con"),
   obsZh:obs, obsEn:$("f_obsEn").value.trim(),
   recZh:rec, recEn:$("f_recEn").value.trim(),
   actionBy:selVal("f_action"),
@@ -644,12 +637,12 @@ function submit0(retry){
 
 function resetForm(){
  EDIT="";RISK="";PH=[];PBUSY=0;
- ["f_obsZh","f_obsEn","f_recZh","f_recEn","f_areaOther","f_actionOther"].forEach(function(id){
+ ["f_obsZh","f_obsEn","f_recZh","f_recEn","f_conOther","f_actionOther"].forEach(function(id){
   var e=$(id);if(e){e.value="";e.dataset.auto="";e.dataset.last=""}});
  $("f_target").value="";$("th").innerHTML="";
  ["P1","P2","P3"].forEach(function(x){$("r"+x).className="risk"});
- $("f_area").value="";$("f_action").value="";
- $("f_areaOther").style.display="none";$("f_actionOther").style.display="none";
+ $("f_con").value="";$("f_action").value="";
+ $("f_conOther").style.display="none";$("f_actionOther").style.display="none";
  $("f_time").value=nowHM();
  $("cancelEdit").style.display="none";
  $("send").textContent=t("send");
@@ -666,7 +659,7 @@ function editRec(id){
  $("opMembers").querySelectorAll(".opt").forEach(function(d){d.classList.toggle("on",x.members.indexOf(d.dataset.v)>=0)});
  $("f_membersOther").value=x.members.filter(function(m){return CFG.members.indexOf(m)<0}).join(", ");
  $("f_project").value=x.project||"";
- setSel("f_area",x.area);
+ setSel("f_con",x.contractor);
  $("f_obsZh").value=x.obsZh;$("f_obsEn").value=x.obsEn;
  $("f_recZh").value=x.recZh;$("f_recEn").value=x.recEn;
  $("f_obsZh").dataset.last=x.obsZh;$("f_recZh").dataset.last=x.recZh;
@@ -720,7 +713,7 @@ function card(x){
  var st=x.status||"Open";
  var tags="";
  if(x.actionBy)tags+='<span class="tag">'+esc(t("tAction")+x.actionBy)+'</span>';
- if(x.area)tags+='<span class="tag">'+esc(t("tArea")+x.area)+'</span>';
+ if(x.contractor)tags+='<span class="tag">'+esc(t("tCon")+x.contractor)+'</span>';
  if(x.targetDate){
   var cls="tag",txt=t("tTarget")+x.targetDate;
   if(st!=="Closed"){
@@ -844,7 +837,7 @@ function fillCfgForm(){
  $("c_members").dataset.filled="1";
  $("c_members").value=(CFG.members||[]).join("\n");
  $("c_actionBy").value=(CFG.actionBy||[]).join("\n");
- $("c_areas").value=(CFG.areas||[]).join("\n");
+ $("c_contractors").value=(CFG.contractors||[]).join("\n");
  $("c_project").value=CFG.project||"";
  $("c_d1").value=(CFG.riskDays&&CFG.riskDays.P1)||3;
  $("c_d2").value=(CFG.riskDays&&CFG.riskDays.P2)||7;
@@ -857,7 +850,7 @@ function saveCfg(){
  var obj={
   members:lines("c_members"),
   actionBy:lines("c_actionBy"),
-  areas:lines("c_areas"),
+  contractors:lines("c_contractors"),
   project:$("c_project").value.trim(),
   riskDays:{P1:+$("c_d1").value||3,P2:+$("c_d2").value||7,P3:+$("c_d3").value||14},
   hseRep:$("c_hseRep").value.trim(),
@@ -866,7 +859,7 @@ function saveCfg(){
  google.script.run.withSuccessHandler(function(r){
   if(r&&r.ok){CFG=r.config;$("c_members").dataset.filled="";
    ["opReporter","opMembers"].forEach(function(i){$(i).dataset.built=""});
-   $("f_area").dataset.sig="";$("f_action").dataset.sig="";
+   $("f_con").dataset.sig="";$("f_action").dataset.sig="";
    buildOptions();fillCfgForm();toast(t("okSave"))}
   else toast(t("fail")+((r&&r.error)||"?"));
  }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))}).hseSaveConfig(KEY,obj);

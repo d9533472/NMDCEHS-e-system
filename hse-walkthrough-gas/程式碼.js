@@ -22,9 +22,9 @@ var PK = {
 };
 
 var SH = { rec: 'Records', pho: 'Photos', cfg: 'Settings', rep: 'Reports' };
-var SCHEMA = 'v1';
+var SCHEMA = 'v2';
 
-var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'area',
+var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'contractor',
   'obsZh', 'obsEn', 'recZh', 'recEn', 'actionBy', 'risk', 'targetDate',
   'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted'];
 var PHO_COLS = ['id', 'recordId', 'kind', 'fileId', 'name', 'createdAt', 'deleted'];
@@ -35,8 +35,7 @@ var DEFAULTS = {
   actionBy: ['Construction 施工', 'Piping 配管', 'Structure 結構', 'Painting 塗裝',
     'E&I 電儀', 'Scaffolding 鷹架', 'Lifting 吊掛', 'Logistics 物流',
     'Subcontractor 協力廠商', 'HSE 環安衛'],
-  areas: ['MFY Yard 場區', 'Workshop 廠房', 'Assembly Area 組裝區',
-    'Blasting & Painting 噴砂塗裝區', 'Jetty 碼頭', 'Warehouse 倉庫', 'Office 辦公區'],
+  contractors: ['Hi-E', 'MGT', 'HH', 'BY'],
   project: 'MFY',
   riskDays: { P1: 3, P2: 7, P3: 14 },
   hseRep: '',
@@ -56,8 +55,24 @@ function doGet(e) {
       '<p style="color:#c62828">網址不正確或缺少存取金鑰。<br>Invalid link or missing access key.</p></div>'
     ).setTitle('HSE Walkthrough Inspection');
   }
+  // 診斷用（唯讀／可重跑）：?act=boot 看資料、?act=report&date=YYYY-MM-DD 看匯出結果與錯誤訊息
+  var act = (e && e.parameter && e.parameter.act) || '';
+  if (act) {
+    var out;
+    try {
+      if (act === 'boot') out = hseBoot(ACCESS_KEY, e.parameter.date || '');
+      else if (act === 'report') out = hseBuildReport(ACCESS_KEY, e.parameter.date || '');
+      else out = { ok: false, error: 'unknown act' };
+    } catch (err) {
+      out = { ok: false, error: String(err && err.message || err), stack: String(err && err.stack || '') };
+    }
+    return ContentService.createTextOutput(JSON.stringify(out, null, 1))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   var t = HtmlService.createTemplateFromFile('頁面');
   t.KEY = ACCESS_KEY;
+  t.LOGO = LOGO_B64;   // 與報告共用同一張範本標誌，不另外畫
   return t.evaluate()
     .setTitle('HSE 現場巡查紀錄')
     .addMetaTag('viewport', 'width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover')
@@ -156,6 +171,15 @@ function seedConfig_(ss) {
     if (!have[k]) add.push([k, JSON.stringify(DEFAULTS[k])]);
   });
   if (add.length) sh.getRange(sh.getLastRow() + 1, 1, add.length, 2).setValues(add);
+
+  // 清掉已淘汰的設定鍵（例如 v1 的 areas 區域清單）
+  var n2 = sh.getLastRow();
+  if (n2 > 1) {
+    var vals = sh.getRange(2, 1, n2 - 1, 2).getValues()
+      .filter(function (r) { return r[0] && DEFAULTS.hasOwnProperty(r[0]); });
+    sh.getRange(2, 1, n2 - 1, 2).clearContent();
+    if (vals.length) sh.getRange(2, 1, vals.length, 2).setValues(vals);
+  }
 }
 
 function cfg_(ss) {
@@ -224,7 +248,7 @@ function packRec_(r, photos) {
     reporter: r.reporter || '',
     members: r.members ? String(r.members).split(',').map(function (s) { return s.trim(); }).filter(String) : [],
     project: r.project || '',
-    area: r.area || '',
+    contractor: r.contractor || '',
     obsZh: r.obsZh || '', obsEn: r.obsEn || '',
     recZh: r.recZh || '', recEn: r.recEn || '',
     actionBy: r.actionBy || '',
@@ -306,7 +330,7 @@ function hseSearch(key, q, status) {
   var out = recs.filter(function (x) {
     if (status && (x.status || 'Open') !== status) return false;
     if (!s) return true;
-    return [x.obsZh, x.obsEn, x.recZh, x.recEn, x.actionBy, x.area, x.reporter]
+    return [x.obsZh, x.obsEn, x.recZh, x.recEn, x.actionBy, x.contractor, x.reporter]
       .join(' ').toLowerCase().indexOf(s) >= 0;
   });
   out.sort(function (a, b) { return ymd_(b.date).localeCompare(ymd_(a.date)); });
@@ -352,7 +376,7 @@ function hseSave(key, payload) {
       reporter: String(payload.reporter || '').trim(),
       members: (payload.members || []).join(', '),
       project: String(payload.project || DEFAULTS.project).trim(),
-      area: String(payload.area || '').trim(),
+      contractor: String(payload.contractor || '').trim(),
       obsZh: obsZh,
       obsEn: String(payload.obsEn || '').trim(),
       recZh: recZh,
@@ -582,7 +606,7 @@ function hseBuildReport(key, date) {
       merged: built.merged
     };
   } catch (err) {
-    return { ok: false, error: String(err.message || err) };
+    return { ok: false, error: String(err.message || err), stack: String(err && err.stack || '') };
   } finally {
     lock.releaseLock();
   }
@@ -628,7 +652,7 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   var project = recs[0].project || cfg.project || DEFAULTS.project;
 
   var hdr = doc.getHeader() || doc.addHeader();
-  var ht = hdr.appendTable([['', '', '']]);
+  var ht = hdr.appendTable([[BLANK, BLANK, BLANK]]);
   ht.setBorderWidth(0);
   ht.setColumnWidth(0, 150).setColumnWidth(1, 400).setColumnWidth(2, 240);
 
@@ -636,11 +660,10 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   logoCell.setPaddingTop(2).setPaddingBottom(2).setPaddingLeft(2).setPaddingRight(2);
   try {
     var logo = Utilities.newBlob(Utilities.base64Decode(LOGO_B64), 'image/png', 'nmdc.png');
-    var ip = logoCell.getChild(0).asParagraph();
-    var im = ip.appendInlineImage(logo);
+    var im = firstPara_(logoCell).appendInlineImage(logo);
     im.setWidth(134).setHeight(45);
   } catch (e) {
-    logoCell.getChild(0).asParagraph().setText('NMDC ENERGY');
+    setText_(firstPara_(logoCell), 'NMDC ENERGY', { FONT_SIZE: 11, BOLD: true, FOREGROUND_COLOR: NAVY });
   }
   logoCell.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
 
@@ -659,24 +682,25 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   para_(ic, null, 'Time 時間：' + (timeTxt || '—'), { FONT_SIZE: 9 });
   ic.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
 
-  var tm = hdr.appendParagraph('');
+  var tm = newPara_(hdr);
   setText_(tm, 'Team Members 巡查成員：' + (members || '—'), { FONT_SIZE: 9, BOLD: true, FOREGROUND_COLOR: NAVY });
   tm.setSpacingBefore(2).setSpacingAfter(2);
 
   /* ---- 主表 ---- */
-  var head = ['S/N\n項次', 'OBSERVATIONS\n巡查發現', 'RECOMMENDATIONS\n改善建議',
-    'ACTION BY\n權責單位', 'STATUS\n改善狀態', 'TARGET DATE\n預定完成日期', 'CLOSE- OUT DATE\n結案日期'];
+  var head = [['S/N', '項次'], ['OBSERVATIONS', '巡查發現'], ['RECOMMENDATIONS', '改善建議'],
+  ['ACTION BY', '權責單位'], ['STATUS', '改善狀態'], ['TARGET DATE', '預定完成日期'],
+  ['CLOSE- OUT DATE', '結案日期']];
+  var blankRow = [BLANK, BLANK, BLANK, BLANK, BLANK, BLANK, BLANK];
 
-  var grid = [head];
+  var grid = [head.map(function (h) { return h[0]; })];
   var photoRows = [];   // 主表中屬於「照片列」的 row index
   var rowMeta = [];     // 每一列對應的紀錄
   recs.forEach(function (x, i) {
-    grid.push([String(i + 1), '', '', '', '', '', '']);
+    grid.push(blankRow.slice());
     rowMeta.push({ type: 'data', rec: x, sn: i + 1 });
-    var ph = pmap[x.id] || [];
-    grid.push(['', '', '', '', '', '', '']);
+    grid.push(blankRow.slice());
     photoRows.push(grid.length - 1);
-    rowMeta.push({ type: 'photo', rec: x, photos: ph });
+    rowMeta.push({ type: 'photo', rec: x, photos: pmap[x.id] || [] });
   });
 
   var tbl = body.appendTable(grid);
@@ -689,14 +713,7 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
     hc.setBackgroundColor(HDR_BG);
     hc.setVerticalAlignment(DocumentApp.VerticalAlignment.CENTER);
     hc.setPaddingTop(3).setPaddingBottom(3).setPaddingLeft(3).setPaddingRight(3);
-    var parts = head[c2].split('\n');
-    hc.clear();
-    para_(hc, 0, parts[0], { FONT_SIZE: 9, BOLD: true });
-    para_(hc, null, parts[1], { FONT_SIZE: 9, BOLD: true });
-    for (var q = 0; q < hc.getNumChildren(); q++) {
-      hc.getChild(q).asParagraph().setAlignment(DocumentApp.HorizontalAlignment.CENTER)
-        .setSpacingBefore(0).setSpacingAfter(0);
-    }
+    setCellMulti_(hc, head[c2], { FONT_SIZE: 9, BOLD: true }, DocumentApp.HorizontalAlignment.CENTER);
   }
 
   // 資料列 + 照片列
@@ -712,10 +729,11 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   });
 
   /* ---- 分發對象 ---- */
-  body.appendParagraph('').setSpacingBefore(6).setSpacingAfter(0);
+  newPara_(body).setSpacingBefore(6).setSpacingAfter(0);
   var dg = [
-    ['Distribution', '分發對象', '', 'Attendees   / HSE file', '與會人員', ''],
-    ['HSE Representatives', 'HSE 代表', String(cfg.hseRep || ''), 'Section Representative', '部門代表', String(cfg.sectionRep || '')]
+    ['Distribution', '分發對象', BLANK, 'Attendees   / HSE file', '與會人員', BLANK],
+    ['HSE Representatives', 'HSE 代表', String(cfg.hseRep || BLANK) || BLANK,
+      'Section Representative', '部門代表', String(cfg.sectionRep || BLANK) || BLANK]
   ];
   var dt = body.appendTable(dg);
   dt.setBorderWidth(0.75).setBorderColor('#000000');
@@ -774,15 +792,13 @@ function fillPhotoRow_(row, x, photos) {
   var before = photos.filter(function (p) { return p.kind === 'before'; });
   var after = photos.filter(function (p) { return p.kind === 'after'; });
 
-  var p0 = cell.getChild(0).asParagraph();
-  setText_(p0, 'BEFORE 改善前', { FONT_SIZE: 8, BOLD: true, FOREGROUND_COLOR: '#546e7a' });
+  var p0 = setText_(firstPara_(cell), 'BEFORE 改善前', { FONT_SIZE: 8, BOLD: true, FOREGROUND_COLOR: '#546e7a' });
   p0.setSpacingBefore(0).setSpacingAfter(1);
-  appendImages_(cell, before, 'BEFORE');
+  appendImages_(cell, before);
 
-  var p1 = cell.appendParagraph('');
-  setText_(p1, 'AFTER 改善後', { FONT_SIZE: 8, BOLD: true, FOREGROUND_COLOR: '#1b6e3c' });
+  var p1 = setText_(newPara_(cell), 'AFTER 改善後', { FONT_SIZE: 8, BOLD: true, FOREGROUND_COLOR: '#1b6e3c' });
   p1.setSpacingBefore(4).setSpacingAfter(1);
-  appendImages_(cell, after, 'AFTER');
+  appendImages_(cell, after);
 
   // 其餘欄位清空（合併後會併入第一格）
   for (var i = 1; i < 7; i++) {
@@ -792,8 +808,8 @@ function fillPhotoRow_(row, x, photos) {
   }
 }
 
-function appendImages_(cell, list, label) {
-  var p = cell.appendParagraph('');
+function appendImages_(cell, list) {
+  var p = newPara_(cell);
   p.setSpacingBefore(0).setSpacingAfter(0);
   if (!list.length) {
     setText_(p, '（尚無照片 no photo）', { FONT_SIZE: 8, ITALIC: true, FOREGROUND_COLOR: '#888888' });
@@ -806,7 +822,7 @@ function appendImages_(cell, list, label) {
       var blob = DriveApp.getFileById(ph.fileId).getBlob();
       var im = p.appendInlineImage(blob);
       var w = im.getWidth(), h = im.getHeight();
-      var H = 112;
+      var H = 140;
       if (h > 0) { im.setHeight(H); im.setWidth(Math.round(w * H / h)); }
       p.appendText('  ');
       n++;
@@ -827,39 +843,55 @@ function attrs_(o) {
   return a;
 }
 
+/**
+ * DocumentApp 會對空字串丟「無法插入空白文字元素」，
+ * 所以一律先塞一個空白字元再 clear()，永遠不把 '' 交給 API。
+ */
+var BLANK = ' ';
+
+function newPara_(el) {
+  return el.appendParagraph(BLANK).clear();
+}
+
+function firstPara_(cell) {
+  cell.clear();
+  if (cell.getNumChildren() === 0) return newPara_(cell);
+  var c = cell.getChild(0);
+  if (c.getType() !== DocumentApp.ElementType.PARAGRAPH) return newPara_(cell);
+  return c.asParagraph().clear();
+}
+
 function setText_(p, txt, o) {
-  p.setText(txt);
+  var s = (txt === null || txt === undefined) ? '' : String(txt);
+  if (s === '') p.clear(); else p.setText(s);
   p.setAttributes(attrs_(o || {}));
   p.setSpacingBefore(0).setSpacingAfter(0).setLineSpacing(1.15);
   return p;
 }
 
 function para_(cell, childIndex, txt, o) {
-  var p = (childIndex === 0) ? cell.getChild(0).asParagraph() : cell.appendParagraph('');
+  var p = (childIndex === 0) ? firstPara_(cell) : newPara_(cell);
   return setText_(p, txt, o);
 }
 
 function setCellPlain_(cell, txt, o, align) {
-  cell.clear();
-  var p = setText_(cell.getChild(0).asParagraph(), txt || '', o);
+  var p = setText_(firstPara_(cell), txt, o);
   if (align) p.setAlignment(align);
 }
 
 function setCellMulti_(cell, lines, o, align) {
-  cell.clear();
   lines.forEach(function (s, i) {
-    var p = (i === 0) ? cell.getChild(0).asParagraph() : cell.appendParagraph('');
+    var p = (i === 0) ? firstPara_(cell) : newPara_(cell);
     setText_(p, s, o);
     if (align) p.setAlignment(align);
   });
 }
 
 function setCellBilingual_(cell, zh, en) {
-  cell.clear();
-  var p = setText_(cell.getChild(0).asParagraph(), zh || '', { FONT_SIZE: 9 });
+  var p = setText_(firstPara_(cell), zh, { FONT_SIZE: 9 });
   p.setAlignment(DocumentApp.HorizontalAlignment.LEFT);
   if (en) {
-    var p2 = setText_(cell.appendParagraph(''), en, { FONT_SIZE: 8, FOREGROUND_COLOR: '#3d4b59' });
+    var p2 = setText_(newPara_(cell), en, { FONT_SIZE: 8, FOREGROUND_COLOR: '#3d4b59' });
     p2.setAlignment(DocumentApp.HorizontalAlignment.LEFT).setSpacingBefore(1);
   }
 }

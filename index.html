@@ -2829,7 +2829,16 @@ async function sendTrackerMailNow(testOnly){
     setMailCfgStatus('✅ 已寄給 '+d.to+(d.cc?'（CC '+d.cc+'）':'')+'　主旨：'+d.subject+'　照片 '+d.photos+' 張'+(d.kpi?'、含 KPI 附件':'、無 KPI 附件')+(d.bodyKB?'　·　內文 '+d.bodyKB+'KB／上限 200KB':'')+(d.imgNote?'　·　'+d.imgNote+'（Drive 原檔不變）':'')+((d.trimmed&&d.trimmed.length)?'　·　信件過長，已省略：'+d.trimmed.join('、'):''),'ok');
     showToast('✅ 已寄出！'+d.subject);
     const pm=$('mTrkEmail');if(pm&&!pm.classList.contains('hidden'))pm.classList.add('hidden');
-    if(!to)loadMailCfg().then(c=>{if(c&&!$('mMailCfg').classList.contains('hidden'))$('mcLastSent').textContent='上次自動寄出：'+new Date(c.lastSentAt).toLocaleString('zh-TW');});
+    // 正式寄出（含補寄）後端會把這次的照片封存並從設定裡移除，所以要把畫面上的清單一起換成雲端最新版，
+    // 否則畫面還留著舊照片，之後按「儲存設定」會把已封存的照片又寫回去，下週就重複寄。
+    if(!to){
+      const c=await loadMailCfg();
+      if(c){
+        if(!$('mMailCfg').classList.contains('hidden'))fillMailCfgForm(c);
+        else _mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));
+        if(d.photos)showToast('📦 已封存 '+d.photos+' 張現場照片到 Drive「已寄出」資料夾');
+      }
+    }
     if(!$('mMailCfg').classList.contains('hidden')){loadMailLog();scheduleMailLogRefresh();}
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 寄送失敗：'+e.message,'err');if(!$('mMailCfg').classList.contains('hidden'))loadMailLog();}
 }
@@ -2849,6 +2858,13 @@ async function sendReminderNow(){
   if(!$('mMailCfg').classList.contains('hidden')){if(!(await saveMailCfg(true)))return;}
   setMailCfgStatus('📨 寄提醒信中…');
   try{const d=await gasGet('sendReminderNow');if(!d||!d.ok)throw new Error((d&&d.error)||'寄送失敗');setMailCfgStatus('✅ 提醒信已寄給 '+d.to,'ok');showToast('✅ 提醒信已寄出');loadMailLog();scheduleMailLogRefresh();}
+  catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ '+e.message,'err');}
+}
+// 寄一封樣本「寄送失敗」通知：週報真的寄不出去時，系統會自動寄同樣格式的信給負責人
+async function testAlertMail(){
+  setMailCfgStatus('📨 寄測試用的失敗通知中…');
+  try{const d=await gasGet('testAlert');if(!d||!d.ok)throw new Error((d&&d.error)||'寄送失敗');
+    setMailCfgStatus('✅ 已寄出樣本失敗通知給 '+d.to+'（真的寄送失敗時會自動寄同一格式的信）','ok');showToast('✅ 已寄給 '+d.to);}
   catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ '+e.message,'err');}
 }
 
@@ -3934,7 +3950,8 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   <div class="modal-form" style="gap:12px">
     <div style="padding:10px 14px;border-radius:10px;background:var(--accent-light);border:1px solid rgba(22,163,74,.2);font-size:12px;color:var(--text2);line-height:1.7">
       <b>每週一 09:00</b>（台北時間）自動寄出主旨為 <b>ENV WEEKLY REPORT (上週一~上週日)</b> 的週報：開頭文字 → KPI 卡片 → 改善單狀態（含 KPI 總結圖附件）→ 追蹤事項 → 現場照片，中文內容會自動加上英文小字。<br>
-      <b>每週五 15:00</b> 會寄提醒信，提醒更新照片與 KPI 總結圖。排程讀的是<b>已儲存</b>的設定。
+      <b>每週五 15:00</b> 會寄提醒信，提醒更新照片與 KPI 總結圖。排程讀的是<b>已儲存</b>的設定。<br>
+      <b>⚠️ 寄不出去時</b>（任何原因：信太大、額度用完、收件者設錯、排程當掉…）系統會自動寄一封失敗通知到 <b>paul.tong@nmdc-group.com</b>，信裡有錯誤原因與處理方式；可按下方「⚠️ 測試失敗通知」先確認收得到。
     </div>
 
     <div class="mc-sec">
@@ -3984,6 +4001,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
       <button class="btn-secondary" onclick="sendTrackerMailNow(true)">✉️ 寄測試信</button>
       <button class="btn-secondary" onclick="previewTrackerMail()">👁️ 預覽版型</button>
       <button class="btn-secondary" onclick="sendReminderNow()" title="立刻寄一封週五提醒信給提醒收件者">🔔 測試提醒信</button>
+      <button class="btn-secondary" onclick="testAlertMail()" title="寄一封樣本「寄送失敗」通知，確認週報寄不出去時收得到警示">⚠️ 測試失敗通知</button>
     </div>
     <div class="modal-actions">
       <button class="btn-secondary" onclick="$('mMailCfg').classList.add('hidden')">關閉</button>
