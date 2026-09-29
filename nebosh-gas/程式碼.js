@@ -59,7 +59,7 @@ function doPost(e) {
     switch (body.action) {
       case 'analyse': return json_(analyseScenario_(body));
       case 'grade':   return json_(gradeAnswer_(body));
-      case 'ping':    return json_({ ok: true, model: MODEL, keySet: !!getProp_('ANTHROPIC_API_KEY') });
+      case 'ping':    return json_(ping_());
       default:        return json_({ ok: false, error: 'UNKNOWN_ACTION', message: '不認識的 action：' + body.action });
     }
   } catch (err) {
@@ -317,17 +317,22 @@ function callClaude_(o) {
   var code = resp.getResponseCode();
   var text = resp.getContentText();
 
-  if (code === 400 && /fallback|beta/i.test(text)) {   // 該 beta 不可用 → 不帶 fallback 重送一次
-    resp = attempt(false);
-    code = resp.getResponseCode();
-    text = resp.getContentText();
+  // 該 beta 不可用 → 不帶 fallback 重送一次。
+  // 原本只認 400，但 beta 被拒也可能以 5xx 出現，所以 5xx 一併退一次再說。
+  if ((code === 400 && /fallback|beta/i.test(text)) || code >= 500) {
+    var retry = attempt(false);
+    if (retry.getResponseCode() === 200 || code >= 500) {
+      resp = retry;
+      code = resp.getResponseCode();
+      text = resp.getContentText();
+    }
   }
 
   if (code !== 200) {
     var msg = text;
     try { msg = JSON.parse(text).error.message; } catch (e) {}
     console.error('Anthropic ' + code + ': ' + text.substring(0, 500));
-    return { ok: false, error: 'API_' + code, message: apiHint_(code) + msg };
+    return { ok: false, error: 'API_' + code, message: apiHint_(code, msg) + msg };
   }
 
   var body;
@@ -358,12 +363,67 @@ function callClaude_(o) {
   };
 }
 
-function apiHint_(code) {
+function apiHint_(code, msg) {
+  // 金鑰被拒時 Anthropic 有時回 503 而不是 401，訊息是 credential validation failed，
+  // 照 code 分類會誤報成「伺服器錯誤」，所以先看訊息。
+  if (isCredentialError_(code, msg)) return '（金鑰被拒絕：請到 Anthropic Console 確認金鑰還有效、帳戶有額度，再把新金鑰填回指令碼屬性 ANTHROPIC_API_KEY）';
   if (code === 401) return '（金鑰不對或已失效）';
+  if (code === 403) return '（這把金鑰沒有權限用這個模型）';
   if (code === 429) return '（被限流，等一下再試）';
   if (code === 529) return '（Anthropic 忙線，稍後再試）';
   if (code >= 500) return '（Anthropic 伺服器錯誤）';
   return '';
+}
+
+function isCredentialError_(code, msg) {
+  if (code === 401 || code === 403) return true;
+  return /credential|authentication|invalid x-api-key|api key/i.test(String(msg || ''));
+}
+
+/**
+ * 連線測試：真的打一次 API（約 20 tokens，成本可忽略），才知道金鑰是不是真的能用。
+ * 舊版只回報「指令碼屬性有沒有填」，金鑰失效時仍會顯示「連線正常」，等按下分析才失敗。
+ */
+function ping_() {
+  var key = getProp_('ANTHROPIC_API_KEY');
+  var base = { ok: true, model: MODEL, keySet: !!key, secretRequired: !!getProp_('SHARED_SECRET') };
+  if (!key) {
+    base.ok = false; base.keyWorks = false;
+    base.error = 'NO_KEY';
+    base.message = '後端尚未設定 ANTHROPIC_API_KEY（Apps Script → 專案設定 → 指令碼屬性）';
+    return base;
+  }
+
+  var probe = function (withFallback) {
+    var payload = { model: MODEL, max_tokens: 16, messages: [{ role: 'user', content: 'ping' }] };
+    var headers = { 'x-api-key': key, 'anthropic-version': API_VERSION };
+    if (withFallback) { payload.fallbacks = 'default'; headers['anthropic-beta'] = FALLBACK_BETA; }
+    var r = UrlFetchApp.fetch(ANTHROPIC_URL, {
+      method: 'post', contentType: 'application/json', headers: headers,
+      payload: JSON.stringify(payload), muteHttpExceptions: true
+    });
+    var code = r.getResponseCode(), text = r.getContentText(), m = text;
+    try { m = JSON.parse(text).error.message; } catch (e) {}
+    return { code: code, message: code === 200 ? '' : m };
+  };
+
+  var a = probe(true);
+  base.withFallback = a;
+  if (a.code === 200) { base.keyWorks = true; base.message = '金鑰正常，模型可用'; return base; }
+
+  // 帶 beta 失敗時再試一次不帶，才能分辨是「金鑰壞了」還是「這個 beta 不能用」
+  var b = probe(false);
+  base.plain = b;
+  base.keyWorks = (b.code === 200);
+  base.ok = false;
+  if (b.code === 200) {
+    base.error = 'BETA_' + a.code;
+    base.message = '金鑰正常，但 server-side fallback beta（' + FALLBACK_BETA + '）被拒：' + a.message;
+  } else {
+    base.error = 'API_' + b.code;
+    base.message = apiHint_(b.code, b.message) + b.message;
+  }
+  return base;
 }
 
 /* ============================== 小工具 ============================== */
