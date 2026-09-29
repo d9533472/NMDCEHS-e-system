@@ -386,7 +386,16 @@ function isCredentialError_(code, msg) {
  */
 function ping_() {
   var key = getProp_('ANTHROPIC_API_KEY');
-  var base = { ok: true, model: MODEL, keySet: !!key, secretRequired: !!getProp_('SHARED_SECRET') };
+  // 只回長度與前後綴，用來分辨「貼漏了／貼到空白」跟「金鑰本身被拒」，不回傳金鑰內容
+  var base = {
+    ok: true, model: MODEL, keySet: !!key, secretRequired: !!getProp_('SHARED_SECRET'),
+    keyShape: key ? {
+      len: key.length,
+      trimmedLen: key.trim().length,
+      prefixOk: key.indexOf('sk-ant-') === 0,
+      tail4: key.slice(-4)
+    } : null
+  };
   if (!key) {
     base.ok = false; base.keyWorks = false;
     base.error = 'NO_KEY';
