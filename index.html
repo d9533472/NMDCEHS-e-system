@@ -1400,15 +1400,17 @@ function renderIbStats(today){
     +cell(ncrOpen,'blue',goNcr,r=>r.issuer,ncrTitle(ncrOpen)||'開啟改善單系統')
     +'</div>';
 }
-// ── 十月節慶：國慶日（10/10）＋ 臺灣光復節（10/25）──
+// ── 國慶日（10/10）＋ 臺灣光復節（10/25）：9/26 ~ 10/31 顯示 ──
 function seasonInfo(){
   const now=new Date();const force=/[?&]season=1/.test(location.search);
-  if(now.getMonth()!==9&&!force)return null;
+  const m=now.getMonth(),d=now.getDate();
+  const inWin=(m===9)||(m===8&&d>=26);   // 9/26 起預告，整個十月都掛著
+  if(!inWin&&!force)return null;
   const y=now.getFullYear();
   const nd=new Date(y,9,10);
   const rd=new Date(y,9,25);
   const t=todayS();
-  return{y,nd,rd,dNd:daysBetween(t,dateS(nd)),dRd:daysBetween(t,dateS(rd)),key:y+'-'+String(now.getMonth()+1).padStart(2,'0')};
+  return{y,nd,rd,dNd:daysBetween(t,dateS(nd)),dRd:daysBetween(t,dateS(rd)),key:'nd'+y+'-'+String(m+1).padStart(2,'0')};
 }
 function cdTxt(n){return n>0?`還有 ${n} 天`:n===0?'就是今天 🎉':'';}
 function renderSeason(){
