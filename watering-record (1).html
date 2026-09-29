@@ -59,6 +59,8 @@
   .photo-table .pt-mini:hover .pt-remove{display:flex;}
   .photo-table input[type="number"]{width:80px;border:1px solid #ddd;border-radius:3px;padding:3px 5px;font-size:12px;text-align:center;font-family:inherit;}
   .photo-table .pt-total{font-weight:700;color:var(--am);font-size:14px;text-align:center;}
+  .photo-table .pt-note{width:14%;padding:4px 6px;}
+  .photo-table .pt-note-inp{width:100%;border:1px solid #ddd;border-radius:3px;padding:4px 6px;font-size:12px;text-align:center;font-family:inherit;}
   .btn-add-period{border:none;background:rgba(255,255,255,.4);color:#fff;font-size:14px;font-weight:700;cursor:pointer;border-radius:4px;padding:1px 8px;margin-left:6px;vertical-align:middle;}.btn-add-period:hover{background:rgba(255,255,255,.7);color:var(--accent);}
   .btn-del-row{border:none;background:#c53030;color:#fff;font-size:10px;cursor:pointer;border-radius:3px;padding:1px 6px;margin-left:3px;}.btn-del-row:hover{background:#a02020;}
   .cum-table{width:100%;border-collapse:collapse;font-size:12px;background:var(--card);border-radius:8px;overflow:hidden;}
@@ -152,17 +154,22 @@
   .pdf-photo-cell .ppc-body img{max-width:100%;max-height:250px;object-fit:contain;}
   .pdf-photo-cell .ppc-desc{padding:2px 6px 4px;font-size:11px;color:#555;text-align:center;width:100%;}
   /* PDF new format photo table */
-  .pdf-pt{width:100%;border-collapse:collapse;font-size:13px;}
+  /* 欄寬一律由 <colgroup> 決定（table-layout:fixed），日期欄才不會被撐開 */
+  .pdf-pt{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
   .pdf-pt th,.pdf-pt td{border:1px solid #333;padding:4px 5px;text-align:center;vertical-align:middle;}
-  .pdf-pt th{background:#e8e8e8;font-weight:600;}
-  .pdf-pt .pt-day-cell{background:#f5f5f0;font-weight:600;width:16px;font-size:9px;padding:1px 2px;white-space:nowrap;}
-  .pdf-pt .pt-img-cell{width:36%;position:relative;}
-  .pdf-pt .pt-img-cell img{max-width:100%;max-height:130px;object-fit:contain;}
-  .pdf-pt .pt-img-wrap{position:relative;display:inline-block;}
-  .pdf-pt .pt-img-wrap img{max-width:100%;max-height:130px;object-fit:contain;display:block;}
+  .pdf-pt th{background:#e8e8e8;font-weight:600;font-size:11.5px;line-height:1.35;padding:4px 2px;}
+  .pdf-pt .pt-day-cell{background:#f5f5f0;font-weight:700;font-size:12px;line-height:1.55;padding:2px;white-space:nowrap;}
+  .pdf-pt .pt-img-cell{position:relative;padding:3px;height:196px;}
+  .pdf-pt .pt-img-cell img{max-width:100%;max-height:186px;object-fit:contain;}
+  .pdf-pt .pt-img-wrap{position:relative;display:inline-block;max-width:100%;}
+  .pdf-pt .pt-img-wrap img{max-width:100%;max-height:186px;object-fit:contain;display:block;}
   .pdf-pt .pt-watermark{position:absolute;bottom:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:3px;white-space:nowrap;}
-  .pdf-pt .pt-meter-cell{width:8%;font-size:12px;}
-  .pdf-pt .pt-total-cell{font-weight:700;width:7%;font-size:12px;}
+  .pdf-pt .pt-meter-cell{font-size:12.5px;font-variant-numeric:tabular-nums;}
+  .pdf-pt .pt-total-cell{font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums;}
+  .pdf-pt .pt-note-cell{font-size:11.5px;line-height:1.4;word-break:break-all;padding:4px 3px;}
+  /* Page 1 紀錄表：跟照片表同一套欄寬規則 */
+  .pdf-rt{table-layout:fixed;}
+  .pdf-rt .rt-day{background:#f5f5f0;font-weight:700;white-space:nowrap;}
   .loading-overlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:300;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
   .loading-overlay.open{display:flex;}
   .loading-overlay .spinner{width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
@@ -349,6 +356,7 @@
 
 <script>
 /* ===== Config ===== */
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const DAYS=7, PHOTOS=7;
 const NEW_FORMAT_DATE='2026-04-20'; // 此日期之後使用新照片表格式（含水表）
 const DEFAULT_PROJECT='通霄電廠第二期更新改建計畫－海底輸氣管線統包工程';
@@ -487,7 +495,7 @@ function buildPhotoGrid(){
 }
 function buildPhotoTable(){
   const dayLabels=['第一天','第二天','第三天','第四天','第五天','第六天','第七天'];
-  let h='<table class="photo-table"><thead><tr><th>日期</th><th>灑水照片</th><th colspan="2">第1次取水（前→後）</th><th colspan="2">第2次取水（前→後）</th><th>總灑水量<br>(m³)<br><span style="font-weight:400;font-size:9px;color:var(--text-light);">與灑水紀錄<br>「每日用水量」連動</span></th></tr></thead><tbody>';
+  let h='<table class="photo-table"><thead><tr><th>日期</th><th>灑水照片</th><th colspan="2">第1次取水（前→後）</th><th colspan="2">第2次取水（前→後）</th><th>總灑水量<br>(m³)<br><span style="font-weight:400;font-size:9px;color:var(--text-light);">與灑水紀錄<br>「每日用水量」連動</span></th><th>備註<br><span style="font-weight:400;font-size:9px;color:var(--text-light);">最多 10 字</span></th></tr></thead><tbody>';
   for(let d=0;d<DAYS;d++){
     h+=`<tr>`;
     h+=`<td class="pt-day"><span id="ptDayLabel_${d}">${dayLabels[d]}</span><br><span style="font-size:10px;" id="ptDayDate_${d}"></span></td>`;
@@ -507,6 +515,8 @@ function buildPhotoTable(){
       h+=`</td>`;
     }
     h+=`<td class="pt-total" id="ptTotal_${d}">—</td>`;
+    // 備註（最多 10 字，會一起存雲端並印在匯出的表上）
+    h+=`<td class="pt-note"><input type="text" id="ptNote_${d}" maxlength="10" placeholder="選填，10字內" class="pt-note-inp"></td>`;
     h+=`</tr>`;
   }
   h+='</tbody></table>';
@@ -643,6 +653,7 @@ function collectData(){
       for(const m of['m1s','m1e','m2s','m2e']){
         row[m+'Val']=$(`ptNum_${d}_${m}`)?$(`ptNum_${d}_${m}`).value:'';
       }
+      row.note=$(`ptNote_${d}`)?String($(`ptNote_${d}`).value||'').trim().slice(0,10):'';
       const v1s=parseFloat(row.m1sVal)||0,v1e=parseFloat(row.m1eVal)||0;
       const v2s=parseFloat(row.m2sVal)||0,v2e=parseFloat(row.m2eVal)||0;
       row.water=((v1e>v1s?v1e-v1s:0)+(v2e>v2s?v2e-v2s:0))||'';
@@ -672,6 +683,7 @@ function loadData(data){
       for(const m of['m1s','m1e','m2s','m2e']){
         if(pt[m+'Val']){const el=$(`ptNum_${d}_${m}`);if(el)el.value=pt[m+'Val'];}
       }
+      const nEl=$(`ptNote_${d}`);if(nEl)nEl.value=pt.note||'';
       calcAndSync(d);
     });
   }else if(data.photos){
@@ -858,7 +870,7 @@ function buildPdfHtml(data,isFirst){
 
   // Page 1: Record table
   const useNew=data.photoFormat==='table';
-  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
+  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table class="pdf-rt"><colgroup><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:11%"><col style="width:18%"><col style="width:13%"><col style="width:12%"><col style="width:14%"></colgroup><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
   if(data.days){
     let weekTotal=0;
     data.days.forEach((day,d)=>{
@@ -867,9 +879,10 @@ function buildPdfHtml(data,isFirst){
       for(const p of['am','pm']){
         const r=day[p]||{};
         const waterTd=p==='am'?`<td rowspan="${rs}" style="vertical-align:middle;">${dailyW>0?dailyW.toFixed(1):''}</td>`:'';
-        h+=`<tr><td>${p==='am'?dt:''}</td><td>${p==='am'?'上午':'下午'}</td><td>${r.start||''}</td><td>${r.end||''}</td><td>${METHODS[r.method]||METHODS[DM]}</td>${waterTd}<td>${r.len||''}</td><td>${r.person||''}</td></tr>`;
+        const dayTd=p==='am'?`<td class="rt-day" rowspan="${rs}" style="vertical-align:middle;">${dt}</td>`:'';
+        h+=`<tr>${dayTd}<td>${p==='am'?'上午':'下午'}</td><td>${r.start||''}</td><td>${r.end||''}</td><td>${METHODS[r.method]||METHODS[DM]}</td>${waterTd}<td>${r.len||''}</td><td>${esc(r.person||'')}</td></tr>`;
       }
-      if(day.extra){day.extra.forEach((ex)=>{h+=`<tr><td></td><td>${ex.label||''}</td><td>${ex.start||''}</td><td>${ex.end||''}</td><td>${METHODS[ex.method]||METHODS[DM]}</td><td>${ex.len||''}</td><td>${ex.person||''}</td></tr>`;});}
+      if(day.extra){day.extra.forEach((ex)=>{h+=`<tr><td>${esc(ex.label||'')}</td><td>${ex.start||''}</td><td>${ex.end||''}</td><td>${METHODS[ex.method]||METHODS[DM]}</td><td>${ex.len||''}</td><td>${esc(ex.person||'')}</td></tr>`;});}
     });
     // 右下角加當週累計
     h+=`<tr><td colspan="5" style="text-align:right;font-weight:600;border:none;padding-top:6px;">本週累計水量：</td><td colspan="3" style="font-weight:700;color:#3a6ea5;font-size:15px;border:none;padding-top:6px;">${weekTotal>0?weekTotal.toFixed(1):'—'} m³</td></tr>`;
@@ -878,14 +891,21 @@ function buildPdfHtml(data,isFirst){
 
   if(data.photoFormat==='table'&&data.photoTable){
     // ★ 新格式：照片表 Page 2 (Day 1-4) + Page 3 (Day 5-7) ★
-    const ptHead='<table class="pdf-pt"><thead><tr><th>日期</th><th>灑水照片</th><th colspan="2">第1次取水</th><th colspan="2">第2次取水</th><th>總灑水量<br>(m³)</th></tr><tr><th></th><th></th><th>取水前</th><th>取水後</th><th>取水前</th><th>取水後</th><th></th></tr></thead><tbody>';
+    const ptHead='<table class="pdf-pt">'
+      +'<colgroup><col style="width:7%"><col style="width:36%">'
+      +'<col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">'
+      +'<col style="width:8%"><col style="width:17%"></colgroup>'
+      +'<thead><tr><th rowspan="2">日期</th><th rowspan="2">灑水照片</th>'
+      +'<th colspan="2">第1次取水</th><th colspan="2">第2次取水</th>'
+      +'<th rowspan="2">總灑水量<br>(m³)</th><th rowspan="2">備註</th></tr>'
+      +'<tr><th>取水前</th><th>取水後</th><th>取水前</th><th>取水後</th></tr></thead><tbody>';
     function ptRows(startD,endD){
       let r='';
       for(let d=startD;d<endD&&d<data.photoTable.length;d++){
         const pt=data.photoTable[d];
         const day=data.days&&data.days[d]?data.days[d]:null;
         const dayDate=day?day.date:'';
-        const dt=dayDate?`${fmtDate(dayDate)}(${weekday(dayDate)})`:`第${d+1}天`;
+        const dt=dayDate?`${fmtDate(dayDate)}<br>(${weekday(dayDate)})`:`第${d+1}<br>天`;
         const wm=dayDate||'';
         // 判斷是否未出工（上下午+額外時段全部都是未出工）
         const isOff=day&&String(day.am?.method)==='4'&&String(day.pm?.method)==='4'&&(!day.extra||day.extra.every(ex=>String(ex.method)==='4'));
@@ -899,14 +919,26 @@ function buildPdfHtml(data,isFirst){
         r+=`<td class="pt-meter-cell">${pt.m1eVal||'—'}</td>`;
         r+=`<td class="pt-meter-cell">${pt.m2sVal||'—'}</td>`;
         r+=`<td class="pt-meter-cell">${pt.m2eVal||'—'}</td>`;
-        r+=`<td class="pt-total-cell">${pt.water||'—'}</td></tr>`;
+        r+=`<td class="pt-total-cell">${pt.water||'—'}</td>`;
+        r+=`<td class="pt-note-cell">${esc(pt.note||'')}</td></tr>`;
       }
       return r;
     }
-    // Page 2: Day 1-4
-    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（一）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(0,4)}</tbody></table></div>`;
-    // Page 3: Day 5-7
-    h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄（二）</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>${ptHead}${ptRows(4,7)}</tbody></table>${sigHtml}</div>`;
+    // 一頁最多 3 張照片；張數平均分到各頁（7 天 → 3/2/2，不留只有一列的空頁），簽名放最後一頁
+    const PER_PAGE=3;
+    const nPages=Math.max(1,Math.ceil(DAYS/PER_PAGE));
+    const base=Math.floor(DAYS/nPages), rem=DAYS%nPages;
+    const CN=['一','二','三','四','五','六','七'];
+    let st=0;
+    for(let pi=0;pi<nPages;pi++){
+      const cnt=base+(pi<rem?1:0);
+      const last=pi===nPages-1;
+      const title=nPages>1?`營建工地噴灑水作業照片紀錄（${CN[pi]||pi+1}）`:'營建工地噴灑水作業照片紀錄';
+      h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">${title}</h2>`
+       +`<div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div>`
+       +`${ptHead}${ptRows(st,st+cnt)}</tbody></table>${last?sigHtml:''}</div>`;
+      st+=cnt;
+    }
   }else{
     // ★ 舊格式：4+3 照片格 ★
     h+=`<div class="pdf-page pdf-newpage" style="padding:4mm 14mm;"><h2 style="margin-bottom:4px;">營建工地噴灑水作業照片紀錄</h2><div class="sub-info" style="margin-bottom:4px;">地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><div class="pdf-photo-grid">`;
