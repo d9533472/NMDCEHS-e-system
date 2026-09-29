@@ -366,7 +366,13 @@ function callClaude_(o) {
 function apiHint_(code, msg) {
   // 金鑰被拒時 Anthropic 有時回 503 而不是 401，訊息是 credential validation failed，
   // 照 code 分類會誤報成「伺服器錯誤」，所以先看訊息。
-  if (isCredentialError_(code, msg)) return '（金鑰被拒絕：請到 Anthropic Console 確認金鑰還有效、帳戶有額度，再把新金鑰填回指令碼屬性 ANTHROPIC_API_KEY）';
+  // 注意：5xx + credential 訊息在 Anthropic 認證服務故障時也會出現（2026-09-29 實際遇過一次），
+  // 不一定是金鑰壞掉，所以先叫人去看狀態頁，不要急著換金鑰或買額度。
+  if (isCredentialError_(code, msg)) {
+    return code >= 500
+      ? '（憑證驗證失敗，但這是 5xx：先看 status.claude.com 是不是正在故障；沒有故障再去 Console 檢查金鑰與額度）'
+      : '（金鑰被拒絕：請到 Console 確認金鑰還有效、帳戶有額度，再把新金鑰填回指令碼屬性 ANTHROPIC_API_KEY）';
+  }
   if (code === 401) return '（金鑰不對或已失效）';
   if (code === 403) return '（這把金鑰沒有權限用這個模型）';
   if (code === 429) return '（被限流，等一下再試）';
