@@ -59,6 +59,7 @@ function doPost(e) {
     switch (body.action) {
       case 'analyse': return json_(analyseScenario_(body));
       case 'grade':   return json_(gradeAnswer_(body));
+      case 'check':   return json_(checkSentence_(body));
       case 'ping':    return json_(ping_());
       default:        return json_({ ok: false, error: 'UNKNOWN_ACTION', message: '不認識的 action：' + body.action });
     }
@@ -82,7 +83,7 @@ var ANALYSE_SYSTEM = [
   '   3.8 emergency procedures and first aid, 4.1 investigating incidents, 4.2 monitoring, 4.3 auditing, 4.4 reviewing.',
   '4. "points" must be the actual technical points a marker would award, written as short exam-usable statements in English.',
   '   Do NOT write finished answer paragraphs — the learner must write those. Points are prompts, not prose to copy.',
-  '5. Chinese fields are for comprehension only and should be short.',
+  '5. Chinese fields are for comprehension only and should be short. Write ALL Chinese in Traditional Chinese (繁體中文, Taiwan usage) — never Simplified.',
   '6. Rank hits by how likely they are to carry marks. 6 to 12 hits is normal; do not pad.',
   '',
   'This is practice material. Never produce a submittable answer.'
@@ -146,6 +147,101 @@ function analyseScenario_(body) {
   return { ok: true, data: res.data, usage: res.usage, model: res.model };
 }
 
+/* ============================== 動作 3：單句四步檢查 ==============================
+   給骨架產生器用：學員照骨架寫完一句之後，只檢查「該跑的步驟有沒有跑到」。
+   刻意做得比 grade 輕（單句、不給分數、不寫範句），回應才會快。 */
+
+var CHECK_SYSTEM = [
+  'You are a NEBOSH IG1 tutor checking ONE practice sentence (or short paragraph) a learner just wrote.',
+  'You are NOT marking a whole answer and you do NOT give a score. You check one thing: does the sentence do the moves it is supposed to do?',
+  '',
+  'The four moves:',
+  '1 QUOTE — it points at a specific fact that exists in THIS scenario (a named condition, person, object or failing).',
+  '2 LINK — it names the concept, standard, duty or legal/organisational requirement that fact relates to.',
+  '3 CONSEQUENCE — it carries the causation forward: who could be harmed / what could go wrong, and why this fact makes it likely.',
+  '4 ACTION — it states a specific action: who does what, by when, and for what purpose.',
+  '',
+  'You are told which moves the command word REQUIRES. Judge each required move as present or missing.',
+  'A move counts as present only if a marker could actually see it in the words written — not if it is merely implied.',
+  '',
+  'Rules:',
+  '· For each move you judge present, quote the learner\'s exact words that carry it (short fragment, English).',
+  '· For each move missing, say in one Chinese line WHAT IS MISSING and WHAT KIND OF THING would fill it.',
+  '  NEVER write the replacement words, the corrected sentence, or a phrase they could paste in. Direction only.',
+  '· Moves that are NOT required by the command word: set required=false and do not complain about their absence.',
+  '  If the learner wrote an extra move that the command word does not want, say so — in the exam that wastes time and can cost marks.',
+  '· If scenario_only is true, a sentence that would work for any other company is worth nothing: say so plainly.',
+  '· Roughly 25-35 English words is one mark\'s worth. Flag it if clearly short or clearly bloated.',
+  '· Chinese fields: Traditional Chinese (繁體中文, Taiwan usage) — never Simplified. Plain and direct, no flattery, no praise padding.',
+  '· If the text is empty, off-topic, or copied boilerplate, say that instead of inventing a judgement.',
+  '',
+  'This is practice. Never produce a submittable sentence.'
+].join('\n');
+
+var CHECK_SCHEMA = {
+  type: 'object',
+  properties: {
+    verdict_zh: { type: 'string' },
+    ready: { type: 'boolean' },
+    moves: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          move: { type: 'integer' },
+          required: { type: 'boolean' },
+          present: { type: 'boolean' },
+          evidence: { type: 'string' },
+          issue_zh: { type: 'string' }
+        },
+        required: ['move', 'required', 'present', 'evidence', 'issue_zh'],
+        additionalProperties: false
+      }
+    },
+    scenario_anchored: { type: 'boolean' },
+    generic_risk_zh: { type: 'string' },
+    word_count: { type: 'integer' },
+    length_zh: { type: 'string' },
+    next_zh: { type: 'string' }
+  },
+  required: ['verdict_zh', 'ready', 'moves', 'scenario_anchored', 'generic_risk_zh', 'word_count', 'length_zh', 'next_zh'],
+  additionalProperties: false
+};
+
+var MOVE_NAME = { 1: 'QUOTE', 2: 'LINK', 3: 'CONSEQUENCE', 4: 'ACTION' };
+
+function checkSentence_(body) {
+  var sent = String(body.sentence || '').trim();
+  if (sent.length < 15) return { ok: false, error: 'TOO_SHORT', message: '先寫一句再檢查（至少 15 個字元）' };
+
+  var moves = (body.moves && body.moves.length) ? body.moves : [1, 2, 3];
+  var required = moves.map(function (m) { return m + ' ' + (MOVE_NAME[m] || '?'); }).join(', ');
+
+  var user = [
+    'SCENARIO 情境：',
+    String(body.scenario || '(未提供情境 — 就無法判斷這句有沒有扣住情境事實，請在 scenario_anchored 說明)').trim(),
+    '',
+    'COMMAND WORD 命令詞：' + String(body.command || '(未提供)'),
+    'SHAPE 要求的形狀：' + String(body.shape || '(未提供)'),
+    'REQUIRED MOVES 這個命令詞要跑的步驟：' + required,
+    'BASED ON THE SCENARIO ONLY：' + (body.only ? 'yes' : 'no'),
+    body.topic ? ('TARGET CONCEPT 學員想連到的觀念：' + String(body.topic)) : '',
+    '',
+    'LEARNER SENTENCE 學員寫的這一句：',
+    sent
+  ].filter(function (x) { return x !== ''; }).join('\n');
+
+  var res = callClaude_({
+    system: CHECK_SYSTEM,
+    user: user,
+    schema: CHECK_SCHEMA,
+    maxTokens: 6000,
+    effort: effort_('CHECK_EFFORT')
+  });
+  if (!res.ok) return res;
+  return { ok: true, data: res.data, usage: res.usage, model: res.model };
+}
+
 /* ============================== 動作 2：答案批改 ============================== */
 
 var GRADE_SYSTEM = [
@@ -173,7 +269,7 @@ var GRADE_SYSTEM = [
   '· NEVER write a model answer, a rewritten paragraph, or a sentence the learner could submit. Feedback and direction only.',
   '  If asked to, refuse in the overall_zh field and mark it clearly.',
   '· Quote the learner exactly when quoting; do not paraphrase into a better version.',
-  '· Chinese fields: plain, direct, no flattery. English fields: exam register.',
+  '· Chinese fields: plain, direct, no flattery, and always Traditional Chinese (繁體中文, Taiwan usage) — never Simplified. English fields: exam register.',
   '· If the answer is empty or irrelevant, score 0 and say so.'
 ].join('\n');
 
