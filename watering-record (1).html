@@ -158,7 +158,7 @@
   .pdf-pt{width:100%;border-collapse:collapse;font-size:13px;table-layout:fixed;}
   .pdf-pt th,.pdf-pt td{border:1px solid #333;padding:4px 5px;text-align:center;vertical-align:middle;}
   .pdf-pt th{background:#e8e8e8;font-weight:600;font-size:11.5px;line-height:1.35;padding:4px 2px;}
-  .pdf-pt .pt-day-cell{background:#f5f5f0;font-weight:700;font-size:12px;line-height:1.55;padding:2px;white-space:nowrap;}
+  .pdf-pt .pt-day-cell{background:#f5f5f0;font-weight:700;font-size:11.5px;line-height:1.55;padding:2px 1px;white-space:nowrap;}
   .pdf-pt .pt-img-cell{position:relative;padding:3px;height:196px;}
   .pdf-pt .pt-img-cell img{max-width:100%;max-height:186px;object-fit:contain;}
   .pdf-pt .pt-img-wrap{position:relative;display:inline-block;max-width:100%;}
@@ -892,7 +892,7 @@ function buildPdfHtml(data,isFirst){
   if(data.photoFormat==='table'&&data.photoTable){
     // ★ 新格式：照片表 Page 2 (Day 1-4) + Page 3 (Day 5-7) ★
     const ptHead='<table class="pdf-pt">'
-      +'<colgroup><col style="width:7%"><col style="width:36%">'
+      +'<colgroup><col style="width:5%"><col style="width:38%">'
       +'<col style="width:8%"><col style="width:8%"><col style="width:8%"><col style="width:8%">'
       +'<col style="width:8%"><col style="width:17%"></colgroup>'
       +'<thead><tr><th rowspan="2">日期</th><th rowspan="2">灑水照片</th>'
