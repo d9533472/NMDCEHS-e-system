@@ -375,8 +375,21 @@ let fieldSource={water:null,len:null,person:null};
 /* ===== Utility ===== */
 function toast(msg,err){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' err':'')+' show';setTimeout(()=>t.className='toast',3500);}
 function $(id){return document.getElementById(id);}
-function showLoading(msg){$('loadMsg').textContent=msg||'載入中...';$('loadingOverlay').classList.add('open');}
-function hideLoading(){$('loadingOverlay').classList.remove('open');}
+/* 讀取遮罩：秒數會一直跳，雲端慢的時候才不會看起來像當掉 */
+let _loadTimer=null,_loadBase='';
+function showLoading(msg){
+  _loadBase=msg||'載入中...';
+  const t0=Date.now();
+  $('loadMsg').textContent=_loadBase;
+  $('loadingOverlay').classList.add('open');
+  clearInterval(_loadTimer);
+  _loadTimer=setInterval(()=>{
+    const s=Math.round((Date.now()-t0)/1000);
+    $('loadMsg').textContent=_loadBase+(s>=3?`（已等待 ${s} 秒${s>=20?'，雲端較忙，仍在重試…':''}）`:'');
+  },1000);
+}
+function setLoadingMsg(msg){_loadBase=msg;$('loadMsg').textContent=msg;}
+function hideLoading(){clearInterval(_loadTimer);_loadTimer=null;$('loadingOverlay').classList.remove('open');}
 function getMonday(dateStr){const d=new Date(dateStr);const day=d.getDay();const diff=d.getDate()-day+(day===0?-6:1);d.setDate(diff);return d.toISOString().slice(0,10);}
 function addDays(dateStr,n){const d=new Date(dateStr);d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);}
 function fmtDate(s){if(!s)return'—';const d=new Date(s);return `${d.getMonth()+1}/${d.getDate()}`;}
@@ -385,31 +398,49 @@ function weekday(s){return['日','一','二','三','四','五','六'][new Date(s
 function recKey(loc,sd){return `${loc}_${sd}`;}
 function isNewFormat(sd){return sd&&sd>=NEW_FORMAT_DATE;}
 
-/* ===== API Layer（XHR + 自動重試）===== */
-function apiGet(params,retries){
-  retries=retries||0;const maxR=3;
+/* ===== API Layer（XHR + 自動重試 + 單一佇列）=====
+   Apps Script 對同一使用者的請求本來就會排隊，前端再併發只會互相拖慢，
+   而且容易被回 HTML 錯誤頁（404/500）。所以這裡一次只送一個請求。 */
+let _apiChain=Promise.resolve();
+function apiQueue(fn){
+  const run=_apiChain.then(fn,fn);
+  _apiChain=run.then(()=>{},()=>{});   // 佇列本身不因單一請求失敗而中斷
+  return run;
+}
+// GAS 暫時性失敗：0=網路中斷、403/404/500=Apps Script 過載時回的錯誤頁、429=配額
+function isRetryable(s){return s===0||s===403||s===404||s===408||s===429||s>=500;}
+const API_MAX_RETRY=3;
+
+function apiGet(params){return apiQueue(()=>apiGetRaw(params,0));}
+function apiGetRaw(params,retries){
   const url=API_URL+(params?'?'+params:'');
   return new Promise((resolve,reject)=>{
+    const again=msg=>{
+      if(retries<API_MAX_RETRY){setTimeout(()=>apiGetRaw(params,retries+1).then(resolve,reject),2000*Math.pow(2.5,retries));}
+      else{reject(new Error(msg));}
+    };
     const xhr=new XMLHttpRequest();
     xhr.open('GET',url,true);
-    xhr.timeout=30000;
+    xhr.timeout=45000;
     xhr.onload=function(){
       if(xhr.status>=200&&xhr.status<300){
         try{resolve(JSON.parse(xhr.responseText));}
-        catch(e){if(retries<maxR){setTimeout(()=>apiGet(params,retries+1).then(resolve).catch(reject),1500*(retries+1));}else{reject(new Error('回應格式錯誤'));}}
-      }else if(xhr.status===429&&retries<maxR){setTimeout(()=>apiGet(params,retries+1).then(resolve).catch(reject),3000*(retries+1));}
+        catch(e){again('回應格式錯誤');}
+      }else if(isRetryable(xhr.status)){again('雲端忙碌中（HTTP '+xhr.status+'），請稍後再試');}
       else{reject(new Error('HTTP '+xhr.status));}
     };
-    xhr.onerror=xhr.ontimeout=function(){
-      if(retries<maxR){setTimeout(()=>apiGet(params,retries+1).then(resolve).catch(reject),2000*(retries+1));}
-      else{reject(new Error('網路錯誤，請檢查連線'));}
-    };
+    xhr.onerror=xhr.ontimeout=function(){again('網路錯誤，請檢查連線');};
     xhr.send();
   });
 }
-function apiPost(body,retries){
-  retries=retries||0;const maxR=3;
+
+function apiPost(body){return apiQueue(()=>apiPostRaw(body,0));}
+function apiPostRaw(body,retries){
   return new Promise((resolve,reject)=>{
+    const again=msg=>{
+      if(retries<API_MAX_RETRY){setTimeout(()=>apiPostRaw(body,retries+1).then(resolve,reject),2000*Math.pow(2.5,retries));}
+      else{reject(new Error(msg));}
+    };
     const xhr=new XMLHttpRequest();
     xhr.open('POST',API_URL,true);
     xhr.setRequestHeader('Content-Type','text/plain;charset=utf-8');
@@ -417,14 +448,11 @@ function apiPost(body,retries){
     xhr.onload=function(){
       if(xhr.status>=200&&xhr.status<300){
         try{resolve(JSON.parse(xhr.responseText));}
-        catch(e){if(retries<maxR){setTimeout(()=>apiPost(body,retries+1).then(resolve).catch(reject),2000*(retries+1));}else{reject(new Error('回應格式錯誤'));}}
-      }else if(xhr.status===429&&retries<maxR){setTimeout(()=>apiPost(body,retries+1).then(resolve).catch(reject),3000*(retries+1));}
+        catch(e){again('回應格式錯誤');}
+      }else if(isRetryable(xhr.status)){again('雲端忙碌中（HTTP '+xhr.status+'），請稍後再試');}
       else{reject(new Error('HTTP '+xhr.status));}
     };
-    xhr.onerror=xhr.ontimeout=function(){
-      if(retries<maxR){setTimeout(()=>apiPost(body,retries+1).then(resolve).catch(reject),3000*(retries+1));}
-      else{reject(new Error('網路錯誤，請檢查連線'));}
-    };
+    xhr.onerror=xhr.ontimeout=function(){again('網路錯誤，請檢查連線');};
     xhr.send(JSON.stringify(body));
   });
 }
@@ -709,6 +737,7 @@ async function saveRecord(){
     if(!result.success)throw new Error(result.error||'儲存失敗');
     // 更新記憶體索引
     const dw=[];if(data.days){data.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}cloudIndex[key]={location:data.location,startDate:data.startDate,endDate:data.endDate,project:data.project,savedAt:data.savedAt,fileId:result.fileId||'',dailyWaters:dw};
+    cacheRecord(key,data);writeIdxCache(cloudIndex);
     currentEditKey=key;
     $('postSaveTitle').textContent='✅ 儲存成功';
     $('postSaveMsg').innerHTML=`${data.location} ${data.startDate} ～ ${data.endDate}<br><span style="color:#2d5a27;">✅ 已同步到雲端（驗證通過）</span>`;
@@ -787,21 +816,40 @@ function renderList(resetPage){
 }
 function goPage(p){const tp=Math.max(1,Math.ceil(Object.keys(cloudIndex).filter(k=>!k.startsWith('__')).length/PAGE_SIZE));if(p<1||p>tp)return;currentPage=p;renderList();$('recordsList').scrollIntoView({behavior:'smooth',block:'start'});}
 
-/* ===== Edit（每次從雲端拉完整資料）===== */
+/* ===== Edit（從雲端拉完整資料，同一分頁內會快取）=====
+   一筆紀錄含照片約 300KB、雲端要跑 5~20 秒，
+   所以用 key + savedAt 當快取鍵：雲端沒被改過就直接用記憶體裡那份。 */
+const RECORD_CACHE_MAX=8;
+const recordCache=new Map();   // `${key}@${savedAt}` -> data
+function cacheRecord(key,data){
+  const tag=`${key}@${(cloudIndex[key]&&cloudIndex[key].savedAt)||''}`;
+  recordCache.set(tag,data);
+  while(recordCache.size>RECORD_CACHE_MAX)recordCache.delete(recordCache.keys().next().value);
+}
+function getCachedRecord(key){
+  const meta=cloudIndex[key];
+  if(!meta||!meta.savedAt)return null;   // 沒有 savedAt 就不敢用快取
+  return recordCache.get(`${key}@${meta.savedAt}`)||null;
+}
+
 async function editRecord(key){
-  showLoading('☁️ 載入紀錄中...');
+  const hit=getCachedRecord(key);
+  showLoading(hit?'📦 載入紀錄中...':'☁️ 載入紀錄中...');
   try{
-    const result=await apiGet('action=get&key='+encodeURIComponent(key));
-    if(!result.success||!result.data)throw new Error(result.error||'找不到紀錄');
+    const rec=hit||await (async()=>{
+      const result=await apiGet('action=get&key='+encodeURIComponent(key));
+      if(!result.success||!result.data)throw new Error(result.error||'找不到紀錄');
+      cacheRecord(key,result.data);
+      return result.data;
+    })();
     // 快取 dailyWaters 到 cloudIndex
-    const rec=result.data;
     const dw=[];
     if(rec.photoTable){rec.photoTable.forEach(pt=>{dw.push(parseFloat(pt.water)||0);});}
     else if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}
     if(cloudIndex[key])cloudIndex[key].dailyWaters=dw;
     clearFormSilent();loadData(rec);
     currentEditKey=key;isEditing=true;
-    switchTab(0);toast('✅ 已從雲端載入');
+    switchTab(0);toast(hit?'✅ 已載入（本機快取）':'✅ 已從雲端載入');
   }catch(err){
     toast('❌ 載入失敗：'+err.message,true);
   }finally{hideLoading();}
@@ -818,6 +866,7 @@ async function deleteSelected(){
     const result=await apiPost({action:'delete',keys:keys});
     if(!result.success)throw new Error(result.error);
     keys.forEach(k=>delete cloudIndex[k]);
+    writeIdxCache(cloudIndex);
     renderList();toast(`✅ 已刪除 ${result.deleted||keys.length} 筆`);
   }catch(err){toast('❌ 刪除失敗：'+err.message,true);}
   finally{hideLoading();}
@@ -836,7 +885,7 @@ async function importJSON(e){
       showLoading(`☁️ 上傳中... 0/${keys.length}`);
       let ok=0,fail=0;
       for(let i=0;i<keys.length;i++){
-        $('loadMsg').textContent=`☁️ 上傳中... ${i+1}/${keys.length}`;
+        setLoadingMsg(`☁️ 上傳中... ${i+1}/${keys.length}`);
         try{
           const result=await apiPost({action:'save',key:keys[i],data:imported[keys[i]]});
           if(result.success){ok++;const rec=imported[keys[i]];const dw=[];if(rec.days){rec.days.forEach(day=>{dw.push(parseFloat(day.water)||0);});}cloudIndex[keys[i]]={location:rec.location||'',startDate:rec.startDate||'',endDate:rec.endDate||'',project:rec.project||'',savedAt:rec.savedAt||'',fileId:result.fileId||'',dailyWaters:dw};}
@@ -857,6 +906,7 @@ async function refreshIndex(){
     const result=await apiGet('action=index');
     if(!result.success)throw new Error(result.error);
     cloudIndex=result.index||{};
+    writeIdxCache(cloudIndex);
     renderList();toast(`🔄 已重新整理，共 ${result.total} 筆`);
   }catch(err){toast('❌ 重新整理失敗：'+err.message,true);}
   finally{hideLoading();}
@@ -979,7 +1029,7 @@ async function exportSelectedPDF(){
   showLoading(`📄 下載紀錄中... 0/${keys.length}`);
   const allData=[];let failed=0;
   for(let i=0;i<keys.length;i++){
-    $('loadMsg').textContent=`📄 下載紀錄中... ${i+1}/${keys.length}`;
+    setLoadingMsg(`📄 下載紀錄中... ${i+1}/${keys.length}`);
     try{
       const result=await apiGet('action=get&key='+encodeURIComponent(keys[i]));
       if(result.success&&result.data)allData.push(result.data);else failed++;
@@ -1114,6 +1164,10 @@ let _cumAutoMap={};  // post-4/20 自動計算的值
 
 async function renderCumulative(){
   const loc=$('cumLoc').value;
+  // 水量資料改成進這個分頁才抓（開頁不再預載），所以要給等待提示
+  if(!cumData[loc]||!dailyWatersCache){
+    $('cumBody').innerHTML='<tr><td colspan="3" style="color:#999;padding:20px;">☁️ 載入水量資料中…</td></tr>';
+  }
   if(!cumData[loc])await loadCumData(loc);
   await ensureDailyWaters(loc);
   // 合併：手動輸入(cumData) + 試算表水量(dailyWatersCache)
@@ -1214,6 +1268,10 @@ async function renderMeterReport(){
   const loc=$('meterLoc').value;
   const pos=$('meterPosition').value||'工地裸露地表灑水車用';
   try{
+    // 同上：水量資料是進分頁才抓的，先給等待提示
+    if(!cumData[loc]||!dailyWatersCache){
+      $('meterReportWrap').innerHTML='<div style="text-align:center;padding:30px;color:var(--text-light);">☁️ 載入水量資料中…</div>';
+    }
     if(!cumData[loc])await loadCumData(loc);
     await ensureDailyWaters(loc);
   }catch(e){/* continue with whatever data we have */}
@@ -1438,26 +1496,41 @@ buildPhotoTable();
 $('projectName').value=DEFAULT_PROJECT;
 switchTab(2);
 
-// 開啟時從雲端讀取索引
+/* ===== 索引快取 =====
+   只存輕量 metadata（地點/日期/savedAt），不含照片，約 20~30KB，localStorage 放得下。
+   重開頁面可以先把清單畫出來，不用盯著「連線雲端…」空轉。 */
+const IDX_CACHE_KEY='wr_index_cache_v1';
+function readIdxCache(){
+  try{const s=localStorage.getItem(IDX_CACHE_KEY);return s?JSON.parse(s):null;}catch(e){return null;}
+}
+function writeIdxCache(idx){
+  try{localStorage.setItem(IDX_CACHE_KEY,JSON.stringify(idx));}catch(e){/* 空間不足就算了，不影響功能 */}
+}
+
+// 開啟時從雲端讀取索引（只送這一支；水量／累計水量改成切到該分頁才抓）
 (async()=>{
-  showLoading('☁️ 連線雲端...');
+  const cached=readIdxCache();
+  const hasCache=!!(cached&&Object.keys(cached).length);
+  if(hasCache){
+    cloudIndex=cached;renderList();
+    toast('📦 先顯示上次的清單，雲端更新中…');
+  }else{
+    showLoading('☁️ 連線雲端...');
+  }
   try{
     const result=await apiGet('action=index');
     if(result.success&&result.index){
       cloudIndex=result.index;
+      writeIdxCache(result.index);
       renderList();
       toast(`☁️ 已連線，共 ${result.total} 筆紀錄`);
-      // 背景預載水量資料
-      loadDailyWatersFromSheet().catch(()=>{});
-      loadCumData('台中').catch(()=>{});
-      loadCumData('通霄').catch(()=>{});
     }else{
       renderList();
       toast('☁️ 雲端無資料');
     }
   }catch(err){
     renderList();
-    toast('⚠️ 無法連線雲端：'+err.message,true);
+    toast((hasCache?'⚠️ 雲端更新失敗，畫面是上次的資料，可按「🔄 重新整理」再試：':'⚠️ 無法連線雲端，請按「🔄 重新整理」再試：')+err.message,true);
   }finally{hideLoading();}
 })();
 </script>
