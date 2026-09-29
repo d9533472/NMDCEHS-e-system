@@ -1530,16 +1530,34 @@ function _reimportBudget() {
 //   自己一筆一筆新增，跟查驗紀錄分開存，不影響金額統計
 // ══════════════════════════════════
 const SHEET_PROGRESS = '查驗進度表';
+// 註：plan_qty 是後來加的，為了不動到既有資料，欄位接在 deleted 後面（第 14 欄）
 const PROGRESS_HEADERS = [
   'plan_id','work_area','budget_item_id','item_name_snapshot','status',
   'due_date','link_group_id','note',
-  'created_at','created_by','updated_at','updated_by','deleted'
+  'created_at','created_by','updated_at','updated_by','deleted','plan_qty'
 ];
-const PROGRESS_COLS = 13;
+const PROGRESS_COLS = 14;
+const COL_PROG_DELETED = 13;   // 軟刪除旗標
+const COL_PROG_QTY = 14;       // 預計查驗數量（LS 項目 = 比例 0~1）
 const PROGRESS_STATUSES = ['可', '不可', '已完成'];
 
 function _progressSheet() {
-  return _getOrCreateSheet(SpreadsheetApp.getActiveSpreadsheet(), SHEET_PROGRESS, PROGRESS_HEADERS);
+  const sheet = _getOrCreateSheet(SpreadsheetApp.getActiveSpreadsheet(), SHEET_PROGRESS, PROGRESS_HEADERS);
+  if (sheet.getMaxColumns() < PROGRESS_COLS) {
+    sheet.insertColumnsAfter(sheet.getMaxColumns(), PROGRESS_COLS - sheet.getMaxColumns());
+  }
+  if (String(sheet.getRange(1, COL_PROG_QTY).getValue() || '').trim() === '') {
+    sheet.getRange(1, COL_PROG_QTY).setValue(PROGRESS_HEADERS[COL_PROG_QTY - 1])
+      .setFontWeight('bold').setBackground('#0f766e').setFontColor('#ffffff');
+  }
+  return sheet;
+}
+
+/** 預計查驗數量：留空回 ''（= 未指定），有值回數字 */
+function _planQty(v) {
+  if (v === null || v === undefined || String(v).trim() === '') return '';
+  const n = parseFloat(v);
+  return (isNaN(n) || n < 0) ? '' : n;
 }
 
 /** 日期一律回傳 yyyy-MM-dd 字串（試算表可能存成 Date 物件，直接 JSON 化會時區位移一天） */
@@ -1565,7 +1583,8 @@ function _progressObj(r) {
     link_group_id: r[6] || '',
     note: r[7] || '',
     created_at: r[8] || '', created_by: r[9] || '',
-    updated_at: r[10] || '', updated_by: r[11] || ''
+    updated_at: r[10] || '', updated_by: r[11] || '',
+    plan_qty: _planQty(r[COL_PROG_QTY - 1])
   };
 }
 
@@ -1575,8 +1594,8 @@ function _getProgressPlans() {
   const data = sheet.getRange(2, 1, sheet.getLastRow() - 1, PROGRESS_COLS).getValues();
   return data
     .filter(r => String(r[0] || '').trim() !== ''
-              && r[PROGRESS_COLS - 1] !== true
-              && String(r[PROGRESS_COLS - 1]).toUpperCase() !== 'TRUE')
+              && r[COL_PROG_DELETED - 1] !== true
+              && String(r[COL_PROG_DELETED - 1]).toUpperCase() !== 'TRUE')
     .map(_progressObj);
 }
 
@@ -1606,6 +1625,7 @@ function _saveProgressPlan(data) {
   const due    = _dateStr(data.due_date);
   const link   = String(data.link_group_id || '').trim();
   const note   = String(data.note || '');
+  const qty    = _planQty(data.plan_qty);
   const by     = data.updated_by || data.created_by || 'Admin';
   const now    = new Date().toISOString();
   const label  = area + ' ' + (b.item_no || '') + ' ' + (b.item_name_cn || '');
@@ -1617,7 +1637,7 @@ function _saveProgressPlan(data) {
     const old = sheet.getRange(idx, 1, 1, PROGRESS_COLS).getValues()[0];
     sheet.getRange(idx, 1, 1, PROGRESS_COLS).setValues([[
       planId, area, bid, b.item_name_cn, status, due, link, note,
-      old[8] || now, old[9] || by, now, by, ''
+      old[8] || now, old[9] || by, now, by, '', qty
     ]]);
     _addLog('UPDATE', 'progress', planId, '修改查驗進度 ' + label + '（' + status + '）', by);
     return { success: true, plan_id: planId, before: [_progressObj(old)], message: '查驗進度已更新' };
@@ -1625,7 +1645,7 @@ function _saveProgressPlan(data) {
 
   const newId = 'PP-' + Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyyMMdd-HHmmss')
               + '-' + Math.floor(Math.random() * 900 + 100);
-  sheet.appendRow([newId, area, bid, b.item_name_cn, status, due, link, note, now, by, now, by, '']);
+  sheet.appendRow([newId, area, bid, b.item_name_cn, status, due, link, note, now, by, now, by, '', qty]);
   _addLog('CREATE', 'progress', newId, '新增查驗進度 ' + label + '（' + status + '）', by);
   return { success: true, plan_id: newId, message: '查驗進度已新增' };
 }
@@ -1640,7 +1660,7 @@ function _deleteProgressPlan(planId, by) {
   const old = sheet.getRange(idx, 1, 1, PROGRESS_COLS).getValues()[0];
   sheet.getRange(idx, 11).setValue(new Date().toISOString());
   sheet.getRange(idx, 12).setValue(by || 'Admin');
-  sheet.getRange(idx, PROGRESS_COLS).setValue(true);
+  sheet.getRange(idx, COL_PROG_DELETED).setValue(true);
   _addLog('DELETE', 'progress', id, '刪除查驗進度 ' + (old[1] || '') + ' ' + (old[3] || ''), by || 'Admin');
   return { success: true, plan_id: id, before: [_progressObj(old)], message: '查驗進度已刪除' };
 }
