@@ -3997,7 +3997,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
       <div class="mc-sec-h"><b>④ 改善單 KPI 總結圖（附件）</b><div style="display:flex;gap:6px"><a class="mc-btn" href="tpc-pipeline-improvement-system_30.html" target="_blank" rel="noopener" style="text-decoration:none">📊 開啟改善單系統</a><button type="button" class="mc-btn" onclick="makeMcKpi()" title="看看寄出時若沒有同步圖，系統自己畫的備援版長什麼樣（畫質較低，只做預覽，不會取代這裡的圖）">🖼 預覽備援版</button><button type="button" class="mc-btn" onclick="uploadMcKpi()">⬆ 手動上傳</button><button type="button" class="mc-btn" onclick="removeMcKpi()">🗑 移除</button></div></div>
       <input type="file" id="mcKpiInput" accept="image/*" style="display:none" onchange="handleMcKpi(this)">
       <div id="mcKpi"></div>
-      <div class="mc-note" style="margin-top:8px">Drive 裡永遠保留原檔（高畫質，點圖可放大看字）。只有在「附件＋內嵌照片」加起來超過信件大小上限時，寄出的那一份才會自動縮小：先縮目前最大的那張，一低於上限就停手，而且有寬度下限（KPI 圖最小 1280px、現場照片最小 720px），不會縮到看不清楚。真的有縮小時，寄送紀錄與寄出訊息會寫明「圖片自動縮小 ○MB→○MB」。<br>另外 Google 對「信件內文」有 200KB 的上限（和圖片無關，是 HTML 文字本身）；系統寄出前會先把重複的字型宣告瘦身（約可省一半），萬一追蹤事項多到還是超過，會依「環保委外項目 → 本週活動 → 排程中 → 本期完成」的順序把該區塊換成一行說明，確保信一定寄得出去，並在寄送紀錄標明省略了哪幾區。</div>
+      <div class="mc-note" style="margin-top:8px">Drive 裡永遠保留原檔（高畫質，點圖可放大看字）。只有在「附件＋內嵌照片」加起來超過信件大小上限時，寄出的那一份才會自動縮小：先縮目前最大的那張，一低於上限就停手，而且有寬度下限（KPI 圖最小 1280px、現場照片最小 720px），不會縮到看不清楚。真的有縮小時，寄送紀錄與寄出訊息會寫明「圖片自動縮小 ○MB→○MB」。<br>另外 Google 對「信件內文」有 200KB 的上限（和圖片無關，是 HTML 文字本身）；系統寄出前會先把重複的字型宣告瘦身（約可省一半），萬一追蹤事項多到還是超過，會依「環保委外項目 → 上週/本週活動 → 排程中 → 本期完成」的順序把該區塊換成一行說明，確保信一定寄得出去，並在寄送紀錄標明省略了哪幾區。</div>
     </div>
 
     <div class="mc-sec">

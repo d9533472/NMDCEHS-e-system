@@ -1545,7 +1545,7 @@ function trkNcrTable_(rows, doTr) {
   return h + '</table>';
 }
 
-// ── 本週活動 Coming Activities：寄出日起 7 天（週一寄 = 週一～週日）的重點活動 ──
+// ── 活動 Activities：上週已執行（＝報告期間 週一～週日）＋ 本週預計（寄出日起 7 天） ──
 var EVT_DEFAULT_TYPES = [
   { key: 'audit', label: '查核', color: '#dc2626', bg: '#fef2f2' },
   { key: 'campaign', label: 'Campaign', color: '#7c3aed', bg: '#ede9fe' },
@@ -1553,16 +1553,21 @@ var EVT_DEFAULT_TYPES = [
   { key: 'other', label: '其他', color: '#475569', bg: '#f1f5f9' }
 ];
 function trkWeekEvents_(data, today) {
-  var from = trkParse_(today), list = [];
+  var from = trkParse_(today);
+  var range = reportRange_();                 // 上週一～上週日，與信件抬頭的「報告期間」一致
+  var past = [], list = [];
   (data.events || []).forEach(function(ev) {
     if (!ev || !ev.date) return;
     var d = trkDaysLeft_(ev.date, today);
-    if (d == null || d < 0 || d > 6) return;
-    list.push(ev);
+    if (d != null && d >= 0 && d <= 6) { list.push(ev); return; }   // 本週預計（今天起 7 天）
+    var iso = String(ev.date).slice(0, 10).replace(/\//g, '-');
+    if (iso >= range.fromIso && iso <= range.toIso) past.push(ev);  // 上週已執行（報告期間內）
   });
-  list.sort(function(a, b) { return String(a.date).localeCompare(String(b.date)) || (b.starred ? 1 : 0) - (a.starred ? 1 : 0); });
+  var byDate = function(a, b) { return String(a.date).localeCompare(String(b.date)) || (b.starred ? 1 : 0) - (a.starred ? 1 : 0); };
+  past.sort(byDate); list.sort(byDate);
   var to = new Date(from.getTime() + 6 * 86400000);
-  return { list: list, from: trkFmt_(from, '/'), to: trkFmt_(to, '/') };
+  return { past: past, list: list, pastFrom: range.from, pastTo: range.to,
+           from: trkFmt_(from, '/'), to: trkFmt_(to, '/') };
 }
 // ── 環保委外項目（放在現場照片下方，小字；狀態不常變動，所以只做精簡列表） ──
 var ENV_SCOPE_ST = [
@@ -1615,17 +1620,13 @@ function trkScopeHtml_(data) {
   });
   return h + '</table>';
 }
-function trkEventsHtml_(data, today, doTr) {
-  var w = trkWeekEvents_(data, today);
-  var types = (data.eventTypes && data.eventTypes.length) ? data.eventTypes : EVT_DEFAULT_TYPES;
+function trkEventTable_(list, types, doTr, done) {
   var typeOf = function(key) {
     for (var i = 0; i < types.length; i++) if (types[i].key === key) return types[i];
     return { label: '其他', color: '#475569', bg: '#f1f5f9' };
   };
-  var h = trkSectionTitle_('📅', '本週活動', 'Coming Activities', w.from + ' ~ ' + w.to + ' 的重點活動 · Key activities scheduled this week', '#7c3aed');
-  if (!w.list.length) return h + trkEmptyNote_('本週沒有排定的活動。', 'No activities scheduled this week.');
-  h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
-  w.list.forEach(function(ev, i) {
+  var h = '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;border:1px solid #d8dee6;margin-top:10px;">';
+  list.forEach(function(ev, i) {
     var bg = i % 2 === 0 ? '#ffffff' : '#f6f8fa';
     var t = typeOf(ev.typeKey);
     var wd = trkWeekdayZh_(ev.date);
@@ -1635,11 +1636,12 @@ function trkEventsHtml_(data, today, doTr) {
     var TD = 'padding:10px 12px;border-top:1px solid #e5e9ef;vertical-align:top;word-wrap:break-word;' + TRK_FONT;
     h += '<tr bgcolor="' + bg + '">';
     h += '<td bgcolor="' + bg + '" width="18%" style="' + TD + 'background-color:' + bg + ';">' +
-           trkP_(md, 'font-size:15px;font-weight:bold;color:#0f172a;line-height:1.1;') +
+           trkP_(md, 'font-size:15px;font-weight:bold;color:' + (done ? '#15803d' : '#0f172a') + ';line-height:1.1;') +
            trkP_(wd, 'font-size:11px;color:#64748b;margin-top:2px;') + '</td>';
     h += '<td bgcolor="' + bg + '" width="17%" style="' + TD + 'background-color:' + bg + ';">' +
            '<table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + (t.bg || '#f1f5f9') + '" style="background-color:' + (t.bg || '#f1f5f9') + ';padding:3px 8px;">' +
-             trkP_(trkEsc_(t.label || '其他'), 'font-size:10px;font-weight:bold;color:' + (t.color || '#475569') + ';white-space:nowrap;') + '</td></tr></table></td>';
+             trkP_(trkEsc_(t.label || '其他'), 'font-size:10px;font-weight:bold;color:' + (t.color || '#475569') + ';white-space:nowrap;') + '</td></tr></table>' +
+           (done ? trkP_('✓ 已執行 Done', 'font-size:10px;font-weight:bold;color:#15803d;margin-top:4px;') : '') + '</td>';
     var body = trkP_((ev.starred ? '⭐ ' : '') + trkEsc_(ev.title || '（未命名）'), 'font-size:13px;font-weight:bold;color:#0f172a;');
     var titleEn = doTr ? tr_(ev.title || '') : '';
     if (titleEn) body += trkP_(trkEsc_(titleEn), 'font-size:11px;color:#8a97a8;margin-top:2px;line-height:1.45;');
@@ -1653,6 +1655,23 @@ function trkEventsHtml_(data, today, doTr) {
     h += '</tr>';
   });
   return h + '</table>';
+}
+function trkEventsHtml_(data, today, doTr) {
+  var w = trkWeekEvents_(data, today);
+  var types = (data.eventTypes && data.eventTypes.length) ? data.eventTypes : EVT_DEFAULT_TYPES;
+  var h = trkSectionTitle_('📅', '上週已執行及本週預計活動', 'Activities · Last Week &amp; This Week',
+    '已執行 ' + w.pastFrom + ' ~ ' + w.pastTo + '　·　預計 ' + w.from + ' ~ ' + w.to +
+    ' · Activities carried out last week and scheduled for this week', '#7c3aed');
+  if (!w.past.length && !w.list.length) {
+    return h + trkEmptyNote_('上週與本週都沒有排定的活動。', 'No activities recorded for last week or scheduled for this week.');
+  }
+  h += trkSubHead_('✅ 上週已執行（' + w.past.length + ' 場）Executed last week · ' + w.pastFrom + ' ~ ' + w.pastTo, '#15803d');
+  h += w.past.length ? trkEventTable_(w.past, types, doTr, true)
+                     : trkEmptyNote_('上週沒有排定的活動。', 'No activities were scheduled last week.');
+  h += trkSubHead_('📌 本週預計（' + w.list.length + ' 場）Planned this week · ' + w.from + ' ~ ' + w.to, '#7c3aed');
+  h += w.list.length ? trkEventTable_(w.list, types, doTr, false)
+                     : trkEmptyNote_('本週沒有排定的活動。', 'No activities scheduled this week.');
+  return h;
 }
 
 // ── 現場照片（兩欄，不裁切、原比例） ──
@@ -1907,10 +1926,10 @@ function buildTrackerMail_(opts) {
         4, '本期完成 ' + doneInRange.length + ' 項', 'Items completed this period');
   }
 
-  // 本週活動（照片上方）
+  // 上週已執行及本週預計活動（照片上方）
   var evHtml = '';
   try { evHtml = trkEventsHtml_(data, today, doTr); } catch(e) { Logger.log('活動區塊產生失敗：' + e.message); }
-  add(evHtml, 2, '本週活動', 'Activities this week');
+  add(evHtml, 2, '上週已執行及本週預計活動', 'Activities last &amp; this week');
 
   // 現場照片
   if (photos.length) {
