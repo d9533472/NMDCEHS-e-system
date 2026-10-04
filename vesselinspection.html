@@ -240,6 +240,26 @@ window.__earlyBoot = null;
   .modal p{margin:0 0 16px; font-size:14px; color:#4a5764; line-height:1.5; word-break:break-all;}
   .modal .btns{display:flex; gap:8px; justify-content:flex-end;}
   .modal input{margin-bottom:14px;}
+  /* 📎 PDF 附件勾選清單:比一般對話框寬,清單自己捲動 */
+  .modal.wide{max-width:660px;}
+  .apl{max-height:46vh; overflow-y:auto; border:1px solid var(--line); border-radius:10px; margin:0 0 12px;}
+  .apl .grp{background:#F0F4F8; color:#12283F; font-weight:800; font-size:12px; padding:6px 11px;
+    border-bottom:1px solid var(--line); position:sticky; top:0;}
+  .apl .row{display:flex; gap:9px; align-items:flex-start; padding:8px 11px; border-bottom:1px solid #EDF1F5;
+    cursor:pointer;}
+  .apl .row:last-child{border-bottom:0;}
+  .apl .row:hover{background:#F7FAFC;}
+  .apl .row.on{background:#F2F7FF;}
+  .apl .row input{margin:2px 0 0; width:16px; height:16px; flex:0 0 auto;}
+  .apl .row .mt{flex:1; min-width:0;}
+  .apl .row .cd{font-weight:800; color:#B03030; font-size:12.5px;}
+  .apl .row .ti{color:#54626f; font-size:12px; line-height:1.45;}
+  .apl .row .fn{color:#12283F; font-size:12.5px; word-break:break-all;}
+  .apl .row .sz{color:#8A94A0; font-size:11.5px; font-variant-numeric:tabular-nums; white-space:nowrap;}
+  .aptot{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:13px; color:#4a5764;
+    margin:0 0 12px;}
+  .aptot b{color:#12283F;}
+  .aptot.warn{color:var(--red);} .aptot.warn b{color:var(--red);}
 
   .pbar{height:6px; background:#e7ecf1; border-radius:3px; overflow:hidden; min-width:70px;}
   .pbar i{display:block; height:100%; background:var(--accent); border-radius:3px;}
@@ -299,6 +319,20 @@ const T = {
     pdfFetching:'Downloading attachment photos…', pdfFetchingN:(i,n)=>`Downloading attachment photos… ${i} / ${n}`,
     pdfFetchBig:(i,n)=>`Downloading large photos… ${i} / ${n}`,
     pdfPaging:(i,n)=>`Rendering PDF… page ${i} / ${n}`, pdfUploading:'Saving PDF to Drive…',
+    /* 📎 PDF 附件併入報表 */
+    apT:'📎 Include PDF attachments?',
+    apP:'Tick the PDF attachments to print into the exported report. Each one gets a cover page (inspection item + file name) followed by the original pages.',
+    apNote:'Photos are always included. Word / Excel / video attachments cannot be merged in the browser — they stay as a Drive reference.',
+    apAll:'Select all', apNone:'Clear all',
+    apTot:(n,mb)=>`${n} file(s) selected · about ${mb} MB of attachments`,
+    apWarn:'Large merge — on a phone this may run out of memory. Consider exporting in batches.',
+    apGo:(n)=>`Export with ${n} attachment(s)`, apSkip:'Export without attachments',
+    apSrc:{ self:'5.1 Contractor Self-Check', nmdc:'5.2 NMDC Inspection', cmt:'5.3 Comments & Follow-up' },
+    apFetch:(i,n)=>`Downloading PDF attachments… ${i} / ${n}`,
+    apCover:(i,n)=>`Building attachment cover pages… ${i} / ${n}`,
+    apMerge:'Merging attachments into the report…',
+    apFail:(n)=>`⚠ ${n} attachment(s) could not be merged (protected or damaged PDF) — their cover page notes this; open the original from Drive.`,
+    apDoneBody:(n,mb)=>`The downloaded file contains the report plus ${n} attachment original(s) (about ${mb} MB).\nThe Drive copy is the report WITHOUT attachments — attachment originals are already in the same Drive folder.`,
     vNameZh:'Vessel Name (Chinese)', vNameEn:'Vessel Name (English)', mmsi:'MMSI', imo:'IMO No.',
     tonnage:'Gross Tonnage', vClass:'Class Society (CR, ABS...)', projectNo:'Project No.',
     location:'Location', inspectDate:'Inspection Date',
@@ -356,8 +390,9 @@ const T = {
     pdfLocalToo:'A copy has also been downloaded to this device.',
     pdfDriveFail:'⚠ PDF was downloaded to this device, but saving to Drive failed — export again later to file the Drive copy.',
     pdfFailT:'PDF export failed — diagnostic info',
-    pdfStage:{ init:'Initialising', fetch:'Downloading attachment photos', render:'Rendering pages', download:'Downloading file', upload:'Saving to Drive' },
-    pdfFailBody:(st, msg, d)=>`Failed at stage: ${st}\nError: ${msg}\nAttachments: ${d.atts} (photos fetched: ${d.imgs})\nPages: ${d.pages || '—'}\nVersion: ${APP_VER} · ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)?'Mobile':'Desktop'}\n\nPlease screenshot this window and send it to the system admin.`,
+    pdfStage:{ init:'Initialising', fetch:'Downloading attachment photos', attfetch:'Downloading PDF attachments', render:'Rendering pages', cover:'Building attachment cover pages', merge:'Merging attachments', download:'Downloading file', upload:'Saving to Drive' },
+    pdfFailBody:(st, msg, d)=>`Failed at stage: ${st}\nError: ${msg}\nAttachments: ${d.atts} (photos fetched: ${d.imgs})
+PDF attachments merged: ${d.attPdfs==null?"—":d.attPdfs+" (failed: "+(d.attFail||0)+")"}\nPages: ${d.pages || '—'}\nVersion: ${APP_VER} · ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)?'Mobile':'Desktop'}\n\nPlease screenshot this window and send it to the system admin.`,
     confirmDelT:'Delete inspection?', confirmDelP:'This will delete the record and all attachments. This cannot be undone.',
     newNoticeT:'NOTICE',
     newNoticeList:[
@@ -441,6 +476,20 @@ const T = {
     pdfFetching:'附件照片下載中…', pdfFetchingN:(i,n)=>`附件照片下載中… ${i} / ${n} 張`,
     pdfFetchBig:(i,n)=>`大圖下載壓縮中… ${i} / ${n} 張`,
     pdfPaging:(i,n)=>`PDF 排版中… 第 ${i} / ${n} 頁`, pdfUploading:'PDF 存回 Drive 中…',
+    /* 📎 PDF 附件併入報表 */
+    apT:'📎 要把 PDF 附件一起印出來嗎?',
+    apP:'勾選要併入這份報表的 PDF 附件。每一個都會先給一張封面頁(檢查項目＋檔案名稱),後面接該附件的原件全頁。',
+    apNote:'照片一向都會印在附錄裡。Word / Excel / 影片附件無法在瀏覽器合併,維持「存放於 Drive」的註記。',
+    apAll:'全選', apNone:'全不選',
+    apTot:(n,mb)=>`已勾 ${n} 個檔案 · 附件約 ${mb} MB`,
+    apWarn:'檔案偏大 — 手機可能記憶體不足而失敗,建議分批匯出。',
+    apGo:(n)=>`匯出(含 ${n} 個附件)`, apSkip:'不含附件,直接匯出',
+    apSrc:{ self:'5.1 廠商自檢附件', nmdc:'5.2 NMDC 檢查附件', cmt:'5.3 留言與改善回覆附件' },
+    apFetch:(i,n)=>`PDF 附件下載中… ${i} / ${n} 個`,
+    apCover:(i,n)=>`附件封面頁製作中… ${i} / ${n} 張`,
+    apMerge:'附件併入報表中…',
+    apFail:(n)=>`⚠ 有 ${n} 個附件無法併入(PDF 受保護或檔案損毀)— 封面頁已註明,請改到 Drive 開啟原件。`,
+    apDoneBody:(n,mb)=>`下載到裝置的這一份含報表＋${n} 個附件原件(約 ${mb} MB)。\nDrive 留底的是「不含附件」的報表 — 附件原始檔本來就存在同一個 Drive 資料夾裡。`,
     vNameZh:'船舶中文名稱', vNameEn:'船舶英文名稱', mmsi:'MMSI', imo:'IMO 編號',
     tonnage:'總噸位', vClass:'船級協會 (CR、ABS...)', projectNo:'專案編號',
     location:'地點', inspectDate:'檢查日期',
@@ -498,8 +547,9 @@ const T = {
     pdfLocalToo:'已同時下載一份到此裝置。A copy has also been downloaded to this device.',
     pdfDriveFail:'⚠ PDF 已下載到此裝置,但存回 Drive 失敗 — 請稍後對此紀錄再按一次匯出即可補存 Drive。',
     pdfFailT:'PDF 匯出失敗 — 診斷資訊',
-    pdfStage:{ init:'初始化', fetch:'附件照片下載', render:'頁面排版', download:'檔案下載', upload:'存回 Drive' },
-    pdfFailBody:(st, msg, d)=>`失敗階段:${st}\n錯誤訊息:${msg}\n附件:${d.atts} 個(照片取得 ${d.imgs} 張)\n頁數:${d.pages || '—'}\n版本:${APP_VER} · ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)?'手機':'電腦'}\n\n請截圖此視窗回報,即可快速定位問題。`,
+    pdfStage:{ init:'初始化', fetch:'附件照片下載', attfetch:'PDF 附件下載', render:'頁面排版', cover:'附件封面頁', merge:'附件合併', download:'檔案下載', upload:'存回 Drive' },
+    pdfFailBody:(st, msg, d)=>`失敗階段:${st}\n錯誤訊息:${msg}\n附件:${d.atts} 個(照片取得 ${d.imgs} 張)
+併入的 PDF 附件:${d.attPdfs==null?"—":d.attPdfs+" 個(失敗 "+(d.attFail||0)+" 個)"}\n頁數:${d.pages || '—'}\n版本:${APP_VER} · ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)?'手機':'電腦'}\n\n請截圖此視窗回報,即可快速定位問題。`,
     confirmDelT:'確定刪除這筆檢查?', confirmDelP:'將刪除此紀錄及所有附件,無法復原。',
     newNoticeT:'注意',
     newNoticeList:[
@@ -790,13 +840,16 @@ function missingOf(map, cl){ return codesOf(cl).filter(c => !(map && map[c] && m
 const CLASS_OPTIONS = ['CR','ABS','BV','DNV','LR','NK (ClassNK)','KR','RINA','CCS'];
 
 /* ---------------- API (XHR text/plain,行動 Safari 相容) ---------------- */
+/* 📎 PDF 附件併入報表:需要後端的 fileRaw 動作(2026-10-04 已部署 @24)
+   若日後後端回滾到沒有 fileRaw 的版本,把這裡改回 false,正式模式就不顯示勾選視窗。 */
+const ATT_MERGE_READY = true;
 const LOCAL = !SCRIPT_URL;
 const LS_KEY = 'evis_data_v1';
 const TEST_KEY = 'evis_data_test';
 let TESTMODE = localStorage.getItem('evis_test') === '1';   // 🧪 測試模式:資料只存瀏覽器
 
 /* 讀取類請求自動重試(GAS 偶發暫時錯誤/冷啟動逾時的主因對策) */
-const READ_ACTIONS = { list:1, get:1, getChecklist:1, bootstrap:1, filesData:1 };
+const READ_ACTIONS = { list:1, get:1, getChecklist:1, bootstrap:1, filesData:1, fileRaw:1 };
 
 function apiOnce(action, payload) {
   return new Promise((resolve, reject) => {
@@ -804,7 +857,7 @@ function apiOnce(action, payload) {
     xhr.open('POST', SCRIPT_URL, true);
     /* 上傳/存 PDF 帶大 payload,行動網路慢時 30 秒不夠 → 給 120 秒;其餘 30 秒避免掛住 */
     xhr.timeout = (action === 'upload' || action === 'storePdf') ? 120000
-                : (action === 'filesData' || action === 'fileData') ? 90000 : 30000;   // 抓附件圖片:分批+90 秒
+                : (action === 'filesData' || action === 'fileData' || action === 'fileRaw') ? 90000 : 30000;   // 抓附件圖片:分批+90 秒
     xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
     xhr.onload = () => {
       if (xhr.status >= 400) { reject(new Error('HTTP ' + xhr.status)); return; }
@@ -834,7 +887,7 @@ function api(action, payload) {
   payload = payload || {};
   if (WHO_ACTIONS[action] && !payload.who) payload.who = getWho();
   if (LOCAL || TESTMODE) return localApi(action, payload);
-  const retries = (action === 'filesData' || action === 'fileData') ? 1   // 抓圖:批次本身可容錯,只重試 1 次
+  const retries = (action === 'filesData' || action === 'fileData' || action === 'fileRaw') ? 1   // 抓圖:批次本身可容錯,只重試 1 次
                 : READ_ACTIONS[action] ? 2 : 0;   // 讀取最多重試 2 次;寫入不重試(避免重複)
   const attempt = (n) => apiOnce(action, payload || {}).catch(err => {
     if (n < retries) return new Promise(r => setTimeout(r, 800 * (n + 1))).then(() => attempt(n + 1));
@@ -1168,11 +1221,14 @@ function buildReportHtml(o, currentCl) {
  * ================================================================ */
 const LIB_H2C   = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
 const LIB_JSPDF = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+/* 📎 把 PDF 附件原件併進報表用:jsPDF 只能產生新頁,複製既有 PDF 的頁面要靠 pdf-lib */
+const LIB_PDFLIB = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
 const __libs = {};
 /* 備援 CDN:cdnjs 連不上(公司網路封鎖/船上網路)時改抓 jsdelivr */
 const LIB_FALLBACK = {};
 LIB_FALLBACK[LIB_H2C]   = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
 LIB_FALLBACK[LIB_JSPDF] = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js';
+LIB_FALLBACK[LIB_PDFLIB]= 'https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js';
 function loadOne_(src) {
   return new Promise((res, rej) => {
     const s = document.createElement('script');
@@ -1188,7 +1244,214 @@ function loadScriptOnce(src) {
   return __libs[src];
 }
 
-function buildReportBlocks(o, cl, imgMap) {
+/* ================================================================
+ *  📎 附件分組 — 附錄 5.x 的卡片與「PDF 附件勾選清單」共用這一份
+ *  同一個檔案上傳到多個項目(原始檔名+大小相同)→ 只算一份,標籤列出涵蓋的項目。
+ *  兩邊共用才能保證勾選清單的順序/序號和附錄卡片對得上。
+ * ================================================================ */
+function attOrigName(f) { const s = String(f.name || ''); const i = s.indexOf(' & '); return i > -1 ? s.slice(i + 3) : s; }
+function attIsPdf(f) { return /\.pdf$/i.test(attOrigName(f)); }
+function fmtMB(n) { const v = (Number(n) || 0) / 1048576; return (v < 10 ? v.toFixed(1) : Math.round(v)) + ' MB'; }
+function attDedupe(list) {
+  const map = new Map();
+  list.forEach(x => {
+    const k = attOrigName(x.f) + '|' + (x.f.size || '');
+    const g = map.get(k);
+    if (g) { if (g.tags.indexOf(x.tag) < 0) g.tags.push(x.tag); }
+    else map.set(k, { f: x.f, tags: [x.tag], ac: x.ac, hbg: x.hbg, src: x.src });
+  });
+  return Array.from(map.values());
+}
+function attGroupsOf(o, cl) {
+  const atts = o.attachments || [];
+  const codes = codesOf(cl);
+  const defects = (o.data && o.data.defects) || [];
+  const cmts = (o.data && o.data.comments) || [];
+  const attsOf = (code, stage) => atts.filter(x => x.itemCode === (stage === 'nmdc' ? code + '#NMDC' : code));
+  const secColorOf = code => {
+    const idx = cl.findIndex(s => s.code === String(code).split('-')[0]);
+    return PDF_COLORS[(idx < 0 ? 0 : idx) % PDF_COLORS.length];
+  };
+  const selfList = [], nmdcList = [], cmtList = [];
+  codes.forEach(code => {
+    const c = secColorOf(code);
+    attsOf(code, 'self').forEach(f => selfList.push({ f, tag: code, ac: c.ac, hbg: '#F0F4F8', src: 'self' }));
+    attsOf(code, 'nmdc').forEach(f => nmdcList.push({ f, tag: code, ac: '#1D3D5C', hbg: '#EDF2F8', src: 'nmdc' }));
+  });
+  defects.forEach((d, i) => {
+    atts.filter(x => x.itemCode === 'DEF-' + d.id).forEach(f =>
+      cmtList.push({ f, tag: 'D' + (i + 1) + ((d.codes || []).length ? ' · ' + d.codes.join(' · ') : ''),
+        ac: '#8a5a00', hbg: '#FFF7E8', src: 'cmt' }));
+  });
+  atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f =>
+    cmtList.push({ f, tag: '改善回覆 Follow-up', ac: '#C77F0A', hbg: '#FDF7EA', src: 'cmt' }));
+  cmts.forEach(e => {
+    const isN = e.author === 'nmdc';
+    atts.filter(x => x.itemCode === 'CMT-' + e.id).forEach(f =>
+      cmtList.push({ f, tag: '💬 ' + (isN ? 'NMDC' : '廠商 Contractor') + ' ' + String(e.at || '').slice(0, 10),
+        ac: isN ? '#1D3D5C' : '#1C7A42', hbg: isN ? '#EDF2F8' : '#F0FAF4', src: 'cmt' }));
+  });
+  return { self: attDedupe(selfList), nmdc: attDedupe(nmdcList), cmt: attDedupe(cmtList) };
+}
+/* 可併入報表的 PDF 附件(照附錄 5.1 → 5.2 → 5.3 的順序) */
+function pdfAttListOf(o, cl) {
+  const G = attGroupsOf(o, cl);
+  const out = [];
+  ['self', 'nmdc', 'cmt'].forEach(k => G[k].forEach(g => { if (attIsPdf(g.f)) out.push(Object.assign({}, g, { src: k })); }));
+  return out;
+}
+
+/* ---------------- 取附件原始位元組 ---------------- */
+function b64ToBytes(b64) {
+  const bin = atob(String(b64 || '').replace(/\s/g, ''));
+  const u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+/* GAS 單次回應不能太大 → 分段抓(每段 1.2MB 原始位元組,base64 後約 1.6MB) */
+const RAW_CHUNK = 1200000;
+async function fetchAttBytes(att) {
+  if (LOCAL || TESTMODE) {   /* 本機/測試模式:附件本身就是 data: URL */
+    const u = String(att.url || '');
+    const i = u.indexOf('base64,');
+    if (i < 0) throw new Error('NO_LOCAL_DATA');
+    return b64ToBytes(u.slice(i + 7));
+  }
+  const parts = [];
+  let start = 0, total = 0;
+  for (let guard = 0; guard < 400; guard++) {
+    const r = await api('fileRaw', { id: att.fileId, start, len: RAW_CHUNK });
+    const chunk = r.b64 ? b64ToBytes(r.b64) : new Uint8Array(0);
+    parts.push(chunk);
+    total += chunk.length;
+    start += chunk.length;
+    if (r.eof || !chunk.length || (r.size && start >= Number(r.size))) break;
+  }
+  if (!total) throw new Error('EMPTY_FILE');
+  const out = new Uint8Array(total);
+  let at = 0;
+  parts.forEach(p => { out.set(p, at); at += p.length; });
+  return out;
+}
+
+/* ---------------- 附件封面頁 ---------------- */
+/* 封面用 html2canvas 產生(和報表同一條管線)→ 中文不用另外嵌字型 */
+function attCoverHtml(o, cl, g, serial, idx, total, pages, failMsg) {
+  const tmap = titleMapOf(cl);
+  const SRC = { self: '5.1 廠商自檢附件 Contractor Self-Check',
+                nmdc: '5.2 NMDC 檢查附件 NMDC Inspection',
+                cmt:  '5.3 留言與改善回覆附件 Comment &amp; Follow-up' };
+  /* 標籤裡的項目代碼(可能涵蓋多個項目)→ 取出題目;留言/改善回覆類沒有代碼,就直接用標籤 */
+  const seen = [];
+  g.tags.forEach(tg => String(tg).split(' · ').forEach(tok => {
+    tok = tok.trim();
+    if (/^[A-Z]{1,3}-\d+$/i.test(tok) && tmap[tok] && seen.indexOf(tok) < 0) seen.push(tok);
+  }));
+  const name = attOrigName(g.f);
+  const itemHtml = seen.length
+    ? seen.map(c =>
+        '<div style="margin-bottom:10px">' +
+        '<div style="font-size:30px; font-weight:800; color:#B03030; letter-spacing:.5px; line-height:1.1">' + esc(c) + '</div>' +
+        '<div style="font-size:17px; font-weight:700; color:#12283F; margin-top:5px; line-height:1.45">' + esc(tmap[c].zh) + '</div>' +
+        '<div style="font-size:13px; color:#5A6673; margin-top:2px; line-height:1.45">' + esc(tmap[c].en) + '</div>' +
+        '</div>').join('')
+    : '<div style="font-size:22px; font-weight:800; color:#12283F; line-height:1.3">' + esc(g.tags.join(' · ')) + '</div>';
+  const meta = [fmtMB(g.f.size), (pages ? pages + ' 頁 pages' : ''), (g.f.uploadedAt ? '上傳 ' + esc(g.f.uploadedAt) : '')]
+    .filter(x => x).join('　·　');
+  return '' +
+    '<div style="display:flex; justify-content:space-between; align-items:baseline; color:#8A94A0; font-size:9px; border-bottom:1px solid #DDE4EA; padding-bottom:6px">' +
+      '<span>' + DOC_NO + ' · ' + DOC_REV + ' · ' + esc(o.inspNo || o.id || '') + '</span>' +
+      '<span>' + esc(o.vesselEn || o.vesselZh || '') + '</span></div>' +
+    '<div style="margin-top:58px">' +
+      '<div style="display:flex; justify-content:space-between; align-items:flex-end">' +
+        '<div style="font-size:15px; font-weight:800; color:#1D3D5C; letter-spacing:3px">附件 ATTACHMENT</div>' +
+        '<div style="font-size:40px; font-weight:800; color:#1D3D5C; line-height:.95">' + esc(serial) + '</div></div>' +
+      '<div style="height:5px; background:#1D3D5C; border-radius:3px; margin:9px 0 34px"></div>' +
+      itemHtml +
+      '<div style="height:1px; background:#DDE4EA; margin:26px 0 20px"></div>' +
+      '<div style="font-size:19px; font-weight:700; color:#12283F; word-break:break-all; line-height:1.4">📄 ' + esc(name) + '</div>' +
+      '<div style="font-size:12px; color:#5A6673; margin-top:7px">' + meta + '</div>' +
+      '<div style="margin-top:34px; font-size:12px; color:#5A6673; line-height:1.9">' +
+        '<div>來源　<b style="color:#12283F">' + (SRC[g.src] || '') + '</b></div>' +
+        '<div>本報表第 <b style="color:#12283F">' + idx + ' / ' + total + '</b> 個併入附件</div></div>' +
+    '</div>' +
+    (failMsg
+      ? '<div style="position:absolute; left:34px; right:34px; bottom:92px; background:#FDEEEE; border:1px solid #F3C6C6; ' +
+        'border-radius:9px; padding:11px 13px; color:#B03030; font-size:12px; line-height:1.6"><b>⚠ ' + esc(failMsg) + '</b><br>' +
+        '<span style="color:#8A5A5A">本附件原件未併入本檔,請至該筆檢查的 Google Drive 資料夾開啟原始檔。 ' +
+        'This attachment is not embedded — open the original in the Drive folder.</span></div>'
+      : '<div style="position:absolute; left:34px; right:34px; bottom:92px; color:#5A6673; font-size:12px; ' +
+        'text-align:center; border-top:1px dashed #C9D3DC; padding-top:11px">以下 ' + (pages || '') +
+        ' 頁為該附件原件　The following ' + (pages || '') + ' page(s) are the original attachment</div>');
+}
+async function generateAttCovers(o, cl, picked, onProg) {
+  await loadScriptOnce(LIB_H2C);
+  await loadScriptOnce(LIB_JSPDF);
+  const PAGE_W = 794, PAGE_H = 1123, PAD = 34;
+  const FONT = 'Arial,\'Noto Sans TC\',\'PingFang TC\',\'Microsoft JhengHei\',sans-serif';
+  const work = document.createElement('div');
+  work.style.cssText = 'position:fixed; left:-12000px; top:0; background:#fff;';
+  document.body.appendChild(work);
+  const jsPDFC = window.jspdf.jsPDF;
+  const pdf = new jsPDFC({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+  for (let i = 0; i < picked.length; i++) {
+    const p = picked[i];
+    const pg = document.createElement('div');
+    pg.style.cssText = 'width:' + PAGE_W + 'px; height:' + PAGE_H + 'px; background:#fff; padding:' + PAD +
+      'px; box-sizing:border-box; position:relative; overflow:hidden; font-family:' + FONT + '; color:#1E2A36;';
+    pg.innerHTML = attCoverHtml(o, cl, p.g, p.serial, i + 1, picked.length, p.pages, p.failMsg);
+    const foot = document.createElement('div');
+    foot.style.cssText = 'position:absolute; left:' + PAD + 'px; right:' + PAD + 'px; bottom:9px; border-top:1px solid #C9D3DC; ' +
+      'color:#8A94A0; font-size:8px; padding-top:4px; display:flex; justify-content:space-between;';
+    foot.innerHTML = '<span>' + DOC_NO + ' · ' + DOC_REV + ' · ' + esc(o.inspNo || '') + ' · 環境船檢系統</span>' +
+      '<span>附件 ' + esc(p.serial) + '</span>';
+    pg.appendChild(foot);
+    work.appendChild(pg);
+    const canvas = await window.html2canvas(pg, { scale: 2, backgroundColor: '#ffffff', logging: false });
+    if (i > 0) pdf.addPage();
+    pdf.addImage(canvas.toDataURL('image/jpeg', 0.9), 'JPEG', 0, 0, 210, 297);
+    canvas.width = canvas.height = 0;
+    pg.remove();
+    if (onProg) onProg(i + 1, picked.length);
+    await new Promise(r => setTimeout(r, 20));
+  }
+  work.remove();
+  return pdf;
+}
+
+/* 合併後的位元組不是 jsPDF 物件,沒有 .save() → 自己做下載 */
+function downloadBytes(bytes, name) {
+  const blob = new Blob([bytes], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  /* 船名可能含 "/"(M/V …),檔名不能帶路徑字元 */
+  a.href = url; a.download = String(name).replace(/[\\/:*?"<>|]/g, '_');
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 5000);
+}
+
+/* ---------------- 合併:報表 + (封面 + 附件原件) × N ---------------- */
+async function mergeReportWithAtts(reportPdf, coverPdf, picked) {
+  await loadScriptOnce(LIB_PDFLIB);
+  const PDFDocument = window.PDFLib.PDFDocument;
+  const out = await PDFDocument.create();
+  const rep = await PDFDocument.load(reportPdf.output('arraybuffer'));
+  (await out.copyPages(rep, rep.getPageIndices())).forEach(p => out.addPage(p));
+  const cov = await PDFDocument.load(coverPdf.output('arraybuffer'));
+  let lateFails = 0;
+  for (let i = 0; i < picked.length; i++) {
+    const [cp] = await out.copyPages(cov, [i]);
+    out.addPage(cp);
+    const doc = picked[i].doc;
+    if (!doc) continue;                     /* 載入階段就失敗:只留封面頁(封面上已註明原因) */
+    try {
+      (await out.copyPages(doc, doc.getPageIndices())).forEach(p => out.addPage(p));
+    } catch (e) { lateFails++; }            /* 載入成功卻複製失敗(極少)→ 併入失敗數一起回報 */
+  }
+  return { bytes: await out.save(), lateFails };
+}
+
+function buildReportBlocks(o, cl, imgMap, mergedMap) {
   const a  = (o.data && o.data.answers) || {};
   const na = (o.data && o.data.nmdcAnswers) || {};
   const sg = (o.data && o.data.signoff) || {};
@@ -1199,6 +1462,7 @@ function buildReportBlocks(o, cl, imgMap) {
     const idx = cl.findIndex(s => s.code === String(code).split('-')[0]);
     return PDF_COLORS[(idx < 0 ? 0 : idx) % PDF_COLORS.length];
   };
+  const mMap = mergedMap || {};   /* fileId → 附件序號(A-1…):原件已併入本檔後段的 PDF */
   const B = [];
   const push = (html, brk) => B.push({ html, pageBreak: !!brk });
 
@@ -1395,33 +1659,30 @@ function buildReportBlocks(o, cl, imgMap) {
     '</div>');
 
   /* ── 5. 附件(換頁)── */
+  const mCount = Object.keys(mMap).length;
   push(h2('5. 附件 Attachments') +
-    '<div style="color:#5A6673; font-size:8.5px; margin-bottom:8px; background:#F2F5F8; border:1px solid #DDE4EA; border-radius:7px; padding:5px 9px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查('+esc(o.inspNo||o.id||'')+')之對應資料夾內。 All original attachment files are stored in the corresponding Google Drive folder of this inspection record.</div>', true);
+    '<div style="color:#5A6673; font-size:8.5px; margin-bottom:8px; background:#F2F5F8; border:1px solid #DDE4EA; border-radius:7px; padding:5px 9px">📁 所有附件原始檔(含照片)皆存放於 Google Drive 該筆檢查('+esc(o.inspNo||o.id||'')+')之對應資料夾內。 All original attachment files are stored in the corresponding Google Drive folder of this inspection record.</div>' +
+    (mCount ? '<div style="color:#12283F; font-size:8.5px; margin-bottom:8px; background:#F2F7FF; border:1px solid #BFD4EE; border-radius:7px; padding:5px 9px">' +
+      '📎 本檔已併入 <b>'+mCount+'</b> 個 PDF 附件原件(附件 A-1 ～ A-'+mCount+'),接在本報表之後,每個附件前有一張封面頁。 ' +
+      'This file embeds '+mCount+' original PDF attachment(s) after the report, each preceded by a cover page.</div>' : ''), true);
 
   /* 附件卡片:依來源分三組 — 5.1 廠商自檢 / 5.2 NMDC 檢查 / 5.3 留言與改善回覆 */
-  const attBody = f => {
+  /* serial 有值 = 這個 PDF 的原件已併入本檔後段,卡片改指向封面頁的附件編號 */
+  const attBody = (f, serial) => {
     const src = imgMap[f.fileId];
-    return src
-      ? '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>'
-      : '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
+    if (src) return '<div style="padding:7px; text-align:center"><img src="'+src+'" style="max-width:100%; max-height:240px; border-radius:5px"></div>';
+    if (serial) return '<div style="padding:9px 10px; background:#F2F7FF; border-top:1px solid #D5E2F2; color:#12283F; font-size:8.5px; line-height:1.55">' +
+      '📎 <b>原件已併入本檔 — 附件 '+esc(serial)+'</b>(見本檔後段該附件的封面頁)<br>' +
+      '<span style="color:#5A6673">Original embedded in this file — see attachment '+esc(serial)+'</span></div>';
+    return '<div style="padding:10px; color:#5A6673; font-size:8.5px">📁 原始檔存放於 Google Drive 對應檢查資料夾內<br>File stored in the corresponding Google Drive inspection folder</div>';
   };
-  const attCard = (tag, ac, hbg, f, dispName, titlesHtml) =>
+  const attCard = (tag, ac, hbg, f, dispName, titlesHtml, serial) =>
     '<div style="flex:1; min-width:0; border:1px solid #D5DEE7; border-radius:9px; overflow:hidden; background:#fff">' +
     '<div style="background:'+hbg+'; padding:4px 8px; font-size:8px; font-weight:700; color:#12283F; border-left:4px solid '+ac+'">'+tag+' '+esc(dispName!=null?dispName:f.name)+
-    ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span>' + (titlesHtml||'') + '</div>' + attBody(f) + '</div>';
+    ' <span style="color:#8A94A0; font-weight:400">'+esc(f.uploadedAt||'')+'</span>' +
+    (serial ? ' <span style="background:#1D3D5C; color:#fff; border-radius:4px; padding:1px 5px; font-size:7.5px">附件 '+esc(serial)+'</span>' : '') +
+    (titlesHtml||'') + '</div>' + attBody(f, serial) + '</div>';
 
-  /* 同一張照片上傳到多個項目(檔名+大小相同)→ 附錄只放一次,標籤列出涵蓋的項目 */
-  const origName = f => { const s = String(f.name||''); const i = s.indexOf(' & '); return i > -1 ? s.slice(i+3) : s; };
-  const dedupeAtts = list => {          // list: [{f, tag, ac, hbg}]
-    const map = new Map();
-    list.forEach(x => {
-      const k = origName(x.f) + '|' + (x.f.size || '');
-      const g = map.get(k);
-      if (g) { if (g.tags.indexOf(x.tag) < 0) g.tags.push(x.tag); }
-      else map.set(k, { f: x.f, tags: [x.tag], ac: x.ac, hbg: x.hbg });
-    });
-    return Array.from(map.values());
-  };
   /* 附錄卡片標頭:項目編號後面附上項目題目(合併多項時每個代碼各一行) */
   const tmapA = titleMapOf(cl);
   const tagTitles = (tags) => {
@@ -1433,29 +1694,12 @@ function buildReportBlocks(o, cl, imgMap) {
     return seen2.map(c => '<div style="font-size:7.5px; color:#5A6673; font-weight:400; line-height:1.45; margin-top:1px">' +
       '<b style="color:#B03030">'+esc(c)+'</b> '+esc(truncS(tmapA[c].zh, 40))+'　<span style="color:#98A2AC">'+esc(truncS(tmapA[c].en, 55))+'</span></div>').join('');
   };
-  const mkCards = list => dedupeAtts(list).map(g =>
-    attCard('['+g.tags.join(' · ')+']', g.ac, g.hbg, g.f, origName(g.f), tagTitles(g.tags)));
+  const mkCards = groups => groups.map(g =>
+    attCard('['+g.tags.join(' · ')+']', g.ac, g.hbg, g.f, attOrigName(g.f), tagTitles(g.tags), mMap[g.f.fileId]));
 
-  const selfList = [], nmdcList = [], cmtList = [];
-  codes.forEach(code => {
-    const c = secColorOf(code);
-    attsOf(code, 'self').forEach(f => selfList.push({ f, tag: code, ac: c.ac, hbg: '#F0F4F8' }));
-    attsOf(code, 'nmdc').forEach(f => nmdcList.push({ f, tag: code, ac: '#1D3D5C', hbg: '#EDF2F8' }));
-  });
-  defects.forEach((d, i) => {
-    atts.filter(x => x.itemCode === 'DEF-' + d.id).forEach(f =>
-      cmtList.push({ f, tag: 'D' + (i+1) + ((d.codes||[]).length ? ' · ' + d.codes.join(' · ') : ''),
-        ac: '#8a5a00', hbg: '#FFF7E8' }));
-  });
-  atts.filter(x => x.itemCode === 'FOLLOWUP').forEach(f =>
-    cmtList.push({ f, tag: '改善回覆 Follow-up', ac: '#C77F0A', hbg: '#FDF7EA' }));
-  cmts.forEach(e => {
-    const isN = e.author === 'nmdc';
-    atts.filter(x => x.itemCode === 'CMT-'+e.id).forEach(f =>
-      cmtList.push({ f, tag: '💬 '+(isN?'NMDC':'廠商 Contractor')+' '+String(e.at||'').slice(0,10),
-        ac: isN?'#1D3D5C':'#1C7A42', hbg: isN?'#EDF2F8':'#F0FAF4' }));
-  });
-  const selfCards = mkCards(selfList), nmdcCards = mkCards(nmdcList), cmtCards = mkCards(cmtList);
+  /* 分組與「PDF 附件勾選清單」共用 attGroupsOf,序號才對得上 */
+  const AG = attGroupsOf(o, cl);
+  const selfCards = mkCards(AG.self), nmdcCards = mkCards(AG.nmdc), cmtCards = mkCards(AG.cmt);
 
   const pushCards = (title, cards) => {
     if (!cards.length) return;
@@ -1496,7 +1740,7 @@ function shrinkDataUrl(durl, MAX) {
   });
 }
 
-async function generatePdf(o, cl, imgMap, onProg) {
+async function generatePdf(o, cl, imgMap, onProg, mergedMap) {
   await loadScriptOnce(LIB_H2C);
   await loadScriptOnce(LIB_JSPDF);
   /* 大圖先縮小(平行處理) */
@@ -1514,7 +1758,7 @@ async function generatePdf(o, cl, imgMap, onProg) {
   const stage = document.createElement('div');
   stage.style.cssText = 'width:'+(PAGE_W - PAD*2)+'px; background:#fff; font-family:'+FONT+'; color:#1E2A36;';
   work.appendChild(stage);
-  const queue = buildReportBlocks(o, cl, imgMap).map(b => {
+  const queue = buildReportBlocks(o, cl, imgMap, mergedMap).map(b => {
     const d = document.createElement('div');
     d.innerHTML = b.html;
     d.__break = b.pageBreak;
@@ -1618,6 +1862,75 @@ function Modal({ m, t }) {
                 <button className="btn btn-o btn-sm" onClick={m.onCancel}>{m.cancelLabel || t.cancel}</button>
                 {m.onOk && <button className={'btn btn-sm ' + (m.danger ? 'btn-r' : 'btn-p')} onClick={ok}>{m.okLabel || t.confirm}</button>}
               </React.Fragment>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* 📎 匯出前:挑要併進報表的 PDF 附件 */
+function AttPicker({ p, t, cl }) {
+  const [sel, setSel] = useState({});
+  const tmap = titleMapOf(cl);
+  const list = p.list;
+  const picked = list.filter(g => sel[g.f.fileId]);
+  const bytes = picked.reduce((s, g) => s + (Number(g.f.size) || 0), 0);
+  const warn = bytes > 20 * 1048576;
+  const toggle = id => setSel(s => Object.assign({}, s, { [id]: !s[id] }));
+  const setAll = on => setSel(on ? list.reduce((m, g) => (m[g.f.fileId] = true, m), {}) : {});
+  const codesOfTags = tags => {
+    const out = [];
+    tags.forEach(tg => String(tg).split(' · ').forEach(tok => {
+      tok = tok.trim();
+      if (/^[A-Z]{1,3}-\d+$/i.test(tok) && tmap[tok] && out.indexOf(tok) < 0) out.push(tok);
+    }));
+    return out;
+  };
+  return (
+    <div className="modalbg" onClick={p.onCancel}>
+      <div className="modal wide" onClick={e=>e.stopPropagation()}>
+        <h4>{t.apT}</h4>
+        <p style={{marginBottom:10}}>{t.apP}</p>
+        <div style={{display:'flex', gap:8, marginBottom:9}}>
+          <button className="btn btn-o btn-sm" onClick={()=>setAll(true)}>{t.apAll}</button>
+          <button className="btn btn-o btn-sm" onClick={()=>setAll(false)}>{t.apNone}</button>
+        </div>
+        <div className="apl">
+          {['self','nmdc','cmt'].map(src => {
+            const rows = list.filter(g => g.src === src);
+            if (!rows.length) return null;
+            return (
+              <React.Fragment key={src}>
+                <div className="grp">{t.apSrc[src]}（{rows.length}）</div>
+                {rows.map(g => {
+                  const cds = codesOfTags(g.tags);
+                  const on = !!sel[g.f.fileId];
+                  return (
+                    <label className={'row' + (on ? ' on' : '')} key={g.f.fileId}>
+                      <input type="checkbox" checked={on} onChange={()=>toggle(g.f.fileId)} />
+                      <span className="mt">
+                        <span className="cd">{g.tags.join(' · ')}</span>
+                        {cds.map(c => <span className="ti" key={c} style={{display:'block'}}>{truncS(tmap[c].zh, 34)}　{truncS(tmap[c].en, 46)}</span>)}
+                        <span className="fn" style={{display:'block', marginTop:2}}>📄 {attOrigName(g.f)}</span>
+                      </span>
+                      <span className="sz">{fmtMB(g.f.size)}</span>
+                    </label>
+                  );
+                })}
+              </React.Fragment>
+            );
+          })}
+        </div>
+        <div className={'aptot' + (warn ? ' warn' : '')}>
+          <span>{t.apTot(picked.length, (bytes/1048576).toFixed(1))}</span>
+          {warn && <span>⚠ {t.apWarn}</span>}
+        </div>
+        <p style={{fontSize:12.5, color:'#8A94A0', marginBottom:12}}>{t.apNote}</p>
+        <div className="btns" style={{flexWrap:'wrap'}}>
+          <button className="btn btn-o btn-sm" onClick={p.onCancel}>{t.cancel}</button>
+          <button className="btn btn-o btn-sm" onClick={()=>p.onGo([])}>{t.apSkip}</button>
+          <button className="btn btn-p btn-sm" disabled={!picked.length}
+            onClick={()=>p.onGo(picked)}>{t.apGo(picked.length)}</button>
         </div>
       </div>
     </div>
@@ -2531,6 +2844,7 @@ function App() {
   const [exporting, setExporting] = useState(false);
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
+  const [attPick, setAttPick] = useState(null);   /* 📎 匯出前的 PDF 附件勾選清單 */
   const [uploadingKeys, setUploadingKeys] = useState([]);
   const [failedUps, setFailedUps] = useState([]);   // 上傳失敗的附件(壓縮檔暫存於記憶體,可一鍵重試)
   const failedRef = useRef([]); failedRef.current = failedUps;
@@ -3024,14 +3338,25 @@ function App() {
     }).catch(e => { setSaving(false); showToast(t.saveFail + ': ' + e.message, true); });
   };
 
-  /* PDF 匯出:瀏覽器排版產生 → 正式模式上傳存回 Drive;本機/測試模式直接下載 */
+  /* PDF 匯出:有 PDF 附件 → 先讓使用者勾要不要併進報表,再進入 runExport */
   const exportRecord = (full) => {
     const cl = recCl(full, clRef.current);
-    /* 進度顯示:抓圖 → 逐頁排版 → 存 Drive,等待時看得到進行到哪 */
+    /* 後端還沒有 fileRaw 之前,正式模式不提供勾選(避免送出後端不認得的動作) */
+    const pdfAtts = (ATT_MERGE_READY || LOCAL || TESTMODE) ? pdfAttListOf(full, cl) : [];
+    if (!pdfAtts.length) { runExport(full, cl, []); return; }
+    setAttPick({ list: pdfAtts, cl,
+      onCancel: () => setAttPick(null),
+      onGo: (sel) => { setAttPick(null); runExport(full, cl, sel); } });
+  };
+
+  /* PDF 產生:瀏覽器排版 →(選了附件就併入原件)→ 下載到裝置;Drive 留底一律是不含附件的報表 */
+  const runExport = (full, cl, pickedGroups) => {
+    /* 進度顯示:抓圖 → 抓附件 → 逐頁排版 → 封面 → 合併 → 存 Drive,等待時看得到進行到哪 */
     const bm = { msg: t.exportingData };
     setBusyMsgs(a => [...a, bm]);
     const upd = (m) => { bm.msg = m; setBusyMsgs(a => [...a]); };
-    const diag = { stage: 'init', atts: (full.attachments || []).length, imgs: 0, pages: 0 };
+    const diag = { stage: 'init', atts: (full.attachments || []).length, imgs: 0, pages: 0,
+                   attPdfs: pickedGroups.length ? 0 : null, attFail: 0 };
     const run = (async () => {
       const atts = full.attachments || [];
       let imgMap = {};
@@ -3078,18 +3403,70 @@ function App() {
         }
       }
       diag.imgs = Object.keys(imgMap).length;
+
+      /* 📎 勾選的 PDF 附件:抓原始位元組 → 用 pdf-lib 載入(順便取頁數,封面要印)
+         某一個檔壞了或有密碼保護 → 只記下失敗,照樣出封面頁並註明,其餘附件不受影響 */
+      const picked = [];
+      let failCount = 0;
+      if (pickedGroups.length) {
+        diag.stage = 'attfetch';
+        await loadScriptOnce(LIB_PDFLIB);
+        const PDFDocument = window.PDFLib.PDFDocument;
+        for (let i = 0; i < pickedGroups.length; i++) {
+          upd(t.apFetch(i + 1, pickedGroups.length));
+          const g = pickedGroups[i];
+          const ent = { g, serial: 'A-' + (i + 1), doc: null, pages: 0, failMsg: '' };
+          try {
+            const bytes = await fetchAttBytes(g.f);
+            ent.doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+            ent.pages = ent.doc.getPageCount();
+          } catch (e) {
+            ent.failMsg = 'PDF 無法讀取或受保護:' + String((e && e.message) || e).slice(0, 48);
+            failCount++;
+          }
+          picked.push(ent);
+          diag.attPdfs = picked.length; diag.attFail = failCount;
+        }
+      }
+      /* 附錄卡片要指向封面頁的附件編號 — 只有真的併進來的才標 */
+      const mergedMap = {};
+      picked.forEach(p => { if (!p.failMsg) mergedMap[p.g.f.fileId] = p.serial; });
+
       diag.stage = 'render';
-      const pdf = await generatePdf(full, cl, imgMap, (i, n) => { diag.pages = n; upd(t.pdfPaging(i, n)); });
-      const name = '船檢表_' + (full.inspNo || full.id) + '_' + (full.vesselEn || full.vesselZh || '') + '.pdf';
+      const pdf = await generatePdf(full, cl, imgMap, (i, n) => { diag.pages = n; upd(t.pdfPaging(i, n)); }, mergedMap);
+      const base = '船檢表_' + (full.inspNo || full.id) + '_' + (full.vesselEn || full.vesselZh || '');
+      const name = base + '.pdf';
+
+      let mergedBytes = null;
+      if (picked.length) {
+        diag.stage = 'cover';
+        const covers = await generateAttCovers(full, cl, picked, (i, n) => upd(t.apCover(i, n)));
+        diag.stage = 'merge';
+        upd(t.apMerge);
+        const res = await mergeReportWithAtts(pdf, covers, picked);
+        mergedBytes = res.bytes;
+        failCount += res.lateFails;
+        diag.attFail = failCount;
+      }
+
       diag.stage = 'download';
-      if (LOCAL || TESTMODE) { pdf.save(name); showToast(t.pdfDone); return; }
-      pdf.save(name);   // ① 先直接下載一份到裝置
+      /* ① 裝置拿到的是「含附件」的完整版(沒選附件時就是原本的報表) */
+      if (mergedBytes) downloadBytes(mergedBytes, base + '_含附件.pdf');
+      else pdf.save(name);
+      if (failCount) showToast(t.apFail(failCount), true);
+      if (LOCAL || TESTMODE) { if (!failCount) showToast(t.pdfDone); return; }
       diag.stage = 'upload';
       upd(t.pdfUploading);
+      /* ② Drive 留底一律是「不含附件」的報表:附件原始檔本來就在同一個 Drive 資料夾裡,
+            而且合併版動輒數十 MB,base64 上傳幾乎一定失敗 */
       const base64 = pdf.output('datauristring').split(',')[1];
       try {
-        const r2 = await api('storePdf', { id: full.id, name, base64 });   // ② 再存回 Drive
-        setModal({ title: t.pdfDone, body: r2.name + '\n' + t.pdfLocalToo, link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
+        const r2 = await api('storePdf', { id: full.id, name, base64 });
+        setModal({ title: t.pdfDone,
+          body: r2.name + '\n' + (mergedBytes
+            ? t.apDoneBody(picked.length - failCount, (mergedBytes.length / 1048576).toFixed(1))
+            : t.pdfLocalToo),
+          link: r2.url, linkLabel: '🔗 ' + t.pdfOpen,
           onCancel:()=>setModal(null), onOk:null, cancelLabel:'OK' });
       } catch (e) {
         showToast(t.pdfDriveFail, true);   // 檔案已在裝置上,只是 Drive 留底失敗
@@ -3224,6 +3601,7 @@ function App() {
         </div>}
       <Toast msg={toast} />
       <Modal m={modal} t={t} />
+      {attPick && <AttPicker p={attPick} t={t} cl={attPick.cl} />}
     </div>
   );
 }
