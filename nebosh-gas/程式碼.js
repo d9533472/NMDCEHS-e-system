@@ -39,6 +39,23 @@ function doGet(e) {
       time: new Date().toISOString()
     });
   }
+  /**
+   * GET 退路：瀏覽器跟著轉址時會把 POST 改成 GET（被快取住的 301 最常見），
+   * 這條路讓筆記頁的「章節論述」在那種情況下還是通得過去。
+   *   /exec?action=argue&p=<encodeURIComponent(JSON)>
+   * 只開放筆記頁用的 argue / drill：內容塞得進網址；analyse / grade / translate 一律還是走 POST。
+   */
+  if ((p.action === 'argue' || p.action === 'drill') && p.p) {
+    var b;
+    try { b = JSON.parse(p.p); }
+    catch (err) { return json_({ ok: false, error: 'BAD_JSON', message: 'p 參數不是合法 JSON' }); }
+    var need = getProp_('SHARED_SECRET');
+    if (need && String(b.secret || '') !== String(need)) {
+      return json_({ ok: false, error: 'FORBIDDEN', message: '通關密語不符，請檢查設定' });
+    }
+    return json_(p.action === 'drill' ? drillSentences_(b) : argueTopic_(b));
+  }
+
   return json_({ ok: false, error: 'Use POST. GET 只支援 ?action=ping' });
 }
 
@@ -57,9 +74,12 @@ function doPost(e) {
     }
 
     switch (body.action) {
-      case 'analyse': return json_(analyseScenario_(body));
+      case 'analyse':   return json_(analyseScenario_(body));
+      case 'translate': return json_(translateScenario_(body));
       case 'grade':   return json_(gradeAnswer_(body));
       case 'check':   return json_(checkSentence_(body));
+      case 'argue':   return json_(argueTopic_(body));
+      case 'drill':   return json_(drillSentences_(body));
       case 'ping':    return json_(ping_());
       default:        return json_({ ok: false, error: 'UNKNOWN_ACTION', message: '不認識的 action：' + body.action });
     }
@@ -144,6 +164,99 @@ function analyseScenario_(body) {
     effort: effort_('ANALYSE_EFFORT')
   });
   if (!res.ok) return res;
+  return { ok: true, data: res.data, usage: res.usage, model: res.model };
+}
+
+/* ============================== 動作 4：情境逐句中文對照 ==============================
+   前端已經把情境切成一句一條(和「標註版情境」用同一套切法),這裡只負責逐句翻譯:
+   不重新斷句、不合併、不增刪 —— 編號一一對應,前端點中文那一句才找得到對應的英文。 */
+
+var TRANSLATE_SYSTEM = [
+  'You translate a NEBOSH IG1 open-book exam scenario into Traditional Chinese for a Taiwanese learner who is about to answer questions on it.',
+  '',
+  'The scenario arrives ALREADY SPLIT into numbered sentences. Translate EACH numbered sentence and return EXACTLY one item per',
+  'number, in the same order, with the same numbers. Never merge two sentences into one item, never split one into two, never skip',
+  'one, never invent one that was not in the input. The learner clicks a Chinese line to jump to that English line — if the numbering',
+  'drifts, the whole feature breaks.',
+  '',
+  'How to translate:',
+  '· Traditional Chinese (繁體中文, Taiwan usage) — never Simplified, never mainland vocabulary.',
+  '· Translate what the sentence SAYS. Do not explain it, do not add facts, do not draw a conclusion the English does not state, and',
+  '  do not hint at what the examiner is looking for. This is a reading aid, not analysis.',
+  '· Keep every number, date, quantity, job title, proper name and standard reference exactly as written in the English.',
+  '· For a health-and-safety term of art, give the Chinese then the English in brackets on its first appearance in that sentence,',
+  '  e.g. 「安全作業許可（permit to work）」「風險評估（risk assessment）」「近失事件（near miss）」.',
+  '· Where the English is vague, hedged or ambiguous, translate it just as vaguely. Do NOT resolve the ambiguity — in this exam the',
+  '  ambiguity is often exactly where the marks are, and a tidied-up translation hides it.',
+  '· Keep each item to the one sentence it came from. No commentary, no bullet points, no section references.',
+  '',
+  'terms: the 5-15 words or phrases in THIS scenario a Taiwanese learner is most likely to misread — false friends, legal terms of',
+  'art, and ordinary English words carrying a technical meaning here. For each give the English, the Chinese, and one short Chinese',
+  'line saying what it actually means in this context and what it is easy to mistake it for. Never use this field to suggest answers.'
+].join('\n');
+
+var TRANSLATE_SCHEMA = {
+  type: 'object',
+  properties: {
+    items: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { n: { type: 'integer' }, zh: { type: 'string' } },
+        required: ['n', 'zh'],
+        additionalProperties: false
+      }
+    },
+    terms: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { en: { type: 'string' }, zh: { type: 'string' }, note_zh: { type: 'string' } },
+        required: ['en', 'zh', 'note_zh'],
+        additionalProperties: false
+      }
+    }
+  },
+  required: ['items', 'terms'],
+  additionalProperties: false
+};
+
+function translateScenario_(body) {
+  var list = body.sentences;
+  if (!list || !list.length) return { ok: false, error: 'NO_SENTENCES', message: '沒有收到要翻譯的句子' };
+  if (list.length > 120) return { ok: false, error: 'TOO_MANY', message: '句子太多（' + list.length + ' 句），一次最多 120 句' };
+
+  var lines = [], chars = 0;
+  for (var i = 0; i < list.length; i++) {
+    var s = String(list[i] == null ? '' : list[i]).trim();
+    chars += s.length;
+    lines.push((i + 1) + '. ' + s);
+  }
+  if (chars < 30) return { ok: false, error: 'TOO_SHORT', message: '情境太短，至少貼 30 個字元' };
+  if (chars > 20000) return { ok: false, error: 'TOO_LONG', message: '情境太長（' + chars + ' 字元），分段貼' };
+
+  var res = callClaude_({
+    system: TRANSLATE_SYSTEM,
+    user: 'Translate these ' + list.length + ' numbered sentences. Return exactly ' + list.length +
+          ' items, numbered 1 to ' + list.length + '.\n\n' + lines.join('\n'),
+    schema: TRANSLATE_SCHEMA,
+    maxTokens: 16000,
+    effort: effort_('TRANSLATE_EFFORT')
+  });
+  if (!res.ok) return res;
+
+  /* 保險:依編號對回原本的順序,缺的補空字串、多的丟掉。前端是靠索引對位的,寧可缺一句也不能整排錯位。 */
+  var byN = {};
+  (res.data.items || []).forEach(function (x) { byN[Number(x.n)] = String(x.zh || ''); });
+  var items = [], miss = 0;
+  for (var k = 1; k <= list.length; k++) {
+    var zh = byN[k] || '';
+    if (!zh) miss++;
+    items.push({ n: k, zh: zh });
+  }
+  res.data.items = items;
+  res.data.missing = miss;
+
   return { ok: true, data: res.data, usage: res.usage, model: res.model };
 }
 
@@ -264,13 +377,63 @@ var GRADE_SYSTEM = [
   '   WHAT THEY SHOULD HAVE COVERED — as direction, never as a finished sentence they could copy.',
   '4. Flag any paragraph that is generic (no scenario fact) by quoting it.',
   '5. Judge whether the command word shape was met.',
+  '6. Walk through the learner\'s OWN numbered points one by one, in their order, in per_point.',
+  '',
+  'per_point — the learner writes their answer as a numbered list (1. 2. 3. … , or 1) / 1、 / ① , or one point',
+  'per paragraph or per line when they did not number it). Produce ONE entry for EVERY point they wrote, in the',
+  'order they wrote it, with no gaps and none merged together — if they wrote 7 points, return 7 entries.',
+  '· n            = their own number (1, 2, 3 …). If they did not number, number their points yourself in order.',
+  '· your_words   = a short verbatim extract of THAT point (the first clause is enough, do not paraphrase, do not improve).',
+  '· verdict      = "scored" (it earns a mark) / "partial" (on the right track but under-developed, or it duplicates',
+  '                 a point already credited earlier, so it adds nothing) / "no" (earns nothing).',
+  '· marks_awarded= how many marks THIS point earned (0, 0.5 or 1; use 1 only when it is a clean mark).',
+  '· mark_point   = the examiner mark-scheme point it maps to, in English. Empty string when it maps to nothing.',
+  '· why_zh       = why it scored, or precisely why it did not — name the actual defect: 泛論沒扣情境 / 只有觀念沒有因果 /',
+  '                 命令詞形狀不對（例如題目要 Outline 卻只寫了名詞）/ 與第 N 點重複同一個事實 / 寫成建議但題目沒有要建議.',
+  '· fix_zh       = for "partial" and "no" only: what to do with THAT sentence — which scenario fact to attach, or which',
+  '                 step (① QUOTE / ② LINK / ③ CONSEQUENCE / ④ ACTION) is missing. Direction only, never a written-out',
+  '                 sentence they could copy. Leave it as an empty string when verdict is "scored".',
+  'The marks_awarded in per_point must add up to score. earned/missed stay as they are — per_point is the learner-side',
+  'view of the same marking, earned/missed is the mark-scheme-side view.',
   '',
   'Hard rules:',
   '· NEVER write a model answer, a rewritten paragraph, or a sentence the learner could submit. Feedback and direction only.',
   '  If asked to, refuse in the overall_zh field and mark it clearly.',
   '· Quote the learner exactly when quoting; do not paraphrase into a better version.',
   '· Chinese fields: plain, direct, no flattery, and always Traditional Chinese (繁體中文, Taiwan usage) — never Simplified. English fields: exam register.',
-  '· If the answer is empty or irrelevant, score 0 and say so.'
+  '· If the answer is empty or irrelevant, score 0 and say so.',
+  '',
+  'ai_style — a SEPARATE, SECONDARY judgement: how much of this answer reads as if it was written by an AI.',
+  'This is a style inference from the text alone. It is NOT forensic proof and it MUST NOT change the score by',
+  'even half a mark — mark the content first, then judge the writing voice independently.',
+  'Why it matters: NEBOSH open-book answers that read as machine-written get referred to malpractice, and the',
+  'closing interview asks the learner to account for their own words. So the learner needs to know which of their',
+  'sentences would make an examiner suspicious — including sentences they wrote themselves.',
+  'Lean AI (push likelihood up):',
+  '· Scaffolding phrases: "It is important to note that", "Furthermore", "Moreover", "In conclusion",',
+  '  "This ensures that", "plays a crucial role", "a holistic approach", "robust framework".',
+  '· Suspiciously even rhythm: every numbered point the same length, the same clause shape, the same tricolon.',
+  '· Fluent, polished, textbook-correct prose that carries NO fact from this scenario (note: this overlaps with',
+  '  generic_paragraphs — the same sentence can be both 0 marks and AI-sounding, and that is worth saying).',
+  '· No typos, no self-corrections, no uneven register, no non-native slips anywhere across a long answer.',
+  '· Terminology, standards or legal duties that the scenario never mentions, dropped in confidently but vaguely.',
+  '· A sudden jump in English quality between one paragraph and the next.',
+  'Lean human (push likelihood down):',
+  '· Specific scenario facts named exactly: people, numbers, dates, locations, equipment from THIS scenario.',
+  '· Non-native article/preposition/tense slips, inconsistent punctuation, abbreviations, shorthand.',
+  '· Uneven development — one point fat, the next thin; a point abandoned mid-thought.',
+  '· Idiosyncratic ordering or a personal angle an examiner would not find in a textbook.',
+  'Fields:',
+  '· likelihood = integer 0-100, the share of this answer that reads as machine-written. Use the whole range;',
+  '               do not default to 50. 0-25 = reads as the learner, 26-60 = mixed or edited, 61-100 = reads as AI.',
+  '· band       = "human" (likelihood <= 25) / "mixed" (26-60) / "ai" (>= 61). Must agree with likelihood.',
+  '· confidence = "low" when the answer is short or the signals are weak, "high" only when the signals are many',
+  '               and consistent. Short answers (under ~80 words) can almost never be better than "low".',
+  '· signals       = the AI-leaning evidence, each a VERBATIM quote plus why_zh naming the feature. Empty array if none.',
+  '· human_signals = the human-leaning evidence, same shape. Empty array if none.',
+  '· comment_zh      = two or three sentences: the verdict, and that this is a style read, not evidence.',
+  '· interview_risk_zh = what the closing interview would most likely press on in THIS answer, and what the learner',
+  '                      would need to be able to explain out loud. Direction only — never a script to recite.'
 ].join('\n');
 
 var GRADE_SCHEMA = {
@@ -289,6 +452,23 @@ var GRADE_SCHEMA = {
       },
       required: ['detected', 'shape_required', 'matched', 'comment_zh'],
       additionalProperties: false
+    },
+    per_point: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          n: { type: 'integer' },
+          your_words: { type: 'string' },
+          verdict: { type: 'string', enum: ['scored', 'partial', 'no'] },
+          marks_awarded: { type: 'number' },
+          mark_point: { type: 'string' },
+          why_zh: { type: 'string' },
+          fix_zh: { type: 'string' }
+        },
+        required: ['n', 'your_words', 'verdict', 'marks_awarded', 'mark_point', 'why_zh', 'fix_zh'],
+        additionalProperties: false
+      }
     },
     earned: {
       type: 'array',
@@ -338,11 +518,41 @@ var GRADE_SCHEMA = {
       required: ['words', 'guide_words', 'comment_zh'],
       additionalProperties: false
     },
+    ai_style: {
+      type: 'object',
+      properties: {
+        likelihood: { type: 'integer' },
+        band: { type: 'string', enum: ['human', 'mixed', 'ai'] },
+        confidence: { type: 'string', enum: ['low', 'medium', 'high'] },
+        signals: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { quote: { type: 'string' }, why_zh: { type: 'string' } },
+            required: ['quote', 'why_zh'],
+            additionalProperties: false
+          }
+        },
+        human_signals: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: { quote: { type: 'string' }, why_zh: { type: 'string' } },
+            required: ['quote', 'why_zh'],
+            additionalProperties: false
+          }
+        },
+        comment_zh: { type: 'string' },
+        interview_risk_zh: { type: 'string' }
+      },
+      required: ['likelihood', 'band', 'confidence', 'signals', 'human_signals', 'comment_zh', 'interview_risk_zh'],
+      additionalProperties: false
+    },
     next_actions_zh: { type: 'array', items: { type: 'string' } },
     overall_zh: { type: 'string' }
   },
-  required: ['score', 'out_of', 'verdict_zh', 'command_word', 'earned', 'missed',
-    'generic_paragraphs', 'length', 'next_actions_zh', 'overall_zh'],
+  required: ['score', 'out_of', 'verdict_zh', 'command_word', 'per_point', 'earned', 'missed',
+    'generic_paragraphs', 'length', 'ai_style', 'next_actions_zh', 'overall_zh'],
   additionalProperties: false
 };
 
@@ -359,7 +569,7 @@ function gradeAnswer_(body) {
     'TASK 題目（' + marks + ' marks）：',
     String(body.question || '(未提供題目)').trim(),
     '',
-    'LEARNER ANSWER 學員作答：',
+    'LEARNER ANSWER 學員作答（學員習慣用 1. 2. 3. … 逐點作答，per_point 要照這個編號一條一條回）：',
     answer
   ].join('\n');
 
@@ -367,13 +577,327 @@ function gradeAnswer_(body) {
     system: GRADE_SYSTEM,
     user: user,
     schema: GRADE_SCHEMA,
-    maxTokens: 14000,
+    maxTokens: 20000,  // 16000 → 20000：多了 ai_style 一段，長卷容易撞到 max_tokens 被截斷
     effort: effort_('GRADE_EFFORT')
   });
   if (!res.ok) return res;
 
   var d = res.data;
   if (d && typeof d.out_of === 'number' && d.out_of !== marks) d.out_of = marks;
+  // AI 筆跡：把 likelihood 夾回 0-100，並讓 band 一定和數字一致（模型偶爾會給不一致的組合）
+  if (d && d.ai_style) {
+    var a = d.ai_style;
+    var p = Math.round(Number(a.likelihood));
+    if (!isFinite(p)) p = 0;
+    a.likelihood = Math.max(0, Math.min(100, p));
+    a.band = a.likelihood >= 61 ? 'ai' : (a.likelihood >= 26 ? 'mixed' : 'human');
+    if (answer.split(/\s+/).length < 80 && a.confidence === 'high') a.confidence = 'medium';
+  }
+  return { ok: true, data: d, usage: res.usage, model: res.model };
+}
+
+/* ============================== 筆記頁共用：章節對照表 ==============================
+   取自使用者自己那份完整筆記的 19 個 <h2>。沒給這張表時模型會自己猜編號
+   （實測把「安全文化」寫成 1.3，他的筆記裡是 3.1），所以 argue / drill 都要帶上。 */
+var ELEMENTS = [
+  'The learner\'s own note set uses exactly these 19 elements. When you cite a section, use THIS numbering and nothing else:',
+  '1.1 Moral and money | 1.2 Regulating health and safety | 1.3 Health and safety duties of leaders, managers, directors, supervisors | 1.4 Managing contractors',
+  '2.1 Health and safety management systems | 2.2 Health and safety policy',
+  '3.1 Health and safety culture | 3.2 Improving health and safety culture | 3.3 Human factors | 3.4A Assessing risk | 3.4B Safety signs and PPE',
+  '3.5 Managing change | 3.6 Safe system of work (SSW) | 3.7 Permit-to-work system | 3.8 Emergency procedures and first aid',
+  '4.1 Investigating incidents | 4.2 Monitoring health and safety performance | 4.3 Auditing | 4.4 Reviewing health and safety performance'
+].join('\n');
+
+/* ============================== 動作 4：單一筆記項目的論述 ==============================
+   給筆記頁用：學員在筆記裡點某一個點（1.1 的 Moral、3.4 的 ERIC SP…），
+   要的不是翻譯，是「這個點能怎麼論述、怎麼寫成得分句、會被怎麼問」。
+   有帶情境時（從練習頁傳過來）就把論述扣在情境事實上。 */
+
+var ARGUE_SYSTEM = [
+  'You are an experienced NEBOSH International General Certificate (IG1) tutor. A learner is revising with their own',
+  'note set and has clicked ONE point in it. Your job is to turn that one point into an argument they can use in the exam.',
+  '',
+  'You are given the element number (e.g. 1.1), the element title, the sub-heading the point sits under, and the exact',
+  'note text of the point. Sometimes you are also given the practice scenario the learner is currently working on.',
+  '',
+  'What to produce:',
+  '1 WHAT IT IS — the point stated the way an examiner states it, in standard IG1 terminology, including the',
+  '  ILO instrument or standard it belongs to when the point genuinely has one.',
+  '2 WHY IT EARNS A MARK — what the marker is looking for here, and what separates a mark-earning treatment',
+  '  from merely naming the thing.',
+  '3 THE ARGUMENT — 3 to 5 lines that actually develop the point: the causation behind it, the duty or principle it',
+  '  rests on, and the objection a manager would raise together with the answer to it. This is the part the learner',
+  '  will argue from, so make it substantive. Do not restate the note text in other words.',
+  '4 MODEL SENTENCE SKELETONS — 2 to 4 sentences in the shape a mark-earning sentence takes on this point.',
+  '5 PITFALLS — the generic sentences learners really do write on this point that score nothing, why they score',
+  '  nothing, and the direction to fix them.',
+  '6 HOW IT IS ASKED — the command words that bring this point up, typical task wording, the usual mark',
+  '  allocation, and the shape that command word demands.',
+  '7 RELATED SECTIONS — the other elements (1.1 to 4.4) that have to be written alongside this point.',
+  '',
+  'Hard rules:',
+  '· Every model sentence MUST contain at least one bracketed gap [ ... ] where a fact from the learner\'s own',
+  '  scenario has to go. Never write a complete sentence that could be submitted as it stands. This is a revision',
+  '  aid, not an answer.',
+  '· Pitfall fixes are DIRECTION only: name what kind of thing is missing. Never write the replacement words.',
+  '· If a scenario is supplied, anchor the argument and the gaps to facts that are actually in it, quote those facts,',
+  '  and set scenario_anchored true. If none is supplied, keep the gaps generic and set it false.',
+  '· Work from the IG1 syllabus only. Do not invent legal instruments, figures or statistics. If you are not sure a',
+  '  number belongs to this point, leave it out.',
+  '· Chinese fields: Traditional Chinese (繁體中文, Taiwan usage) — never Simplified. Plain and direct, no praise padding.',
+  '· English fields: the examiner\'s own vocabulary, no padding.',
+  '· If the note text is too fragmentary to argue from (a bare label or a single table cell), say so in note_zh and',
+  '  still give the best treatment of the concept that label points at.',
+  '',
+  ELEMENTS,
+  '',
+  'This is practice. Never produce a submittable sentence.'
+].join('\n');
+
+var ARGUE_SCHEMA = {
+  type: 'object',
+  properties: {
+    section: { type: 'string' },
+    title_en: { type: 'string' },
+    title_zh: { type: 'string' },
+    what_en: { type: 'string' },
+    what_zh: { type: 'string' },
+    why_marks_zh: { type: 'string' },
+    argument: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { line_en: { type: 'string' }, line_zh: { type: 'string' } },
+        required: ['line_en', 'line_zh'],
+        additionalProperties: false
+      }
+    },
+    model_sentences: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { en: { type: 'string' }, zh: { type: 'string' }, marks: { type: 'integer' } },
+        required: ['en', 'zh', 'marks'],
+        additionalProperties: false
+      }
+    },
+    pitfalls: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { generic_en: { type: 'string' }, why_zh: { type: 'string' }, direction_zh: { type: 'string' } },
+        required: ['generic_en', 'why_zh', 'direction_zh'],
+        additionalProperties: false
+      }
+    },
+    asked_as: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          command_word: { type: 'string' },
+          wording: { type: 'string' },
+          marks: { type: 'string' },
+          shape_zh: { type: 'string' }
+        },
+        required: ['command_word', 'wording', 'marks', 'shape_zh'],
+        additionalProperties: false
+      }
+    },
+    related: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: { section: { type: 'string' }, why_zh: { type: 'string' } },
+        required: ['section', 'why_zh'],
+        additionalProperties: false
+      }
+    },
+    scenario_anchored: { type: 'boolean' },
+    note_zh: { type: 'string' }
+  },
+  required: ['section', 'title_en', 'title_zh', 'what_en', 'what_zh', 'why_marks_zh', 'argument',
+             'model_sentences', 'pitfalls', 'asked_as', 'related', 'scenario_anchored', 'note_zh'],
+  additionalProperties: false
+};
+
+function argueTopic_(body) {
+  var item = String(body.item || '').trim();
+  if (item.length < 3) return { ok: false, error: 'TOO_SHORT', message: '沒有收到要論述的項目文字' };
+
+  var sc = String(body.scenario || '').trim();
+  var user = [
+    'ELEMENT 章節：' + String(body.section || '(未提供)') + '　' + String(body.section_title || ''),
+    body.heading ? ('SUB-HEADING 這個點所在的小節：' + String(body.heading)) : '',
+    '',
+    'THE POINT THE LEARNER CLICKED 學員點的這個點（原筆記文字，英文主、中文小字輔）：',
+    item,
+    '',
+    sc
+      ? ('PRACTICE SCENARIO 他目前在練的情境 — 把論述與 [ ] 空位扣在這些事實上：\n' + sc)
+      : 'NO SCENARIO SUPPLIED — keep the bracketed gaps generic and set scenario_anchored to false.'
+  ].filter(function (x) { return x !== ''; }).join('\n');
+
+  var res = callClaude_({
+    system: ARGUE_SYSTEM,
+    user: user,
+    schema: ARGUE_SCHEMA,
+    maxTokens: 12000,
+    effort: effort_('ARGUE_EFFORT')
+  });
+  if (!res.ok) return res;
+
+  var d = res.data;
+  // 章節編號以前端傳來的為準：模型偶爾會把 3.4B 寫成 3.4
+  if (d && body.section) d.section = String(body.section);
+  // 範例句一定要留空位，不然就是一句可以直接交的答案 — 標記出來讓前端警告
+  if (d && d.model_sentences) {
+    d.model_sentences.forEach(function (s) {
+      s.has_gap = /\[[^\]]*\]/.test(String(s.en || ''));
+      var m = Math.round(Number(s.marks));
+      s.marks = isFinite(m) ? Math.max(1, Math.min(10, m)) : 1;
+    });
+  }
+  return { ok: true, data: d, usage: res.usage, model: res.model };
+}
+
+/* ============================== 動作 5：15 句練習 ==============================
+   流程是：情境貼在練習模式頁 → 回筆記頁點一個關鍵字 → 在抽屜貼上題目 → 出 15 句以上。
+   所以這裡同時拿到三樣東西：情境、題目（命令詞＋配分）、他剛點的那個筆記點。
+   和 argue 一樣：每一句都必須留 [ ] 空位，不給可以直接交的句子。 */
+
+var DRILL_SYSTEM = [
+  'You are a NEBOSH IG1 tutor building a SENTENCE DRILL SET for a learner who is revising. They are not sitting the',
+  'exam right now: this is practice material they will write over in their own words.',
+  '',
+  'You are given three things: the practice scenario, the exam task (command word and marks), and the specific note',
+  'point the learner has just clicked in their own notes.',
+  '',
+  'How IG1 is marked — apply this literally:',
+  '· One mark = one technical point, demonstrated AND tied to a fact that exists only in THIS scenario.',
+  '· The command word sets the shape. Identify / Give = name it plus context. Outline = name it plus a brief',
+  '  description. Describe = a detailed factual account. Explain = visible causation (because / so that / which means).',
+  '  Comment on / Assess / Evaluate = a judgement on adequacy supported by evidence. Justify = reasons for a decision.',
+  '  Recommend / Suggest = a specific action with detail, purpose, owner and timescale.',
+  '· Roughly 30 words per mark. The same point written twice in different words scores once.',
+  '',
+  'Build the set like this:',
+  '1 AT LEAST 15 sentences. Every one is a DIFFERENT mark-earning point — never a paraphrase of another one.',
+  '2 Start from the clicked point: roughly the first third of the set develops it. Then widen to the other points this',
+  '  task actually requires, and name the element each one comes from (1.1 to 4.4).',
+  '3 EVERY sentence must contain at least one bracketed gap [ ... ] that names the KIND of scenario fact which goes',
+  '  there, pointing at something that really is in the scenario. Never write a sentence that could be submitted as it',
+  '  stands — this is a drill, not an answer.',
+  '4 Tag each sentence with the four-step moves it runs:',
+  '  1 QUOTE — points at a specific fact in this scenario. 2 LINK — names the concept, duty or standard.',
+  '  3 CONSEQUENCE — carries causation forward: who could be harmed and why this fact makes it likely.',
+  '  4 ACTION — who does what, by when, for what purpose.',
+  '5 Most sentences take the shape the task\'s command word demands. Also include 3 or 4 clearly labelled VARIANTS:',
+  '  the same point reshaped for a different command word, so the learner can see how the shape changes. Set the',
+  '  shape field to the command word that sentence is built for, so variants are obvious.',
+  '6 In missing_zh, name what this task needs that the clicked note point does not cover, and which section to read.',
+  '7 In check_zh, give the learner 3 to 5 things to check in their own writing for THIS task.',
+  '',
+  'IF NO CLICKED NOTE POINT IS SUPPLIED — the learner does not know which element this task belongs to:',
+  '· Work it out yourself from the task wording and the scenario, using the element list below. Normally a task draws',
+  '  on two to four elements; say which, and why, in the first sentence of coverage_zh.',
+  '· Then spread the sentences across those elements in proportion to the marks each is likely to carry, and set the',
+  '  section field on every sentence so the learner can see where each point came from and go and read it.',
+  '· In missing_zh, name the elements they should open in their notes before writing, in the order to read them.',
+  '· Everything else — the gaps, the move tags, the shape variants, the sentence count — is unchanged.',
+  '',
+  'Hard rules:',
+  '· Work from the IG1 syllabus and the scenario given. Do not invent facts, legal instruments or figures.',
+  '· If the task text does not contain a recognisable command word or mark allocation, say so in shape_zh and',
+  '  build the set for the most likely command word rather than refusing.',
+  '· Chinese fields: Traditional Chinese (繁體中文, Taiwan usage) — never Simplified. Plain and direct, no praise padding.',
+  '· English sentences: the examiner\'s own vocabulary, no padding, roughly 25-35 words each.',
+  '',
+  ELEMENTS,
+  '',
+  'This is practice. Never produce a submittable sentence.'
+].join('\n');
+
+var DRILL_SCHEMA = {
+  type: 'object',
+  properties: {
+    command_word: { type: 'string' },
+    marks: { type: 'string' },
+    shape_zh: { type: 'string' },
+    coverage_zh: { type: 'string' },
+    sentences: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          n: { type: 'integer' },
+          en: { type: 'string' },
+          zh: { type: 'string' },
+          shape: { type: 'string' },
+          moves: { type: 'array', items: { type: 'integer' } },
+          marks: { type: 'integer' },
+          section: { type: 'string' },
+          point_zh: { type: 'string' }
+        },
+        required: ['n', 'en', 'zh', 'shape', 'moves', 'marks', 'section', 'point_zh'],
+        additionalProperties: false
+      }
+    },
+    missing_zh: { type: 'array', items: { type: 'string' } },
+    check_zh: { type: 'array', items: { type: 'string' } }
+  },
+  required: ['command_word', 'marks', 'shape_zh', 'coverage_zh', 'sentences', 'missing_zh', 'check_zh'],
+  additionalProperties: false
+};
+
+function drillSentences_(body) {
+  var q = String(body.question || '').trim();
+  if (q.length < 10) return { ok: false, error: 'NO_TASK', message: '先把題目原文貼上來（含命令詞與配分）' };
+  var item = String(body.item || '').trim();
+  var sc = String(body.scenario || '').trim();
+
+  var user = [
+    'SCENARIO 情境：',
+    sc || '(未提供情境 — 空位就寫「這裡要填情境裡的哪一種事實」，並在 coverage_zh 提醒他先去練習模式頁貼情境)',
+    '',
+    'EXAM TASK 題目原文（命令詞與配分就在裡面）：',
+    q,
+    body.marks ? ('MARKS 學員另外填的配分：' + String(body.marks)) : '',
+    '',
+    item
+      ? ('THE NOTE POINT THE LEARNER CLICKED 他剛在筆記點的那個點：\n' +
+         'ELEMENT ' + String(body.section || '(未提供)') + '　' + String(body.section_title || '') + '\n' +
+         (body.heading ? ('SUB-HEADING：' + String(body.heading) + '\n') : '') +
+         item)
+      : 'NO NOTE POINT SUPPLIED — 學員不知道這題屬於哪一節。請你自己判斷它落在哪幾個 element，並照「IF NO CLICKED NOTE POINT IS SUPPLIED」那段處理。',
+    '',
+    item
+      ? 'Produce at least 15 drill sentences. Start from the clicked point, then cover what the task requires.'
+      : 'Produce at least 15 drill sentences, spread across the elements this task actually draws on.'
+  ].filter(function (x) { return x !== ''; }).join('\n');
+
+  var res = callClaude_({
+    system: DRILL_SYSTEM,
+    user: user,
+    schema: DRILL_SCHEMA,
+    maxTokens: 24000,
+    effort: effort_('DRILL_EFFORT')
+  });
+  if (!res.ok) return res;
+
+  var d = res.data;
+  if (d && d.sentences) {
+    d.sentences.forEach(function (s, i) {
+      s.n = i + 1;                                   // 編號以實際順序為準，模型偶爾會跳號
+      s.has_gap = /\[[^\]]*\]/.test(String(s.en || ''));
+      var m = Math.round(Number(s.marks));
+      s.marks = isFinite(m) ? Math.max(1, Math.min(10, m)) : 1;
+      s.words = String(s.en || '').split(/\s+/).filter(function (w) { return w; }).length;
+      if (body.section && !String(s.section || '').trim()) s.section = String(body.section);
+    });
+    d.count = d.sentences.length;
+    d.short = d.count < 15;                          // 不足 15 句就讓前端說出來，不要默默少給
+  }
   return { ok: true, data: d, usage: res.usage, model: res.model };
 }
 
@@ -573,4 +1097,21 @@ function selfTest() {
   console.log('可能題目數：' + r.data.likely_tasks.length);
   console.log('用量：in ' + r.usage.input + ' / out ' + r.usage.output + ' tokens ≈ US$' + r.usage.usd);
   console.log('第一條命中：' + JSON.stringify(r.data.hits[0], null, 2));
+}
+
+/** 在編輯器直接執行：確認筆記頁的「論述」動作正常（1.1 的 Moral） */
+function selfTestArgue() {
+  var r = argueTopic_({
+    section: '1.1',
+    section_title: 'Moral and money',
+    heading: 'Reasons to manage H&S',
+    item: 'Moral 道德 — Workers expect to go home unharmed; society expects employers to care for people ' +
+      'affected by their work.'
+  });
+  if (!r.ok) { console.error('失敗：' + r.error + ' — ' + r.message); return; }
+  console.log('標題：' + r.data.title_en + ' / ' + r.data.title_zh);
+  console.log('論述條數：' + r.data.argument.length + '　範例句：' + r.data.model_sentences.length +
+              '　全部留空位：' + r.data.model_sentences.every(function (s) { return s.has_gap; }));
+  console.log('命令詞：' + r.data.asked_as.map(function (a) { return a.command_word; }).join(', '));
+  console.log('用量：in ' + r.usage.input + ' / out ' + r.usage.output + ' tokens ≈ US$' + r.usage.usd);
 }

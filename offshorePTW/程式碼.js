@@ -1772,12 +1772,18 @@ var AuthService = (function () {
     if (isNaN(appliedTier) || appliedTier < 1 || appliedTier > 5) {
       throw ApiError_('BAD_TIER', 'Applied tier must be 1–5', '申請層級須為 Tier 1–5');
     }
-    // Tier 3 施工部門：須選擇所屬部門（NMDC D&M / NMDC Energy）
+    // 公司：以名稱對應既有公司；找不到則暫存名稱，由管理員核准時指定
+    var company = Repo.findOne('Companies', function (c) {
+      return c.nameZh === payload.companyName || c.nameEn === payload.companyName;
+    });
+    // 所屬部門：公司屬 NMDC（或申請 Tier 3 施工部門）者，須選擇 NMDC D&M / NMDC Energy
+    var isNmdcCompany = company ? (String(company.type) === 'NMDC')
+                                : /nmdc/i.test(String(payload.companyName || ''));
     var department = String(payload.department || '').trim();
-    if (appliedTier === 3) {
+    if (appliedTier === 3 || isNmdcCompany) {
       if (NMDC_DEPARTMENTS.indexOf(department) < 0) {
-        throw ApiError_('DEPT_REQUIRED', 'Tier 3 must select a department (NMDC D&M / NMDC Energy)',
-          'Tier 3 施工部門請選擇所屬部門（NMDC D&M／NMDC Energy）');
+        throw ApiError_('DEPT_REQUIRED', 'Please select your department (NMDC D&M / NMDC Energy)',
+          '請選擇所屬部門（NMDC D&M／NMDC Energy）');
       }
     } else department = '';
     if (payload.password !== payload.confirmPassword) {
@@ -1789,10 +1795,6 @@ var AuthService = (function () {
     if (Repo.findOne('Users', function (u) { return normEmail_(u.email) === email; })) {
       throw ApiError_('EMAIL_EXISTS', 'This email is already registered', '此 Email 已註冊');
     }
-    // 公司：以名稱對應既有公司；找不到則暫存名稱，由管理員核准時指定
-    var company = Repo.findOne('Companies', function (c) {
-      return c.nameZh === payload.companyName || c.nameEn === payload.companyName;
-    });
     var sigFileId = '';
     try { sigFileId = DriveService.saveAccountSignature(payload.signatureBase64, email); }
     catch (e) { throw ApiError_('SIGNATURE_SAVE_FAILED', 'Signature save failed: ' + (e.msgEn || e.message), '簽名檔儲存失敗：' + (e.msgZh || e.message)); }
@@ -9910,7 +9912,7 @@ function runAllTests_M31() {
         nameZh: '測試員', nameEn: 'Test Applicant', companyName: 'NMDC',
         title: 'Tester', email: testEmail, phone: '0912345678',
         password: testPw, confirmPassword: testPw, vessel: 'TEST-VESSEL',
-        applyReason: 'test', appliedTier: 1,
+        applyReason: 'test', appliedTier: 1, department: 'NMDC D&M', // 公司為 NMDC → 須帶所屬部門
         signatureBase64: Utilities.base64Encode('test-signature-png')
       }, { userAgent: 'test' });
     }
@@ -11994,7 +11996,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
           <div class="col-md-6"><label class="form-label" data-i18n="apply.nameZh"></label><input id="apNameZh" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.nameEn"></label><input id="apNameEn" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.company"></label>
-            <select id="apCompany" class="form-select"><option value="">--</option></select>
+            <select id="apCompany" class="form-select" onchange="apDeptSync()"><option value="">--</option></select>
             <a href="#" class="small d-inline-block mt-1" style="text-decoration:none"
                onclick="showCompanyHelp();return false">❓ <span data-i18n="apply.noCompany">Can't see your company?</span></a></div>
           <div class="col-md-3"><label class="form-label" data-i18n="apply.title2"></label><input id="apTitle" class="form-control"></div>
@@ -12017,12 +12019,13 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
               <option value="4" style="color:#0b6bcb;font-weight:600">【NMDC】Tier 4 — 安衛部門 HSE</option>
               <option value="5" style="color:#0b6bcb;font-weight:600">【NMDC】Tier 5 — PTW 協調員 Coordinator</option>
             </select></div>
-          <div class="col-md-6 d-none" id="apDeptWrap"><label class="form-label">所屬部門 Department（Tier 3）＊</label>
+          <div class="col-md-6 d-none" id="apDeptWrap"><label class="form-label" data-l>所屬部門＊｜Department *</label>
             <select id="apDept" class="form-select">
               <option value="">--</option>
               <option value="NMDC D&amp;M">NMDC D&amp;M</option>
               <option value="NMDC Energy">NMDC Energy</option>
-            </select></div>
+            </select>
+            <div class="small text-muted mt-1" data-l>您屬於 NMDC，請選擇所屬公司別：NMDC D&amp;M 或 NMDC Energy｜You are with NMDC — please choose NMDC D&amp;M or NMDC Energy.</div></div>
           <div class="col-12"><label class="form-label" data-i18n="apply.reason"></label><textarea id="apReason" class="form-control" rows="2"></textarea></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.password"></label><input id="apPw" type="password" class="form-control"></div>
           <div class="col-md-6"><label class="form-label" data-i18n="apply.confirm"></label><input id="apPw2" type="password" class="form-control"></div>
@@ -13413,9 +13416,10 @@ function loadCompanyOptions(){
     var h='<option value="">--</option>';
     res.data.forEach(function(c){
       var nm=(lang==='zh'?(c.nameZh||c.nameEn):(c.nameEn||c.nameZh));
-      h+='<option value="'+esc(c.nameZh||c.nameEn)+'">'+esc(nm)+(c.type?'（'+esc(c.type)+'）':'')+'</option>';
+      h+='<option value="'+esc(c.nameZh||c.nameEn)+'" data-type="'+esc(c.type||'')+'">'+esc(nm)+(c.type?'（'+esc(c.type)+'）':'')+'</option>';
     });
     sel.innerHTML=h;
+    try{ apDeptSync(); }catch(e){}
   });
 }
 /* 帳號申請：公司下拉選單找不到自家公司時的說明 */
@@ -13820,7 +13824,7 @@ function openUserEdit(uid){
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'電話':'Phone')+'</label><input id="ue_phone" class="form-control form-control-sm" value="'+esc(r.phone||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'船舶':'Vessel')+'</label><input id="ue_vessel" class="form-control form-control-sm" value="'+esc(r.vessel||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'證號 Badge No':'Badge No')+'</label><input id="ue_badgeNo" class="form-control form-control-sm" value="'+esc(r.badgeNo||'')+'"></div>'+
-    '<div class="col-6"><label class="form-label small mb-0">'+(Z?'所屬部門（Tier 3）':'Department (Tier 3)')+'</label><select id="ue_department" class="form-select form-select-sm">'+
+    '<div class="col-6"><label class="form-label small mb-0">'+(Z?'所屬部門（NMDC）':'Department (NMDC)')+'</label><select id="ue_department" class="form-select form-select-sm">'+
       '<option value="">--</option>'+['NMDC D&M','NMDC Energy'].map(function(d){ return '<option value="'+esc(d)+'"'+(r.department===d?' selected':'')+'>'+esc(d)+'</option>'; }).join('')+'</select></div>'+
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isHse"'+((r.isHse===true||r.isHse==='TRUE')?' checked':'')+'>'+
       '<label class="form-check-label small" for="ue_isHse">'+(Z?'HSE 人員（不可任持有人）':'HSE (cannot be a holder)')+'</label></div></div>'+
@@ -14434,16 +14438,28 @@ function sigRemoveBg(key){
   sigState[key]={cleaned:true,img:st.img,dataUrl:result.toDataURL('image/png')};
   $(key+'SigMsg').innerHTML='<span class="text-success">✅ '+T('sig.done')+'</span>';
 }
-/* Tier 3 施工部門 → 顯示部門選單（NMDC D&M / NMDC Energy） */
-function apTierChanged(){
-  var t3=($('apTier').value==='3');
-  $('apDeptWrap').classList.toggle('d-none',!t3);
-  if(!t3) $('apDept').value='';
+/* 申請帳號：選到 NMDC 的公司（或申請 Tier 3 施工部門）→ 須再選 NMDC D&M / NMDC Energy */
+function apNmdcCompanySelected(){
+  var sel=$('apCompany'); if(!sel||!sel.value) return false;
+  var o=sel.options[sel.selectedIndex];
+  if(o&&String(o.getAttribute('data-type')||'')==='NMDC') return true;
+  return /nmdc/i.test(sel.value);
 }
+function apDeptRequired(){
+  var t=$('apTier');
+  return apNmdcCompanySelected()||!!(t&&t.value==='3');
+}
+function apDeptSync(){
+  var w=$('apDeptWrap'); if(!w) return;
+  var need=apDeptRequired();
+  w.classList.toggle('d-none',!need);
+  if(!need){ $('apDept').value=''; $('apDept').classList.remove('is-invalid'); }
+}
+function apTierChanged(){ apDeptSync(); }
 function doApply(){
   // (6) 所有欄位必填檢查＋紅框標示
   var ids=['apNameZh','apNameEn','apCompany','apTitle','apIsHse','apEmail','apPhone','apVessel','apTier','apReason','apPw','apPw2'];
-  if($('apTier').value==='3') ids.push('apDept');
+  if(apDeptRequired()) ids.push('apDept');
   var missing=false;
   ids.forEach(function(id){
     var el=$(id); var v=(el.value||'').trim();
@@ -14454,7 +14470,7 @@ function doApply(){
   var p={nameZh:$('apNameZh').value.trim(),nameEn:$('apNameEn').value.trim(),companyName:$('apCompany').value.trim(),
     title:$('apTitle').value.trim(),isHse:$('apIsHse').value==='Y',email:$('apEmail').value.trim(),phone:$('apPhone').value.trim(),
     vessel:$('apVessel').value.trim(),appliedTier:$('apTier').value,applyReason:$('apReason').value.trim(),
-    department:($('apTier').value==='3')?$('apDept').value:'',
+    department:apDeptRequired()?$('apDept').value:'',
     password:$('apPw').value,confirmPassword:$('apPw2').value};
   if(!sigState.ap||!sigState.ap.cleaned){ alertBox('applyAlert','danger',T('sig.required')); $('apSigMsg').innerHTML='<span class="text-danger">'+T('sig.required')+'</span>'; return; }
   p.signatureBase64=sigState.ap.dataUrl.split(',')[1];
@@ -15133,7 +15149,8 @@ function loadPending(pre){
     var h='<table class="table table-sm table-hover"><thead><tr><th>'+T('admin.email')+'</th><th>'+T('admin.name')+'</th><th>Company</th><th>Tier</th><th>Vessel</th><th>Reason</th><th>'+T('admin.assignCompany')+'</th><th>'+T('admin.assignTier')+'</th><th></th></tr></thead><tbody>';
     rows.forEach(function(r){
       h+='<tr><td>'+esc(r.email)+'</td><td>'+esc(r.nameEn)+'<br><small>'+esc(r.nameZh)+'</small></td>'+
-        '<td>'+esc(companyName(r.companyId))+'</td><td>'+esc(r.appliedTier)+'</td><td>'+esc(r.vessel)+'</td>'+
+        '<td>'+esc(companyName(r.companyId))+(r.department?'<br><small class="text-muted">'+esc(r.department)+'</small>':'')+
+        '</td><td>'+esc(r.appliedTier)+'</td><td>'+esc(r.vessel)+'</td>'+
         '<td class="small">'+esc(r.applyReason)+'</td>'+
         '<td><select id="apc_'+r.id+'" class="form-select form-select-sm">'+companyOptions()+'</select></td>'+
         '<td><select id="apt_'+r.id+'" class="form-select form-select-sm">'+[1,2,3,4,5].map(function(t){
