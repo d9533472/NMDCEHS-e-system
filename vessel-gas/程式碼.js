@@ -371,9 +371,26 @@ function inspFolder_(inspId) {
   return inspFolderFor_(o);
 }
 
+/* ★ 附件一律只收 PDF 與圖片(Word/Excel/影片等無法併入匯出報表)
+ *   前端已擋一道;這裡再擋一道,舊分頁、瀏覽器快取的舊版、或直接打 API 都擋得住。
+ *   副檔名必須合格;MIME 若明確不符也擋(手機 HEIC 常回空字串,故空值放行由副檔名決定) */
+var OK_UP_EXT_  = /\.(pdf|jpe?g|jfif|png|heic|heif|webp|gif|bmp|tiff?)$/i;
+var BAD_UP_EXT_ = /\.(docx?|xlsx?|pptx?|odt|ods|odp|csv|txt|rtf|zip|rar|7z|mp4|mov|avi|mkv|wmv|mp3|wav|m4a|exe|msi|apk|js|html?)$/i;
+function isAllowedUpload_(name, mime) {
+  var n = String(name || ''), m = String(mime || '').toLowerCase();
+  if (BAD_UP_EXT_.test(n)) return false;                               // 副檔名明確不收 → 直接擋(就算 MIME 偽裝成圖片)
+  if (m === 'application/pdf' || m.indexOf('image/') === 0) return true;
+  if (m && m !== 'application/octet-stream') return false;             // MIME 明確不符 → 擋
+  return OK_UP_EXT_.test(n);                                           // 無 MIME(手機 HEIC 常見)→ 看副檔名
+}
+
 function uploadFile_(req) {
   if (!req.inspId || !req.itemCode || !req.name || !req.base64) {
     return { ok: false, error: '缺少上傳參數' };
+  }
+  if (!isAllowedUpload_(req.name, req.mimeType)) {
+    return { ok: false, error: '只能上傳 PDF 與圖片檔(JPG / PNG / HEIC …),已拒絕:' + req.name +
+                             ' / Only PDF and image files can be uploaded.' };
   }
   var bytes = Utilities.base64Decode(req.base64);
   var blob = Utilities.newBlob(bytes, req.mimeType || 'application/octet-stream',

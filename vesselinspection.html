@@ -416,6 +416,8 @@ PDF attachments merged: ${d.attPdfs==null?"—":d.attPdfs+" (failed: "+(d.attFai
     unlockT:'Enter Edit Mode', unlockP:'Enter the edit password.', wrongCode:'Wrong password', lockedMsg:'Switched to view mode',
     needSave:'Record will be saved first before uploading.',
     fileTooBig:'File too large (max 15 MB per file; 2 MB in local mode).',
+    badType:'Only PDF and image files (JPG / PNG / HEIC …) can be uploaded. Rejected: ',
+    badTypeHint:'PDF / image only',
     upTimeout:'Upload timed out — check your signal and try again. If it shows in the list below, do NOT re-upload.',
     upNetwork:'Network error during upload — check your connection and try again.',
     upFail:'Upload failed',
@@ -573,6 +575,8 @@ PDF attachments merged: ${d.attPdfs==null?"—":d.attPdfs+" (failed: "+(d.attFai
     unlockT:'進入編輯模式', unlockP:'請輸入編輯密碼。', wrongCode:'密碼錯誤', lockedMsg:'已切換為檢視模式',
     needSave:'上傳前將先自動儲存紀錄。',
     fileTooBig:'檔案過大(單檔上限 15 MB;本機模式 2 MB)。',
+    badType:'只能上傳 PDF 與圖片檔(JPG / PNG / HEIC …),已略過:',
+    badTypeHint:'限 PDF / 圖片',
     upTimeout:'上傳逾時 — 請確認訊號後重試;若下方清單已出現該檔案,請勿重複上傳。Upload timed out.',
     upNetwork:'上傳時網路中斷 — 請確認連線後重試。Network error.',
     upFail:'上傳失敗 Upload failed',
@@ -1031,6 +1035,18 @@ function recCl(item, currentCl){
 }
 function countMap(m){ return Object.values(m||{}).filter(x => x && x.v).length; }
 function fmtSize(n){ if(!n) return ''; return n>1048576 ? (n/1048576).toFixed(1)+' MB' : Math.max(1,Math.round(n/1024))+' KB'; }
+/* ★ 附件只收 PDF 與圖片(Word/Excel 等無法併入匯出的 PDF,一律擋在上傳前)
+     手機選 HEIC 時 file.type 常為空字串 → 退回看副檔名 */
+const OK_EXT  = /\.(pdf|jpe?g|jfif|png|heic|heif|webp|gif|bmp|tiff?)$/i;
+const BAD_EXT = /\.(docx?|xlsx?|pptx?|odt|ods|odp|csv|txt|rtf|zip|rar|7z|mp4|mov|avi|mkv|wmv|mp3|wav|m4a|exe|msi|apk|js|html?)$/i;
+function isAllowedFile(f){
+  const name = String((f && f.name) || '');
+  const mime = String((f && f.type) || '').toLowerCase();
+  if (BAD_EXT.test(name)) return false;      // 副檔名明確不收(Word/Excel/影片…)→ 直接擋
+  if (mime === 'application/pdf' || /^image\//.test(mime)) return true;
+  if (mime && mime !== 'application/octet-stream') return false;   // 有 MIME 但不符 → 直接擋
+  return OK_EXT.test(name);                  // 無 MIME(手機選 HEIC 常見)→ 看副檔名
+}
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function ansLabel(v){ return v==='yes'?'YES':v==='no'?'NO':v==='na'?'N/A':'—'; }
 function progParts(s){ const m = String(s||'').split('/'); return [parseInt(m[0])||0, parseInt(m[1])||0]; }
@@ -2128,8 +2144,13 @@ function AttRow({ t, code, stage, atts, can, uploading, onPick, onDelete, fileRe
   const key = stage==='nmdc' ? code+'#NMDC' : code;
   return (
     <div className="attrow">
-      {can && <button className="attbtn" onClick={()=>fileRefs.current[key] && fileRefs.current[key].click()}>📎 {t.addFile}</button>}
+      {can && <button className="attbtn" title={t.badTypeHint}
+        onClick={()=>fileRefs.current[key] && fileRefs.current[key].click()}>📎 {t.addFile}</button>}
+      {can && !atts.length && !uploading &&
+        <span className="datesub" style={{marginRight:4}}>({t.badTypeHint})</span>}
+      {/* ★ 只收 PDF 與圖片:accept 先過濾選檔視窗,uploadFile 再把漏網的擋掉 */}
       {can && <input type="file" multiple style={{display:'none'}}
+        accept="application/pdf,.pdf,image/*,.jpg,.jpeg,.jfif,.png,.heic,.heif,.webp,.gif,.bmp,.tif,.tiff"
         ref={el=>fileRefs.current[key]=el}
         onChange={e=>{ onPick(code, e.target.files, stage); e.target.value=''; }} />}
       {uploading && <span className="attchip uploading">⏳ {t.uploading}</span>}
@@ -3225,7 +3246,12 @@ function App() {
     /* 改善相關附件(缺失回覆/留言/補件)→ 存 Drive 子資料夾 */
     const sub = (/^(DEF-|CMT-)/.test(itemCode) || itemCode === 'FOLLOWUP') ? '改善佐證 Improvement Evidence' : '';
     const maxSize = (LOCAL || TESTMODE) ? 2*1024*1024 : 15*1024*1024;
-    const arr = Array.from(files);
+    /* ★ 類型檢查:只放行 PDF 與圖片,其餘列出檔名提示後略過 */
+    const all = Array.from(files);
+    const arr = all.filter(isAllowedFile);
+    const bad = all.filter(f => !isAllowedFile(f));
+    if (bad.length) showToast(t.badType + bad.map(f=>f.name).join('、'), true);
+    if (!arr.length) return;
     const ensureSaved = itemRef.current.id ? Promise.resolve(itemRef.current) :
       (showToast(t.needSave), doSave());
     ensureSaved.then(saved => {
