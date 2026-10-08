@@ -52,6 +52,7 @@ var STORAGE = {
   envScopes:         'A19',
   archivedScopes:    'A20',
   envScopeSeeded:    'A21',
+  contacts:          'A22',
 };
 var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';

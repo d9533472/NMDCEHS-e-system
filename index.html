@@ -629,6 +629,7 @@ body.season-oct .info-bar .ib-chip.hol{background:linear-gradient(135deg,#fef2f2
   .person-badge{font-size:11px;padding:2px 8px}
   /* 文件、加班、請假表格：橫向捲動，避免壓縮 */
   .doc-table{min-width:720px;font-size:12px}.doc-table th,.doc-table td{padding:7px 8px}
+  .doc-table.ct-table{min-width:640px}
   .doc-note{max-width:180px}
   .ot-section{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .ot-record-table{min-width:560px;font-size:12px}.ot-record-table th,.ot-record-table td{padding:6px 8px}
@@ -759,6 +760,13 @@ body.season-oct .info-bar .ib-chip.hol{background:linear-gradient(135deg,#fef2f2
   <div><label class="form-label">備註</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd3('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd3('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd3('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd3('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd3('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd3('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd3('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inDR" style="min-height:60px"></div></div>
   <div class="modal-actions"><button class="btn-secondary" onclick="closeDocM()">取消</button><button class="btn-primary" onclick="saveDoc()" id="bDoc">新增</button></div>
 </div></div></div>
+<div class="modal-overlay hidden" id="mCt" onclick="closeCtM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mCtT">新增聯絡人</div><div class="modal-form">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label class="form-label">姓名</label><input class="form-input" id="inCtName" onkeydown="if(event.key==='Enter')saveCt()"></div><div><label class="form-label">電話</label><input class="form-input" id="inCtPhone" placeholder="0912-345-678 / 分機" onkeydown="if(event.key==='Enter')saveCt()"></div></div>
+  <div><label class="form-label">單位</label><input class="form-input" id="inCtUnit" list="ctUnitList" placeholder="例：台中港務分公司" onkeydown="if(event.key==='Enter')saveCt()"><datalist id="ctUnitList"></datalist></div>
+  <div><label class="form-label">業務</label><input class="form-input" id="inCtJob" placeholder="例：海洋汙染防治、廢棄物申報" onkeydown="if(event.key==='Enter')saveCt()"></div>
+  <div><label class="form-label">Email</label><input class="form-input" id="inCtMail" type="email" placeholder="name@example.com" onkeydown="if(event.key==='Enter')saveCt()"></div>
+  <div class="modal-actions"><button class="btn-secondary" onclick="closeCtM()">取消</button><button class="btn-primary" onclick="saveCt()" id="bCt">新增</button></div>
+</div></div></div>
 <div class="modal-overlay hidden" id="mDocNote" onclick="closeDocNoteM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title">📝 編輯文件備註</div><div class="modal-form"><div><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd2('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd2('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd2('underline')"><u>U</u></button><button class="rte-btn" onclick="rteCmd2('strikeThrough')"><s>S</s></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd2('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd2('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd2('foreColor',this.value)"><input type="color" class="rte-color" value="#fef08a" onchange="rteCmd2('hiliteColor',this.value)"><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd2('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="rteBody2"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeDocNoteM()">取消</button><button class="btn-primary" onclick="saveDocNote()">儲存</button></div></div></div></div>
 
 <div class="modal-overlay hidden" id="mScope" onclick="closeScopeM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mScT">新增委外項目</div><div class="modal-form">
@@ -839,8 +847,8 @@ const DEFAULT_SCOPES=[
   {supplier:'HongYi',    sr:'PRJ-SEC-2025-610', scope:'Taiwan Cetacean Observer Operation Campaign 1',                      status:'Complete'},
   {supplier:'LeBay',     sr:'PRJ-SEC-2025-1332',scope:'Beach cleanup event',                                                status:'Complete'},
 ];
-function makeDefault(){return{hiddenTabs:[],vessels:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
-  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'envscope',icon:'🧭',title:'環保委外項目'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'}],
+function makeDefault(){return{hiddenTabs:[],vessels:[],contacts:[],eventTypes:JSON.parse(JSON.stringify(DEFAULT_EVENT_TYPES)),
+  parts:[{key:'bulletin',icon:'📢',title:'公告欄'},{key:'tracker',icon:'📋',title:'追蹤事項'},{key:'documents',icon:'📑',title:'紙本文件紀錄'},{key:'envscope',icon:'🧭',title:'環保委外項目'},{key:'links',icon:'🔗',title:'系統連結'},{key:'schedule',icon:'📅',title:'班表'},{key:'events',icon:'⭐',title:'重點活動'},{key:'contacts',icon:'📇',title:'聯絡人'}],
   bulletins:[{id:gid(),text:'<b>歡迎使用 Environmental E-System！</b><br>本系統用於管理環保相關工具連結、追蹤事項及公告。',date:todayS()}],
   tasks:[],documents:DEFAULT_DOCS.map(d=>({...d,id:gid()})),docLastUpdated:'',docNotes:'',
   sections:[],schedule:[{url:'',label:'班表 1'},{url:'',label:'班表 2'}],scheduleData:{},schMonths:['2026-03','2026-04']
@@ -1225,7 +1233,7 @@ function fixData(){
   if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
-  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.archivedScopes)D.archivedScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length&&!D.archivedScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.contacts)D.contacts=[];if(!D.parts.find(p=>p.key==='contacts'))D.parts.push({key:'contacts',icon:'📇',title:'聯絡人'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.archivedScopes)D.archivedScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length&&!D.archivedScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -1461,6 +1469,7 @@ function buildGS(){
   (D.documents||[]).forEach(d=>gsItems.push({tab:'documents',tag:'文件',ico:'📑',t:(d.num?'#'+d.num+' ':'')+(d.name||''),s:[d.person,stripHtml(d.note)].filter(Boolean).join(' · ')}));
   (D.sections||[]).forEach(sec=>(sec.links||[]).forEach(l=>gsItems.push({tab:'links',tag:'連結',ico:l.icon||'🔗',t:l.title||'',s:[sec.name,(l.url&&l.url!=='#')?l.url:''].filter(Boolean).join(' · '),url:(l.url&&l.url!=='#')?l.url:''})));
   (D.events||[]).forEach(e=>gsItems.push({tab:'events',tag:'活動',ico:e.starred?'⭐':'📌',t:e.title||'',s:[e.date,e.area,e.person].filter(Boolean).join(' · ')}));
+  (D.contacts||[]).forEach(c=>gsItems.push({tab:'contacts',tag:'聯絡人',ico:'📇',t:c.name||'',s:[c.unit,c.job,c.phone,c.email].filter(Boolean).join(' · ')}));
 }
 function openGS(){buildGS();const ov=$('gsOverlay');if(!ov)return;ov.classList.remove('hidden');const i=$('gsIn');i.value='';renderGS('');setTimeout(()=>i.focus(),30);}
 function closeGS(){const ov=$('gsOverlay');if(ov)ov.classList.add('hidden');}
@@ -1498,7 +1507,7 @@ function canTabEdit(){editingTabKey=null;renderTabs();}
 function switchTab(k){activeTab=k;renderTabs();renderTab();}
 function renderTab(){window.renderTab=renderTab;window.activeTab=activeTab;let h='';
   // (listener wiring below)
-  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='envscope')h=renderScopeHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();
+  if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='envscope')h=renderScopeHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();else if(activeTab==='contacts')h=renderContactsHTML();
   $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});try{renderInfoBar();}catch(e){}}
 
 // ═══ 1 BULLETIN ═══
@@ -1621,6 +1630,59 @@ function openDocNoteM(){$('rteBody2').innerHTML=D.docNotes||'';$('mDocNote').cla
 function closeDocNoteM(){$('mDocNote').classList.add('hidden');}
 function saveDocNote(){D.docNotes=$('rteBody2').innerHTML.trim();if(D.docNotes==='<br>')D.docNotes='';save();renderTab();closeDocNoteM();}
 function delDoc(id){if(!confirm('刪除？'))return;D.documents=D.documents.filter(x=>x.id!==id);save();renderTab();}
+
+// ═══ 聯絡人 CONTACTS ═══
+let eCtId=null,ctFilter='All';
+function ctList(){if(!D.contacts)D.contacts=[];return D.contacts;}
+function ctUnits(){const u=[];ctList().forEach(c=>{const v=(c.unit||'').trim();if(v&&!u.includes(v))u.push(v);});return u.sort((a,b)=>a.localeCompare(b,'zh-Hant'));}
+function renderContactsHTML(){
+  const list=ctList();
+  const filtered=ctFilter==='All'?list:list.filter(c=>(c.unit||'').trim()===ctFilter);
+  let h='<div class="card">';
+  h+=`<div class="bul-head"><div class="bh-title">📇 聯絡人 <span class="bh-count" id="ctCount">${filtered.length}</span></div><div class="bh-search">🔍<input id="ctSearchIn" placeholder="搜尋姓名／電話／單位／業務／Email…" oninput="filterCt(this.value)" autocomplete="off"></div>${isEditor?`<button class="btn-primary sm" onclick="openCtM()">＋ 新增聯絡人</button>`:''}</div>`;
+  const units=ctUnits();
+  if(units.length>1){h+='<div class="trk-tabs" style="margin-bottom:12px">';h+=`<button class="trk-tab ${ctFilter==='All'?'active':''}" onclick="ctFilter='All';renderTab()">全部<span class="tab-count">${list.length}</span></button>`;
+    units.forEach(u=>{const cnt=list.filter(c=>(c.unit||'').trim()===u).length;h+=`<button class="trk-tab ${ctFilter===u?'active':''}" onclick="ctFilter=${JSON.stringify(u).replace(/"/g,'&quot;')};renderTab()">${esc(u)}<span class="tab-count">${cnt}</span></button>`;});
+    h+='</div>';}
+  h+='<div style="overflow-x:auto">';
+  h+=`<table class="doc-table ct-table"><thead><tr><th style="width:44px">#</th><th style="width:110px">姓名</th><th style="width:130px">電話</th><th style="width:130px">單位</th><th>業務</th><th style="width:190px">Email</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody id="ctBody">`;
+  if(!filtered.length)h+=`<tr><td colspan="${isEditor?7:6}" class="tracker-empty">尚無聯絡人${isEditor?'<br><span style="font-size:12px">點擊右上「＋ 新增聯絡人」建立第一筆</span>':''}</td></tr>`;
+  else filtered.forEach(c=>{const ri=list.indexOf(c);
+    const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('contacts',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('contacts',${ri},1)" ${ri===list.length-1?'disabled':''}>▼</button>`:'';
+    const tel=(c.phone||'').trim(),mail=(c.email||'').trim();
+    h+=`<tr class="ct-row"><td class="doc-num">${ri+1}</td><td style="font-weight:700;color:var(--text2)">${esc(c.name||'')}</td>`
+      +`<td>${tel?`<a href="tel:${esc(tel.replace(/[^0-9+#*,-]/g,''))}" style="color:var(--text);text-decoration:none">${esc(tel)}</a>`:'<span style="color:var(--muted)">—</span>'}</td>`
+      +`<td>${c.unit?esc(c.unit):'<span style="color:var(--muted)">—</span>'}</td>`
+      +`<td class="doc-note">${c.job?esc(c.job):'—'}</td>`
+      +`<td style="overflow-wrap:anywhere">${mail?`<a href="mailto:${esc(mail)}" style="color:var(--accent2)">${esc(mail)}</a>`:'<span style="color:var(--muted)">—</span>'}</td>`
+      +`${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openCtM('${c.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delCt('${c.id}')">${SV.trash}</button></td>`:''}</tr>`;});
+  h+=`<tr id="ctNoRes" style="display:none"><td colspan="${isEditor?7:6}" class="tracker-empty">找不到符合的聯絡人</td></tr>`;
+  h+='</tbody></table></div>';
+  if(isEditor)h+=`<button class="btn-add-row" onclick="openCtM()">＋ 新增聯絡人</button>`;
+  return h+'</div>';
+}
+function filterCt(q){
+  q=(q||'').trim().toLowerCase();
+  const rows=document.querySelectorAll('#ctBody .ct-row');let n=0;
+  rows.forEach(el=>{const ok=!q||el.textContent.toLowerCase().includes(q);el.style.display=ok?'':'none';if(ok)n++;});
+  const nr=$('ctNoRes');if(nr)nr.style.display=(q&&!n&&rows.length)?'':'none';
+  const c=$('ctCount');if(c)c.textContent=q?`${n} / ${rows.length}`:rows.length;
+}
+function openCtM(id){eCtId=id||null;$('mCtT').textContent=id?'編輯聯絡人':'新增聯絡人';$('bCt').textContent=id?'儲存':'新增';
+  const c=id?ctList().find(x=>x.id===id):null;
+  $('inCtName').value=c?c.name||'':'';$('inCtPhone').value=c?c.phone||'':'';$('inCtUnit').value=c?c.unit||'':'';$('inCtJob').value=c?c.job||'':'';$('inCtMail').value=c?c.email||'':'';
+  const dl=$('ctUnitList');if(dl)dl.innerHTML=ctUnits().map(u=>`<option value="${esc(u)}"></option>`).join('');
+  $('mCt').classList.remove('hidden');setTimeout(()=>$('inCtName').focus(),50);}
+function closeCtM(){$('mCt').classList.add('hidden');}
+function saveCt(){
+  const name=$('inCtName').value.trim();if(!name){alert('請填寫姓名');$('inCtName').focus();return;}
+  const phone=$('inCtPhone').value.trim(),unit=$('inCtUnit').value.trim(),job=$('inCtJob').value.trim(),email=$('inCtMail').value.trim();
+  if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Email 格式不正確');$('inCtMail').focus();return;}
+  if(!D.contacts)D.contacts=[];
+  if(eCtId){const c=D.contacts.find(x=>x.id===eCtId);if(c){c.name=name;c.phone=phone;c.unit=unit;c.job=job;c.email=email;}}
+  else D.contacts.push({id:gid(),name,phone,unit,job,email});
+  save();renderTab();closeCtM();}
+function delCt(id){const c=ctList().find(x=>x.id===id);if(!confirm(`刪除聯絡人「${c?c.name||'':''}」？`))return;D.contacts=ctList().filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 3.5 環保委外項目 ENV SCOPE ═══
 let eScopeId=null,scopeFilter='All',showScopeArchive=false;

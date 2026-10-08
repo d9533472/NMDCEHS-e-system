@@ -761,10 +761,15 @@ function argueTopic_(body) {
   return { ok: true, data: d, usage: res.usage, model: res.model };
 }
 
-/* ============================== 動作 5：15 句練習 ==============================
-   流程是：情境貼在練習模式頁 → 回筆記頁點一個關鍵字 → 在抽屜貼上題目 → 出 15 句以上。
+/* ============================== 動作 5：句子練習（預設 50 句，分批） ==============================
+   流程是：情境貼在練習模式頁 → 回筆記頁點一個關鍵字 → 在抽屜貼上題目 → 出一整組句子。
    所以這裡同時拿到三樣東西：情境、題目（命令詞＋配分）、他剛點的那個筆記點。
-   和 argue 一樣：每一句都必須留 [ ] 空位，不給可以直接交的句子。 */
+   和 argue 一樣：每一句都必須留 [ ] 空位，不給可以直接交的句子。
+
+   50 句不走單一請求：一次要 50 句會讓 UrlFetchApp 跑近三分鐘，而且模型到後段
+   會開始改寫前面講過的點。改成前端送兩批、每批 25 句，第二批把第一批的
+   point_zh 當 exclude 清單送回來 — 既避開逾時，也真的擋掉重複。
+   body.want = 這一批要幾句（預設 15，相容舊版前端）；body.exclude = 已經寫過的點。 */
 
 var DRILL_SYSTEM = [
   'You are a NEBOSH IG1 tutor building a SENTENCE DRILL SET for a learner who is revising. They are not sitting the',
@@ -782,8 +787,18 @@ var DRILL_SYSTEM = [
   '· Roughly 30 words per mark. The same point written twice in different words scores once.',
   '',
   'Build the set like this:',
-  '1 AT LEAST 15 sentences. Every one is a DIFFERENT mark-earning point — never a paraphrase of another one.',
-  '2 Start from the clicked point: roughly the first third of the set develops it. Then widen to the other points this',
+  '1 Produce AT LEAST the number of sentences the user message asks for. Every one is a DIFFERENT mark-earning',
+  '  point — never a paraphrase of another one, and never the same control written once broadly and once narrowly.',
+  '  Large sets are reached by changing the ANGLE, not by splitting one point into slices. Work systematically',
+  '  through: each distinct hazard in the scenario; each level of the control hierarchy for the main hazards;',
+  '  each duty holder (employer, manager, supervisor, worker, contractor, enforcing authority, client);',
+  '  each stage of the work (planning, selection, induction, during work, end of shift, emergency, review);',
+  '  each group at risk (workers, contractors, visitors, public, vulnerable persons); each consequence type',
+  '  (injury, ill health, legal, financial, reputational); and the management arrangements (policy, risk',
+  '  assessment, training, supervision, consultation, PTW, inspection, monitoring, investigation, review).',
+  '  Before writing each sentence, check it against every sentence already written in this response: if a marker',
+  '  would score the two as the same point, drop it and move to a different angle instead.',
+  '2 Start from the clicked point: roughly the first fifth of the set develops it. Then widen to the other points this',
   '  task actually requires, and name the element each one comes from (1.1 to 4.4).',
   '3 EVERY sentence must contain at least one bracketed gap [ ... ] that names the KIND of scenario fact which goes',
   '  there, pointing at something that really is in the scenario. Never write a sentence that could be submitted as it',
@@ -805,6 +820,14 @@ var DRILL_SYSTEM = [
   '  section field on every sentence so the learner can see where each point came from and go and read it.',
   '· In missing_zh, name the elements they should open in their notes before writing, in the order to read them.',
   '· Everything else — the gaps, the move tags, the shape variants, the sentence count — is unchanged.',
+  '',
+  'IF THE USER MESSAGE CARRIES AN "ALREADY COVERED" LIST — this call is the later half of one larger set:',
+  '· Every point on that list is already written and already scored. Do NOT repeat any of them, and do NOT write',
+  '  a synonym, a narrower version, or a broader version of the same control. Treat that ground as exhausted.',
+  '· Skip rule 2 — the clicked note point has already been developed in the earlier half. Go straight to the',
+  '  angles the list has not reached, working down the checklist in rule 1 and taking the ones still untouched.',
+  '· Keep the same quality bar: same gaps, same move tags, same 25-35 words, same element tagging.',
+  '· In coverage_zh, say in one sentence which new angles this half adds.',
   '',
   'Hard rules:',
   '· Work from the IG1 syllabus and the scenario given. Do not invent facts, legal instruments or figures.',
@@ -856,6 +879,16 @@ function drillSentences_(body) {
   var item = String(body.item || '').trim();
   var sc = String(body.scenario || '').trim();
 
+  /* 這一批要幾句。舊版前端不送 want，維持 15 不變。 */
+  var want = Math.round(Number(body.want));
+  want = isFinite(want) ? Math.max(5, Math.min(60, want)) : 15;
+
+  /* 前一批已經寫掉的點（point_zh），用來擋重複 */
+  var ex = (Array.isArray(body.exclude) ? body.exclude : [])
+    .map(function (x) { return String(x == null ? '' : x).trim(); })
+    .filter(function (x) { return x; })
+    .slice(0, 80);
+
   var user = [
     'SCENARIO 情境：',
     sc || '(未提供情境 — 空位就寫「這裡要填情境裡的哪一種事實」，並在 coverage_zh 提醒他先去練習模式頁貼情境)',
@@ -871,16 +904,22 @@ function drillSentences_(body) {
          item)
       : 'NO NOTE POINT SUPPLIED — 學員不知道這題屬於哪一節。請你自己判斷它落在哪幾個 element，並照「IF NO CLICKED NOTE POINT IS SUPPLIED」那段處理。',
     '',
-    item
-      ? 'Produce at least 15 drill sentences. Start from the clicked point, then cover what the task requires.'
-      : 'Produce at least 15 drill sentences, spread across the elements this task actually draws on.'
-  ].filter(function (x) { return x !== ''; }).join('\n');
+    ex.length
+      ? ('ALREADY COVERED 這一組的前半已經寫過下面這些點 — 一句都不准重複、不准換句話說、不准寫同一個控制的粗細版本：\n' +
+         ex.map(function (x, i) { return (i + 1) + '. ' + x; }).join('\n'))
+      : '',
+    (ex.length
+      ? ('Produce at least ' + want + ' FURTHER drill sentences, every one on an angle the ALREADY COVERED list has not reached.')
+      : (item
+          ? ('Produce at least ' + want + ' drill sentences. Start from the clicked point, then cover what the task requires.')
+          : ('Produce at least ' + want + ' drill sentences, spread across the elements this task actually draws on.')))
+  ].filter(function (x) { return x !== '' && x !== null; }).join('\n');
 
   var res = callClaude_({
     system: DRILL_SYSTEM,
     user: user,
     schema: DRILL_SCHEMA,
-    maxTokens: 24000,
+    maxTokens: 32000,
     effort: effort_('DRILL_EFFORT')
   });
   if (!res.ok) return res;
@@ -896,7 +935,8 @@ function drillSentences_(body) {
       if (body.section && !String(s.section || '').trim()) s.section = String(body.section);
     });
     d.count = d.sentences.length;
-    d.short = d.count < 15;                          // 不足 15 句就讓前端說出來，不要默默少給
+    d.want = want;
+    d.short = d.count < want;                        // 不足就讓前端說出來，不要默默少給
   }
   return { ok: true, data: d, usage: res.usage, model: res.model };
 }
