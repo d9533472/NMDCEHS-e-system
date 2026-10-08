@@ -629,7 +629,7 @@ body.season-oct .info-bar .ib-chip.hol{background:linear-gradient(135deg,#fef2f2
   .person-badge{font-size:11px;padding:2px 8px}
   /* 文件、加班、請假表格：橫向捲動，避免壓縮 */
   .doc-table{min-width:720px;font-size:12px}.doc-table th,.doc-table td{padding:7px 8px}
-  .doc-table.ct-table{min-width:640px}
+  .doc-table.ct-table{min-width:800px}
   .doc-note{max-width:180px}
   .ot-section{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .ot-record-table{min-width:560px;font-size:12px}.ot-record-table th,.ot-record-table td{padding:6px 8px}
@@ -761,7 +761,8 @@ body.season-oct .info-bar .ib-chip.hol{background:linear-gradient(135deg,#fef2f2
   <div class="modal-actions"><button class="btn-secondary" onclick="closeDocM()">取消</button><button class="btn-primary" onclick="saveDoc()" id="bDoc">新增</button></div>
 </div></div></div>
 <div class="modal-overlay hidden" id="mCt" onclick="closeCtM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mCtT">新增聯絡人</div><div class="modal-form">
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><label class="form-label">姓名</label><input class="form-input" id="inCtName" onkeydown="if(event.key==='Enter')saveCt()"></div><div><label class="form-label">電話</label><input class="form-input" id="inCtPhone" placeholder="0912-345-678 / 分機" onkeydown="if(event.key==='Enter')saveCt()"></div></div>
+  <div><label class="form-label">姓名</label><input class="form-input" id="inCtName" onkeydown="if(event.key==='Enter')saveCt()"></div>
+  <div style="display:grid;grid-template-columns:90px 1fr 90px;gap:10px"><div><label class="form-label">區碼</label><input class="form-input" id="inCtArea" placeholder="04" inputmode="tel" onkeydown="if(event.key==='Enter')saveCt()"></div><div><label class="form-label">電話</label><input class="form-input" id="inCtPhone" placeholder="2222-1111 或 0912-345-678" inputmode="tel" onkeydown="if(event.key==='Enter')saveCt()"></div><div><label class="form-label">分機</label><input class="form-input" id="inCtExt" placeholder="302" inputmode="numeric" onkeydown="if(event.key==='Enter')saveCt()"></div></div>
   <div><label class="form-label">單位</label><input class="form-input" id="inCtUnit" list="ctUnitList" placeholder="例：台中港務分公司" onkeydown="if(event.key==='Enter')saveCt()"><datalist id="ctUnitList"></datalist></div>
   <div><label class="form-label">業務</label><input class="form-input" id="inCtJob" placeholder="例：海洋汙染防治、廢棄物申報" onkeydown="if(event.key==='Enter')saveCt()"></div>
   <div><label class="form-label">Email</label><input class="form-input" id="inCtMail" type="email" placeholder="name@example.com" onkeydown="if(event.key==='Enter')saveCt()"></div>
@@ -1233,7 +1234,7 @@ function fixData(){
   if(!D.rosterData)D.rosterData={};
   if(!D.archivedBulletins)D.archivedBulletins=[];
   if(!D.events)D.events=[];
-  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.contacts)D.contacts=[];if(!D.parts.find(p=>p.key==='contacts'))D.parts.push({key:'contacts',icon:'📇',title:'聯絡人'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.archivedScopes)D.archivedScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length&&!D.archivedScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
+  if(!D.otRecords)D.otRecords={};if(!D.leaveRecords)D.leaveRecords={};if(!D.parts)D.parts=makeDefault().parts;if(!D.parts.find(p=>p.key==='documents'))D.parts.splice(2,0,{key:'documents',icon:'📑',title:'紙本文件紀錄'});if(!D.parts.find(p=>p.key==='events'))D.parts.push({key:'events',icon:'⭐',title:'重點活動'});if(!D.contacts)D.contacts=[];ctMigratePhone();if(!D.parts.find(p=>p.key==='contacts'))D.parts.push({key:'contacts',icon:'📇',title:'聯絡人'});if(!D.parts.find(p=>p.key==='envscope')){const di=D.parts.findIndex(p=>p.key==='documents');D.parts.splice(di<0?D.parts.length:di+1,0,{key:'envscope',icon:'🧭',title:'環保委外項目'});}if(!D.envScopes)D.envScopes=[];if(!D.archivedScopes)D.archivedScopes=[];if(!D.envScopeSeeded&&!D.envScopes.length&&!D.archivedScopes.length){D.envScopes=DEFAULT_SCOPES.map(s=>({...s,id:gid(),note:''}));D.envScopeSeeded=1;}D.parts=D.parts.filter(p=>p.key!=='vessels');if(!D.vessels)D.vessels=[];if(!D.schedule)D.schedule=[{url:'',label:'班表 1'},{url:'',label:'班表 2'}];if(!D.documents)D.documents=[];if(!D.docNotes)D.docNotes='';if(!D.docLastUpdated)D.docLastUpdated='';if(!D.scheduleData)D.scheduleData={};if(!D.schMonths||!D.schMonths.length)D.schMonths=[todayS().slice(0,7)];if(D.documents.length===0&&!D.docLastUpdated)D.documents=DEFAULT_DOCS.map(d=>({...d,id:gid()}));seedSchedule();}
 
 function seedSchedule(){
   if(!D.scheduleData)D.scheduleData={};
@@ -1469,7 +1470,7 @@ function buildGS(){
   (D.documents||[]).forEach(d=>gsItems.push({tab:'documents',tag:'文件',ico:'📑',t:(d.num?'#'+d.num+' ':'')+(d.name||''),s:[d.person,stripHtml(d.note)].filter(Boolean).join(' · ')}));
   (D.sections||[]).forEach(sec=>(sec.links||[]).forEach(l=>gsItems.push({tab:'links',tag:'連結',ico:l.icon||'🔗',t:l.title||'',s:[sec.name,(l.url&&l.url!=='#')?l.url:''].filter(Boolean).join(' · '),url:(l.url&&l.url!=='#')?l.url:''})));
   (D.events||[]).forEach(e=>gsItems.push({tab:'events',tag:'活動',ico:e.starred?'⭐':'📌',t:e.title||'',s:[e.date,e.area,e.person].filter(Boolean).join(' · ')}));
-  (D.contacts||[]).forEach(c=>gsItems.push({tab:'contacts',tag:'聯絡人',ico:'📇',t:c.name||'',s:[c.unit,c.job,c.phone,c.email].filter(Boolean).join(' · ')}));
+  (D.contacts||[]).forEach(c=>gsItems.push({tab:'contacts',tag:'聯絡人',ico:'📇',t:c.name||'',s:[c.unit,c.job,ctFullTel(c),c.email].filter(Boolean).join(' · ')}));
 }
 function openGS(){buildGS();const ov=$('gsOverlay');if(!ov)return;ov.classList.remove('hidden');const i=$('gsIn');i.value='';renderGS('');setTimeout(()=>i.focus(),30);}
 function closeGS(){const ov=$('gsOverlay');if(ov)ov.classList.add('hidden');}
@@ -1635,6 +1636,25 @@ function delDoc(id){if(!confirm('刪除？'))return;D.documents=D.documents.filt
 let eCtId=null,ctFilter='All';
 function ctList(){if(!D.contacts)D.contacts=[];return D.contacts;}
 function ctUnits(){const u=[];ctList().forEach(c=>{const v=(c.unit||'').trim();if(v&&!u.includes(v))u.push(v);});return u.sort((a,b)=>a.localeCompare(b,'zh-Hant'));}
+// 舊資料（單一 phone 欄位）→ 拆成 區碼／電話／分機
+function ctMigratePhone(){(D.contacts||[]).forEach(c=>{
+  if(c.area!==undefined&&c.ext!==undefined)return;
+  let s=String(c.phone||'').trim(),ext='',area='';
+  const em=s.match(/(?:#|分機|轉|ext\.?)\s*([0-9]{1,6})\s*$/i);
+  if(em){ext=em[1];s=s.slice(0,em.index).trim().replace(/[-\s,]+$/,'');}
+  const am=s.match(/^\((0[1-8][0-9]?)\)\s*/)||s.match(/^(0[1-8][0-9]?)[-\s]+/);
+  if(am){area=am[1];s=s.slice(am[0].length).trim();}
+  c.area=area;c.phone=s;c.ext=ext;});}
+// 完整號碼字串（顯示／搜尋用）
+function ctFullTel(c){const a=(c.area||'').trim(),p=(c.phone||'').trim(),e=(c.ext||'').trim();
+  if(!p&&!e)return '';
+  let s=(a?a+'-':'')+p;
+  if(e)s+=(p?' 轉 ':'分機 ')+e;
+  return s;}
+// tel: 連結（分機用逗號當停頓撥號）
+function ctTelHref(c){const d=((c.area||'')+(c.phone||'')).replace(/[^0-9+*#]/g,''),e=(c.ext||'').replace(/[^0-9]/g,'');
+  if(!d)return '';
+  return 'tel:'+d+(e?',,'+e:'');}
 function renderContactsHTML(){
   const list=ctList();
   const filtered=ctFilter==='All'?list:list.filter(c=>(c.unit||'').trim()===ctFilter);
@@ -1645,18 +1665,21 @@ function renderContactsHTML(){
     units.forEach(u=>{const cnt=list.filter(c=>(c.unit||'').trim()===u).length;h+=`<button class="trk-tab ${ctFilter===u?'active':''}" onclick="ctFilter=${JSON.stringify(u).replace(/"/g,'&quot;')};renderTab()">${esc(u)}<span class="tab-count">${cnt}</span></button>`;});
     h+='</div>';}
   h+='<div style="overflow-x:auto">';
-  h+=`<table class="doc-table ct-table"><thead><tr><th style="width:44px">#</th><th style="width:110px">姓名</th><th style="width:130px">電話</th><th style="width:130px">單位</th><th>業務</th><th style="width:190px">Email</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody id="ctBody">`;
-  if(!filtered.length)h+=`<tr><td colspan="${isEditor?7:6}" class="tracker-empty">尚無聯絡人${isEditor?'<br><span style="font-size:12px">點擊右上「＋ 新增聯絡人」建立第一筆</span>':''}</td></tr>`;
+  h+=`<table class="doc-table ct-table"><thead><tr><th style="width:44px">#</th><th style="width:100px">姓名</th><th style="width:60px;text-align:center">區碼</th><th style="width:120px">電話</th><th style="width:66px;text-align:center">分機</th><th style="width:120px">單位</th><th>業務</th><th style="width:180px">Email</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody id="ctBody">`;
+  if(!filtered.length)h+=`<tr><td colspan="${isEditor?9:8}" class="tracker-empty">尚無聯絡人${isEditor?'<br><span style="font-size:12px">點擊右上「＋ 新增聯絡人」建立第一筆</span>':''}</td></tr>`;
   else filtered.forEach(c=>{const ri=list.indexOf(c);
     const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('contacts',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('contacts',${ri},1)" ${ri===list.length-1?'disabled':''}>▼</button>`:'';
-    const tel=(c.phone||'').trim(),mail=(c.email||'').trim();
+    const area=(c.area||'').trim(),tel=(c.phone||'').trim(),ext=(c.ext||'').trim(),mail=(c.email||'').trim(),href=ctTelHref(c);
+    const dash='<span style="color:var(--muted)">—</span>';
     h+=`<tr class="ct-row"><td class="doc-num">${ri+1}</td><td style="font-weight:700;color:var(--text2)">${esc(c.name||'')}</td>`
-      +`<td>${tel?`<a href="tel:${esc(tel.replace(/[^0-9+#*,-]/g,''))}" style="color:var(--text);text-decoration:none">${esc(tel)}</a>`:'<span style="color:var(--muted)">—</span>'}</td>`
-      +`<td>${c.unit?esc(c.unit):'<span style="color:var(--muted)">—</span>'}</td>`
+      +`<td style="text-align:center;color:var(--muted)">${area?esc(area):'—'}</td>`
+      +`<td style="white-space:nowrap">${tel?(href?`<a href="${esc(href)}" style="color:var(--text);text-decoration:none">${esc(tel)}</a>`:esc(tel)):dash}</td>`
+      +`<td style="text-align:center">${ext?esc(ext):'—'}</td>`
+      +`<td>${c.unit?esc(c.unit):dash}</td>`
       +`<td class="doc-note">${c.job?esc(c.job):'—'}</td>`
-      +`<td style="overflow-wrap:anywhere">${mail?`<a href="mailto:${esc(mail)}" style="color:var(--accent2)">${esc(mail)}</a>`:'<span style="color:var(--muted)">—</span>'}</td>`
+      +`<td style="overflow-wrap:anywhere">${mail?`<a href="mailto:${esc(mail)}" style="color:var(--accent2)">${esc(mail)}</a>`:dash}</td>`
       +`${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openCtM('${c.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delCt('${c.id}')">${SV.trash}</button></td>`:''}</tr>`;});
-  h+=`<tr id="ctNoRes" style="display:none"><td colspan="${isEditor?7:6}" class="tracker-empty">找不到符合的聯絡人</td></tr>`;
+  h+=`<tr id="ctNoRes" style="display:none"><td colspan="${isEditor?9:8}" class="tracker-empty">找不到符合的聯絡人</td></tr>`;
   h+='</tbody></table></div>';
   if(isEditor)h+=`<button class="btn-add-row" onclick="openCtM()">＋ 新增聯絡人</button>`;
   return h+'</div>';
@@ -1670,17 +1693,18 @@ function filterCt(q){
 }
 function openCtM(id){eCtId=id||null;$('mCtT').textContent=id?'編輯聯絡人':'新增聯絡人';$('bCt').textContent=id?'儲存':'新增';
   const c=id?ctList().find(x=>x.id===id):null;
-  $('inCtName').value=c?c.name||'':'';$('inCtPhone').value=c?c.phone||'':'';$('inCtUnit').value=c?c.unit||'':'';$('inCtJob').value=c?c.job||'':'';$('inCtMail').value=c?c.email||'':'';
+  $('inCtName').value=c?c.name||'':'';$('inCtArea').value=c?c.area||'':'';$('inCtPhone').value=c?c.phone||'':'';$('inCtExt').value=c?c.ext||'':'';$('inCtUnit').value=c?c.unit||'':'';$('inCtJob').value=c?c.job||'':'';$('inCtMail').value=c?c.email||'':'';
   const dl=$('ctUnitList');if(dl)dl.innerHTML=ctUnits().map(u=>`<option value="${esc(u)}"></option>`).join('');
   $('mCt').classList.remove('hidden');setTimeout(()=>$('inCtName').focus(),50);}
 function closeCtM(){$('mCt').classList.add('hidden');}
 function saveCt(){
   const name=$('inCtName').value.trim();if(!name){alert('請填寫姓名');$('inCtName').focus();return;}
-  const phone=$('inCtPhone').value.trim(),unit=$('inCtUnit').value.trim(),job=$('inCtJob').value.trim(),email=$('inCtMail').value.trim();
+  const area=$('inCtArea').value.trim(),phone=$('inCtPhone').value.trim(),ext=$('inCtExt').value.trim();
+  const unit=$('inCtUnit').value.trim(),job=$('inCtJob').value.trim(),email=$('inCtMail').value.trim();
   if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){alert('Email 格式不正確');$('inCtMail').focus();return;}
   if(!D.contacts)D.contacts=[];
-  if(eCtId){const c=D.contacts.find(x=>x.id===eCtId);if(c){c.name=name;c.phone=phone;c.unit=unit;c.job=job;c.email=email;}}
-  else D.contacts.push({id:gid(),name,phone,unit,job,email});
+  if(eCtId){const c=D.contacts.find(x=>x.id===eCtId);if(c){c.name=name;c.area=area;c.phone=phone;c.ext=ext;c.unit=unit;c.job=job;c.email=email;}}
+  else D.contacts.push({id:gid(),name,area,phone,ext,unit,job,email});
   save();renderTab();closeCtM();}
 function delCt(id){const c=ctList().find(x=>x.id===id);if(!confirm(`刪除聯絡人「${c?c.name||'':''}」？`))return;D.contacts=ctList().filter(x=>x.id!==id);save();renderTab();}
 
