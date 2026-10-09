@@ -13,7 +13,8 @@ var 試算表名稱 = '黃金陣容聚餐_問卷資料';
 var 工作表名稱 = '填答名單';
 var 屬性鍵_試算表 = 'GOLD_DINNER_SHEET_ID';
 var 屬性鍵_密碼 = 'GOLD_DINNER_ADMIN_PASS';
-var 預設密碼 = 'gold1109';
+var 預設密碼 = '1234';
+var 舊預設密碼 = 'gold1109';
 
 var 標題列 = ['填寫時間', '姓名', '電話', '大人', '小孩', '兒童椅', '有空日期', '想去地點', '想說的話'];
 
@@ -277,7 +278,8 @@ function 讀取全部_() {
 function 切開_(值) {
   var 字 = String(值 || '').trim();
   if (!字) return [];
-  var 片段 = 字.split(/[、,，/]/);
+  // 注意：不能拿「/」當分隔符號，日期本身就有斜線（11/1（日）會被拆成 11 和 1（日））
+  var 片段 = 字.split(/[、,，;；]/);
   var 結果 = [];
   for (var i = 0; i < 片段.length; i++) {
     var 一個 = 片段[i].trim();
@@ -380,7 +382,8 @@ function 格式化時間_(值) {
 function 取得密碼_() {
   var 屬性 = PropertiesService.getScriptProperties();
   var 密碼 = 屬性.getProperty(屬性鍵_密碼);
-  if (!密碼) {
+  // 第一版的預設密碼視同「還沒設定過」，直接換成現在的預設值
+  if (!密碼 || 密碼 === 舊預設密碼) {
     密碼 = 預設密碼;
     屬性.setProperty(屬性鍵_密碼, 密碼);
   }
