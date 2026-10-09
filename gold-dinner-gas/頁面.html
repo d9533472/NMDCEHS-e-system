@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold1:#FFC93C; --gold2:#F5A623; --gold3:#E08A00;
+    --pink:#FF6B9D; --mint:#2EC4B6; --purple:#7C5CFF; --blue:#3DA9FC;
+    --ink:#4A3728; --ink-soft:#8A7461; --line:#F0E2CB;
+    --card:#FFFFFF; --radius:22px;
+    --shadow:0 10px 30px rgba(190,140,40,.14);
+    --shadow-lift:0 16px 40px rgba(190,140,40,.24);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0; padding:0 14px 60px;
+    font-family:"Noto Sans TC",system-ui,-apple-system,"Microsoft JhengHei",sans-serif;
+    color:var(--ink); line-height:1.65;
+    background:
+      radial-gradient(900px 500px at 10% -5%, #FFE9A8 0%, transparent 60%),
+      radial-gradient(800px 500px at 95% 5%, #FFD6E6 0%, transparent 60%),
+      radial-gradient(700px 600px at 50% 100%, #D6F5F0 0%, transparent 65%),
+      #FFFBF2;
+    min-height:100vh;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+
+  /* ---------- 標頭 ---------- */
+  header{text-align:center;padding:34px 10px 8px;position:relative}
+  .emoji-rain{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .emoji-rain span{position:absolute;font-size:26px;opacity:.5;animation:float 7s ease-in-out infinite}
+  @keyframes float{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-16px) rotate(10deg)}}
+  h1{
+    margin:0 0 10px; font-size:clamp(25px,6.2vw,40px); font-weight:900; letter-spacing:.5px;
+    background:linear-gradient(100deg,var(--gold3),var(--gold1) 40%,var(--pink) 75%,var(--purple));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 2px 0 rgba(255,255,255,.6);
+  }
+  .subtitle{font-size:15px;color:var(--ink-soft);font-weight:500;margin:0}
+  .intro{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:20px 22px; margin:18px 0 22px; border:2px dashed #FFD98A;
+    font-size:15.5px;
+  }
+  .intro p{margin:0 0 9px}
+  .intro p:last-child{margin:0}
+  .intro b{color:var(--gold3)}
+  .deadline{
+    display:inline-block;margin-top:6px;padding:4px 12px;border-radius:999px;
+    background:linear-gradient(95deg,var(--pink),#FF9A6B);color:#fff;font-weight:700;font-size:13.5px;
+  }
+
+  /* ---------- 卡片 ---------- */
+  .card{
+    background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:22px; margin-bottom:20px; border:1px solid var(--line);
+  }
+  .card h2{
+    margin:0 0 4px; font-size:20px; font-weight:900; display:flex; align-items:center; gap:8px;
+  }
+  .card h2 .no{
+    flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--gold1),var(--gold2));color:#fff;font-size:15px;font-weight:900;
+    box-shadow:0 4px 10px rgba(245,166,35,.4);
+  }
+  .hint{margin:0 0 12px;font-size:13.5px;color:var(--ink-soft)}
+  .req{color:var(--pink);font-weight:900;margin-left:2px}
+
+  /* ---------- 表單欄位 ---------- */
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:560px){.row{grid-template-columns:1fr}}
+  label.fld{display:block;margin-bottom:16px}
+  label.fld:last-child{margin-bottom:0}
+  .lab{display:block;font-weight:700;font-size:15.5px;margin-bottom:5px}
+  input[type=text],input[type=tel],select,textarea{
+    width:100%; padding:13px 15px; font-size:16px; font-family:inherit; color:var(--ink);
+    border:2px solid var(--line); border-radius:14px; background:#FFFDF8; transition:.18s;
+  }
+  textarea{min-height:92px;resize:vertical}
+  input:focus,select:focus,textarea:focus{
+    outline:none; border-color:var(--gold2); background:#fff;
+    box-shadow:0 0 0 4px rgba(255,201,60,.25);
+  }
+  select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--gold3) 50%),linear-gradient(135deg,var(--gold3) 50%,transparent 50%);
+    background-position:calc(100% - 20px) 21px,calc(100% - 14px) 21px;background-size:6px 6px,6px 6px;background-repeat:no-repeat}
+
+  /* ---------- 複選／單選膠囊 ---------- */
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{
+    position:relative;flex:1 1 calc(33.333% - 10px);min-width:120px;
+    display:flex;align-items:center;justify-content:center;gap:6px;
+    padding:14px 10px;border:2px solid var(--line);border-radius:16px;background:#FFFDF8;
+    font-size:16px;font-weight:700;cursor:pointer;transition:.18s;user-select:none;text-align:center;
+  }
+  .chip:hover{border-color:var(--gold1);transform:translateY(-2px)}
+  .chip input{position:absolute;opacity:0;pointer-events:none}
+  .chip .tick{
+    flex:none;width:21px;height:21px;border-radius:7px;border:2px solid #E3D2B4;background:#fff;
+    display:grid;place-items:center;font-size:13px;color:transparent;transition:.18s;
+  }
+  .chip.on{
+    border-color:var(--gold2);color:#7A4B00;
+    background:linear-gradient(135deg,#FFF3CF,#FFE49B);
+    box-shadow:0 6px 16px rgba(245,166,35,.28);
+  }
+  .chip.on .tick{background:linear-gradient(135deg,var(--gold2),var(--gold3));border-color:var(--gold3);color:#fff}
+  .chips.places .chip{flex:1 1 calc(25% - 10px);min-width:96px}
+  .chips.two .chip{flex:1 1 calc(50% - 10px)}
+  .chips.two .chip .tick{border-radius:50%}
+  .pickall{
+    background:none;border:none;color:var(--gold3);font-weight:700;font-size:13.5px;
+    cursor:pointer;padding:2px 0;margin-bottom:10px;font-family:inherit;text-decoration:underline;
+  }
+
+  /* ---------- 送出 ---------- */
+  .submit{
+    width:100%;padding:17px;border:none;border-radius:18px;cursor:pointer;
+    font-family:inherit;font-size:19px;font-weight:900;color:#fff;letter-spacing:1px;
+    background:linear-gradient(100deg,var(--gold2),var(--pink) 70%,var(--purple));
+    box-shadow:var(--shadow-lift); transition:.18s;
+  }
+  .submit:hover:not(:disabled){transform:translateY(-3px);filter:brightness(1.06)}
+  .submit:active:not(:disabled){transform:translateY(0)}
+  .submit:disabled{opacity:.6;cursor:wait}
+
+  .msg{margin-top:14px;padding:13px 16px;border-radius:14px;font-weight:700;font-size:15px;display:none}
+  .msg.err{display:block;background:#FFEAEF;color:#C62F5B;border:2px solid #FFC9D8}
+  .msg.ok{display:block;background:#E6F9F2;color:#107A5C;border:2px solid #AEE9D5}
+
+  /* ---------- 統計 ---------- */
+  .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+  @media(max-width:560px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+  .stat{
+    text-align:center;padding:14px 8px;border-radius:16px;border:2px solid var(--line);
+    background:linear-gradient(170deg,#FFFDF6,#FFF6E3);
+  }
+  .stat .n{font-size:28px;font-weight:900;line-height:1.15;color:var(--gold3)}
+  .stat .t{font-size:12.5px;color:var(--ink-soft);font-weight:700}
+  .stat.pink .n{color:var(--pink)} .stat.mint .n{color:#13907F} .stat.purple .n{color:var(--purple)}
+
+  .winner{
+    display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px;
+  }
+  .winner div{
+    flex:1 1 200px;padding:14px 16px;border-radius:16px;color:#fff;font-weight:900;
+    background:linear-gradient(110deg,var(--gold2),var(--gold1));box-shadow:0 8px 20px rgba(245,166,35,.3);
+  }
+  .winner div.p{background:linear-gradient(110deg,var(--mint),#5FD6C4);box-shadow:0 8px 20px rgba(46,196,182,.3)}
+  .winner small{display:block;font-size:12.5px;font-weight:700;opacity:.9}
+  .winner span{font-size:21px}
+
+  .rank-wrap{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:620px){.rank-wrap{grid-template-columns:1fr}}
+  .rank-title{font-weight:900;font-size:16px;margin:0 0 10px;padding-bottom:6px;border-bottom:2px dashed #FFDD99}
+  .bar{margin-bottom:11px}
+  .bar .top{display:flex;justify-content:space-between;align-items:baseline;font-size:14.5px;margin-bottom:4px}
+  .bar .nm{font-weight:700}
+  .bar .vl{font-weight:900;color:var(--gold3);font-size:13.5px;white-space:nowrap}
+  .bar .track{height:14px;border-radius:999px;background:#F6EEDD;overflow:hidden}
+  .bar .fill{
+    height:100%;border-radius:999px;width:0;transition:width .9s cubic-bezier(.2,.9,.2,1);
+    background:linear-gradient(90deg,var(--gold1),var(--gold2));
+  }
+  .bar.r1 .fill{background:linear-gradient(90deg,#FFD84D,#F08A00)}
+  .bar.r2 .fill{background:linear-gradient(90deg,#9FE8DC,var(--mint))}
+  .bar.r3 .fill{background:linear-gradient(90deg,#C9B8FF,var(--purple))}
+  .bar.zero .nm,.bar.zero .vl{color:#B9A48C}
+  .who{font-size:12.5px;color:var(--ink-soft);margin-top:3px;word-break:break-all}
+
+  .people{margin-top:20px}
+  .people h3{font-size:16px;font-weight:900;margin:0 0 10px;padding-bottom:6px;border-bottom:2px dashed #FFDD99}
+  .person{
+    padding:11px 14px;border-radius:14px;border:1px solid var(--line);background:#FFFDF8;margin-bottom:8px;
+    display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:14px;
+  }
+  .person .nm{font-weight:900;font-size:15.5px}
+  .person .cnt{
+    padding:2px 10px;border-radius:999px;background:linear-gradient(120deg,#FFE9A8,#FFD66B);
+    font-weight:800;font-size:12.5px;color:#7A4B00;
+  }
+  .person .tag{padding:2px 9px;border-radius:999px;background:#EEF6FF;color:#1F6FA8;font-size:12px;font-weight:700}
+  .person .tag.pl{background:#E9FBF6;color:#107A5C}
+  .person .note{flex:1 1 100%;font-size:13px;color:var(--ink-soft)}
+  .empty{text-align:center;padding:26px;color:var(--ink-soft);font-weight:700}
+
+  .reload{
+    background:none;border:2px solid var(--line);border-radius:999px;padding:6px 16px;
+    font-family:inherit;font-weight:700;font-size:13px;color:var(--ink-soft);cursor:pointer;float:right;
+  }
+  .reload:hover{border-color:var(--gold1);color:var(--gold3)}
+
+  /* ---------- 主辦人 ---------- */
+  .admin{margin-top:4px;text-align:center}
+  .admin>button{
+    background:none;border:none;color:#B9A48C;font-family:inherit;font-size:13px;
+    font-weight:700;cursor:pointer;text-decoration:underline;
+  }
+  .admin-box{display:none;margin-top:12px;text-align:left}
+  .admin-box.open{display:block}
+  .admin-row{display:flex;gap:8px;flex-wrap:wrap}
+  .admin-row input{flex:1 1 180px}
+  .admin-row button{
+    padding:12px 20px;border:none;border-radius:14px;cursor:pointer;font-family:inherit;
+    font-weight:800;font-size:15px;color:#fff;background:linear-gradient(110deg,#6B7B8C,#455160);
+  }
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px;display:block;overflow-x:auto;white-space:nowrap}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left}
+  th{background:#FFF4D9;font-weight:800;position:sticky;top:0}
+  td.del button{background:#FFEAEF;color:#C62F5B;border:none;border-radius:8px;padding:4px 9px;cursor:pointer;font-family:inherit;font-weight:700}
+  .tsv{margin-top:12px}
+  .tsv textarea{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;min-height:120px;white-space:pre}
+
+  /* ---------- 彩帶 ---------- */
+  .confetti{position:fixed;inset:0;pointer-events:none;z-index:99;overflow:hidden}
+  .confetti i{position:absolute;top:-24px;width:11px;height:11px;border-radius:3px;animation:drop linear forwards}
+  @keyframes drop{to{transform:translateY(104vh) rotate(760deg);opacity:.2}}
+  footer{text-align:center;font-size:12.5px;color:#BCA891;padding:10px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="emoji-rain">
+      <span style="left:4%;top:18%;animation-delay:0s">🍻</span>
+      <span style="left:88%;top:12%;animation-delay:.8s">🎂</span>
+      <span style="left:16%;top:62%;animation-delay:1.6s">🥘</span>
+      <span style="left:76%;top:66%;animation-delay:2.4s">✨</span>
+      <span style="left:46%;top:6%;animation-delay:3.2s">🎊</span>
+    </div>
+    <h1>🎉 中央大學環工所<br>黃金陣容聚餐來啦！🎉</h1>
+    <p class="subtitle">十一月・日期與地點投票</p>
+  </header>
+
+  <div class="intro">
+    <p><b>黃金陣容的夥伴們～～</b></p>
+    <p>十一月要一起吃飯、聊天、大解放啦！🥳</p>
+    <p>請告訴我你「<b>有空的日子</b>」＋「<b>可以接受的地點</b>」，我會幫大家統計出「<b>最多人能參加</b>」的日期跟地方～</p>
+    <p>填完只要 1 分鐘，期待跟大家見面喔！💛</p>
+    <p><span class="deadline">✍️ 同一個姓名重填會自動覆蓋，隨時都能回來改</span></p>
+  </div>
+
+  <!-- ===== 表單 ===== -->
+  <form id="form" class="card" autocomplete="on">
+    <div class="row">
+      <label class="fld">
+        <span class="lab">1️⃣ 你的大名是？<span class="req">*</span></span>
+        <input type="text" id="name" maxlength="20" placeholder="王小明" required>
+        <span class="hint">請填真實姓名（方便統計與聯絡）</span>
+      </label>
+      <label class="fld">
+        <span class="lab">2️⃣ 聯絡電話<span class="req">*</span></span>
+        <input type="tel" id="phone" maxlength="30" placeholder="0912345678" required>
+        <span class="hint">方便臨時有事可以找到你～（只有主辦人看得到）</span>
+      </label>
+    </div>
+
+    <div class="row">
+      <label class="fld">
+        <span class="lab">3️⃣ 大人人數（含自己）<span class="req">*</span></span>
+        <select id="adults" required></select>
+      </label>
+      <label class="fld">
+        <span class="lab">4️⃣ 小孩人數<span class="req">*</span></span>
+        <select id="kids" required></select>
+      </label>
+    </div>
+
+    <div class="fld">
+      <span class="lab">5️⃣ 需要兒童椅嗎？<span class="req">*</span></span>
+      <div class="chips two" id="chair"></div>
+    </div>
+
+    <hr style="border:none;border-top:2px dashed #FFDD99;margin:22px 0">
+
+    <h2><span class="no">6</span>你有空的日子有哪些？</h2>
+    <p class="hint">可複選・有空就勾，越多越好～我會統計出最多人能來的日子！<span class="req">*</span></p>
+    <button type="button" class="pickall" data-target="dates">🗓️ 全部日期我都可以</button>
+    <div class="chips" id="dates"></div>
+
+    <h2 style="margin-top:24px"><span class="no">7</span>你比較想去哪個地方吃飯？</h2>
+    <p class="hint">可複選・可以勾好幾個！我們會找大家最有共識的地方～<span class="req">*</span></p>
+    <button type="button" class="pickall" data-target="places">📍 哪裡都可以</button>
+    <div class="chips places" id="places"></div>
+
+    <label class="fld" style="margin-top:24px">
+      <span class="lab">8️⃣ 其他想說的話 / 建議（選填）</span>
+      <textarea id="note" maxlength="500" placeholder="想吃什麼、有沒有過敏、想玩什麼都可以寫～"></textarea>
+    </label>
+
+    <button type="submit" class="submit" id="go">🚀 送出我的選擇</button>
+    <div class="msg" id="msg"></div>
+  </form>
+
+  <!-- ===== 統計 ===== -->
+  <div class="card">
+    <button class="reload" id="reload" type="button">🔄 重新整理</button>
+    <h2>📊 目前大家的投票結果</h2>
+    <p class="hint">即時更新，填完就看得到（電話不會公開）</p>
+    <div id="stats"><div class="empty">統計載入中…⏳</div></div>
+  </div>
+
+  <!-- ===== 主辦人 ===== -->
+  <div class="card admin">
+    <button type="button" id="adminToggle">🔒 主辦人登入（看完整名單與電話）</button>
+    <div class="admin-box" id="adminBox">
+      <div class="admin-row">
+        <input type="password" id="pass" placeholder="請輸入主辦人密碼">
+        <button type="button" id="adminGo">進入</button>
+      </div>
+      <div class="msg" id="adminMsg"></div>
+      <div id="adminOut"></div>
+    </div>
+  </div>
+
+  <footer>中央大學環工所黃金陣容 ・ 資料存於主辦人的 Google 試算表</footer>
+</div>
+
+<script>
+var 設定 = <?!= 設定JSON_() ?>;
+var 日期選項 = 設定.日期選項, 地點選項 = 設定.地點選項;
+var 目前密碼 = '';
+
+function $(id){ return document.getElementById(id); }
+function 跳脫(字){
+  return String(字 == null ? '' : 字)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ---------- 建立選項 ----------
+(function 建表單(){
+  var a = $('adults'), k = $('kids'), i;
+  for (i = 1; i <= 10; i++) a.insertAdjacentHTML('beforeend','<option value="'+i+'">'+i+' 位大人</option>');
+  k.insertAdjacentHTML('beforeend','<option value="0">0（沒有小孩）</option>');
+  for (i = 1; i <= 5; i++) k.insertAdjacentHTML('beforeend','<option value="'+i+'">'+i+' 位小孩</option>');
+
+  畫膠囊('chair', ['需要','不需要'], 'radio', 'chair');
+  畫膠囊('dates', 日期選項, 'checkbox', 'dates');
+  畫膠囊('places', 地點選項, 'checkbox', 'places');
+})();
+
+function 畫膠囊(容器id, 清單, 型別, 名稱){
+  var html = '';
+  for (var i = 0; i < 清單.length; i++){
+    html += '<label class="chip"><input type="'+型別+'" name="'+名稱+'" value="'+跳脫(清單[i])+'">'
+         +  '<span class="tick">✓</span><span>'+跳脫(清單[i])+'</span></label>';
+  }
+  var 容器 = $(容器id);
+  容器.innerHTML = html;
+  容器.addEventListener('change', function(){ 更新亮起(容器); });
+}
+
+function 更新亮起(容器){
+  var 全部 = 容器.querySelectorAll('.chip');
+  for (var i = 0; i < 全部.length; i++){
+    var 鈕 = 全部[i].querySelector('input');
+    if (鈕.checked) 全部[i].classList.add('on'); else 全部[i].classList.remove('on');
+  }
+}
+
+// 「全部我都可以」切換
+var 全選鈕 = document.querySelectorAll('.pickall');
+for (var z = 0; z < 全選鈕.length; z++){
+  全選鈕[z].addEventListener('click', function(){
+    var 容器 = $(this.getAttribute('data-target'));
+    var 鈕們 = 容器.querySelectorAll('input');
+    var 已全選 = true;
+    for (var i = 0; i < 鈕們.length; i++) if (!鈕們[i].checked) 已全選 = false;
+    for (var j = 0; j < 鈕們.length; j++) 鈕們[j].checked = !已全選;
+    更新亮起(容器);
+  });
+}
+
+function 取勾選(名稱){
+  var 鈕們 = document.querySelectorAll('input[name="'+名稱+'"]:checked');
+  var 結果 = [];
+  for (var i = 0; i < 鈕們.length; i++) 結果.push(鈕們[i].value);
+  return 結果;
+}
+
+function 顯示訊息(框id, 文字, 類別){
+  var 框 = $(框id);
+  框.textContent = 文字;
+  框.className = 'msg ' + 類別;
+  if (類別 === 'err') 框.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// ---------- 送出 ----------
+$('form').addEventListener('submit', function(e){
+  e.preventDefault();
+
+  var 資料 = {
+    name: $('name').value.trim(),
+    phone: $('phone').value.trim(),
+    adults: $('adults').value,
+    kids: $('kids').value,
+    chair: (取勾選('chair')[0] || ''),
+    dates: 取勾選('dates'),
+    places: 取勾選('places'),
+    note: $('note').value.trim()
+  };
+
+  if (!資料.name)  return 顯示訊息('msg','請填一下你的大名 🙂','err');
+  if (!資料.phone) return 顯示訊息('msg','請留一下聯絡電話，臨時有事才找得到你 📞','err');
+  var 位數 = 資料.phone.replace(/[^0-9]/g,'').length;
+  if (位數 < 8 || 位數 > 15) return 顯示訊息('msg','電話看起來不太對，請填 8～15 位數字（例：0912345678）。','err');
+  if (!資料.chair) return 顯示訊息('msg','請選一下需不需要兒童椅 🪑','err');
+  if (!資料.dates.length)  return 顯示訊息('msg','請至少勾一個你有空的日子 📅','err');
+  if (!資料.places.length) return 顯示訊息('msg','請至少勾一個你可以接受的地點 📍','err');
+
+  var 鈕 = $('go');
+  鈕.disabled = true;
+  鈕.textContent = '送出中…⏳';
+  顯示訊息('msg','資料正在飛去主辦人那邊…','ok');
+
+  google.script.run
+    .withSuccessHandler(function(結果){
+      鈕.disabled = false;
+      鈕.textContent = '🔁 修改我的選擇（再送一次）';
+      var 詞 = 結果.動作 === '更新' ? '已幫你更新好了' : '收到你的回覆啦';
+      顯示訊息('msg','🎊 ' + 詞 + '，' + 結果.我的姓名 + '！目前共 ' + 結果.填答人數 + ' 組、' + 結果.總人數 + ' 人報到～','ok');
+      灑彩帶();
+      畫統計(結果);
+      $('stats').scrollIntoView({behavior:'smooth', block:'start'});
+    })
+    .withFailureHandler(function(錯){
+      鈕.disabled = false;
+      鈕.textContent = '🚀 送出我的選擇';
+      顯示訊息('msg', (錯 && 錯.message) ? 錯.message : '送出失敗，請稍後再試一次。', 'err');
+    })
+    .submitEntry(資料);
+});
+
+// ---------- 統計 ----------
+function 載入統計(){
+  google.script.run
+    .withSuccessHandler(畫統計)
+    .withFailureHandler(function(){
+      $('stats').innerHTML = '<div class="empty">統計讀取失敗，按上面的 🔄 再試一次。</div>';
+    })
+    .getStats();
+}
+$('reload').addEventListener('click', 載入統計);
+
+function 畫統計(s){
+  if (!s || !s.填答人數){
+    $('stats').innerHTML = '<div class="empty">還沒有人填喔～當第一個吧！🥇</div>';
+    return;
+  }
+
+  var h = '<div class="stat-grid">'
+    + 方塊(s.填答人數, '組填答', '')
+    + 方塊(s.總人數, '總人數', 'pink')
+    + 方塊(s.總大人, '大人', 'mint')
+    + 方塊(s.總小孩, '小孩', 'purple')
+    + '</div>';
+
+  if (s.最佳日期 && s.最佳日期.人數 > 0){
+    h += '<div class="winner">'
+      + '<div><small>👑 目前最多人能來的日子</small><span>' + 跳脫(s.最佳日期.名稱) + '</span>　'
+      + s.最佳日期.人數 + ' 人（' + s.最佳日期.筆數 + ' 組）</div>';
+    if (s.最佳地點 && s.最佳地點.人數 > 0){
+      h += '<div class="p"><small>📍 目前最有共識的地點</small><span>' + 跳脫(s.最佳地點.名稱) + '</span>　'
+        + s.最佳地點.人數 + ' 人（' + s.最佳地點.筆數 + ' 組）</div>';
+    }
+    h += '</div>';
+  }
+
+  if (s.需要兒童椅家數 > 0){
+    h += '<p class="hint" style="margin:-8px 0 16px">🪑 有 ' + s.需要兒童椅家數 + ' 組需要兒童椅（共 '
+      + s.需要兒童椅小孩數 + ' 位小孩）</p>';
+  }
+
+  h += '<div class="rank-wrap">'
+    +  '<div><p class="rank-title">🗓️ 日期排行（依可到人數）</p>' + 畫長條(s.日期排行) + '</div>'
+    +  '<div><p class="rank-title">📍 地點排行（依可到人數）</p>' + 畫長條(s.地點排行) + '</div>'
+    +  '</div>';
+
+  h += '<div class="people"><h3>🙋 已填名單（' + s.公開名單.length + ' 組）</h3>';
+  for (var i = 0; i < s.公開名單.length; i++){
+    var p = s.公開名單[i];
+    h += '<div class="person"><span class="nm">' + 跳脫(p.name) + '</span>'
+      +  '<span class="cnt">大人 ' + p.adults + ' ・ 小孩 ' + p.kids + '</span>';
+    if (p.chair === '需要') h += '<span class="tag">🪑 需兒童椅</span>';
+    for (var d = 0; d < p.dates.length; d++) h += '<span class="tag">' + 跳脫(p.dates[d]) + '</span>';
+    for (var q = 0; q < p.places.length; q++) h += '<span class="tag pl">' + 跳脫(p.places[q]) + '</span>';
+    if (p.note) h += '<span class="note">💬 ' + 跳脫(p.note) + '</span>';
+    h += '</div>';
+  }
+  h += '</div>';
+
+  $('stats').innerHTML = h;
+
+  // 長條圖動畫
+  var 條 = $('stats').querySelectorAll('.fill');
+  setTimeout(function(){
+    for (var i = 0; i < 條.length; i++) 條[i].style.width = 條[i].getAttribute('data-w') + '%';
+  }, 60);
+}
+
+function 方塊(數, 標題, 色){
+  return '<div class="stat ' + 色 + '"><div class="n">' + 數 + '</div><div class="t">' + 標題 + '</div></div>';
+}
+
+function 畫長條(排行){
+  var 最高 = 0, i;
+  for (i = 0; i < 排行.length; i++) if (排行[i].人數 > 最高) 最高 = 排行[i].人數;
+  if (!最高) 最高 = 1;
+
+  var h = '';
+  for (i = 0; i < 排行.length; i++){
+    var 一筆 = 排行[i];
+    var 寬 = Math.round(一筆.人數 / 最高 * 100);
+    var 級 = 一筆.人數 === 0 ? 'zero' : (i === 0 ? 'r1' : (i === 1 ? 'r2' : (i === 2 ? 'r3' : '')));
+    var 冠 = (i === 0 && 一筆.人數 > 0) ? '👑 ' : '';
+    h += '<div class="bar ' + 級 + '">'
+      +  '<div class="top"><span class="nm">' + 冠 + 跳脫(一筆.名稱) + '</span>'
+      +  '<span class="vl">' + 一筆.人數 + ' 人 / ' + 一筆.筆數 + ' 組</span></div>'
+      +  '<div class="track"><div class="fill" data-w="' + 寬 + '"></div></div>';
+    if (一筆.名字們.length) h += '<div class="who">' + 跳脫(一筆.名字們.join('、')) + '</div>';
+    h += '</div>';
+  }
+  return h;
+}
+
+// ---------- 彩帶 ----------
+function 灑彩帶(){
+  var 色 = ['#FFC93C','#FF6B9D','#2EC4B6','#7C5CFF','#3DA9FC','#F5A623'];
+  var 層 = document.createElement('div');
+  層.className = 'confetti';
+  for (var i = 0; i < 70; i++){
+    var 片 = document.createElement('i');
+    片.style.left = Math.random() * 100 + '%';
+    片.style.background = 色[Math.floor(Math.random() * 色.length)];
+    片.style.animationDuration = (1.8 + Math.random() * 1.6) + 's';
+    片.style.animationDelay = (Math.random() * .6) + 's';
+    if (Math.random() > .6) 片.style.borderRadius = '50%';
+    層.appendChild(片);
+  }
+  document.body.appendChild(層);
+  setTimeout(function(){ 層.remove(); }, 4200);
+}
+
+// ---------- 主辦人 ----------
+$('adminToggle').addEventListener('click', function(){
+  $('adminBox').classList.toggle('open');
+  if ($('adminBox').classList.contains('open')) $('pass').focus();
+});
+$('pass').addEventListener('keydown', function(e){ if (e.key === 'Enter') $('adminGo').click(); });
+
+$('adminGo').addEventListener('click', function(){
+  var 密碼 = $('pass').value;
+  if (!密碼) return 顯示訊息('adminMsg','請輸入密碼。','err');
+  顯示訊息('adminMsg','讀取中…','ok');
+  google.script.run
+    .withSuccessHandler(function(d){ 目前密碼 = 密碼; 顯示訊息('adminMsg','✅ 登入成功','ok'); 畫主辦人(d); })
+    .withFailureHandler(function(錯){ 顯示訊息('adminMsg', (錯 && 錯.message) || '讀取失敗', 'err'); })
+    .getAdminData(密碼);
+});
+
+function 畫主辦人(d){
+  var h = '<table><thead><tr><th>時間</th><th>姓名</th><th>電話</th><th>大人</th><th>小孩</th>'
+        + '<th>兒童椅</th><th>有空日期</th><th>想去地點</th><th>想說的話</th><th></th></tr></thead><tbody>';
+  for (var i = 0; i < d.名單.length; i++){
+    var p = d.名單[i];
+    h += '<tr><td>' + 跳脫(p.time) + '</td><td><b>' + 跳脫(p.name) + '</b></td>'
+      +  '<td><a href="tel:' + 跳脫(p.phone) + '">' + 跳脫(p.phone) + '</a></td>'
+      +  '<td>' + p.adults + '</td><td>' + p.kids + '</td><td>' + 跳脫(p.chair) + '</td>'
+      +  '<td>' + 跳脫(p.dates.join('、')) + '</td><td>' + 跳脫(p.places.join('、')) + '</td>'
+      +  '<td>' + 跳脫(p.note) + '</td>'
+      +  '<td class="del"><button type="button" data-name="' + 跳脫(p.name) + '">刪除</button></td></tr>';
+  }
+  h += '</tbody></table>';
+  h += '<p class="hint" style="margin-top:12px">📄 完整資料試算表：<a href="' + 跳脫(d.試算表網址)
+    +  '" target="_blank" rel="noopener">點這裡開啟</a>（只有你開得起來）</p>';
+  h += '<div class="tsv"><p class="hint">⬇️ 下面這塊可以全選複製，直接貼到 Excel／Google 試算表：</p>'
+    +  '<textarea readonly>' + 跳脫(d.表格文字) + '</textarea></div>';
+
+  var 出口 = $('adminOut');
+  出口.innerHTML = h;
+
+  var 刪鈕 = 出口.querySelectorAll('td.del button');
+  for (var j = 0; j < 刪鈕.length; j++){
+    刪鈕[j].addEventListener('click', function(){
+      var 姓名 = this.getAttribute('data-name');
+      if (this.textContent === '刪除'){
+        this.textContent = '再按一次確認';
+        this.style.background = '#C62F5B';
+        this.style.color = '#fff';
+        return;
+      }
+      this.disabled = true;
+      google.script.run
+        .withSuccessHandler(function(d2){ 顯示訊息('adminMsg','已刪除「' + 姓名 + '」','ok'); 畫主辦人(d2); 載入統計(); })
+        .withFailureHandler(function(錯){ 顯示訊息('adminMsg', (錯 && 錯.message) || '刪除失敗', 'err'); })
+        .deleteEntry(目前密碼, 姓名);
+    });
+  }
+}
+
+載入統計();
+</script>
+</body>
+</html>
