@@ -8983,9 +8983,11 @@ var LifecycleService = (function () {
     if ([CFG.STATUS.PENDING_CLOSEOUT, CFG.STATUS.EXPIRED, CFG.STATUS.SUSPENDED].indexOf(m.status) < 0) {
       throw ApiError_('BAD_STATE', 'Cannot close in status ' + m.status, '目前狀態不可關閉：' + m.status);
     }
-    if (m.status === CFG.STATUS.PENDING_CLOSEOUT && Number(m.coCurrentTier || 3) < 5 && !asBool_(user.isAdmin)) {
-      throw ApiError_('CLOSEOUT_PENDING', 'Close-out still awaiting ' + CO_TIER_NAME[Number(m.coCurrentTier || 3)],
-        '結案確認尚待：' + CO_TIER_NAME[Number(m.coCurrentTier || 3)]);
+    // PendingCloseout 一律走 closeoutConfirm 四關確認鏈：那條路才會留簽名、寫結案歷程
+    // 並產生關單文件。這裡只保留管理員的救援出口（流程卡死時強制關閉）。
+    if (m.status === CFG.STATUS.PENDING_CLOSEOUT && !asBool_(user.isAdmin)) {
+      throw ApiError_('CLOSEOUT_PENDING', 'Close-out must go through the confirmation chain — awaiting ' + CO_TIER_NAME[Number(m.coCurrentTier || 3)],
+        '結案請走四關確認流程，目前待：' + CO_TIER_NAME[Number(m.coCurrentTier || 3)]);
     }
     Repo.update('PTW_Master', m.id, { closedAt: fmtDateTime_() }, user.id);
     setStatus_(user, m, CFG.STATUS.CLOSED, payload.comment || 'Closed by PTW Coordinator');
@@ -16021,8 +16023,15 @@ function renderLifeBar(){
     btns.push('<button class="btn btn-sm btn-warning" onclick="doSuspend()">⏸ '+L('暫停 Suspend')+'</button>');
   if(isT5&&s==='Suspended')
     btns.push('<button class="btn btn-sm btn-success" onclick="doResume()">▶️ '+L('恢復 Resume')+'</button>');
-  if(isT5&&['PendingCloseout','Expired','Suspended'].indexOf(s)>=0)
+  // 🔒 關閉：只留給「沒有結案確認鏈」的狀態（Expired／Suspended）。
+  // PendingCloseout 一律走下方四關確認鏈，否則按到這顆雖然也會變 Closed，
+  // 但不會寫協調員簽名、也不會產生關單文件（見後端 LifecycleService.close）。
+  if(isT5&&['Expired','Suspended'].indexOf(s)>=0)
     btns.push('<button class="btn btn-sm btn-dark" onclick="doClose()">🔒 '+L('關閉 Close')+'</button>');
+  // 結案鏈卡住時的救援出口，只有管理員看得到，而且講清楚代價
+  if(asB(u.isAdmin)&&s==='PendingCloseout')
+    btns.push('<button class="btn btn-sm btn-outline-dark" onclick="doClose(true)">🔒 '+
+      L('強制關閉（不產生關單文件）｜Force close (no close-out record)')+'</button>');
   if((asB(u.isAdmin)||Number(u.tier)===5)&&cur.id&&!isMyReviewTurn())
     btns.push('<button class="btn btn-sm btn-danger" onclick="doDeletePtw()">🗑 '+T('ptw.delete')+'</button>');
   // 關單文件：申報完工後可預覽，正式關閉後為最終版（含四關結案簽名）
@@ -16151,10 +16160,20 @@ function reqClosure(){
     });
   });
 }
-function doClose(){
-  uiPrompt(lang==='zh'?'關閉備註（選填，可留空）':'Close comment (optional)').then(function(comment){
+/* force=true：管理員在 PendingCloseout 強制關閉，會跳過未完成的結案確認關卡，
+   且不會產生關單文件（Close-out Record），所以備註改為必填以留下理由。 */
+function doClose(force){
+  var Z=(lang==='zh');
+  uiPrompt(force?(Z?'強制關閉的理由（必填）：':'Reason for force-closing (required):')
+                :(Z?'關閉備註（選填，可留空）':'Close comment (optional)')).then(function(comment){
     if(comment===null) return;
-    uiConfirm(lang==='zh'?'確認正式關閉此 PTW？':'Formally close this PTW?').then(function(ok){ if(!ok) return;
+    if(force&&!String(comment||'').trim()){
+      toast(Z?'強制關閉必須填寫理由':'A reason is required to force-close'); return;
+    }
+    uiConfirm(force
+      ?(Z?'⚠️ 強制關閉會跳過尚未完成的結案確認關卡，且不會產生關單文件（Close-out Record），協調員簽名欄會是空的。確定要強制關閉？'
+         :'⚠️ Force-closing skips the remaining close-out confirmations and will NOT generate the Close-out Record — the coordinator signature will be blank. Continue?')
+      :(Z?'確認正式關閉此 PTW？':'Formally close this PTW?')).then(function(ok){ if(!ok) return;
       api('ptw.close',{ptwId:cur.id,comment:comment||''}).then(function(res){
         if(res.ok){ toast('Closed 🔒',true); openPtwForm(cur.id); } else toast(apiMsg(res));
       });
