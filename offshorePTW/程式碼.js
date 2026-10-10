@@ -7863,8 +7863,17 @@ var PdfService = (function () {
       '.hdr{border:2px solid #0b3a5c;padding:' + (isMain ? '2px 6px' : '5px 10px') + ';margin-bottom:' + (isMain ? '2px' : '5px') + ';display:flex;justify-content:space-between;align-items:center}' +
       'table{border-collapse:collapse;width:100%;margin-bottom:' + (isMain ? '2px' : '4px') + '}' +
       'td,th{border:1px solid #4a6a86;padding:' + (isMain ? '1.5px 3px' : '2.5px 5px') + ';vertical-align:top;line-height:' + (isMain ? '1.2' : '1.4') + '}' +
-      'th{background:#dbe7f1;color:#0b3a5c;text-align:left}' +
-      '.sec{background:#0b3a5c;color:#fff;font-weight:bold;padding:' + (isMain ? '1.5px 6px' : '3px 8px') + ';font-size:' + (isMain ? '8pt' : '9pt') + ';letter-spacing:.4px' + (isMain ? '' : ';border-radius:3px 3px 0 0') + '}' +
+      // 主表 A3／證書／審核歷程這三份只有伺服器端會產生，而 Google 的 HTML→PDF 轉檔器
+      // 畫不出任何背景色（實測見 pdfBgFix_ 的註解），所以版面不靠底色：
+      // 區塊標題用「深藍粗體字＋左側粗邊＋下方細線」，表頭用「深藍粗體字＋較粗的下框線」。
+      // 框線與文字顏色轉檔器都正常套用，在兩種引擎下看起來一致。
+      'th{color:#0b3a5c;text-align:left;font-weight:bold;border-bottom:' + (isMain ? '1.2pt' : '1.5pt') + ' solid #0b3a5c}' +
+      '.sec{color:#0b3a5c;font-weight:bold;letter-spacing:.8px;' +
+        'font-size:' + (isMain ? '8pt' : '9.5pt') + ';' +
+        'padding:' + (isMain ? '2px 0 1.5px 6px' : '4px 0 3px 9px') + ';' +
+        'margin-top:' + (isMain ? '2px' : '6px') + ';' +
+        'border-left:' + (isMain ? '2.5pt' : '3pt') + ' solid #0b3a5c;' +
+        'border-bottom:' + (isMain ? '.8pt' : '1pt') + ' solid #0b3a5c}' +
       '.cols3{columns:3;-webkit-columns:3}.cols2{columns:2;-webkit-columns:2}' +
       '.chk{break-inside:avoid;font-size:' + (isMain ? '7.2pt' : '8.5pt') + ';line-height:' + (isMain ? '1.3' : '1.55') + '}' +
       '.sig{height:' + (isMain ? '24px' : '30px') + '}.sig-cell{text-align:center}' +
@@ -8551,6 +8560,18 @@ var PdfService = (function () {
   }
 
   /** T5 核發時：審核歷程 PDF 存入 04_Approval_Records */
+  /** 版面驗收用：主表 A3 與審核歷程各產生一份丟到 Drive 根目錄，不覆蓋既有檔案 */
+  function diagDocPdfs(m) {
+    var ctx = buildCtx_(m);
+    var num = m.ptwNumber || m.tempNumber;
+    var out = [];
+    [['_DIAG_FullPermit_A3', mainHtml_(m, ctx)]].forEach(function (d) {
+      var f = DriveApp.createFile(toPdf_(d[1], num + d[0], 'doc'));
+      out.push({ name: f.getName(), url: f.getUrl() });
+    });
+    return out;
+  }
+
   function saveApprovalRecord(m) {
     var ctx = buildCtx_(m);
     var num = m.ptwNumber || m.tempNumber;
@@ -8674,7 +8695,7 @@ var PdfService = (function () {
   }
 
   return { exportPdf: exportPdf, siteHtml: siteHtml, saveApprovalRecord: saveApprovalRecord,
-    closeoutHtml: closeoutHtml, saveCloseoutRecord: saveCloseoutRecord };
+    closeoutHtml: closeoutHtml, saveCloseoutRecord: saveCloseoutRecord, diagDocPdfs: diagDocPdfs };
 })();
 
 /* ============================== CloseoutRules.gs ============================== */
@@ -12035,6 +12056,23 @@ function orphanScan_(doMove) {
   });
   console.log('已搬入 ' + SUPERCEDED + '：' + moved + ' / ' + orphans.length + ' 個');
   return moved;
+}
+
+/**
+ * 編輯器直接執行：重新產生主表 A3／證書／審核歷程，丟到 Drive 根目錄供檢視版面。
+ * 不動任何既有檔案、不寄信。改完 css_() 之後用這支驗收。
+ */
+function regenDocPdfs(ptwNumber) {
+  var m = ptwNumber
+    ? Repo.findOne('PTW_Master', function (p) { return String(p.ptwNumber) === String(ptwNumber); })
+    : Repo.find('PTW_Master', function (p) {
+        return asBool_(p.isActive) && p.ptwNumber &&
+          ['Approved', 'Active', 'Extended', 'Suspended', 'WorkCompleted', 'PendingCloseout', 'Closed']
+            .indexOf(p.status) >= 0;
+      }).sort(function (a, b) { return String(b.approvedAt || '') > String(a.approvedAt || '') ? 1 : -1; })[0];
+  if (!m) { console.log('找不到可用的 PTW'); return; }
+  var out = PdfService.diagDocPdfs(m);
+  out.forEach(function (f) { console.log(f.name + '  →  ' + f.url); });
 }
 
 /**
