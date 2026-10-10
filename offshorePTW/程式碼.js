@@ -1002,7 +1002,9 @@ var NotificationService = (function () {
     return { to: redir || 'paul.tong@nmdc-group.com', tag: '[TEST → ' + t + '] ' };
   }
 
-  function push_(userId, type, ptwId, titleEn, titleZh, msgEn, msgZh, emailTo) {
+  // attachments：選用，夾帶檔案（如關單文件 PDF）。有附件的信也要走同一個版型，
+  // 不要另外用 MailApp 自己拼 HTML，否則收件匣裡會出現兩種長相的系統信。
+  function push_(userId, type, ptwId, titleEn, titleZh, msgEn, msgZh, emailTo, attachments) {
     var n = Repo.insert('Notifications', {
       userId: userId, type: type,
       ptwId: (ptwId && typeof ptwId === 'object') ? (ptwId.id || '') : (ptwId || ''),   // 可傳快照物件
@@ -1012,12 +1014,14 @@ var NotificationService = (function () {
     if (emailTo) {
       try {
         var rt = mailRoute_(emailTo);
-        MailApp.sendEmail({
+        var mail = {
           to: rt.to,
           name: SENDER_NAME,
           subject: rt.tag + '[' + systemName_() + '] ' + titleEn + ' / ' + titleZh,
           htmlBody: emailBody_(titleEn, titleZh, msgEn, msgZh, ptwId, type)
-        });
+        };
+        if (attachments && attachments.length) mail.attachments = attachments;
+        MailApp.sendEmail(mail);
         Repo.update('Notifications', n.id, { emailSent: true, emailSentAt: fmtDateTime_() }, 'system');
       } catch (e) {
         console.error('Email send failed: ' + e.message);
@@ -4676,7 +4680,16 @@ var DriveService = (function () {
   /** 取得（必要時建立）PTW 專屬資料夾 */
   function ptwFolder_(m) {
     if (m.driveFolderId) {
-      try { return DriveApp.getFolderById(m.driveFolderId); } catch (e) { /* rebuild */ }
+      try {
+        var f0 = DriveApp.getFolderById(m.driveFolderId);
+        // 草稿期間資料夾是用 tempNumber（Draft-xxx）建的；核發後拿到正式編號要跟著改名，
+        // 否則 Drive 上永遠停在草稿編號。這裡自我修復，不管編號是從哪條路徑指派的。
+        var want = m.ptwNumber || m.tempNumber;
+        if (want && f0.getName() !== want) {
+          try { f0.setName(want); } catch (eR) { console.error('folder rename failed: ' + eR.message); }
+        }
+        return f0;
+      } catch (e) { /* rebuild */ }
     }
     // 直接於 root 下以 PTW 編號建資料夾（依 2026-08 決議，不再分年度/公司層）
     var folder = sub_(root_(), m.ptwNumber || m.tempNumber);
@@ -8146,6 +8159,7 @@ var PdfService = (function () {
       '.sec .note{font-weight:700;font-size:7.5pt;opacity:.95}' +
       '.hdr{background:#0b3a5c;color:#fff;text-align:center;font-weight:700;font-size:9pt;letter-spacing:.4px}' +
       '.lbl{background:#dde4ee;color:#0e2a47;font-weight:700;font-size:8.5pt;letter-spacing:.3px}' +
+      '.lbl.coHd{background:#dfe9f3}' +   // 關單文件的「WORK COMPLETION & CLOSE-OUT」標題列
       '.big{font-size:13pt;font-weight:800;color:#0b3a5c;letter-spacing:.5px}' +
       '.ck{font-size:8pt;font-weight:600;white-space:nowrap;overflow:hidden;padding-left:4px}' +
       '.cb{display:inline-block;width:11px;height:11px;border:1.5px solid #0e2a47;border-radius:2px;' +
@@ -8416,13 +8430,36 @@ var PdfService = (function () {
     return h + '</body></html>';
   }
 
-  function toPdf_(html, name) {
-    return Utilities.newBlob(html, 'text/html', name + '.html').getAs('application/pdf').setName(name + '.pdf');
+  /**
+   * 伺服器端轉檔前的補救。
+   *
+   * `Utilities.newBlob(html,"text/html").getAs("application/pdf")` 走的是 Google 那套老舊的
+   * HTML 匯入引擎。2026-10-10 實測（diagPdfBgTest）結論：**它不支援任何形式的背景色** ——
+   * class CSS、inline style background-color、舊式 bgcolor 屬性，掛在 div 或 td 上都一樣，
+   * 一律畫成白色；唯一畫得出色塊的只有 <img>。color／框線／字級則正常套用。
+   *
+   * 所以這裡不再嘗試搶救背景色（搶救不了），只處理「底色消失後會變成看不見」的東西。
+   * 前端預覽走 iframe + html2pdf 真排版引擎，吃的是原始 HTML，不受影響。
+   */
+  function pdfBgFix_(html, tpl) {
+    // 勾選框：.cb.on 原本是「深藍底＋白勾」，底色畫不出來就變成白勾白底整個看不見。
+    // 伺服器版改成「白底＋深藍勾＋加粗外框」，一樣看得出有沒有打勾。
+    html = html.replace(/<span class="cb on">/g,
+      '<span class="cb on" style="background:#fff;color:#0b3a5c;border-width:2px;font-weight:bold">');
+    // 轉檔器沒有 Arial Narrow，字會變寬，nowrap 的大標題會衝出去壓到 QR 碼。
+    html = html.replace('</head>',
+      '<style>.doctitle{white-space:normal;font-size:14.5pt;letter-spacing:1px}</style></head>');
+    return html;
+  }
+
+  function toPdf_(html, name, tpl) {
+    return Utilities.newBlob(pdfBgFix_(html, tpl || 'site'), 'text/html', name + '.html')
+      .getAs('application/pdf').setName(name + '.pdf');
   }
 
   /** 關單文件：審查歷程續列 — 完工申報（申報人帳號簽名）＋ 四關結案確認（電子簽名） */
   function closeoutRows_(m, ctx, signRow) {
-    var h = '<tr><th class="lbl" colspan="5" style="text-align:center;background:#dfe9f3">WORK COMPLETION &amp; CLOSE-OUT CONFIRMATION</th></tr>';
+    var h = '<tr><th class="lbl coHd" colspan="5" style="text-align:center">WORK COMPLETION &amp; CLOSE-OUT CONFIRMATION</th></tr>';
     // 完工申報人：最後一次轉入 PendingCloseout 的狀態歷程
     var decl = null;
     Repo.find('PTW_StatusHistory', function (s) { return s.ptwId === m.id && s.toStatus === CFG.STATUS.PENDING_CLOSEOUT; })
@@ -8536,7 +8573,7 @@ var PdfService = (function () {
           '<td>' + esc_(a.reviewer) + '</td><td>' + esc_(a.action) + '</td><td class="small">' + esc_(a.comment || '') + '</td></tr>';
       }).join('') + '</table>' +
       '<div class="foot">System generated ' + fmtDateTime_() + ' (Asia/Taipei) · ' + esc_(num) + '</div></body></html>';
-    var blob = toPdf_(h, num + '_ApprovalRecord');
+    var blob = toPdf_(h, num + '_ApprovalRecord', 'doc');
     DriveService.savePtwFile(m, '04_Approval_Records', blob);
   }
 
@@ -8556,29 +8593,17 @@ var PdfService = (function () {
   }
 
   /** 正式關閉時：關單文件 PDF → 05_Close_out_evidence；sendMail=true 時同時 Email 給申請人 */
-  function saveCloseoutRecord(m, sendMail) {
+  /**
+   * 產生關單文件並存進 05_Close_out_evidence，回傳 blob。
+   * **不自己寄信** —— 信一律由 LifecycleService 走 NotificationService.push 寄出，
+   * 這份 PDF 以附件夾帶，收件匣裡才會跟其他系統通知同一個版型。
+   */
+  function saveCloseoutRecord(m) {
     var ctx = buildCtx_(m);
     var num = m.ptwNumber || m.tempNumber;
-    var blob = toPdf_(siteCopyHtml_(m, ctx, { closeout: true }), num + '_CloseOut_Record');
+    var blob = toPdf_(siteCopyHtml_(m, ctx, { closeout: true }), num + '_CloseOut_Record', 'site');
     try { DriveService.savePtwFile(m, '05_Close_out_evidence', blob); }
     catch (e) { console.error('closeout record drive save failed: ' + e.message); }
-    if (sendMail) {
-      var applicant = Repo.getById('Users', m.applicantUserId);
-      if (applicant && applicant.email && String(applicant.email).indexOf('@') > 0 && !/^Example/i.test(String(num))) {
-        try {
-          MailApp.sendEmail({
-            to: applicant.email, name: 'NMDC Offshore PTW System Notification',
-            subject: '[Offshore PTW] PTW closed 關單完成：' + num,
-            htmlBody: '<div style="font-family:Arial,\'Microsoft JhengHei\',sans-serif;font-size:14px;line-height:1.7">' +
-              '<p>Your permit <b>' + esc_(num) + '</b> has completed the full close-out confirmation chain and is now formally <b>CLOSED</b>. ' +
-              'The close-out record is attached and has also been filed in the permit Drive folder (05_Close_out_evidence).</p>' +
-              '<p>您的許可證 <b>' + esc_(num) + '</b> 已完成全部結案確認並正式<b>關閉</b>。關單文件如附件，並已存入該 PTW 之 Drive 資料夾（05_Close_out_evidence）。</p>' +
-              '<p style="color:#777;font-size:12px">Work: ' + esc_(String(m.workDescription || '').substring(0, 160)) + '</p></div>',
-            attachments: [blob]
-          });
-        } catch (eM) { console.error('closeout mail failed: ' + eM.message); }
-      }
-    }
     return blob;
   }
 
@@ -8602,17 +8627,17 @@ var PdfService = (function () {
         'PDF 下載（現場聯／完整主表／證書）須待 Tier 5 核准簽發後才可使用');
     }
     if (kind === 'site' || kind === 'all') {
-      files.push({ blob: toPdf_(siteCopyHtml_(m, ctx), num + '_SiteCopy_A4'), cat: 'Approval' });
+      files.push({ blob: toPdf_(siteCopyHtml_(m, ctx), num + '_SiteCopy_A4', 'site'), cat: 'Approval' });
     }
     if (kind === 'main' || kind === 'all') {
-      files.push({ blob: toPdf_(mainHtml_(m, ctx), num + '_FullPermit_A3'), cat: 'Approval' });
+      files.push({ blob: toPdf_(mainHtml_(m, ctx), num + '_FullPermit_A3', 'doc'), cat: 'Approval' });
     }
     if (kind === 'certs' || kind === 'all') {
       certRows.forEach(function (c) {
         var t = CFG.CERT_TYPES[c.certType];
         var row = Repo.findOne(t.sheet, function (r) { return r.certificateId === c.id && asBool_(r.isActive); });
         var data = {}; try { data = JSON.parse((row && row.dataJson) || '{}'); } catch (e) {}
-        files.push({ blob: toPdf_(certHtml_(m, c.certType, c, data, ctx), num + '_' + c.certNo + '_A4'), cat: 'Certificates' });
+        files.push({ blob: toPdf_(certHtml_(m, c.certType, c, data, ctx), num + '_' + c.certNo + '_A4', 'doc'), cat: 'Certificates' });
       });
     }
 
@@ -8775,9 +8800,9 @@ var LifecycleService = (function () {
       byUserId: user.id, reason: reason || '', timestamp: fmtDateTime_() }, user.id);
   }
 
-  function notifyApplicant_(m, type, tEn, tZh, mEn, mZh) {
+  function notifyApplicant_(m, type, tEn, tZh, mEn, mZh, attachments) {
     var a = Repo.getById('Users', m.applicantUserId);
-    if (a) NotificationService.push(a.id, type, m.id, tEn, tZh, mEn, mZh, a.email);
+    if (a) NotificationService.push(a.id, type, m.id, tEn, tZh, mEn, mZh, a.email, attachments);
   }
 
   function notifyT5_(m, type, tEn, tZh, mEn, mZh) {
@@ -8927,11 +8952,17 @@ var LifecycleService = (function () {
     AuditService.log({ user: user, actionType: 'PTW_CLOSE', entityType: 'PTW', entityId: m.id,
       ptwNumber: m.ptwNumber, comment: payload.comment || '', success: true });
     // 關單文件：產生 PDF → 存入 05_Close_out_evidence，並 Email 給申請人
-    try { PdfService.saveCloseoutRecord(Repo.getById('PTW_Master', m.id), true); }
+    // 關單文件存檔後，當成附件夾在「PTW 已關閉」這封標準通知裡一起寄出
+    //（以前是 PdfService 自己再用 MailApp 寄一封樣式不同的信，申請人會收到兩封）
+    var coBlob = null;
+    try { coBlob = PdfService.saveCloseoutRecord(Repo.getById('PTW_Master', m.id)); }
     catch (eCo) { console.error('closeout record failed: ' + eCo.message); }
     notifyApplicant_(m, 'PTW_CLOSED', 'PTW closed: ' + m.ptwNumber, 'PTW 已關閉：' + m.ptwNumber,
-      'Contractor HSE and all NMDC departments have confirmed. The permit is now formally closed.',
-      '承商職安衛與 NMDC 各部門均已確認，本許可證已正式關閉。');
+      'Contractor HSE and all NMDC departments have confirmed. The permit is now formally closed. ' +
+      'The close-out record is attached and has also been filed in the permit Drive folder (05_Close_out_evidence).',
+      '承商職安衛與 NMDC 各部門均已確認，本許可證已正式關閉。' +
+      '關單文件如附件，並已存入該 PTW 之 Drive 資料夾（05_Close_out_evidence）。',
+      coBlob ? [coBlob] : null);
     try { NotificationService.adminCc('ptwClosed', 'PTW closed: ' + (m.ptwNumber || m.tempNumber), 'PTW 關單完成：' + (m.ptwNumber || m.tempNumber), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), m.id); } catch (eCc) {}
     return ok_({ confirmed: true, closed: true });
   }
@@ -11843,6 +11874,50 @@ function diagContinuation() {
 }
 
 /** 手動建立/修復快速管理員（在編輯器直接執行本函式即可） */
+/**
+ * 編輯器直接執行：測試 Google HTML→PDF 轉檔器到底吃哪一種背景色寫法。
+ * 產生一張測試 PDF 到 Drive 根目錄，用 A~E 五種寫法各畫一條深藍色條。
+ */
+function diagPdfBgTest() {
+  var C = '#0b3a5c';
+  var PNG1 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+  var html = '<html><head><meta charset="utf-8"><style>' +
+    '.k{background:' + C + ';color:#fff;padding:6px 10px;font-weight:bold}' +
+    'td{padding:6px 10px}' +
+    '</style></head><body>' +
+    '<p>A class background (div)</p><div class="k">AAAA</div>' +
+    '<p>B class background (td)</p><table width="100%"><tr><td class="k">BBBB</td></tr></table>' +
+    '<p>C bgcolor attribute (td)</p><table width="100%"><tr><td bgcolor="' + C + '" style="color:#fff">CCCC</td></tr></table>' +
+    '<p>D inline style background-color (td)</p><table width="100%"><tr>' +
+      '<td style="background-color:' + C + ';color:#fff">DDDD</td></tr></table>' +
+    '<p>E stretched 1x1 PNG as an img</p>' +
+      '<img src="data:image/png;base64,' + PNG1 + '" width="600" height="18">' +
+    '<p>F inline style background-color (div)</p>' +
+      '<div style="background-color:' + C + ';color:#fff;padding:6px 10px">FFFF</div>' +
+    '</body></html>';
+  var blob = Utilities.newBlob(html, 'text/html', 'bgtest.html')
+    .getAs('application/pdf').setName('PDF_BG_TEST.pdf');
+  var f = DriveApp.createFile(blob);
+  console.log('測試檔：' + f.getUrl() + '  id=' + f.getId());
+}
+
+/**
+ * 編輯器直接執行：重新產生指定 PTW 的關單文件（只覆蓋 Drive 檔案，不寄信、不改狀態）。
+ * 改過 PDF 版面／底色後用這支驗收，執行記錄會印出檔案連結。
+ * 不帶參數時取最近一張已關閉的 PTW。
+ */
+function regenCloseoutRecord(ptwNumber) {
+  var m = ptwNumber
+    ? Repo.findOne('PTW_Master', function (p) { return String(p.ptwNumber) === String(ptwNumber); })
+    : Repo.find('PTW_Master', function (p) { return p.status === CFG.STATUS.CLOSED && asBool_(p.isActive); })
+        .sort(function (a, b) { return String(b.closedAt || '') > String(a.closedAt || '') ? 1 : -1; })[0];
+  if (!m) { console.log('找不到可用的 PTW'); return; }
+  var blob = PdfService.saveCloseoutRecord(m);
+  console.log(m.ptwNumber + ' 關單文件已重新產生：' + blob.getBytes().length + ' bytes');
+  var it = DriveApp.getFilesByName(blob.getName());
+  while (it.hasNext()) { var f = it.next(); console.log(f.getUrl() + '  (' + f.getDateCreated() + ')'); }
+}
+
 function createQuickAdmin() {
   console.log(ensureQuickAdmin_());
 }
