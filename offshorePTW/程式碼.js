@@ -769,6 +769,21 @@ var SecurityService = (function () {
     return hit(ptw.holderUserId) || hit(ptw.coHolderUserId);
   }
 
+  /** PTW 是否為「被退回待修改」狀態 */
+  function isReturnedPtw_(ptw) {
+    return ptw.status === CFG.STATUS.RETURNED || ptw.status === CFG.STATUS.RETURNED_CORRECTION;
+  }
+
+  /**
+   * 退回後誰要負責修改重送：申請人本人，或主/副持有人。
+   * （申請人可能是代承商建單的 NMDC／管理員，實際要修的是持有人）
+   */
+  function canRevisePtw(user, ptw) {
+    if (!user || !ptw) return false;
+    if (ptw.applicantUserId === user.id) return true;
+    return isReturnedPtw_(ptw) && isHolderOf_(user, ptw);
+  }
+
   /** 測試資料隔離：測試人員建立的 PTW（含 Example-001）僅測試身分可見 */
   function stripTestPtws(user, rows) {
     if (user && (asBool_(user.isTestUser) || asBool_(user.isAdmin) || Number(user.tier) === 5)) return rows; // 管理員/協調員看得到全部
@@ -836,6 +851,9 @@ var SecurityService = (function () {
   }
 
   return { stripTestPtws: stripTestPtws,
+    isHolderOf: isHolderOf_,
+    isReturnedPtw: isReturnedPtw_,
+    canRevisePtw: canRevisePtw,
     requireAdmin: requireAdmin,
     requireAdminOrTier5: requireAdminOrTier5,
     requireTier: requireTier,
@@ -2964,11 +2982,15 @@ var DashboardService = (function () {
 
     var tier = Number(user.tier);
     var openOverdue = [S.ACTIVE, S.EXTENDED, S.EXPIRED, S.WORK_COMPLETED];
+    var isOwnerSide = function (p) {
+      // 申請人本人，或這張單的主/副持有人（代承商建單時，申請人可能是 NMDC／管理員）
+      return p.applicantUserId === user.id || SecurityService.isHolderOf(user, p);
+    };
     var myQueue = all.filter(function (p) {
-      // 退回修改：申請人本人須處理（也列入待辦）
-      if ((p.status === S.RETURNED || p.status === S.RETURNED_CORRECTION) && p.applicantUserId === user.id) return true;
-      // 逾期未關單：提醒承商申請人（Tier 1）儘速走結案流程
-      if (p.applicantUserId === user.id && p.validTo && p.validTo < nowStr && openOverdue.indexOf(p.status) >= 0) return true;
+      // 退回修改：申請人與持有人須處理（也列入待辦）
+      if ((p.status === S.RETURNED || p.status === S.RETURNED_CORRECTION) && isOwnerSide(p)) return true;
+      // 逾期未關單：提醒承商申請人／持有人儘速走結案流程
+      if (isOwnerSide(p) && p.validTo && p.validTo < nowStr && openOverdue.indexOf(p.status) >= 0) return true;
       // 結案確認輪到我這一關
       if (p.status === S.PENDING_CLOSEOUT && Number(p.coCurrentTier) === tier &&
           (tier !== 2 || p.companyId === user.companyId) && p.applicantUserId !== user.id) return true;
@@ -2981,11 +3003,14 @@ var DashboardService = (function () {
       var since = parseDateTime_(p.submittedAt || p.updatedAt || p.createdAt);
       var waitingDays = since ? Math.floor((Date.now() - since.getTime()) / 86400000) : 0;
       var co = companyMap[p.companyId] || {};
-      var overdueClose = (p.applicantUserId === user.id && p.validTo && p.validTo < nowStr &&
+      var overdueClose = (isOwnerSide(p) && p.validTo && p.validTo < nowStr &&
         openOverdue.indexOf(p.status) >= 0);
+      var needsRevision = (p.status === S.RETURNED || p.status === S.RETURNED_CORRECTION);
       return {
         id: p.id,
         overdueClose: overdueClose,
+        needsRevision: needsRevision,
+        applicantName: userMap[p.applicantUserId] || '',
         ptwNumber: p.ptwNumber || p.tempNumber,
         companyEn: co.en || '', companyZh: co.zh || '',
         areaLocation: p.areaLocation,
@@ -3757,9 +3782,11 @@ var PTWService = (function () {
     return m;
   }
 
+  /** 可編輯／送審者：申請人本人；PTW 被退回時，主/副持有人亦可代為修改重送 */
   function assertOwnerEditable_(user, m) {
-    if (m.applicantUserId !== user.id) {
-      throw ApiError_('FORBIDDEN', 'Only the applicant can edit this PTW', '僅申請人可編輯此 PTW');
+    if (!SecurityService.canRevisePtw(user, m)) {
+      throw ApiError_('FORBIDDEN', 'Only the applicant or permit holder can edit this PTW',
+        '僅申請人或持有人可編輯此 PTW');
     }
     if (EDIT_STATUSES.indexOf(m.status) < 0) {
       throw ApiError_('BAD_STATE', 'PTW is not editable in status ' + m.status, '目前狀態不可編輯：' + m.status);
@@ -3836,6 +3863,10 @@ var PTWService = (function () {
     assertOwnerEditable_(user, m);
     var patch = {};
     EDITABLE.forEach(function (k) { if (payload[k] !== undefined) patch[k] = payload[k]; });
+    // 持有人／副持有人／PA 只有申請人可指定（代為修改的持有人不得改名單）
+    if (m.applicantUserId !== user.id) {
+      delete patch.holderUserId; delete patch.coHolderUserId; delete patch.paUserId;
+    }
     // 申請公司：Tier 1–2 一律鎖回本公司；Tier 3–5／管理員可代承商指定（須為啟用中的公司）
     if (patch.companyId !== undefined) {
       if (String(patch.companyId).trim() === '') {
@@ -3900,7 +3931,9 @@ var PTWService = (function () {
     out.requiredCerts = requiredCerts(m);
     out.certs = certDetails;
     out.completion = completion_(m);
-    out.editable = (m.applicantUserId === user.id && EDIT_STATUSES.indexOf(m.status) >= 0);
+    out.editable = (SecurityService.canRevisePtw(user, m) && EDIT_STATUSES.indexOf(m.status) >= 0);
+    // 持有人名單只有申請人可改（持有人代為修改退回單時，名單欄位唯讀）
+    out.canSetHolders = (m.applicantUserId === user.id);
     // 改版前建立、申請日期仍空白的「可編輯草稿」→ 先以今天顯示（saveDraft 會真正寫入固定）；
     // 已送審／已核准的舊單維持空白，不假造日期
     if (!String(out.executionDate || '').trim() && EDIT_STATUSES.indexOf(m.status) >= 0) {
@@ -4516,8 +4549,9 @@ var CertificateService = (function () {
     var type = CFG.CERT_TYPES[payload.certType];
     if (!type) throw ApiError_('BAD_TYPE', 'Unknown certificate type', '未知的證書類型');
     var m = mustGetPtw_(payload.ptwId);
-    if (m.applicantUserId !== user.id) {
-      throw ApiError_('FORBIDDEN', 'Only the applicant can edit certificates', '僅申請人可編輯證書');
+    if (!SecurityService.canRevisePtw(user, m)) {
+      throw ApiError_('FORBIDDEN', 'Only the applicant or permit holder can edit certificates',
+        '僅申請人或持有人可編輯證書');
     }
     var editable = [CFG.STATUS.DRAFT, CFG.STATUS.RETURNED, CFG.STATUS.RETURNED_CORRECTION];
     if (editable.indexOf(m.status) < 0) {
@@ -4566,7 +4600,7 @@ var CertificateService = (function () {
   function deactivate(user, payload) {
     requireFields_(payload, ['ptwId', 'certType']);
     var m = mustGetPtw_(payload.ptwId);
-    if (m.applicantUserId !== user.id) throw ApiError_('FORBIDDEN', 'Not your PTW', '非您的 PTW');
+    if (!SecurityService.canRevisePtw(user, m)) throw ApiError_('FORBIDDEN', 'Not your PTW', '非您的 PTW');
     var cert = Repo.findOne('PTW_Certificates', function (c) {
       return c.ptwId === m.id && c.certType === payload.certType && asBool_(c.isActive);
     });
@@ -4681,7 +4715,10 @@ var DriveService = (function () {
     var a = Repo.getById('PTW_Attachments', payload.attachmentId);
     if (!a) throw ApiError_('NOT_FOUND', 'Attachment not found', '找不到附件');
     var m = Repo.getById('PTW_Master', a.ptwId);
-    if (a.uploadedBy !== user.id && Number(user.tier) !== 5 && !asBool_(user.isAdmin)) {
+    // 草稿／被退回待修改時，申請人與持有人可移除任何附件（代建單的附件也要能換掉）
+    var revisable = !!m && SecurityService.canRevisePtw(user, m) &&
+      [CFG.STATUS.DRAFT, CFG.STATUS.RETURNED, CFG.STATUS.RETURNED_CORRECTION].indexOf(m.status) >= 0;
+    if (a.uploadedBy !== user.id && !revisable && Number(user.tier) !== 5 && !asBool_(user.isAdmin)) {
       throw ApiError_('FORBIDDEN', 'Only uploader or Tier 5 can remove', '僅上傳者或 Tier 5 可移除');
     }
     Repo.update('PTW_Attachments', a.id, { isActive: false }, user.id);
@@ -4995,6 +5032,24 @@ var ApprovalService = (function () {
     if (applicant) NotificationService.push(applicant.id, type, m.id, titleEn, titleZh, msgEn, msgZh, applicant.email);
   }
 
+  /** 退回通知：申請人＋主/副持有人（代建單時申請人可能不是要修改的人）；同一人不重複寄 */
+  function notifyOwnerSide_(m, type, titleEn, titleZh, msgEn, msgZh) {
+    var ids = [m.applicantUserId];
+    [m.holderUserId, m.coHolderUserId].forEach(function (raw) {
+      var s = String(raw || '');
+      if (!s) return;
+      if (s.charAt(0) === '[') { try { ids = ids.concat(JSON.parse(s) || []); } catch (e) {} }
+      else ids.push(s);
+    });
+    var seen = {};
+    ids.forEach(function (id) {
+      if (!id || seen[id]) return;
+      seen[id] = true;
+      var u = Repo.getById('Users', id);
+      if (u) NotificationService.push(u.id, type, m.id, titleEn, titleZh, msgEn, msgZh, u.email);
+    });
+  }
+
   /** 核准（當關者或代理人；含電子簽名） */
   function approve(user, payload, meta) {
     requireFields_(payload, ['ptwId']);
@@ -5180,7 +5235,7 @@ var ApprovalService = (function () {
           'Returned by ' + TIER_NAMES[tier] + '. Reason: [' + payload.returnReason + '] ' + payload.comment,
           '由 ' + TIER_NAMES[tier] + ' 退回。原因：[' + payload.returnReason + '] ' + payload.comment);
       }
-      notifyApplicant_(m, 'PTW_RETURNED',
+      (toPrev ? notifyApplicant_ : notifyOwnerSide_)(m, 'PTW_RETURNED',
         'PTW returned: ' + num, 'PTW 被退回：' + num,
         'Returned by Tier ' + tier + ' (' + TIER_NAMES[tier] + '). Reason: [' + payload.returnReason + '] ' + payload.comment +
         (toPrev ? ' (returned to previous tier)' : ' Please revise and resubmit.'),
@@ -5312,7 +5367,7 @@ var ApprovalService = (function () {
         try { PdfService.saveApprovalRecord(Repo.getById('PTW_Master', m.id)); }
         catch (e) { console.error('approval record save failed: ' + e.message); }
       } else if (target === 'RETURN') {
-        notifyApplicant_(m, 'PTW_RETURNED',
+        notifyOwnerSide_(m, 'PTW_RETURNED',
           'PTW returned by administrator: ' + num, 'PTW 已由管理員退回：' + num,
           'Reason: ' + reason + ' — please revise and resubmit.', '原因：' + reason + '，請修改後重新送審。');
       } else if (mc) {
@@ -10649,6 +10704,43 @@ function runAllTests_M42() {
     Repo.update('PTW_Master', d.ptwId, { isActive: false }, 'test');
   });
 
+  t('T45c 代建單被退回：持有人（非申請人）進得了待辦、可代為修改，但不得改持有人名單', function () {
+    assert(admin && t1 && t2 && t4, 'fixtures missing');
+    // NMDC 代承商建單：申請人＝NMDC（Tier 4），持有人＝承商 Tier 1，狀態＝已退回
+    var d = PTWService.createDraft(admin).data;
+    Repo.update('PTW_Master', d.ptwId, {
+      companyId: t1.companyId, applicantUserId: t4.id,
+      holderUserId: JSON.stringify([t1.id]), coHolderUserId: JSON.stringify([]),
+      status: CFG.STATUS.RETURNED, areaLocation: 'KP0+000' }, 'test');
+    var origHolder = Repo.getById('PTW_Master', d.ptwId).holderUserId;
+    // ① 持有人的首頁待辦要看得到，並標示為待修改
+    var q = DashboardService.dashboard(t1).data.myQueue.filter(function (x) { return x.id === d.ptwId; });
+    assert(q.length === 1 && q[0].needsRevision, 'holder queue missing the returned PTW');
+    // ② 持有人可代為修改內容
+    assert(PTWService.get(t1, { ptwId: d.ptwId }).data.editable, 'editable flag false for holder');
+    assert(PTWService.saveDraft(t1, { ptwId: d.ptwId, areaLocation: 'KP0+300 holder rev' }).ok,
+      'holder cannot edit the returned PTW');
+    assert(Repo.getById('PTW_Master', d.ptwId).areaLocation === 'KP0+300 holder rev', 'holder edit not saved');
+    // ③ 但持有人名單只有申請人能改
+    assert(PTWService.get(t1, { ptwId: d.ptwId }).data.canSetHolders === false, 'canSetHolders should be false');
+    PTWService.saveDraft(t1, { ptwId: d.ptwId, holderUserId: JSON.stringify([]), coHolderUserId: JSON.stringify([t2.id]) });
+    var after = Repo.getById('PTW_Master', d.ptwId);
+    assert(after.holderUserId === origHolder && String(after.coHolderUserId) === '[]',
+      'holder managed to change the holder list');
+    // ④ 既非申請人也非持有人者仍被擋
+    var denied = false;
+    try { PTWService.saveDraft(t2, { ptwId: d.ptwId, areaLocation: 'x' }); }
+    catch (e) { denied = (e.apiCode === 'FORBIDDEN'); }
+    assert(denied, 'non-holder was allowed to edit a returned PTW');
+    // ⑤ 退回狀態才解鎖：回到草稿後持有人不可編輯
+    Repo.update('PTW_Master', d.ptwId, { status: CFG.STATUS.DRAFT }, 'test');
+    var lockedOnDraft = false;
+    try { PTWService.saveDraft(t1, { ptwId: d.ptwId, areaLocation: 'y' }); }
+    catch (e) { lockedOnDraft = (e.apiCode === 'FORBIDDEN'); }
+    assert(lockedOnDraft, 'holder could edit a draft that is not returned');
+    Repo.update('PTW_Master', d.ptwId, { isActive: false }, 'test');
+  });
+
   t('T46 報表權限：Tier1 不可讀報表', function () {
     var denied = false;
     try { ReportService.overdue(t1); } catch (e) { denied = (e.apiCode === 'FORBIDDEN'); }
@@ -13795,8 +13887,13 @@ function renderQueue(rows){
       '<td class="small">'+esc(r.areaLocation)+'</td><td>'+
       (r.overdueClose
         ?'<span class="badge bg-danger">⏰ '+(lang==='zh'?'已逾期 — 請關閉 PTW':'Overdue — please close this PTW')+'</span>'
+        :r.needsRevision
+        ?'<span class="badge bg-danger">↩️ '+(lang==='zh'?'已退回 — 請修改後重新送審':'Returned — please revise and resubmit')+'</span>'
         :'<span class="badge bg-warning text-dark">'+esc(SN(r.status))+'</span>')+'</td>'+
-      '<td>Tier '+esc(r.currentTier)+'</td><td>'+esc(r.currentReviewer||'—')+'</td>'+
+      '<td>'+(r.currentTier?'Tier '+esc(r.currentTier):'—')+'</td>'+
+      '<td>'+(r.needsRevision
+        ?'<span class="small text-muted">'+(lang==='zh'?'申請人：':'Applicant: ')+esc(r.applicantName||'—')+'</span>'
+        :esc(r.currentReviewer||'—'))+'</td>'+
       '<td'+(r.waitingDays>=3?' class="text-danger fw-bold"':'')+'>'+esc(r.waitingDays)+'</td></tr>';
   });
   $('queueList').innerHTML=h+'</tbody></table>';
@@ -17115,7 +17212,8 @@ function renderStepContent(){
 function setupHolderExclusion(){
   // 唯讀（非申請人／送審中）時完全不啟用互斥邏輯 —— 否則 sync() 會把未被互斥擋住的
   // 核取方塊重新 enable，導致審查人看起來可以改持有人（後端仍會擋，但畫面會誤導）
-  if(!(cur&&cur.editable)){
+  // 持有人代為修改退回單時（cur.canSetHolders===false）名單一併鎖住 —— 只有申請人可改持有人
+  if(!(cur&&cur.editable)||cur.canSetHolders===false){
     document.querySelectorAll('[id^="hld_"],[id^="coh_"]').forEach(function(el){ el.disabled=true; });
     return;
   }
