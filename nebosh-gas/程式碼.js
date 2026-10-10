@@ -80,6 +80,7 @@ function doPost(e) {
       case 'check':   return json_(checkSentence_(body));
       case 'argue':   return json_(argueTopic_(body));
       case 'drill':   return json_(drillSentences_(body));
+      case 'gic2':    return json_(gic2Mark_(body));
       case 'ping':    return json_(ping_());
       default:        return json_({ ok: false, error: 'UNKNOWN_ACTION', message: '不認識的 action：' + body.action });
     }
@@ -941,6 +942,326 @@ function drillSentences_(body) {
   return { ok: true, data: d, usage: res.usage, model: res.model };
 }
 
+/* ============================== 動作 6：GIC2 風險評估批改 ==============================
+   GIC2（實作卷）跟 IG1 筆試完全不同：它是學員對自己工作場所做的 100 分書面風險評估，
+   官方 guidance 已經把每一格值幾分、什麼情況給 0 分寫得很清楚（見 GIC2_SCHEME）。
+   所以這支不做「評論寫得好不好」，而是逐格照官方上限算分 + 指出哪一格拿不到分。
+
+   界線（與 GIC1 同一條）：這是學員要具名提交的作業，所以
+   **不產出任何可以直接貼進作業的英文句子**。fix_zh 只給方向；需要示範句型時一律留 [ ] 空位。 */
+
+var GIC2_CATEGORIES = [
+  '1 Noise', '2 Vibration', '3 Radiation', '4 Mental ill-health', '5 Violence at work',
+  '6 Substance abuse at work', '7 Work related upper-limb disorders (ergonomics, workstation design etc.)',
+  '8 Manual handling', '9 Load handling equipment',
+  '10 Hazardous substances (including asbestos, blood-borne viruses, carbon monoxide, cement, Legionella, Leptospira, silica, wood dust)',
+  '11 Welfare and working environment', '12 Working at height', '13 Confined spaces', '14 Lone working',
+  '15 Slips and trips', '16 Movement of people and vehicles in the workplace', '17 Work-related driving',
+  '18 Hand-held tools', '19 Machinery', '20 Fire', '21 Electricity'
+].join('\n');
+
+var GIC2_SCHEME = [
+  'OFFICIAL GIC2 MARK SCHEME (NEBOSH GIC2 Risk assessment, spec June 2025). 100 marks, pass = 60.',
+  '',
+  'SECTION 1 Background — 10 marks (1.1-1.5 recommended 150-250 words; 1.6-1.7 recommended 100-200 words)',
+  '  1.1 Name of organisation — NO MARKS but must be present for completeness.',
+  '  1.2 Site location (general region is enough) — NO MARKS but must be present.',
+  '  1.3 Brief description of the organisation — 1 mark. Needs work activities carried out, products/services, and general shift patterns.',
+  '  1.4 Number of workers and their typical roles — 1 mark. A general overview of numbers in main job roles, not every role.',
+  '  1.5 Description of the area or process covered by the risk assessment — 2 marks.',
+  '      1 mark = high-level overview only. 2 marks = names the building/major parts of it, the tasks carried out AND the equipment used.',
+  '  1.6 Sources of information consulted — 3 marks. Documents AND people consulted before/during the assessment.',
+  '  1.7 How the hazards were identified — 3 marks. The actual methods used (eg workplace inspection, task observation, records).',
+  '',
+  'SECTION 2 Risk assessment — 65 marks (no word count)',
+  '  2.1 Hazard categories — 1 mark per DIFFERENT hazard category, max 5. Categories must come from the official list of 21.',
+  '      Multiple hazards from the same category are allowed, but at least 5 DIFFERENT categories must appear across the whole assessment.',
+  '      IMPORTANT: if fewer than 5 different categories are used, full marks CANNOT be awarded for 2.1 AND CANNOT be awarded for 2.2 either.',
+  '  2.2 Hazard description — 1 mark per accurate hazard description, max 10.',
+  '      A mark is earned only when the description says WHAT MAKES the item/process hazardous.',
+  '      Earns the mark: "Facilities Manager seen climbing a ladder in order to clean windows".',
+  '      Earns NOTHING: a bare activity or noun such as "window cleaning", "forklift", "electricity", "housekeeping".',
+  '  2.3 Who might be harmed — 1 mark per individual/group WITH how they could come into contact with the hazard, max 10.',
+  '      Naming people alone earns nothing; it must say how they come into contact (walking under the ladder, operating the machine, passing the loading bay...).',
+  '  2.4 How could they be harmed — 1 mark per statement of the physical injury or ill-health effect that could result, max 10.',
+  '      Earns nothing if an individual/group is named without stating the harm. Vague words alone ("injury", "hurt", "accident") are weak; a named injury or ill-health effect is what scores.',
+  '  2.5 Existing control measures + further actions — 1 mark per control measure per hazard, MAXIMUM 2 MARKS PER HAZARD, max 20 overall.',
+  '      Both columns count towards the same 2 marks per hazard. Further actions must respect the hierarchy of control and the principles of prevention.',
+  '      No column may be left blank. Where a hazard is already adequately controlled, the further-actions column must say how the existing controls will be MONITORED AND REVIEWED.',
+  '      A mark for an adequately-controlled hazard can only be awarded ONCE across the whole risk assessment.',
+  '  2.6 Who needs to carry out the action — NO MARKS but must name a suitable individual/group/role for every further action.',
+  '  2.7 When is the action needed by — 1 mark per suitable time frame, capped at 1 mark per hazard, max 10.',
+  '      Must be one of exactly: Immediate (hours to a few days), Medium term (weeks to months), Long term (months to years).',
+  '      No mark where the time frame is unrealistic for the action (eg "Immediate" for constructing a new building, "Long term" for removing boxes blocking a fire exit).',
+  '      Even where no further action is needed, a time frame to review the existing controls must still be given.',
+  '',
+  'SECTION 3 Prioritise ONE hazard to manage — 17 marks (recommended 350-450 words)',
+  '  3.1 The prioritised hazard — NO MARKS but must be present.',
+  '      CRITICAL: the hazard must already appear in 2.2. If a NEW hazard is introduced here, the WHOLE of Section 3 scores ZERO.',
+  '  3.2 Legal reasons — 1 mark per legal reason, max 2.',
+  '      International General Certificate learners must cite INTERNATIONAL instruments from the IG syllabus (ILO C155, ILO R164, ILO-OSH 2001,',
+  '      ILO C167/R175 construction, C161 occupational health services, C162 asbestos, C148 working environment, C170 chemicals, C187 promotional framework)',
+  '      and say what the duty IS in relation to this hazard. Citing UK-only law (HSWA, Work at Height Regulations, COSHH, PUWER, RIDDOR...) is a',
+  '      common and costly mistake on the International paper — flag it if you see it.',
+  '  3.3 Moral reasons — 1 mark per moral reason, max 2. Brief statements linking back to the hazard or to general moral duties to workers.',
+  '  3.4 Business / financial reasons — 1 mark per reason, max 2. Brief statements; direct and indirect costs, cost of control vs cost of the accident.',
+  '  3.5 General reasons — 1 mark per general reason, max 4. Likelihood, severity, inadequacy of current controls, number of people exposed, ease of fixing.',
+  '  3.6 How would the further actions help reduce the associated risks — 1 mark per statement, max 4.',
+  '      The actions discussed MUST be ones already written in 2.5. No new actions may be introduced here.',
+  '  3.7 How would you check the actions have been effective — 1 mark per statement, max 3. Checks AFTER implementation.',
+  '',
+  'SECTION 4 Communicate, check, review — 8 marks (recommended 100-200 words)',
+  '  4.1 How the significant findings would be communicated — 1 mark per communication method, max 2, PLUS 1 mark for stating WHO will be communicated with. Max 3 for 4.1.',
+  '      At least two DIFFERENT methods are required and they must be specific to this organisation.',
+  '  4.2 How you would check the actions have been carried out — 1 mark per method, max 2.',
+  '  4.3 When you would review the risk assessment — 1 mark. A date or time frame, realistic against how long the further actions will take.',
+  '  4.4 Why that review period/date was chosen — 1 mark per reason, max 2.',
+  '',
+  'SECTION TOTALS: 1 = 10, 2 = 65, 3 = 17, 4 = 8. Marking outcome is Pass (60+) or Refer (59 or less).'
+].join('\n');
+
+var GIC2_SYSTEM = [
+  'You are an experienced NEBOSH-appointed examiner marking a learner\'s GIC2 (International General Certificate',
+  'Unit GIC2: Risk assessment) practical assessment submission. The learner is practising BEFORE they submit.',
+  '',
+  'You mark strictly against the official mark scheme below. You do not invent criteria and you do not move the caps.',
+  '',
+  GIC2_SCHEME,
+  '',
+  'THE OFFICIAL HAZARD CATEGORY LIST (2.1 marks may only come from these 21):',
+  GIC2_CATEGORIES,
+  '',
+  'HOW TO MARK',
+  '1. Go item by item. For every item give awarded (an integer), out_of (the official cap), and a short Traditional Chinese',
+  '   why_zh explaining WHY that number, quoting the learner\'s own words when you deduct.',
+  '2. Be a real examiner: if the words on the page do not do what the criterion asks, do not award the mark. Do not be generous',
+  '   because the learner "clearly means" it. Equally, do not withhold a mark that the words genuinely earn.',
+  '3. Apply the knock-on rules explicitly: fewer than 5 different categories caps BOTH 2.1 and 2.2; a new hazard in 3.1 zeroes',
+  '   the whole of Section 3; a further action in 3.6 that is not in 2.5 earns nothing; the adequately-controlled mark is once only.',
+  '4. For Section 2, return one row per hazard in s2_rows with the per-column marks for that hazard, so the learner can see which',
+  '   row is leaking marks. cat_official must be the category name from the list of 21 that this hazard actually belongs to',
+  '   (correct the learner if they filed it under the wrong one, and say so in why_zh).',
+  '5. Count the different categories actually earned and list them in categories.found. If there are fewer than 5, put concrete',
+  '   suggestions in categories.suggest_zh: which category they could add and what sort of hazard in THIS workplace would fit it.',
+  '6. Put anything that destroys marks wholesale into blockers_zh (empty array if none).',
+  '7. next_steps_zh: at most 5 items, ordered by marks recoverable per unit of effort, each naming the item number.',
+  '',
+  'THE ONE HARD RULE — DO NOT WRITE THE LEARNER\'S ASSESSMENT FOR THEM',
+  'This is a named coursework submission with a declaration of own work; writing it for them is malpractice and would get them',
+  'penalised. Therefore:',
+  '  - NEVER output a sentence the learner could paste into their submission.',
+  '  - fix_zh is Traditional Chinese guidance about WHAT IS MISSING and WHERE TO LOOK in their own workplace. Not a rewrite.',
+  '  - If a sentence SHAPE genuinely helps, give it in shape_en and it MUST contain square-bracket blanks the learner has to fill',
+  '    from their own workplace, eg "[who] [doing what task] [with what equipment], so [specific named injury]". Never a complete',
+  '    sentence with real content in it.',
+  '  - Never supply their legal references ready-made either: name the instrument and say what to go and read, not a finished sentence.',
+  '',
+  'Write all _zh fields in Traditional Chinese (zh-Hant, Taiwan usage). Keep item names, category names and legal instrument',
+  'names in English. Be concrete and short; the learner is working through a long table and needs to act, not read an essay.'
+].join('\n');
+
+var GIC2_ITEM = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['id', 'awarded', 'out_of', 'verdict', 'why_zh', 'fix_zh'],
+  properties: {
+    id: { type: 'string', description: 'Item number exactly as in the scheme, eg "1.5", "2.3", "3.2", "4.1".' },
+    awarded: { type: 'integer', description: 'Marks actually earned by what is written. 0 is a legitimate answer.' },
+    out_of: { type: 'integer', description: 'Official cap for this item. 0 for items that carry no marks.' },
+    verdict: { type: 'string', enum: ['full', 'partial', 'none', 'missing', 'no_marks_item'] },
+    why_zh: { type: 'string', description: 'Traditional Chinese. Why that mark. Quote the learner when deducting.' },
+    fix_zh: { type: 'string', description: 'Traditional Chinese. What is missing and where to look in their own workplace. Never a rewrite. Empty string if nothing to fix.' },
+    shape_en: { type: 'string', description: 'Optional sentence SHAPE with [square bracket] blanks only. Empty string if not needed. Never a complete sentence.' }
+  }
+};
+
+var GIC2_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['total_awarded', 'out_of', 'verdict', 'headline_zh', 'sections', 'categories', 'blockers_zh', 'next_steps_zh'],
+  properties: {
+    total_awarded: { type: 'integer' },
+    out_of: { type: 'integer', description: 'Always 100 for a full submission; the marks available for the parts supplied otherwise.' },
+    verdict: { type: 'string', enum: ['pass', 'borderline', 'refer'], description: 'pass = 60+, borderline = 55-64, refer = below 60. Use borderline only when the total sits in that band.' },
+    headline_zh: { type: 'string', description: 'Traditional Chinese, two or three sentences: where they stand and the single biggest thing costing marks.' },
+    sections: {
+      type: 'array',
+      description: 'One entry per section supplied, in order 1,2,3,4.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['id', 'title', 'awarded', 'out_of', 'items'],
+        properties: {
+          id: { type: 'string', enum: ['1', '2', '3', '4'] },
+          title: { type: 'string' },
+          awarded: { type: 'integer' },
+          out_of: { type: 'integer' },
+          comment_zh: { type: 'string' },
+          items: { type: 'array', items: GIC2_ITEM }
+        }
+      }
+    },
+    s2_rows: {
+      type: 'array',
+      description: 'One entry per hazard row in Section 2, in the learner\'s own order.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['n', 'cat_given', 'cat_official', 'marks', 'why_zh'],
+        properties: {
+          n: { type: 'integer', description: 'Row number, 1-based, as the learner numbered it.' },
+          cat_given: { type: 'string', description: 'The category the learner wrote.' },
+          cat_official: { type: 'string', description: 'The category from the official 21 that this hazard really belongs to.' },
+          cat_ok: { type: 'boolean', description: 'True when cat_given matches an official category and fits the hazard described.' },
+          marks: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['desc', 'who', 'how', 'control', 'when'],
+            properties: {
+              desc: { type: 'integer', description: '2.2 for this row: 0 or 1.' },
+              who: { type: 'integer', description: '2.3 for this row: 0 or 1.' },
+              how: { type: 'integer', description: '2.4 for this row: 0 or 1.' },
+              control: { type: 'integer', description: '2.5 for this row: 0, 1 or 2.' },
+              when: { type: 'integer', description: '2.7 for this row: 0 or 1.' }
+            }
+          },
+          why_zh: { type: 'string', description: 'Traditional Chinese. Which column lost the mark on this row and why.' },
+          fix_zh: { type: 'string', description: 'Traditional Chinese. What this row needs. Never a rewrite.' }
+        }
+      }
+    },
+    categories: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['found', 'count', 'enough'],
+      properties: {
+        found: { type: 'array', items: { type: 'string' }, description: 'Distinct official category names genuinely covered.' },
+        count: { type: 'integer' },
+        enough: { type: 'boolean', description: 'True when count >= 5.' },
+        suggest_zh: { type: 'array', items: { type: 'string' }, description: 'When fewer than 5: which category to add and what kind of hazard in this workplace fits it.' }
+      }
+    },
+    word_counts: {
+      type: 'object',
+      additionalProperties: false,
+      properties: {
+        s1_background: { type: 'integer' }, s1_methodology: { type: 'integer' },
+        s3: { type: 'integer' }, s4: { type: 'integer' },
+        comment_zh: { type: 'string', description: 'Traditional Chinese note on any section that is well outside its recommended range.' }
+      }
+    },
+    blockers_zh: { type: 'array', items: { type: 'string' }, description: 'Things that zero or cap whole sections. Empty array if none.' },
+    next_steps_zh: { type: 'array', items: { type: 'string' }, description: 'At most 5, best marks-per-effort first, each naming the item number.' }
+  }
+};
+
+/**
+ * 批改一份 GIC2 投稿。前端可以只送部分章節（例如只填完 Section 1+2 就先看分數），
+ * out_of 由模型照「實際送來的部分」給，所以前端要把 out_of 一起顯示，不要寫死 100。
+ */
+function gic2Mark_(body) {
+  var s1 = body.s1 || {};
+  var rows = Array.isArray(body.hazards) ? body.hazards : [];
+  var s3 = body.s3 || {};
+  var s4 = body.s4 || {};
+
+  var filled = 0;
+  Object.keys(s1).forEach(function (k) { if (String(s1[k] || '').trim()) filled++; });
+  Object.keys(s3).forEach(function (k) { if (String(s3[k] || '').trim()) filled++; });
+  Object.keys(s4).forEach(function (k) { if (String(s4[k] || '').trim()) filled++; });
+  if (filled === 0 && rows.length === 0) {
+    return { ok: false, error: 'TOO_SHORT', message: '還沒有東西可以批改，至少填完一節再送。' };
+  }
+
+  var L = [];
+  L.push('LEARNER SUBMISSION TO MARK. Sections left blank were not attempted — mark only what is here and set out_of accordingly.');
+  L.push('');
+  L.push('=== SECTION 1: BACKGROUND ===');
+  [['1.1 Name of the organisation', 'n11'], ['1.2 Site location', 'n12'],
+   ['1.3 Brief description of the organisation', 'n13'], ['1.4 Number of workers and typical roles', 'n14'],
+   ['1.5 Description of the area/process assessed', 'n15'], ['1.6 Sources of information consulted', 'n16'],
+   ['1.7 How the hazards were identified', 'n17']].forEach(function (p) {
+    L.push(p[0] + ':');
+    L.push(String(s1[p[1]] || '(blank)').trim());
+    L.push('');
+  });
+
+  L.push('=== SECTION 2: RISK ASSESSMENT (' + rows.length + ' hazard rows) ===');
+  rows.forEach(function (r, i) {
+    L.push('--- Row ' + (i + 1) + ' ---');
+    L.push('2.1 Hazard category: ' + String(r.cat || '(blank)').trim());
+    L.push('2.2 Hazard description: ' + String(r.desc || '(blank)').trim());
+    L.push('2.3 Who might be harmed: ' + String(r.who || '(blank)').trim());
+    L.push('2.4 How could they be harmed: ' + String(r.how || '(blank)').trim());
+    L.push('2.5 What are you already doing: ' + String(r.now || '(blank)').trim());
+    L.push('2.5 What further action(s) do you need to take: ' + String(r.further || '(blank)').trim());
+    L.push('2.6 Who needs to carry out the action: ' + String(r.owner || '(blank)').trim());
+    L.push('2.7 When is the action needed by: ' + String(r.when || '(blank)').trim());
+    L.push('');
+  });
+  if (!rows.length) L.push('(no hazard rows supplied)');
+  L.push('');
+
+  L.push('=== SECTION 3: PRIORITISED HAZARD ===');
+  [['3.1 Prioritised hazard to manage', 'p31'], ['3.2 Legal reasons', 'p32'], ['3.3 Moral reasons', 'p33'],
+   ['3.4 Business / financial reasons', 'p34'], ['3.5 General reasons', 'p35'],
+   ['3.6 How the further actions help reduce the risks', 'p36'],
+   ['3.7 How you would check the actions have been effective', 'p37']].forEach(function (p) {
+    L.push(p[0] + ':');
+    L.push(String(s3[p[1]] || '(blank)').trim());
+    L.push('');
+  });
+
+  L.push('=== SECTION 4: COMMUNICATE, CHECK, REVIEW ===');
+  [['4.1 How the findings would be communicated, and to whom', 'c41'],
+   ['4.2 How you would check the actions have been carried out', 'c42'],
+   ['4.3 When you would review the risk assessment', 'c43'],
+   ['4.4 Why that review period/date was chosen', 'c44']].forEach(function (p) {
+    L.push(p[0] + ':');
+    L.push(String(s4[p[1]] || '(blank)').trim());
+    L.push('');
+  });
+
+  var res = callClaude_({
+    system: GIC2_SYSTEM,
+    user: L.join('\n'),
+    schema: GIC2_SCHEMA,
+    maxTokens: 32000,
+    effort: effort_('GIC2_EFFORT')
+  });
+  if (!res.ok) return res;
+
+  var d = res.data;
+  if (d) {
+    // 伺服器端算總分，不信模型的加總（實測會算錯幾分）
+    var tot = 0, of = 0;
+    (d.sections || []).forEach(function (s) {
+      var sa = 0, so = 0;
+      (s.items || []).forEach(function (it) {
+        it.awarded = Math.max(0, Math.min(Number(it.awarded) || 0, Number(it.out_of) || 0));
+        sa += it.awarded; so += Number(it.out_of) || 0;
+      });
+      s.awarded = sa; s.out_of = so;
+      tot += sa; of += so;
+    });
+    if (of > 0) { d.total_awarded = tot; d.out_of = of; }
+    d.pct = of > 0 ? Math.round(tot / of * 100) : 0;
+    d.verdict = d.pct >= 60 ? 'pass' : (d.pct >= 55 ? 'borderline' : 'refer');
+    if (d.categories) {
+      d.categories.count = (d.categories.found || []).length;
+      d.categories.enough = d.categories.count >= 5;
+    }
+    // 保險絲：任何 shape_en 沒有留 [ ] 空位就直接丟掉，不讓可直接提交的句子流出去
+    (d.sections || []).forEach(function (s) {
+      (s.items || []).forEach(function (it) {
+        if (it.shape_en && it.shape_en.indexOf('[') < 0) it.shape_en = '';
+      });
+    });
+    d.rows_counted = rows.length;
+  }
+  return { ok: true, data: d, usage: res.usage, model: res.model };
+}
+
 /* ============================== Anthropic 呼叫 ============================== */
 
 /**
@@ -1153,5 +1474,54 @@ function selfTestArgue() {
   console.log('論述條數：' + r.data.argument.length + '　範例句：' + r.data.model_sentences.length +
               '　全部留空位：' + r.data.model_sentences.every(function (s) { return s.has_gap; }));
   console.log('命令詞：' + r.data.asked_as.map(function (a) { return a.command_word; }).join(', '));
+  console.log('用量：in ' + r.usage.input + ' / out ' + r.usage.output + ' tokens ≈ US$' + r.usage.usd);
+}
+
+/** 在編輯器直接執行：確認 GIC2 批改動作正常（故意塞一列會扣分的資料） */
+function selfTestGic2() {
+  var r = gic2Mark_({
+    s1: {
+      n11: 'Anonymised — "Northline Civils"',
+      n12: 'Central Taiwan',
+      n13: 'The company carries out road widening and drainage civil works. Site hours are 07:30 to 17:30, Monday to Saturday.',
+      n14: '38 workers: 1 project manager, 2 site engineers, 1 safety officer, 4 machine operators, 26 general labourers, 4 administrators.',
+      n15: 'The assessment covers the main construction compound and the 400 m active works section.',
+      n16: 'Site safety plan, permit-to-work register, accident book; interviewed the site foreman and two machine operators.',
+      n17: 'Walked the site with the foreman over two shifts, observed tasks being carried out, and reviewed the last six months of accident records.'
+    },
+    hazards: [
+      { cat: 'Working at height', desc: 'Labourers standing on the top rail of an unsecured mobile tower to fix formwork at 3.5 m',
+        who: 'Labourers falling from the tower; workers below struck by dropped formwork clamps',
+        how: 'Fractures and head injury from a 3.5 m fall; lacerations and concussion from falling clamps',
+        now: 'Tower erected by a trained operative; hard hats worn in the works area',
+        further: 'Fit a proprietary working platform with guard rails and toe boards; brief all labourers that the top rail must not be stood on',
+        owner: 'Site engineer', when: 'Immediate' },
+      { cat: 'Electricity', desc: 'Cable management',
+        who: 'Workers', how: 'Electric shock',
+        now: 'RCD on the site board', further: '-', owner: '', when: 'Immediate' }
+    ],
+    s3: {
+      p31: 'Labourers standing on the top rail of an unsecured mobile tower to fix formwork at 3.5 m',
+      p32: 'ILO C155 Article 16 requires employers to ensure workplaces and processes under their control are safe. ILO R164 Paragraph 3 sets out the hierarchy for dealing with risks at source.',
+      p33: 'A fall from 3.5 m would have a life-changing impact on the labourer and their family.',
+      p34: 'The cost of a proprietary platform is far smaller than the cost of a lost-time fall, site shutdown and investigation.',
+      p35: 'The likelihood is high because the practice is routine. The severity is high because the fall distance is above 3 m. The existing controls rely on training rather than physically preventing the fall.',
+      p36: 'Fitting guard rails and toe boards physically prevents a fall and stops clamps dropping to the level below, so it removes the reliance on the labourer behaving carefully.',
+      p37: 'Re-inspect the tower weekly against the manufacturer handover checklist and confirm in the toolbox talk record that labourers can state the new rule.'
+    },
+    s4: {
+      c41: 'Findings presented at the Monday site safety meeting to the project manager, foreman and gang leaders, and posted on the compound noticeboard for all workers.',
+      c42: 'Add the actions to the site action log reviewed at the Monday meeting until closed out.',
+      c43: 'Three months, or sooner if the works method changes.',
+      c44: 'Three months allows time for the platform to be procured and fitted while remaining within the duration of the works package.'
+    }
+  });
+  if (!r.ok) { console.error('失敗：' + r.error + ' — ' + r.message); return; }
+  var d = r.data;
+  console.log('總分：' + d.total_awarded + ' / ' + d.out_of + '（' + d.pct + '%）→ ' + d.verdict);
+  console.log('危害類別數：' + d.categories.count + '（足夠：' + d.categories.enough + '）');
+  (d.sections || []).forEach(function (s) { console.log('Section ' + s.id + '：' + s.awarded + '/' + s.out_of); });
+  console.log('第 2 列（故意寫壞的）：' + JSON.stringify(d.s2_rows && d.s2_rows[1], null, 2));
+  console.log('阻斷項：' + JSON.stringify(d.blockers_zh));
   console.log('用量：in ' + r.usage.input + ' / out ' + r.usage.output + ' tokens ≈ US$' + r.usage.usd);
 }

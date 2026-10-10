@@ -1,0 +1,302 @@
+<!-- 職安人員薪資調查 — 分析報告儀表板 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b1b2b; --ink-2:#2a4259; --ink-3:#64798c; --ink-4:#93a6b6;
+  --line:#e2e9f0; --line-2:#eff4f8; --bg:#f4f7fa; --card:#fff;
+  --brand:#0e7a53; --brand-2:#13946a; --brand-dk:#0a5c3e;
+  --brand-soft:#e8f5ef; --brand-line:#bfe0d1;
+  --gold:#b8862b; --gold-soft:#fdf5e3; --gold-line:#ecd9a8;
+  --r:18px; --sh:0 2px 4px rgba(11,27,43,.04),0 12px 32px -8px rgba(11,27,43,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+  font-size:14.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1060px;margin:0 auto;padding:0 18px 80px}
+.hero{position:relative;overflow:hidden;color:#fff;padding:42px 0 54px;
+  background:
+    radial-gradient(900px 340px at 86% -15%, rgba(19,148,106,.42), transparent 62%),
+    radial-gradient(600px 280px at 4% 115%, rgba(31,88,130,.42), transparent 60%),
+    linear-gradient(152deg,#13304c 0%,#0a1c2e 62%,#07131f 100%)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.45;
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(80% 110% at 50% 0%,#000,transparent 72%);
+  mask-image:radial-gradient(80% 110% at 50% 0%,#000,transparent 72%)}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:#7fd6ad;margin-bottom:11px}
+.eyebrow::before{content:"";width:22px;height:2px;background:#7fd6ad;border-radius:2px}
+.hero h1{margin:0 0 7px;font-size:32px;font-weight:900;letter-spacing:-.01em}
+.hero .sub{opacity:.72;font-size:13.5px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:10px;margin-top:20px}
+.meta>div{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(6px);border-radius:13px;padding:11px 15px}
+.meta .k{font-size:11.5px;opacity:.72}
+.meta .v{font-size:19px;font-weight:700;margin-top:1px;font-variant-numeric:tabular-nums}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--sh);padding:24px 26px;margin:18px 0}
+.card:first-of-type{margin-top:-34px;position:relative;z-index:2}
+h2.sec{margin:38px 0 6px;font-size:21px;font-weight:900;letter-spacing:-.01em;
+  padding-left:14px;border-left:4px solid var(--brand)}
+h3{margin:24px 0 9px;font-size:15.5px;font-weight:700;color:var(--ink-2)}
+h3:first-child{margin-top:0}
+.lead{color:var(--ink-3);font-size:13px;margin:0 0 14px}
+
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:right}
+th{background:var(--line-2);font-weight:600;text-align:center;color:var(--ink-3);font-size:12.5px}
+td:first-child,th:first-child{text-align:left}
+tbody tr:hover{background:#fafcfe}
+.tnum{font-variant-numeric:tabular-nums}
+.small{color:var(--ink-3);font-size:12px}
+
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:20px}
+/* 薪資表有 7 欄，擠成兩欄一定會被切掉，所以讓它獨佔整列 */
+.grid2.sal{grid-template-columns:repeat(auto-fit,minmax(min(520px,100%),1fr))}
+.gbox .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.gbox .tw table{min-width:430px}
+.gbox th,.gbox td{white-space:nowrap}
+
+.bar{position:relative;background:var(--line-2);border-radius:99px;height:15px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--brand-2),var(--brand))}
+td.barcell{width:32%;padding:5px 10px}
+
+.gbox{border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(11,27,43,.04)}
+.gbox .gh{background:var(--gold-soft);color:#8a6516;font-weight:700;padding:8px 13px;font-size:13.5px;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  border-bottom:1px solid var(--gold-line)}
+.gbox .gh span{font-weight:500;color:var(--ink-3);font-size:12px;white-space:nowrap}
+.gbox table{border:0}
+.gbox th,.gbox td{border-left:0}
+.gbox th:last-child,.gbox td:last-child{border-right:0}
+.gbox tr td:first-child{border-left:0;font-weight:700;color:var(--ink-2);background:#fafcfd}
+.gbox tr:last-child td{border-bottom:0}
+.gbox td b{color:var(--brand-dk)}
+
+.narr{border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px;background:#fff}
+.narr h4{margin:0 0 4px;font-size:16px;font-weight:700;color:var(--ink)}
+.narr .ld{color:var(--ink-3);font-size:12.5px;margin:0 0 10px}
+.narr ul{margin:0;padding-left:20px}
+.narr li{margin:4px 0;font-size:13.5px;font-variant-numeric:tabular-nums}
+.narr .cc{display:flex;gap:9px;margin-top:13px;background:var(--brand-soft);
+  border:1px solid var(--brand-line);border-radius:11px;padding:11px 14px;
+  font-size:13.5px;color:var(--brand-dk);font-weight:700;line-height:1.6}
+.narr .cc::before{content:"結論";flex:0 0 auto;background:var(--brand);color:#fff;
+  border-radius:6px;padding:1px 8px;font-size:11.5px;height:fit-content;letter-spacing:.05em}
+
+.notes{list-style:decimal;padding-left:22px;margin:8px 0 0;font-size:13px;color:var(--ink-2)}
+.notes li{margin:5px 0}
+.empty{text-align:center;padding:58px 24px;color:var(--ink-3);max-width:560px;margin:0 auto}
+.empty h2{color:var(--ink);font-size:22px;font-weight:900;margin:0 0 10px}
+.empty p{margin:0 0 12px;line-height:1.75}
+.empty .gauge{height:11px;border-radius:99px;background:var(--line-2);overflow:hidden;margin:20px 0 10px}
+.empty .gauge .gfill{height:100%;border-radius:99px;
+  background:linear-gradient(90deg,#ffc94d,var(--brand-2))}
+.empty .cnt{font-size:15px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.empty .cnt b{font-size:22px;font-weight:900;color:var(--brand-dk)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.btn{border:1.5px solid var(--line);background:#fff;color:var(--ink-2);border-radius:12px;
+  padding:10px 18px;font:inherit;font-size:14px;font-weight:700;cursor:pointer;
+  text-decoration:none;display:inline-block;transition:.15s}
+.btn:hover{border-color:var(--brand);color:var(--brand-dk);background:var(--brand-soft)}
+.btn.p{background:linear-gradient(145deg,var(--brand-2),var(--brand));color:#fff;border-color:transparent;
+  box-shadow:0 2px 6px rgba(14,122,83,.26),0 10px 24px -8px rgba(14,122,83,.45)}
+.btn.p:hover{background:linear-gradient(145deg,var(--brand),var(--brand-dk));color:#fff}
+
+@media print{
+  body{background:#fff}
+  .hero{background:#1f3a52 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card{box-shadow:none;break-inside:avoid}
+  .gbox,.narr{break-inside:avoid}
+  .toolbar,.noprint{display:none !important}
+  h2.sec{break-after:avoid}
+}
+</style>
+<?!= include('header-bg') ?>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Analysis Report</div>
+    <h1 id="hTitle">職安人員薪資調查報告</h1>
+    <div class="sub" id="hSub"></div>
+    <div class="meta" id="hMeta"></div>
+  </div>
+</div>
+
+<div class="wrap" id="app"></div>
+
+<script>
+var BOOT = <?!= BOOT ?>;
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var fmt = function (n) {
+  if (n === null || n === undefined || n === '' || isNaN(n)) return '—';
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+var esc = function (s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+};
+
+var ST = BOOT.stats;
+
+function render() {
+  $('#hTitle').textContent = BOOT.title + '報告';
+  if (!ST || ST.locked || !ST.total) {
+    var have = (ST && ST.total) || 0;
+    var need = (ST && ST.minPublicN) || BOOT.minPublicN || 100;
+    var pct = Math.min(100, Math.round(have / need * 100));
+    $('#hSub').textContent = '調查截止日 ' + BOOT.endRoc;
+    $('#hMeta').innerHTML = '';
+    $('#app').innerHTML = '<div class="card empty">' +
+      '<h2>報告尚未開放</h2>' +
+      '<p>為避免樣本太少造成誤導，本調查在回收達 <b>' + need + ' 份</b>之前不提供任何統計數字。</p>' +
+      '<div class="gauge"><div class="gfill" style="width:' + pct + '%"></div></div>' +
+      '<p class="cnt"><b>' + have + '</b> / ' + need + ' 份' +
+      (have >= need ? '' : '　還差 ' + (need - have) + ' 份') + '</p>' +
+      '<p>調查於 ' + esc(BOOT.endRoc) + ' 結束後，會完成完整分析，' +
+      '並把報告寄給所有留下 Email 的填答者。</p>' +
+      '<a class="btn p" href="' + esc(BOOT.webAppUrl) + '" target="_blank" rel="noopener">前往填寫問卷 →</a></div>';
+    return;
+  }
+
+  $('#hSub').textContent = '資料更新時間 ' + ST.generatedAt + '　·　本報告僅呈現彙總統計，不含任何個別填答內容';
+  $('#hMeta').innerHTML = [
+    ['調查截止日', ST.deadline || BOOT.endRoc],
+    ['有效樣本', ST.total + ' 筆'],
+    ['排除異常值', ST.excluded + ' 筆'],
+    ['薪資年度', ST.year + ' 年度'],
+    ['調查來源', '網路公開填答']
+  ].map(function (m) {
+    return '<div><div class="k">' + esc(m[0]) + '</div><div class="v">' + esc(m[1]) + '</div></div>';
+  }).join('');
+
+  var h = '';
+
+  /* ── 備註 ── */
+  h += '<div class="card"><h3>備註</h3><ol class="notes">' +
+    '<li>本結果係透過線上問卷蒐集資料，並刪除異常值後進行統計分析（本次排除 ' + ST.excluded + ' 筆）。</li>' +
+    '<li>本調查非專業統計或民調，請勿過度解讀。惟從學歷、工作經驗及年資的分布來看，比例尚屬合理。</li>' +
+    '<li>薪資主要取決於任職公司、個人運氣及面試談判技巧，本調查可作為您未來薪資談判時的參考依據。</li>' +
+    '<li>各分組若樣本數偏少（n &lt; 10），統計值易受單筆極端值影響，表中已標示 n 值，請自行斟酌。</li>' +
+    '</ol><div class="toolbar">' +
+    '<button class="btn p" onclick="window.print()">🖨 列印／另存 PDF</button>' +
+    '<a class="btn" href="' + esc(BOOT.webAppUrl) + '" target="_blank" rel="noopener">前往填寫問卷</a>' +
+    '<button class="btn" id="bRefresh">重新整理統計</button></div></div>';
+
+  /* ── 整體資料分析 ── */
+  h += '<h2 class="sec">整體資料分析</h2><div class="card"><div class="grid2">';
+  var order = ['education', 'osh_license_top', 'intl_license_has', 'other_license_has', 'skill_has', 'lang_level',
+    'is_dedicated', 'yrs_band', 'job_category', 'work_region', 'age_band',
+    'company_size', 'job_title', 'shift_type', 'ot_pay_type', 'raise_last_year', 'job_seeking'];
+  order.forEach(function (k) {
+    var p = ST.profile[k];
+    if (!p || !p.rows.length) return;
+    h += profileTable(p.title, p.rows);
+  });
+  h += '</div></div>';
+
+  /* ── 複選題分布 ── */
+  h += '<div class="card"><h3>複選題分布（百分比以有效樣本 ' + ST.total + ' 筆為分母，加總會超過 100%）</h3>' +
+    '<div class="grid2">' +
+    profileTable('現職工作內容', ST.jobContents.slice(0, 14)) +
+    profileTable('專業能力', ST.skillsDetail.slice(0, 14)) +
+    profileTable('國際職安證照', (ST.intlLicenseDetail || []).slice(0, 14)) +
+    profileTable('其他證照', ST.otherLicenseDetail.slice(0, 14)) +
+    profileTable('公司福利', ST.benefits.slice(0, 14)) +
+    '</div></div>';
+
+  /* ── 薪資分析 ── */
+  h += '<h2 class="sec">薪資分析</h2>';
+  h += '<div class="card"><h3>整體分析</h3>' +
+    '<p class="lead">月薪＝每月經常性給予的薪資總和；年終＝' + ST.year +
+    ' 年度年總獎金；總薪水＝' + ST.year + ' 年度全年本業總收入。</p>' +
+    salaryBox('薪資結構', ST.salary.overall) +
+    overtimeBox() + '</div>';
+
+  ST.salary.groups.forEach(function (g) {
+    var items = g.items.filter(function (i) { return i.n > 0; });
+    if (!items.length) return;
+    h += '<div class="card"><h3>' + esc(g.title) + '</h3>' +
+      '<p class="lead">共 ' + items.length + ' 組；n &lt; 10 的組別統計值僅供參考。</p>' +
+      '<div class="grid2 sal">' + items.map(function (i) { return salaryBox(i.label, i); }).join('') +
+      '</div></div>';
+  });
+
+  /* ── 分析結論 ── */
+  if (ST.narrative && ST.narrative.length) {
+    h += '<h2 class="sec">分析報告</h2><div class="card">' +
+      '<p class="lead">以下結論由系統依現有資料自動產生，僅比較各組「中位數」，' +
+      '且只納入樣本數 ≥ 5 的組別。</p>' +
+      ST.narrative.map(function (n) {
+        return '<div class="narr"><h4>' + esc(n.title) + '</h4>' +
+          '<p class="ld">' + esc(n.lead) + '</p><ul>' +
+          n.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') +
+          '</ul><div class="cc">' + esc(n.conclusion) + '</div></div>';
+      }).join('') + '</div>';
+  }
+
+  $('#app').innerHTML = h;
+  var rf = $('#bRefresh');
+  if (rf) rf.addEventListener('click', function () {
+    rf.disabled = true; rf.textContent = '統計中…';
+    google.script.run.withSuccessHandler(function (s) { ST = s; render(); })
+      .withFailureHandler(function (e) { rf.disabled = false; rf.textContent = '重新整理統計'; alert(e.message); })
+      .apiStats(true);
+  });
+}
+
+function profileTable(title, rows) {
+  if (!rows || !rows.length) return '';
+  var max = Math.max.apply(null, rows.map(function (r) { return r.count; })) || 1;
+  return '<div><h3>' + esc(title) + '</h3><table><thead><tr>' +
+    '<th>項目</th><th>人數</th><th>比例</th><th>　</th></tr></thead><tbody>' +
+    rows.map(function (r) {
+      return '<tr><td>' + esc(r.label) + '</td><td class="tnum">' + r.count + '</td>' +
+        '<td class="tnum">' + r.pct.toFixed(1) + '%</td>' +
+        '<td class="barcell"><div class="bar"><i style="width:' +
+        Math.round(r.count / max * 100) + '%"></i></div></td></tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+function salaryBox(label, s) {
+  var weak = s.n < 10;
+  function row(name, d) {
+    return '<tr><td>' + name + '</td>' +
+      '<td class="tnum">' + fmt(d.min) + '</td>' +
+      '<td class="tnum">' + fmt(d.max) + '</td>' +
+      '<td class="tnum">' + fmt(d.mean) + '</td>' +
+      '<td class="tnum"><b>' + fmt(d.median) + '</b></td>' +
+      '<td class="tnum">' + fmt(d.p25) + '</td>' +
+      '<td class="tnum">' + fmt(d.p75) + '</td></tr>';
+  }
+  return '<div class="gbox"><div class="gh">' + esc(label) +
+    '<span>n = ' + s.n + (weak ? '（樣本偏少）' : '') + '</span></div>' +
+    '<div class="tw"><table><thead><tr><th>　</th><th>最小值</th><th>最大值</th><th>平均值</th>' +
+    '<th>中位數</th><th>P25</th><th>P75</th></tr></thead><tbody>' +
+    row('月薪', s.monthly) + row('年終', s.bonus) + row('總薪水', s.annual) +
+    '</tbody></table></div></div>';
+}
+
+function overtimeBox() {
+  var o = ST.overtime;
+  if (!o || !o.n) return '';
+  return '<div class="gbox" style="margin-top:14px"><div class="gh">每月加班時數（已將「每日」填答乘上個人工作天數換算）' +
+    '<span>n = ' + o.n + '</span></div><div class="tw"><table><thead><tr>' +
+    '<th>　</th><th>最小值</th><th>最大值</th><th>平均值</th><th>中位數</th><th>P25</th><th>P75</th>' +
+    '</tr></thead><tbody><tr><td>小時／月</td>' +
+    '<td class="tnum">' + o.min + '</td><td class="tnum">' + o.max + '</td>' +
+    '<td class="tnum">' + o.mean + '</td><td class="tnum"><b>' + o.median + '</b></td>' +
+    '<td class="tnum">' + o.p25 + '</td><td class="tnum">' + o.p75 + '</td></tr></tbody></table></div></div>';
+}
+
+render();
+</script>

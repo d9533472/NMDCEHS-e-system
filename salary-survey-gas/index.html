@@ -1,0 +1,1736 @@
+<!-- 職安人員薪資調查 — 問卷頁（由 Apps Script HtmlService 提供） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b1b2b; --ink-2:#2a4259; --ink-3:#64798c; --ink-4:#93a6b6;
+  --line:#e2e9f0; --line-2:#eff4f8;
+  --bg:#f4f7fa; --card:#ffffff;
+  --brand:#0e7a53; --brand-2:#13946a; --brand-dk:#0a5c3e;
+  --brand-soft:#e8f5ef; --brand-line:#bfe0d1;
+  --gold:#b8862b; --gold-soft:#fdf5e3; --gold-line:#ecd9a8;
+  --warn:#a8491c; --warn-soft:#fdefe6; --warn-line:#f2cdb5;
+  --r:18px; --r-sm:11px;
+  --sh-1:0 1px 2px rgba(11,27,43,.05);
+  --sh-2:0 2px 4px rgba(11,27,43,.04), 0 12px 32px -8px rgba(11,27,43,.10);
+  --sh-3:0 4px 8px rgba(11,27,43,.06), 0 24px 56px -12px rgba(11,27,43,.18);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,-apple-system,sans-serif;
+  font-size:15px;line-height:1.75;-webkit-font-smoothing:antialiased;
+  font-feature-settings:"tnum" 0}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+.num{font-variant-numeric:tabular-nums}
+
+/* ───────── 頁首 ───────── */
+.hero{position:relative;overflow:hidden;color:#fff;padding:44px 0 56px;
+  background:
+    radial-gradient(900px 360px at 88% -10%, rgba(19,148,106,.42), transparent 62%),
+    radial-gradient(600px 300px at 5% 110%, rgba(31,88,130,.45), transparent 60%),
+    linear-gradient(152deg,#13304c 0%,#0a1c2e 62%,#07131f 100%)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);
+  background-size:52px 52px;
+  -webkit-mask-image:radial-gradient(80% 110% at 50% 0%,#000,transparent 72%);
+  mask-image:radial-gradient(80% 110% at 50% 0%,#000,transparent 72%)}
+.hero .wrap{padding-bottom:0;position:relative;z-index:1}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11.5px;font-weight:700;
+  letter-spacing:.16em;text-transform:uppercase;color:#7fd6ad;margin-bottom:13px;
+  background:rgba(127,214,173,.1);border:1px solid rgba(127,214,173,.26);
+  border-radius:999px;padding:5px 14px 5px 11px}
+.eyebrow .hmt{color:#ffd166;flex:0 0 auto}
+.hero h1{margin:0 0 9px;font-size:34px;font-weight:900;letter-spacing:-.015em;line-height:1.2}
+.hero .tagline{display:inline-block;font-size:15px;font-weight:700;color:#ffe3a3;
+  border-left:3px solid #ffc94d;padding-left:11px;margin-bottom:10px;line-height:1.6}
+.hero .sub{opacity:.7;font-size:14px;max-width:34em}
+/* 後台入口齒輪 */
+.gear{position:absolute;top:18px;right:18px;z-index:3;width:38px;height:38px;border-radius:11px;
+  display:grid;place-items:center;color:rgba(255,255,255,.5);
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
+  text-decoration:none;transition:.18s}
+.gear:hover{color:#fff;background:rgba(127,214,173,.2);border-color:rgba(127,214,173,.4);
+  transform:rotate(45deg)}
+/* 警示斜紋（安衛識別元素） */
+.hazard{position:absolute;left:0;right:0;bottom:0;height:7px;z-index:2;
+  background:repeating-linear-gradient(135deg,#ffc94d 0 14px,#13304c 14px 28px);
+  opacity:.9}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(6px);
+  border-radius:999px;padding:6px 14px;font-size:12.5px;color:rgba(255,255,255,.82)}
+.chip b{font-weight:700;color:#fff}
+.chip.hi{background:rgba(19,148,106,.22);border-color:rgba(127,214,173,.4)}
+
+/* ───────── 卡片 ───────── */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--sh-2);padding:26px 28px;margin:18px 0}
+.card.flush{margin-top:-34px;position:relative;z-index:2}
+.chead{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.cnum{position:relative;flex:0 0 auto;width:40px;height:40px;border-radius:13px;
+  display:grid;place-items:center;
+  background:linear-gradient(145deg,var(--brand-2),var(--brand-dk));color:#fff;
+  font-size:15px;font-weight:700;box-shadow:0 4px 10px -2px rgba(14,122,83,.45)}
+.cnum.ico svg{width:22px;height:22px;display:block}
+.cnum.ico b{position:absolute;top:-5px;left:-5px;width:19px;height:19px;border-radius:50%;
+  background:#ffc94d;color:#4a3708;font-size:11px;font-weight:900;display:grid;place-items:center;
+  border:2px solid #fff;box-shadow:0 1px 3px rgba(11,27,43,.2)}
+.chead h2{margin:0;font-size:20px;font-weight:700;letter-spacing:-.01em;line-height:1.5}
+.chead p{margin:1px 0 0;color:var(--ink-3);font-size:13px;line-height:1.5}
+
+/* ───────── 進度 ───────── */
+.prog{padding:18px 28px 16px}
+.ptop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:11px}
+.ptop .now{font-size:14.5px;font-weight:700}
+.ptop .now span{color:var(--brand);margin-right:7px}
+.ptop .rest{font-size:12.5px;color:var(--ink-3)}
+.ptrack{display:flex;gap:5px}
+.ptrack i{flex:1;height:6px;border-radius:99px;background:#e3eaf1;transition:background .3s,transform .3s}
+.ptrack i.done{background:var(--brand-line)}
+.ptrack i.on{background:linear-gradient(90deg,var(--brand-2),var(--brand));transform:scaleY(1.34)}
+
+/* ───────── 題目 ───────── */
+.q{padding:20px 0;border-top:1px solid var(--line-2)}
+.q:first-of-type{border-top:0;padding-top:2px}
+.t{display:block;font-weight:700;font-size:15px;letter-spacing:-.005em;margin-bottom:4px}
+.req{color:#c0392b;margin-left:4px;font-weight:700}
+.opt{display:inline-block;margin-left:7px;font-size:11.5px;font-weight:500;color:var(--ink-3);
+  background:var(--line-2);border-radius:6px;padding:1px 7px;vertical-align:1.5px;letter-spacing:.02em}
+.note{color:var(--ink-3);font-size:12.8px;line-height:1.65;margin:0 0 12px}
+.note b{color:var(--ink-2)}
+
+input[type=text],input[type=number],input[type=email],input[type=tel],select,textarea{
+  width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:var(--r-sm);
+  font:inherit;font-size:15px;background:#fff;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+input::placeholder,textarea::placeholder{color:var(--ink-4)}
+input:focus,select:focus,textarea:focus{outline:0;border-color:var(--brand);
+  box-shadow:0 0 0 4px rgba(14,122,83,.12)}
+input[type=number]{font-variant-numeric:tabular-nums}
+input[readonly]{background:#f5f8fa;color:var(--ink-2);font-weight:700;cursor:default}
+input[readonly]:focus{box-shadow:none;border-color:var(--line)}
+textarea{min-height:92px;resize:vertical;line-height:1.7}
+select{appearance:none;-webkit-appearance:none;cursor:pointer;padding-right:38px;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' stroke='%2364798c' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>*{flex:1;min-width:146px}
+.sublab{display:block;font-size:12.5px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.sublab-hint{display:block;font-style:normal;font-weight:400;font-size:11.5px;color:var(--ink-3);
+  margin-top:1px}
+.money{position:relative}
+.money input{padding-left:42px}
+.money::before{content:"NT$";position:absolute;left:13px;top:50%;transform:translateY(-50%);
+  font-size:12.5px;font-weight:600;color:var(--ink-4);pointer-events:none}
+
+/* ───────── 選項 ───────── */
+.opts{display:grid;gap:8px}
+.opts.c2{grid-template-columns:repeat(auto-fill,minmax(212px,1fr))}
+.opts.c3{grid-template-columns:repeat(auto-fill,minmax(148px,1fr))}
+.o{position:relative;display:flex;gap:10px;align-items:flex-start;cursor:pointer;
+  border:1.5px solid var(--line);border-radius:var(--r-sm);padding:11px 13px;background:#fff;
+  transition:border-color .15s,background .15s,box-shadow .15s,transform .12s}
+.o:hover{border-color:#c3d2df;background:#fbfdff}
+.o:active{transform:scale(.993)}
+.o input{margin:3px 0 0;accent-color:var(--brand);flex:0 0 auto;cursor:pointer}
+.o.sel{border-color:var(--brand);background:var(--brand-soft);
+  box-shadow:0 0 0 3px rgba(14,122,83,.09)}
+.o span{font-size:14.5px;line-height:1.5}
+.o b{font-weight:700}
+.o small{display:block;color:var(--ink-3);font-size:12px;line-height:1.55;margin-top:2px;font-weight:400}
+.o.sel small{color:var(--ink-2)}
+
+/* ───────── 回饋訊息 ───────── */
+.calc,.alert{border-radius:var(--r-sm);padding:11px 14px;font-size:13.5px;line-height:1.65;margin-top:11px}
+.calc{background:var(--brand-soft);border:1px solid var(--brand-line);color:var(--brand-dk)}
+.calc b{font-size:17px;font-weight:700}
+/* 收入組成明細 */
+.brk{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:4px 0}
+.brk+.brk{border-top:1px dashed #c3e0d1}
+.brk span{font-size:13px;font-weight:600}
+.brk span em{display:block;font-style:normal;font-size:11.5px;font-weight:400;opacity:.78;margin-top:1px}
+.brk b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.brk.muted{opacity:.6}
+.brk.tot{border-top:2px solid var(--brand);margin-top:3px;padding-top:7px}
+.brk.tot span{font-size:14px;font-weight:700}
+.brk.tot b{font-size:20px;font-weight:900;letter-spacing:-.02em}
+.alert{background:var(--warn-soft);border:1px solid var(--warn-line);color:var(--warn)}
+.alert b{font-weight:700}
+
+/* ───────── 隱私區塊 ───────── */
+.privacy{background:linear-gradient(170deg,#f3faf6,#fbfefc);border:1px solid var(--brand-line);
+  border-radius:var(--r);padding:20px 22px}
+.privacy h3{margin:0 0 8px;font-size:16px;font-weight:700;color:var(--brand-dk)}
+.privacy p{margin:0 0 9px;font-size:13.8px;color:var(--ink-2);line-height:1.7}
+.pledge{display:flex;gap:13px;align-items:center;margin:0 0 14px;background:#fff;
+  border:2px solid var(--brand);border-radius:var(--r-sm);padding:14px 16px;
+  box-shadow:0 0 0 4px rgba(14,122,83,.08)}
+.pledge .pl-ic{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:var(--brand-soft);border:1px solid var(--brand-line)}
+.pledge p{margin:0 !important;font-size:15px !important;font-weight:700;color:var(--brand-dk);
+  line-height:1.6}
+.pledge p b{color:#07472f;background:linear-gradient(transparent 62%,rgba(255,201,77,.55) 62%)}
+
+/* ── 後台畫面重現 ── */
+.mock{margin-top:16px}
+.mock .mt{font-weight:700;font-size:13.5px;color:var(--ink-2);margin-bottom:10px}
+.mock .tabs{display:flex;gap:3px;font-size:11.5px;padding-left:2px}
+.mock .tabs span{padding:6px 13px;border:1px solid var(--line);border-bottom:0;
+  border-radius:9px 9px 0 0;background:#eef3f7;color:var(--ink-3)}
+.mock .tabs span.on{background:#fff;color:var(--brand-dk);font-weight:700;
+  box-shadow:inset 0 2.5px 0 var(--brand)}
+.sheet{border:1px solid var(--line);border-radius:0 12px 12px 12px;margin-bottom:14px;
+  overflow:hidden;background:#fff;box-shadow:var(--sh-1)}
+.sheet .sh{background:#f3f7fa;border-bottom:1px solid var(--line);padding:8px 12px;
+  font-size:12.3px;font-weight:700;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.sheet .sh i{width:9px;height:9px;border-radius:2px;background:var(--brand);flex:0 0 auto}
+.sheet .sb{overflow-x:auto;background:#fff}
+.sheet table{border-collapse:collapse;font-size:11.2px;white-space:nowrap;
+  font-family:ui-monospace,"Cascadia Mono",Consolas,monospace}
+.sheet th,.sheet td{border:1px solid #e8eef4;padding:5px 9px;text-align:left}
+.sheet th{background:#f0f5f9;color:var(--ink-3);font-weight:600;font-size:10.6px}
+.sheet td{color:var(--ink-2)}
+.sheet .rn{background:#f0f5f9;color:#9fb0bf;text-align:center;width:28px;font-size:10px}
+.sheet th.hl{background:#dcefe5;color:var(--brand-dk)}
+.sheet td.hl{background:#f4fbf7}
+.sheet .sn{background:#fbfcfd;border-top:1px solid var(--line);padding:9px 12px;
+  font-size:12.3px;color:var(--ink-3);line-height:1.65;white-space:normal}
+.sheet .sn b{color:var(--brand-dk)}
+.mock .mf{font-size:12.8px;color:var(--ink-2);background:var(--brand-soft);
+  border:1px solid var(--brand-line);border-radius:var(--r-sm);padding:10px 13px;line-height:1.65}
+
+/* ── 聯絡資訊 ── */
+.contact{margin-top:16px;background:#fff;border:1px solid var(--line);
+  border-radius:var(--r-sm);padding:16px 18px}
+
+/* ───────── 按鈕 ───────── */
+.nav{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:26px}
+.btn{border:0;border-radius:12px;padding:13px 26px;font:inherit;font-size:15px;font-weight:700;
+  cursor:pointer;transition:transform .12s,box-shadow .15s,background .15s;
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn.p{background:linear-gradient(145deg,var(--brand-2),var(--brand));color:#fff;
+  box-shadow:0 2px 6px rgba(14,122,83,.28),0 10px 24px -8px rgba(14,122,83,.5)}
+.btn.p:hover{background:linear-gradient(145deg,var(--brand),var(--brand-dk))}
+.btn.p:active{transform:translateY(1px)}
+.btn.g{background:#fff;color:var(--ink-2);border:1.5px solid var(--line)}
+.btn.g:hover{border-color:#c3d2df;background:#fbfdff}
+.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.btn.lg{padding:15px 32px;font-size:16px}
+
+/* ───────── 開場提示視窗 ───────── */
+.ov{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;
+  background:rgba(7,19,31,.62);backdrop-filter:blur(5px);
+  animation:fade .25s ease both}
+.modal{width:100%;max-width:468px;background:#fff;border-radius:22px;overflow:hidden;
+  box-shadow:var(--sh-3);animation:rise .36s cubic-bezier(.2,.9,.25,1) both}
+/* 開場視窗最上方的語言選擇 */
+.mlang{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  padding:13px 22px;background:#f3f7fa;border-bottom:1px solid var(--line)}
+.mlang .ml-h{font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-3);display:inline-flex;align-items:center;gap:7px}
+.mlang .ml-h::before{content:"";width:15px;height:15px;flex:0 0 auto;
+  background:no-repeat center/contain url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364798c' stroke-width='1.8'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M3.2 9.4h17.6M3.2 14.6h17.6'/%3E%3Cpath d='M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3Z'/%3E%3C/svg%3E")}
+.mlang .ml-b{display:inline-flex;gap:6px}
+.mlang button{border:1.5px solid var(--line);background:#fff;color:var(--ink-2);font:inherit;
+  font-size:13.5px;font-weight:700;padding:7px 18px;border-radius:999px;cursor:pointer;transition:.15s}
+.mlang button:hover{border-color:var(--brand);color:var(--brand-dk)}
+.mlang button.on{background:var(--brand);border-color:var(--brand);color:#fff;
+  box-shadow:0 2px 6px rgba(14,122,83,.3)}
+.modal .mh{position:relative;overflow:hidden;padding:26px 28px 22px;color:#fff;
+  background:radial-gradient(520px 200px at 85% -20%,rgba(19,148,106,.5),transparent 60%),
+    linear-gradient(150deg,#13304c,#0a1c2e)}
+.modal .mh .ic{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  background:rgba(127,214,173,.16);border:1px solid rgba(127,214,173,.34);margin-bottom:13px}
+.modal .mh h2{margin:0;font-size:21px;font-weight:900;letter-spacing:-.01em}
+.modal .mh p{margin:5px 0 0;font-size:13px;opacity:.72}
+.modal .mb{padding:22px 28px 10px}
+.pl{display:flex;gap:12px;align-items:flex-start;padding:11px 0}
+.pl+.pl{border-top:1px dashed var(--line)}
+.pl .tick{flex:0 0 auto;width:23px;height:23px;border-radius:50%;display:grid;place-items:center;
+  background:var(--brand-soft);border:1px solid var(--brand-line);margin-top:1px}
+.pl p{margin:0;font-size:14.5px;line-height:1.6;color:var(--ink);font-weight:500}
+.pl p em{display:block;font-style:normal;font-size:12.5px;color:var(--ink-3);font-weight:400;margin-top:1px}
+.mtime{display:flex;align-items:center;justify-content:center;gap:9px;margin:14px 0 0;
+  background:var(--gold-soft);border:1px solid var(--gold-line);border-radius:var(--r-sm);
+  padding:11px;font-size:14px;font-weight:700;color:#8a6516}
+.modal .mf2{padding:18px 28px 26px}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes rise{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes stepIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.anim{animation:stepIn .34s cubic-bezier(.2,.9,.25,1) both}
+
+/* ───────── 結果頁 ───────── */
+.rhero{position:relative;overflow:hidden;border-radius:var(--r);padding:38px 26px 32px;text-align:center;color:#fff;
+  background:radial-gradient(620px 260px at 80% -25%,rgba(19,148,106,.55),transparent 62%),
+    linear-gradient(150deg,#0d5f41,#0a2236 72%,#07131f)}
+.rhero .lab{opacity:.76;font-size:13.5px}
+.bigpct{font-size:76px;font-weight:900;line-height:1;margin:10px 0 4px;letter-spacing:-.045em;
+  font-variant-numeric:tabular-nums}
+.bigpct small{font-size:28px;font-weight:700;opacity:.8;letter-spacing:0}
+.rhero .amt{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;margin-top:14px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
+  border-radius:99px;padding:8px 18px;font-size:13.5px}
+
+/* 未達門檻的感謝頁 */
+.rhero.thanks{padding:34px 24px 30px}
+.tick-big{width:62px;height:62px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;
+  background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.3)}
+.rhero.thanks h2{margin:0 0 4px;font-size:23px;font-weight:900;letter-spacing:-.01em}
+.gauge{height:10px;border-radius:99px;background:rgba(255,255,255,.17);overflow:hidden;
+  margin:18px auto 10px;max-width:420px}
+.gauge .gfill{height:100%;border-radius:99px;background:linear-gradient(90deg,#ffc94d,#7fd6ad);
+  transition:width .8s cubic-bezier(.2,.9,.25,1)}
+.rhero.thanks .lab b{font-weight:900;font-size:16px;color:#fff}
+.bigmsg{display:flex;gap:14px;align-items:flex-start;margin-top:18px;
+  background:linear-gradient(170deg,#fff8e6,#fffdf7);border:2px solid var(--gold-line);
+  border-radius:var(--r);padding:18px 20px;position:relative;overflow:hidden}
+.bigmsg::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;
+  background:repeating-linear-gradient(135deg,#ffc94d 0 9px,#8a6516 9px 18px)}
+.bigmsg .bm-ic{flex:0 0 auto;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  background:#fff;border:1px solid var(--gold-line);margin-left:6px}
+.bigmsg b{display:block;font-size:17px;font-weight:900;color:#7a5a12;line-height:1.5;letter-spacing:-.01em}
+.bigmsg em{display:block;font-style:normal;font-size:13.5px;color:#8a6516;margin-top:5px;line-height:1.65}
+
+.share-card{border-color:var(--brand-line);background:linear-gradient(170deg,#f6fbf8,#fff)}
+.exp-card{border-color:var(--gold-line);background:linear-gradient(170deg,#fffbf2,#fff)}
+.exp-row{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.exp-row p{margin:0;flex:1;min-width:210px;font-size:13.5px;color:var(--ink-3);line-height:1.65}
+.exp-btn{border:1.5px solid var(--gold-line);background:#fff;color:#8a6516;
+  border-radius:12px;padding:12px 22px;font:inherit;font-size:14.5px;font-weight:700;
+  cursor:pointer;transition:.15s;white-space:nowrap}
+.exp-btn:hover{background:var(--gold-soft);border-color:var(--gold)}
+.exp-btn:disabled{opacity:.6;cursor:default}
+/* 只有截圖時才會出現在複製出來的節點上 */
+.exp-head{padding:16px 22px 13px;border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.exp-head b{font-size:15px;font-weight:900;color:var(--ink)}
+.exp-head span{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.exp-foot{padding:12px 22px 16px;border-top:1px solid var(--line);
+  font-size:11.5px;color:var(--ink-4);line-height:1.6;word-break:break-all}
+
+/* 結果頁區塊標題 */
+.sect{margin:34px 0 4px;padding-top:22px;border-top:1px solid var(--line-2)}
+.sect:first-of-type{border-top:0;padding-top:0;margin-top:26px}
+.sect h3{margin:0 0 5px;font-size:22px;font-weight:900;letter-spacing:-.015em;color:var(--ink);
+  display:flex;align-items:center;gap:10px}
+.sect h3::before{content:"";width:5px;height:21px;border-radius:3px;flex:0 0 auto;
+  background:linear-gradient(180deg,var(--brand-2),var(--brand))}
+.sect p{margin:0;font-size:13.5px;color:var(--ink-3);line-height:1.7}
+.sect p b{color:var(--ink-2);font-weight:700}
+
+.scale{margin:30px 0 8px;position:relative;height:72px}
+.scale .bar{position:absolute;top:18px;left:0;right:0;height:12px;border-radius:99px;
+  background:linear-gradient(90deg,#e4ebf1,#a8d4bf,var(--brand))}
+.scale .pin{position:absolute;top:6px;width:3px;height:36px;background:var(--ink);border-radius:99px;
+  box-shadow:0 0 0 3px #fff}
+.scale .pin b{position:absolute;top:-25px;left:50%;transform:translateX(-50%);
+  background:var(--ink);color:#fff;font-size:11.5px;font-weight:700;padding:3px 9px;
+  border-radius:7px;white-space:nowrap}
+.scale .pin b::after{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);
+  border:4px solid transparent;border-top-color:var(--ink);border-bottom:0}
+.scale .tick{position:absolute;top:36px;font-size:11.5px;color:var(--ink-3);
+  transform:translateX(-50%);white-space:nowrap;text-align:center;line-height:1.45}
+.scale .tick i{display:block;font-style:normal;font-weight:700;color:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+
+.gridcards{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));margin-top:16px}
+.gc{position:relative;border:1px solid var(--line);border-radius:14px;padding:17px 18px;
+  background:linear-gradient(170deg,#fbfdfc,#fff);overflow:hidden;
+  box-shadow:0 1px 2px rgba(11,27,43,.04)}
+.gc::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;
+  background:linear-gradient(180deg,var(--brand-2),var(--brand))}
+.gc.thin{background:#fafbfc}
+.gc.thin::before{background:var(--line)}
+.gc .gl{display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:2px}
+.gc .gl b{font-weight:500;font-size:11.5px;color:var(--ink-4);
+  background:var(--line-2);border-radius:5px;padding:1px 7px;white-space:nowrap}
+.gc .gv{font-size:36px;font-weight:900;color:var(--brand-dk);line-height:1.1;letter-spacing:-.04em;
+  font-variant-numeric:tabular-nums}
+.gc .gv small{font-size:17px;font-weight:700}
+.gc .gm{font-size:12.5px;color:var(--ink-3);margin-top:5px;line-height:1.6}
+.gc.thin .gv{font-size:18px;color:var(--ink-3);font-weight:700;letter-spacing:0}
+
+/* 成對比較長條 */
+.cmp{margin-top:11px;display:grid;gap:7px}
+.cb{display:grid;grid-template-columns:62px 1fr auto;align-items:center;gap:9px}
+.cb .cbl{font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+.cb .cbt{height:11px;border-radius:99px;background:#e7edf2;overflow:hidden}
+.cb .cbt i{display:block;height:100%;border-radius:99px;background:#b7c7d4;
+  transition:width .7s cubic-bezier(.2,.9,.25,1)}
+.cb.me .cbl{color:var(--brand-dk);font-weight:700}
+.cb.me .cbt i{background:linear-gradient(90deg,var(--brand-2),var(--brand))}
+.cb .cbv{font-size:11.5px;font-weight:700;color:var(--ink-2);font-variant-numeric:tabular-nums;
+  white-space:nowrap}
+.cb.me .cbv{color:var(--brand-dk)}
+.gd{margin-top:9px;display:inline-block;font-size:12.5px;font-weight:700;border-radius:99px;
+  padding:3px 11px}
+.gd.up{color:var(--brand-dk);background:var(--brand-soft);border:1px solid var(--brand-line)}
+.gd.down{color:var(--warn);background:var(--warn-soft);border:1px solid var(--warn-line)}
+
+.hist{display:flex;align-items:flex-end;gap:6px;margin-top:14px}
+.hist .b{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+.hist .b i{display:block;width:100%;background:#d9e4ec;border-radius:5px 5px 0 0;transition:height .5s cubic-bezier(.2,.9,.25,1)}
+.hist .b.me i{background:linear-gradient(180deg,var(--brand-2),var(--brand))}
+.hist .b u{font-size:11.5px;color:var(--ink-3);text-decoration:none;font-weight:600;
+  font-variant-numeric:tabular-nums}
+.hist .b.me u{color:var(--brand-dk)}
+.hist .b em{font-size:10.6px;color:var(--ink-3);font-style:normal;writing-mode:vertical-rl;
+  text-orientation:mixed;height:78px;white-space:nowrap;letter-spacing:.6px}
+.hist .b.me em{color:var(--brand-dk);font-weight:700}
+
+.share{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.share button,.share a{flex:1;min-width:136px;text-align:center;text-decoration:none;
+  border:1.5px solid var(--line);background:#fff;color:var(--ink-2);border-radius:12px;
+  padding:12px;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:.15s}
+.share button:hover,.share a:hover{border-color:var(--brand);color:var(--brand-dk);background:var(--brand-soft)}
+
+.closed{text-align:center;padding:56px 22px}
+.closed .em{font-size:48px;line-height:1}
+.closed h2{margin:14px 0 6px;font-size:22px}
+.foot{text-align:center;color:var(--ink-4);font-size:12.5px;margin-top:30px;line-height:1.85}
+.hidden{display:none !important}
+
+@media(max-width:600px){
+  .wrap{padding:0 14px 70px}
+  .hero{padding:34px 0 48px}
+  .hero h1{font-size:25px}
+  .card{padding:20px 17px;border-radius:15px}
+  .prog{padding:15px 17px 13px}
+  .bigpct{font-size:58px}
+  .rhero{padding:30px 18px 26px}
+  .btn{padding:12px 20px;font-size:14.5px}
+  .nav{gap:9px}
+}
+</style>
+<?!= include('header-bg') ?>
+<?!= include('i18n') ?>
+<style>
+/* 語言切換：與 eyebrow 同一行靠右，用實心膠囊＋地球圖示，英文使用者一眼就看得到 */
+.herotop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.herotop .eyebrow{margin-bottom:0;order:1}
+.herotop .langsw{order:2}
+.langsw{z-index:4;display:inline-flex;align-items:center;gap:3px;
+  background:rgba(255,255,255,.14);border:1.5px solid rgba(255,255,255,.34);
+  border-radius:999px;padding:4px 6px 4px 11px;
+  box-shadow:0 4px 14px -4px rgba(0,0,0,.5);backdrop-filter:blur(8px)}
+.langsw .globe{color:rgba(255,255,255,.85);margin-right:4px;flex:0 0 auto}
+.langsw button{border:0;background:none;color:rgba(255,255,255,.78);font:inherit;font-size:13px;
+  font-weight:700;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.15s;white-space:nowrap}
+.langsw button:hover{color:#fff;background:rgba(255,255,255,.12)}
+.langsw button.on{background:#13946a;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.3)}
+
+/* 頁首中英並列 */
+.h1alt{font-size:19px;font-weight:700;letter-spacing:-.005em;line-height:1.3;
+  color:rgba(255,255,255,.7);margin:-2px 0 9px}
+.tagline.alt{color:rgba(255,227,163,.78);font-weight:600;font-size:13.5px;
+  border-left-color:rgba(255,201,77,.5);margin-top:-4px}
+html[lang=en] .hero h1{letter-spacing:-.02em;font-size:31px}
+
+.herotop{margin-bottom:13px;padding-right:48px}
+@media(max-width:760px){
+  .gear{top:14px;right:14px;width:34px;height:34px}
+  .h1alt{font-size:16px}
+}
+</style>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="herotop">
+    <div class="langsw" id="langsw">
+      <svg class="globe" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M3.2 9.4h17.6M3.2 14.6h17.6" stroke="currentColor" stroke-width="1.7"/>
+        <path d="M12 3c2.4 2.5 3.6 5.5 3.6 9s-1.2 6.5-3.6 9c-2.4-2.5-3.6-5.5-3.6-9S9.6 5.5 12 3Z"
+          stroke="currentColor" stroke-width="1.7"/>
+      </svg>
+      <button type="button" data-lang="zh">中文</button>
+      <button type="button" data-lang="en">English</button>
+    </div>
+    <div class="eyebrow">
+      <svg class="hmt" width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M2.6 16.6h18.8M4.6 16.6v-2.2a7.4 7.4 0 0 1 14.8 0v2.2" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M9.6 7.6V4.9a1.3 1.3 0 0 1 1.3-1.3h2.2a1.3 1.3 0 0 1 1.3 1.3v2.7" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2.6 16.6v1.5a1.9 1.9 0 0 0 1.9 1.9h15a1.9 1.9 0 0 0 1.9-1.9v-1.5" stroke="currentColor"
+          stroke-width="1.8" stroke-linejoin="round"/>
+      </svg>
+      EHS Salary Survey
+    </div>
+    </div>
+    <h1 id="hTitle">2025 年環安衛薪資調查</h1>
+    <div class="h1alt" id="hTitleAlt">2025 EHS Salary Survey</div>
+    <div class="tagline" id="hTag">調查結果會分享給各位，並作為後續薪資談判之參考</div>
+    <div class="tagline alt" id="hTagAlt"></div>
+    <div class="sub" id="hSub"></div>
+    <div class="chips" id="hChips"></div>
+  </div>
+  <a class="gear" id="gear" target="_top" title="系統後台" aria-label="系統後台">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.1" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M19.5 14.1a1.5 1.5 0 0 0 .3 1.65l.05.05a1.8 1.8 0 1 1-2.55 2.55l-.05-.05a1.5 1.5 0 0 0-1.65-.3 1.5 1.5 0 0 0-.9 1.37v.13a1.8 1.8 0 1 1-3.6 0v-.07a1.5 1.5 0 0 0-.98-1.37 1.5 1.5 0 0 0-1.65.3l-.05.05a1.8 1.8 0 1 1-2.55-2.55l.05-.05a1.5 1.5 0 0 0 .3-1.65 1.5 1.5 0 0 0-1.37-.9h-.13a1.8 1.8 0 1 1 0-3.6h.07a1.5 1.5 0 0 0 1.37-.98 1.5 1.5 0 0 0-.3-1.65l-.05-.05A1.8 1.8 0 1 1 8.36 4.5l.05.05a1.5 1.5 0 0 0 1.65.3h.07a1.5 1.5 0 0 0 .9-1.37v-.13a1.8 1.8 0 1 1 3.6 0v.07a1.5 1.5 0 0 0 .9 1.37 1.5 1.5 0 0 0 1.65-.3l.05-.05a1.8 1.8 0 1 1 2.55 2.55l-.05.05a1.5 1.5 0 0 0-.3 1.65v.07a1.5 1.5 0 0 0 1.37.9h.13a1.8 1.8 0 1 1 0 3.6h-.07a1.5 1.5 0 0 0-1.37.9Z"
+        stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+    </svg>
+  </a>
+  <div class="hazard"></div>
+</div>
+
+<div id="anchor"></div>
+<div class="wrap">
+  <div id="app"></div>
+  <div class="foot">
+    本調查為非正式民間調查，結果僅供薪資談判參考，不代表官方統計。<br>
+    資料僅以彙總形式呈現，不會公開任何個別填答內容。
+  </div>
+</div>
+<div id="modalRoot"></div>
+
+<script>
+var BOOT = <?!= BOOT ?>;
+var $ = function (s, r) { return (r || document).querySelector(s); };
+var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+var fmt = function (n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+var esc = function (s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+};
+/* ══════════ 中英切換 ══════════
+   DICT 的 key 就是畫面上的中文原字串；選項的「值」永遠是中文並原樣寫進試算表，
+   只有顯示文字會翻譯，所以切語言不會讓統計分組裂開。 */
+var LANG = 'zh';
+try { LANG = localStorage.getItem('oshsurvey_lang') === 'en' ? 'en' : 'zh'; } catch (e) {}
+
+function T(s) {
+  if (LANG !== 'en' || s === undefined || s === null) return s;
+  var k = String(s);
+  return (typeof DICT !== 'undefined' && DICT[k] !== undefined) ? DICT[k] : k;
+}
+function setLang(l) {
+  LANG = (l === 'en') ? 'en' : 'zh';
+  try { localStorage.setItem('oshsurvey_lang', LANG); } catch (e) {}
+  document.documentElement.setAttribute('lang', LANG === 'en' ? 'en' : 'zh-Hant');
+  $$('#langsw button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === LANG); });
+  paintHero();
+  render(true);
+  if ($('#introOv')) showIntro(true);   // 開場視窗開著就原地換語言，不重播動畫
+}
+
+// GAS 把頁面放在跨來源 iframe 裡，window.scrollTo 動不了外層頁面，
+// 但 scrollIntoView 可以穿過 frame 邊界。
+function toTop() {
+  var a = $('#anchor');
+  if (a && a.scrollIntoView) a.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ══════════ 選項資料 ══════════ */
+var CITIES = ['臺北市','新北市','基隆市','桃園市','新竹市','新竹縣','宜蘭縣',
+  '苗栗縣','臺中市','彰化縣','南投縣','雲林縣',
+  '嘉義市','嘉義縣','臺南市','高雄市','屏東縣',
+  '花蓮縣','臺東縣','澎湖縣','金門縣','連江縣','海外'];
+
+var YRS_OPTS = ['無','1年以下','1-3年','3-5年','5-10年','10-15年','15-20年','20年以上'];
+
+var OSH_LICENSES = ['甲級職業安全管理師','甲級職業衛生管理師',
+  '乙級職業安全衛生管理員','甲種職業安全衛生業務主管','乙種職業安全衛生業務主管',
+  '丙種職業安全衛生業務主管','丁種職業安全衛生業務主管',
+  '營造業甲種業務主管','營造業乙種業務主管','營造業丙種業務主管','以上皆無'];
+
+// 國際職安證照（與國內證照分開一題，避免「最高等級」分組被打亂）
+var INTL_LICENSES = [
+  'NEBOSH 國際通用證書 IGC（Level 3）',
+  'NEBOSH 國際文憑 Diploma（Level 6）',
+  'NEBOSH 製程安全管理證書 PSM',
+  'NEBOSH 環境管理證書',
+  'IOSH Managing Safely',
+  'IOSH 會員資格（Tech／Grad／CMIOSH）',
+  'OSHA 30-hour（美國）',
+  'OSHA 10-hour（美國）',
+  'BCSP CSP 註冊安全專業人員',
+  'BCSP ASP 助理安全專業人員',
+  'ABIH CIH 註冊工業衛生師',
+  'ISO 45001 主導稽核員（IRCA／Exemplar Global）',
+  'IEMA 環境管理認證',
+  '以上皆無'
+];
+
+var OTHER_LICENSES = ['防火管理人','消防設備士','消防設備師',
+  '環境專責-空汙類','環境專責-水汙類','環境專責-廢棄物類','環境專責-毒化物類','環境專責-土壤地下水',
+  '急救人員','有機溶劑作業主管','特定化學物質作業主管','缺氧作業主管','粉塵作業主管',
+  '施工架組配作業主管','模板支撐作業主管','擋土支撐作業主管','屋頂作業主管',
+  '固定式起重機操作','移動式起重機操作','堆高機操作','吊掛作業人員','高空工作車操作',
+  '職業衛生技師','工業安全技師','環境工程技師'];
+
+var SKILLS = ['ISO 45001 職業安全衛生管理系統','ISO 14001 環境管理系統','ISO 9001 品質管理系統',
+  'ISO 50001 能源管理系統','ISO 14064-1 溫室氣體盤查','ISO 14067 碳足跡','ISO 14046 水足跡',
+  'ISO 27001 資訊安全','RBA 責任商業聯盟','SA 8000 社會責任',
+  '製程安全管理 PSM','風險評估／HAZOP','ESG／永續報告書撰寫',
+  '電腦繪圖（AutoCAD／SketchUp）','資料分析（Excel／Power BI）','環安衛資訊系統導入'];
+
+var JOB_CONTENTS = ['職安專責工作項目','現場監工','承攬商管理','教育訓練','消防管理',
+  '環保-空汙類','環保-水汙類','環保-廢棄物類','環保-毒化物類','環保-土壤地下水',
+  '碳盤查／淨零','ESG 永續報告書','品保品管','總務','人資','廠務設施','專案管理'];
+
+var BENEFITS = ['三節獎金','員工旅遊','團體保險','股票／分紅','伙食津貼','交通津貼',
+  '證照津貼','輪班／夜班津貼','外派／駐點津貼','彈性工時','遠距工作','進修補助',
+  '健身／社團補助','員工宿舍','無特別福利'];
+
+var INDUSTRY_SUB = ['半導體／電子／光電','化工／石化','金屬／機械製造','食品／飲料','紡織',
+  '生技／製藥','能源／電力','水泥／玻璃／建材','營建工程','離岸風電／再生能源',
+  '物流／倉儲','醫療院所','學校／研究機構','顧問／驗證／檢測','公部門','其他'];
+
+/* ══════════ 狀態 ══════════ */
+var S = { step: 0, data: { ot_mode: '每月', ot_workdays: 22, lang_points: null } };
+var STEP_NAMES = ['基本資料', '證照與專業', '年資與現職', '工時與薪資', '職涯回饋', '聯絡資訊'];
+// 樣本未達門檻前不承諾百分位，按鈕文案也要跟著換
+function submitLabel(){ return T(BOOT.unlocked ? '送出問卷，看我的薪資百分位' : '送出問卷'); }
+var ICON_CHECK = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">' +
+  '<path d="M1.8 6.3 4.4 8.9 10.2 3.1" stroke="#0e7a53" stroke-width="2" ' +
+  'stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var ICON_SHARE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+  '<circle cx="6" cy="12" r="2.6" stroke="#fff" stroke-width="1.8"/>' +
+  '<circle cx="17.6" cy="5.8" r="2.6" stroke="#fff" stroke-width="1.8"/>' +
+  '<circle cx="17.6" cy="18.2" r="2.6" stroke="#fff" stroke-width="1.8"/>' +
+  '<path d="m8.3 10.8 7-3.8m-7 6.2 7 3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>';
+// 每個步驟一個安衛風格的圖示（線條式，與色系一致）
+var STEP_ICONS = [
+  // 1 人員
+  '<path d="M12 11.4a3.7 3.7 0 1 0 0-7.4 3.7 3.7 0 0 0 0 7.4Z" stroke="#fff" stroke-width="1.8"/>' +
+  '<path d="M4.8 20.4a7.2 7.2 0 0 1 14.4 0" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
+  // 2 證照（獎章）
+  '<circle cx="12" cy="9" r="5.4" stroke="#fff" stroke-width="1.8"/>' +
+  '<path d="m8.6 13.6-1.2 7 4.6-2.4 4.6 2.4-1.2-7" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>',
+  // 3 安全帽
+  '<path d="M3 16.4h18M5 16.4v-2.1a7 7 0 0 1 14 0v2.1" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>' +
+  '<path d="M9.8 7.8V5.4A1.3 1.3 0 0 1 11.1 4h1.8a1.3 1.3 0 0 1 1.3 1.4v2.4" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>' +
+  '<path d="M3 16.4v1.4A1.9 1.9 0 0 0 4.9 19.7h14.2a1.9 1.9 0 0 0 1.9-1.9v-1.4" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>',
+  // 4 工時與薪資（時鐘）
+  '<circle cx="12" cy="12" r="8.4" stroke="#fff" stroke-width="1.8"/>' +
+  '<path d="M12 6.8V12l3.4 2.1" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
+  // 5 職涯回饋（對話）
+  '<path d="M20.4 15.2a1.8 1.8 0 0 1-1.8 1.8H7.8L4.2 20.6V5.4a1.8 1.8 0 0 1 1.8-1.8h12.6a1.8 1.8 0 0 1 1.8 1.8v9.8Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>' +
+  '<path d="M8.4 8.6h7.2M8.4 12h4.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>',
+  // 6 聯絡資訊與抽獎（禮物）
+  '<path d="M3.8 11.4h16.4v8.1a1.3 1.3 0 0 1-1.3 1.3H5.1a1.3 1.3 0 0 1-1.3-1.3v-8.1Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>' +
+  '<path d="M3 7.6h18v3.8H3zM12 7.6v13.2" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>' +
+  '<path d="M12 7.6S10.6 3.2 8.3 3.6c-2.3.4-1.7 4 3.7 4Zm0 0s1.4-4.4 3.7-4c2.3.4 1.7 4-3.7 4Z" stroke="#fff" stroke-width="1.8" stroke-linejoin="round"/>'
+];
+function stepIcon(i) {
+  return '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true">' + (STEP_ICONS[i] || '') + '</svg>';
+}
+
+/* ══════════ 題目元件 ══════════ */
+function tag(o) {
+  return o.required ? '<span class="req">*</span>' + (o.multi ? '<span class="opt">' + T('可複選') + '</span>' : '')
+                    : '<span class="opt">' + T(o.multi ? '選填・可複選' : '選填') + '</span>';
+}
+
+function qRadio(key, title, opts, o) {
+  o = o || {};
+  var html = '<div class="q" id="q_' + key + '"><div class="t">' + esc(T(title)) + tag(o) + '</div>';
+  if (o.note) html += '<p class="note">' + T(o.note) + '</p>';
+  html += '<div class="opts ' + (o.cols || 'c2') + '" data-radio="' + key + '">';
+  opts.forEach(function (op) {
+    var val = typeof op === 'string' ? op : op.v;
+    var lab = typeof op === 'string' ? op : op.l;
+    var desc = typeof op === 'string' ? '' : (op.d || '');
+    var on = S.data[key] === val;
+    html += '<label class="o' + (on ? ' sel' : '') + '"><input type="radio" name="' + key + '" value="' +
+      esc(val) + '"' + (on ? ' checked' : '') + '><span>' + esc(T(lab)) +
+      (desc ? '<small>' + esc(T(desc)) + '</small>' : '') + '</span></label>';
+  });
+  html += '</div>';
+  if (o.otherKey) {
+    html += '<div class="' + (S.data[key] === '其他' ? '' : 'hidden') + '" data-otherfor="' + key +
+      '" style="margin-top:10px"><input type="text" data-field="' + o.otherKey + '" placeholder="' +
+      esc(o.otherPlaceholder || '請自行填寫') + '" value="' + esc(S.data[o.otherKey] || '') + '"></div>';
+  }
+  return html + '</div>';
+}
+
+function qCheck(key, title, opts, o) {
+  o = o || {};
+  o.multi = true;
+  var cur = S.data[key] || [];
+  var html = '<div class="q" id="q_' + key + '"><div class="t">' + esc(T(title)) + tag(o) + '</div>';
+  if (o.note) html += '<p class="note">' + T(o.note) + '</p>';
+  html += '<div class="opts ' + (o.cols || 'c2') + '" data-check="' + key + '">';
+  opts.forEach(function (v) {
+    var on = cur.indexOf(v) >= 0;
+    html += '<label class="o' + (on ? ' sel' : '') + '"><input type="checkbox" name="' + key +
+      '" value="' + esc(v) + '"' + (on ? ' checked' : '') + '><span>' + esc(T(v)) + '</span></label>';
+  });
+  html += '</div>';
+  if (o.otherKey) {
+    html += '<div style="margin-top:10px"><input type="text" data-field="' + o.otherKey +
+      '" placeholder="' + esc(T('其他（請自行填寫，多項以頓號分隔）')) + '" value="' + esc(S.data[o.otherKey] || '') + '"></div>';
+  }
+  return html + '</div>';
+}
+
+function qText(key, title, o) {
+  o = o || {};
+  var v = S.data[key] === undefined ? '' : S.data[key];
+  var html = '<div class="q" id="q_' + key + '"><div class="t">' + esc(T(title)) + tag(o) + '</div>';
+  if (o.note) html += '<p class="note">' + T(o.note) + '</p>';
+  if (o.textarea) {
+    html += '<textarea data-field="' + key + '" placeholder="' + esc(T(o.ph || '')) + '">' + esc(v) + '</textarea>';
+  } else {
+    var inp = '<input type="' + (o.type || 'text') + '" data-field="' + key + '" placeholder="' +
+      esc(T(o.ph || '')) + '"' + (o.min !== undefined ? ' min="' + o.min + '"' : '') +
+      (o.max !== undefined ? ' max="' + o.max + '"' : '') + (o.step ? ' step="' + o.step + '"' : '') +
+      ' value="' + esc(v) + '">';
+    html += o.money ? '<div class="money">' + inp + '</div>' : inp;
+  }
+  if (o.suffixId) html += '<div id="' + o.suffixId + '"></div>';
+  return html + '</div>';
+}
+
+function qSelect(key, title, opts, o) {
+  o = o || {};
+  var v = S.data[key] || '';
+  var html = '<div class="q" id="q_' + key + '"><div class="t">' + esc(T(title)) + tag(o) + '</div>';
+  if (o.note) html += '<p class="note">' + T(o.note) + '</p>';
+  html += '<select data-field="' + key + '"><option value="">' + esc(T('— 請選擇 —')) + '</option>';
+  opts.forEach(function (op) {
+    var val = typeof op === 'string' ? op : op.v;
+    var lab = typeof op === 'string' ? op : op.l;
+    html += '<option value="' + esc(val) + '"' + (v === val ? ' selected' : '') + '>' + esc(T(lab)) + '</option>';
+  });
+  return html + '</select></div>';
+}
+
+/* ══════════ 各步驟 ══════════ */
+function stepHTML(i) {
+  if (i === 0) return card(1, '基本資料', '大約 30 秒',
+    qText('age', '請問您的年齡', { required: true, type: 'number', min: 16, max: 80, ph: '例：34' }) +
+    qRadio('gender', '性別', ['男', '女', '不願透露'], { required: true, cols: 'c3' }) +
+    qRadio('education', '最高學歷', ['高中職', '專科（二專／五專）', '四技二專', '大學', '碩士', '博士'],
+      { required: true, cols: 'c3' }) +
+    qRadio('major_field', '最高學歷的科系領域',
+      ['職業安全衛生相關', '環境工程／環境管理相關', '消防／防災相關', '其他理工科系', '商管／文法科系', '其他'],
+      { required: true,
+        note: '原表單的「學歷及科系」為文字題不易統計，此處改為分類，統計時才能比較「本科系 vs 非本科系」的薪資差異。' })
+  );
+
+  if (i === 1) return card(2, '證照與專業能力', '複選，沒有的項目直接略過',
+    qCheck('osh_licenses', '您持有的職安類證照（或同等資格）', OSH_LICENSES,
+      { required: true, note: '統計時系統會自動取您持有的<b>最高等級</b>一張進行分組，順序為：國際證照 › 甲級 › 乙級 › 甲種 › 乙種 › 丙種 › 丁種。' }) +
+    qCheck('intl_licenses', '國際職安證照', INTL_LICENSES,
+      { required: true, otherKey: 'intl_licenses_other',
+        note: '國際證照除了單獨統計，在上面的證照階梯中也<b>排在最高等級</b>；只要持有任一張，分組就會歸在「國際證照」。' }) +
+    qCheck('other_licenses', '其他證照（證書）', OTHER_LICENSES.concat(['以上皆無']),
+      { required: true, otherKey: 'other_licenses_other' }) +
+    qCheck('skills', '專業能力', SKILLS.concat(['以上皆無']),
+      { required: true, otherKey: 'skills_other' }) +
+    langBlock()
+  );
+
+  if (i === 2) return card(3, '年資與現職', '',
+    yrsBlock() +
+    qRadio('job_category', '現職工作分類',
+      [{ v: '營造業', l: '營造業', d: '含建廠、營建工地' },
+       { v: '廠工安', l: '廠工安', d: '科技廠等駐廠職安' },
+       { v: '傳產', l: '傳產', d: '傳統製造業' },
+       { v: '外商', l: '外商' },
+       { v: '國營', l: '國營' },
+       { v: '其他', l: '其他（自行填寫）' }],
+      { required: true, otherKey: 'job_category_other', otherPlaceholder: '請說明您的現職工作分類' }) +
+    qSelect('industry_sub', '產業別細分', INDUSTRY_SUB,
+      { required: true, note: '有了細分產業，報告才能看出例如「半導體 vs 化工」的差異。' }) +
+    qRadio('job_title', '現職職稱／職級',
+      ['專員／工程師', '資深專員／資深工程師', '組長／副課長', '課長／經理', '副理／協理以上', '顧問／技師', '其他'],
+      { required: true, cols: 'c3' }) +
+    qRadio('is_dedicated', '是否為法定登記之職安衛「專責」人員', ['是', '否'],
+      { required: true, cols: 'c3' }) +
+    qRadio('subordinates', '是否有直接管理的部屬', ['無', '1-3 人', '4-10 人', '10 人以上'],
+      { required: true, cols: 'c3' }) +
+    qRadio('company_size', '公司（或事業單位）規模',
+      ['50 人以下', '51-200 人', '201-500 人', '501-1000 人', '1001-5000 人', '5000 人以上'],
+      { required: true, cols: 'c3' }) +
+    qSelect('work_city', '現職工作地（縣市）', CITIES,
+      { required: true, note: '系統會自動歸入北部／中部／南部／東部／離島進行區域分析。' }) +
+    qCheck('job_contents', '現職工作內容', JOB_CONTENTS,
+      { required: true, otherKey: 'job_contents_other' }) +
+    qRadio('shift_type', '工作型態',
+      ['常日班', '輪班（兩班制）', '輪班（三班制）', '國內長期駐點', '長期駐外（國外）'], { required: true })
+  );
+
+  if (i === 3) return card(4, '工時與薪資', '這是本調查最核心的部分，請盡量據實填寫',
+    otBlock() +
+    qRadio('ot_pay_type', '加班費給付方式',
+      ['核實全額給付', '部分給付（有上限）', '折換補休', '定額加班費（包月）', '責任制／不給付'],
+      { required: true }) +
+    qText('monthly_salary', '您現在的月全薪（每月經常性給予的薪資總和）', {
+      required: true, type: 'number', min: 0, step: 100, ph: '52000', money: true,
+      note: '含本薪與各項固定津貼；<b>不含加班費</b>（加班費由上一題自動估算）、' +
+            '也不含年終與非固定獎金。'
+    }) +
+    qText('annual_bonus', BOOT.year + (LANG === 'en' ? ' annual bonus (excluding vouchers and gifts)' : ' 年度您的年總獎金（不含禮券禮品）'), {
+      required: true, type: 'number', min: 0, step: 1000, ph: '120000', money: true,
+      note: '含年終獎金、績效獎金、分紅等一次性給與；<b>沒有請填 0</b>。', suffixId: 'bonusCalc'
+    }) +
+    annualBlock() +
+    qRadio('raise_last_year', '近一年調薪幅度',
+      ['未調薪', '1-3%', '3-5%', '5-10%', '10% 以上', '減薪'], { required: true, cols: 'c3' }) +
+    qCheck('benefits', '公司提供的福利', BENEFITS, { required: true }) +
+    qText('annual_leave_days', '目前每年特休天數', { type: 'number', min: 0, max: 60, ph: '例：14' })
+  );
+
+  if (i === 4) {
+    var na = noChangeQuestion();
+    return card(5, '職涯回饋', '',
+      qRadio('prev_job', '前一份工作性質',
+        ['應屆畢業（這是第一份工作）', '同樣是職安工作', '現場施工／工程管理', '製造現場作業', '品保／品管',
+         '環工／環保', '消防', '軍／警／消', '業務／行政', '其他'], { required: true }) +
+      (na
+        ? '<div class="q"><div class="t">轉到（或留在）職安後，薪水變化<span class="opt">不適用</span></div>' +
+          '<div class="calc">' + na + '本題自動帶入<b>不適用</b>，不需作答。</div></div>'
+        : qRadio('salary_change', '轉到（或留在）職安後，薪水變化',
+            ['明顯上升', '略為上升', '持平', '略為下降', '明顯下降', '不適用'],
+            { required: true, cols: 'c3' }) +
+          qText('salary_change_pct', '若有變化，大約幅度', { ph: '例：上升 20%、月薪多 8000' })) +
+      qRadio('satisfaction', '目前工作整體滿意度',
+        [{ v: '5', l: '5　非常滿意' }, { v: '4', l: '4　滿意' }, { v: '3', l: '3　普通' },
+         { v: '2', l: '2　不滿意' }, { v: '1', l: '1　非常不滿意' }], { required: true, cols: 'c3' }) +
+      qRadio('job_seeking', '未來一年是否有轉職打算',
+        ['沒有', '觀望中', '積極尋找中', '已有 offer'], { required: true, cols: 'c3' }) +
+      qText('suggestion', '是否有任何建議可優化此份調查表', { textarea: true, ph: '歡迎提供任何意見' })
+    );
+  }
+
+  return card(6, '聯絡資訊與抽獎', '最後一步，全部選填', emailBlock());
+}
+
+// 「應屆畢業」與「同樣是職安」都沒有「轉行」這回事
+function noChangeQuestion() {
+  if (S.data.prev_job === '同樣是職安工作') return '您前一份工作同樣是職安，沒有「轉行」這件事，';
+  if (S.data.prev_job === '應屆畢業（這是第一份工作）') return '這是您的第一份工作，沒有前一份工作可以比較，';
+  return '';
+}
+
+function card(n, title, hint, body) {
+  return '<div class="card anim"><div class="chead">' +
+    '<div class="cnum ico"><b>' + n + '</b>' + stepIcon(n - 1) + '</div>' +
+    '<div><h2>' + esc(T(title)) + '</h2>' + (hint ? '<p>' + esc(T(hint)) + '</p>' : '') + '</div></div>' +
+    body + '</div>';
+}
+
+/* ── 年資（自動加總） ── */
+function yrsBlock() {
+  function f(key, label, ph, hint) {
+    return '<div><span class="sublab">' + T(label) +
+      (hint ? '<em class="sublab-hint">' + esc(T(hint)) + '</em>' : '') + '</span>' +
+      '<input type="number" min="0" max="50" step="0.5" data-field="' + key + '" placeholder="' + ph +
+      '" value="' + esc(S.data[key] === undefined ? '' : S.data[key]) + '"></div>';
+  }
+  return '<div class="q" id="q_yrs_total"><div class="t">' + T('職安工作年資') + '<span class="req">*</span></div>' +
+    '<p class="note">請分別填寫各類年資（沒有的留空或填 0），系統會<b>自動加總</b>為職安工作總年資，' +
+    '這是薪資分組的主要依據。可填小數，例如半年填 0.5。</p>' +
+    '<div class="row">' +
+      f('yrs_construction', '營造業工安（年）', '例：3') +
+      f('yrs_plant', '廠工安（年）', '例：5') +
+      f('yrs_other', '其他職安相關（年）', '例：0', '顧問、驗證檢測、公部門、學校等') +
+    '</div><div id="yrsCalc"></div></div>';
+}
+
+var YRS_BANDS = ['1年以下', '1~3年', '3~5年', '5~10年', '10~15年', '15~20年', '20年以上'];
+function yrsBand(y) {
+  if (y < 1) return YRS_BANDS[0];
+  if (y < 3) return YRS_BANDS[1];
+  if (y < 5) return YRS_BANDS[2];
+  if (y < 10) return YRS_BANDS[3];
+  if (y < 15) return YRS_BANDS[4];
+  if (y < 20) return YRS_BANDS[5];
+  return YRS_BANDS[6];
+}
+
+function renderYrsCalc() {
+  var box = $('#yrsCalc'); if (!box) return;
+  var a = parseFloat(S.data.yrs_construction) || 0;
+  var b = parseFloat(S.data.yrs_plant) || 0;
+  var c = parseFloat(S.data.yrs_other) || 0;
+  var t = Math.round((a + b + c) * 10) / 10;
+  S.data.yrs_total = t > 0 ? t : '';
+  var touched = ['yrs_construction', 'yrs_plant', 'yrs_other'].some(function (k) {
+    return S.data[k] !== undefined && String(S.data[k]) !== '';
+  });
+  box.innerHTML = !touched ? '' :
+    '<div class="calc">' + T('營造') + ' ' + a + ' ＋ ' + T('廠工安') + ' ' + b + ' ＋ ' + T('其他') + ' ' + c +
+    ' ＝ ' + T('職安工作總年資') + ' <b>' + t + '</b> ' + T('年') +
+    (t > 0 ? '　（' + T('統計分組') + '：' + T(yrsBand(t)) + '）' : '') + '</div>';
+}
+
+/* ── 語言能力 ── */
+function langBlock() {
+  var h = '<div class="q" id="q_lang_points"><div class="t">' + T('語言能力') + '<span class="req">*</span>' +
+    '<span class="opt">' + T('沒有檢定請選 0 分') + '</span></div>' +
+    '<p class="note">原表單為文字題（例：多益850分）不易統計。此處改為<b>等級選項並對應 0–5 分</b>，' +
+    '不同檢定可直接對照同一把尺，報告才能比較「有／無外語能力」的薪資差異。</p>' +
+    '<div class="opts" data-radio="lang_points">';
+  BOOT.langLevels.forEach(function (L) {
+    var on = String(S.data.lang_points) === String(L.points);
+    h += '<label class="o' + (on ? ' sel' : '') + '"><input type="radio" name="lang_points" value="' + L.points +
+      '"' + (on ? ' checked' : '') + '><span><b>' + L.points + ' ' + T('分') + '　' + esc(T(L.label)) + '</b>' +
+      '<small>' + esc(T(L.desc)) + '</small></span></label>';
+  });
+  h += '</div><div class="row" style="margin-top:12px">' +
+    '<select data-field="lang_test"><option value="">' + T('檢定種類（選填）') + '</option>' +
+    ['全民英檢 GEPT', 'TOEIC 多益', 'TOEFL 托福', 'IELTS 雅思', 'JLPT 日檢', '其他語言檢定'].map(function (t) {
+      return '<option value="' + t + '"' + (S.data.lang_test === t ? ' selected' : '') + '>' + esc(T(t)) + '</option>';
+    }).join('') + '</select>' +
+    '<input type="text" data-field="lang_score_raw" placeholder="' + esc(T('實際分數／級數（選填，例：850）')) + '" value="' +
+    esc(S.data.lang_score_raw || '') + '"></div></div>';
+  return h;
+}
+
+/* ── 加班時數 ── */
+function otBlock() {
+  var mode = S.data.ot_mode || '每月';
+  var h = '<div class="q" id="q_ot_hours_input"><div class="t">' + T('現職常態性加班時數') + '<span class="req">*</span></div>' +
+    '<p class="note">可選擇以「每日」或「每月」為單位填寫。選每日時，系統會自動乘上您的每月工作天數。' +
+    '<b>沒有加班請填 0</b>。</p>' +
+    '<div class="opts c3" data-radio="ot_mode">';
+  ['每月', '每日'].forEach(function (m) {
+    h += '<label class="o' + (mode === m ? ' sel' : '') + '"><input type="radio" name="ot_mode" value="' + m +
+      '"' + (mode === m ? ' checked' : '') + '><span>' + T(m + '加班時數') + '</span></label>';
+  });
+  h += '</div><div class="row" style="margin-top:12px">' +
+    '<div><span class="sublab">' + T(mode === '每日' ? '每日加班時數' : '每月加班時數') + '</span>' +
+    '<input type="number" min="0" max="400" step="0.5" data-field="ot_hours_input" placeholder="' +
+    (mode === '每日' ? '例：2' : '例：46') + '" value="' + esc(S.data.ot_hours_input || '') + '"></div>' +
+    '<div' + (mode === '每日' ? '' : ' class="hidden"') + '><span class="sublab">' + T('每月工作天數') + '</span>' +
+    '<input type="number" min="1" max="31" step="1" data-field="ot_workdays" value="' +
+    esc(S.data.ot_workdays || 22) + '"></div></div>' +
+    '<div id="otCalc"></div>' +
+    '<p class="note" style="margin:11px 0 0">加班費會<b>計入全年本業總收入</b>，' +
+    '以<b>平日每小時工資額（月全薪 ÷ 240）× 1.5 倍</b>估算，再乘上每月加班時數與 12 個月。' +
+    '若您的加班費給付方式是「折換補休」「責任制／不給付」或「定額加班費（包月）」，' +
+    '則不另外計入（補休沒有現金、包月已含在月全薪裡）。</p>' +
+    '</div>';
+  return h;
+}
+
+// 月薪制平日每小時工資額＝月薪 ÷ 30 日 ÷ 8 小時
+var HOURLY_DIVISOR = 240;
+var OT_RATE = 1.5;
+// 這幾種給付方式不另外計入現金加班費
+var OT_NO_CASH = ['折換補休', '責任制／不給付', '定額加班費（包月）'];
+
+function otMonthlyHours() {
+  var hrs = parseFloat(S.data.ot_hours_input);
+  if (isNaN(hrs) || hrs < 0) return 0;
+  if ((S.data.ot_mode || '每月') === '每日') {
+    return hrs * (parseFloat(S.data.ot_workdays) || 22);
+  }
+  return hrs;
+}
+
+function otAnnualPay() {
+  var m = parseFloat(S.data.monthly_salary);
+  var hrs = otMonthlyHours();
+  if (!(m > 0) || !(hrs > 0)) return { pay: 0, hourly: 0, hrs: hrs, paid: true };
+  var paid = OT_NO_CASH.indexOf(S.data.ot_pay_type) < 0;
+  var hourly = m / HOURLY_DIVISOR;
+  return {
+    pay: paid ? Math.round(hourly * OT_RATE * hrs * 12) : 0,
+    hourly: Math.round(hourly),
+    hrs: hrs,
+    paid: paid
+  };
+}
+
+function renderOtCalc() {
+  var box = $('#otCalc'); if (!box) return;
+  var hrs = parseFloat(S.data.ot_hours_input);
+  if (isNaN(hrs) || hrs < 0) { box.innerHTML = ''; return; }
+  var mode = S.data.ot_mode || '每月';
+  var days = parseFloat(S.data.ot_workdays) || 22;
+  var monthly = mode === '每日' ? hrs * days : hrs;
+  var txt = mode === '每日'
+    ? (LANG === 'en'
+        ? hrs + ' h/day × ' + days + ' working days = about <b>' + (Math.round(monthly*10)/10) + '</b> h per month'
+        : '每日 ' + hrs + ' 小時 × 每月 ' + days + ' 個工作天 ＝ 換算後每月加班約 <b>' + (Math.round(monthly*10)/10) + '</b> 小時')
+    : (LANG === 'en'
+        ? 'About <b>' + (Math.round(monthly*10)/10) + '</b> h per month (roughly ' + Math.round(monthly*12) + ' h a year)'
+        : '每月加班約 <b>' + (Math.round(monthly*10)/10) + '</b> 小時（年約 ' + Math.round(monthly*12) + ' 小時）');
+  var warn = '';
+  if (mode === '每日' && hrs > 12) {
+    warn = '<div class="alert">' + (LANG === 'en'
+      ? 'You chose <b>per day</b> but entered ' + hrs + ' hours. If that is actually your <b>monthly</b> total, switch the unit above to per month.'
+      : '您選的是「每日」加班時數但填了 ' + hrs + ' 小時。如果 ' + hrs + ' 小時其實是<b>整個月</b>的加班時數，請把上面的單位改成「每月」。') + '</div>';
+  } else if (monthly > 46) {
+    warn = '<div class="alert">' + T('提醒：單月加班已超過《勞動基準法》第 32 條每月 46 小時的一般上限。') + '</div>';
+  }
+  box.innerHTML = '<div class="calc">' + txt + '</div>' + warn;
+}
+
+/* ── 全年本業總收入（自動加總） ── */
+function annualBlock() {
+  var manual = !!S.data.annual_manual;
+  return '<div class="q" id="q_annual_total"><div class="t">' + BOOT.year +
+    (LANG === 'en' ? ' total annual income from main job' : ' 年度您的全年本業總收入') +
+    '<span class="req">*</span>' +
+    (manual ? '' : '<span class="opt">' + T('自動加總') + '</span>') + '</div>' +
+    '<p class="note"><b>自動加總</b>：月全薪 × 12 ＋ 年總獎金 ＋ 加班費（時薪 × 1.5）。' +
+    '若與您的實際情況不同（例如三節獎金另計、年中換工作），可勾選下方手動填寫。</p>' +
+    '<div class="money"><input type="number" min="0" step="1000" data-field="annual_total" ' +
+      (manual ? 'placeholder="744000"' : 'readonly tabindex="-1"') +
+      ' value="' + esc(S.data.annual_total === undefined ? '' : S.data.annual_total) + '"></div>' +
+    '<label class="o" style="margin-top:10px"><input type="checkbox" id="annualManual"' +
+      (manual ? ' checked' : '') + '><span>' + T('我的實際年收入與推估不同，改為手動填寫') +
+      '<small>' + T('勾選後可自行輸入，系統仍會提示與推估值的差距') + '</small></span></label>' +
+    '<div id="annualCheck"></div></div>';
+}
+
+function renderSalaryCalc() {
+  var b = $('#bonusCalc'), a = $('#annualCheck');
+  var m = parseFloat(S.data.monthly_salary), bo = parseFloat(S.data.annual_bonus);
+  if (b) {
+    b.innerHTML = (m > 0 && bo > 0)
+      ? '<div class="calc">' + T('相當於') + ' <b>' + (Math.round(bo / m * 10) / 10) + '</b> ' + T('個月的月全薪') + '</div>' : '';
+  }
+  var ot = otAnnualPay();
+  var expect = (m > 0) ? Math.round(m * 12 + (isNaN(bo) ? 0 : bo) + ot.pay) : '';
+  var input = $('[data-field="annual_total"]');
+  if (!S.data.annual_manual) {
+    S.data.annual_total = expect;
+    if (input) input.value = (expect === '' ? '' : expect);
+  }
+  var an = parseFloat(S.data.annual_total);
+  if (a) {
+    var html = '';
+    if (m > 0 && expect !== '') {
+      var rows = '<div class="brk"><span>' + T('月全薪 × 12') + '</span><b>' + fmt(m * 12) + '</b></div>';
+      if (bo > 0) rows += '<div class="brk"><span>' + T('年總獎金') + '</span><b>＋ ' + fmt(bo) + '</b></div>';
+      if (ot.pay > 0) {
+        rows += '<div class="brk"><span>' + T('加班費') + '　<em>' + (LANG === 'en'
+          ? 'hourly ' + fmt(ot.hourly) + ' × 1.5 × ' + ot.hrs + ' h × 12 months'
+          : '時薪 ' + fmt(ot.hourly) + ' × 1.5 × ' + ot.hrs + ' 小時 × 12 月') +
+          '</em></span><b>＋ ' + fmt(ot.pay) + '</b></div>';
+      } else if (ot.hrs > 0 && !ot.paid) {
+        rows += '<div class="brk muted"><span>' + T('加班費') + '　<em>' + (LANG === 'en'
+          ? 'compensated as “' + esc(T(S.data.ot_pay_type)) + '” — no extra cash'
+          : '給付方式為「' + esc(S.data.ot_pay_type) + '」，不另計現金') +
+          '</em></span><b>＋ 0</b></div>';
+      }
+      rows += '<div class="brk tot"><span>' + T('全年本業總收入') + '</span><b>' + fmt(expect) + '</b></div>';
+      html = '<div class="calc">' + rows + '</div>';
+      if (S.data.annual_manual && an > 0 && Math.abs(an - expect) / an > 0.3) {
+        html += '<div class="alert">' + T('您手動填的年收入與推估值差距較大，請再確認是否有漏填或多填（例如把兼職、投資收入計入）。') + '</div>';
+      }
+    }
+    a.innerHTML = html;
+  }
+}
+
+/* ── 聯絡資訊 ＋ 後台畫面 ── */
+function emailBlock() {
+  return '<div class="q"><div class="privacy">' +
+    '<h3>' + T('留下聯絡資訊（選填）') + '</h3>' +
+    '<p>' + (LANG === 'en'
+      ? 'After the survey closes we will draw <b>' + BOOT.drawWinners + '</b> winners, each receiving a <b>' + esc(T(BOOT.drawPrize)) + '</b>. '
+      : '本問卷將於調查結束後抽出 <b>' + BOOT.drawWinners + ' 位</b>，各致贈 <b>' + esc(BOOT.drawPrize) + '</b>。') +
+    '<b>' + T('待統計結束後，也會把完整的統計報告寄給您。') + '</b></p>' +
+    '<div class="pledge">' +
+      '<div class="pl-ic">' +
+        '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+        '<path d="M12 2.6 4.4 5.8v5.6c0 4.7 3.2 9.1 7.6 10.2 4.4-1.1 7.6-5.5 7.6-10.2V5.8L12 2.6Z" ' +
+        'stroke="#0a5c3e" stroke-width="1.7" stroke-linejoin="round"/>' +
+        '<path d="M8.7 12.1 11 14.4l4.4-4.6" stroke="#0a5c3e" stroke-width="1.9" ' +
+        'stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<p>' + T('您的聯絡資訊<b>不會</b>和您的答案存在一起，<br>因此<b>完全不必擔心薪資被洩漏</b>，請放心填寫。') + '</p>' +
+    '</div>' +
+    '<p>' + T('送出時，系統會把「問卷答案」與「聯絡資訊」寫進<b>兩張完全獨立的工作表</b>：答案只帶一組隨機編號、聯絡資訊只帶另一組隨機編號，兩邊<b>沒有任何欄位可以互相對應</b>，連管理者也無法得知哪個 Email 對應哪一份薪資。') + '</p>' +
+    backendMock() +
+
+    '<div class="contact">' +
+      '<div><span class="sublab">Email<span class="opt">' + T('選填') + '</span></span>' +
+        '<input type="email" data-field="email" placeholder="' + esc(T('your@email.com（不填也可以送出問卷）')) + '" value="' +
+        esc(S.data.email || '') + '"></div>' +
+      '<div class="row" style="margin-top:12px">' +
+        '<div><span class="sublab">' + T('聯絡電話') + '<span class="opt">' + T('選填') + '</span></span>' +
+          '<input type="tel" data-field="phone" placeholder="09xx-xxx-xxx" value="' +
+          esc(S.data.phone || '') + '"></div>' +
+        '<div style="flex:2;min-width:240px"><span class="sublab">' + T('寄送地址') + '<span class="opt">' + T('選填') + '</span></span>' +
+          '<input type="text" data-field="address" placeholder="' + esc(T('例：403 臺中市西區○○路 00 號 0 樓')) + '" value="' +
+          esc(S.data.address || '') + '"></div>' +
+      '</div>' +
+      '<div class="alert">' + T('電話與地址<b>不填也能抽獎</b>。若未填地址，中獎時<b>只會以 Email 寄送電子禮券</b>，不會寄實體禮券；電話僅在 Email 聯絡不上時才會使用。') + '</div>' +
+    '</div>' +
+
+    '<p style="margin:12px 0 0;font-size:12.5px;color:var(--ink-3)">' + T('聯絡資訊僅用於本次抽獎與寄送統計報告，存放於獨立的名單，用畢即刪除，不會用於任何其他用途，也不會提供給第三方。') + '</p>' +
+    '</div></div>';
+}
+
+function sheetMock(o) {
+  var head = '<tr><th class="rn"></th>' +
+    o.cols.map(function (c, i) {
+      return '<th' + (c.hl ? ' class="hl"' : '') + '>' +
+        String.fromCharCode(65 + i) + '　' + esc(c.n) + '</th>';
+    }).join('') + '</tr>';
+  var body = o.rows.map(function (r, ri) {
+    return '<tr><td class="rn">' + (ri + 2) + '</td>' +
+      r.map(function (v, i) {
+        return '<td' + (o.cols[i].hl ? ' class="hl"' : '') + '>' + esc(v) + '</td>';
+      }).join('') + '</tr>';
+  }).join('');
+  return '<div class="sheet"><div class="sh"><i></i>' + esc(T(o.title)) + '</div>' +
+    '<div class="sb"><table>' + head + body + '</table></div>' +
+    '<div class="sn">' + T(o.note) + '</div></div>';
+}
+
+function backendMock() {
+  var tabs = ['回覆資料', '抽獎名單', '系統設定', '操作日誌'];
+  var a = sheetMock({
+    title: '工作表 A：回覆資料　（共 56 欄，以下摘錄 7 欄）',
+    cols: [{ n: 'resp_id', hl: 1 }, { n: 'age' }, { n: 'education' },
+           { n: 'yrs_total' }, { n: 'job_category' },
+           { n: 'monthly_salary', hl: 1 }, { n: 'annual_total', hl: 1 }],
+    rows: [
+      ['R7F2A9C4E81B', '34', '大學', '8', '廠工安', '62000', '924000'],
+      ['R0C83DD1A95F', '41', '碩士', '15', '外商', '88000', '1380000'],
+      ['R5B1E7420AC6', '29', '四技二專', '4', '營造業', '48000', '702000']
+    ],
+    note: '<b>整張表沒有 Email、電話、地址欄位。</b>resp_id 是送出當下隨機產生的，' +
+          '跟抽獎名單的編號毫無關係。'
+  });
+  var b = sheetMock({
+    title: '工作表 B：抽獎名單　（全部欄位就這 5 欄）',
+    cols: [{ n: 'draw_id', hl: 1 }, { n: 'email', hl: 1 }, { n: 'phone' },
+           { n: 'address' }, { n: 'date' }],
+    rows: [
+      ['D3B81E5027', 'a****@gmail.com', '0912-***-***', '403 臺中市西區…', '2026-10-15'],
+      ['D9A14C7FE3', 'b****@yahoo.com', '（未填）', '（未填）', '2026-10-14'],
+      ['D62F08BD45', 'c****@hotmail.com', '0933-***-***', '（未填）', '2026-10-15']
+    ],
+    note: '<b>整張表沒有任何薪資欄位。</b>日期只記到「日」、而且是<b>隨機插入列</b>不照送出順序，' +
+          '所以連用時間或列的順序去猜都對不回去。（上圖信箱為示意，實際存的是完整信箱）'
+  });
+  return '<div class="mock"><div class="mt">' + T('後台實際長這樣') + '</div>' +
+    '<div class="tabs">' + tabs.map(function (t, i) {
+      return '<span class="' + (i < 2 ? 'on' : '') + '">' + esc(T(t)) + '</span>';
+    }).join('') + '</div>' + a + b +
+    '<div class="mf">' + T('抽獎與寄送報告時只開「抽獎名單」這張表；對獎完成後整張表刪除。「回覆資料」那張表從頭到尾都不會被打開來對人。') + '</div></div>';
+}
+
+/* ══════════ 開場提示視窗（同時也是語言選擇） ══════════ */
+function showIntro(noAnim) {
+  var lines = [
+    ['您的資訊保證不會被公開在任何公開平台上', '包含社群、網站、群組都不會出現您的個別填答'],
+    ['僅作為統計報告撰寫使用', '只以中位數、平均、百分位等彙總數字呈現'],
+    ['請安心填寫', '全程匿名，不需登入，也不會記錄您的身分']
+  ];
+  $('#modalRoot').innerHTML =
+    '<div class="ov" id="introOv"' + (noAnim ? ' style="animation:none"' : '') + '>' +
+    '<div class="modal"' + (noAnim ? ' style="animation:none"' : '') +
+      ' role="dialog" aria-modal="true" aria-labelledby="introT">' +
+      '<div class="mlang" id="mlang">' +
+        '<span class="ml-h">語言 · Language</span>' +
+        '<div class="ml-b">' +
+          '<button type="button" data-mlang="zh"' + (LANG === 'zh' ? ' class="on"' : '') + '>中文</button>' +
+          '<button type="button" data-mlang="en"' + (LANG === 'en' ? ' class="on"' : '') + '>English</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="mh"><div class="ic">' +
+        '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+        '<path d="M12 2.6 4.4 5.8v5.6c0 4.7 3.2 9.1 7.6 10.2 4.4-1.1 7.6-5.5 7.6-10.2V5.8L12 2.6Z" ' +
+        'stroke="#7fd6ad" stroke-width="1.7" stroke-linejoin="round"/>' +
+        '<path d="M8.7 12.1 11 14.4l4.4-4.6" stroke="#7fd6ad" stroke-width="1.9" ' +
+        'stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+        '<h2 id="introT">' + T('填寫前，先給您三個保證') + '</h2>' +
+        '<p>' + esc(T(BOOT.title)) + '　·　' + T('調查截止日') + ' ' + esc(BOOT.endRoc) + '</p>' +
+      '</div>' +
+      '<div class="mb">' +
+        lines.map(function (l) {
+          return '<div class="pl"><div class="tick">' + ICON_CHECK + '</div>' +
+            '<p>' + esc(T(l[0])) + '<em>' + esc(T(l[1])) + '</em></p></div>';
+        }).join('') +
+        '<div class="mtime">' +
+          '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+          '<circle cx="12" cy="12" r="9" stroke="#b8862b" stroke-width="1.8"/>' +
+          '<path d="M12 7v5.3l3.3 2" stroke="#b8862b" stroke-width="1.8" stroke-linecap="round"/></svg>' +
+          T('預計填寫時間：5 分鐘') + '</div>' +
+      '</div>' +
+      '<div class="mf2"><button class="btn p lg" id="introGo" style="width:100%;justify-content:center">' +
+        T('我了解了，開始填寫') + '</button></div>' +
+    '</div></div>';
+  $$('#mlang button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.mlang === LANG) return;
+      setLang(b.dataset.mlang);   // 會連頁首與問卷一起換，並重畫這個視窗
+    });
+  });
+  $('#introGo').addEventListener('click', function () {
+    var ov = $('#introOv');
+    ov.style.transition = 'opacity .2s'; ov.style.opacity = '0';
+    setTimeout(function () { $('#modalRoot').innerHTML = ''; }, 200);
+  });
+}
+
+/* ══════════ 渲染 ══════════ */
+function render(skipScroll) {
+  var app = $('#app');
+  if (!BOOT.open) { app.innerHTML = closedHTML(); return; }
+
+  var bars = STEP_NAMES.map(function (n, i) {
+    return '<i class="' + (i < S.step ? 'done' : (i === S.step ? 'on' : '')) + '"></i>';
+  }).join('');
+
+  app.innerHTML =
+    '<div class="card flush prog">' +
+      '<div class="ptop"><div class="now"><span>' + T('步驟') + ' ' + (S.step + 1) + ' / ' + STEP_NAMES.length + '</span>' +
+        esc(T(STEP_NAMES[S.step])) + '</div>' +
+        '<div class="rest">' + (S.step === STEP_NAMES.length - 1 ? T('快完成了') :
+          T('約') + ' ' + Math.max(1, STEP_NAMES.length - 1 - S.step) + ' ' + T('分鐘內完成')) + '</div></div>' +
+      '<div class="ptrack">' + bars + '</div>' +
+    '</div>' +
+    stepHTML(S.step) +
+    '<div class="nav">' +
+      (S.step > 0 ? '<button class="btn g" id="bPrev">' + T('← 上一步') + '</button>' : '<span></span>') +
+      (S.step < STEP_NAMES.length - 1
+        ? '<button class="btn p" id="bNext">' + T('下一步 →') + '</button>'
+        : '<button class="btn p lg" id="bSubmit">'+submitLabel()+'</button>') +
+    '</div>';
+
+  bind();
+  renderYrsCalc();
+  renderOtCalc();
+  renderSalaryCalc();
+  if (!skipScroll) toTop();
+}
+
+function bind() {
+  $$('[data-radio] input').forEach(function (el) {
+    el.addEventListener('change', function () {
+      var key = el.name;
+      S.data[key] = el.value;
+      var box = el.closest('[data-radio]');
+      $$('.o', box).forEach(function (o) { o.classList.remove('sel'); });
+      el.closest('.o').classList.add('sel');
+      var other = $('[data-otherfor="' + key + '"]');
+      if (other) other.classList.toggle('hidden', el.value !== '其他');
+      if (key === 'ot_mode') { render(true); return; }
+      if (key === 'prev_job') {
+        // 應屆畢業／同樣是職安 → 薪水變化一題自動帶「不適用」並隱藏
+        if (el.value === '同樣是職安工作' || el.value === '應屆畢業（這是第一份工作）') {
+          S.data.salary_change = '不適用';
+          S.data.salary_change_pct = '';
+        } else if (S.data.salary_change === '不適用') {
+          S.data.salary_change = '';
+        }
+        render(true);
+        return;
+      }
+      if (key === 'lang_points') S.data.lang_points = Number(el.value);
+      // 給付方式決定加班費算不算現金，要重算全年收入
+      if (key === 'ot_pay_type') renderSalaryCalc();
+    });
+  });
+  $$('[data-check] input').forEach(function (el) {
+    el.addEventListener('change', function () {
+      var key = el.name;
+      var cur = S.data[key] || [];
+      if (el.checked) { if (cur.indexOf(el.value) < 0) cur.push(el.value); }
+      else { cur = cur.filter(function (v) { return v !== el.value; }); }
+      S.data[key] = cur;
+      el.closest('.o').classList.toggle('sel', el.checked);
+    });
+  });
+  $$('[data-field]').forEach(function (el) {
+    el.addEventListener('input', function () {
+      S.data[el.dataset.field] = el.value;
+      var f = el.dataset.field;
+      // 加班時數會影響加班費，連帶影響全年收入
+      if (['ot_hours_input', 'ot_workdays'].indexOf(f) >= 0) { renderOtCalc(); renderSalaryCalc(); }
+      if (['monthly_salary', 'annual_bonus', 'annual_total'].indexOf(f) >= 0) renderSalaryCalc();
+      if (['yrs_construction', 'yrs_plant', 'yrs_other'].indexOf(f) >= 0) renderYrsCalc();
+    });
+    el.addEventListener('change', function () { S.data[el.dataset.field] = el.value; });
+  });
+  var am = $('#annualManual');
+  if (am) am.addEventListener('change', function () {
+    S.data.annual_manual = am.checked;
+    if (!am.checked) S.data.annual_total = '';
+    render(true);
+  });
+  var p = $('#bPrev'), n = $('#bNext'), s = $('#bSubmit');
+  if (p) p.addEventListener('click', function () { S.step--; render(); });
+  if (n) n.addEventListener('click', function () { if (validateStep()) { S.step++; render(); } });
+  if (s) s.addEventListener('click', submit);
+}
+
+// 必填＝報告會用到的分組與統計欄位；純補充性質的文字題才留選填
+var REQUIRED = {
+  0: [['age', '年齡'], ['gender', '性別'], ['education', '最高學歷'], ['major_field', '科系領域']],
+  1: [['osh_licenses', '職安類證照'], ['intl_licenses', '國際職安證照'],
+      ['other_licenses', '其他證照'], ['skills', '專業能力'], ['lang_points', '語言能力']],
+  2: [['yrs_total', '職安工作年資'], ['job_category', '現職工作分類'], ['industry_sub', '產業別細分'],
+      ['job_title', '現職職稱／職級'], ['is_dedicated', '是否為專責人員'],
+      ['subordinates', '是否有部屬'], ['company_size', '公司規模'],
+      ['work_city', '現職工作地'], ['job_contents', '現職工作內容'], ['shift_type', '工作型態']],
+  3: [['ot_hours_input', '加班時數'], ['ot_pay_type', '加班費給付方式'],
+      ['monthly_salary', '月全薪'], ['annual_bonus', '年總獎金'],
+      ['annual_total', '全年本業總收入'], ['raise_last_year', '近一年調薪幅度'],
+      ['benefits', '公司提供的福利']],
+  4: [['prev_job', '前一份工作性質'], ['salary_change', '轉到職安後的薪水變化'],
+      ['satisfaction', '工作滿意度'], ['job_seeking', '轉職打算']],
+  5: []
+};
+
+function validateStep() {
+  var miss = (REQUIRED[S.step] || []).filter(function (r) {
+    var v = S.data[r[0]];
+    return v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length);
+  });
+  if (miss.length) {
+    alert(T('還有必填項目未完成：') + '\n' +
+      miss.map(function (m) { return '・' + T(m[1]); }).join('\n'));
+    var el = $('#q_' + miss[0][0]);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+  return true;
+}
+
+function submit() {
+  for (var i = 0; i < STEP_NAMES.length; i++) {
+    var save = S.step; S.step = i;
+    if (!validateStep()) { render(); return; }
+    S.step = save;
+  }
+  var btn = $('#bSubmit');
+  btn.disabled = true; btn.textContent = T('送出中，正在計算您的百分位…');
+
+  var payload = JSON.parse(JSON.stringify(S.data));
+  payload.other_licenses = (S.data.other_licenses || []).concat(
+    S.data.other_licenses_other ? [S.data.other_licenses_other] : []);
+  payload.intl_licenses = (S.data.intl_licenses || []).concat(
+    S.data.intl_licenses_other ? [S.data.intl_licenses_other] : []);
+  payload.skills = (S.data.skills || []).concat(S.data.skills_other ? [S.data.skills_other] : []);
+  payload.job_contents = (S.data.job_contents || []).concat(
+    S.data.job_contents_other ? [S.data.job_contents_other] : []);
+  payload.client_token = getToken();
+
+  google.script.run
+    .withSuccessHandler(function (res) {
+      if (!res || !res.ok) {
+        btn.disabled = false;
+        btn.textContent = submitLabel();
+        alert((res && res.error) || T('送出失敗，請稍後再試'));
+        return;
+      }
+      showResult(res);
+    })
+    .withFailureHandler(function (err) {
+      btn.disabled = false;
+      btn.textContent = submitLabel();
+      alert(T('送出失敗：') + err.message);
+    })
+    .apiSubmit(payload);
+}
+
+function getToken() {
+  try {
+    var t = localStorage.getItem('oshsurvey_token');
+    if (!t) { t = 'T' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem('oshsurvey_token', t); }
+    return t;
+  } catch (e) { return ''; }
+}
+
+/* ══════════ 結果頁 ══════════ */
+function showResult(r) {
+  if (r.locked) { showLocked(r); return; }
+  var pct = r.overall.annualPct;
+  var small = r.totalN < 30;
+
+  var ticks = [['P25', r.quartiles.p25, 25], ['中位數', r.quartiles.p50, 50],
+               ['P75', r.quartiles.p75, 75], ['P90', r.quartiles.p90, 90]]
+    .map(function (t) {
+      return '<div class="tick" style="left:' + t[2] + '%">' + T(t[0]) + '<i>' + fmt(t[1]) + '</i></div>';
+    }).join('');
+
+  var maxCount = Math.max.apply(null, r.distribution.bins.map(function (x) { return x.count; })) || 1;
+  var hist = r.distribution.bins.map(function (b, i) {
+    return '<div class="b' + (i === r.distribution.markIndex ? ' me' : '') + '">' +
+      '<u>' + (b.count || '') + '</u>' +
+      '<i data-h="' + (Math.round(b.count / maxCount * 112) + 3) + '" style="height:3px"></i>' +
+      '<em>' + b.label + '</em></div>';
+  }).join('');
+
+  // 分組對照：用「您 vs 組內中位數」的成對長條呈現，一眼看出高低
+  var gMax = Math.max.apply(null, [r.yourAnnual].concat(
+    r.groups.map(function (g) { return g.annualMedian || 0; }))) || 1;
+  var cards = r.groups.map(function (g) {
+    if (!g.n || g.annualPct === null) {
+      return '<div class="gc thin"><div class="gl">' + esc(groupLabel(g.label)) + '</div>' +
+        '<div class="gv">' + T('樣本不足') + '</div><div class="gm">' + T('目前僅') + ' ' + g.n + ' ' + T('筆，無法比較') + '</div></div>';
+    }
+    var weak = g.n < r.minSampleHint;
+    var diff = r.yourAnnual - g.annualMedian;
+    var up = diff >= 0;
+    return '<div class="gc' + (weak ? ' thin' : '') + '">' +
+      '<div class="gl">' + esc(groupLabel(g.label)) + '<b>n=' + g.n + '</b></div>' +
+      '<div class="gv">' + g.annualPct + '<small>%</small></div>' +
+      '<div class="cmp">' +
+        cmpBar(T('您'), r.yourAnnual, gMax, 'me') +
+        cmpBar(T('組內中位數'), g.annualMedian, gMax, '') +
+      '</div>' +
+      '<div class="gd ' + (up ? 'up' : 'down') + '">' + (up ? '▲ ' : '▼ ') + T(up ? '高出' : '低於') + ' ' +
+        fmt(Math.abs(diff)) + '</div>' +
+      (weak ? '<div class="gm" style="color:var(--warn)">' + (LANG === 'en'
+        ? 'Fewer than ' + r.minSampleHint + ' responses — treat with caution'
+        : '樣本不足 ' + r.minSampleHint + ' 筆，僅供參考') + '</div>' : '') +
+      '</div>';
+  }).join('');
+
+  $('#app').innerHTML =
+    '<div class="card flush anim" id="resultCard">' +
+      '<div class="rhero">' +
+        '<div class="lab">' + (LANG === 'en' ? 'Your ' + BOOT.year + ' ' + T('年度的全年本業總收入') : '您 ' + BOOT.year + ' 年度的全年本業總收入') + '</div>' +
+        '<div class="bigpct"><span id="pctNum">0</span><small>%</small></div>' +
+        '<div class="lab">' + T('在目前') + ' ' + r.totalN + ' ' + T('位填答者中的百分位') + '</div>' +
+        '<div class="amt"><span>' + T('您填寫') + ' NT$ ' + fmt(r.yourAnnual) + '</span>' +
+        '<span>' + T('全體中位數') + ' NT$ ' + fmt(r.quartiles.p50) + '</span></div>' +
+      '</div>' +
+      (small ? '<div class="alert">' + (LANG === 'en'
+        ? 'Only ' + r.totalN + ' responses so far — percentiles will move as more come in. Check back after the survey closes.'
+        : '目前樣本只有 ' + r.totalN + ' 筆，百分位會隨著填答人數增加而變動，建議調查結束後再回來看完整報告。') + '</div>' : '') +
+      sect('整體對照',
+        (LANG === 'en'
+          ? 'Your annual income ranked against <b>all ' + r.totalN + ' respondents</b> — where you sit in the survey as a whole.'
+          : '把您的年收入放進<b>全體 ' + r.totalN + ' 位填答者</b>一起排序，看您落在整體的哪個位置。')) +
+      '<div class="scale"><div class="bar"></div>' +
+        (pct === null ? '' : '<div class="pin" style="left:' + Math.min(99, Math.max(1, pct)) +
+          '%"><b>' + T('您在這裡') + '</b></div>') +
+        ticks + '</div>' +
+      '<div class="hist">' + hist + '</div>' +
+
+      sect('分組對照',
+        T('把母體縮小到<b>條件跟您相近的人</b>——同行業、同年資、同區域、同學歷、同證照、同外語能力，分別看您在各組裡的位置。這比跟全體比更貼近您的實際處境。')) +
+      '<div class="gridcards">' + cards + '</div>' +
+      '<div class="bigmsg" style="margin-top:20px">' +
+        '<div class="bm-ic">' +
+          '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+          '<rect x="2.6" y="4.8" width="18.8" height="14.4" rx="2.6" stroke="#8a6516" stroke-width="1.8"/>' +
+          '<path d="m3.4 6.6 8.6 6.3 8.6-6.3" stroke="#8a6516" stroke-width="1.8" stroke-linejoin="round"/>' +
+          '</svg></div>' +
+        '<div><b>待調查完成後，會寄送調查報告到您的電子信箱</b>' +
+        '<em>' + (r.joinedDraw ? '已收到您的 Email，報告完成後會第一時間寄給您。'
+          : '您這次沒有留下 Email，將無法收到報告。') + '</em></div>' +
+      '</div>' +
+      (r.joinedDraw
+        ? '<div class="calc">已收到您的聯絡資訊。將於 ' + esc(BOOT.endRoc) + ' 調查結束後抽出 ' +
+          BOOT.drawWinners + ' 位致贈 ' + esc(BOOT.drawPrize) +
+          (r.hasAddress ? '，寄送到您填的地址' : '；您未填地址，中獎時會以 Email 寄送電子禮券') +
+          '，並在統計完成後把完整報告寄給您。再次提醒：您的聯絡資訊存放於獨立名單，與上面這份薪資資料無法對應。</div>'
+        : '') +
+    '</div>' +
+    '<div class="card exp-card">' +
+      '<div class="exp-row">' +
+        '<button id="expBtn" class="exp-btn">' + T('⬇ 匯出結果圖片') + '</button>' +
+        '<p>' + T('把上面整頁的對照結果存成一張 PNG，方便自己存檔，或在談薪水時拿出來佐證。') + '</p>' +
+      '</div><div id="expMsg" class="calc hidden"></div></div>' +
+    shareCard();
+
+  bindShare();
+  bindExport();
+  toTop();
+  // 數字跑動 + 長條升起
+  countUp($('#pctNum'), pct === null ? 0 : pct);
+  setTimeout(function () {
+    $$('.hist .b i').forEach(function (el) { el.style.height = el.dataset.h + 'px'; });
+  }, 80);
+}
+
+/* 樣本未達門檻：不給任何統計數字，只給感謝與報告回寄承諾 */
+function showLocked(r) {
+  var pct = Math.min(100, Math.round(r.totalN / r.minPublicN * 100));
+  $('#app').innerHTML =
+    '<div class="card flush anim">' +
+      '<div class="rhero thanks">' +
+        '<div class="tick-big">' +
+          '<svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+          '<path d="M4.5 12.4 9.6 17.5 19.5 7.2" stroke="#fff" stroke-width="2.6" ' +
+          'stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+        '<h2>' + T('感謝您的填寫，已收到您的回覆') + '</h2>' +
+        '<div class="lab">' + T('您的答案已匿名存入調查資料庫') + '</div>' +
+        '<div class="gauge"><div class="gfill" style="width:' + pct + '%"></div></div>' +
+        '<div class="lab">' + T('目前累積') + ' <b>' + r.totalN + '</b> / ' + r.minPublicN + ' ' + T('份') +
+        (r.totalN >= r.minPublicN ? '' : '　' + T('還差') + ' ' + (r.minPublicN - r.totalN) + ' ' + T('份')) + '</div>' +
+      '</div>' +
+
+      '<div class="bigmsg">' +
+        '<div class="bm-ic">' +
+          '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+          '<rect x="2.6" y="4.8" width="18.8" height="14.4" rx="2.6" stroke="#8a6516" stroke-width="1.8"/>' +
+          '<path d="m3.4 6.6 8.6 6.3 8.6-6.3" stroke="#8a6516" stroke-width="1.8" stroke-linejoin="round"/>' +
+          '</svg></div>' +
+        '<div><b>' + T('待調查完成後，會寄送調查報告到您的電子信箱') + '</b>' +
+        '<em>' + T(r.joinedDraw
+          ? '已收到您的 Email，報告完成後會第一時間寄給您。'
+          : '您這次沒有留下 Email，將無法收到報告。若仍想收到，歡迎重新填寫一次並留下信箱。') + '</em></div>' +
+      '</div>' +
+
+      '<div class="q"><p class="note" style="margin:0">' + (LANG === 'en'
+        ? 'To avoid misleading conclusions from a small sample, <b>no percentile or statistic is shown until we reach ' + r.minPublicN + ' responses</b>. The full analysis will be completed and emailed after the survey closes on ' + esc(BOOT.endRoc) + '.'
+        : '為避免樣本太少造成誤導，本調查在回收達 <b>' + r.minPublicN + ' 份</b>之前，<b>不提供任何百分位與統計數字</b>。調查於 ' + esc(BOOT.endRoc) + ' 結束後，會完成完整分析並寄送報告。') + '</p></div>' +
+
+      (r.joinedDraw
+        ? '<div class="calc">' + (LANG === 'en'
+          ? 'You are also entered into the draw: ' + BOOT.drawWinners + ' winners will each receive a ' + esc(T(BOOT.drawPrize)) +
+            (r.hasAddress ? ', posted to the address you gave. ' : '. You did not give an address, so a digital voucher will be emailed instead. ') +
+            'Your contact details sit in a separate list and cannot be linked to your answers.'
+          : '同時，您已進入抽獎名單，將於調查結束後抽出 ' + BOOT.drawWinners + ' 位致贈 ' + esc(BOOT.drawPrize) +
+            (r.hasAddress ? '，寄送到您填的地址。' : '；您未填地址，中獎時會以 Email 寄送電子禮券。') +
+            '您的聯絡資訊存放於獨立名單，與您的薪資答案無法對應。') + '</div>'
+        : '') +
+    '</div>' +
+    shareCard();
+  bindShare();
+  toTop();
+}
+
+// 分組卡標題由後端組出（例「同行業（外商）」），英文版要拆開來翻
+var GROUP_HEAD = { '同行業': 'Same industry', '同年資': 'Same seniority',
+                   '同區域': 'Same region', '同學歷': 'Same education',
+                   '同證照': 'Same licence level', '同外語能力': 'Same language level' };
+function groupLabel(s) {
+  if (LANG !== 'en') return s;
+  var m = String(s).match(/^(同行業|同年資|同區域|同學歷|同證照|同外語能力)（(.+)）$/);
+  return m ? (GROUP_HEAD[m[1]] + ' (' + T(m[2]) + ')') : s;
+}
+
+// 結果頁的區塊標題（比題目標題大一級，底下帶一行說明）
+function sect(title, desc) {
+  return '<div class="sect"><h3>' + T(title) + '</h3><p>' + desc + '</p></div>';
+}
+
+function cmpBar(label, value, max, cls) {
+  var w = Math.max(3, Math.round(value / max * 100));
+  return '<div class="cb ' + cls + '"><span class="cbl">' + esc(label) + '</span>' +
+    '<span class="cbt"><i style="width:' + w + '%"></i></span>' +
+    '<span class="cbv">' + fmt(value) + '</span></div>';
+}
+
+function countUp(el, target) {
+  if (!el) return;
+  var dur = 900, t0 = null;
+  function frame(t) {
+    if (!t0) t0 = t;
+    var k = Math.min(1, (t - t0) / dur);
+    var e = 1 - Math.pow(1 - k, 3);
+    el.textContent = (Math.round(target * e * 10) / 10).toFixed(1).replace(/\.0$/, '');
+    if (k < 1) requestAnimationFrame(frame); else el.textContent = target;
+  }
+  requestAnimationFrame(frame);
+}
+
+/* ── 匯出結果圖片 ──
+   html2canvas 第一次按才載入，不拖慢填問卷的過程。
+   GAS 把頁面包在 sandbox iframe 裡，<a download> 不一定會動，
+   所以一定會附一條「開啟圖片」的備援連結。 */
+var H2C_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+var h2cLoading = null;
+
+function loadH2C() {
+  if (window.html2canvas) return Promise.resolve(window.html2canvas);
+  if (h2cLoading) return h2cLoading;
+  h2cLoading = new Promise(function (ok, no) {
+    var s = document.createElement('script');
+    s.src = H2C_URL;
+    s.onload = function () { window.html2canvas ? ok(window.html2canvas) : no(new Error('load failed')); };
+    s.onerror = function () { h2cLoading = null; no(new Error('load failed')); };
+    document.head.appendChild(s);
+  });
+  return h2cLoading;
+}
+
+function exportStamp() {
+  var d = new Date(), p = function (n) { return (n < 10 ? '0' : '') + n; };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+
+function bindExport() {
+  var btn = $('#expBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    var node = $('#resultCard');
+    if (!node) return;
+    var msg = $('#expMsg');
+    btn.disabled = true;
+    btn.textContent = T('產生圖片中…');
+    msg.classList.add('hidden');
+
+    loadH2C().then(function (h2c) {
+      return h2c(node, {
+        backgroundColor: '#ffffff',
+        scale: Math.min(2, Math.max(1, window.devicePixelRatio || 1)),
+        useCORS: true,
+        logging: false,
+        onclone: function (doc) {
+          var c = doc.getElementById('resultCard');
+          if (!c) return;
+          // 進場動畫如果剛好跑到一半，截下來會是半透明的
+          c.classList.remove('anim');
+          Array.prototype.forEach.call(c.querySelectorAll('.anim'), function (el) {
+            el.classList.remove('anim');
+          });
+          // html2canvas 會把模糊陰影畫成一整塊實心灰，蓋住整張卡片，所以截圖時先拿掉
+          c.style.boxShadow = 'none';
+          Array.prototype.forEach.call(c.querySelectorAll('*'), function (el) {
+            el.style.boxShadow = 'none';
+          });
+          // html2canvas 不支援 writing-mode:vertical-rl，直排的級距標籤會壓到長條上，
+          // 改成一個字一行的橫排來模擬（高度維持 78px，長條才會對齊同一條基準線）
+          Array.prototype.forEach.call(c.querySelectorAll('.hist .b em'), function (em) {
+            em.innerHTML = em.textContent.split('').map(function (ch) {
+              return ch === '<' ? '&lt;' : ch === '&' ? '&amp;' : ch;
+            }).join('<br>');
+            em.style.writingMode = 'horizontal-tb';
+            em.style.lineHeight = '1.06';
+            em.style.textAlign = 'center';
+            em.style.whiteSpace = 'nowrap';
+            em.style.letterSpacing = '0';
+          });
+          // 圖片被轉發出去時還看得出是哪一份調查
+          var h = doc.createElement('div');
+          h.className = 'exp-head';
+          h.innerHTML = '<b>' + esc(T(BOOT.title)) + '</b>' +
+            '<span>' + esc(T('個人對照結果')) + '　' + exportStamp() + '</span>';
+          c.insertBefore(h, c.firstChild);
+          var f = doc.createElement('div');
+          f.className = 'exp-foot';
+          f.textContent = T('本圖僅為個人對照結果，非正式統計報告。') + ' ' + BOOT.webAppUrl;
+          c.appendChild(f);
+        }
+      });
+    }).then(function (canvas) {
+      return new Promise(function (ok) {
+        if (canvas.toBlob) canvas.toBlob(function (b) { ok(b); }, 'image/png');
+        else ok(null);
+      }).then(function (blob) {
+        var name = (LANG === 'en' ? 'salary-survey-result-' : '薪資調查結果_') +
+          BOOT.year + '_' + exportStamp() + '.png';
+        var url = blob ? URL.createObjectURL(blob) : canvas.toDataURL('image/png');
+        var a = document.createElement('a');
+        a.href = url; a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        msg.innerHTML = T('已匯出') + ' <b>' + esc(name) + '</b>。' +
+          T('沒看到檔案嗎？') + ' <a href="' + url + '" target="_blank" rel="noopener">' +
+          T('點這裡開啟圖片') + '</a>' + T('（長按或按右鍵即可另存）') + '。';
+        msg.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = T('⬇ 匯出結果圖片');
+      });
+    }).catch(function () {
+      msg.innerHTML = T('圖片產生失敗，可能是網路擋住了外部元件。請改用瀏覽器的截圖功能。');
+      msg.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = T('⬇ 匯出結果圖片');
+    });
+  });
+}
+
+function shareCard() {
+  return '<div class="card share-card">' +
+    '<div class="chead"><div class="cnum ico">' + ICON_SHARE + '</div>' +
+    '<div><h2>' + T('越多人填寫，參考價值越高') + '</h2>' +
+    '<p>' + T('這份調查的準確度完全取決於樣本數。<b>請協助轉發給其他環安衛夥伴一起填寫</b>，讓大家談薪水時手上都有依據，謝謝你！') + '</p></div></div>' +
+    '<div class="share">' +
+      '<button id="shCopy">' + T('🔗 複製連結') + '</button>' +
+      '<button id="shNative">' + T('📤 分享到…') + '</button>' +
+      '<a id="shLine" target="_blank" rel="noopener">💬 LINE</a>' +
+      '<a id="shFb" target="_blank" rel="noopener">👍 Facebook</a>' +
+    '</div><div id="shMsg" class="calc hidden"></div></div>';
+}
+
+function bindShare() {
+  var url = BOOT.webAppUrl;
+  var text = LANG === 'en'
+    ? '[' + T(BOOT.title) + '] Anonymous, ~5 minutes. ' + BOOT.drawWinners + ' participants win a ' +
+      T(BOOT.drawPrize) + '. Open until ' + BOOT.endRoc + '.'
+    : '【' + BOOT.title + '】匿名填寫，約 5 分鐘，調查完成後寄送完整報告，還能抽 ' +
+      BOOT.drawWinners + ' 份 ' + BOOT.drawPrize + '。調查截止日 ' + BOOT.endRoc;
+  $('#shLine').href = 'https://social-plugins.line.me/lineit/share?url=' + encodeURIComponent(url) +
+    '&text=' + encodeURIComponent(text);
+  $('#shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(url);
+
+  var msg = $('#shMsg');
+  function toast(t) {
+    msg.textContent = t; msg.classList.remove('hidden');
+    setTimeout(function () { msg.classList.add('hidden'); }, 2800);
+  }
+  $('#shCopy').addEventListener('click', function () {
+    var full = text + '\n' + url;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(full).then(
+        function () { toast(T('已複製分享文字與連結，貼到 LINE 或 FB 就可以了')); },
+        function () { fallbackCopy(full, toast); });
+    } else { fallbackCopy(full, toast); }
+  });
+  $('#shNative').addEventListener('click', function () {
+    if (navigator.share) { navigator.share({ title: BOOT.title, text: text, url: url }).catch(function () {}); }
+    else { toast(T('此瀏覽器不支援系統分享，請改用「複製連結」')); }
+  });
+}
+
+function fallbackCopy(t, toast) {
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); toast(T('已複製分享文字與連結')); }
+  catch (e) { toast(T('複製失敗，請手動複製網址列連結')); }
+  document.body.removeChild(ta);
+}
+
+function closedHTML() {
+  var before = new Date() < new Date(BOOT.start + 'T00:00:00+08:00');
+  return '<div class="card flush closed"><div class="em">' + (before ? '🗓️' : '✅') + '</div>' +
+    '<h2>' + T(before ? '調查尚未開始' : '本次調查已結束') + '</h2>' +
+    '<p class="note">' + T('調查截止日') + '：' + esc(BOOT.endRoc) + '</p>' +
+    (before ? '' : '<p class="note">' + T('感謝') + ' ' + BOOT.count + ' ' + T('位夥伴參與填答。') + '</p>' +
+      '<a class="btn p" style="margin-top:8px" target="_blank" rel="noopener" href="' +
+      esc(BOOT.webAppUrl) + '?page=report">' + T('查看分析報告 →') + '</a>') + '</div>';
+}
+
+/* ══════════ 啟動 ══════════ */
+function paintHero() {
+  // 頁首中英並列：目前語言在上、另一語言在下，兩邊的人都看得懂這是什麼調查
+  var en = (typeof DICT !== 'undefined' && DICT[BOOT.title]) || BOOT.title;
+  var enTag = (typeof DICT !== 'undefined' && DICT[BOOT.tagline]) || BOOT.tagline;
+  $('#hTitle').textContent = LANG === 'en' ? en : BOOT.title;
+  $('#hTitleAlt').textContent = LANG === 'en' ? BOOT.title : en;
+  $('#hTag').textContent = LANG === 'en' ? enTag : BOOT.tagline;
+  $('#hTagAlt').textContent = LANG === 'en' ? BOOT.tagline : enTag;
+  $('#hSub').textContent = T(BOOT.unlocked
+    ? '全程匿名，送出後立即看到你的年薪落在哪個百分位，並與同行業、同年資、同區域、同學歷、同證照、同外語能力的人對照。'
+    : '全程匿名，約 5 分鐘。調查結束後會把完整統計報告寄給留下 Email 的填答者。');
+  $('#hChips').innerHTML =
+    '<span class="chip">' + T('調查截止日') + ' <b>' + esc(BOOT.endRoc) + '</b></span>' +
+    '<span class="chip">' + T('已有') + ' <b>' + BOOT.count + '</b> ' + T('人填答') + '</span>' +
+    '<span class="chip">' + T('約') + ' <b>5 ' + T('分鐘') + '</b></span>' +
+    '<span class="chip hi">' + T('抽') + ' <b>' + BOOT.drawWinners + ' ' + T('位') + ' ' +
+      esc(T(BOOT.drawPrize)) + '</b></span>';
+}
+
+(function () {
+  $('#gear').href = BOOT.webAppUrl + '?page=admin';
+  $$('#langsw button').forEach(function (b) {
+    b.classList.toggle('on', b.dataset.lang === LANG);
+    b.addEventListener('click', function () { setLang(b.dataset.lang); });
+  });
+  document.documentElement.setAttribute('lang', LANG === 'en' ? 'en' : 'zh-Hant');
+  paintHero();
+  render(true);
+  if (BOOT.open) showIntro();
+})();
+</script>
