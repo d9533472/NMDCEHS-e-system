@@ -12619,12 +12619,12 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
             <text x="880" y="192" text-anchor="middle" font-size="9" font-family="ui-monospace,Consolas,monospace" fill="#b26a00">ReturnedForCorrection</text>
           </svg>
         </div>
-        <div class="rm-cap"><b>圖一</b>　實線＝往前推進，每一步都需要當關人員的電子簽名。紅色虛線＝退回申請人（Tier 2–5 都可以，Tier 2 只有這個選項）。橘色＝退回上一關（只有 Tier 3–5 有）。承商職安衛自己申請的單不得自審，送出後直接跳到 Tier 3。</div>
+        <div class="rm-cap" data-l>圖一：實線＝往前推進，每一步都需要當關人員的電子簽名。紅色虛線＝退回申請人（Tier 2–5 都可以，Tier 2 只有這個選項）。橘色＝退回上一關（只有 Tier 3–5 有）。承商職安衛自己申請的單不得自審，送出後直接跳到 Tier 3。｜Figure 1: solid arrows move the permit forward, and every step needs the reviewer electronic signature. Red dashed = returned to the applicant (any of Tier 2 to 5; Tier 2 has no other option). Amber = returned one tier (Tier 3 to 5 only). A permit raised by Contractor HSE skips Tier 2 and goes straight to Tier 3.</div>
         <div class="row g-2 mt-2">
-          <div class="col-md-3"><div class="rm-lg ok"><div class="t">往前一關 Approve</div><div class="d">須電子簽名；Tier 2–4 核准前必須勾選「已完整審閱 MS 與 RA」。可指定下一關的審閱人。</div></div></div>
-          <div class="col-md-3"><div class="rm-lg ret"><div class="t">退回申請人 Returned</div><div class="d">既有簽名<b>全部作廢</b>，修改後重送＝版本 +1，一律<b>從 Tier 2 重跑</b>。</div></div></div>
-          <div class="col-md-3"><div class="rm-lg cor"><div class="t">退回上一關 Correction</div><div class="d">只倒退一步，<b>簽名保留</b>，該關修正後可直接續行。</div></div></div>
-          <div class="col-md-3"><div class="rm-lg"><div class="t">退回的共同規則</div><div class="d">一律必填「退回原因」＋ Comment；通知寄給申請人與主／副持有人。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg ok"><div class="t">往前一關 Approve</div><div class="d" data-l>須電子簽名；Tier 2–4 核准前必須勾選「已完整審閱 MS 與 RA」。可指定下一關的審閱人。｜An electronic signature is required. Tier 2 to 4 must confirm they have reviewed the MS and RA. The next reviewer may be nominated.</div></div></div>
+          <div class="col-md-3"><div class="rm-lg ret"><div class="t">退回申請人 Returned</div><div class="d" data-l>既有簽名全部作廢，修改後重送＝版本 +1，一律從 Tier 2 重跑。｜All existing signatures are voided. A resubmission bumps the version and always restarts at Tier 2.</div></div></div>
+          <div class="col-md-3"><div class="rm-lg cor"><div class="t">退回上一關 Correction</div><div class="d" data-l>只倒退一步，簽名保留，該關修正後可直接續行。｜Steps back one tier only. Signatures are kept and the flow continues once that tier has fixed the issue.</div></div></div>
+          <div class="col-md-3"><div class="rm-lg"><div class="t">退回的共同規則</div><div class="d" data-l>一律必填「退回原因」＋ Comment；通知寄給申請人與主／副持有人。｜A return reason and a comment are always mandatory. The applicant and the permit holders are notified.</div></div></div>
         </div>
       </div>
 
@@ -12703,12 +12703,12 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
             <text x="516" y="208" text-anchor="middle" font-size="11" font-weight="700" fill="#b26a00">有意見 → 退回上一關　Objection → previous step</text>
           </svg>
         </div>
-        <div class="rm-cap"><b>圖二</b>　關卡編號沿用簽核的 Tier（系統欄位 coCurrentTier 即 2–5）。申報完工前，關單必附文件必須先上傳齊全，否則系統擋下。四關確認鏈每一關都要電子簽名。Tier 2（承商職安衛）有意見是<b>退回申請人</b>，整張單回到 Active、確認鏈清空，重新整理附件後再申報一次；Tier 3 之後有意見只退回上一關。</div>
+        <div class="rm-cap" data-l>圖二：關卡編號沿用簽核的 Tier（系統欄位 coCurrentTier 即 2–5）。申報完工前，關單必附文件必須先上傳齊全，否則系統擋下。四關確認鏈每一關都要電子簽名。Tier 2（承商職安衛）有意見是退回申請人，整張單回到 Active、確認鏈清空，重新整理附件後再申報一次；Tier 3 之後有意見只退回上一關。｜Figure 2: close-out steps reuse the approval Tier numbers (field coCurrentTier = 2 to 5). Every required close-out record must be uploaded before completion can be declared, and each confirmation needs an electronic signature. An objection at Tier 2 returns the permit to the applicant: the status goes back to Active and the confirmation chain is cleared. From Tier 3 on, an objection only steps back one tier.</div>
         <div class="row g-2 mt-2">
-          <div class="col-md-3"><div class="rm-lg"><div class="t">誰可以申報完工</div><div class="d">該承商公司的任何人員都可以（同事代報），Tier 5 與管理員亦可。未到期也能<b>提前關單</b>。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg"><div class="t">誰可以申報完工</div><div class="d" data-l>該承商公司的任何人員都可以（同事代報），Tier 5 與管理員亦可。未到期也能提前關單。｜Anyone from the permit holding company may declare completion, as may Tier 5 and administrators. Early close-out before expiry is allowed.</div></div></div>
           <div class="col-md-3"><div class="rm-lg"><div class="t">可申報的狀態</div><div class="d"><span class="rm-key">Active　Extended　Suspended　Expired</span></div></div></div>
-          <div class="col-md-3"><div class="rm-lg ok"><div class="t">關閉之後</div><div class="d">產生關單 PDF 存入 <span class="rm-key">05_Close_out_evidence</span>，並寄給申請人。</div></div></div>
-          <div class="col-md-3"><div class="rm-lg ret"><div class="t">擋關的錯誤</div><div class="d"><span class="rm-key">CLOSEOUT_DOCS_REQUIRED</span> 必附文件沒上傳齊，連完工申報都送不出去。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg ok"><div class="t">關閉之後</div><div class="d"><span data-l>產生關單 PDF 並寄給申請人，存檔於｜A close-out PDF is generated, emailed to the applicant and filed under</span> <span class="rm-key">05_Close_out_evidence</span></div></div></div>
+          <div class="col-md-3"><div class="rm-lg ret"><div class="t">擋關的錯誤</div><div class="d"><span class="rm-key">CLOSEOUT_DOCS_REQUIRED</span><br><span data-l>必附文件沒上傳齊，連完工申報都送不出去。｜Completion cannot be declared until every required record has been uploaded.</span></div></div></div>
         </div>
       </div>
 
@@ -12728,7 +12728,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
           </tbody>
         </table>
       </div>
-      <p class="small text-muted mb-1" data-l><b>附加證書</b>：勾了作業類型，就必須把對應證書填到「完成 Complete」才送得出去。證書在系統內線上填寫，不是另外上傳的檔案。｜Selecting a work type requires its certificate to reach status Complete; certificates are filled in online, not uploaded.</p>
+      <p class="small text-muted mb-1" data-l>附加證書：勾了作業類型，就必須把對應證書填到「完成 Complete」才送得出去。證書在系統內線上填寫，不是另外上傳的檔案。｜Selecting a work type requires its certificate to reach status Complete; certificates are filled in online, not uploaded.</p>
       <div class="row g-2">
         <div class="col-md-3"><div class="rm-cert"><span class="c">HW</span><span class="n">動火作業許可證<span class="rm-en">Hot Work Permit</span></span></div></div>
         <div class="col-md-3"><div class="rm-cert"><span class="c">CS</span><span class="n">侷限空間作業證書<span class="rm-en">Confined Space Entry</span></span></div></div>
