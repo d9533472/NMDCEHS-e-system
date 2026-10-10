@@ -11934,7 +11934,31 @@ function diagContinuation() {
  * auditOrphanDriveFolders()      → 只列印，不動任何東西
  * moveOrphansToSuperceded(true)  → 真的搬進 00_Superceded（要先看過上面的清單）
  */
+/**
+ * 把所有「仍在系統裡」的 PTW 資料夾改名成目前的正式編號。
+ * ptwFolder_ 已經會在每次寫檔時自我修復，但存量資料夾不會自己動，用這支一次補正。
+ * 已關閉（Closed）的 PTW 仍算在系統裡，一樣會改名、不會被當成孤兒。
+ */
+function renameLivePtwFolders() {
+  var done = 0, skip = 0, fail = 0;
+  Repo.readAll('PTW_Master').forEach(function (p) {
+    if (!asBool_(p.isActive) || !p.driveFolderId) return;
+    var want = p.ptwNumber || p.tempNumber;
+    if (!want) return;
+    try {
+      var f = DriveApp.getFolderById(p.driveFolderId);
+      if (f.getName() === want) { skip++; return; }
+      console.log('  ' + f.getName() + '  →  ' + want + '   (' + p.status + ')');
+      f.setName(want); done++;
+    } catch (e) { fail++; console.error('  ' + want + ' 改名失敗：' + e.message); }
+  });
+  console.log('改名完成：' + done + ' 個；本來就正確：' + skip + ' 個；失敗：' + fail + ' 個');
+  return done;
+}
+
 function auditOrphanDriveFolders() { return orphanScan_(false); }
+/** 編輯器選單沒辦法帶參數，這支就是 moveOrphansToSuperceded(true) 的捷徑 */
+function moveOrphansToSupercededNow() { return orphanScan_(true); }
 function moveOrphansToSuperceded(confirm) {
   if (confirm !== true) {
     console.log('安全鎖：確定要搬移請執行 moveOrphansToSuperceded(true)。先跑 auditOrphanDriveFolders() 看清單。');
