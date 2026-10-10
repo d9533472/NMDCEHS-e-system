@@ -702,9 +702,9 @@ var AuditService = (function () {
     return s.length > 4000 ? s.substring(0, 4000) + '…[truncated]' : s;
   }
 
-  /** Admin / Tier 5 查詢 */
+  /** 系統稽核日誌查詢（後台功能，限系統管理員） */
   function list(user, payload) {
-    SecurityService.requireAdminOrTier5(user);
+    SecurityService.requireAdmin(user);
     var rows = Repo.readAll('AuditLog');
     var f = payload || {};
     if (f.userId) rows = rows.filter(function (r) { return r.userId === f.userId; });
@@ -732,13 +732,32 @@ var AuditService = (function () {
 
 var SecurityService = (function () {
 
-  /** 系統管理員或 Tier 5（PTW Coordinator）— Tier 5 擁有全部權限 */
-  function requireAdmin(user) {
-    if (!user || (!asBool_(user.isAdmin) && Number(user.tier) !== 5)) {
-      throw ApiError_('FORBIDDEN', 'Administrator or Tier 5 only', '僅限系統管理員或 Tier 5');
-    }
+  /** 系統是否還沒有任何啟用中的管理員（尚未指派第一位管理員的引導狀態） */
+  function noAdminYet_() {
+    return !Repo.findOne('Users', function (u) {
+      return asBool_(u.isAdmin) && u.status === 'Active' && asBool_(u.isActive);
+    });
   }
 
+  /**
+   * 系統管理員專用。Tier 5 是「PTW 協調員」這個作業角色，不等於系統管理員；
+   * 管理員權限一律要在「使用者管理」勾選「系統管理員」才取得（欄位 isAdmin，限 Tier 5 可勾）。
+   * 協調員才需要的作業權限請改用 requireAdminOrTier5()。
+   */
+  function requireAdmin(user) {
+    if (!user) throw ApiError_('FORBIDDEN', 'Administrator only', '僅限系統管理員');
+    if (asBool_(user.isAdmin)) return;
+    // 引導例外：系統內還沒有任何管理員時，Tier 5 可暫時進入後台指派第一位管理員；
+    // 一旦有人被勾選為管理員，這個例外就自動失效。
+    if (Number(user.tier) === 5 && noAdminYet_()) {
+      console.warn('requireAdmin bootstrap: no active administrator exists, temporarily allowing Tier 5 ' + user.email);
+      return;
+    }
+    throw ApiError_('FORBIDDEN', 'Administrator only — ask an administrator to grant it in User Management',
+      '僅限系統管理員（Tier 5 不等於管理員，請由管理員在「使用者管理」中勾選「系統管理員」）');
+  }
+
+  /** 管理員或 PTW 協調員（Tier 5）：啟用／暫停／恢復／關閉、報表等協調員作業 */
   function requireAdminOrTier5(user) {
     if (!user || (!asBool_(user.isAdmin) && Number(user.tier) !== 5)) {
       throw ApiError_('FORBIDDEN', 'Administrator or Tier 5 only', '僅限系統管理員或 Tier 5');
@@ -2071,9 +2090,13 @@ var UserService = (function () {
         throw ApiError_('BAD_TIER', 'Tier must be 1–5', 'Tier 須為 1–5');
       }
     }
+    // 管理員權限只能由此勾選取得，且僅 Tier 5 可兼任；被調離 Tier 5 時一併收回，
+    // 否則會留下「Tier 3 卻還是管理員」的孤兒權限
+    var newTier = patch.tier !== undefined ? patch.tier : Number(target.tier);
     if (patch.isAdmin !== undefined) {
-      var newTier = patch.tier !== undefined ? patch.tier : Number(target.tier);
       patch.isAdmin = asBool_(patch.isAdmin) && newTier === 5;
+    } else if (newTier !== 5 && asBool_(target.isAdmin)) {
+      patch.isAdmin = false;
     }
     var updated = Repo.update('Users', target.id, patch, user.id);
     AuditService.log({ user: user, actionType: 'USER_UPDATE', entityType: 'User', entityId: target.id,
@@ -14232,7 +14255,7 @@ function openUserEdit(uid){
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isHse"'+((r.isHse===true||r.isHse==='TRUE')?' checked':'')+'>'+
       '<label class="form-check-label small" for="ue_isHse">'+(Z?'HSE 人員（不可任持有人）':'HSE (cannot be a holder)')+'</label></div></div>'+
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isAdmin"'+((r.isAdmin===true||r.isAdmin==='TRUE')?' checked':'')+'>'+
-      '<label class="form-check-label small" for="ue_isAdmin">'+(Z?'系統管理員（限 Tier 5）':'Admin (Tier 5 only)')+'</label></div></div>'+
+      '<label class="form-check-label small" for="ue_isAdmin">'+(Z?'系統管理員（限 Tier 5 可勾；Tier 5 不會自動取得）':'Administrator (Tier 5 only — not granted automatically)')+'</label></div></div>'+
     '</div>'+
     '<div class="d-flex gap-2 mt-3 justify-content-end">'+
     '<button class="btn btn-sm btn-outline-secondary" onclick="closeUserEdit()">'+(Z?'取消':'Cancel')+'</button>'+
@@ -14486,7 +14509,8 @@ function loadNumbers(){
 }
 /* 右上角帳號選單：登入/註冊/我的帳號/系統管理/登出 */
 function renderAcctMenu(u){
-  var isAdm=!!(u&&(asB(u.isAdmin)||Number(u.tier)===5));
+  // Tier 5 是 PTW 協調員，不等於系統管理員；後台入口只看 isAdmin（在使用者管理勾選）
+  var isAdm=!!(u&&asB(u.isAdmin));
   var h='';
   if(u){
     $('acctMenuLabel').innerHTML='👤 '+esc((lang==='zh'?(u.nameZh||u.nameEn):(u.nameEn||u.nameZh))||'');
@@ -14516,7 +14540,7 @@ function renderHomeButtons(u){
   var colors={'home.btnTraining':'#7b1fa2','home.btnPtw':'#0b6bcb','home.btnMyPtw':'#2e7d32','home.btnInbox':'#c62828'};
   var h='';
   defs.forEach(function(d){
-    if(d.adminOnly && !(u&&(asB(u.isAdmin)||Number(u.tier)===5))) return;
+    if(d.adminOnly && !(u&&asB(u.isAdmin))) return;
     var c=colors[d.key]||'#0b3a5c';
     h+='<div class="col-6 col-md-3"><button class="hbtn" onclick="'+d.fn+'">'+
       '<span class="ic" style="background:linear-gradient(160deg,'+c+','+c+'cc)">'+d.icon+
@@ -14597,7 +14621,15 @@ function copyFallback_(t,done){
     document.body.removeChild(ta); done();
   }catch(e){ toast(lang==='zh'?'複製失敗，請手動選取網址':'Copy failed — please select the address manually'); }
 }
-function gotoAdmin(){ showView('admin'); renderAdmin(); }
+function gotoAdmin(){
+  var u=getUser();
+  if(!(u&&asB(u.isAdmin))){
+    toast(lang==='zh'?'僅限系統管理員（Tier 5 不等於管理員，請由管理員在「使用者管理」中開放）'
+                     :'Administrator only — Tier 5 is not an administrator; ask an administrator to grant it in User Management');
+    return;
+  }
+  showView('admin'); renderAdmin();
+}
 function scrollToQueue(){ $('queueList').scrollIntoView({behavior:'smooth',block:'center'}); }
 /* 待辦與通知合併：捲到待您審核區並展開通知面板 */
 function openInbox(){
@@ -16187,8 +16219,9 @@ var STATUS_BADGE={Draft:'secondary',Submitted:'primary',PendingTier2Review:'warn
  WorkCompleted:'success',PendingCloseout:'warning text-dark',Closed:'dark',Cancelled:'secondary'};
 function statusBadge(s){ return '<span class="badge bg-'+(STATUS_BADGE[s]||'secondary')+'">'+esc(SN(s))+'</span>'; }
 
-/** 清單刪除鍵：僅系統管理員（或 Tier 5）可見；後端 ptw.delete 亦同樣把關 */
-function canDeletePtw(){ var u=getUser(); return !!(u&&(asB(u.isAdmin)||Number(u.tier)===5)); }
+/** 清單刪除鍵：僅系統管理員可見。刪除 PTW 是後台權限、不是協調員作業，
+ *  後端 PTWService.deletePtw 走 requireAdmin 同樣把關 */
+function canDeletePtw(){ var u=getUser(); return !!(u&&asB(u.isAdmin)); }
 /** 清除 PTW 清單快取（刪除後避免舊資料被快取重繪回來） */
 function clearPtwListCache(){
   try{ var del=[]; for(var i=0;i<sessionStorage.length;i++){ var k=sessionStorage.key(i);
@@ -16339,7 +16372,7 @@ function renderLifeBar(){
   if(asB(u.isAdmin)&&s==='PendingCloseout')
     btns.push('<button class="btn btn-sm btn-outline-dark" onclick="doClose(true)">🔒 '+
       L('強制關閉（不產生關單文件）｜Force close (no close-out record)')+'</button>');
-  if((asB(u.isAdmin)||Number(u.tier)===5)&&cur.id&&!isMyReviewTurn())
+  if(asB(u.isAdmin)&&cur.id&&!isMyReviewTurn())
     btns.push('<button class="btn btn-sm btn-danger" onclick="doDeletePtw()">🗑 '+T('ptw.delete')+'</button>');
   // 關單文件：申報完工後可預覽，正式關閉後為最終版（含四關結案簽名）
   if(['PendingCloseout','Closed'].indexOf(s)>=0)
@@ -16693,7 +16726,8 @@ function compareVersions(){
 function renderAdminStage(){
   var w=$('adminStageWrap'); if(!w) return;
   var u=getUser()||{};
-  var isAdm=u.isAdmin===true||u.isAdmin==='TRUE'||Number(u.tier)===5;
+  // 直接跳關是管理員覆寫，不是協調員日常作業
+  var isAdm=u.isAdmin===true||u.isAdmin==='TRUE';
   if(!isAdm||!cur||['Closed','Cancelled'].indexOf(cur.status)>=0){ w.innerHTML=''; return; }
   var Z=(lang==='zh');
   var opts=[
