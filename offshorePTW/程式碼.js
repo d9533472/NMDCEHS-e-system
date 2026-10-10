@@ -10356,6 +10356,9 @@ function runAllTests_M33() {
   return results;
 }
 
+/** 自我測試共用的 1x1 透明 PNG 簽名檔：結案確認（closeoutConfirm）強制要簽名，測試也必須帶 */
+var TEST_SIG_ = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+
 /** M3.4 簽核流程測試（需先跑 M31–M33 產生 PendingTier2 的 PTW） */
 function runAllTests_M34() {
   var results = [];
@@ -10575,10 +10578,10 @@ function runAllTests_M41() {
     assert(mCo.status === CFG.STATUS.PENDING_CLOSEOUT && Number(mCo.coCurrentTier) === 2, 'not pending closeout at T2 (contractor HSE)');
     // 順序：T4 不能先確認
     var denied2 = false;
-    try { LifecycleService.closeoutConfirm(t4, { ptwId: ptwId }); } catch (e) { denied2 = (e.apiCode === 'NOT_YOUR_TURN'); }
+    try { LifecycleService.closeoutConfirm(t4, { ptwId: ptwId, signatureDataUrl: TEST_SIG_ }); } catch (e) { denied2 = (e.apiCode === 'NOT_YOUR_TURN'); }
     assert(denied2, 'T4 confirmed out of order');
     // 第一關：承商職安衛（T2，限本公司）
-    var r2co = LifecycleService.closeoutConfirm(t2, { ptwId: ptwId });
+    var r2co = LifecycleService.closeoutConfirm(t2, { ptwId: ptwId, signatureDataUrl: TEST_SIG_ });
     assert(r2co.data.nextTier === 3 && !r2co.data.closed, 'T2 (contractor HSE) confirm did not advance');
     // T5 也不能在 T3/T4 未確認前直接關閉
     var t5NonAdmin = Repo.findOne('Users', function (u) { return Number(u.tier) === 5 && !asBool_(u.isAdmin) && asBool_(u.isActive); });
@@ -10587,11 +10590,17 @@ function runAllTests_M41() {
       try { LifecycleService.close(t5NonAdmin, { ptwId: ptwId }); } catch (e) { denied3 = (e.apiCode === 'CLOSEOUT_PENDING'); }
       assert(denied3, 'T5 closed before 3-dept confirmation');
     }
-    var r3 = LifecycleService.closeoutConfirm(t3, { ptwId: ptwId });
+    var r3 = LifecycleService.closeoutConfirm(t3, { ptwId: ptwId, signatureDataUrl: TEST_SIG_ });
     assert(r3.data.nextTier === 4 && !r3.data.closed, 'T3 confirm did not advance');
-    var r4 = LifecycleService.closeoutConfirm(t4, { ptwId: ptwId });
+    var r4 = LifecycleService.closeoutConfirm(t4, { ptwId: ptwId, signatureDataUrl: TEST_SIG_ });
     assert(r4.data.nextTier === 5, 'T4 confirm did not advance');
-    var r5 = LifecycleService.closeoutConfirm(t5, { ptwId: ptwId, comment: 'Confirmed' });
+    // 即使輪到 T5，非管理員也不能改用 ptw.close 繞過：那條路不留簽名、不產生關單文件
+    if (t5NonAdmin) {
+      var denied4 = false;
+      try { LifecycleService.close(t5NonAdmin, { ptwId: ptwId }); } catch (e) { denied4 = (e.apiCode === 'CLOSEOUT_PENDING'); }
+      assert(denied4, 'T5 bypassed the close-out chain with ptw.close at the final step');
+    }
+    var r5 = LifecycleService.closeoutConfirm(t5, { ptwId: ptwId, comment: 'Confirmed', signatureDataUrl: TEST_SIG_ });
     assert(r5.data.closed === true, 'T5 confirm did not close');
     var m3 = Repo.getById('PTW_Master', ptwId);
     assert(m3.status === CFG.STATUS.CLOSED && m3.closedAt, 'not closed');
@@ -11166,7 +11175,7 @@ function runAllTests_M42() {
     });
     LifecycleService.requestClosure(t1, { ptwId: pid, wcDeclarationAccepted: true });
     // T2 無意見 → T3
-    LifecycleService.closeoutConfirm(t2, { ptwId: pid });
+    LifecycleService.closeoutConfirm(t2, { ptwId: pid, signatureDataUrl: TEST_SIG_ });
     // T3 有意見 → 退回 T2
     var r1 = LifecycleService.closeoutReturn(t3, { ptwId: pid, comment: '附件不齊' });
     assert(r1.data.to === 'tier2', 'not returned to tier2: ' + r1.data.to);
@@ -11179,10 +11188,10 @@ function runAllTests_M42() {
     assert(m2.status === CFG.STATUS.ACTIVE && !m2.coCurrentTier, 'not back to Active');
     // 申請人重新申報 → 全鏈確認 → Closed
     LifecycleService.requestClosure(t1, { ptwId: pid, wcDeclarationAccepted: true });
-    LifecycleService.closeoutConfirm(t2, { ptwId: pid });
-    LifecycleService.closeoutConfirm(t3, { ptwId: pid });
-    LifecycleService.closeoutConfirm(t4, { ptwId: pid });
-    var r5 = LifecycleService.closeoutConfirm(t5, { ptwId: pid, comment: 'ok' });
+    LifecycleService.closeoutConfirm(t2, { ptwId: pid, signatureDataUrl: TEST_SIG_ });
+    LifecycleService.closeoutConfirm(t3, { ptwId: pid, signatureDataUrl: TEST_SIG_ });
+    LifecycleService.closeoutConfirm(t4, { ptwId: pid, signatureDataUrl: TEST_SIG_ });
+    var r5 = LifecycleService.closeoutConfirm(t5, { ptwId: pid, comment: 'ok', signatureDataUrl: TEST_SIG_ });
     assert(r5.data.closed === true, 'final close failed');
     assert(Repo.getById('PTW_Master', pid).status === CFG.STATUS.CLOSED, 'not closed');
   });
@@ -11339,8 +11348,8 @@ function runAllTests_M42() {
     ApprovalService.adminForceStage(admin, { ptwId: pid, target: 'CO4', reason: '結案跳關測試' }, {});
     var m4 = Repo.getById('PTW_Master', pid);
     assert(m4.status === CFG.STATUS.PENDING_CLOSEOUT && Number(m4.coCurrentTier) === 4, 'jump to CO4 failed');
-    LifecycleService.closeoutConfirm(t4, { ptwId: pid });
-    var r5 = LifecycleService.closeoutConfirm(t5, { ptwId: pid });
+    LifecycleService.closeoutConfirm(t4, { ptwId: pid, signatureDataUrl: TEST_SIG_ });
+    var r5 = LifecycleService.closeoutConfirm(t5, { ptwId: pid, signatureDataUrl: TEST_SIG_ });
     assert(r5.data.closed === true && Repo.getById('PTW_Master', pid).status === CFG.STATUS.CLOSED,
       'close after CO4 jump failed');
     // 已關閉不可再調整
@@ -12031,6 +12040,35 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
 #viewAdmin .card-x{border:1px solid var(--line);border-top:3px solid var(--navy);border-radius:10px;
  box-shadow:0 1px 3px rgba(0,32,56,.06)}
 #viewAdmin .table thead th{background:var(--foam);color:var(--navy);border-bottom:2px solid var(--line)}
+/* 流程圖頁籤 Route Map */
+#tabRouteMap .rm-fig{margin:0 0 20px}
+#tabRouteMap .rm-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+#tabRouteMap .rm-tag{font-size:.76rem;letter-spacing:.09em;color:var(--muted);text-transform:uppercase}
+#tabRouteMap .rm-paper{background:#f8fbfd;border:1px solid var(--line);border-radius:8px;padding:12px 10px;overflow-x:auto}
+#tabRouteMap .rm-paper svg{display:block;min-width:780px;width:100%;height:auto}
+#tabRouteMap .rm-cap{font-size:.83rem;color:var(--muted);margin-top:8px;line-height:1.7}
+#tabRouteMap .rm-cap b{color:var(--ink);font-weight:600}
+#tabRouteMap .rm-lg{border-left:3px solid var(--line);padding:1px 0 1px 10px;height:100%}
+#tabRouteMap .rm-lg .t{font-size:.86rem;font-weight:700}
+#tabRouteMap .rm-lg .d{font-size:.79rem;color:var(--muted);line-height:1.6}
+#tabRouteMap .rm-lg.ret{border-left-color:#b02121}
+#tabRouteMap .rm-lg.ret .t{color:#b02121}
+#tabRouteMap .rm-lg.cor{border-left-color:#b26a00}
+#tabRouteMap .rm-lg.cor .t{color:#b26a00}
+#tabRouteMap .rm-lg.ok{border-left-color:var(--accent)}
+#tabRouteMap .rm-lg.ok .t{color:var(--accent2)}
+#tabRouteMap .rm-key{font-family:ui-monospace,Consolas,monospace;font-size:.76rem;color:var(--navy2);white-space:nowrap}
+#tabRouteMap .rm-en{display:block;font-size:.76rem;color:var(--muted)}
+#tabRouteMap .rm-trig{font-size:.78rem;color:var(--muted);white-space:nowrap}
+#tabRouteMap .pq{display:inline-block;font-size:.73rem;padding:1px 9px;border-radius:999px;color:#fff;white-space:nowrap}
+#tabRouteMap .pq.req{background:#b02121}
+#tabRouteMap .pq.rec{background:#b26a00}
+#tabRouteMap .pq.opt{background:transparent;color:var(--muted);border:1px solid var(--line)}
+#tabRouteMap .rm-cert{display:flex;gap:8px;align-items:baseline;border:1px solid var(--line);border-radius:6px;padding:6px 10px;height:100%}
+#tabRouteMap .rm-cert .c{font-family:ui-monospace,Consolas,monospace;font-weight:700;font-size:.82rem;color:var(--accent2)}
+#tabRouteMap .rm-cert .n{font-size:.84rem;line-height:1.35}
+#tabRouteMap .rm-cert.none{border-style:dashed}
+#tabRouteMap .rm-cert.none .c{color:var(--muted)}
 .adminBanner{background:var(--navy);color:#fff;border-radius:10px;
  padding:16px 22px;margin-bottom:14px;position:relative;overflow:hidden;
  border-bottom:3px solid var(--accent)}
@@ -12230,6 +12268,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabReports" type="button" onclick="loadReports()">📊 <span data-i18n="rp.title">Reports</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabAudit" type="button" data-i18n="admin.audit">Audit Trail</button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabFlowChart" type="button" onclick="loadFlowChart()">🗂 <span data-i18n="admin.flowChart">Approval Flow</span></button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabRouteMap" type="button">🗺 <span data-i18n="admin.routeMap">Route Map</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabNumbers" type="button" onclick="loadNumbers()">🔢 <span data-i18n="admin.numbers">Numbers</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabIssueMail" type="button" onclick="loadIssueList()">📬 <span data-l>核發通知 Issue Mail</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabTestMode" type="button">🧪 <span data-i18n="tm.title">Test Mode</span></button></li>
@@ -12494,6 +12533,238 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
         <p class="small text-muted mb-2" data-i18n="admin.flowChartHint">Approval authority chart — click a name to view the person's details.</p>
         <div id="flowChartWrap" class="small text-muted">—</div>
       </div>
+    </div>
+    <!-- 🗺 流程圖 Route Map（靜態說明頁；兩張圖可匯出 SVG／PNG 供簡報使用） -->
+    <div class="tab-pane fade" id="tabRouteMap">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+        <h6 class="mb-0">🗺 <span data-l>PTW 簽核與關單流程圖｜Approval &amp; Close-out Route Map</span></h6>
+        <span class="small text-muted" data-l>每張圖都可匯出 SVG／PNG 放進簡報｜Export each figure as SVG or PNG for slides</span>
+      </div>
+      <p class="small text-muted mb-3" data-l>從 Tier 1 開單到 Tier 5 核發、中途退回會發生什麼事、完工後四關結案確認，以及每一段務必附上的文件。內容與系統目前的檢核規則一致。｜Draft to issue, what happens on a return, the four close-out confirmations, and the documents required at each stage — mirroring the checks the system actually enforces.</p>
+
+      <!-- ===== 圖一：審核主流程 ===== -->
+      <div class="rm-fig">
+        <div class="rm-bar">
+          <span class="rm-tag">Figure 1 — 申請到核發 Draft to Issue</span>
+          <span class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="exportRouteFig('rmFig1','PTW-approval-route','svg')">⬇ SVG</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="exportRouteFig('rmFig1','PTW-approval-route','png')">⬇ PNG</button>
+          </span>
+        </div>
+        <div class="rm-paper">
+          <svg id="rmFig1" viewBox="0 0 1040 224" role="img"
+               aria-label="PTW 審核流程：Tier 1 草稿送審後依序經 Tier 2 承商職安衛、Tier 3 NMDC 施工部門、Tier 4 NMDC 環安衛、Tier 5 協調員核准後核發生效；Tier 2 至 Tier 5 皆可退回申請人，Tier 3 至 Tier 5 另可退回上一關。"
+               font-family="'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif">
+            <defs>
+              <marker id="rmA1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#002038"/></marker>
+              <marker id="rmR1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b02121"/></marker>
+              <marker id="rmO1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b26a00"/></marker>
+            </defs>
+            <text x="429" y="21" text-anchor="middle" font-size="11" font-weight="700" fill="#b02121">退回申請人　Return to Applicant</text>
+            <path d="M255,74 L255,40 M429,74 L429,40 M603,74 L603,40 M777,74 L777,40" stroke="#b02121" stroke-width="1.4" fill="none" stroke-dasharray="4 3"/>
+            <path d="M777,40 L81,40 L81,73" stroke="#b02121" stroke-width="1.6" fill="none" marker-end="url(#rmR1)"/>
+            <text x="700" y="53" text-anchor="middle" font-size="9" font-family="ui-monospace,Consolas,monospace" fill="#b02121">ReturnedForRevision</text>
+            <g stroke="#002038" stroke-width="1.6" fill="none" marker-end="url(#rmA1)">
+              <path d="M149,112 L183,112"/><path d="M323,112 L357,112"/><path d="M497,112 L531,112"/><path d="M671,112 L705,112"/><path d="M845,112 L879,112"/>
+            </g>
+            <g font-size="9.5" text-anchor="middle" fill="#002038">
+              <text x="166" y="105">送審</text><text x="340" y="105">核准</text><text x="514" y="105">核准</text><text x="688" y="105">核准</text><text x="862" y="105">核發</text>
+            </g>
+            <g>
+              <rect x="13" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#5f6f7e" stroke-width="1.4"/>
+              <text x="81" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#5f6f7e">TIER 1</text>
+              <text x="81" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">申請人　開單</text>
+              <text x="81" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Applicant · Draft</text>
+              <text x="81" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#5f6f7e">Draft-OPTW-####</text>
+            </g>
+            <g>
+              <rect x="187" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="255" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 2</text>
+              <text x="255" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">承商職安衛</text>
+              <text x="255" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Contractor HSE</text>
+              <text x="255" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">PendingTier2Review</text>
+            </g>
+            <g>
+              <rect x="361" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="429" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 3</text>
+              <text x="429" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">NMDC 施工部門</text>
+              <text x="429" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">D&amp;M or Energy — by Scope</text>
+              <text x="429" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">PendingTier3Review</text>
+            </g>
+            <g>
+              <rect x="535" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="603" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 4</text>
+              <text x="603" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">NMDC 環安衛</text>
+              <text x="603" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">NMDC HSE</text>
+              <text x="603" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">PendingTier4Review</text>
+            </g>
+            <g>
+              <rect x="709" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="777" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 5</text>
+              <text x="777" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">PTW 協調員</text>
+              <text x="777" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">PTW Coordinator</text>
+              <text x="777" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">PendingTier5Review</text>
+            </g>
+            <g>
+              <rect x="883" y="74" width="136" height="76" rx="4" fill="#e8f7ef" stroke="#00913f" stroke-width="1.8"/>
+              <text x="951" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#00913f">ISSUED</text>
+              <text x="951" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">核發生效</text>
+              <text x="951" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Permit is live</text>
+              <text x="951" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#00913f">Active · OPTW-####</text>
+            </g>
+            <g stroke="#b26a00" stroke-width="1.5" fill="none" marker-end="url(#rmO1)">
+              <path d="M419,150 L419,188 L265,188 L265,154"/><path d="M593,150 L593,188 L439,188 L439,154"/><path d="M767,150 L767,188 L613,188 L613,154"/>
+            </g>
+            <text x="516" y="208" text-anchor="middle" font-size="11" font-weight="700" fill="#b26a00">退回上一關　Return to Previous Tier（僅 Tier 3–5）</text>
+            <text x="880" y="192" text-anchor="middle" font-size="9" font-family="ui-monospace,Consolas,monospace" fill="#b26a00">ReturnedForCorrection</text>
+          </svg>
+        </div>
+        <div class="rm-cap"><b>圖一</b>　實線＝往前推進，每一步都需要當關人員的電子簽名。紅色虛線＝退回申請人（Tier 2–5 都可以，Tier 2 只有這個選項）。橘色＝退回上一關（只有 Tier 3–5 有）。承商職安衛自己申請的單不得自審，送出後直接跳到 Tier 3。</div>
+        <div class="row g-2 mt-2">
+          <div class="col-md-3"><div class="rm-lg ok"><div class="t">往前一關 Approve</div><div class="d">須電子簽名；Tier 2–4 核准前必須勾選「已完整審閱 MS 與 RA」。可指定下一關的審閱人。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg ret"><div class="t">退回申請人 Returned</div><div class="d">既有簽名<b>全部作廢</b>，修改後重送＝版本 +1，一律<b>從 Tier 2 重跑</b>。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg cor"><div class="t">退回上一關 Correction</div><div class="d">只倒退一步，<b>簽名保留</b>，該關修正後可直接續行。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg"><div class="t">退回的共同規則</div><div class="d">一律必填「退回原因」＋ Comment；通知寄給申請人與主／副持有人。</div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== 圖二：關單流程 ===== -->
+      <div class="rm-fig">
+        <div class="rm-bar">
+          <span class="rm-tag">Figure 2 — 完工到關閉 Completion to Closed</span>
+          <span class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary" onclick="exportRouteFig('rmFig2','PTW-closeout-route','svg')">⬇ SVG</button>
+            <button class="btn btn-sm btn-outline-primary" onclick="exportRouteFig('rmFig2','PTW-closeout-route','png')">⬇ PNG</button>
+          </span>
+        </div>
+        <div class="rm-paper">
+          <svg id="rmFig2" viewBox="0 0 1040 224" role="img"
+               aria-label="PTW 關單流程：Tier 1 承商申報完工後，依序經 Tier 2 承商職安衛、Tier 3 NMDC 施工組、Tier 4 NMDC 工安組、Tier 5 PTW 協調員四關確認後關閉；Tier 3 起可退回上一關，Tier 2 有意見則退回申請人並回到執行中狀態。"
+               font-family="'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif">
+            <defs>
+              <marker id="rmA2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#002038"/></marker>
+              <marker id="rmR2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b02121"/></marker>
+              <marker id="rmO2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#b26a00"/></marker>
+            </defs>
+            <text x="200" y="21" text-anchor="middle" font-size="11" font-weight="700" fill="#b02121">退回申請人　重整附件後重新申報</text>
+            <path d="M255,74 L255,40 L81,40 L81,73" stroke="#b02121" stroke-width="1.6" fill="none" stroke-dasharray="4 3" marker-end="url(#rmR2)"/>
+            <text x="420" y="44" text-anchor="start" font-size="9" font-family="ui-monospace,Consolas,monospace" fill="#b02121">狀態退回 Active，結案確認鏈全部清空</text>
+            <g stroke="#002038" stroke-width="1.6" fill="none" marker-end="url(#rmA2)">
+              <path d="M149,112 L183,112"/><path d="M323,112 L357,112"/><path d="M497,112 L531,112"/><path d="M671,112 L705,112"/><path d="M845,112 L879,112"/>
+            </g>
+            <g font-size="9" text-anchor="middle" fill="#002038">
+              <text x="166" y="105">完工申報</text><text x="340" y="105">確認</text><text x="514" y="105">確認</text><text x="688" y="105">確認</text><text x="862" y="105">關閉</text>
+            </g>
+            <g>
+              <rect x="13" y="74" width="136" height="76" rx="4" fill="#e8f7ef" stroke="#00913f" stroke-width="1.6"/>
+              <text x="81" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#00913f">TIER 1</text>
+              <text x="81" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">承商　申報完工</text>
+              <text x="81" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Contractor declares completion</text>
+              <text x="81" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#00913f">Active / Extended</text>
+            </g>
+            <g>
+              <rect x="187" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="255" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 2</text>
+              <text x="255" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">承商職安衛</text>
+              <text x="255" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Contractor HSE</text>
+              <text x="255" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">coCurrentTier = 2</text>
+            </g>
+            <g>
+              <rect x="361" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="429" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 3</text>
+              <text x="429" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">NMDC 施工組</text>
+              <text x="429" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Engineering Team</text>
+              <text x="429" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">coCurrentTier = 3</text>
+            </g>
+            <g>
+              <rect x="535" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="603" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 4</text>
+              <text x="603" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">NMDC 工安組</text>
+              <text x="603" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">NMDC EHS</text>
+              <text x="603" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">coCurrentTier = 4</text>
+            </g>
+            <g>
+              <rect x="709" y="74" width="136" height="76" rx="4" fill="#ffffff" stroke="#002038" stroke-width="1.6"/>
+              <text x="777" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">TIER 5</text>
+              <text x="777" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">PTW 協調員</text>
+              <text x="777" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">PTW Coordinator</text>
+              <text x="777" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#0a3a5e">coCurrentTier = 5</text>
+            </g>
+            <g>
+              <rect x="883" y="74" width="136" height="76" rx="4" fill="#eef2f6" stroke="#002038" stroke-width="1.8"/>
+              <text x="951" y="94" text-anchor="middle" font-size="14" font-weight="700" fill="#002038">CLOSED</text>
+              <text x="951" y="111" text-anchor="middle" font-size="11.5" fill="#1f2a37">正式關閉</text>
+              <text x="951" y="125" text-anchor="middle" font-size="9" fill="#5f6f7e">Close-out PDF issued</text>
+              <text x="951" y="141" text-anchor="middle" font-size="8.5" font-family="ui-monospace,Consolas,monospace" fill="#002038">Closed</text>
+            </g>
+            <g stroke="#b26a00" stroke-width="1.5" fill="none" marker-end="url(#rmO2)">
+              <path d="M419,150 L419,188 L265,188 L265,154"/><path d="M593,150 L593,188 L439,188 L439,154"/><path d="M767,150 L767,188 L613,188 L613,154"/>
+            </g>
+            <text x="516" y="208" text-anchor="middle" font-size="11" font-weight="700" fill="#b26a00">有意見 → 退回上一關　Objection → previous step</text>
+          </svg>
+        </div>
+        <div class="rm-cap"><b>圖二</b>　關卡編號沿用簽核的 Tier（系統欄位 coCurrentTier 即 2–5）。申報完工前，關單必附文件必須先上傳齊全，否則系統擋下。四關確認鏈每一關都要電子簽名。Tier 2（承商職安衛）有意見是<b>退回申請人</b>，整張單回到 Active、確認鏈清空，重新整理附件後再申報一次；Tier 3 之後有意見只退回上一關。</div>
+        <div class="row g-2 mt-2">
+          <div class="col-md-3"><div class="rm-lg"><div class="t">誰可以申報完工</div><div class="d">該承商公司的任何人員都可以（同事代報），Tier 5 與管理員亦可。未到期也能<b>提前關單</b>。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg"><div class="t">可申報的狀態</div><div class="d"><span class="rm-key">Active　Extended　Suspended　Expired</span></div></div></div>
+          <div class="col-md-3"><div class="rm-lg ok"><div class="t">關閉之後</div><div class="d">產生關單 PDF 存入 <span class="rm-key">05_Close_out_evidence</span>，並寄給申請人。</div></div></div>
+          <div class="col-md-3"><div class="rm-lg ret"><div class="t">擋關的錯誤</div><div class="d"><span class="rm-key">CLOSEOUT_DOCS_REQUIRED</span> 必附文件沒上傳齊，連完工申報都送不出去。</div></div></div>
+        </div>
+      </div>
+
+      <!-- ===== 送審前必附文件 ===== -->
+      <h6 class="mt-4 mb-1">📎 <span data-l>送審前必附文件｜Documents Required to Submit</span></h6>
+      <p class="small text-muted mb-2" data-l>以下任何一項缺漏，送審會被系統擋下並列出缺少的項目。｜Submission is blocked until every item below is in place.</p>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>文件 Document</th><th>系統分類 Category</th><th>觸發條件 Trigger</th><th>層級</th></tr></thead>
+          <tbody>
+            <tr><td>施工計畫書／方法書<span class="rm-en">Method Statement</span></td><td class="rm-key">MethodStatement</td><td class="rm-trig">全部 PTW</td><td><span class="pq req">必附</span></td></tr>
+            <tr><td>風險評估／工安分析<span class="rm-en">JSA / Risk Assessment</span></td><td class="rm-key">RiskAssessment</td><td class="rm-trig">全部 PTW</td><td><span class="pq req">必附</span></td></tr>
+            <tr><td>潛水文件（潛水員證書、潛水計畫）<span class="rm-en">Diving documents</span></td><td class="rm-key">DivingDocs</td><td class="rm-trig">勾選潛水作業</td><td><span class="pq req">必附</span></td></tr>
+            <tr><td>輻射文件（執照、射源證明）<span class="rm-en">Radiography documents</span></td><td class="rm-key">RadiographyDocs</td><td class="rm-trig">勾選輻射作業</td><td><span class="pq req">必附</span></td></tr>
+            <tr><td>開挖文件（圖面、管線調查）<span class="rm-en">Excavation documents</span></td><td class="rm-key">ExcavationDocs</td><td class="rm-trig">勾選開挖作業</td><td><span class="pq req">必附</span></td></tr>
+            <tr><td>LOTO 上鎖掛牌紀錄<span class="rm-en">LOTO records</span></td><td class="rm-key">LotoDocs</td><td class="rm-trig">勾選電氣隔離</td><td><span class="pq req">必附</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small text-muted mb-1" data-l><b>附加證書</b>：勾了作業類型，就必須把對應證書填到「完成 Complete」才送得出去。證書在系統內線上填寫，不是另外上傳的檔案。｜Selecting a work type requires its certificate to reach status Complete; certificates are filled in online, not uploaded.</p>
+      <div class="row g-2">
+        <div class="col-md-3"><div class="rm-cert"><span class="c">HW</span><span class="n">動火作業許可證<span class="rm-en">Hot Work Permit</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert"><span class="c">CS</span><span class="n">侷限空間作業證書<span class="rm-en">Confined Space Entry</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert"><span class="c">DO</span><span class="n">潛水作業證書<span class="rm-en">Diving Operations</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert"><span class="c">RG</span><span class="n">輻射作業證明書<span class="rm-en">Radiography</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert"><span class="c">EC</span><span class="n">開挖作業許可證<span class="rm-en">Excavation</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert"><span class="c">EI</span><span class="n">電氣隔離證書<span class="rm-en">Electrical Isolation</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert"><span class="c">PI</span><span class="n">製程隔離證書<span class="rm-en">Process Isolation</span></span></div></div>
+        <div class="col-md-3"><div class="rm-cert none"><span class="c">GW</span><span class="n">一般作業 Cold Work<span class="rm-en">總部決議：免附證書</span></span></div></div>
+      </div>
+
+      <!-- ===== 關單必附文件 ===== -->
+      <h6 class="mt-4 mb-1">🏁 <span data-l>關單必附文件｜Close-out Records</span></h6>
+      <p class="small text-muted mb-2" data-l>依作業類型自動觸發。「必要」沒上傳就無法申報完工；「建議」與「選附」不擋關。｜Triggered by work type; required items block the completion declaration.</p>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle">
+          <thead><tr><th>紀錄 Record</th><th>系統分類 Category</th><th>觸發條件 Trigger</th><th>層級</th></tr></thead>
+          <tbody>
+            <tr><td>現場聯 A4 每日複驗紀錄（簽名後回傳）<span class="rm-en">Site Copy (A4) re-validation record</span></td><td class="rm-key">DailyValidation</td><td class="rm-trig">全部 PTW</td><td><span class="pq req">必要</span></td></tr>
+            <tr><td>每班次 TBM／HIP 紀錄<span class="rm-en">TBM / HIP records per shift</span></td><td class="rm-key">TbmHip</td><td class="rm-trig">全部 PTW</td><td><span class="pq req">必要</span></td></tr>
+            <tr><td>氣體監測記錄表<span class="rm-en">Gas Monitoring Log</span></td><td class="rm-key">GasMonitorLog</td><td class="rm-trig">動火／侷限空間／需氣測</td><td><span class="pq req">必要</span></td></tr>
+            <tr><td>局限空間人員進出管制表<span class="rm-en">Confined Space Entry Control Log</span></td><td class="rm-key">EntryLog</td><td class="rm-trig">侷限空間</td><td><span class="pq req">必要</span></td></tr>
+            <tr><td>潛水作業紀錄表（時間、深度、潛水員、水面支援、減壓）<span class="rm-en">Dive Log</span></td><td class="rm-key">DiveLog</td><td class="rm-trig">潛水作業</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>輻射偵測與劑量紀錄<span class="rm-en">Radiation survey &amp; dose records</span></td><td class="rm-key">RadiationDose</td><td class="rm-trig">輻射作業</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>射源領用／歸還帳管紀錄<span class="rm-en">Source issue / return log</span></td><td class="rm-key">SourceLog</td><td class="rm-trig">輻射作業</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>開挖每日檢點紀錄（邊坡／支撐／積水／管線）<span class="rm-en">Daily excavation inspection</span></td><td class="rm-key">ExcavationCheck</td><td class="rm-trig">開挖作業</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>回填與現場復原確認<span class="rm-en">Backfill &amp; reinstatement</span></td><td class="rm-key">BackfillConfirm</td><td class="rm-trig">開挖作業</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>LOTO 上鎖掛牌與解除紀錄<span class="rm-en">LOTO application &amp; removal</span></td><td class="rm-key">LotoLog</td><td class="rm-trig">電氣隔離</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>隔離／解除隔離清單（含解除確認簽名）<span class="rm-en">Isolation register</span></td><td class="rm-key">IsolationRegister</td><td class="rm-trig">製程隔離</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>施工架每日檢點表<span class="rm-en">Daily scaffolding checklist</span></td><td class="rm-key">ScaffoldCheck</td><td class="rm-trig">需搭施工架</td><td><span class="pq rec">建議</span></td></tr>
+            <tr><td>相關自檢表（施工架、電動手工具、天車／吊車等）<span class="rm-en">Self-inspection checklists</span></td><td class="rm-key">SelfInspection</td><td class="rm-trig">全部 PTW</td><td><span class="pq opt">選附</span></td></tr>
+            <tr><td>其他結案佐證（照片、交接紀錄等）<span class="rm-en">Other close-out evidence</span></td><td class="rm-key">CloseOut</td><td class="rm-trig">全部 PTW</td><td><span class="pq opt">選附</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small text-muted" data-l>系統管理可把任何「建議」項目升級為「必要」（設定值 closeoutRequiredKeys），升級後該項目沒上傳就無法申報完工。｜Any recommended record can be upgraded to required via closeoutRequiredKeys.</p>
     </div>
     <div class="tab-pane fade" id="tabNumbers">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
@@ -13084,6 +13355,7 @@ var STRINGS = {
  'admin.consoleSub':{en:'Offshore PTW System · Tongxiao P2 Subsea Gas Pipeline (P2913)',zh:'離岸工作許可系統 · 通霄二期海管統包工程 (P2913)'},
  'admin.numbers':{en:'Numbers',zh:'編號總表'},
  'admin.flowChart':{en:'Approval Flow',zh:'審批流程'},
+ 'admin.routeMap':{en:'Route Map',zh:'流程圖'},
  'admin.flowChartHint':{en:'Approval authority chart — click a name to view that person\\'s details.',zh:'審批權限流程圖 — 點擊姓名可查看人員詳細資料。'},
  'tm.title':{en:'Test Mode',zh:'測試模式'},
  'tm.bar':{en:'TEST MODE — identity',zh:'測試模式 — 目前身分'},
@@ -15448,6 +15720,41 @@ function loadFlowChart(){
     window._adminUsers=rs[0].data;
     renderFlowChart(rs[0].data);
   });
+}
+/* 🗺 流程圖頁籤：把圖存成 SVG（向量，PowerPoint 可無損縮放）或 PNG（2 倍、白底）。
+   匯出前複製一份並補上白色底圖，避免簡報底色透出來。 */
+function exportRouteFig(figId,name,kind){
+  var fig=document.getElementById(figId);
+  if(!fig){ toast('Figure not found'); return; }
+  var NS='http://www.w3.org/2000/svg';
+  var vb=String(fig.getAttribute('viewBox')||'0 0 1040 224').split(' ').map(Number);
+  var w=vb[2]||1040, h=vb[3]||224;
+  var c=fig.cloneNode(true);
+  c.setAttribute('xmlns',NS); c.setAttribute('width',w); c.setAttribute('height',h);
+  var bg=document.createElementNS(NS,'rect');
+  bg.setAttribute('x',vb[0]||0); bg.setAttribute('y',vb[1]||0);
+  bg.setAttribute('width',w); bg.setAttribute('height',h); bg.setAttribute('fill','#ffffff');
+  c.insertBefore(bg,c.firstChild);
+  var xml='<?xml version="1.0" encoding="UTF-8"?>'+new XMLSerializer().serializeToString(c);
+  var grab=function(blob,ext){
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download=name+'.'+ext;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    toast((lang==='zh'?'已匯出 ':'Exported ')+name+'.'+ext,true);
+  };
+  if(kind==='svg'){ grab(new Blob([xml],{type:'image/svg+xml;charset=utf-8'}),'svg'); return; }
+  var img=new Image();
+  img.onload=function(){
+    var cv=document.createElement('canvas');
+    cv.width=w*2; cv.height=h*2;
+    var ctx=cv.getContext('2d');
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.drawImage(img,0,0,cv.width,cv.height);
+    cv.toBlob(function(b){ b?grab(b,'png'):toast(lang==='zh'?'PNG 轉檔失敗，請改用 SVG':'PNG export failed — use SVG'); },'image/png');
+  };
+  img.onerror=function(){ toast(lang==='zh'?'PNG 轉檔失敗，請改用 SVG':'PNG export failed — use SVG'); };
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(xml);
 }
 var TIER_COLORS={0:'#0e7490',1:'#0b6bcb',2:'#7c3aed',3:'#b45309',4:'#be185d',5:'#166534'};
 var TIER_ICONS={0:'🦺',1:'📝',2:'🛡️',3:'🏗️',4:'🧯',5:'✅'};
