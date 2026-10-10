@@ -5148,7 +5148,7 @@ var ApprovalService = (function () {
           '🎉 PTW ISSUED & ACTIVE: ' + num, '🎉 PTW 已核准簽發並生效：' + num,
           'Official PTW number issued: ' + num + '. The permit is now ACTIVE — work may proceed within the valid period.',
           '正式編號已產生：' + num + '。許可證即刻生效，請於有效期間內依許可內容工作。');
-        issueBroadcast_(m, num); // 正式核發：通知所有審查流程參與者＋核發通知清單
+        issueBroadcast_(m, num); // 正式核發：承商 T1/T2＋該 Scope 的 T3＋全部 T4/T5＋當事人＋核發通知清單
       try { NotificationService.adminCc('ptwIssued', 'PTW issued & active: ' + num, 'PTW 核發生效：' + num, NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), m.id); } catch (eCc) {}
 
         try { PdfService.saveApprovalRecord(Repo.getById('PTW_Master', m.id)); }
@@ -5158,19 +5158,51 @@ var ApprovalService = (function () {
     });
   }
 
-  /** T5 核發廣播：申請人＋全部審查人＋系統管理設定之核發通知清單 */
-  function issueBroadcast_(m, num) {
+  /**
+   * 核發廣播 — 一張 PTW 生效時「所有相關人士」都要收到：
+   *  ① 本張單的當事人：申請人、主／副持有人、PA
+   *  ② 該承商公司全部啟用中的 Tier 1／Tier 2
+   *  ③ 該 Scope 所屬部門（NMDC D&M／Energy）的 Tier 3；未填 Scope 則全部 Tier 3
+   *  ④ 全部 Tier 4（NMDC 環安衛）與 Tier 5（PTW 協調員）
+   *  ⑤ 審查鏈上實際核准過的人（代理簽核、事後調部門者也收得到）
+   *  ⑥ 系統管理設定的額外核發通知清單（純 email）
+   * 管理員「直接核准並核發」會跳關、沒有核准紀錄，因此 ②③④ 以關卡掃人員，
+   * 不依賴 PTW_Approvals，兩條路徑收件人一致。
+   */
+  function issueBroadcast_(m, num, byAdmin) {
     try {
       if (/^Example/i.test(String(num))) return; // 測試模式範例 PTW：不寄核發通知
 
       var titleEn = '📢 PTW ISSUED: ' + num, titleZh = '📢 PTW 正式核發：' + num;
-      var msgEn = 'The PTW has passed all reviews and is officially issued by the PTW Coordinator (Tier 5).';
-      var msgZh = '本 PTW 已完成所有審查，由 PTW 協調員（Tier 5）正式核發。';
+      var msgEn = byAdmin
+        ? 'The PTW has been directly approved and issued by the system administrator. The permit is now ACTIVE.'
+        : 'The PTW has passed all reviews and is officially issued by the PTW Coordinator (Tier 5).';
+      var msgZh = byAdmin
+        ? '本 PTW 已由系統管理員直接核准並核發，許可證即刻生效。'
+        : '本 PTW 已完成所有審查，由 PTW 協調員（Tier 5）正式核發。';
       var sent = {};
-      // 審查鏈上所有核准者
+      var add = function (raw) {
+        var s = String(raw || '');
+        if (!s) return;
+        if (s.charAt(0) === '[') {
+          try { (JSON.parse(s) || []).forEach(function (id) { if (id) sent[id] = true; }); } catch (e) {}
+        } else { sent[s] = true; }
+      };
+      // ① 本張單的當事人（持有人欄可能是單一 id 或 JSON 陣列）
+      add(m.applicantUserId); add(m.holderUserId); add(m.coHolderUserId); add(m.paUserId);
+      // ⑤ 審查鏈上所有核准者
       Repo.find('PTW_Approvals', function (a) { return a.ptwId === m.id && a.action === 'Approve'; })
-        .forEach(function (a) { sent[a.reviewerUserId] = true; });
-      sent[m.applicantUserId] = true;
+        .forEach(function (a) { add(a.reviewerUserId); });
+      // ②③④ 依關卡掃啟用中人員
+      var dept = String(m.scopeDepartment || '');
+      Repo.find('Users', function (u) {
+        if (u.status !== 'Active' || !asBool_(u.isActive)) return false;
+        var t = Number(u.tier);
+        if (t === 1 || t === 2) return String(u.companyId) === String(m.companyId);   // 承商本公司
+        if (t === 3) return !dept || String(u.department || '') === dept;             // 該 Scope 部門
+        return t === 4 || t === 5;                                                    // NMDC 環安衛／協調員全員
+      }).forEach(function (u) { add(u.id); });
+
       Object.keys(sent).forEach(function (uid) {
         var u2 = Repo.getById('Users', uid);
         if (u2 && u2.email) NotificationService.push(u2.id, 'PTW_ISSUED', m.id, titleEn, titleZh, msgEn, msgZh, u2.email);
@@ -5361,7 +5393,7 @@ var ApprovalService = (function () {
           '🎉 PTW ISSUED & ACTIVE: ' + num, '🎉 PTW 已核准簽發並生效：' + num,
           'Official PTW number issued: ' + num + '. The permit is now ACTIVE — work may proceed within the valid period.',
           '正式編號已產生：' + num + '。許可證即刻生效，請於有效期間內依許可內容工作。');
-        issueBroadcast_(m, num); // 正常核發流程：核發廣播（申請人＋審查人＋核發通知清單）
+        issueBroadcast_(m, num, true); // 跳關核發：收件人與正常 T5 核發一致（承商 T1/T2＋Scope T3＋全部 T4/T5）
       try { NotificationService.adminCc('ptwIssued', 'PTW issued & active: ' + num, 'PTW 核發生效：' + num, NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), m.id); } catch (eCc) {}
 
         try { PdfService.saveApprovalRecord(Repo.getById('PTW_Master', m.id)); }
