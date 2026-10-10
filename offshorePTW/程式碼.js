@@ -4992,19 +4992,27 @@ var DriveService = (function () {
     try { bytes = Utilities.base64Decode(payload.base64); }
     catch (e) { throw ApiError_('BAD_FILE', 'Invalid file data', '檔案資料無效'); }
     var blob = Utilities.newBlob(bytes, 'application/pdf', String(payload.fileName).replace(/[^\w.\-一-龥]/g, '_'));
-    var folder = sub_(ptwFolder_(mRow), '01_Application');
-    // 取代舊檔：同編號之舊 Site Copy 移至垃圾桶，資料夾內永遠只留最新版
+    // kind：'site'（預設）存 01_Application；'closeout' 存 05_Close_out_evidence。
+    // 兩者都是瀏覽器用 html2pdf 真排版引擎產生的版本 —— 伺服器端 Utilities 轉檔畫不出背景色，
+    // 只能當沒有前端時的備援，一旦前端送上來就以這份為準。
+    var isCo = (String(payload.kind || 'site') === 'closeout');
+    var folder = sub_(ptwFolder_(mRow), isCo ? '05_Close_out_evidence' : '01_Application');
+    var prefix = (mRow.ptwNumber || mRow.tempNumber) + (isCo ? '_CloseOut_Record' : '_SiteCopy');
+    // 取代舊檔：同編號的舊檔移至垃圾桶，資料夾內永遠只留最新版
     try {
-      var prefix = (mRow.ptwNumber || mRow.tempNumber) + '_SiteCopy';
       var it = folder.getFiles();
       while (it.hasNext()) {
         var f0 = it.next();
         if (String(f0.getName()).indexOf(prefix) === 0) f0.setTrashed(true);
       }
-    } catch (e) { console.error('old site copy cleanup failed: ' + e.message); }
+    } catch (e) { console.error('old pdf cleanup failed: ' + e.message); }
     var f = folder.createFile(blob);
-    AuditService.log({ user: user, actionType: 'PTW_SITECOPY_SAVED', entityType: 'PTW', entityId: mRow.id,
+    AuditService.log({ user: user, actionType: isCo ? 'PTW_CLOSEOUT_PDF_SAVED' : 'PTW_SITECOPY_SAVED',
+      entityType: 'PTW', entityId: mRow.id,
       ptwNumber: mRow.ptwNumber || mRow.tempNumber, success: true });
+    // 關單文件：Drive 換成好看的版本後，順手把「PTW 已關閉」通知信補寄出去（附這一份）。
+    // closeoutConfirm 當下刻意不寄，就是為了等這一份；若前端沒送上來，排程會用備援版補寄。
+    if (isCo) { try { LifecycleService.mailClosedOnce(mRow, blob); } catch (eM) { console.error('closeout mail: ' + eM.message); } }
     return ok_({ saved: true, fileId: f.getId() });
   }
 
@@ -8805,6 +8813,51 @@ var LifecycleService = (function () {
     if (a) NotificationService.push(a.id, type, m.id, tEn, tZh, mEn, mZh, a.email, attachments);
   }
 
+  /**
+   * 寄出「PTW 已關閉」通知（附關單文件），同一張 PTW 只寄一次。
+   * 由前端上傳 html2pdf 版關單文件時呼叫；沒上傳的話由排程用伺服器備援版補寄。
+   */
+  function mailClosedOnce(m, coBlob) {
+    var already = Repo.findOne('Notifications', function (n) {
+      return n.ptwId === m.id && n.type === 'PTW_CLOSED' && asBool_(n.emailSent);
+    });
+    if (already) return false;
+    var num = m.ptwNumber || m.tempNumber;
+    notifyApplicant_(m, 'PTW_CLOSED', 'PTW closed: ' + num, 'PTW 已關閉：' + num,
+      'Contractor HSE and all NMDC departments have confirmed. The permit is now formally closed. ' +
+      'The close-out record is attached and has also been filed in the permit Drive folder (05_Close_out_evidence).',
+      '承商職安衛與 NMDC 各部門均已確認，本許可證已正式關閉。' +
+      '關單文件如附件，並已存入該 PTW 之 Drive 資料夾（05_Close_out_evidence）。',
+      coBlob ? [coBlob] : null);
+    return true;
+  }
+
+  /** 排程備援：已關閉但通知信還沒寄出（前端沒把漂亮版送上來）→ 用 Drive 上現有那份補寄 */
+  function mailClosedBacklog() {
+    var cutoff = new Date(Date.now() - 15 * 60 * 1000);
+    Repo.find('PTW_Master', function (p) {
+      return p.status === CFG.STATUS.CLOSED && asBool_(p.isActive) && p.closedAt &&
+        new Date(String(p.closedAt).replace(/-/g, '/')) < cutoff;
+    }).forEach(function (p) {
+      try {
+        var already = Repo.findOne('Notifications', function (n) {
+          return n.ptwId === p.id && n.type === 'PTW_CLOSED' && asBool_(n.emailSent);
+        });
+        if (already) return;
+        var blob = null;
+        try {
+          var num = p.ptwNumber || p.tempNumber;
+          var folder = DriveApp.getFolderById(p.driveFolderId).getFoldersByName('05_Close_out_evidence');
+          if (folder.hasNext()) {
+            var it = folder.next().getFilesByName(num + '_CloseOut_Record.pdf');
+            if (it.hasNext()) blob = it.next().getBlob();
+          }
+        } catch (eD) { /* 取不到就不附檔，信還是要寄 */ }
+        mailClosedOnce(p, blob);
+      } catch (e) { console.error('mailClosedBacklog ' + p.id + ': ' + e.message); }
+    });
+  }
+
   function notifyT5_(m, type, tEn, tZh, mEn, mZh) {
     Repo.find('Users', function (u) {
       return Number(u.tier) === 5 && u.status === 'Active' && asBool_(u.isActive);
@@ -8952,17 +9005,11 @@ var LifecycleService = (function () {
     AuditService.log({ user: user, actionType: 'PTW_CLOSE', entityType: 'PTW', entityId: m.id,
       ptwNumber: m.ptwNumber, comment: payload.comment || '', success: true });
     // 關單文件：產生 PDF → 存入 05_Close_out_evidence，並 Email 給申請人
-    // 關單文件存檔後，當成附件夾在「PTW 已關閉」這封標準通知裡一起寄出
-    //（以前是 PdfService 自己再用 MailApp 寄一封樣式不同的信，申請人會收到兩封）
-    var coBlob = null;
-    try { coBlob = PdfService.saveCloseoutRecord(Repo.getById('PTW_Master', m.id)); }
+    // 先用伺服器端轉檔存一份當備援（Drive 不會是空的），但**這裡不寄信**：
+    // 伺服器轉檔畫不出背景色，要等前端用 html2pdf 產生的漂亮版本上傳後再寄（saveSitePdf kind=closeout）。
+    // 前端若沒送上來（使用者關掉分頁等），排程 scanExpiry 會在 15 分鐘後用備援版補寄。
+    try { PdfService.saveCloseoutRecord(Repo.getById('PTW_Master', m.id)); }
     catch (eCo) { console.error('closeout record failed: ' + eCo.message); }
-    notifyApplicant_(m, 'PTW_CLOSED', 'PTW closed: ' + m.ptwNumber, 'PTW 已關閉：' + m.ptwNumber,
-      'Contractor HSE and all NMDC departments have confirmed. The permit is now formally closed. ' +
-      'The close-out record is attached and has also been filed in the permit Drive folder (05_Close_out_evidence).',
-      '承商職安衛與 NMDC 各部門均已確認，本許可證已正式關閉。' +
-      '關單文件如附件，並已存入該 PTW 之 Drive 資料夾（05_Close_out_evidence）。',
-      coBlob ? [coBlob] : null);
     try { NotificationService.adminCc('ptwClosed', 'PTW closed: ' + (m.ptwNumber || m.tempNumber), 'PTW 關單完成：' + (m.ptwNumber || m.tempNumber), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), NotificationService.ptwBrief(Repo.getById('PTW_Master', m.id)), m.id); } catch (eCc) {}
     return ok_({ confirmed: true, closed: true });
   }
@@ -9053,7 +9100,8 @@ var LifecycleService = (function () {
   }
 
   return { closeoutReturn: closeoutReturn, suspend: suspend,
-    resume: resume, requestClosure: requestClosure, close: close, closeoutConfirm: closeoutConfirm };
+    resume: resume, requestClosure: requestClosure, close: close, closeoutConfirm: closeoutConfirm,
+    mailClosedOnce: mailClosedOnce, mailClosedBacklog: mailClosedBacklog };
 })();
 
 /* ============================== SchedulerService.gs ============================== */
@@ -9081,6 +9129,8 @@ var SchedulerService = (function () {
 
   function scanExpiry() {
     try { NotificationService.weeklySummaryTick(); } catch (eW) {}   // 週日 20:00 後寄出每週摘要（每週一次）
+    // 關單通知備援：前端沒把 html2pdf 版關單文件送上來時，15 分鐘後用 Drive 現有那份補寄
+    try { LifecycleService.mailClosedBacklog(); } catch (eB) { console.error('mailClosedBacklog: ' + eB.message); }
     var now = fmtDateTime_();
     var reminderH = Number(getSetting_('expiryReminderHours')) || 24;
     var soon = fmtDateTime_(new Date(Date.now() + reminderH * 3600 * 1000));
@@ -11874,6 +11924,95 @@ function diagContinuation() {
 }
 
 /** 手動建立/修復快速管理員（在編輯器直接執行本函式即可） */
+/**
+ * Drive 根目錄孤兒資料夾盤點／搬移。
+ *
+ * 判定方式：根目錄下每個子資料夾，只要它的 ID 不是任何一張仍 isActive 的 PTW 的
+ * driveFolderId，且名稱也對不上任何 PTW 的 ptwNumber／tempNumber，就算孤兒
+ *（PTW 被刪除、測試資料清掉、或早期改版留下來的）。
+ *
+ * auditOrphanDriveFolders()      → 只列印，不動任何東西
+ * moveOrphansToSuperceded(true)  → 真的搬進 00_Superceded（要先看過上面的清單）
+ */
+function auditOrphanDriveFolders() { return orphanScan_(false); }
+function moveOrphansToSuperceded(confirm) {
+  if (confirm !== true) {
+    console.log('安全鎖：確定要搬移請執行 moveOrphansToSuperceded(true)。先跑 auditOrphanDriveFolders() 看清單。');
+    return;
+  }
+  return orphanScan_(true);
+}
+
+function orphanScan_(doMove) {
+  var SUPERCEDED = '00_Superceded';
+  // DriveService 內的 FOLDER_NAMES 是模組私有變數，這裡取不到，照抄一份當保險
+  var SUBFOLDERS = ['01_Application', '02_Certificates', '03_Support_Documents',
+    '04_Approval_Records', '05_Close_out_evidence'];
+  var root = DriveApp.getFolderById(getProp_('DRIVE_ROOT_FOLDER_ID') || ONE_CLICK_CONFIG.DRIVE_ROOT_FOLDER_ID);
+  var liveIds = {}, liveNames = {};
+  Repo.readAll('PTW_Master').forEach(function (p) {
+    if (!asBool_(p.isActive)) return;
+    if (p.driveFolderId) liveIds[p.driveFolderId] = p.ptwNumber || p.tempNumber;
+    if (p.ptwNumber) liveNames[String(p.ptwNumber)] = true;
+    if (p.tempNumber) liveNames[String(p.tempNumber)] = true;
+  });
+
+  // 絕對不能搬的：_system 放的是全系統的簽名檔、公開下載、公告附件
+  var PROTECTED = ['_system', SUPERCEDED].concat(SUBFOLDERS);
+
+  // 遞迴統計檔案數，並檢查底下有沒有藏著仍在使用的 PTW 資料夾
+  //（早期是 年度/公司 分層，NMDC、Test Contractor Alpha 這種容器裡可能還有活的 PTW）
+  function probe_(folder, depth, acc) {
+    if (depth > 4) return acc;
+    var fi = folder.getFiles();
+    while (fi.hasNext()) { fi.next(); acc.files++; }
+    var sub = folder.getFolders();
+    while (sub.hasNext()) {
+      var s = sub.next();
+      if (liveIds[s.getId()] || liveNames[s.getName()]) acc.live.push(s.getName());
+      probe_(s, depth + 1, acc);
+    }
+    return acc;
+  }
+
+  var orphans = [], kept = 0, skipped = [];
+  var it = root.getFolders();
+  while (it.hasNext()) {
+    var f = it.next(), name = f.getName();
+    if (PROTECTED.indexOf(name) >= 0) { skipped.push(name); continue; }
+    if (liveIds[f.getId()] || liveNames[name]) { kept++; continue; }
+    var acc = probe_(f, 0, { files: 0, live: [] });
+    orphans.push({ id: f.getId(), name: name, files: acc.files, live: acc.live,
+      created: Utilities.formatDate(f.getDateCreated(), CFG.TIMEZONE, 'yyyy-MM-dd HH:mm'), folder: f });
+  }
+
+  // 底下還藏著仍在使用的 PTW → 不是孤兒，不能搬
+  var blocked = orphans.filter(function (o) { return o.live.length; });
+  orphans = orphans.filter(function (o) { return !o.live.length; });
+
+  console.log('系統仍在使用：' + kept + ' 個；保護不動：' + skipped.join('、') +
+    '；孤兒：' + orphans.length + ' 個；底下有活資料不可搬：' + blocked.length + ' 個');
+  orphans.sort(function (a, b) { return a.created < b.created ? -1 : 1; });
+  orphans.forEach(function (o) {
+    console.log('  [孤兒] ' + o.created + '  ' + o.name + '  （含子資料夾共 ' + o.files + ' 個檔）  ' + o.id);
+  });
+  blocked.forEach(function (o) {
+    console.log('  [不可搬] ' + o.name + ' 底下還有仍在使用的 PTW：' + o.live.join('、'));
+  });
+  if (!orphans.length) { console.log('沒有孤兒資料夾，不需要搬。'); return orphans.length; }
+  if (!doMove) { console.log('\n以上只是盤點。確認無誤後執行 moveOrphansToSuperceded(true) 才會搬移。'); return orphans.length; }
+
+  var dest = null, di = root.getFoldersByName(SUPERCEDED);
+  dest = di.hasNext() ? di.next() : root.createFolder(SUPERCEDED);
+  var moved = 0;
+  orphans.forEach(function (o) {
+    try { o.folder.moveTo(dest); moved++; }
+    catch (e) { console.error('搬移失敗 ' + o.name + '：' + e.message); }
+  });
+  console.log('已搬入 ' + SUPERCEDED + '：' + moved + ' / ' + orphans.length + ' 個');
+  return moved;
+}
+
 /**
  * 編輯器直接執行：測試 Google HTML→PDF 轉檔器到底吃哪一種背景色寫法。
  * 產生一張測試 PDF 到 Drive 根目錄，用 A~E 五種寫法各畫一條深藍色條。
@@ -16507,6 +16646,9 @@ function doCloseoutConfirm(){
       if(!res.ok){ toast(apiMsg(res)); return; }
       toast(res.data.closed?(lang==='zh'?'已完成三部門確認，PTW 正式關閉 🔒':'All confirmations complete — PTW closed 🔒')
         :(lang==='zh'?'已確認，轉下一部門':'Confirmed — passed to next department'),true);
+      // 最後一關關閉後，立刻用瀏覽器引擎產出關單文件回存 Drive（伺服器轉檔畫不出底色），
+      // 存檔完成才寄出「PTW 已關閉」通知，附件就是這份。不觸發下載。
+      if(res.data.closed) try{ siteCopyClient(cur.id,'closeout',true); }catch(e){}
       openPtwForm(cur.id);
     });
   });
@@ -16619,16 +16761,25 @@ function serverPdf(id,kind){
 }
 /* 現場聯：轉換引擎載入 iframe 內執行（樣式完整保留，輸出與樣張一致），並自動存入 Drive 01_Application */
 var H2P_URL=window.H2P_SRC||'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-function siteCopyClient(id,kind){
+/* silent=true：只產生並回存 Drive，不觸發下載、不跳提示（T5 完成結案確認後自動歸檔用） */
+function siteCopyClient(id,kind,silent){
   var isCo=(kind==='closeout');
-  toast(isCo?'⏳ Close-out Record PDF…':'⏳ Site Copy PDF…',true);
+  if(!silent) toast(isCo?'⏳ Close-out Record PDF…':'⏳ Site Copy PDF…',true);
   api(isCo?'ptw.closeoutHtml':'ptw.siteHtml',{ptwId:id}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     var iframe=document.createElement('iframe');
     // A4 @ 96dpi：794×1123；引擎於 iframe 內執行，樣式不會丟失
     iframe.style.cssText='position:fixed;left:-12000px;top:0;width:794px;height:1200px;border:0';
     document.body.appendChild(iframe);
-    var fallback=function(){ try{ iframe.remove(); }catch(e){} sitePrintView(res.data.html)||serverPdf(id,'site'); };
+    // 備援：silent 模式（自動歸檔）失敗就安靜放棄，交給排程用伺服器備援版補寄，
+    // 不要突然彈出列印視窗。非 silent 的關單文件也不能退回去抓 site copy（那是另一份文件）。
+    var fallback=function(){
+      try{ iframe.remove(); }catch(e){}
+      if(silent) return;
+      if(sitePrintView(res.data.html)) return;
+      if(!isCo) serverPdf(id,'site');
+      else toast(lang==='zh'?'關單文件產生失敗，請改用瀏覽器列印另存 PDF':'Close-out Record failed — please print to PDF from the browser instead');
+    };
     var done=false;
     var t=setTimeout(function(){ if(!done){ done=true; fallback(); } },45000);
     iframe.onload=function(){
@@ -16671,13 +16822,17 @@ function siteCopyClient(id,kind){
               jsPDF:{unit:'mm',format:'a4',orientation:'portrait'}
             }).from(d.body).outputPdf('datauristring').then(function(uri){
               if(done) return; done=true; clearTimeout(t);
-              var a=document.createElement('a'); a.href=uri; a.download=res.data.fileName; a.click();
-              if(isCo){
-                toast(lang==='zh'?'關單文件 ✅ 已下載（正式關閉時系統已自動存入 Drive 05_Close_out_evidence 並 Email 申請人）':'Close-out Record ✅ downloaded (filed to Drive 05_Close_out_evidence and emailed to the applicant at closure)',true);
-              }else{
-                api('ptw.saveSitePdf',{ptwId:id,base64:uri.split(',')[1],fileName:res.data.fileName})
-                  .then(function(sv){ toast(sv.ok?(lang==='zh'?'Site Copy ✅ 已下載並存入 Drive 01_Application':'Site Copy ✅ downloaded & saved to Drive 01_Application'):('PDF ✅ (Drive: '+apiMsg(sv)+')'),true); });
-              }
+              if(!silent){ var a=document.createElement('a'); a.href=uri; a.download=res.data.fileName; a.click(); }
+              // 兩種都回存 Drive：這個 html2pdf 版本才畫得出底色，伺服器端 Utilities 轉檔不行
+              api('ptw.saveSitePdf',{ptwId:id,base64:uri.split(',')[1],fileName:res.data.fileName,
+                  kind:(isCo?'closeout':'site')})
+                .then(function(sv){
+                  if(silent) return;
+                  var ok=isCo
+                    ?(lang==='zh'?'關單文件 ✅ 已下載並存入 Drive 05_Close_out_evidence':'Close-out Record ✅ downloaded & saved to Drive 05_Close_out_evidence')
+                    :(lang==='zh'?'Site Copy ✅ 已下載並存入 Drive 01_Application':'Site Copy ✅ downloaded & saved to Drive 01_Application');
+                  toast(sv.ok?ok:('PDF ✅ (Drive: '+apiMsg(sv)+')'),true);
+                });
               iframe.remove();
             }).catch(function(err){ try{ console.error('[sitepdf] worker failed:',err); }catch(_){} if(!done){ done=true; clearTimeout(t); fallback(); } });
           }catch(e){ try{ console.error('[sitepdf] exception:',e); }catch(_){} if(!done){ done=true; clearTimeout(t); fallback(); } }
@@ -17207,6 +17362,7 @@ function onContinuationPick(sel){
      '<b style="color:#9b2226">Anything already filled in will be replaced and cannot be undone.</b><br>'+
      'Application attachments (Method Statement, JSA / Risk Assessment, etc.) are copied across — remove and re-upload them if they have changed.<br>'+
      'Not copied: application date, validity dates, applicant declaration and close-out evidence (certificates are re-numbered and reset to Draft).</div>');
+  warn+=contCheckNote_(Z);                    // 藍底提醒：帶入後送出前務必逐項確認
   warn+=contWaitNote_(Z);                     // 黃底提醒：帶入過程請勿關閉視窗
   uiDialog({html:warn,icon:'⚠️',title:(Z?'帶入延續許可證內容':'Copy continuation permit'),
     okText:(Z?'帶入':'Copy'),okClass:'btn-danger',width:580}).then(function(ok){
@@ -17215,6 +17371,34 @@ function onContinuationPick(sel){
     runContinuation(src);
   });
 }
+/**
+ * 送出前的逐項確認（藍底）。延續單雖然把大部分內容複製過來了，但這幾項幾乎每次都會變，
+ * 照抄送出最容易出事，所以在帶入確認視窗與帶入完成後都提醒一次。
+ */
+function contCheckNote_(Z){
+  var items=Z
+    ?['<b>工作地點</b> —— 里程樁（KP）位置可能已經改變，請依本次實際作業範圍更新。',
+      '<b>預定開工日期與有效期限</b> —— 不會從前一張帶入，必須重新填寫。',
+      '<b>工單持有人／副持有人</b> —— 換班或人員異動時務必改為本次實際負責人。',
+      '<b>作業證書（Certificate）</b> —— 已重新取號並回到草稿狀態，需要重新填寫並送審，不會沿用前一張的簽署。',
+      '<b>施工計畫書與風險評估（MS／RA）</b> —— 確認與前一張是否相同；若作業方法或範圍有變更，請移除後重新上傳。']
+    :['<b>Work location</b> — the KP reference may have moved; update it to this job’s actual extent.',
+      '<b>Planned start date and validity period</b> — these are not carried over and must be entered again.',
+      '<b>Permit holder / co-holder</b> — update to whoever is actually responsible for this shift.',
+      '<b>Certificates</b> — they are re-numbered and reset to Draft; they must be completed and re-submitted, and the previous signatures do not carry over.',
+      '<b>Method Statement / Risk Assessment</b> — confirm they are still the same; if the method or scope has changed, remove them and upload the current versions.'];
+  return '<div style="margin-top:12px;background:#eef5fc;border:1px solid #bcd7ef;border-left:4px solid #0b6bcb;'+
+    'border-radius:8px;padding:10px 12px;font-size:.84rem;color:#1b3c5c;line-height:1.7">'+(Z
+    ?'<b>📋 送出前請再確認以下事項</b><br><span style="color:#4a5b6d">'+
+     '大部分內容已為您複製，但下列項目通常會隨本次作業改變，請逐項檢查後再送出。感謝配合。</span>'
+    :'<b>📋 Please check the following before you submit</b><br><span style="color:#4a5b6d">'+
+     'Most of the content has been copied for you, but the items below usually change from one permit to the next. '+
+     'Please review each one before submitting. Thank you.</span>')+
+    '<ol style="margin:8px 0 0;padding-left:20px">'+
+    items.map(function(x){ return '<li style="margin-bottom:3px">'+x+'</li>'; }).join('')+
+    '</ol></div>';
+}
+
 /** 帶入期間的黃底提醒（確認視窗與進度視窗共用同一段文字） */
 function contWaitNote_(Z){
   return '<div style="margin-top:12px;background:#fff8e1;border:1px solid #ffe08a;border-left:4px solid #f0a500;'+
@@ -17292,6 +17476,11 @@ function runContinuation(src){
         (attFail?(Z?('；有 '+attFail+' 份附件複製失敗，請手動上傳'):
           ('; '+attFail+' attachment(s) failed to copy — please upload manually')):''),true);
       openPtwForm(ptwId);                     // 重新載入整份表單
+      // 帶入完成後再提醒一次：這幾項幾乎每次都會變，照抄送出最容易出事
+      uiDialog({icon:'📋',width:560,noCancel:true,
+        title:(Z?'帶入完成 — 送出前請確認':'Copied — please check before submitting'),
+        okText:(Z?'我知道了':'Got it'),
+        html:contCheckNote_(Z)});
     })['catch'](function(e){ fail(e&&e.ok===false?e:{msgZh:String(e&&e.message||e),msgEn:String(e&&e.message||e)}); });
   });
 }
