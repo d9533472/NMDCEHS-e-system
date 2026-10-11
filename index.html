@@ -507,14 +507,17 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .sch-url-row .sf-label{font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.2em}
 .sch-url-row input{width:100%;height:36px;padding:0 13px;border-radius:9px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);font-size:13px;font-family:inherit}
 .sch-hint{font-size:11.5px;color:var(--muted);line-height:1.75;padding:12px 15px;background:rgba(255,255,255,.6);border-radius:var(--r);border:1px solid var(--edge);border-left:2.5px solid var(--accent-bar);margin-top:14px}
-.sch-wrap{overflow-x:auto;overflow-y:visible;margin-top:10px;border:1px solid var(--edge2);border-radius:var(--r);background:rgba(255,255,255,.7)}
+.sch-wrap{overflow-x:auto;overflow-y:visible;margin-top:10px;border:1px solid rgba(10,27,42,.28);border-radius:var(--r);background:rgba(255,255,255,.7)}
 .sch-table{border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap;width:100%}
-.sch-table th,.sch-table td{border-right:1px solid rgba(10,27,42,.06);border-bottom:1px solid rgba(10,27,42,.06);padding:5px 2px;text-align:center;min-width:36px;vertical-align:middle}
+.sch-table th,.sch-table td{border-right:1px solid rgba(10,27,42,.14);border-bottom:1px solid rgba(10,27,42,.14);padding:5px 2px;text-align:center;min-width:36px;vertical-align:middle}
 .sch-table th:last-child,.sch-table td:last-child{border-right:none}
 .sch-table tbody tr:last-child td{border-bottom:none}
-.sch-table thead th{background:var(--navy);color:rgba(255,255,255,.85);font-weight:600;border-right-color:rgba(255,255,255,.08);border-bottom:none;padding:8px 2px}
-.sch-name{position:sticky;left:0;background:#fff;z-index:2;font-weight:600;min-width:104px;text-align:left;padding:9px 14px!important;vertical-align:middle;color:var(--text);font-size:13px;border-right:1px solid var(--edge2)!important}
-.sch-table thead th.sch-name{background:var(--navy);color:rgba(255,255,255,.6);font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:500}
+.sch-table thead th{background:var(--navy);color:rgba(255,255,255,.85);font-weight:600;border-right-color:rgba(255,255,255,.16);border-bottom:none;padding:8px 2px}
+/* 首欄（姓名）：與資料格明顯區隔的淺藍灰底＋加深的分隔線 */
+.sch-name{position:sticky;left:0;background:#dde7ef;z-index:2;font-weight:600;min-width:104px;text-align:left;padding:9px 14px!important;vertical-align:middle;color:var(--text);font-size:13px;
+  border-right:2px solid rgba(10,27,42,.38)!important;box-shadow:3px 0 6px -4px rgba(10,27,42,.45)}
+.sch-table tbody tr:last-child .sch-name{border-bottom-left-radius:10px}
+.sch-table thead th.sch-name{background:var(--navy);color:rgba(255,255,255,.6);font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border-right-color:rgba(255,255,255,.4)!important;box-shadow:none}
 .sch-table thead .sch-hol{background:#123f5e!important;box-shadow:inset 0 -2.5px 0 var(--gold)}
 .sch-table tbody .sch-hol{background:rgba(217,154,11,.07)!important}
 .sch-v-R{background:rgba(20,163,187,.12);color:var(--cyan);font-weight:700}
@@ -539,6 +542,50 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .sch-summary th{background:var(--bg2);font-family:var(--mono);font-weight:500;color:var(--faint);font-size:9.5px;text-transform:uppercase;letter-spacing:.2em}
 .sch-summary td{color:var(--text2)}
 .sch-summary .ot-pos{color:var(--danger);font-weight:700}
+
+/* ── 班表：今日欄位高亮 ── */
+.sch-table thead th.sch-td{background:#0b5e3a!important;box-shadow:inset 0 -3px 0 var(--accent)}
+.sch-table thead th.sch-td .sch-day-hd{display:inline-block;min-width:21px;padding:1px 6px;border-radius:999px;background:var(--accent);color:#04281a;font-weight:800}
+.sch-table thead th.sch-td .sch-dow,.sch-table thead th.sch-td .sch-hol-label{color:rgba(255,255,255,.8)}
+.sch-table tbody td.sch-td{box-shadow:inset 2px 0 0 var(--accent-bar),inset -2px 0 0 var(--accent-bar)}
+.sch-table tbody tr:last-child td.sch-td{box-shadow:inset 2px 0 0 var(--accent-bar),inset -2px 0 0 var(--accent-bar),inset 0 -2px 0 var(--accent-bar)}
+/* ── 班表：每週分隔（週日起新的一週） ── */
+.sch-table tbody td.sch-wk{border-left:2px solid rgba(10,27,42,.3)}
+.sch-table thead th.sch-wk{border-left:2px solid rgba(255,255,255,.34)}
+
+/* ── 班表：圖例 ── */
+.sch-legend{display:flex;flex-wrap:wrap;align-items:center;gap:8px 15px;margin-top:12px;padding:10px 14px;
+  background:rgba(255,255,255,.62);border:1px solid var(--edge2);border-radius:var(--r);font-size:12px;color:var(--text2)}
+.sch-legend .sl-t{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--faint)}
+.sch-legend .sl-i{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.sch-legend .sl-k{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:22px;padding:0 6px;border-radius:6px;
+  font-size:12px;font-weight:700;font-style:normal;border:1px solid var(--edge2)}
+.sch-legend .sch-v-H{background:var(--bg2)}
+.sch-legend .sl-hol{background:rgba(217,154,11,.16);border-color:var(--gold-line)}
+.sch-legend .sl-today{background:var(--accent);border-color:var(--accent-bar)}
+.sch-legend .sl-merge{background:var(--danger-bg);border-color:var(--danger-line);color:var(--danger);font-size:10.5px}
+.sch-legend .sl-sep{width:1px;height:17px;background:var(--edge2)}
+
+/* ── 班表：今日人員去向 ── */
+.sch-today-bar{margin-top:12px;padding:13px 15px;border-radius:var(--r);border:1px solid var(--edge2);
+  background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.58));box-shadow:var(--sh1)}
+.sch-today-bar .stb-h{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:11px}
+.sch-today-bar .stb-h::before{content:"";width:3px;height:14px;border-radius:2px;background:var(--accent-bar);box-shadow:0 0 10px rgba(0,152,69,.8)}
+.sch-today-bar .stb-h small{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--faint);font-weight:500}
+.stb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.stb-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid var(--edge2)}
+.stb-card .stb-who{min-width:0}
+.stb-card .stb-nm{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
+.stb-card .stb-zh{font-size:10.5px;color:var(--muted);line-height:1.35}
+.stb-card .stb-st{margin-left:auto;padding:5px 11px;border-radius:999px;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid transparent;
+  overflow:hidden;text-overflow:ellipsis;max-width:56%}
+.stb-st.st-中{background:rgba(0,176,80,.12);color:var(--accent2);border-color:rgba(0,176,80,.3)}
+.stb-st.st-霄{background:rgba(124,77,255,.1);color:#5b35c7;border-color:rgba(124,77,255,.3)}
+.stb-st.st-R{background:rgba(20,163,187,.12);color:var(--cyan);border-color:rgba(20,163,187,.3)}
+.stb-st.st-H{background:var(--bg2);color:var(--faint);border-color:var(--edge2)}
+.stb-st.st-M{background:var(--danger-bg);color:var(--danger);border-color:var(--danger-line)}
+@media(max-width:860px){.stb-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.stb-grid{grid-template-columns:1fr}}
 
 /* ══ 表單與彈窗 ═════════════════════════════════════════════════════ */
 .modal-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:rgba(10,30,50,.4);backdrop-filter:blur(10px);animation:fadeIn .2s;padding:24px}
@@ -934,6 +981,9 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
   .card,.section-block,.info-bar,.roster-scope{background:#fff!important;box-shadow:none!important;border-color:#bbb!important;backdrop-filter:none!important}
   .card::before,.info-bar::before,.info-bar::after{display:none}
   .sch-table thead th,.roster-scope .hgrid .dcol,.roster-scope .hgrid thead .nh{background:#e8e8e8!important;color:#000!important}
+  .sch-table thead th.sch-td .sch-day-hd{background:#000!important;color:#fff!important}
+  .sch-name{background:#f0f0f0!important;box-shadow:none!important}
+  .sch-today-bar,.sch-legend{break-inside:avoid}
 }
 
 /* ══ 響應式 ═════════════════════════════════════════════════════════ */
@@ -1311,6 +1361,8 @@ const TW_HOL={
 '2026-09-25':'中秋節','2026-09-28':'教師節','2026-10-09':'國慶日(補假)','2026-10-10':'國慶日','2026-10-25':'光復節','2026-10-26':'光復節(補假)','2026-12-25':'行憲紀念日'
 };
 const WKDAYS=['日','一','二','三','四','五','六'];
+// 班表代號 → 中文說明（圖例、今日去向、滑鼠提示共用）
+const SCH_LBL={'中':'台中','霄':'通霄','R':'辦公室','H':'休假'};
 
 // ═══ Google Sheets Sync (via Apps Script API) ═══
 const GAS_URL='https://script.google.com/macros/s/AKfycbyT6kFs6nCt6YCHyQjdbMxgErkOHNxwcIuncju0UkzBq4TvGOIigINusItj9bvcUbRrcw/exec';
@@ -2330,6 +2382,29 @@ function renderSchHTML(){
 function renderOneMonth(mo){
   const sd=getSchData(mo);const [y,m]=mo.split('-').map(Number);const days=new Date(y,m,0).getDate();
   const mLabel=`${y}年${m}月`;
+
+  // 今天（只有當檢視的月份就是本月時才有值）
+  const _now=new Date();
+  const todayD=(_now.getFullYear()===y&&_now.getMonth()+1===m)?_now.getDate():0;
+  // 單格內容：回傳代號、顯示文字（合併儲存格以其標籤為準）
+  const cellInfo=(p,d)=>{
+    const mg=sd.merges?.find(x=>x.person===p&&d>=x.start&&d<=x.end);
+    if(mg)return{v:mg.value||'',txt:mg.label||mg.value||'特殊',merge:true};
+    const v=sd.cells[p]?.[d]||'R';
+    return{v,txt:SCH_LBL[v]||v,merge:false};
+  };
+  // 捲動：同月重繪時維持原位置，換月／首次進入則自動捲到今天
+  const _oldWrap=document.querySelector('.sch-wrap');
+  const _keepLeft=(_oldWrap&&_oldWrap.getAttribute('data-mo')===mo)?_oldWrap.scrollLeft:null;
+  setTimeout(()=>{
+    const w=document.querySelector(`.sch-wrap[data-mo="${mo}"]`);if(!w)return;
+    if(_keepLeft!=null){w.scrollLeft=_keepLeft;return;}
+    const c=w.querySelector('thead th.sch-td');
+    if(!c){w.scrollLeft=0;return;}
+    const r=c.getBoundingClientRect(),wr=w.getBoundingClientRect();
+    w.scrollLeft+=(r.left-wr.left)-(wr.width-r.width)/2;
+  },0);
+
   let h=`<div style="font-size:15px;font-weight:700;color:var(--text2);margin-bottom:8px">📅 ${mLabel}</div>`;
 
   if(isEditor){
@@ -2338,11 +2413,35 @@ function renderOneMonth(mo){
     h+=`<div style="font-size:12px;color:var(--muted);margin-bottom:8px">正常工作日：${sd.normalDays} 天</div>`;
   }
 
+  // ── 今日人員去向 ──
+  if(todayD){
+    const tdow=new Date(y,m-1,todayD).getDay();const thn=holName(y,m,todayD);
+    h+=`<div class="sch-today-bar"><div class="stb-h">今日人員去向 <small>${m}/${todayD}（${WKDAYS[tdow]}）${thn?' · '+esc(thn):''}</small></div><div class="stb-grid">`;
+    PLIST.forEach(p=>{
+      const ci=cellInfo(p,todayD);
+      h+=`<div class="stb-card"><div class="stb-who"><div class="stb-nm">${p}</div><div class="stb-zh">${PLIST_ZH[p]||''}</div></div><span class="stb-st st-${ci.merge?'M':ci.v}" title="${esc(ci.txt)}">${esc(ci.txt)}</span></div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // ── 圖例 ──
+  h+=`<div class="sch-legend"><span class="sl-t">圖例</span>`
+    +`<span class="sl-i"><i class="sl-k sch-v-中">中</i>台中</span>`
+    +`<span class="sl-i"><i class="sl-k sch-v-霄">霄</i>通霄</span>`
+    +`<span class="sl-i"><i class="sl-k sch-v-R">R</i>辦公室</span>`
+    +`<span class="sl-i"><i class="sl-k sch-v-H">H</i>休假・請假</span>`
+    +`<span class="sl-sep"></span>`
+    +`<span class="sl-i"><i class="sl-k sl-hol"></i>週末・國定假日</span>`
+    +(todayD?`<span class="sl-i"><i class="sl-k sl-today"></i>今天</span>`:'')
+    +`<span class="sl-i"><i class="sl-k sl-merge">特</i>特殊事項</span>`
+    +`</div>`;
+
   // Table
-  h+=`<div class="sch-wrap"><table class="sch-table"><thead><tr><th class="sch-name" style="position:sticky;left:0;z-index:3;background:var(--card)">姓名</th>`;
+  h+=`<div class="sch-wrap" data-mo="${mo}"><table class="sch-table"><thead><tr><th class="sch-name" style="position:sticky;left:0;z-index:3">姓名</th>`;
   for(let d=1;d<=days;d++){
     const dt=new Date(y,m-1,d);const dow=dt.getDay();const off=isDayOff(y,m,d);const hn=holName(y,m,d);
-    h+=`<th class="${off?'sch-hol':''}"><div class="sch-day-hd">${d}</div><span class="sch-dow">${WKDAYS[dow]}</span>${hn?`<span class="sch-hol-label">${hn}</span>`:''}</th>`;
+    const cls=[off?'sch-hol':'',d===todayD?'sch-td':'',(dow===0&&d>1)?'sch-wk':''].filter(Boolean).join(' ');
+    h+=`<th class="${cls}" title="${m}/${d}（${WKDAYS[dow]}）${hn?' '+esc(hn):''}${d===todayD?' · 今天':''}"><div class="sch-day-hd">${d}</div><span class="sch-dow">${WKDAYS[dow]}</span>${hn?`<span class="sch-hol-label">${hn}</span>`:''}</th>`;
   }
   h+=`</tr></thead><tbody>`;
 
@@ -2364,13 +2463,16 @@ function renderOneMonth(mo){
       if(inMg){d++;continue;}
       const v=sd.cells[p]?.[d]||'R';
       const off=isDayOff(y,m,d);
+      const dow=new Date(y,m-1,d).getDay();
+      const cls=`sch-cell sch-v-${v}${off?' sch-hol':''}${d===todayD?' sch-td':''}${(dow===0&&d>1)?' sch-wk':''}`;
+      const tip=`${p}｜${m}/${d}（${WKDAYS[dow]}）・${SCH_LBL[v]||v}${d===todayD?'・今天':''}`;
       if(isEditor){
         const opts=off?['R','H','中','霄']:['R','H','中','霄'];
-        h+=`<td class="sch-cell sch-v-${v}${off?' sch-hol':''}"><select onchange="setSch('${mo}','${p}',${d},this.value)" style="background:transparent;border:none;color:inherit;font-weight:inherit;font-size:12px;text-align:center;width:100%;cursor:pointer;outline:none;-webkit-appearance:none;-moz-appearance:none;appearance:none">`;
+        h+=`<td class="${cls}" title="${esc(tip)}"><select onchange="setSch('${mo}','${p}',${d},this.value)" style="background:transparent;border:none;color:inherit;font-weight:inherit;font-size:12px;text-align:center;width:100%;cursor:pointer;outline:none;-webkit-appearance:none;-moz-appearance:none;appearance:none">`;
         opts.forEach(o=>{h+=`<option value="${o}" ${o===v?'selected':''}>${o}</option>`;});
         h+=`</select></td>`;
       } else {
-        h+=`<td class="sch-cell sch-v-${v}${off?' sch-hol':''}">${v}</td>`;
+        h+=`<td class="${cls}" title="${esc(tip)}">${v}</td>`;
       }
       d++;
     }

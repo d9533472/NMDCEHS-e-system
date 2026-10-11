@@ -32,10 +32,10 @@
 // ★★★ 把你的收件信箱填在這裡（通知信會寄到這個地址），之後也可以在系統後台改 ★★★
 const NOTIFY_EMAIL_DEFAULT = '';
 
-// 通知節奏：這一天（含）以前每筆回覆都寄一封，之後自動改成每週日寄一份摘要。
-// 想一直維持「每筆一封」就把日期往後改；想立刻切成週報就改成過去的日期。
+// 通知節奏：這一天（含）以前每筆回覆都寄一封，之後自動改成每天寄一份摘要。
+// 想一直維持「每筆一封」就把日期往後改；想立刻切成每日摘要就改成過去的日期。
 const NOTIFY_EACH_UNTIL = '2026-10-09';
-const DIGEST_WEEKDAY_HOUR = 9;          // 週日幾點寄
+const DIGEST_HOUR = 9;                  // 每天幾點寄摘要（GAS 會在這個整點後一小時內送出）
 
 
 // ══════════════════════════════════════════════════════════════════
@@ -68,7 +68,7 @@ function authorizeAll() {
     return '可讀寫';
   });
   ok('網頁應用程式網址', function () { return ScriptApp.getService().getUrl() || '（尚未部署）'; });
-  ok('每週日摘要排程', function () { return setupWeeklyDigest(); });
+  ok('每日摘要排程', function () { return setupDailyDigest(); });
 
   // 真的寄一封信出去，確認寄信權限真的拿到了
   let to = '';
@@ -408,7 +408,7 @@ function apiSubmit(payload) {
 // 今天該用哪種通知節奏
 function _notifyMode() {
   const today = Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd');
-  return today <= NOTIFY_EACH_UNTIL ? 'each' : 'weekly';
+  return today <= NOTIFY_EACH_UNTIL ? 'each' : 'digest';
 }
 
 function _notifyNewResponse(row, total, force) {
@@ -416,7 +416,7 @@ function _notifyNewResponse(row, total, force) {
     const props = PropertiesService.getScriptProperties();
     if (props.getProperty('NOTIFY_ON') === 'off') return { sent: false, reason: '通知已關閉' };
     if (!force && _notifyMode() !== 'each') {
-      return { sent: false, reason: '目前是每週摘要模式，不逐筆寄信' };
+      return { sent: false, reason: '目前是每日摘要模式，不逐筆寄信' };
     }
     const to = (props.getProperty('NOTIFY_EMAIL') || '').trim() || String(NOTIFY_EMAIL_DEFAULT || '').trim();
     if (!to) return { sent: false, reason: '還沒設定收件信箱，請在上面填一個再儲存' };
@@ -472,9 +472,108 @@ function _notifyNewResponse(row, total, force) {
 }
 
 // ══════════════════════════════════
-// 每週日摘要
+// 每日摘要（每天早上寄一份；舊的週報已經併進這裡）
 // ══════════════════════════════════
-function sendWeeklyDigest() {
+
+// 郵件版箱型圖。後台那張是用 position:absolute 畫的，Gmail 會把 position
+// 整條砍掉，所以這裡用「百分比寬度的表格」重畫一次同一張圖：
+// 淺綠方塊＝P25～P75、深綠直線＝中位數、金色圓點＝平均數。
+function _bxMail(s) {
+  if (!s || !(Number(s.median) > 0)) return '';
+  // 鬚線取 Tukey 1.5 倍四分位距：只要有一筆離譜的數字，min~max 刻度就會把整個盒子壓到最左邊
+  const iqr = s.p75 - s.p25;
+  let lo = s.min, hi = s.max;
+  if (iqr > 0) {
+    lo = Math.max(s.min, s.p25 - 1.5 * iqr);
+    hi = Math.min(s.max, s.p75 + 1.5 * iqr);
+  }
+  if (!(hi > lo)) { lo = s.min; hi = s.max; }
+  const span = (hi - lo) || 1;
+  const at = function (v) { return Math.max(0, Math.min(100, (v - lo) / span * 100)); };
+  // 記號夾在 0.6～99.4%：平均數被鬚線切掉時才不會貼在表格邊界上看不見
+  const nip = function (v) { return Math.max(0.6, Math.min(99.4, v)); };
+  const p25 = at(s.p25), p75 = at(s.p75);
+  const med = nip(at(s.median)), mean = nip(at(s.mean));
+  const same = function (a, b) { return Math.abs(a - b) < 0.01; };
+
+  const blank = 'font-size:0;line-height:0';
+  const cap = '<td width="2" valign="middle" style="padding:0;' + blank + '">' +
+    '<div style="width:2px;height:14px;background:#93a6b6;' + blank + '">&nbsp;</div></td>';
+  const medCell = '<td width="3" valign="middle" style="padding:0;' + blank + '">' +
+    '<div style="width:3px;height:26px;background:#0a5c3e;' + blank + '">&nbsp;</div></td>';
+  const meanCell = '<td width="10" valign="middle" style="padding:0;' + blank + '">' +
+    '<div style="width:6px;height:6px;border:2px solid #fff;border-radius:50%;' +
+    'background:#b8862b;' + blank + '">&nbsp;</div></td>';
+  // 盒子被記號切成好幾段，左右邊框只畫在最外兩段，中間才不會多出一條框線
+  const seg = function (w, inBox, edgeL, edgeR) {
+    const style = inBox
+      ? 'height:17px;background:#e8f5ef;border-top:1.5px solid #0e7a53;' +
+        'border-bottom:1.5px solid #0e7a53;' +
+        (edgeL ? 'border-left:1.5px solid #0e7a53;' : '') +
+        (edgeR ? 'border-right:1.5px solid #0e7a53;' : '')
+      : 'height:2px;background:#93a6b6;';
+    return '<td width="' + w + '%" valign="middle" style="padding:0;' + blank + '">' +
+      '<div style="' + style + blank + '">&nbsp;</div></td>';
+  };
+
+  // 0～100 依 P25／P75／中位數／平均切成數段，逐段決定要畫鬚線還是盒子
+  const stops = [];
+  [0, p25, med, mean, p75, 100].forEach(function (v) {
+    if (v < 0 || v > 100) return;
+    for (let i = 0; i < stops.length; i++) if (same(stops[i], v)) return;
+    stops.push(v);
+  });
+  stops.sort(function (a, b) { return a - b; });
+
+  let bar = cap;
+  for (let i = 1; i < stops.length; i++) {
+    const a = stops[i - 1], b = stops[i];
+    const inBox = p75 > p25 && a >= p25 - 0.01 && b <= p75 + 0.01;
+    bar += seg(Math.round((b - a) * 100) / 100, inBox, inBox && same(a, p25), inBox && same(b, p75));
+    if (same(b, med)) bar += medCell;
+    if (same(b, mean)) bar += meanCell;
+  }
+  bar += cap;
+
+  const tb = '<table width="100%" cellpadding="0" cellspacing="0" border="0" ' +
+             'style="border-collapse:collapse">';
+  const lab = '中位 ' + _wan(s.median);
+  const labSty = 'padding:0 0 2px;font-size:11.5px;font-weight:800;color:#0a5c3e;white-space:nowrap';
+  const ax = 'font-size:10.5px;color:#93a6b6;white-space:nowrap;padding:3px 0 0';
+  const outLo = s.min < lo, outHi = s.max > hi;
+
+  return '<div style="margin:0 10px">' +
+    // 中位數標籤：靠左半邊就從線往右寫，靠右半邊就往左寫，免得被切掉
+    tb + '<tr>' + (med <= 50
+      ? '<td width="' + med + '%" style="padding:0"></td>' +
+        '<td align="left" style="' + labSty + '">' + lab + '</td>'
+      : '<td align="right" width="' + med + '%" style="' + labSty + '">' + lab + '</td>' +
+        '<td style="padding:0"></td>') +
+    '</tr></table>' +
+    tb + '<tr>' + bar + '</tr></table>' +
+    // 刻度：四格的累積寬度剛好把 P25／P75 的字頭對在自己的位置上。
+    // P25 太靠左（或 P75 太靠右）時兩個數字會疊在一起，這時改讓下面那行文字交代端點
+    tb + '<tr>' +
+      '<td width="' + Math.round(p25) + '%" align="left" style="' + ax + '">' +
+        (p25 >= 12 ? _wan(lo) : '') + '</td>' +
+      '<td width="' + Math.max(1, Math.round(p75 - p25)) + '%" align="left" style="' + ax + '">' +
+        'P25 ' + _wan(s.p25) + '</td>' +
+      '<td width="' + Math.max(1, Math.round(100 - p75) - 14) + '%" align="left" style="' + ax + '">' +
+        'P75 ' + _wan(s.p75) + '</td>' +
+      '<td align="right" style="' + ax + '">' + (100 - p75 >= 12 ? _wan(hi) : '') + '</td>' +
+    '</tr></table>' +
+    (outLo || outHi
+      ? '<p style="margin:7px 0 0;font-size:11px;color:#93a6b6;line-height:1.5">' +
+        '鬚線 ' + _wan(lo) + ' ～ ' + _wan(hi) + ' 只畫到 1.5 倍四分位距，' +
+        '外面還有極端值沒畫進來；實際全距 ' + _wan(s.min) + ' ～ ' + _wan(s.max) + '。</p>'
+      : (p25 < 12 || 100 - p75 < 12)
+        ? '<p style="margin:7px 0 0;font-size:11px;color:#93a6b6;line-height:1.5">鬚線兩端 ' +
+          _wan(lo) + ' ～ ' + _wan(hi) + '。</p>'
+        : '') +
+    '</div>';
+}
+
+function sendDailyDigest() {
   const props = PropertiesService.getScriptProperties();
   if (props.getProperty('NOTIFY_ON') === 'off') return '通知已關閉';
   const to = (props.getProperty('NOTIFY_EMAIL') || '').trim() ||
@@ -483,10 +582,32 @@ function sendWeeklyDigest() {
 
   const rows = _readResponses();
   const clean = rows.filter(function (r) { return !r.outlier; });
-  const cutoff = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+  const now = new Date();
+  const dayKey = function (d) { return Utilities.formatDate(d, 'Asia/Taipei', 'yyyy-MM-dd'); };
+  const dayBack = function (n) { return dayKey(new Date(now.getTime() - n * 86400000)); };
+  const md = function (key) { return key.slice(5).replace('-', '/'); };
+
+  // 先把每一筆歸到自己的日期，後面查哪一天都只是查表（匯入的 2023 列不會落在這些日子）
+  const byDay = {};
+  rows.forEach(function (r) {
+    if (!(r.timestamp instanceof Date)) return;
+    const k = dayKey(r.timestamp);
+    if (!byDay[k]) byDay[k] = [];
+    byDay[k].push(r);
+  });
+  const onDay = function (key) { return byDay[key] || []; };
+
+  const today = dayBack(0), yest = dayBack(1);
+  const tRows = onDay(today), yRows = onDay(yest), eRows = onDay(dayBack(2));
+  const cutoff = new Date(now.getTime() - 7 * 86400000);
   const week = rows.filter(function (r) {
     return (r.timestamp instanceof Date) && r.timestamp >= cutoff;
   });
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const k = dayBack(i);
+    days.push({ label: md(k), count: onDay(k).length });
+  }
 
   const card = function (k, v, sub) {
     return '<td style="padding:0 8px 0 0;vertical-align:top;width:33%">' +
@@ -496,9 +617,15 @@ function sendWeeklyDigest() {
       (sub ? '<div style="font-size:11.5px;color:#93a6b6">' + sub + '</div>' : '') +
       '</div></td>';
   };
+  const h3 = function (t) {
+    return '<p style="margin:18px 0 6px;font-size:13px;font-weight:700;color:#2a4259">' + t + '</p>';
+  };
+  const note = function (t) {
+    return '<p style="margin:7px 0 0;font-size:11.5px;color:#64798c;line-height:1.6">' + t + '</p>';
+  };
   const dist = function (title, list) {
     if (!list.length) return '';
-    return '<p style="margin:16px 0 6px;font-size:13px;font-weight:700;color:#2a4259">' + title + '</p>' +
+    return h3(title) +
       '<table style="width:100%;border-collapse:collapse;font-size:13px">' +
       list.slice(0, 8).map(function (x) {
         const w = Math.round(x.count / list[0].count * 100);
@@ -509,32 +636,100 @@ function sendWeeklyDigest() {
           x.count + '</td></tr>';
       }).join('') + '</table>';
   };
+  const chart = function (title, s) {
+    if (!s || !(Number(s.median) > 0)) return '';
+    return '<div style="border:1px solid #e2e9f0;border-radius:12px;padding:11px 3px 13px;' +
+      'margin:10px 0 0;background:#fff">' +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+      '<td style="padding:0 10px 10px;font-size:12.5px;font-weight:700;color:#2a4259">' + title + '</td>' +
+      '<td align="right" style="padding:0 10px 10px;font-size:11.5px;font-weight:700;' +
+      'color:#0a5c3e;white-space:nowrap">n=' + s.n + '　平均 ' + _wan(s.mean) + '</td>' +
+      '</tr></table>' + _bxMail(s) + '</div>';
+  };
 
+  const diff = yRows.length - eRows.length;
   const need = Math.max(0, MIN_PUBLIC_N - clean.length);
+  const left = Math.max(0, Math.ceil(
+    (new Date(SURVEY_END + 'T23:59:59+08:00').getTime() - now.getTime()) / 86400000));
+
   let body =
     '<table style="width:100%;border-collapse:separate;border-spacing:0"><tr>' +
-    card('本週新增', week.length + ' 筆', '過去 7 天') +
+    card('昨日新增', yRows.length + ' 筆',
+         md(yest) + '　比前日 ' + (diff > 0 ? '+' + diff : diff < 0 ? diff : '持平')) +
+    card('今日累積', tRows.length + ' 筆', '近 7 天 ' + week.length + ' 筆') +
     card('累計回覆', rows.length + ' 筆', '有效 ' + clean.length + ' 筆') +
-    card('距離開放', need ? ('還差 ' + need + ' 筆') : '已開放', '門檻 ' + MIN_PUBLIC_N + ' 份') +
+    '</tr></table>' +
+    '<p style="margin:12px 0 0;font-size:12.5px;color:#64798c">' +
+    (need ? '距離公開門檻還差 <b style="color:#b0341f">' + need + ' 筆</b>（門檻 ' + MIN_PUBLIC_N + ' 份）'
+          : '已達公開門檻 ' + MIN_PUBLIC_N + ' 份') +
+    '　·　調查還有 <b style="color:#0a5c3e">' + left + ' 天</b>（截止 ' + _toRoc(SURVEY_END) + '）</p>';
+
+  // 近 14 天回收趨勢
+  let peak = 1;
+  days.forEach(function (x) { if (x.count > peak) peak = x.count; });
+  // 每根柱子都要給同樣的寬度，否則表格會照內容分配，柱子就會寬窄不一
+  const colW = Math.round(1000 / days.length) / 10;
+  body += h3('近 14 天回收') +
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0" ' +
+    'style="table-layout:fixed;border-collapse:collapse"><tr>' +
+    days.map(function (x) {
+      const hgt = x.count ? Math.max(3, Math.round(x.count / peak * 42)) : 2;
+      return '<td width="' + colW + '%" valign="bottom" style="padding:0 1px;font-size:0;line-height:0">' +
+        '<div style="height:' + hgt + 'px;background:' + (x.count ? '#13946a' : '#dde6ee') +
+        ';border-radius:2px;font-size:0;line-height:0">&nbsp;</div></td>';
+    }).join('') +
+    '</tr><tr>' +
+    days.map(function (x, i) {
+      return '<td width="' + colW + '%" align="center" ' +
+        'style="padding:4px 0 0;font-size:9px;color:#93a6b6;white-space:nowrap">' +
+        (i % 3 === 1 || i === days.length - 1 ? x.label : '') + '</td>';
+    }).join('') +
     '</tr></table>';
 
-  if (week.length) {
-    body += dist('本週行業別', _countBy(week, 'job_category')) +
-            dist('本週年資', _countBy(week, 'yrs_band'));
+  // 分布看昨天那一批；昨天沒人填就退一步看整週
+  const dRows = yRows.length ? yRows : week;
+  const dWhen = yRows.length ? '昨日' : '近 7 天';
+  if (dRows.length) {
+    body += dist(dWhen + '行業別', _countBy(dRows, 'job_category')) +
+            dist(dWhen + '年資', _countBy(dRows, 'yrs_band'));
   } else {
     body += '<p style="margin:16px 0 0;font-size:13.5px;color:#64798c">' +
-            '本週沒有新的回覆。要不要再到社團轉發一次？</p>';
+            '昨天跟這一週都沒有新的回覆。要不要再到社團轉發一次？</p>';
   }
 
-  // 累計中位數是公開報告上本來就看得到的數字，不涉及單筆，可以放
+  // 中位數／平均都是公開報告上本來就看得到的彙總數字，不涉及單筆，可以放
   if (clean.length >= MIN_PUBLIC_N) {
     const st = _salaryStat(clean);
-    body += '<p style="margin:18px 0 6px;font-size:13px;font-weight:700;color:#2a4259">累計中位數</p>' +
-      '<table style="width:100%;border-collapse:separate;border-spacing:0"><tr>' +
-      card('月全薪', _fmt(st.monthly.median), 'n = ' + st.monthly.n) +
-      card('年終', _fmt(st.bonus.median), '') +
-      card('全年收入', _fmt(st.annual.median), '') +
-      '</tr></table>';
+    const th = function (t, al) {
+      return '<th align="' + (al || 'right') + '" style="padding:0 0 6px;font-size:11px;' +
+        'font-weight:700;color:#93a6b6;white-space:nowrap">' + t + '</th>';
+    };
+    const td = function (v, col, bold) {
+      return '<td align="right" style="padding:7px 0;border-top:1px solid #eff4f8;font-size:13px;' +
+        'white-space:nowrap;color:' + (col || '#2a4259') + (bold ? ';font-weight:800' : '') + '">' +
+        _fmt(v) + '</td>';
+    };
+    const line = function (label, s) {
+      return '<tr><td style="padding:7px 10px 7px 0;border-top:1px solid #eff4f8;font-size:13px;' +
+        'font-weight:700;color:#2a4259;white-space:nowrap">' + label + '</td>' +
+        td(s.median, '#0a5c3e', true) + td(s.mean, '#b8862b', true) +
+        td(s.p25) + td(s.p75) + '</tr>';
+    };
+    body += h3('累計統計（有效 ' + clean.length + ' 筆）') +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0" ' +
+      'style="border-collapse:collapse"><tr>' + th('　', 'left') + th('中位數') + th('平均') +
+      th('P25') + th('P75') + '</tr>' +
+      line('月全薪', st.monthly) + line('年終獎金', st.bonus) + line('全年收入', st.annual) +
+      '</table>' +
+      note('綠色是中位數、金色是平均數。平均明顯高過中位數，就是少數高薪把平均拉上去了。');
+
+    body += h3('薪資分布') +
+      note('淺綠方塊＝P25～P75（中間一半的人），深綠直線＝中位數，<b style="color:#b8862b">' +
+           '金色圓點＝平均數</b>。金點落在深綠線右邊愈多，代表分布愈往高薪端拖。') +
+      chart('月薪', st.monthly) +
+      chart('全年本業總收入', st.annual);
+  } else {
+    body += note('有效樣本未達 ' + MIN_PUBLIC_N + ' 份，摘要暫不顯示中位數與平均。');
   }
 
   const url = ScriptApp.getService().getUrl();
@@ -542,8 +737,9 @@ function sendWeeklyDigest() {
     '<div style="font-family:system-ui,-apple-system,\'Noto Sans TC\',sans-serif;' +
     'max-width:560px;color:#0b1b2b;line-height:1.7">' +
     '<div style="background:#0e7a53;color:#fff;padding:15px 18px;border-radius:12px 12px 0 0">' +
-    '<div style="font-size:11.5px;opacity:.8;letter-spacing:.1em">WEEKLY DIGEST</div>' +
-    '<div style="font-size:17px;font-weight:700">' + SURVEY_TITLE + '　本週摘要</div></div>' +
+    '<div style="font-size:11.5px;opacity:.8;letter-spacing:.1em">DAILY DIGEST</div>' +
+    '<div style="font-size:17px;font-weight:700">' + SURVEY_TITLE + '　每日摘要</div>' +
+    '<div style="font-size:12px;opacity:.85">' + _toRoc(today) + '</div></div>' +
     '<div style="border:1px solid #e2e9f0;border-top:0;border-radius:0 0 12px 12px;padding:16px 18px">' +
     body +
     '<p style="margin:18px 0 0;font-size:13px">' +
@@ -557,12 +753,12 @@ function sendWeeklyDigest() {
   try {
     MailApp.sendEmail({
       to: to,
-      subject: '【' + SURVEY_TITLE + '】本週摘要：新增 ' + week.length +
+      subject: '【' + SURVEY_TITLE + '】每日摘要：昨日新增 ' + yRows.length +
                ' 筆，累計 ' + rows.length + ' 筆',
       htmlBody: html
     });
-    _log('digest', '本週摘要已寄給 ' + to + '（新增 ' + week.length + ' 筆）');
-    return '已寄出本週摘要給 ' + to + '（本週新增 ' + week.length + ' 筆）';
+    _log('digest', '每日摘要已寄給 ' + to + '（昨日新增 ' + yRows.length + ' 筆）');
+    return '已寄出每日摘要給 ' + to + '（昨日新增 ' + yRows.length + ' 筆）';
   } catch (err) {
     const msg = (err && err.message) ? err.message : String(err);
     _log('digest_error', msg);
@@ -570,33 +766,42 @@ function sendWeeklyDigest() {
   }
 }
 
-// 安裝／移除每週日的觸發器
-function setupWeeklyDigest() {
-  removeWeeklyDigest();
-  ScriptApp.newTrigger('sendWeeklyDigest')
+// 安裝／移除每天的觸發器（順手清掉舊的週報觸發器，不會兩份一起寄）
+function setupDailyDigest() {
+  removeDailyDigest();
+  ScriptApp.newTrigger('sendDailyDigest')
     .timeBased()
-    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
-    .atHour(DIGEST_WEEKDAY_HOUR)
+    .everyDays(1)
+    .atHour(DIGEST_HOUR)
     .inTimezone('Asia/Taipei')
     .create();
-  return '已排定每週日 ' + DIGEST_WEEKDAY_HOUR + ' 點寄送摘要';
+  return '已排定每天 ' + DIGEST_HOUR + ' 點寄送摘要';
 }
 
-function removeWeeklyDigest() {
+function removeDailyDigest() {
   let n = 0;
   ScriptApp.getProjectTriggers().forEach(function (t) {
-    if (t.getHandlerFunction() === 'sendWeeklyDigest') { ScriptApp.deleteTrigger(t); n++; }
+    const f = t.getHandlerFunction();
+    if (f === 'sendDailyDigest' || f === 'sendWeeklyDigest') { ScriptApp.deleteTrigger(t); n++; }
   });
-  return '已移除 ' + n + ' 個週報觸發器';
+  return '已移除 ' + n + ' 個摘要觸發器';
 }
 
-function _hasWeeklyTrigger() {
+function _hasDigestTrigger() {
   try {
     return ScriptApp.getProjectTriggers().some(function (t) {
-      return t.getHandlerFunction() === 'sendWeeklyDigest';
+      const f = t.getHandlerFunction();
+      return f === 'sendDailyDigest' || f === 'sendWeeklyDigest';
     });
   } catch (e) { return false; }
 }
+
+// 舊名字留著當轉接：之前裝的週報觸發器指向 sendWeeklyDigest，
+// 在它被 setupDailyDigest 清掉之前還是要能跑。
+function sendWeeklyDigest() { return sendDailyDigest(); }
+function setupWeeklyDigest() { return setupDailyDigest(); }
+function removeWeeklyDigest() { return removeDailyDigest(); }
+function _hasWeeklyTrigger() { return _hasDigestTrigger(); }
 
 
 // 後台：讀取／設定通知
@@ -615,8 +820,8 @@ function adminGetNotify(pw) {
     quota: quota,
     mode: _notifyMode(),
     eachUntil: NOTIFY_EACH_UNTIL,
-    digestHour: DIGEST_WEEKDAY_HOUR,
-    hasTrigger: _hasWeeklyTrigger()
+    digestHour: DIGEST_HOUR,
+    hasTrigger: _hasDigestTrigger()
   };
 }
 
@@ -1250,6 +1455,13 @@ function _fmt(n) {
   return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
+// 「萬」為單位，跟後台的 wan() 同一套寫法：100 萬以上不留小數
+function _wan(n) {
+  if (n === null || n === undefined || n === '' || isNaN(n)) return '—';
+  const v = Number(n) / 10000;
+  return (v >= 100 ? Math.round(v) : Math.round(v * 10) / 10) + '萬';
+}
+
 
 // ══════════════════════════════════
 // 系統後台 API（?page=admin）
@@ -1645,10 +1857,10 @@ function adminStats(pw) {
 }
 
 
-// 後台：立刻寄一份週報、重設排程
+// 後台：立刻寄一份摘要、重設排程
 function adminSendDigest(pw) {
   _auth(pw);
-  const msg = sendWeeklyDigest();
+  const msg = sendDailyDigest();
   const s = adminGetNotify(pw);
   s.message = msg;
   return s;
@@ -1656,7 +1868,7 @@ function adminSendDigest(pw) {
 
 function adminSetupDigest(pw, on) {
   _auth(pw);
-  const msg = on ? setupWeeklyDigest() : removeWeeklyDigest();
+  const msg = on ? setupDailyDigest() : removeDailyDigest();
   const s = adminGetNotify(pw);
   s.message = msg;
   return s;

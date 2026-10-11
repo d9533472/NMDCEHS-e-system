@@ -882,17 +882,17 @@ function loadNotify() {
         '等於放棄問卷頁向填答者保證的「管理者也無法把 Email 對回薪資」。</small>' +
         '</span></label>' +
       '<div class="mode">' +
-        '<b>' + (c.mode === 'each' ? '目前：每一筆回覆都寄一封' : '目前：每週日寄一份摘要') + '</b>' +
-        '<em>' + esc(c.eachUntil) + '（含）以前逐筆寄，之後自動改成每週日 ' + c.digestHour +
+        '<b>' + (c.mode === 'each' ? '目前：每一筆回覆都寄一封' : '目前：每天早上寄一份摘要') + '</b>' +
+        '<em>' + esc(c.eachUntil) + '（含）以前逐筆寄，之後自動改成每天 ' + c.digestHour +
         ' 點寄摘要。要調整就改 程式碼.js 最上面的 <code>NOTIFY_EACH_UNTIL</code>。</em>' +
-        '<em>週日排程：' + (c.hasTrigger ? '<b style="color:#0a5c3e">已排定</b>' :
-          '<b style="color:#b0341f">尚未排定</b>（按下面的「重設週日排程」）') + '</em>' +
+        '<em>每日排程：' + (c.hasTrigger ? '<b style="color:#0a5c3e">已排定</b>' :
+          '<b style="color:#b0341f">尚未排定</b>（按下面的「重設每日排程」）') + '</em>' +
       '</div>' +
       '<div class="btns" style="margin-top:14px">' +
         '<button class="btn p" id="nfSave">儲存設定</button>' +
         '<button class="btn g" id="nfTest">寄一封測試信</button>' +
-        '<button class="btn g" id="nfDigest">立刻寄一份週報</button>' +
-        '<button class="btn g" id="nfTrig">重設週日排程</button>' +
+        '<button class="btn g" id="nfDigest">立刻寄一份摘要</button>' +
+        '<button class="btn g" id="nfTrig">重設每日排程</button>' +
       '</div>' +
       '<p class="hint" style="margin:12px 0 0">今日剩餘寄信額度：' +
         (c.quota < 0 ? '無法取得（尚未授權寄信權限）' : c.quota + ' 封') +
