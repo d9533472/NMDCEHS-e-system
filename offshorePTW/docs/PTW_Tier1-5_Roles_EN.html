@@ -1,0 +1,237 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>PTW Tier 1-5 (EN)</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1920px;height:1080px;overflow:hidden}
+  body{
+    font-family:"Segoe UI",-apple-system,"Helvetica Neue",Arial,sans-serif;
+    background:#eaf0f5;color:#0d2133;display:flex;flex-direction:column;
+  }
+
+  /* ===== header ===== */
+  header{
+    position:relative;overflow:hidden;
+    background:linear-gradient(105deg,#002038 0%,#013252 58%,#01456e 100%);
+    color:#fff;padding:34px 64px 30px;border-bottom:6px solid #00B050;
+  }
+  .hd-art{position:absolute;right:40px;bottom:14px;opacity:.26;color:#8fd4ff}
+  .eyebrow{
+    font-size:16px;font-weight:800;letter-spacing:4.2px;color:#00d46a;margin-bottom:9px;
+  }
+  h1{font-size:52px;font-weight:800;letter-spacing:.4px;line-height:1.08}
+  .sub{font-size:22px;font-weight:500;color:#a6c9e2;margin-top:10px}
+
+  /* ===== cards ===== */
+  main{flex:1;padding:34px 60px 0;display:flex;align-items:stretch;gap:0}
+  .card{
+    flex:1;background:#fff;border-radius:18px;
+    box-shadow:0 4px 16px rgba(0,32,56,.13);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:9px 20px 0;position:relative;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;inset:0 0 auto 0;height:9px;background:var(--c)}
+
+  .arrow{
+    width:58px;display:flex;align-items:center;justify-content:center;color:#9fb3c4;flex:none;
+  }
+
+  .num{
+    font-size:15px;font-weight:800;letter-spacing:4.5px;color:#8aa0b3;
+  }
+  .big{
+    font-size:92px;font-weight:800;line-height:.95;color:var(--c);margin-top:4px;
+  }
+
+  .ico{
+    width:172px;height:172px;border-radius:50%;
+    background:var(--bg);color:var(--c);
+    display:flex;align-items:center;justify-content:center;
+    margin:26px 0 26px;border:3px solid var(--ring);
+  }
+  .ico svg{width:94px;height:94px}
+
+  .role{
+    font-size:27px;font-weight:800;line-height:1.25;text-align:center;color:#0d2133;white-space:nowrap;
+    min-height:76px;display:flex;align-items:center;
+  }
+
+  .org{
+    margin-top:18px;font-size:15px;font-weight:800;letter-spacing:1.2px;
+    color:#fff;background:var(--c);border-radius:24px;padding:6px 20px;
+  }
+  .stage{
+    margin-top:12px;font-size:17px;font-weight:800;letter-spacing:3px;
+    color:var(--c);text-transform:uppercase;
+  }
+
+  /* ===== footer ===== */
+  footer{
+    margin-top:30px;padding:0 60px 26px;display:flex;align-items:center;gap:22px;
+  }
+  .flow{
+    flex:1;display:flex;align-items:center;gap:14px;
+    background:#fff;border-radius:14px;padding:15px 26px;
+    box-shadow:0 2px 8px rgba(0,32,56,.10);
+    font-size:19px;font-weight:700;color:#24415a;
+  }
+  .flow .lbl{font-size:14px;font-weight:800;letter-spacing:2.4px;color:#8aa0b3}
+  .flow .pill{
+    background:#eef5fc;color:#0b6bcb;border-radius:8px;padding:4px 14px;font-weight:800;
+    white-space:nowrap;
+  }
+  .flow .pill.c{background:#fdf2e6;color:#b35c00}
+  .flow .pill.g{background:#e6f7ee;color:#00803a}
+  .flow .sep{color:#b9c8d4;font-weight:800}
+  .legend{display:flex;gap:26px;align-items:center;font-size:17px;font-weight:800;color:#24415a}
+  .legend i{width:16px;height:16px;border-radius:4px;display:inline-block;margin-right:8px;vertical-align:-2px}
+  .brand{font-size:17px;font-weight:800;color:#002038;letter-spacing:.4px}
+</style>
+
+<header>
+  <!-- offshore rig silhouette -->
+  <svg class="hd-art" width="470" height="150" viewBox="0 0 470 150" fill="none"
+       stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M250 112h120V74H250z"/>
+    <path d="M262 74V40h26v34M300 74V54h22v20"/>
+    <path d="M336 74 352 18l16 56"/>
+    <path d="M342 52h20"/>
+    <path d="M262 112v22M292 112v22M330 112v22M360 112v22"/>
+    <path d="M118 112h74V96h-74z"/><path d="M130 96V80h18v16"/>
+    <path d="M128 112v22M182 112v22"/>
+    <path d="M96 134h300" stroke-width="4"/>
+    <path d="M106 146c16-9 32-9 48 0s32 9 48 0 32-9 48 0 32 9 48 0" opacity=".65"/>
+  </svg>
+
+  <div class="eyebrow">NMDC OFFSHORE PERMIT TO WORK</div>
+  <h1>Who’s Who — Tier 1 to Tier 5</h1>
+  <div class="sub">The five roles a permit passes through, from application to issue.</div>
+</header>
+
+<main>
+  <!-- TIER 1 -->
+  <div class="card" style="--c:#b35c00;--bg:#fdf3e8;--ring:#f0d6b8">
+    <div class="num">TIER</div><div class="big">1</div>
+    <div class="ico">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M40 7H14a3 3 0 0 0-3 3v44a3 3 0 0 0 3 3h28a3 3 0 0 0 3-3V31"/>
+        <path d="M19 22h16M19 31h13M19 40h9"/>
+        <path d="M52 5l7 7-19 19-9.5 2.5L33 24z"/>
+      </svg>
+    </div>
+    <div class="role">Contractor<br>Holder / Applicant</div>
+    <div class="stage">Apply</div>
+    <div class="org">CONTRACTOR</div>
+  </div>
+
+  <div class="arrow">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  </div>
+
+  <!-- TIER 2 -->
+  <div class="card" style="--c:#b35c00;--bg:#fdf3e8;--ring:#f0d6b8">
+    <div class="num">TIER</div><div class="big">2</div>
+    <div class="ico">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 11h-7a3 3 0 0 0-3 3v38a3 3 0 0 0 3 3h34a3 3 0 0 0 3-3V14a3 3 0 0 0-3-3h-7"/>
+        <rect x="22" y="6" width="20" height="10" rx="3"/>
+        <path d="M21 35l7 7 15-15"/>
+      </svg>
+    </div>
+    <div class="role">Contractor<br>HSE</div>
+    <div class="stage">Review</div>
+    <div class="org">CONTRACTOR</div>
+  </div>
+
+  <div class="arrow">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  </div>
+
+  <!-- TIER 3 -->
+  <div class="card" style="--c:#0b6bcb;--bg:#eef5fc;--ring:#c6dcf2">
+    <div class="num">TIER</div><div class="big">3</div>
+    <div class="ico">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M7 16h50"/>
+        <rect x="6" y="10" width="11" height="7" rx="1.5"/>
+        <path d="M30 16v38M22 54h16"/>
+        <path d="M30 16 21 26M30 16l9 10"/>
+        <path d="M47 16v12"/>
+        <rect x="42" y="28" width="10" height="6" rx="1.5"/>
+      </svg>
+    </div>
+    <div class="role">NMDC<br>Construction</div>
+    <div class="stage">Review</div>
+    <div class="org">NMDC</div>
+  </div>
+
+  <div class="arrow">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  </div>
+
+  <!-- TIER 4 -->
+  <div class="card" style="--c:#0b6bcb;--bg:#eef5fc;--ring:#c6dcf2">
+    <div class="num">TIER</div><div class="big">4</div>
+    <div class="ico">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M32 5l22 8v17c0 14-8.8 24-22 29C18.8 54 10 44 10 30V13z"/>
+        <path d="M21 37h22"/>
+        <path d="M26 37a6.5 6.5 0 0 1 13 0"/>
+        <path d="M32 28v9"/>
+      </svg>
+    </div>
+    <div class="role">NMDC<br>HSE</div>
+    <div class="stage">Review</div>
+    <div class="org">NMDC</div>
+  </div>
+
+  <div class="arrow">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 12h13M13 6l6 6-6 6"/></svg>
+  </div>
+
+  <!-- TIER 5 -->
+  <div class="card" style="--c:#00803a;--bg:#e8f7ef;--ring:#b8e3cb">
+    <div class="num">TIER</div><div class="big">5</div>
+    <div class="ico">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.8"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 56h42"/>
+        <rect x="11" y="44" width="42" height="8" rx="2.5"/>
+        <path d="M21 44v-8a5 5 0 0 1 5-5h2.5L26 16a5 5 0 0 1 5-6h2a5 5 0 0 1 5 6l-2.5 15H38a5 5 0 0 1 5 5v8"/>
+      </svg>
+    </div>
+    <div class="role">NMDC<br>PTW Coordinator</div>
+    <div class="stage">Issue</div>
+    <div class="org">NMDC</div>
+  </div>
+</main>
+
+<footer>
+  <div class="flow">
+    <span class="lbl">SEQUENCE</span>
+    <span class="pill c">Tier 1 Apply</span><span class="sep">→</span>
+    <span class="pill c">Tier 2</span><span class="sep">→</span>
+    <span class="pill">Tier 3</span><span class="sep">→</span>
+    <span class="pill">Tier 4</span><span class="sep">→</span>
+    <span class="pill g">Tier 5 Issue</span>
+    <span style="margin-left:16px;font-weight:600;color:#5b7489;font-size:17px;white-space:nowrap">
+      Tier 2–5 may return the permit to the applicant.</span>
+  </div>
+  <div class="legend">
+    <span><i style="background:#b35c00"></i>Contractor</span>
+    <span><i style="background:#0b6bcb"></i>NMDC</span>
+  </div>
+  <div class="brand">NMDC Offshore PTW System</div>
+</footer>

@@ -17424,7 +17424,6 @@ function onContinuationPick(sel){
      '<b style="color:#9b2226">Anything already filled in will be replaced and cannot be undone.</b><br>'+
      'Application attachments (Method Statement, JSA / Risk Assessment, etc.) are copied across — remove and re-upload them if they have changed.<br>'+
      'Not copied: application date, validity dates, applicant declaration and close-out evidence (certificates are re-numbered and reset to Draft).</div>');
-  warn+=contCheckNote_(Z);                    // 藍底提醒：帶入後送出前務必逐項確認
   warn+=contWaitNote_(Z);                     // 黃底提醒：帶入過程請勿關閉視窗
   uiDialog({html:warn,icon:'⚠️',title:(Z?'帶入延續許可證內容':'Copy continuation permit'),
     okText:(Z?'帶入':'Copy'),okClass:'btn-danger',width:580}).then(function(ok){
@@ -17435,7 +17434,7 @@ function onContinuationPick(sel){
 }
 /**
  * 送出前的逐項確認（藍底）。延續單雖然把大部分內容複製過來了，但這幾項幾乎每次都會變，
- * 照抄送出最容易出事，所以在帶入確認視窗與帶入完成後都提醒一次。
+ * 照抄送出最容易出事，所以在帶入完成後提醒一次；帶入確認視窗不再重複顯示同一段清單。
  */
 function contCheckNote_(Z){
   var items=Z
