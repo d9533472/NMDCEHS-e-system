@@ -2440,7 +2440,7 @@ function renderOneMonth(mo){
   h+=`<div class="sch-wrap" data-mo="${mo}"><table class="sch-table"><thead><tr><th class="sch-name" style="position:sticky;left:0;z-index:3">姓名</th>`;
   for(let d=1;d<=days;d++){
     const dt=new Date(y,m-1,d);const dow=dt.getDay();const off=isDayOff(y,m,d);const hn=holName(y,m,d);
-    const cls=[off?'sch-hol':'',d===todayD?'sch-td':'',(dow===0&&d>1)?'sch-wk':''].filter(Boolean).join(' ');
+    const cls=[off?'sch-hol':'',d===todayD?'sch-td':'',(dow===1&&d>1)?'sch-wk':''].filter(Boolean).join(' ');
     h+=`<th class="${cls}" title="${m}/${d}（${WKDAYS[dow]}）${hn?' '+esc(hn):''}${d===todayD?' · 今天':''}"><div class="sch-day-hd">${d}</div><span class="sch-dow">${WKDAYS[dow]}</span>${hn?`<span class="sch-hol-label">${hn}</span>`:''}</th>`;
   }
   h+=`</tr></thead><tbody>`;
@@ -2464,7 +2464,7 @@ function renderOneMonth(mo){
       const v=sd.cells[p]?.[d]||'R';
       const off=isDayOff(y,m,d);
       const dow=new Date(y,m-1,d).getDay();
-      const cls=`sch-cell sch-v-${v}${off?' sch-hol':''}${d===todayD?' sch-td':''}${(dow===0&&d>1)?' sch-wk':''}`;
+      const cls=`sch-cell sch-v-${v}${off?' sch-hol':''}${d===todayD?' sch-td':''}${(dow===1&&d>1)?' sch-wk':''}`;
       const tip=`${p}｜${m}/${d}（${WKDAYS[dow]}）・${SCH_LBL[v]||v}${d===todayD?'・今天':''}`;
       if(isEditor){
         const opts=off?['R','H','中','霄']:['R','H','中','霄'];
