@@ -108,15 +108,21 @@ tbody tr{transition:background .12s}tbody tr:hover{background:var(--hov)}
 <div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#5d6a7a"><div class="spinner" style="width:24px;height:24px;margin-right:12px"></div>載入雲端資料...</div></div>
 <script type="text/babel">
 const VER='4.4.0';
-/* 三階段流程；stage 3（已提交台電）= 計入「已查驗金額」 */
+/* 四階段流程（0~3）；stage 3（已提交台電）= 計入「已查驗金額」，0~2 = 進行中 */
 const STAGES=[
+  {n:0,l:'預計可檢查',s:'預計',c:'#5d6a7a',bg:'rgba(118,129,143,.14)'},
   {n:1,l:'NMDC自檢完成',s:'自檢',c:'#8a6c11',bg:'rgba(201,162,39,.16)'},
   {n:2,l:'POE查驗完成',s:'POE完成',c:'#4f9472',bg:'rgba(79,148,114,.16)'},
   {n:3,l:'已提交台電',s:'已提交',c:'#1f5e45',bg:'rgba(31,94,69,.13)'},
 ];
-const FINAL_STAGE=3;
-/* 後端已負責把舊 5 階段換算成 1~3（1,2→1 / 3→2 / 4,5→3），前端只做範圍保護（不可重複換算） */
-const mapStage=s=>{const n=parseInt(s)||1;return n<1?1:(n>FINAL_STAGE?FINAL_STAGE:n)};
+const MIN_STAGE=0, FINAL_STAGE=3;
+/* 後端已負責把舊 5 階段換算成 1~3（1,2→1 / 3→2 / 4,5→3），前端只做範圍保護（不可重複換算）。
+   注意：0 是合法階段但屬 falsy，不可再用 `parseInt(s)||1` 這種寫法，否則「預計可檢查」會被吃成「自檢完成」。
+   非數值（舊資料空白）維持原本的 1，避免既有紀錄被往回推。 */
+const mapStage=s=>{const n=parseInt(s);if(!Number.isFinite(n))return 1;
+  return n<MIN_STAGE?MIN_STAGE:(n>FINAL_STAGE?FINAL_STAGE:n)};
+/* STAGES 不再能用 stage-1 當索引（stage 0 會變 -1），一律用 n 查表 */
+const stageOf=s=>STAGES.find(x=>x.n===mapStage(s))||STAGES[0];
 /* 工區清單（可自行增修） */
 const WORK_AREAS=['台中工區','通霄工區','離岸作業','專案'];
 /* 項目簡稱 = 預算項目名稱最後一個逗號之後的文字 */
@@ -175,7 +181,7 @@ function EC({val,field,id,onSave,ok,isN,qty,style:st}){
   return<input ref={r} type={isN?'number':'text'} step={isN?'any':undefined} value={v} onClick={ev=>ev.stopPropagation()} onChange={ev=>sV(ev.target.value)} onBlur={save} onKeyDown={ev=>{if(ev.key==='Enter')save();if(ev.key==='Escape'){sV(val);sE(false)}}} style={{width:isN?85:'100%',padding:'2px 6px',fontSize:12,fontFamily:isN?"'JetBrains Mono'":"inherit",textAlign:isN?'right':'left',border:'1.5px solid var(--accent)',borderRadius:4,background:'var(--accentBg)',outline:'none'}}/>;
 }
 /* ── StageBadge ── */
-function SB({stage,small}){const st=STAGES[mapStage(stage)-1]||STAGES[0];return<span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:small?9:10,fontWeight:600,padding:small?'2px 6px':'3px 10px',borderRadius:20,background:st.bg,color:st.c,whiteSpace:'nowrap',border:'1px solid '+st.c+'22'}}><span style={{width:small?5:6,height:small?5:6,borderRadius:'50%',background:st.c}}/>{small?st.s:st.l}</span>}
+function SB({stage,small}){const st=stageOf(stage);return<span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:small?9:10,fontWeight:600,padding:small?'2px 6px':'3px 10px',borderRadius:20,background:st.bg,color:st.c,whiteSpace:'nowrap',border:'1px solid '+st.c+'22'}}><span style={{width:small?5:6,height:small?5:6,borderRadius:'50%',background:st.c}}/>{small?st.s:st.l}</span>}
 const Cloud=({s,t})=>s==='syncing'?<span className="cb csy"><span className="spinner" style={{width:10,height:10,borderWidth:1.5}}/> 同步中</span>:<span className="cb cok">☁ 雲端 {t&&fT(t)}</span>;
 const Kpi=({l,v,s,a,i})=><div className="fi card" style={{padding:'17px 20px',flex:'1 1 170px',minWidth:158,borderLeft:'3px solid '+(a||'var(--accent)')}}><div style={{position:'absolute',top:8,right:12,fontSize:30,opacity:.07}}>{i}</div><div style={{fontSize:10.5,color:'var(--muted)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6}}>{l}</div><div style={{fontSize:21,fontWeight:800,color:'var(--fg2)',marginTop:6,fontFamily:"'JetBrains Mono'"}}>{v}</div>{s&&<div style={{fontSize:11,color:a||'var(--muted)',marginTop:3,fontWeight:600}}>{s}</div>}</div>;
 /* ── 達成率圓弧儀表 ── */
@@ -210,7 +216,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
   const initNo=init?String(init.id).replace(ID_PREFIX,''):'';
   const[autoNo,sAutoNo]=useState('');
   useEffect(()=>{if(!isEdit&&api){api.get('getNextNumber').then(r=>{sAutoNo(String(r.next_number).padStart(3,'0'))}).catch(()=>{})}},[]);
-  const[f,sF]=useState({inspection_no:initNo,work_area:init?.work_area||'',inspection_date:init?.inspection_date?String(init.inspection_date).slice(0,10):td(),submit_date:init?.submit_date?String(init.submit_date).slice(0,10):'',note:init?.note||'',stage:init?mapStage(init.stage):1,link_folder_url:''});
+  const[f,sF]=useState({inspection_no:initNo,work_area:init?.work_area||'',inspection_date:init?.inspection_date?String(init.inspection_date).slice(0,10):td(),submit_date:init?.submit_date?String(init.submit_date).slice(0,10):'',note:init?.note||'',stage:init?mapStage(init.stage):MIN_STAGE,link_folder_url:''});
   const[rows,sRows]=useState(()=>init?.rows?.length
     ?init.rows.map(r=>({row_id:r.id,budget_item_id:r.budget_item_id,qty:String(r.inspected_qty??''),note:r.note||''}))
     :[{row_id:'',budget_item_id:fixId||'',qty:'',note:''}]);
@@ -317,7 +323,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     <div style={{marginBottom:16}}>
       <label className="fl">查驗階段（整張表一起推進）</label>
       <div style={{display:'flex',flexWrap:'wrap',gap:6}}>{STAGES.map(st=><button key={st.n} onClick={()=>{const upd={stage:st.n};if(st.n===FINAL_STAGE&&!f.submit_date)upd.submit_date=td();sF(x=>({...x,...upd}))}} style={{fontSize:11,fontWeight:600,padding:'7px 15px',borderRadius:20,border:'1px solid '+(f.stage===st.n?st.c:'var(--border2)'),background:f.stage===st.n?st.bg:'transparent',color:f.stage===st.n?st.c:'var(--muted)'}}>{st.n}. {st.l}</button>)}</div>
-      <div style={{fontSize:10,color:'var(--muted2)',marginTop:6}}>※ 到「{STAGES[FINAL_STAGE-1].l}」整張表 {fN(total)} 即計入<strong style={{color:'var(--green)'}}>已查驗金額</strong></div>
+      <div style={{fontSize:10,color:'var(--muted2)',marginTop:6}}>※ 到「{stageOf(FINAL_STAGE).l}」整張表 {fN(total)} 即計入<strong style={{color:'var(--green)'}}>已查驗金額</strong></div>
     </div>
 
     <div style={{marginBottom:18}}>
@@ -662,10 +668,10 @@ function App(){
       tb+=bt;ta+=s.aa;to+=s.ao;
       if(isLS(b)){lb+=bt;lo+=s.ao}else{qb+=bt;qo+=s.ao}});
     const gl=Object.values(GR);
-    const sc=[1,2,3].map(n=>gl.filter(g=>g.stage===n).length);
+    const sc=[0,1,2,3].map(n=>gl.filter(g=>g.stage===n).length);
     return{tb,ta,to,tp:ta-to,tr:Math.max(tb-ta,0),ratio:tb>0?to/tb:0,
       qb,qo,qRatio:qb>0?qo/qb:0,lb,lo,lRatio:lb>0?lo/lb:0,
-      sc,nAll:gl.length,nOk:sc[2],nWip:sc[0]+sc[1],nRows:ins.length}},[sm,ins,ST,GR]);
+      sc,nAll:gl.length,nOk:sc[3],nWip:sc[0]+sc[1]+sc[2],nRows:ins.length}},[sm,ins,ST,GR]);
 
   /* ── 提送批次：同一天提交台電的查驗表＝一批（沒有提交日的不列入） ── */
   const BATCHES=useMemo(()=>{const m={};
@@ -720,7 +726,7 @@ function App(){
 
   const csv=()=>{if(!data)return;const rows=[['查驗表編號','明細編號','階段','工區','查驗日期','提交台電日','項次','項目','項目簡稱','數量','單價','金額','計入已查驗','資料夾名稱','備註']];
     groups.forEach(g=>g.rows.forEach(i=>{const b=bItem(i.budget_item_id);
-      rows.push([g.id,i.id,g.stage+'. '+STAGES[g.stage-1].l,g.work_area||'',String(i.inspection_date||'').slice(0,10),String(g.submit_date||'').slice(0,10),b?.item_no||'',i.item_name_snapshot,shortItem(i.item_name_snapshot),(parseFloat(i.inspected_qty)||0).toFixed(2),i.unit_price_snapshot,amtOf(i),g.stage>=FINAL_STAGE?'是':'否',g.folder_name||folderName(g.id,g.work_area,g.items),i.note||''])}));
+      rows.push([g.id,i.id,stageOf(g.stage).n+'. '+stageOf(g.stage).l,g.work_area||'',String(i.inspection_date||'').slice(0,10),String(g.submit_date||'').slice(0,10),b?.item_no||'',i.item_name_snapshot,shortItem(i.item_name_snapshot),(parseFloat(i.inspected_qty)||0).toFixed(2),i.unit_price_snapshot,amtOf(i),g.stage>=FINAL_STAGE?'是':'否',g.folder_name||folderName(g.id,g.work_area,g.items),i.note||''])}));
     const c=rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
     const bl=new Blob(['﻿'+c],{type:'text/csv;charset=utf-8'});const u=URL.createObjectURL(bl);
     Object.assign(document.createElement('a'),{href:u,download:'inspection_'+td()+'.csv'}).click()};

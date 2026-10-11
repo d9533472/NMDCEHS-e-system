@@ -58,10 +58,23 @@ const INSPECT_HEADERS = [
   'work_area','folder_id','folder_name','group_id'
 ];
 
-// 階段設定：3 = 已提交台電 = 計入已查驗金額
-const STAGE_COUNT = 3;
+// 階段設定：0~3 共四階段；3 = 已提交台電 = 計入已查驗金額，0~2 = 進行中
+// STAGE_LABELS 以「階段值」直接當索引（labels[stage]），不要再用 stage-1
+const MIN_STAGE = 0;
+const STAGE_COUNT = 4;
 const FINAL_STAGE = 3;
-const STAGE_LABELS = ['NMDC自檢完成', 'POE查驗完成', '已提交台電'];
+const STAGE_LABELS = ['預計可檢查', 'NMDC自檢完成', 'POE查驗完成', '已提交台電'];
+
+/**
+ * 把任意輸入夾到合法階段 0~3。
+ * 注意：0 是合法階段但屬 falsy，絕對不可寫成 `parseInt(v) || 1`，
+ * 否則「預計可檢查」會被悄悄吃成「NMDC自檢完成」。
+ */
+function _clampStage(v) {
+  var n = parseInt(v, 10);
+  if (isNaN(n)) return MIN_STAGE;
+  return Math.min(Math.max(n, MIN_STAGE), FINAL_STAGE);
+}
 
 // ══════════════════════════════════
 // 初始化系統 (手動執行一次)
@@ -468,14 +481,18 @@ function _isV4() {
 
 /** 讀取時把舊 5 階段值換算成新 3 階段值 */
 function _normStage(raw, submitDate, approveDate) {
-  var s = parseInt(raw);
-  if (!s || isNaN(s)) {
+  // 先判斷「是不是真的空白」，再 parseInt——0 是合法階段，不能被 !s 吃掉
+  var str = (raw === null || raw === undefined) ? '' : String(raw).trim();
+  var s = parseInt(str, 10);
+  if (str === '' || isNaN(s)) {
+    // 舊資料沒填階段：維持原本的判斷（有提交/核准日→已提交台電，否則→自檢完成）
+    // 刻意不回 0，避免既有紀錄被往回推成「預計可檢查」
     var hasApprove = approveDate && String(approveDate).trim() !== '';
     var hasSubmit  = submitDate && String(submitDate).trim() !== '';
     return (hasApprove || hasSubmit) ? FINAL_STAGE : 1;
   }
-  if (_isV4()) return Math.min(Math.max(s, 1), STAGE_COUNT);
-  return s <= 2 ? 1 : (s === 3 ? 2 : 3);   // 1,2→1 / 3→2 / 4,5→3
+  if (_isV4()) return _clampStage(s);
+  return s <= 2 ? 1 : (s === 3 ? 2 : 3);   // 舊 5 階段：1,2→1 / 3→2 / 4,5→3（舊資料不會有 0）
 }
 
 /** 寫入前確保工作表已轉成 3 階段（只會跑一次） */
@@ -731,7 +748,7 @@ function _addInspection(data) {
   }
 
   const workArea = String(data.work_area || '').trim();
-  const stage = Math.min(Math.max(parseInt(data.stage) || 1, 1), STAGE_COUNT);
+  const stage = _clampStage(data.stage);
   var submitDate = data.submit_date || '';
   if (stage >= FINAL_STAGE && !String(submitDate).trim()) submitDate = new Date().toISOString().slice(0, 10);
 
@@ -782,7 +799,7 @@ function _addInspection(data) {
   _addLog('CREATE', 'inspection', groupId,
     '新增查驗表 ' + groupId + '（' + prepared.length + ' 個項目：' +
     prepared.map(function (p) { return p.b.item_no; }).join('、') +
-    '，工區: ' + (workArea || '—') + '，合計: ' + total + '，階段: ' + STAGE_LABELS[stage - 1] + '）', by);
+    '，工區: ' + (workArea || '—') + '，合計: ' + total + '，階段: ' + STAGE_LABELS[stage] + '）', by);
 
   return {
     success: true,
@@ -837,7 +854,7 @@ function _updateInspection(data) {
   var workArea = data.work_area !== undefined ? String(data.work_area || '').trim() : String(head[COL_WORK_AREA - 1] || '');
   var inspDate = data.inspection_date !== undefined ? data.inspection_date : head[COL_DATE - 1];
   var stage = data.stage !== undefined
-    ? Math.min(Math.max(parseInt(data.stage) || 1, 1), STAGE_COUNT)
+    ? _clampStage(data.stage)
     : _normStage(head[COL_STAGE - 1], head[COL_SUBMIT - 1], head[COL_APPROVE - 1]);
   var submitDate = data.submit_date !== undefined ? data.submit_date : (head[COL_SUBMIT - 1] || '');
   if (stage >= FINAL_STAGE && !String(submitDate).trim()) submitDate = new Date().toISOString().slice(0, 10);
@@ -946,7 +963,7 @@ function _updateInspection(data) {
 
   _addLog('UPDATE', 'inspection', newGroup,
     '修改查驗表 ' + newGroup + '（' + finals.length + ' 個項目' + (removed ? '、移除 ' + removed + ' 項' : '') +
-    '，階段: ' + STAGE_LABELS[stage - 1] + '，工區: ' + (workArea || '—') + '）', by);
+    '，階段: ' + STAGE_LABELS[stage] + '，工區: ' + (workArea || '—') + '）', by);
 
   return {
     success: true,
@@ -1048,26 +1065,26 @@ function _getSummary() {
 
     const total_qty = recs.reduce((s, r) => s + (parseFloat(r.inspected_qty) || 0), 0);
 
-    const stage_counts = [0, 0, 0];
-    const stage_qtys = [0, 0, 0];
+    const stage_counts = [0, 0, 0, 0];
+    const stage_qtys = [0, 0, 0, 0];
     recs.forEach(r => {
-      const stg = Math.min(Math.max(parseInt(r.stage) || 1, 1), STAGE_COUNT);
-      stage_counts[stg - 1]++;
-      stage_qtys[stg - 1] += (parseFloat(r.inspected_qty) || 0);
+      const stg = _clampStage(r.stage);
+      stage_counts[stg]++;
+      stage_qtys[stg] += (parseFloat(r.inspected_qty) || 0);
     });
 
     // 已查驗 = 階段3（已提交台電）
-    const inspected_qty = stage_qtys[FINAL_STAGE - 1];
+    const inspected_qty = stage_qtys[FINAL_STAGE];
     const inspected_amt = inspected_qty * b.unit_price;
-    // 進行中 = 階段1+2（NMDC自檢 / POE查驗）
-    const wip_qty = stage_qtys[0] + stage_qtys[1];
+    // 進行中 = 階段0+1+2（預計可檢查 / NMDC自檢 / POE查驗）
+    const wip_qty = stage_qtys[0] + stage_qtys[1] + stage_qtys[2];
     const wip_amt = wip_qty * b.unit_price;
     // 未查驗 = 預算 − 所有已開立紀錄
     const remaining_qty = b.budget_qty - total_qty;
     const remaining_amt = b.budget_total - (total_qty * b.unit_price);
     const ratio = b.budget_qty > 0 ? inspected_qty / b.budget_qty : 0;
 
-    const okRecs = recs.filter(r => (parseInt(r.stage) || 1) >= FINAL_STAGE);
+    const okRecs = recs.filter(r => _clampStage(r.stage) >= FINAL_STAGE);
     const lastDate = okRecs.length > 0
       ? okRecs.sort((a, c) => String(c.submit_date || c.inspection_date).localeCompare(String(a.submit_date || a.inspection_date)))[0].submit_date
       : null;
@@ -1080,9 +1097,9 @@ function _getSummary() {
       wip_qty, wip_amt,
       stage_counts, stage_qtys,
       record_count: recs.length,
-      approved_count: stage_counts[FINAL_STAGE - 1],
-      pending_count: stage_counts[0] + stage_counts[1],
-      wip_count: stage_counts[0] + stage_counts[1],
+      approved_count: stage_counts[FINAL_STAGE],
+      pending_count: stage_counts[0] + stage_counts[1] + stage_counts[2],
+      wip_count: stage_counts[0] + stage_counts[1] + stage_counts[2],
       status: ratio === 0 ? 'not_started' : ratio < 1 ? 'in_progress' : 'completed'
     };
   });
@@ -1092,24 +1109,24 @@ function _getSummary() {
   const totalWip = summaries.reduce((s, b) => s + (b.wip_amt || 0), 0);
   const totalRecorded = summaries.reduce((s, b) => s + ((b.total_qty || 0) * b.unit_price), 0);
 
-  const globalStageCounts = [0, 0, 0];
+  const globalStageCounts = [0, 0, 0, 0];   // 索引＝階段值 0~3
   inspections.forEach(i => {
-    const stg = Math.min(Math.max(parseInt(i.stage) || 1, 1), STAGE_COUNT);
-    globalStageCounts[stg - 1]++;
+    const stg = _clampStage(i.stage);
+    globalStageCounts[stg]++;
   });
 
   // 以「查驗表」為單位（同 group_id 的明細合併）
   const formMap = {};
   inspections.forEach(i => {
     const g = i.group_id || _groupIdOf(i.id);
-    const stg = Math.min(Math.max(parseInt(i.stage) || 1, 1), STAGE_COUNT);
+    const stg = _clampStage(i.stage);
     if (!formMap[g]) formMap[g] = { stage: stg, items: 0 };
     formMap[g].items++;
     formMap[g].stage = Math.min(formMap[g].stage, stg);
   });
   const formList = Object.keys(formMap).map(k => formMap[k]);
-  const formStageCounts = [0, 0, 0];
-  formList.forEach(f => { formStageCounts[f.stage - 1]++; });
+  const formStageCounts = [0, 0, 0, 0];   // 索引＝階段值 0~3
+  formList.forEach(f => { formStageCounts[_clampStage(f.stage)]++; });
 
   return {
     budgetItems: summaries,
@@ -1123,15 +1140,15 @@ function _getSummary() {
       totalRemaining: totalBudget - totalRecorded,
       overallRatio: totalBudget > 0 ? totalInspected / totalBudget : 0,
       totalRecords: inspections.length,
-      approvedRecords: globalStageCounts[FINAL_STAGE - 1],
-      pendingRecords: globalStageCounts[0] + globalStageCounts[1],
-      wipRecords: globalStageCounts[0] + globalStageCounts[1],
+      approvedRecords: globalStageCounts[FINAL_STAGE],
+      pendingRecords: globalStageCounts[0] + globalStageCounts[1] + globalStageCounts[2],
+      wipRecords: globalStageCounts[0] + globalStageCounts[1] + globalStageCounts[2],
       stageCounts: globalStageCounts,
       stageLabels: STAGE_LABELS,
       finalStage: FINAL_STAGE,
       totalForms: formList.length,
       formStageCounts: formStageCounts,
-      formsSubmitted: formStageCounts[FINAL_STAGE - 1]
+      formsSubmitted: formStageCounts[FINAL_STAGE]
     },
     drive_folder_id: folderId,
     stage_scheme: _isV4() ? 'v4' : 'legacy',
