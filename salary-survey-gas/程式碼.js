@@ -185,6 +185,45 @@ const OUTLIER = {
   annualMonthsMax: 40   // 年收入超過 40 個月月薪（12 個月本薪 + 24 個月年終上限還要留加班的餘裕）
 };
 
+// ── 報告章節順序：只有後台（密碼保護）能調，調完所有人看到的都是這個順序 ──
+// key 必須跟 report.html 裡 SEC 對照表的鍵一模一樣，改名要兩邊一起改。
+// 「薪資分析」在前端是五個函式串起來的一整塊（驅動因子／年資曲線／加給／離散／階梯），
+// 這裡只當一個章節看待，不拆開排序。
+const PROP_REPORT_ORDER = 'REPORT_ORDER';
+const REPORT_SECTIONS = [
+  { key: 'summary',  label: '執行摘要',      note: '報告引言，現算出來的幾條結論' },
+  { key: 'negotiate', label: '怎麼用這份報告談薪水',
+    note: '讀者填自己的月薪／年資／行業，算出位置與開口區間，加上六步談判指引' },
+  { key: 'salary',   label: '薪資總覽',      note: '月薪／年終／年收入箱型圖與百分位表' },
+  { key: 'cross',    label: '交叉分析',      note: '兩個條件交叉的中位數熱力圖' },
+  { key: 'profile',  label: '樣本結構',      note: '年資、學歷、證照等分布' },
+  { key: 'multi',    label: '複選題分布',    note: '工作內容、福利、證照等可多選題目' },
+  { key: 'analysis', label: '薪資分析',      note: '解釋力、年資曲線、各種加給、收入離散度' },
+  { key: 'filter',   label: '自訂條件',      note: '讀者自己勾條件、現場算一組統計' },
+  { key: 'caveats',  label: '資料限制與備註', note: '異常值處理、使用限制與備註' }
+];
+
+function _defaultOrder() {
+  return REPORT_SECTIONS.map(function (s) { return s.key; });
+}
+
+// 存的是逗號分隔的 key。認不得的 key 直接丟掉、漏掉的補在最後 ——
+// 這樣以後新增章節時，舊的設定不會讓新章節整個消失。
+function _reportOrder() {
+  const def = _defaultOrder();
+  try {
+    const raw = PropertiesService.getScriptProperties().getProperty(PROP_REPORT_ORDER);
+    if (!raw) return def;
+    const seen = {}, out = [];
+    String(raw).split(',').forEach(function (k) {
+      k = String(k).trim();
+      if (def.indexOf(k) >= 0 && !seen[k]) { seen[k] = true; out.push(k); }
+    });
+    def.forEach(function (k) { if (!seen[k]) out.push(k); });
+    return out;
+  } catch (e) { return def; }
+}
+
 // 改過 apiStats 的回傳結構就要跳版號，否則舊快取會餵給新前端（欄位對不上、整頁空白）
 const CACHE_KEY = 'salary_stats_v2';
 const CACHE_SEC = 120;
@@ -232,6 +271,7 @@ function _bootData(page) {
   d.unlocked = d.count >= MIN_PUBLIC_N;
   if (page === 'report') {
     try { d.stats = apiStats(); } catch (err) { d.statsError = String(err); }
+    d.order = _reportOrder();   // 不進 apiStats 快取，後台一改、重新整理就生效
   }
   return d;
 }
@@ -1260,6 +1300,7 @@ function apiStats(force) {
     weekCount: days.slice(-7).reduce(function (a, b) { return a + b.count; }, 0),
     legacyN: clean.filter(function (r) { return String(r.source) === LEGACY_TAG; }).length,
     legacyTag: LEGACY_TAG,
+    fix: _fixStats(rows),
     days: days,
     startRoc: _toRoc(SURVEY_START),
     open: _isOpen()
@@ -1288,8 +1329,17 @@ function apiStats(force) {
     ['satisfaction',     '工作滿意度（1～5）', ['1', '2', '3', '4', '5']],
     ['job_seeking',      '未來一年轉職打算', ['沒有', '觀望中', '積極尋找中', '已有 offer']]
   ];
+  // 每個維度各自算分母：rows 已排除「未填」，blank 另外帶給前端標註
   stats.profile = profileDims.map(function (d) {
-    return { key: d[0], title: d[1], ord: !!d[2], rows: _countBy(clean, d[0], d[2]) };
+    let blank = 0;
+    clean.forEach(function (r) { if (_mergeOther(r[d[0]]) === '未填') blank++; });
+    return {
+      key: d[0], title: d[1], ord: !!d[2],
+      rows: _countBy(clean, d[0], d[2], 'answered'),
+      answered: clean.length - blank,
+      blank: blank,
+      base: clean.length
+    };
   });
 
   // ── 複選題 ──
@@ -1392,13 +1442,18 @@ function _mergeOther(v) {
   return /^其他[：:]/.test(t) ? '其他' : t;
 }
 
-function _countBy(rows, key, order) {
+// pctBase === 'answered'：把「未填」整條抽掉，分母只用實際回答這題的人數。
+// 問卷上線後才補進去的題目，先前填答者根本沒看過那題，若仍以總樣本當分母，
+// 等於拿「沒被問到」去稀釋「有回答的人」的分布，所有比例都會被壓掉一半。
+function _countBy(rows, key, order, pctBase) {
   const map = {};
   rows.forEach(function (r) {
     const k = _mergeOther(r[key]);
     map[k] = (map[k] || 0) + 1;
   });
-  const total = rows.length || 1;
+  const blank = map['未填'] || 0;
+  if (pctBase === 'answered') delete map['未填'];
+  const total = ((pctBase === 'answered') ? (rows.length - blank) : rows.length) || 1;
   const out = Object.keys(map).map(function (k) {
     return { label: k, count: map[k], pct: Math.round(map[k] / total * 1000) / 10 };
   });
@@ -1591,7 +1646,7 @@ function _buildAnalysis(clean) {
   const premiums = premiumDefs.map(function (p) {
     const g = ctrlGap(p[1], p[2], p[3]);
     if (!g) return null;
-    g.label = p[0]; g.lead = p[4];
+    g.label = p[0]; g.lead = p[4]; g.field = p[1];
     // 控制年資後還剩多少：原始差距有多大比例是年資造成的
     g.shrink = (g.rawPct && g.adjPct !== null)
       ? Math.round((1 - g.adjPct / g.rawPct) * 1000) / 10 : null;
@@ -1630,52 +1685,119 @@ function _buildAnalysis(clean) {
     ladder.push({ band: b, n: sub.length, monthly: m, annual: a });
   });
 
-  // ⑥ 執行摘要：只講上面算出來、而且看表看不出來的事
+  // ⑥ 執行摘要：寫給一般填答者看的，不是寫給統計背景的人看的。
+  //   規則：不出現「中位數／P25／P75／解釋力／離散度」這類詞，第一次講到中間值要順手解釋；
+  //   數字一個都不改，只換講法。看得懂的人照樣拿得到數字，看不懂的人也不會被擋在門外。
   const summary = [];
-  summary.push('本次有效樣本 ' + clean.length + ' 份，' + SURVEY_YEAR + ' 年度本業總收入中位數 ' +
-    _wan(annual.median) + '，中間一半的人落在 ' + _wan(annual.p25) + '～' + _wan(annual.p75) +
-    '；月薪中位數 ' + _wan(monthly.median) + '。最低的一成在 ' + _wan(annual.p10) +
-    ' 以下，最高的一成在 ' + _wan(annual.p90) + ' 以上 —— 同一個職類裡，前一成與後一成之間差了 ' +
-    (annual.p10 ? Math.round(annual.p90 / annual.p10 * 10) / 10 : '—') + ' 倍。');
+  summary.push('這次總共有 ' + clean.length + ' 位環安衛人員填答。' + SURVEY_YEAR +
+    ' 年度的本業總收入，把所有人從低排到高，站在最中間那個人是 ' + _wan(annual.median) +
+    '（一半的人比這個多、一半比這個少）；中間一半的人落在 ' + _wan(annual.p25) + '～' +
+    _wan(annual.p75) + ' 之間，月薪最中間的是 ' + _wan(monthly.median) +
+    '。收入最低的一成不到 ' + _wan(annual.p10) + '，最高的一成超過 ' + _wan(annual.p90) +
+    '，頭尾差了 ' + (annual.p10 ? Math.round(annual.p90 / annual.p10 * 10) / 10 : '—') + ' 倍。');
 
   if (effMonths) {
-    summary.push('年收入中位數相當於月薪的 ' + (Math.round(effMonths * 10) / 10) +
-      ' 個月，也就是說本業收入裡約 ' + Math.round((1 - 12 / effMonths) * 100) +
-      '% 不是靠月薪，而是年終與加班。年終中位數 ' + _wan(bonus.median) +
-      '，占年收入約 ' + Math.round(bonusShare) + '%；其中 ' + Math.round(noBonus) +
-      '% 的人填 0 元年終 —— 談薪水只看月薪會失真，要連年終一起談。');
+    summary.push('拿年收入去除以月薪，中間的人大約是 ' + (Math.round(effMonths * 10) / 10) +
+      ' 個月的月薪。也就是說，一整年賺到的錢裡大約有 ' + Math.round((1 - 12 / effMonths) * 100) +
+      '% 不是來自月薪，而是年終和加班費。年終最中間的是 ' + _wan(bonus.median) +
+      '，大約占一整年收入的 ' + Math.round(bonusShare) + '%' +
+      // 四捨五入後是 0% 就別寫「有 0% 的人」，那句話等於沒講
+      (Math.round(noBonus) >= 1 ? '；但也有 ' + Math.round(noBonus) + '% 的人年終是 0 元' : '') +
+      '。所以談薪水只看月薪會失真，要連年終一起談。');
   }
 
   if (drivers.length >= 3) {
     const top = drivers[0], second = drivers[1];
     const eduD = drivers.filter(function (d) { return d.key === 'education'; })[0];
-    summary.push('把所有可觀察條件拿來比「對年收入的解釋力」，最強的是' + top.label +
-      '（解釋 ' + top.eps + '% 的收入差異），其次是' + second.label + '（' + second.eps + '%）' +
-      (eduD ? '；學歷只解釋 ' + eduD.eps + '%' : '') +
-      '。反過來說，就算條件完全對上，最強的單一條件也只能解釋 ' + top.eps + '%，' +
-      '剩下 ' + Math.round(100 - top.eps) + '% 的收入差異來自這份問卷量不到的東西 —— ' +
-      '公司給薪政策、談判結果、個別運氣，所以任何一條「某某條件月薪就該多少」的說法都該打折看。');
+    summary.push('如果只能問一件事來猜某個人的年收入，最有用的是問「' + top.label +
+      '」，不過也只說明得了 ' + top.eps + '% 的收入差距；其次是' + second.label +
+      '（' + second.eps + '%）' + (eduD ? '，學歷的影響更小（' + eduD.eps + '%）' : '') +
+      '。反過來看，就算兩個人這些條件完全一樣，收入還是會差很多 —— 剩下大約 ' +
+      Math.round(100 - top.eps) + '% 的差距，是這份問卷問不到的東西造成的：' +
+      '公司的給薪政策、談判的結果、還有運氣。所以「某某條件就該領多少」這種說法，都要打個折看。');
   }
+
+  // 加給的 label 是「A vs B」這種比較式寫法，摘要裡攤成一句話：「A 比 B 多 X%」
+  const vsName = function (label) {
+    const p = String(label).split(' vs ');
+    if (p.length !== 2) return { a: String(label), b: '' };
+    return { a: p[0], b: (p[1] === '無' || p[1] === '沒有') ? '沒有的人' : p[1] };
+  };
+  const gapText = function (p, pct) {
+    const v = vsName(p.label);
+    const word = (pct >= 0 ? '多 ' : '少 ') + Math.abs(pct) + '%';
+    return v.b ? (v.a + '比' + v.b + word) : (v.a + word);
+  };
 
   const solid = premiums.filter(function (p) { return p.verdict === 'solid'; });
   if (solid.length) {
-    summary.push('把年資固定在同一個級距後再比，仍然站得住的加給是：' +
-      solid.slice(0, 3).map(function (p) { return p.label + ' +' + p.adjPct + '%'; }).join('、') +
-      '。這類條件是少數「不必等年資」就能拉開差距的籌碼。');
+    summary.push('有些條件的差距，就算拿年資差不多的人來比也還在：' +
+      solid.slice(0, 3).map(function (p) { return gapText(p, p.adjPct); }).join('、') +
+      '。' + (solid.length > 1 ? '這幾項' : '這') +
+      '是少數「不必等年資熬上去」就能把薪水拉開的籌碼。');
   }
   const washed = premiums.filter(function (p) { return p.shrink !== null && p.shrink >= 50 && p.rawPct >= 8; });
   if (washed.length) {
-    summary.push('相反地，' + washed.slice(0, 2).map(function (p) {
-      return p.label + '（原始差距 +' + p.rawPct + '%，同年資帶內只剩 ' +
-        (p.adjPct >= 0 ? '+' : '') + p.adjPct + '%）';
-    }).join('、') + ' 的差距大半是年資造成的 —— 表面上的領先其實是「資深的人剛好集中在那一組」。');
+    summary.push('反過來，' + washed.slice(0, 2).map(function (p) {
+      return gapText(p, p.rawPct) + '，但只跟年資差不多的人比就剩 ' +
+        (p.adjPct >= 0 ? '多 ' : '少 ') + Math.abs(p.adjPct) + '%';
+    }).join('；') + '。' + (washed.length > 1 ? '這幾項' : '這') +
+      '就沒那麼實在 —— 看起來領先，其實是因為資深的人剛好集中在那一組。');
   }
   if (spreadCat.length >= 2) {
-    summary.push('收入最不可預測的是' + spreadCat[0].label + '：中間一半的人就橫跨 ' +
-      _wan(spreadCat[0].iqr) + '（占中位數 ' + spreadCat[0].iqrPct + '%），' +
-      '最穩定的是' + spreadCat[spreadCat.length - 1].label + '（' + spreadCat[spreadCat.length - 1].iqrPct +
-      '%）。進前者要把「談到多少」當成主要變數，進後者則是「行情大致就那樣」。');
+    summary.push('同樣的條件，薪水落差最大的是' + spreadCat[0].label + '：光是中間一半的人，' +
+      '最高和最低就差了 ' + _wan(spreadCat[0].iqr) + '；最接近「行情價」的是' +
+      spreadCat[spreadCat.length - 1].label + '，大家拿的都差不多。' +
+      '要進' + spreadCat[0].label + '的話，「你談到多少」會比「行情多少」更決定你的薪水。');
   }
+
+  // ⑥-2 逐項重點：讀者最想知道的其實是「我這一項算高還低」，所以每個條件各給一句話。
+  //   排序照「影響力」由大到小（ε²，但不把這個詞寫出去，只翻成影響大／中等／很小）。
+  const premByField = {};
+  premiums.forEach(function (p) { if (!premByField[p.field]) premByField[p.field] = p; });
+
+  const byDim = drivers.map(function (d) {
+    if (!d.hi || !d.lo || !(d.hi.median > 0) || !(d.lo.median > 0)) return null;
+    // 只有一組的維度沒得比（例如全部的人都填同一個答案）
+    if (d.hi.label === d.lo.label) return null;
+
+    // 選項名稱一律加引號：像「職安專責」的答案是「是／否」，不加會讀成「最高的是否」
+    let t = '最高的是「' + d.hi.label + '」，中間值 ' + _wan(d.hi.median) + '（' + d.hi.n + ' 人）；' +
+            '最低的是「' + d.lo.label + '」，' + _wan(d.lo.median) + '（' + d.lo.n + ' 人）。' +
+            '兩者相差 ' + Math.round(d.gapPct) + '%。';
+
+    // 年資本身就是最大的混淆因子，不用再「控制年資」，改講哪一段漲最快
+    if (d.key === 'yrs_band' && fastest && slowest && fastest.from !== slowest.from) {
+      t += '其中「' + fastest.from + ' → ' + fastest.to + '」漲得最多（+' + fastest.pct + '%），' +
+           '「' + slowest.from + ' → ' + slowest.to + '」最平（' +
+           (slowest.pct >= 0 ? '+' : '') + slowest.pct + '%）。';
+    } else {
+      const pm = premByField[d.key];
+      if (pm && pm.adjPct !== null && pm.rawPct >= 8) {
+        const amt = Math.abs(pm.adjPct) + '%';
+        if (pm.shrink !== null && pm.shrink >= 50) {
+          t += '不過這個差距有一大半其實是年資造成的 —— 只跟年資差不多的人比，' +
+               (pm.adjPct >= 0 ? '就只剩 ' + amt + '。' : '反而還低了 ' + amt + '。');
+        } else {
+          t += (pm.adjPct >= 0)
+            ? '拿年資差不多的人來比，差距仍有 ' + amt + '，算是站得住的。'
+            : '不過拿年資差不多的人來比，反而還低了 ' + amt + '。';
+        }
+      }
+    }
+    // 一般讀者不會知道 n=6 的中間值有多脆弱，所以直接講出來，不要只丟一個百分比
+    const thin = [d.hi, d.lo].filter(function (x) { return x.n < 10; });
+    if (thin.length) {
+      t += '（' + thin.map(function (x) { return '「' + x.label + '」只有 ' + x.n + ' 人'; }).join('、') +
+           '，一兩個人就會把數字拉動，當參考就好。）';
+    }
+
+    return {
+      key: d.key, label: d.label,
+      strength: (d.eps >= 10 ? '影響大' : d.eps >= 4 ? '影響中等' : '影響很小'),
+      n: d.n, text: t
+    };
+  }).filter(Boolean);
 
   // ⑦ 資料限制：誠實寫，不要寫成免責聲明
   const caveats = [];
@@ -1702,6 +1824,7 @@ function _buildAnalysis(clean) {
     bonusShare: bonusShare ? Math.round(bonusShare * 10) / 10 : null,
     noBonusPct: Math.round(noBonus * 10) / 10,
     summary: summary,
+    byDim: byDim,
     drivers: drivers,
     curve: { rows: curve, steps: steps, fastest: fastest, slowest: slowest },
     premiums: premiums,
@@ -1739,6 +1862,113 @@ function _countResponses() {
   const sh = _ss().getSheetByName(SHEET_RESP);
   if (!sh) return 0;
   return Math.max(0, sh.getLastRow() - 1);
+}
+
+// 異常值的處理原因：把 _checkOutlier 寫出來的句子（裡面帶實際倍數）收斂成固定幾類，
+// 一來報告上同類的可以合併計數，二來不會把「某人年終是月薪的 35.3 倍」這種
+// 能指向單一填答者的數字印在公開報告上。
+const FIX_RULES = [
+  { re: /多打一個 0/,            label: '年終獎金相當於月薪的數十倍，研判是多打一個 0',
+    fix: '依填答者其餘欄位改回合理金額' },
+  { re: /年終大於年收入/,        label: '年終獎金大於全年總收入，兩欄互相矛盾',
+    fix: '以月薪與年終重算年收入' },
+  { re: /年收入與月薪明顯矛盾/,  label: '年收入不到月薪的 6 倍，兩欄互相矛盾',
+    fix: '以月薪與年終重算年收入' },
+  { re: /與月薪不相稱/,          label: '年收入相當於月薪的 40 個月以上，與月薪不相稱',
+    fix: '依填答者其餘欄位改回合理金額' },
+  { re: /月薪超出合理區間/,      label: '月薪落在合理區間（2 萬～50 萬）之外',
+    fix: '改為填答者其餘欄位推得的金額' },
+  { re: /年收入超出合理區間/,    label: '年收入落在合理區間（20 萬～1000 萬）之外',
+    fix: '改為填答者其餘欄位推得的金額' },
+  { re: /加班時數異常/,          label: '每月加班時數超過上限',
+    fix: '修正時數，只影響加班統計' }
+];
+
+// 後台對異常值做過哪些處理 —— 來源是「操作日誌」，不是回覆資料本身：
+//   admin_edit    → 修正金額（修正後若已正常，回覆資料上的異常標記會被清掉，只剩日誌看得到）
+//   admin_outlier → 人工決定計入或排除
+// 同一筆被處理很多次只算最後一次的狀態，所以先用 resp_id 收斂；
+// 已經被刪掉的回覆不算在內，免得報告上的筆數比實際資料還多。
+// 2026-10-12 之前的 admin_edit 日誌沒有附「原因」，但它記了每個欄位的修改前後值
+// （例：R123 修正：年終 3000000 → 300000）。把改過的欄位換回修改前的值、沒改的沿用
+// 現在的值，重跑一次 _checkOutlier，就能還原「當初是哪條規則判它異常」。
+function _replayReason(detail, row) {
+  if (!row) return '';
+  const now = {
+    monthly: _num(row.monthly_salary), bonus: _num(row.annual_bonus),
+    annual: _num(row.annual_total), ot: _num(row.ot_monthly)
+  };
+  const KEY = { '月薪': 'monthly', '年終': 'bonus', '年收入': 'annual', '加班時數': 'ot' };
+  const re = /(月薪|年終|年收入|加班時數)\s*(（空白）|[\d.]+)\s*→/g;
+  let hit = false, m;
+  while ((m = re.exec(detail)) !== null) {
+    const k = KEY[m[1]];
+    now[k] = (m[2] === '（空白）') ? NaN : Number(m[2]);
+    hit = true;
+  }
+  if (!hit) return '';
+  const chk = _checkOutlier(now.monthly, now.bonus, now.annual,
+                            isNaN(now.ot) ? '' : now.ot);
+  return chk.reason || '';
+}
+
+// 注意：「目前還被排除幾筆」不從這裡算 —— 那要看回覆資料上 outlier 欄的現況
+// （stats.excluded），日誌只記得「誰按過排除」，按完又改回來的話兩邊會對不起來。
+function _fixStats(rows) {
+  const out = { fixed: 0, included: 0, reasons: [] };
+  try {
+    const sh = _ss().getSheetByName(SHEET_LOGS);
+    if (!sh) return out;
+    const last = sh.getLastRow();
+    if (last < 2) return out;
+
+    const alive = {}, byId = {};
+    (rows || []).forEach(function (r) {
+      const id = String(r.resp_id).trim();
+      alive[id] = true; byId[id] = r;
+    });
+
+    const v = sh.getRange(2, 1, last - 1, 3).getValues();
+    const edits = {}, manual = {};
+    v.forEach(function (line) {
+      const act = String(line[1] || '');
+      const detail = String(line[2] || '');
+      const m = detail.match(/^\s*(R[0-9A-Z]+)/);
+      if (!m || !alive[m[1]]) return;
+      // 同一筆改過很多次，判定理由要看「第一次改之前」長什麼樣，所以只留最早那一筆
+      if (act === 'admin_edit') { if (!edits[m[1]]) edits[m[1]] = detail; }
+      else if (act === 'admin_outlier') manual[m[1]] = /計入統計/.test(detail) ? 'in' : 'out';
+    });
+
+    const bucket = {};
+    Object.keys(edits).forEach(function (id) {
+      const detail = edits[id];
+      const why = (detail.match(/（原因：([^）]*)）/) || [])[1] || _replayReason(detail, byId[id]);
+      // 連重算都還原不出來（日誌格式太舊）時，才退回用「改了哪個欄位」粗分類
+      const probe = why || detail;
+      let hit = null;
+      for (let i = 0; i < FIX_RULES.length; i++) {
+        if (FIX_RULES[i].re.test(probe)) { hit = FIX_RULES[i]; break; }
+      }
+      if (!hit) {
+        hit = /加班時數/.test(detail)
+          ? FIX_RULES[FIX_RULES.length - 1]
+          : { label: '金額欄位填寫有誤（原因未記錄於日誌）', fix: '依填答者其餘欄位修正' };
+      }
+      const k = hit.label;
+      if (!bucket[k]) bucket[k] = { label: hit.label, fix: hit.fix, count: 0 };
+      bucket[k].count++;
+      out.fixed++;
+    });
+
+    Object.keys(manual).forEach(function (id) {
+      if (manual[id] === 'in') out.included++;
+    });
+
+    out.reasons = Object.keys(bucket).map(function (k) { return bucket[k]; })
+                        .sort(function (a, b) { return b.count - a.count; });
+  } catch (e) { /* 日誌讀不到就當作沒有修正紀錄，不要害整份報告掛掉 */ }
+  return out;
 }
 
 function _num(v) {
@@ -1925,6 +2155,43 @@ function adminDeleteResponse(pw, respId) {
   return { ok: false, error: '找不到 ' + respId };
 }
 
+// 依編號批次刪除（最近 50 筆以外的、或一次要清掉好幾筆時用）
+// 一次讀完整欄編號、由下往上刪，列號才不會因為前面刪掉而位移。
+function adminDeleteResponses(pw, ids) {
+  _auth(pw);
+  const want = (Array.isArray(ids) ? ids : String(ids || '').split(/[\s,;]+/))
+    .map(function (s) { return String(s || '').trim().toUpperCase(); })
+    .filter(function (s) { return s; });
+  if (!want.length) return { ok: false, error: '請至少輸入一個編號' };
+
+  const sh = _ss().getSheetByName(SHEET_RESP);
+  const last = sh.getLastRow();
+  if (last < 2) return { ok: false, error: '沒有資料' };
+
+  const ids0 = sh.getRange(2, 1, last - 1, 1).getValues();
+  const hit = {};          // 編號 → 列號
+  ids0.forEach(function (v, i) {
+    const id = String(v[0]).trim().toUpperCase();
+    if (want.indexOf(id) >= 0 && !hit[id]) hit[id] = i + 2;
+  });
+
+  const found = Object.keys(hit);
+  const miss = want.filter(function (id) { return !hit[id]; });
+  if (!found.length) return { ok: false, error: '找不到：' + miss.join('、') };
+
+  found.map(function (id) { return hit[id]; })
+    .sort(function (a, b) { return b - a; })
+    .forEach(function (r) { sh.deleteRow(r); });
+
+  CacheService.getScriptCache().remove(CACHE_KEY);
+  found.forEach(function (id) { _log('admin_delete', '刪除回覆 ' + id); });
+
+  const s = adminSummary(pw);
+  s.message = '已刪除 ' + found.length + ' 筆：' + found.join('、')
+    + (miss.length ? '；找不到 ' + miss.length + ' 筆：' + miss.join('、') : '');
+  return s;
+}
+
 // 列出回覆摘要（供後台挑選要刪的測試資料）
 function adminListResponses(pw, limit) {
   _auth(pw);
@@ -2065,13 +2332,54 @@ function adminEditSalary(pw, respId, patch) {
     }
 
     CacheService.getScriptCache().remove(CACHE_KEY);
-    _log('admin_edit', respId + ' 修正：' + changed.join('、'));
+    // 修正後若已不算異常，回覆資料上的 outlier_reason 會被清成空字串，
+    // 「當初為什麼要修」只剩日誌記得 —— 報告的修正說明就是靠這一段。
+    const whyChk = _checkOutlier(before.monthly, before.bonus, before.annual, before.ot);
+    _log('admin_edit', respId + ' 修正：' + changed.join('、') +
+      (whyChk.reason ? '（原因：' + whyChk.reason + '）' : ''));
     const out = adminSummary(pw);
     out.message = respId + ' 已修正（' + changed.join('、') + '）' +
       (chk.isOutlier ? '；規則仍判定異常：' + chk.reason : '；已不再是異常值');
     return out;
   }
   return { ok: false, error: '找不到 ' + respId };
+}
+
+// ── 報告章節順序（後台專用）──
+function adminGetOrder(pw) {
+  _auth(pw);
+  const order = _reportOrder();
+  return {
+    ok: true,
+    order: order,
+    sections: REPORT_SECTIONS,
+    isDefault: order.join(',') === _defaultOrder().join(',')
+  };
+}
+
+// order 傳空陣列＝還原預設（下面補齊的邏輯會把整組預設排回去，再把設定清掉）
+function adminSetOrder(pw, order) {
+  _auth(pw);
+  const def = _defaultOrder();
+  const seen = {}, clean = [];
+  (order || []).forEach(function (k) {
+    k = String(k).trim();
+    if (def.indexOf(k) >= 0 && !seen[k]) { seen[k] = true; clean.push(k); }
+  });
+  def.forEach(function (k) { if (!seen[k]) clean.push(k); });
+
+  const props = PropertiesService.getScriptProperties();
+  const isDefault = clean.join(',') === def.join(',');
+  if (isDefault) props.deleteProperty(PROP_REPORT_ORDER);
+  else props.setProperty(PROP_REPORT_ORDER, clean.join(','));
+
+  const LBL = {};
+  REPORT_SECTIONS.forEach(function (s) { LBL[s.key] = s.label; });
+  _log('admin_order', '報告章節順序：' + clean.map(function (k) { return LBL[k]; }).join(' → '));
+  return {
+    ok: true, order: clean, sections: REPORT_SECTIONS, isDefault: isDefault,
+    message: isDefault ? '已還原成預設順序' : '章節順序已更新，重新整理報告就會看到'
+  };
 }
 
 function adminSetOutlier(pw, respId, include) {

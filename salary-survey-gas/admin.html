@@ -44,10 +44,12 @@ h2{margin:0 0 4px;font-size:18px;font-weight:700}
 .hint{color:var(--ink-3);font-size:13px;margin:0 0 16px}
 
 label.f{display:block;font-size:13px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
-input[type=password],input[type=text],input[type=number]{
+input[type=password],input[type=text],input[type=number],textarea{
   width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:11px;
   font:inherit;font-size:15px;background:#fff;color:var(--ink)}
-input:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 4px rgba(14,122,83,.12)}
+input:focus,textarea:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 4px rgba(14,122,83,.12)}
+textarea{resize:vertical;font-size:14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.04em}
 
 .btn{border:0;border-radius:12px;padding:12px 22px;font:inherit;font-size:14.5px;font-weight:700;
   cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:7px;
@@ -61,6 +63,24 @@ input:focus{outline:0;border-color:var(--brand);box-shadow:0 0 0 4px rgba(14,122
 .btn.d:hover{background:var(--red-soft)}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .btns{display:flex;gap:10px;flex-wrap:wrap}
+
+/* ── 報告章節順序 ── */
+.so{border:1px solid var(--line);border-radius:13px;overflow:hidden}
+.so-row{display:grid;grid-template-columns:34px 1fr auto;gap:12px;align-items:center;
+  padding:10px 12px;background:#fff;border-top:1px solid var(--line)}
+.so-row:first-child{border-top:0}
+.so-row:nth-child(even){background:#fafcfd}
+.so-n{display:flex;align-items:center;justify-content:center;width:26px;height:26px;
+  border-radius:8px;background:var(--brand-soft);color:var(--brand-dk);
+  font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.so-t{font-size:14px;font-weight:700;color:var(--ink);line-height:1.4}
+.so-t em{display:block;font-style:normal;font-size:11.5px;font-weight:400;color:var(--ink-3);
+  margin-top:2px}
+.so-b{display:flex;gap:6px}
+.so-mv{width:34px;height:34px;border-radius:9px;border:1.5px solid var(--line);background:#fff;
+  color:var(--ink-2);font-size:15px;font-weight:800;cursor:pointer;line-height:1;transition:.15s}
+.so-mv:hover:not(:disabled){border-color:var(--brand);color:var(--brand-dk);background:var(--brand-soft)}
+.so-mv:disabled{opacity:.3;cursor:not-allowed}
 
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:6px}
 .st{border:1px solid var(--line);border-radius:13px;padding:14px;background:#fafcfd}
@@ -408,6 +428,12 @@ function renderPanel(message) {
       '<div id="stats"><p class="hint">載入中…</p></div>' +
     '</div>' +
 
+    '<div class="card"><h2>報告章節順序</h2>' +
+      '<p class="hint">分析報告上各區塊的先後順序。<b>只有這裡能調</b>，' +
+      '看報告的人沒有任何可以改順序的地方；存檔後他們重新整理就會看到新的排法。</p>' +
+      '<div id="secorder"><p class="hint">載入中…</p></div>' +
+    '</div>' +
+
     '<div class="card"><h2>新回覆通知信</h2>' +
       '<p class="hint">每收到一筆新回覆就寄一封通知到您的信箱。Google 每天的寄信額度有限' +
       '（個人帳號約 100 封），額度不足時會自動略過，不影響問卷運作。</p>' +
@@ -421,8 +447,21 @@ function renderPanel(message) {
     '</div>' +
 
     '<div class="card"><h2>最近的回覆</h2>' +
-      '<p class="hint">最多顯示最近 50 筆，可單筆刪除測試資料。</p>' +
+      '<p class="hint">最多顯示最近 50 筆，可單筆刪除測試資料。更早的資料請用下面的「依編號刪除」。</p>' +
       '<div id="rows"><p class="hint">載入中…</p></div>' +
+      '<div class="danger">' +
+        '<h3>依編號刪除</h3>' +
+        '<p>不限最近 50 筆，整份回覆資料都找得到。刪除後<b>無法復原</b>，' +
+          '抽獎名單那一邊不會跟著動（兩表刻意無法對應）。</p>' +
+        '<div style="margin-left:8px">' +
+          '<label class="f" for="delIds">回覆編號（一行一個，也可用空白或逗號分隔）</label>' +
+          '<textarea id="delIds" rows="4" spellcheck="false" ' +
+            'placeholder="R0BEF7BA414AA&#10;RC71595205A31"></textarea>' +
+        '</div>' +
+        '<div class="btns" style="margin-top:12px">' +
+          '<button class="btn d" id="doDelIds">刪除這些編號</button>' +
+        '</div>' +
+      '</div>' +
     '</div>' +
 
     '<div class="card"><h2>匯入 2023 年調查資料</h2>' +
@@ -860,9 +899,75 @@ function bindPanel() {
   $('#stRefresh').addEventListener('click', loadStats);
 
   bindClearButtons();
+  bindDeleteByIds();
+  loadOrder();
   loadNotify();
   loadStats();
   loadRows();
+}
+
+/* ── 報告章節順序 ──
+   用上下箭頭換位子就好，不做拖曳：拖曳在手機上很難按，而且八個項目用不到。
+   ORD 先在前端改，按「儲存」才送出去，所以可以連按幾下再一次存。 */
+var ORD = null, ORD_LBL = {}, ORD_NOTE = {}, ORD_SAVED = '';
+
+function loadOrder() {
+  var box = $('#secorder');
+  if (!box) return;
+  call('adminGetOrder', [PW], function (r) {
+    ORD = (r.order || []).slice();
+    ORD_SAVED = ORD.join(',');
+    (r.sections || []).forEach(function (s) { ORD_LBL[s.key] = s.label; ORD_NOTE[s.key] = s.note; });
+    paintOrder();
+  });
+}
+
+function paintOrder() {
+  var box = $('#secorder');
+  if (!box || !ORD) return;
+  var dirty = ORD.join(',') !== ORD_SAVED;
+  box.innerHTML =
+    '<div class="so">' + ORD.map(function (k, i) {
+      return '<div class="so-row">' +
+        '<span class="so-n">' + (i + 1) + '</span>' +
+        '<span class="so-t">' + esc(ORD_LBL[k] || k) +
+          '<em>' + esc(ORD_NOTE[k] || '') + '</em></span>' +
+        '<span class="so-b">' +
+          '<button class="so-mv" data-mv="' + i + '" data-dir="-1"' +
+            (i === 0 ? ' disabled' : '') + ' title="往上">↑</button>' +
+          '<button class="so-mv" data-mv="' + i + '" data-dir="1"' +
+            (i === ORD.length - 1 ? ' disabled' : '') + ' title="往下">↓</button>' +
+        '</span></div>';
+    }).join('') + '</div>' +
+    '<div class="btns" style="margin-top:14px;align-items:center">' +
+      '<button class="btn p" id="soSave"' + (dirty ? '' : ' disabled') + '>儲存順序</button>' +
+      '<button class="btn g" id="soReset">還原預設</button>' +
+      (dirty ? '<span class="hint" style="margin:0;color:var(--brand-dk)">有未儲存的變更</span>' : '') +
+    '</div>';
+
+  box.querySelectorAll('[data-mv]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var i = Number(b.getAttribute('data-mv')), d = Number(b.getAttribute('data-dir'));
+      var j = i + d;
+      if (j < 0 || j >= ORD.length) return;
+      var t = ORD[i]; ORD[i] = ORD[j]; ORD[j] = t;
+      paintOrder();
+    });
+  });
+  $('#soSave').addEventListener('click', function () {
+    var b = this; b.disabled = true;
+    call('adminSetOrder', [PW, ORD], function (r) {
+      ORD = r.order.slice(); ORD_SAVED = ORD.join(',');
+      toast(r.message, 'ok'); paintOrder();
+    }, function (m) { b.disabled = false; defaultFail(m); });
+  });
+  $('#soReset').addEventListener('click', function () {
+    var b = this; b.disabled = true;
+    call('adminSetOrder', [PW, []], function (r) {
+      ORD = r.order.slice(); ORD_SAVED = ORD.join(',');
+      toast(r.message, 'ok'); paintOrder();
+    }, function (m) { b.disabled = false; defaultFail(m); });
+  });
 }
 
 /* ── 新回覆通知信 ── */
@@ -948,6 +1053,27 @@ function loadRows() {
         });
       });
     }, function (m) { box.innerHTML = '<div class="msg err">' + esc(m) + '</div>'; });
+}
+
+/* ── 依編號批次刪除 ── */
+function bindDeleteByIds() {
+  var b = $('#doDelIds');
+  if (!b) return;
+  b.addEventListener('click', function () {
+    var raw = ($('#delIds').value || '').trim();
+    var ids = raw.split(/[\s,;]+/).filter(function (x) { return x; })
+      .map(function (x) { return x.toUpperCase(); });
+    if (!ids.length) { toast('請先貼上要刪除的回覆編號。', 'err'); return; }
+    if (!confirm('確定刪除以下 ' + ids.length + ' 筆回覆？無法復原。' + String.fromCharCode(10) +
+                 String.fromCharCode(10) + ids.join(String.fromCharCode(10)))) return;
+    var old = b.textContent;
+    b.disabled = true; b.textContent = '刪除中…';
+    call('adminDeleteResponses', [PW, ids], function (s) {
+      b.disabled = false; b.textContent = old;
+      $('#delIds').value = '';
+      SUM = s; renderPanel(s.message);
+    }, function (m) { b.disabled = false; b.textContent = old; toast(m, 'err'); });
+  });
 }
 
 /* ── 危險操作：清除 ── */
