@@ -185,7 +185,8 @@ const OUTLIER = {
   annualMonthsMax: 40   // 年收入超過 40 個月月薪（12 個月本薪 + 24 個月年終上限還要留加班的餘裕）
 };
 
-const CACHE_KEY = 'salary_stats_v1';
+// 改過 apiStats 的回傳結構就要跳版號，否則舊快取會餵給新前端（欄位對不上、整頁空白）
+const CACHE_KEY = 'salary_stats_v2';
 const CACHE_SEC = 120;
 
 
@@ -1121,11 +1122,95 @@ function _histogram(arr, mark) {
 // ══════════════════════════════════
 // 分析報告統計
 // ══════════════════════════════════
+// 報告的統計值分成兩路：
+//  ① 固定區塊（樣本結構、整體箱型圖、分析結論）在這裡算好送出去；
+//  ② 熱力圖點格子、自訂條件篩選這種「任意子集合」，前端自己算 —— 所以會附一份
+//     編碼後的逐列資料 micro：每個類別欄位轉成字典索引，整份壓成一個字串（約 20KB）。
+//     裡面只有分組用的級距欄位與薪資數字，沒有 Email／電話／自填文字，也沒有時間戳，
+//     單獨一列無法對應到任何人。
+const CACHE_KEY_MICRO = 'salary_micro_v2';
+const MIN_CELL_N = 5;          // 子集合要列出逐列資料的最低樣本數
+
+// OSH_LADDER / LANG_LEVELS 宣告在本檔更後面，常數初始化會踩到 TDZ，所以用函式延後取值
+function _microDims() {
+  const EDU   = ['高中職', '專科（二專／五專）', '四技二專', '大學', '碩士', '博士'];
+  const SIZE  = ['50 人以下', '51-200 人', '201-500 人', '501-1000 人', '1001-5000 人', '5000 人以上'];
+  const TITLE = ['專員／工程師', '資深專員／資深工程師', '組長／副課長', '課長／經理',
+                 '副理／協理以上', '顧問／技師', '其他'];
+  return [
+    { key: 'cat',    field: 'job_category',     label: '行業別',   order: null,   ord: false },
+    { key: 'yrs',    field: 'yrs_band',         label: '年資',     order: YRS_BANDS, ord: true },
+    { key: 'edu',    field: 'education',        label: '學歷',     order: EDU,    ord: true },
+    { key: 'lic',    field: 'osh_license_top',  label: '職安證照', order: OSH_LADDER.slice().reverse(), ord: true },
+    { key: 'intl',   field: 'intl_license_has', label: '國際證照', order: ['無國際證照', '有國際證照'], ord: false },
+    { key: 'lang',   field: 'lang_level',       label: '外語能力', order: LANG_LEVELS.map(function (l) { return l.label; }), ord: true },
+    { key: 'region', field: 'work_region',      label: '工作區域', order: ['北部', '中部', '南部', '東部', '離島', '海外'], ord: false },
+    { key: 'size',   field: 'company_size',     label: '公司規模', order: SIZE,   ord: true },
+    { key: 'title',  field: 'job_title',        label: '職稱職級', order: TITLE,  ord: true },
+    { key: 'age',    field: 'age_band',         label: '年齡',     order: AGE_BANDS, ord: true },
+    { key: 'ded',    field: 'is_dedicated',     label: '職安專責', order: ['是', '否'], ord: false }
+  ];
+}
+
+function _buildMicro(clean) {
+  const dims = _microDims();
+  const vals = dims.map(function (d) { return d.order ? d.order.slice() : []; });
+  const cnt = dims.map(function () { return {}; });
+
+  clean.forEach(function (r) {
+    dims.forEach(function (d, i) {
+      const v = _mergeOther(r[d.field]);
+      if (vals[i].indexOf(v) < 0) vals[i].push(v);
+      cnt[i][v] = (cnt[i][v] || 0) + 1;
+    });
+  });
+  // 沒有既定順序的維度（行業別等）依人數多寡排，「其他」「未填」固定壓到最後，
+  // 這樣顏色槽位不會因為一筆新回覆就整排換色
+  dims.forEach(function (d, i) {
+    if (d.order) return;
+    vals[i].sort(function (a, b) {
+      const ra = (a === '未填' ? 2 : a === '其他' ? 1 : 0);
+      const rb = (b === '未填' ? 2 : b === '其他' ? 1 : 0);
+      if (ra !== rb) return ra - rb;
+      return (cnt[i][b] || 0) - (cnt[i][a] || 0);
+    });
+  });
+
+  const rows = clean.map(function (r) {
+    const c = dims.map(function (d, i) { return vals[i].indexOf(_mergeOther(r[d.field])); });
+    c.push(_pos(r.monthly_salary) ? Math.round(r.monthly_salary) : '');
+    c.push((typeof r.annual_bonus === 'number' && !isNaN(r.annual_bonus) && r.annual_bonus >= 0)
+            ? Math.round(r.annual_bonus) : '');
+    c.push(_pos(r.annual_total) ? Math.round(r.annual_total) : '');
+    c.push((_pos(r.ot_monthly) && r.ot_monthly <= OUTLIER.otMax) ? Math.round(r.ot_monthly) : '');
+    return c.join(',');
+  });
+
+  return {
+    dims: dims.map(function (d, i) {
+      return { key: d.key, label: d.label, ord: d.ord, values: vals[i],
+               counts: vals[i].map(function (v) { return cnt[i][v] || 0; }) };
+    }),
+    cols: ['m', 'b', 'a', 'ot'],
+    minCellN: MIN_CELL_N,
+    rows: rows.join(';')
+  };
+}
+
 function apiStats(force) {
   const cache = CacheService.getScriptCache();
   if (!force) {
-    const hit = cache.get(CACHE_KEY);
-    if (hit) { try { return JSON.parse(hit); } catch (e) {} }
+    try {
+      const hit = cache.get(CACHE_KEY);
+      if (hit) {
+        const o = JSON.parse(hit);
+        if (o && o.micro) {
+          o.micro.rows = cache.get(CACHE_KEY_MICRO) || '';
+          if (!o.micro.rows) throw new Error('micro cache miss');
+        }
+        return o;
+      }
+    } catch (e) {}
   }
   const rows = _readResponses();
   const clean = rows.filter(function (r) { return !r.outlier; });
@@ -1149,68 +1234,95 @@ function apiStats(force) {
     totalRaw: rows.length,
     total: clean.length,
     excluded: rows.length - clean.length,
-    profile: {},
-    salary: {},
-    narrative: []
+    minPublicN: MIN_PUBLIC_N,
+    profile: [],
+    salary: {}
   };
 
-  // ── 整體資料分析（人數／比例）──
+  // ── 回收儀表（近 21 天；匯入的舊資料時間戳是 2023，不會落在區間內）──
+  const keyDay = function (d) { return Utilities.formatDate(d, 'Asia/Taipei', 'yyyy-MM-dd'); };
+  const byDay = {};
+  rows.forEach(function (r) {
+    if (!(r.timestamp instanceof Date)) return;
+    const k = keyDay(r.timestamp);
+    byDay[k] = (byDay[k] || 0) + 1;
+  });
+  const days = [];
+  for (let i = 20; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 864e5);
+    days.push({ label: Utilities.formatDate(d, 'Asia/Taipei', 'MM/dd'), count: byDay[keyDay(d)] || 0 });
+  }
+  stats.intake = {
+    total: rows.length,
+    valid: clean.length,
+    excluded: rows.length - clean.length,
+    minPublicN: MIN_PUBLIC_N,
+    weekCount: days.slice(-7).reduce(function (a, b) { return a + b.count; }, 0),
+    legacyN: clean.filter(function (r) { return String(r.source) === LEGACY_TAG; }).length,
+    legacyTag: LEGACY_TAG,
+    days: days,
+    startRoc: _toRoc(SURVEY_START),
+    open: _isOpen()
+  };
+
+  // ── 樣本結構（每個維度一條百分比堆疊長條）──
+  const EDU_ORDER = ['高中職', '專科（二專／五專）', '四技二專', '大學', '碩士', '博士'];
   const profileDims = [
-    ['education',       '學歷'],
-    ['osh_license_top', '職安證照（最高等級）'],
-    ['intl_license_has', '國際職安證照'],
-    ['other_license_has', '其他證照'],
-    ['skill_has',       '其他專業'],
-    ['lang_level',      '外語能力'],
-    ['is_dedicated',    '職安專責'],
-    ['yrs_band',        '工作經驗'],
-    ['job_category',    '職業分類'],
-    ['work_region',     '工作區域'],
-    ['age_band',        '年齡'],
-    ['company_size',    '公司規模'],
-    ['job_title',       '職稱／職級'],
-    ['shift_type',      '工作型態'],
-    ['ot_pay_type',     '加班費給付'],
-    ['raise_last_year', '近一年調薪'],
-    ['job_seeking',     '轉職意願']
+    ['yrs_band',         '年資',             YRS_BANDS],
+    ['age_band',         '年齡',             AGE_BANDS],
+    ['education',        '最高學歷',         EDU_ORDER],
+    ['osh_license_top',  '職安證照（最高等級）', OSH_LADDER.slice().reverse()],
+    ['job_category',     '行業別',           null],
+    ['work_region',      '工作區域',         ['北部', '中部', '南部', '東部', '離島', '海外']],
+    ['company_size',     '公司規模',         ['50 人以下', '51-200 人', '201-500 人', '501-1000 人', '1001-5000 人', '5000 人以上']],
+    ['job_title',        '職稱／職級',       ['專員／工程師', '資深專員／資深工程師', '組長／副課長', '課長／經理', '副理／協理以上', '顧問／技師', '其他']],
+    ['subordinates',     '直接管理的部屬',   ['無', '1-3 人', '4-10 人', '10 人以上']],
+    ['is_dedicated',     '是否職安專責',     ['是', '否']],
+    ['shift_type',       '工作型態',         ['常日班', '輪班（兩班制）', '輪班（三班制）', '國內長期駐點', '長期駐外（國外）']],
+    ['lang_level',       '外語能力',         LANG_LEVELS.map(function (l) { return l.label; })],
+    ['intl_license_has', '國際職安證照',     ['有國際證照', '無國際證照']],
+    ['other_license_has', '其他證照',        ['有', '無']],
+    ['skill_has',        '其他專業能力',     ['有', '無']],
+    ['ot_pay_type',      '加班費給付方式',   ['核實全額給付', '部分給付（有上限）', '折換補休', '定額加班費（包月）', '責任制／不給付']],
+    ['raise_last_year',  '近一年調薪幅度',   ['減薪', '未調薪', '1-3%', '3-5%', '5-10%', '10% 以上']],
+    ['satisfaction',     '工作滿意度（1～5）', ['1', '2', '3', '4', '5']],
+    ['job_seeking',      '未來一年轉職打算', ['沒有', '觀望中', '積極尋找中', '已有 offer']]
   ];
-  profileDims.forEach(function (d) {
-    stats.profile[d[0]] = { title: d[1], rows: _countBy(clean, d[0]) };
+  stats.profile = profileDims.map(function (d) {
+    return { key: d[0], title: d[1], ord: !!d[2], rows: _countBy(clean, d[0], d[2]) };
   });
 
-  // ── 薪資分析（分組）──
+  // ── 複選題 ──
+  stats.multi = [
+    { key: 'job_contents',   title: '現職工作內容', rows: _countByMulti(clean, 'job_contents') },
+    { key: 'benefits',       title: '公司提供的福利', rows: _countByMulti(clean, 'benefits') },
+    { key: 'skills',         title: '其他專業能力', rows: _countByMulti(clean, 'skills') },
+    { key: 'other_licenses', title: '其他證照',     rows: _countByMulti(clean, 'other_licenses') },
+    { key: 'intl_licenses',  title: '國際職安證照', rows: _countByMulti(clean, 'intl_licenses') }
+  ];
+
+  // ── 薪資與工時 ──
   stats.salary.overall = _salaryStat(clean);
-  const salaryDims = [
-    ['education',       '依學歷分類',            null],
-    ['yrs_band',        '依工作經驗分類',        YRS_BANDS],
-    ['osh_license_top', '依職安證照分類（取最高等級）', OSH_LADDER],
-    ['intl_license_has', '依國際職安證照分類', ['有國際證照', '無國際證照']],
-    ['lang_has',        '依外語能力分類',        ['有外語能力', '無外語能力']],
-    ['other_license_has', '依其他證照分類',      ['有', '無']],
-    ['work_region',     '依工作區域分類',        ['北部', '中部', '南部', '東部', '離島', '海外']],
-    ['job_category',    '依現職工作分類',        null],
-    ['company_size',    '依公司規模分類',        null],
-    ['job_title',       '依職稱／職級分類',      null],
-    ['age_band',        '依年齡分類',            AGE_BANDS]
-  ];
-  stats.salary.groups = salaryDims.map(function (d) {
-    return { key: d[0], title: d[1], items: _groupSalary(clean, d[0], d[2]) };
-  });
-
-  // ── 加班與福利 ──
   stats.overtime = _numericStat(
-    rows.map(function (r) { return r.ot_monthly; })
-        .filter(function (v) { return _pos(v) && v <= OUTLIER.otMax; }));
-  stats.benefits = _countByMulti(clean, 'benefits');
-  stats.jobContents = _countByMulti(clean, 'job_contents');
-  stats.skillsDetail = _countByMulti(clean, 'skills');
-  stats.otherLicenseDetail = _countByMulti(clean, 'other_licenses');
-  stats.intlLicenseDetail = _countByMulti(clean, 'intl_licenses');
+    clean.map(function (r) { return r.ot_monthly; })
+         .filter(function (v) { return _pos(v) && v <= OUTLIER.otMax; }));
+  stats.leave = _numericStat(
+    clean.map(function (r) { return _num(r.annual_leave_days); })
+         .filter(function (v) { return !isNaN(v) && v >= 0 && v <= 60; }));
 
-  // ── 文字結論 ──
-  stats.narrative = _buildNarrative(stats);
+  // ── 逐列匿名資料（前端自己算子集合用）──
+  stats.micro = _buildMicro(clean);
 
-  try { cache.put(CACHE_KEY, JSON.stringify(stats), CACHE_SEC); } catch (e) {}
+  // ── 分析結論 ──
+  stats.analysis = _buildAnalysis(clean);
+
+  try {
+    const rowsStr = stats.micro.rows;
+    stats.micro.rows = '';
+    cache.put(CACHE_KEY, JSON.stringify(stats), CACHE_SEC);
+    cache.put(CACHE_KEY_MICRO, rowsStr, CACHE_SEC);
+    stats.micro.rows = rowsStr;
+  } catch (e) {}
   return stats;
 }
 
@@ -1246,18 +1358,29 @@ function _groupSalary(rows, key, order) {
   });
 }
 
+// 空集合一律回 null（後台的 bxBar、排行榜都靠 median !== null 判空，不能改成 0）。
+// 注意前端經 google.script.run 取回時 null 會變 undefined，判空要用 Number(v) > 0。
 function _numericStat(arr) {
-  if (!arr.length) return { n: 0, min: null, max: null, mean: null, median: null, p25: null, p75: null };
+  if (!arr.length) {
+    return { n: 0, min: null, max: null, mean: null, median: null,
+             p25: null, p75: null, p10: null, p90: null, sd: null };
+  }
   const s = arr.slice().sort(function (a, b) { return a - b; });
   const sum = s.reduce(function (a, b) { return a + b; }, 0);
+  const mean = sum / s.length;
+  let v = 0;
+  s.forEach(function (x) { v += (x - mean) * (x - mean); });
   return {
     n: s.length,
     min: s[0],
     max: s[s.length - 1],
-    mean: Math.round(sum / s.length),
+    mean: Math.round(mean),
     median: Math.round(_median(s)),
     p25: Math.round(_percentile(s, 25)),
-    p75: Math.round(_percentile(s, 75))
+    p75: Math.round(_percentile(s, 75)),
+    p10: Math.round(_percentile(s, 10)),
+    p90: Math.round(_percentile(s, 90)),
+    sd: Math.round(Math.sqrt(s.length > 1 ? v / (s.length - 1) : 0))
   };
 }
 
@@ -1269,16 +1392,33 @@ function _mergeOther(v) {
   return /^其他[：:]/.test(t) ? '其他' : t;
 }
 
-function _countBy(rows, key) {
+function _countBy(rows, key, order) {
   const map = {};
   rows.forEach(function (r) {
     const k = _mergeOther(r[key]);
     map[k] = (map[k] || 0) + 1;
   });
   const total = rows.length || 1;
-  return Object.keys(map)
-    .map(function (k) { return { label: k, count: map[k], pct: Math.round(map[k] / total * 1000) / 10 }; })
-    .sort(function (a, b) { return b.count - a.count; });
+  const out = Object.keys(map).map(function (k) {
+    return { label: k, count: map[k], pct: Math.round(map[k] / total * 1000) / 10 };
+  });
+  if (order) {
+    out.sort(function (a, b) {
+      const ra = (a.label === '未填' ? 2 : a.label === '其他' ? 1 : 0);
+      const rb = (b.label === '未填' ? 2 : b.label === '其他' ? 1 : 0);
+      if (ra !== rb) return ra - rb;
+      const ia = order.indexOf(a.label), ib = order.indexOf(b.label);
+      return (ia < 0 ? 998 : ia) - (ib < 0 ? 998 : ib);
+    });
+  } else {
+    out.sort(function (a, b) {
+      const ra = (a.label === '未填' ? 2 : a.label === '其他' ? 1 : 0);
+      const rb = (b.label === '未填' ? 2 : b.label === '其他' ? 1 : 0);
+      if (ra !== rb) return ra - rb;
+      return b.count - a.count;
+    });
+  }
+  return out;
 }
 
 function _countByMulti(rows, key) {
@@ -1298,54 +1438,278 @@ function _countByMulti(rows, key) {
 
 
 // ══════════════════════════════════
-// 自動文字結論
+// 分析結論（規則式，但算的是真的統計量）
 // ══════════════════════════════════
-function _buildNarrative(stats) {
-  const out = [];
-  const MIN_N = 5;
+// 設計原則：
+//  1. 不重複報表上已經有的數字，只講「看表看不出來的事」。
+//  2. 比較一律附樣本數；組間差距先算「解釋力」再排名，而不是挑最大的差距來講。
+//  3. 凡是會被年資混淆的比較（學歷、證照、外語…），都再給一次「同年資帶內」的差距。
+function _buildAnalysis(clean) {
+  const A = clean.filter(function (r) { return _pos(r.annual_total); });
+  const med = function (set) { return set.length ? _median(set) : null; };
+  const medOf = function (set, f) {
+    return med(set.map(function (r) { return r[f]; }).filter(_pos));
+  };
+  const pctOf = function (a, b) { return (b > 0) ? Math.round((a - b) / b * 1000) / 10 : null; };
 
-  function dim(key, no, name, lead) {
-    const title = no + '、' + name + '對薪資的影響';
-    const g = stats.salary.groups.filter(function (x) { return x.key === key; })[0];
-    if (!g) return;
-    const items = g.items.filter(function (i) { return i.n >= MIN_N && i.annual.median; });
-    if (items.length < 2) return;
-    const sorted = items.slice().sort(function (a, b) { return b.annual.median - a.annual.median; });
-    const hi = sorted[0], lo = sorted[sorted.length - 1];
-    const gap = hi.annual.median - lo.annual.median;
-    const pct = lo.annual.median ? Math.round(gap / lo.annual.median * 100) : 0;
-    // 列出所有組別（超過 8 組時取前 7 名 + 最低的一組，確保結論提到的兩端都看得到）
-    let listed = sorted;
-    let truncated = false;
-    if (sorted.length > 8) { listed = sorted.slice(0, 7).concat([lo]); truncated = true; }
-    const bullets = listed.map(function (i) {
-      return i.label + '（n=' + i.n + '）月薪中位數 ' + _fmt(i.monthly.median) +
-             '，年收入中位數 ' + _fmt(i.annual.median);
+  const monthly = _numericStat(clean.map(function (r) { return r.monthly_salary; }).filter(_pos));
+  const annual  = _numericStat(clean.map(function (r) { return r.annual_total; }).filter(_pos));
+  const bonusArr = clean.map(function (r) { return r.annual_bonus; })
+                        .filter(function (v) { return typeof v === 'number' && !isNaN(v) && v >= 0; });
+  const bonus = _numericStat(bonusArr);
+
+  // ── 收入組成：年收入 ÷ 月薪 等於幾個月 ──
+  const paired = clean.filter(function (r) { return _pos(r.monthly_salary) && _pos(r.annual_total); });
+  const effMonths = med(paired.map(function (r) { return r.annual_total / r.monthly_salary; }));
+  const bonusShare = med(clean.filter(function (r) { return _pos(r.annual_total) && _pos(r.annual_bonus); })
+                              .map(function (r) { return r.annual_bonus / r.annual_total * 100; }));
+  const noBonus = bonusArr.length ? bonusArr.filter(function (v) { return v === 0; }).length / bonusArr.length * 100 : 0;
+
+  // ── 解釋力：對數年收入的組間變異占比，並校正組數（ε²）──
+  // 「未填」和「其他」都不是真的分類（後者是各種自填答案的混合），
+  // 放進組間變異只會製造一個內部極度分散的假組別，解釋力會被低估
+  const realCat = function (v) { return v !== '未填' && v !== '其他'; };
+
+  function explain(field) {
+    const g = {};
+    A.forEach(function (r) {
+      const k = _mergeOther(r[field]);
+      if (!realCat(k)) return;
+      (g[k] = g[k] || []).push(Math.log(r.annual_total));
     });
-    if (truncated) bullets.push('（組別較多，上方僅列出最高 7 組與最低 1 組，完整數字請見上面的分組表）');
-    bullets.push('最高（' + hi.label + '）與最低（' + lo.label + '）年收入中位數相差 ' +
-                 _fmt(gap) + '，差距約 ' + pct + '%');
-    let conclusion;
-    if (pct >= 30) {
-      conclusion = name + '對薪資影響明顯，' + hi.label + '明顯領先，與' + lo.label + '差距約 ' + pct + '%。';
-    } else if (pct >= 12) {
-      conclusion = name + '對薪資有一定影響（組間差距約 ' + pct + '%），但並非決定性因素。';
-    } else {
-      conclusion = '各' + name + '之間薪資差距不大（約 ' + pct + '%），影響有限。';
-    }
-    out.push({ title: title, lead: lead, bullets: bullets, conclusion: conclusion });
+    const keys = Object.keys(g).filter(function (k) { return g[k].length >= MIN_CELL_N; });
+    if (keys.length < 2) return null;
+    let all = [];
+    keys.forEach(function (k) { all = all.concat(g[k]); });
+    const N = all.length;
+    if (N < 30) return null;
+    const gm = all.reduce(function (a, b) { return a + b; }, 0) / N;
+    let ssT = 0;
+    all.forEach(function (v) { ssT += (v - gm) * (v - gm); });
+    if (!(ssT > 0)) return null;
+    let ssB = 0;
+    keys.forEach(function (k) {
+      const m = g[k].reduce(function (a, b) { return a + b; }, 0) / g[k].length;
+      ssB += g[k].length * (m - gm) * (m - gm);
+    });
+    const k = keys.length;
+    const msW = (N - k) > 0 ? (ssT - ssB) / (N - k) : 0;
+    const eps = (ssB - (k - 1) * msW) / ssT * 100;   // ε²：扣掉「組數多本來就會比較高」的部分
+    return { eta: Math.round(ssB / ssT * 1000) / 10,
+             eps: Math.round(Math.max(0, eps) * 10) / 10,
+             k: k, n: N, groups: keys };
   }
 
-  dim('education',       '一', '學歷',     '比較各學歷層級的月薪與年收入中位數');
-  dim('yrs_band',        '二', '工作經驗', '觀察年資級距與薪資成長的關聯');
-  dim('work_region',     '三', '工作區域', '依工作地所屬區域比較');
-  dim('osh_license_top', '四', '職安證照', '取最高一級：國際證照 › 甲級 › 乙級 › 甲種 › 乙種 › 丙種 › 丁種');
-  dim('intl_license_has', '四之一', '國際職安證照', '比較有／無 NEBOSH、IOSH、CSP 等國際證照者');
-  dim('lang_has',        '五', '外語能力', '比較有／無外語檢定成績者');
-  dim('job_category',    '六', '行業別',   '依現職工作分類比較');
-  dim('company_size',    '七', '公司規模', '依公司員工人數級距比較');
-  dim('job_title',       '八', '職級',     '依現職職稱／職級比較');
-  return out;
+  // ── 控制年資後的差距：在每個年資帶內各比一次，再以兩組較小的 n 加權平均 ──
+  function ctrlGap(field, hiVals, loVals) {
+    const pick = function (vals) {
+      return A.filter(function (r) { return vals.indexOf(_mergeOther(r[field])) >= 0; });
+    };
+    const hi = pick(hiVals), lo = pick(loVals);
+    if (hi.length < MIN_CELL_N || lo.length < MIN_CELL_N) return null;
+    const mh = medOf(hi, 'annual_total'), ml = medOf(lo, 'annual_total');
+    const bands = [];
+    let acc = 0, w = 0;
+    YRS_BANDS.forEach(function (b) {
+      const h = hi.filter(function (r) { return r.yrs_band === b; });
+      const l = lo.filter(function (r) { return r.yrs_band === b; });
+      if (h.length < 3 || l.length < 3) return;
+      const a = medOf(h, 'annual_total'), c = medOf(l, 'annual_total');
+      if (!(a > 0) || !(c > 0)) return;
+      const p = (a - c) / c * 100, ww = Math.min(h.length, l.length);
+      bands.push({ band: b, nHi: h.length, nLo: l.length, pct: Math.round(p * 10) / 10 });
+      acc += p * ww; w += ww;
+    });
+    return {
+      nHi: hi.length, nLo: lo.length,
+      medHi: Math.round(mh), medLo: Math.round(ml),
+      rawPct: pctOf(mh, ml),
+      adjPct: w ? Math.round(acc / w * 10) / 10 : null,
+      bands: bands,
+      coverage: w
+    };
+  }
+
+  // ① 薪資驅動因子排名
+  const driverDims = [
+    ['yrs_band', '年資'], ['job_title', '職稱職級'], ['age_band', '年齡'],
+    ['job_category', '行業別'], ['osh_license_top', '職安證照'], ['education', '學歷'],
+    ['company_size', '公司規模'], ['work_region', '工作區域'], ['lang_level', '外語能力'],
+    ['intl_license_has', '國際職安證照'], ['is_dedicated', '職安專責'], ['shift_type', '工作型態']
+  ];
+  const drivers = driverDims.map(function (d) {
+    const e = explain(d[0]);
+    if (!e) return null;
+    const items = e.groups.map(function (k) {
+      const sub = A.filter(function (r) { return _mergeOther(r[d[0]]) === k; });
+      return { label: k, n: sub.length, median: Math.round(medOf(sub, 'annual_total')) };
+    }).sort(function (a, b) { return b.median - a.median; });
+    const hi = items[0], lo = items[items.length - 1];
+    return {
+      key: d[0], label: d[1], eta: e.eta, eps: e.eps, k: e.k, n: e.n,
+      hi: hi, lo: lo, gap: hi.median - lo.median, gapPct: pctOf(hi.median, lo.median)
+    };
+  }).filter(Boolean).sort(function (a, b) { return b.eps - a.eps; });
+
+  // ② 年資報酬曲線
+  const curve = [];
+  YRS_BANDS.forEach(function (b) {
+    const sub = clean.filter(function (r) { return r.yrs_band === b; });
+    if (sub.length < MIN_CELL_N) return;
+    const a = medOf(sub, 'annual_total'), m = medOf(sub, 'monthly_salary');
+    if (!(a > 0)) return;
+    curve.push({ band: b, n: sub.length, annual: Math.round(a), monthly: m ? Math.round(m) : null });
+  });
+  const steps = [];
+  for (let i = 1; i < curve.length; i++) {
+    steps.push({
+      from: curve[i - 1].band, to: curve[i].band,
+      delta: curve[i].annual - curve[i - 1].annual,
+      pct: pctOf(curve[i].annual, curve[i - 1].annual)
+    });
+  }
+  const fastest = steps.slice().sort(function (a, b) { return b.pct - a.pct; })[0] || null;
+  const slowest = steps.slice().sort(function (a, b) { return a.pct - b.pct; })[0] || null;
+
+  // ③ 控制年資後仍站得住的溢酬
+  const premiumDefs = [
+    ['國際職安證照', 'intl_license_has', ['有國際證照'], ['無國際證照'],
+     'NEBOSH／IOSH／CSP 等國際證照持有者，與沒有國際證照者比較'],
+    ['甲級管理師 vs 乙級管理員', 'osh_license_top', ['甲級管理師'], ['乙級管理員'],
+     '同樣是本國證照，升一級值多少'],
+    ['碩士 vs 大學', 'education', ['碩士', '博士'], ['大學'],
+     '研究所學歷相對於大學畢業'],
+    ['有外語檢定 vs 無', 'lang_has', ['有外語能力'], ['無外語能力'],
+     '有任何一張語言檢定成績，相對於完全沒有'],
+    ['北部 vs 中南部', 'work_region', ['北部'], ['中部', '南部'],
+     '工作地在北部，相對於中部或南部'],
+    ['外商 vs 本土製造／營造', 'job_category', ['外商'], ['廠工安', '營造業', '傳產'],
+     '外商相對於本土的廠工安、營造、傳產'],
+    ['職安專責 vs 兼辦', 'is_dedicated', ['是'], ['否'],
+     '專責職安人員，相對於兼辦其他職務者']
+  ];
+  const premiums = premiumDefs.map(function (p) {
+    const g = ctrlGap(p[1], p[2], p[3]);
+    if (!g) return null;
+    g.label = p[0]; g.lead = p[4];
+    // 控制年資後還剩多少：原始差距有多大比例是年資造成的
+    g.shrink = (g.rawPct && g.adjPct !== null)
+      ? Math.round((1 - g.adjPct / g.rawPct) * 1000) / 10 : null;
+    g.verdict = (g.adjPct === null) ? 'thin'
+      : (g.adjPct >= 10 && g.rawPct >= 10) ? 'solid'
+      : (g.adjPct >= 3) ? 'mild'
+      : (g.adjPct <= -3) ? 'reverse' : 'flat';
+    return g;
+  }).filter(Boolean).sort(function (a, b) { return (b.adjPct || 0) - (a.adjPct || 0); });
+
+  // ④ 同一群人裡面的離散度（IQR 占中位數比例）：挑樣本夠的行業與年資帶
+  function spreadOf(field, minN) {
+    const g = {};
+    A.forEach(function (r) {
+      const k = _mergeOther(r[field]);
+      if (!realCat(k)) return;
+      (g[k] = g[k] || []).push(r.annual_total);
+    });
+    return Object.keys(g).filter(function (k) { return g[k].length >= minN; })
+      .map(function (k) {
+        const s = _numericStat(g[k]);
+        return { label: k, n: s.n, median: s.median, iqr: s.p75 - s.p25,
+                 iqrPct: s.median ? Math.round((s.p75 - s.p25) / s.median * 1000) / 10 : 0,
+                 p25: s.p25, p75: s.p75, p90: s.p90 };
+      }).sort(function (a, b) { return b.iqrPct - a.iqrPct; });
+  }
+  const spreadCat = spreadOf('job_category', 20);
+
+  // ⑤ 談判參考階梯
+  const ladder = [];
+  YRS_BANDS.forEach(function (b) {
+    const sub = clean.filter(function (r) { return r.yrs_band === b; });
+    if (sub.length < MIN_CELL_N) return;
+    const m = _numericStat(sub.map(function (r) { return r.monthly_salary; }).filter(_pos));
+    const a = _numericStat(sub.map(function (r) { return r.annual_total; }).filter(_pos));
+    ladder.push({ band: b, n: sub.length, monthly: m, annual: a });
+  });
+
+  // ⑥ 執行摘要：只講上面算出來、而且看表看不出來的事
+  const summary = [];
+  summary.push('本次有效樣本 ' + clean.length + ' 份，' + SURVEY_YEAR + ' 年度本業總收入中位數 ' +
+    _wan(annual.median) + '，中間一半的人落在 ' + _wan(annual.p25) + '～' + _wan(annual.p75) +
+    '；月薪中位數 ' + _wan(monthly.median) + '。最低的一成在 ' + _wan(annual.p10) +
+    ' 以下，最高的一成在 ' + _wan(annual.p90) + ' 以上 —— 同一個職類裡，前一成與後一成之間差了 ' +
+    (annual.p10 ? Math.round(annual.p90 / annual.p10 * 10) / 10 : '—') + ' 倍。');
+
+  if (effMonths) {
+    summary.push('年收入中位數相當於月薪的 ' + (Math.round(effMonths * 10) / 10) +
+      ' 個月，也就是說本業收入裡約 ' + Math.round((1 - 12 / effMonths) * 100) +
+      '% 不是靠月薪，而是年終與加班。年終中位數 ' + _wan(bonus.median) +
+      '，占年收入約 ' + Math.round(bonusShare) + '%；其中 ' + Math.round(noBonus) +
+      '% 的人填 0 元年終 —— 談薪水只看月薪會失真，要連年終一起談。');
+  }
+
+  if (drivers.length >= 3) {
+    const top = drivers[0], second = drivers[1];
+    const eduD = drivers.filter(function (d) { return d.key === 'education'; })[0];
+    summary.push('把所有可觀察條件拿來比「對年收入的解釋力」，最強的是' + top.label +
+      '（解釋 ' + top.eps + '% 的收入差異），其次是' + second.label + '（' + second.eps + '%）' +
+      (eduD ? '；學歷只解釋 ' + eduD.eps + '%' : '') +
+      '。反過來說，就算條件完全對上，最強的單一條件也只能解釋 ' + top.eps + '%，' +
+      '剩下 ' + Math.round(100 - top.eps) + '% 的收入差異來自這份問卷量不到的東西 —— ' +
+      '公司給薪政策、談判結果、個別運氣，所以任何一條「某某條件月薪就該多少」的說法都該打折看。');
+  }
+
+  const solid = premiums.filter(function (p) { return p.verdict === 'solid'; });
+  if (solid.length) {
+    summary.push('把年資固定在同一個級距後再比，仍然站得住的加給是：' +
+      solid.slice(0, 3).map(function (p) { return p.label + ' +' + p.adjPct + '%'; }).join('、') +
+      '。這類條件是少數「不必等年資」就能拉開差距的籌碼。');
+  }
+  const washed = premiums.filter(function (p) { return p.shrink !== null && p.shrink >= 50 && p.rawPct >= 8; });
+  if (washed.length) {
+    summary.push('相反地，' + washed.slice(0, 2).map(function (p) {
+      return p.label + '（原始差距 +' + p.rawPct + '%，同年資帶內只剩 ' +
+        (p.adjPct >= 0 ? '+' : '') + p.adjPct + '%）';
+    }).join('、') + ' 的差距大半是年資造成的 —— 表面上的領先其實是「資深的人剛好集中在那一組」。');
+  }
+  if (spreadCat.length >= 2) {
+    summary.push('收入最不可預測的是' + spreadCat[0].label + '：中間一半的人就橫跨 ' +
+      _wan(spreadCat[0].iqr) + '（占中位數 ' + spreadCat[0].iqrPct + '%），' +
+      '最穩定的是' + spreadCat[spreadCat.length - 1].label + '（' + spreadCat[spreadCat.length - 1].iqrPct +
+      '%）。進前者要把「談到多少」當成主要變數，進後者則是「行情大致就那樣」。');
+  }
+
+  // ⑦ 資料限制：誠實寫，不要寫成免責聲明
+  const caveats = [];
+  caveats.push('這是自願填答的網路樣本，不是隨機抽樣。願意花十分鐘填薪資問卷的人，' +
+    '通常比平均更在意薪資行情、也更可能是中高年資者，推論到全體職安人員時請保留餘裕。');
+  if (annual.n < clean.length) {
+    caveats.push('有效樣本 ' + clean.length + ' 份中，' + annual.n + ' 份填了可用的年收入、' +
+      monthly.n + ' 份填了可用的月薪，各統計值的 n 不一定相同，每張圖下方都標了自己的 n。');
+  }
+  const legacy = clean.filter(function (r) { return String(r.source) === LEGACY_TAG; }).length;
+  if (legacy) {
+    caveats.push('其中 ' + legacy + ' 份來自 2023 年舊調查匯入，問的是 2022 年度收入，' +
+      '會把中位數往下拉。若要看純 ' + SURVEY_YEAR + ' 年度的數字，請以本次新回覆為準。');
+  }
+  caveats.push('交叉分析的格子一旦樣本少於 ' + MIN_CELL_N +
+    ' 筆就不顯示數字；n 在 10 以下的組別，任何一筆極端值都會明顯移動中位數，報告中一律標了 n，請連著看。');
+  caveats.push('這是同一時間點的橫斷面資料，所有「差距」都只是相關，不是因果。' +
+    '「考到甲級證照會加薪 X%」這種結論，本調查無法證明 —— 它只能說「持有甲級的人目前中位數高 X%」。');
+
+  return {
+    n: clean.length, year: SURVEY_YEAR,
+    monthly: monthly, annual: annual, bonus: bonus,
+    effMonths: effMonths ? Math.round(effMonths * 10) / 10 : null,
+    bonusShare: bonusShare ? Math.round(bonusShare * 10) / 10 : null,
+    noBonusPct: Math.round(noBonus * 10) / 10,
+    summary: summary,
+    drivers: drivers,
+    curve: { rows: curve, steps: steps, fastest: fastest, slowest: slowest },
+    premiums: premiums,
+    spread: spreadCat,
+    ladder: ladder,
+    caveats: caveats,
+    minCellN: MIN_CELL_N
+  };
 }
 
 

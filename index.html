@@ -521,7 +521,7 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .sch-table thead .sch-hol{background:#123f5e!important;box-shadow:inset 0 -2.5px 0 var(--gold)}
 .sch-table tbody .sch-hol{background:rgba(217,154,11,.07)!important}
 .sch-v-R{background:rgba(20,163,187,.12);color:var(--cyan);font-weight:700}
-.sch-v-H{background:transparent;color:var(--edge3)}
+.sch-v-H{background:rgba(10,27,42,.075);color:#51616f;font-weight:600}
 .sch-v-中{background:rgba(0,176,80,.12);color:var(--accent2);font-weight:700}
 .sch-v-霄{background:rgba(124,77,255,.1);color:#5b35c7;font-weight:700}
 .sch-table tbody .sch-hol.sch-v-R{background:rgba(217,154,11,.1)!important;color:var(--cyan)}
@@ -2496,7 +2496,7 @@ function renderOneMonth(mo){
       else{normalWork++;}
     }
     const otDays=Math.max(0,normalWork-sd.normalDays)+otWork;
-    const actual=normalWork+otWork;
+    const actual=normalWork;
     const extraH=extraOT.filter(r=>r.person===p).reduce((s,r)=>s+Number(r.hours||0),0);
     const totalH=otDays*8+extraH;
     h+=`<tr><td style="font-weight:600">${p}</td><td>${sd.normalDays}</td><td>${actual}</td><td class="${otDays>0?'ot-pos':''}">${otDays}</td><td class="${otDays>0?'ot-pos':''}">${otDays*8}h</td><td class="${extraH>0?'ot-pos':''}">${extraH}h</td><td class="${totalH>0?'ot-pos':''}" style="font-weight:700">${totalH}h</td></tr>`;
@@ -2603,7 +2603,7 @@ function exportSchXlsx(){
         row.push(v);
       }
       const ot=Math.max(0,normalWork-sd.normalDays)+otWork;
-      const actual=normalWork+otWork;
+      const actual=normalWork;
       row.push(sd.normalDays,actual,ot,ot*8);rows.push(row);
     });
     const ws=XLSX.utils.aoa_to_sheet(rows);
@@ -3509,7 +3509,7 @@ function exportSchImg(){
   const CELL='border:1px solid #dce3ea;padding:4px 6px;text-align:center;font-family:DM Sans,Noto Sans TC,Arial,sans-serif;font-size:12px;vertical-align:middle;';
   const COLORS={
     'R':  {bg:'#e6f4f7',color:'#0a7183'},
-    'H':  {bg:'#fafbfc',color:'#aab8c4'},
+    'H':  {bg:'#eef1f4',color:'#5c6b78'},
     '中': {bg:'#e6f6ec',color:'#00703a'},
     '霄': {bg:'#f0ebff',color:'#5b35c7'},
   };
@@ -3578,7 +3578,7 @@ function exportSchImg(){
       if(isDayOff(y,m,d))otWork++;else normalWork++;
     }
     const otDays=Math.max(0,normalWork-sd.normalDays)+otWork;
-    const actual=normalWork+otWork;
+    const actual=normalWork;
     const extraH=extraOT.filter(r=>r.person===p).reduce((s,r)=>s+Number(r.hours||0),0);
     const totalH=otDays*8+extraH;
     const ot_style=`${CELL}color:${otDays>0?'#dc2626':'#374151'};font-weight:${otDays>0?'700':'400'}`;
