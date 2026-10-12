@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#07263d">
 <title>Environmental E-System</title>
-<link rel="icon" href="assets/nmdc-energy-logo.jpeg">
+<link rel="icon" href="assets/nmdc-logo.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -662,44 +662,127 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .gs-foot kbd{padding:1px 6px;border-radius:4px;border:1px solid var(--edge2);background:#fff}
 
 /* ══ 登入 ═══════════════════════════════════════════════════════════ */
-.login-overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;background:rgba(10,30,50,.45);backdrop-filter:blur(12px)}
+.login-overlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(7,38,61,.52);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);animation:fadeIn .22s ease}
+/* 覆蓋層也鋪一層藍圖格線，和載入畫面同語彙 */
+.login-overlay::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:
+    repeating-linear-gradient(0deg,rgba(255,255,255,.1) 0 1px,transparent 1px 72px),
+    repeating-linear-gradient(90deg,rgba(255,255,255,.1) 0 1px,transparent 1px 72px)
+}
 .login-card{
-  position:relative;width:min(410px,90vw);padding:46px 38px 38px;background:#fff;
-  border:1px solid var(--edge2);border-radius:var(--r-lg);
-  box-shadow:0 40px 100px -26px rgba(10,41,66,.5),0 0 0 1px rgba(0,152,69,.08);text-align:center
+  position:relative;z-index:1;width:min(410px,100%);padding:38px 34px 30px;overflow:hidden;
+  background:rgba(255,255,255,.93);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--edge2);border-radius:var(--r-lg);animation:popIn .22s cubic-bezier(.3,1.2,.5,1);
+  box-shadow:0 40px 100px -26px rgba(10,41,66,.6),0 0 0 1px rgba(0,152,69,.1),inset 0 1px 0 rgba(255,255,255,.95);text-align:center
 }
-.login-card::before,.login-card::after{content:"";position:absolute;width:18px;height:18px;opacity:.6}
-.login-card::before{top:10px;left:10px;border-top:1.5px solid var(--accent-bar);border-left:1.5px solid var(--accent-bar)}
-.login-card::after{bottom:10px;right:10px;border-bottom:1.5px solid var(--accent-bar);border-right:1.5px solid var(--accent-bar)}
-.login-card .close-x{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:50%;transition:.15s;z-index:1}
+.login-card .lc-scan{position:absolute;top:0;left:0;height:2px;width:34%;border-radius:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);box-shadow:0 0 14px rgba(0,176,80,.85);animation:bootScan 2.2s linear infinite}
+.login-card .lc-c{position:absolute;width:16px;height:16px;opacity:.65}
+.login-card .lc-c.tl{top:10px;left:10px;border-top:1.5px solid var(--accent-bar);border-left:1.5px solid var(--accent-bar)}
+.login-card .lc-c.tr{top:10px;right:10px;border-top:1.5px solid var(--accent-bar);border-right:1.5px solid var(--accent-bar)}
+.login-card .lc-c.bl{bottom:10px;left:10px;border-bottom:1.5px solid var(--accent-bar);border-left:1.5px solid var(--accent-bar)}
+.login-card .lc-c.br{bottom:10px;right:10px;border-bottom:1.5px solid var(--accent-bar);border-right:1.5px solid var(--accent-bar)}
+.login-card .close-x{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--faint);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:50%;transition:.15s;z-index:2;line-height:1}
 .login-card .close-x:hover{color:var(--text);background:var(--bg2)}
+.login-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);margin-bottom:20px}
 .login-logo{
-  display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:17px;
+  display:inline-flex;align-items:center;justify-content:center;width:136px;height:56px;border-radius:14px;
   background:linear-gradient(150deg,#0e3b5c,#07263d);border:1px solid rgba(10,27,42,.2);
-  box-shadow:0 10px 26px -8px rgba(7,38,61,.55),inset 0 1px 0 rgba(255,255,255,.14);margin-bottom:22px;font-size:25px;position:relative
+  box-shadow:0 12px 30px -10px rgba(7,38,61,.6),inset 0 1px 0 rgba(255,255,255,.14);margin-bottom:20px;position:relative
 }
-.login-logo::after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:2.5px;border-radius:2px;background:var(--accent);box-shadow:0 0 12px rgba(0,176,80,.9)}
+.login-logo img{height:20px;width:auto;display:block}
+.login-logo::after{content:"";position:absolute;left:18px;right:18px;bottom:-1px;height:2.5px;border-radius:2px;background:var(--accent);box-shadow:0 0 12px rgba(0,176,80,.9)}
 .login-card h2{font-family:'Outfit','Noto Sans TC',sans-serif;font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.01em}
-.login-card .login-sub{color:var(--faint);font-size:12.5px;margin:8px 0 28px}
-.login-field{margin-bottom:16px;text-align:left}
-.login-field label{display:block;margin-bottom:8px;font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--faint);letter-spacing:.22em;text-transform:uppercase}
-.login-field input{width:100%;height:42px;padding:0 14px;border-radius:9px;border:1px solid var(--input-border);background:#fbfdfe;color:var(--text);font-size:14px;font-family:inherit}
+.login-card .login-sub{font-family:var(--mono);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint);margin:9px 0 26px}
+.login-field{margin-bottom:14px;text-align:left}
+.login-field label{display:flex;align-items:center;gap:7px;margin-bottom:8px;font-family:var(--mono);font-size:9.5px;font-weight:500;color:var(--faint);letter-spacing:.22em;text-transform:uppercase}
+.login-field label i{width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(0,176,80,.9);animation:bootBlink 1.1s infinite;display:block}
+.login-field input{width:100%;height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--input-border);background:#fbfdfe;color:var(--text);font-size:15px;font-family:var(--mono);letter-spacing:.3em;transition:.18s;outline:none}
+.login-field input:focus{border-color:var(--accent-bar);background:#fff;box-shadow:0 0 0 3px rgba(0,176,80,.14),0 0 18px -6px rgba(0,176,80,.5)}
 .login-btn{
   width:100%;height:44px;border-radius:10px;border:1px solid var(--accent2);margin-top:10px;
   background:linear-gradient(180deg,#00a94d,#00703a);color:#fff;font-size:14.5px;font-weight:600;cursor:pointer;
-  font-family:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 16px -6px rgba(0,112,58,.6);transition:.2s
+  font-family:inherit;letter-spacing:.04em;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 16px -6px rgba(0,112,58,.6);transition:.2s
 }
 .login-btn:hover{background:linear-gradient(180deg,#00b854,#007d41);box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 8px 24px -6px rgba(0,152,69,.75)}
-.login-error{color:var(--danger);font-size:12.5px;margin-top:14px;min-height:18px}
+.login-btn:active{transform:translateY(1px)}
+.login-error{color:var(--danger);font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;margin-top:13px;min-height:16px}
+.login-foot{margin-top:18px;padding-top:13px;border-top:1px dashed var(--edge);font-family:var(--mono);font-size:8.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--faint)}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.login-card,.login-overlay,.login-card .lc-scan,.login-field label i{animation:none}}
 
-/* ══ 載入畫面 ═══════════════════════════════════════════════════════ */
-.loading-screen{position:fixed;inset:0;z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--paper);gap:22px;transition:opacity .4s}
-.loading-logo{height:42px;width:auto;animation:float 2.4s ease-in-out infinite;border-radius:7px}
-.loading-title{font-family:'Outfit',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+/* ══ 載入畫面：Boot Console ═════════════════════════════════════════ */
+.loading-screen{
+  position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
+  background-color:var(--paper);transition:opacity .4s;overflow:hidden;padding:20px
+}
+/* 藍圖格線 ＋ 綠色大氣光（和首頁背景同語彙） */
+.loading-screen::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:
+    radial-gradient(900px 480px at 50% -160px,rgba(0,176,80,.16),transparent 66%),
+    radial-gradient(700px 420px at 94% 4%,rgba(20,163,187,.1),transparent 60%),
+    repeating-linear-gradient(0deg,rgba(10,41,66,.13) 0 1px,transparent 1px 72px),
+    repeating-linear-gradient(90deg,rgba(10,41,66,.13) 0 1px,transparent 1px 72px),
+    repeating-linear-gradient(0deg,rgba(10,41,66,.05) 0 1px,transparent 1px 18px),
+    repeating-linear-gradient(90deg,rgba(10,41,66,.05) 0 1px,transparent 1px 18px);
+  animation:bootGrid 9s linear infinite
+}
+/* 由上往下掃過整個畫面的雷達掃描線 */
+.loading-screen::after{
+  content:"";position:absolute;left:0;right:0;top:0;height:220px;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(0,176,80,.11) 72%,rgba(0,152,69,.5));
+  animation:bootSweep 3.4s cubic-bezier(.45,0,.3,1) infinite
+}
+@keyframes bootGrid{0%{background-position:0 0,0 0,0 0,0 0,0 0,0 0}100%{background-position:0 0,0 0,0 72px,72px 0,0 18px,18px 0}}
+@keyframes bootSweep{0%{transform:translateY(-240px);opacity:0}12%{opacity:1}92%{opacity:1}100%{transform:translateY(100vh);opacity:0}}
+@keyframes bootScan{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+@keyframes bootBlink{0%,100%{opacity:1}50%{opacity:.15}}
+
+.boot-card{
+  position:relative;z-index:1;width:min(430px,100%);padding:36px 34px 26px;text-align:center;
+  background:rgba(255,255,255,.78);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--edge2);border-radius:var(--r-lg);overflow:hidden;
+  box-shadow:0 30px 80px -28px rgba(10,41,66,.5),0 0 0 1px rgba(0,152,69,.07),inset 0 1px 0 rgba(255,255,255,.95)
+}
+/* 面板上緣的掃描光條 */
+.boot-card .bc-scan{position:absolute;top:0;left:0;height:2px;width:34%;border-radius:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);box-shadow:0 0 14px rgba(0,176,80,.85);animation:bootScan 2.2s linear infinite}
+/* 工程圖角標 ×4 */
+.boot-card .bc-c{position:absolute;width:16px;height:16px;opacity:.65}
+.boot-card .bc-c.tl{top:10px;left:10px;border-top:1.5px solid var(--accent-bar);border-left:1.5px solid var(--accent-bar)}
+.boot-card .bc-c.tr{top:10px;right:10px;border-top:1.5px solid var(--accent-bar);border-right:1.5px solid var(--accent-bar)}
+.boot-card .bc-c.bl{bottom:10px;left:10px;border-bottom:1.5px solid var(--accent-bar);border-left:1.5px solid var(--accent-bar)}
+.boot-card .bc-c.br{bottom:10px;right:10px;border-bottom:1.5px solid var(--accent-bar);border-right:1.5px solid var(--accent-bar)}
+
+.boot-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--faint);margin-bottom:22px}
+.loading-logo{height:40px;width:auto;display:block;margin:0 auto;animation:float 2.4s ease-in-out infinite;filter:drop-shadow(0 6px 16px rgba(0,152,69,.3))}
+.loading-title{font-family:'Outfit',sans-serif;font-size:21px;font-weight:700;letter-spacing:-.01em;color:var(--text);margin-top:20px}
 .loading-title .g{color:var(--accent2)}
-.loading-bar{width:200px;height:3px;background:var(--bg3);border-radius:3px;overflow:hidden}
-.loading-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .6s ease;box-shadow:0 0 10px rgba(0,176,80,.8)}
-.loading-msg{font-family:var(--mono);font-size:10.5px;color:var(--faint);animation:pulse 1.6s infinite;letter-spacing:.2em;text-transform:uppercase}
+.boot-sub{font-family:var(--mono);font-size:9px;letter-spacing:.26em;text-transform:uppercase;color:var(--faint);margin-top:7px}
+
+/* 三顆系統檢查燈 */
+.boot-checks{display:flex;justify-content:center;gap:9px;margin:22px 0 16px;flex-wrap:wrap}
+.boot-chk{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;border:1px solid var(--edge2);background:rgba(255,255,255,.7);font-family:var(--mono);font-size:8.5px;letter-spacing:.16em;color:var(--faint)}
+.boot-chk i{width:5px;height:5px;border-radius:50%;background:var(--bg3);display:block;transition:.3s}
+.boot-chk.on{border-color:var(--accent-line);color:var(--accent2)}
+.boot-chk.on i{background:var(--accent);box-shadow:0 0 8px rgba(0,176,80,.9);animation:pulse 1.6s infinite}
+
+.loading-bar{position:relative;width:100%;height:4px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.loading-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent-bar),var(--accent));border-radius:3px;transition:width .5s cubic-bezier(.3,1,.4,1);box-shadow:0 0 10px rgba(0,176,80,.8)}
+.boot-stat{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase}
+.loading-msg{color:var(--faint);animation:pulse 1.6s infinite;text-align:left;letter-spacing:.14em}
+.boot-pct{color:var(--accent2);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.boot-foot{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:20px;padding-top:14px;border-top:1px dashed var(--edge);font-family:var(--mono);font-size:8.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--faint)}
+.boot-foot b{color:var(--accent2);font-weight:700}
+.boot-foot i{width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(0,176,80,.9);animation:bootBlink 1.1s infinite;display:block}
+@media(max-width:480px){
+  .boot-card{padding:28px 20px 22px}
+  .loading-logo{height:32px}.loading-title{font-size:18px}
+  .boot-checks{gap:6px}.boot-chk{padding:3px 8px;font-size:8px}
+}
+@media(prefers-reduced-motion:reduce){
+  .loading-screen::before,.loading-screen::after,.boot-card .bc-scan,.loading-logo,.boot-foot i{animation:none}
+}
 
 /* ══ 頁尾：墨藍收尾，壓住整頁 ═══════════════════════════════════════ */
 .site-footer{
@@ -1177,17 +1260,29 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 <body class="hdr-dark">
 <div class="bg-grad"></div>
 <div class="loading-screen" id="loadingScreen">
-  <img class="loading-logo" src="assets/nmdc-energy-logo.jpeg" alt="NMDC Energy">
-  <div class="loading-title"><span class="g">Environmental</span> E-System</div>
-  <div class="loading-bar"><div class="loading-bar-fill" id="loadBar"></div></div>
-  <div class="loading-msg" id="loadMsg">正在同步資料…</div>
+  <div class="boot-card">
+    <span class="bc-scan"></span>
+    <span class="bc-c tl"></span><span class="bc-c tr"></span><span class="bc-c bl"></span><span class="bc-c br"></span>
+    <div class="boot-tag">NMDC Energy · EHS Department</div>
+    <img class="loading-logo" src="assets/nmdc-logo.png" alt="NMDC Energy">
+    <div class="loading-title"><span class="g">Environmental</span> E-System</div>
+    <div class="boot-sub">Digital Workspace · Booting</div>
+    <div class="boot-checks">
+      <span class="boot-chk" id="chkLink"><i></i>LINK</span>
+      <span class="boot-chk" id="chkData"><i></i>DATA</span>
+      <span class="boot-chk" id="chkUi"><i></i>UI</span>
+    </div>
+    <div class="loading-bar"><div class="loading-bar-fill" id="loadBar"></div></div>
+    <div class="boot-stat"><span class="loading-msg" id="loadMsg">正在同步資料…</span><span class="boot-pct" id="loadPct">00%</span></div>
+    <div class="boot-foot"><i></i>System <b>Online</b> · Secure Session</div>
+  </div>
 </div>
 <div class="lightbox hidden" id="lightbox" onclick="this.classList.add('hidden')"><img id="lbImg"></div>
 
 <header class="site-header" id="siteHeader">
   <div class="hdr-top">
     <a class="hdr-brand" href="#" onclick="switchTab('bulletin');window.scrollTo({top:0,behavior:'smooth'});return false" title="回到首頁">
-      <img class="hdr-logo on-light" src="assets/nmdc-energy-logo.jpeg" alt="NMDC Energy"><img class="hdr-logo on-dark" src="assets/nmdc-white.png" alt="NMDC Energy">
+      <img class="hdr-logo on-light" src="assets/nmdc-logo.png" alt="NMDC Energy"><img class="hdr-logo on-dark" src="assets/nmdc-white.png" alt="NMDC Energy">
       <span class="hdr-divider"></span>
       <div><div class="hdr-title"><span class="g">Environmental</span> E-System</div><div class="hdr-sub">EHS Department · Digital Workspace</div></div>
     </a>
@@ -1755,9 +1850,44 @@ function showToast(msg,type){const d=document.createElement('div');d.style.cssTe
 // ═══ Auth ═══
 function doLogout(){isEditor=false;sessionStorage.removeItem(AK);renderAll();}
 function showLogin(){
-  const p=prompt('請輸入密碼：');
-  if(p===null)return;
-  if(p!==CRED.pass){showToast('❌ 密碼錯誤','err');return;}
+  let ov=$('loginOverlay');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='loginOverlay';ov.className='login-overlay hidden';
+    ov.innerHTML=`<div class="login-card" id="loginCard">
+      <span class="lc-scan"></span>
+      <span class="lc-c tl"></span><span class="lc-c tr"></span><span class="lc-c bl"></span><span class="lc-c br"></span>
+      <button class="close-x" onclick="closeLogin()" title="關閉（Esc）">✕</button>
+      <div class="login-tag">Restricted · Editor Access</div>
+      <span class="login-logo"><img src="assets/nmdc-white.png" alt="NMDC Energy"></span>
+      <h2>編輯者登入</h2>
+      <div class="login-sub">Environmental E-System · Auth</div>
+      <div class="login-field">
+        <label><i></i>Access Code</label>
+        <input type="password" id="loginPass" autocomplete="current-password" inputmode="numeric" placeholder="••••" onkeydown="if(event.key==='Enter')submitLogin()">
+      </div>
+      <button class="login-btn" onclick="submitLogin()">🔓 驗證並進入編輯模式</button>
+      <div class="login-error" id="loginErr"></div>
+      <div class="login-foot">NMDC Energy · EHS Department</div>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.addEventListener('mousedown',e=>{if(e.target===ov)closeLogin();});
+  }
+  ov.classList.remove('hidden');
+  $('loginErr').textContent='';
+  const i=$('loginPass');i.value='';
+  setTimeout(()=>i.focus(),60);
+}
+function closeLogin(){const ov=$('loginOverlay');if(ov)ov.classList.add('hidden');}
+function submitLogin(){
+  const i=$('loginPass');if(!i)return;
+  if(i.value!==CRED.pass){
+    const c=$('loginCard');
+    if(c){c.classList.remove('shake');void c.offsetWidth;c.classList.add('shake');setTimeout(()=>c.classList.remove('shake'),420);}
+    $('loginErr').textContent='⚠ ACCESS DENIED — 密碼錯誤';
+    i.select();return;
+  }
+  closeLogin();
   isEditor=true;sessionStorage.setItem(AK,'1');renderAll();
   showToast('✏️ 已進入編輯模式');
 }
@@ -1974,7 +2104,10 @@ function gsKey(e){
 function gsGo(i){const it=gsShown[i];if(!it)return;closeGS();if(it.act)it.act();if(it.url){window.open(it.url,'_blank');return;}switchTab(it.tab);window.scrollTo({top:0,behavior:'smooth'});}
 document.addEventListener('keydown',e=>{
   if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='k'){e.preventDefault();openGS();}
-  else if(e.key==='Escape'){const ov=$('gsOverlay');if(ov&&!ov.classList.contains('hidden'))closeGS();}
+  else if(e.key==='Escape'){
+    const ov=$('gsOverlay');if(ov&&!ov.classList.contains('hidden'))closeGS();
+    const lo=$('loginOverlay');if(lo&&!lo.classList.contains('hidden'))closeLogin();
+  }
 });
 
 // ═══ Render ═══
@@ -4421,7 +4554,14 @@ window.addEventListener('roster-published', function(e){
   }catch(err){console.error('roster-published handler:',err);}
 });
 
-function setLoad(pct,msg){const b=$('loadBar');const m=$('loadMsg');if(b)b.style.width=pct+'%';if(m)m.textContent=msg;}
+function setLoad(pct,msg){
+  const b=$('loadBar'),m=$('loadMsg'),p=$('loadPct');
+  if(b)b.style.width=pct+'%';
+  if(m)m.textContent=msg;
+  if(p)p.textContent=String(Math.round(pct)).padStart(2,'0')+'%';
+  // 檢查燈依進度逐顆亮起
+  [['chkLink',25],['chkData',55],['chkUi',90]].forEach(([id,at])=>{const e=$(id);if(e)e.classList.toggle('on',pct>=at);});
+}
 function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fade-out');setTimeout(()=>s.classList.add('hidden'),500);}
 
 (async function(){
