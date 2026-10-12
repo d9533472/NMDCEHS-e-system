@@ -1040,6 +1040,8 @@ function getMailConfig_() {
     reminderTo:      String(pick('reminderTo')),
     photos:          Array.isArray(cfg.photos) ? cfg.photos : [],
     lastSentAt:      cfg.lastSentAt || '',
+    lastSentRange:   cfg.lastSentRange || '',
+    autoSkip:        weeklySkipReason_(cfg),     // 非空字串 = 下一次週一排程會略過，設定頁要讓人看得到
     updatedAt:       cfg.updatedAt || '',
     saved:           !!Object.keys(cfg).length,
     kpi:             readJsonCell_(KPI_CELL)
@@ -1064,6 +1066,7 @@ function saveMailConfig_(cfg) {
     reminderTo:      String(cfg.reminderTo != null ? cfg.reminderTo : (old.reminderTo || MAIL_DEFAULT_CFG.reminderTo)).trim(),
     photos:          photos,
     lastSentAt:      old.lastSentAt || '',
+    lastSentRange:   old.lastSentRange || '',
     updatedAt:       new Date().toISOString()
   };
   // 被移除的照片：Drive 檔案丟到垃圾桶
@@ -1078,6 +1081,8 @@ function saveMailConfig_(cfg) {
 function markMailSent_(sentPhotos, range) {
   var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
   cfg.lastSentAt = new Date().toISOString();
+  // 記下「這一封是哪一個報告期間」，週一的自動排程才知道同一份是不是已經寄過了
+  cfg.lastSentRange = range ? (range.fromIso + '~' + range.toIso) : '';
   var sentIds = (sentPhotos || []).map(function(p){ return p.fileId; });
   if (sentIds.length) {
     // 封存：EHS-Weekly-Report/已寄出/2026-09-07~2026-09-13
@@ -2327,8 +2332,33 @@ function testMailLog() {
 }
 
 // ── 觸發器呼叫的函式 ──
+// 週末自己先寄過同一份週報時，週一 09:00 的排程不要再寄第二遍。
+// 判斷依據是「報告期間」而不是時間差：reportRange_() 以昨天所在的那一週為準，
+// 所以週五～週日（甚至週一早上 09:00 前）手動寄的那封，期間和週一排程要寄的完全相同。
+// 只有該期間的週五（含）之後寄的才算數 —— 週二補寄的那封只有一兩天資料，
+// 不能拿來頂掉週一的完整週報。測試信不會寫 lastSentRange，所以不受影響；
+// 「立即寄出」也不走這個檢查，想重寄幾次都可以。
+function weeklySkipReason_(cfg) {
+  cfg = cfg || readJsonCell_(MAIL_CFG_CELL) || {};   // getMailConfig_ 會把自己讀好的那份傳進來，省一次讀表
+  if (!cfg.lastSentAt || !cfg.lastSentRange) return '';
+  var range = reportRange_();
+  if (cfg.lastSentRange !== range.fromIso + '~' + range.toIso) return '';
+  var sentDay;
+  try { sentDay = Utilities.formatDate(new Date(cfg.lastSentAt), MAIL_TZ, 'yyyy-MM-dd'); } catch(e) { return ''; }
+  var sent = trkParse_(sentDay), mon = trkParse_(range.fromIso);
+  if (!sent || !mon) return '';
+  if (sent.getTime() < mon.getTime() + 4 * 86400000) return '';   // 早於該週週五 → 只是週中補寄
+  return '報告期間 ' + range.label + ' 已於 ' + sentDay + ' ' + trkWeekdayZh_(sentDay) + ' 寄出';
+}
 function weeklyTrackerMail() {           // 每週一 09:00
   var r;
+  var skip = weeklySkipReason_();
+  if (skip) {
+    var note = '略過：' + skip + '，自動排程不重複寄送';
+    Logger.log('weeklyTrackerMail ' + note);
+    logMail_({ type: '週報（略過）', source: '自動', to: '', cc: '', subject: '', ok: false, note: note });
+    return { ok: false, skipped: true, error: skip };
+  }
   // alertSendFailure_ 內部有旗標，sendTrackerMail_ 已經寄過警示信就不會重複寄；
   // 這裡再包一層是為了連「還沒進到 sendTrackerMail_ 就爆掉」（讀設定失敗等）也能通知到。
   try { r = sendTrackerMail_('', 'trigger'); }

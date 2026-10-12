@@ -3363,7 +3363,9 @@ function fillMailCfgForm(c){
   _mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));
   renderMcPhotos();renderMcKpi(c.kpi);
   const ls=c.lastSentAt?new Date(c.lastSentAt).toLocaleString('zh-TW'):'尚未寄出過';
-  $('mcLastSent').textContent='上次自動寄出：'+ls;
+  // autoSkip 非空＝這一份週報已經寄過，週一 09:00 的排程會自動略過（週末先寄的情況）
+  $('mcLastSent').innerHTML='上次寄出：'+esc(ls)+
+    (c.autoSkip?'<div style="color:var(--accent2);font-weight:600;margin-top:3px">✅ '+esc(c.autoSkip)+'，週一 09:00 排程會自動略過，不會重複寄一封</div>':'');
 }
 async function showMailCfgM(){
   $('mMailCfg').classList.remove('hidden');
@@ -3395,6 +3397,8 @@ function renderMailLog(d){
     let t=to.length?esc(to.slice(0,3).join(', '))+(to.length>3?' 等 '+to.length+' 位':''):'<span style="color:var(--muted)">（無）</span>';
     if(cc.length)t+='<div style="color:var(--muted);font-size:11px">CC '+cc.length+' 位</div>';return t;};
   const state=r=>{
+    // 「略過」是正常行為（週末已手動寄過，週一排程不重複寄），不要標成失敗
+    if((r.type||'').indexOf('略過')>=0)return '<span class="mc-tag gray">略過</span>';
     if(!r.ok)return '<span class="mc-tag err">失敗</span>';
     if((r.bounce||'').indexOf('退信')===0)return '<span class="mc-tag warn">部分退信</span>';
     if(r.bounce==='無退信')return '<span class="mc-tag ok">已送達</span>';
