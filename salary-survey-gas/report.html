@@ -1,4 +1,14 @@
 <!-- 職安人員薪資調查 — 分析報告儀表板 -->
+<!--
+  資料全部來自 apiStats()（CACHE_KEY = salary_stats_v2）：
+    intake / profile / multi / salary.overall / overtime / leave / analysis / micro
+  固定區塊用後端算好的數字；交叉熱力圖與自訂條件篩選是「任意子集合」，
+  改用 micro（逐列匿名編碼資料）在瀏覽器裡現算 —— micro 裡只有分組級距與薪資數字，
+  沒有聯絡資訊、沒有自填文字、沒有時間戳，單獨一列無法對應到任何人。
+
+  注意：google.script.run 回傳時會把物件裡的 null 吃掉變成 undefined，
+  判空一律用 Number(v) > 0 或自己的 n，不要用 x.median !== null。
+-->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -9,6 +19,7 @@
   --brand:#0e7a53; --brand-2:#13946a; --brand-dk:#0a5c3e;
   --brand-soft:#e8f5ef; --brand-line:#bfe0d1;
   --gold:#b8862b; --gold-soft:#fdf5e3; --gold-line:#ecd9a8;
+  --warm:#c0486b; --warm-soft:#fdeef2; --warm-line:#f0ccd8;
   --r:18px; --sh:0 2px 4px rgba(11,27,43,.04),0 12px 32px -8px rgba(11,27,43,.10);
 }
 *{box-sizing:border-box}
@@ -46,7 +57,9 @@ h2.sec{margin:38px 0 6px;font-size:21px;font-weight:900;letter-spacing:-.01em;
   padding-left:14px;border-left:4px solid var(--brand)}
 h3{margin:24px 0 9px;font-size:15.5px;font-weight:700;color:var(--ink-2)}
 h3:first-child{margin-top:0}
-.lead{color:var(--ink-3);font-size:13px;margin:0 0 14px}
+h4{margin:0 0 4px;font-size:14.5px;font-weight:700;color:var(--ink)}
+.lead{color:var(--ink-3);font-size:13px;margin:0 0 14px;line-height:1.7}
+.hint{color:var(--ink-3);font-size:12px;margin:9px 0 0;line-height:1.65}
 
 table{border-collapse:collapse;width:100%;font-size:13.5px}
 th,td{border:1px solid var(--line);padding:7px 10px;text-align:right}
@@ -55,45 +68,176 @@ td:first-child,th:first-child{text-align:left}
 tbody tr:hover{background:#fafcfe}
 .tnum{font-variant-numeric:tabular-nums}
 .small{color:var(--ink-3);font-size:12px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:430px}
 
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:20px}
-/* 薪資表有 7 欄，擠成兩欄一定會被切掉，所以讓它獨佔整列 */
-.grid2.sal{grid-template-columns:repeat(auto-fit,minmax(min(520px,100%),1fr))}
-.gbox .tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.gbox .tw table{min-width:430px}
-.gbox th,.gbox td{white-space:nowrap}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:20px 24px}
+.grid2.wide{grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr))}
 
-.bar{position:relative;background:var(--line-2);border-radius:99px;height:15px;overflow:hidden}
-.bar i{display:block;height:100%;border-radius:99px;
+/* ── 執行摘要 ── */
+.sum{display:grid;gap:11px}
+.sum>div{display:flex;gap:11px;background:#fafcfd;border:1px solid var(--line);
+  border-radius:13px;padding:13px 16px;font-size:13.5px;line-height:1.8}
+.sum>div::before{content:counter(s);counter-increment:s;flex:0 0 22px;height:22px;
+  background:var(--brand);color:#fff;border-radius:7px;font-size:12px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;margin-top:3px}
+.sum{counter-reset:s}
+
+/* ── 回收長條 ── */
+.trend{display:flex;align-items:flex-end;gap:3px;height:82px;margin-top:4px;
+  border-bottom:1px solid var(--line)}
+.trend>div{flex:1;position:relative;display:flex;flex-direction:column;
+  justify-content:flex-end;align-items:center;height:100%}
+.trend i{display:block;width:100%;border-radius:4px 4px 0 0;background:var(--brand-2);min-height:2px}
+.trend i.z{background:var(--line)}
+.trend b{font-size:10px;font-weight:800;color:var(--brand-dk);line-height:1.2}
+.trend-x{display:flex;gap:3px;margin-top:5px}
+.trend-x>div{flex:1;text-align:center;font-size:9.5px;color:var(--ink-4);
+  font-variant-numeric:tabular-nums;overflow:hidden;white-space:nowrap}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px;margin-bottom:16px}
+.kpi>div{border:1px solid var(--line);border-radius:13px;padding:10px 14px;background:#fafcfd}
+.kpi .k{font-size:11.5px;color:var(--ink-3)}
+.kpi .v{font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink);line-height:1.35}
+.kpi .v em{font-style:normal;font-size:12px;font-weight:700;color:var(--ink-3)}
+
+/* ── 100% 堆疊長條（有順序的維度）── */
+.st{margin-bottom:17px}
+.st-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:13px;font-weight:800;color:var(--ink-2);margin-bottom:6px}
+.st-h em{font-style:normal;font-weight:700;font-size:11px;color:var(--ink-4);
+  font-variant-numeric:tabular-nums}
+.st-bar{display:flex;gap:2px;height:26px}
+.st-bar i{display:block;min-width:2px;border-radius:3px}
+.st-bar i:first-child{border-radius:6px 3px 3px 6px}
+.st-bar i:last-child{border-radius:3px 6px 6px 3px}
+.st-lg{display:flex;flex-wrap:wrap;gap:3px 13px;margin-top:7px}
+.st-lg span{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--ink-2)}
+.st-lg b{flex:0 0 auto;width:10px;height:10px;border-radius:3px}
+.st-lg em{font-style:normal;color:var(--ink-4);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ── 排名長條（無順序的維度、複選題、驅動因子）── */
+/* 左欄要夾住：複選題的「ISO 45001 職業安全衛生管理系統」這種長標籤會把長條擠到剩一點點 */
+.rk{display:grid;grid-template-columns:minmax(78px,168px) 1fr;gap:5px 10px;align-items:center}
+.rk>div:nth-child(odd){font-size:12.5px;font-weight:700;color:var(--ink-2);text-align:right;
+  line-height:1.3}
+.rk>div:nth-child(odd) em{font-style:normal;display:block;font-size:10.5px;
+  color:var(--ink-4);font-weight:700;font-variant-numeric:tabular-nums}
+.rb{position:relative;background:var(--line-2);border-radius:7px;height:24px;overflow:hidden}
+.rb i{position:absolute;inset:0 auto 0 0;border-radius:7px;
   background:linear-gradient(90deg,var(--brand-2),var(--brand))}
-td.barcell{width:32%;padding:5px 10px}
+.rb b{position:absolute;top:0;bottom:0;display:flex;align-items:center;white-space:nowrap;
+  font-size:11.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.rk.thin .rb{height:20px}
+.rk .low .rb i{background:var(--ink-4);opacity:.45}
+.rk .low{opacity:.72}
 
-.gbox{border:1px solid var(--line);border-radius:13px;overflow:hidden;margin-bottom:16px;
-  box-shadow:0 1px 2px rgba(11,27,43,.04)}
-.gbox .gh{background:var(--gold-soft);color:#8a6516;font-weight:700;padding:8px 13px;font-size:13.5px;
-  display:flex;justify-content:space-between;align-items:center;gap:10px;
-  border-bottom:1px solid var(--gold-line)}
-.gbox .gh span{font-weight:500;color:var(--ink-3);font-size:12px;white-space:nowrap}
-.gbox table{border:0}
-.gbox th,.gbox td{border-left:0}
-.gbox th:last-child,.gbox td:last-child{border-right:0}
-.gbox tr td:first-child{border-left:0;font-weight:700;color:var(--ink-2);background:#fafcfd}
-.gbox tr:last-child td{border-bottom:0}
-.gbox td b{color:var(--brand-dk)}
+/* ── 箱型圖式橫條 ── */
+.box{border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:#fafcfd;
+  margin-bottom:12px}
+.box-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;
+  font-size:13px;font-weight:800;margin-bottom:10px;color:var(--ink-2)}
+.box-h em{font-style:normal;font-weight:700;color:var(--brand-dk);
+  font-variant-numeric:tabular-nums;font-size:12px}
+.bxw{margin:0 13px}
+.bx{position:relative;height:30px}
+.bx u{position:absolute;left:0;right:0;top:14px;height:2px;background:var(--ink-4);
+  border-radius:2px;text-decoration:none}
+.bx s{position:absolute;top:8px;width:2px;height:14px;background:var(--ink-4);
+  border-radius:2px;text-decoration:none}
+.bx q{position:absolute;top:5px;height:20px;border-radius:5px;quotes:none;
+  background:var(--brand-soft);border:1.5px solid var(--brand-line)}
+.bx q::before,.bx q::after{content:""}
+.bx o{position:absolute;top:1px;width:3px;height:28px;border-radius:2px;background:var(--brand-dk)}
+.bx i{position:absolute;top:11px;width:10px;height:10px;border-radius:50%;
+  background:var(--gold);box-shadow:0 0 0 2px #fff}
+.bx b{position:absolute;top:5px;font-size:17px;font-weight:900;line-height:1;color:var(--ink-4)}
+.bx b.lo{left:-11px} .bx b.hi{right:-11px}
+.bx-med{position:relative;height:17px;font-size:11.5px;font-variant-numeric:tabular-nums}
+.bx-med span{position:absolute;bottom:0;transform:translateX(-50%);white-space:nowrap;
+  font-weight:800;color:var(--brand-dk)}
+.bx-x{position:relative;height:16px;margin-top:3px;font-size:10.5px;color:var(--ink-4);
+  font-variant-numeric:tabular-nums;font-weight:700}
+.bx-x span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.bx-med span.l,.bx-x span.l{transform:none}
+.bx-med span.r,.bx-x span.r{transform:translateX(-100%)}
+.bx-n{margin:9px 0 0;font-size:11.5px;color:var(--ink-3);line-height:1.5}
 
-.narr{border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px;background:#fff}
-.narr h4{margin:0 0 4px;font-size:16px;font-weight:700;color:var(--ink)}
-.narr .ld{color:var(--ink-3);font-size:12.5px;margin:0 0 10px}
-.narr ul{margin:0;padding-left:20px}
-.narr li{margin:4px 0;font-size:13.5px;font-variant-numeric:tabular-nums}
-.narr .cc{display:flex;gap:9px;margin-top:13px;background:var(--brand-soft);
-  border:1px solid var(--brand-line);border-radius:11px;padding:11px 14px;
-  font-size:13.5px;color:var(--brand-dk);font-weight:700;line-height:1.6}
-.narr .cc::before{content:"結論";flex:0 0 auto;background:var(--brand);color:#fff;
-  border-radius:6px;padding:1px 8px;font-size:11.5px;height:fit-content;letter-spacing:.05em}
+/* ── 溢酬：以 0 為中心的雙向長條 ── */
+.pm{border:1px solid var(--line);border-radius:14px;padding:15px 17px;margin-bottom:14px;background:#fff}
+.pm-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.pm-h .vd{font-size:11px;font-weight:800;border-radius:7px;padding:2px 9px;letter-spacing:.04em}
+.vd.solid{background:var(--brand-soft);color:var(--brand-dk);border:1px solid var(--brand-line)}
+.vd.mild{background:var(--gold-soft);color:#8a6516;border:1px solid var(--gold-line)}
+.vd.flat{background:var(--line-2);color:var(--ink-3);border:1px solid var(--line)}
+.vd.reverse{background:var(--warm-soft);color:#9c2f4e;border:1px solid var(--warm-line)}
+.vd.thin{background:var(--line-2);color:var(--ink-4);border:1px solid var(--line)}
+.dv{position:relative;height:21px;background:var(--line-2);border-radius:7px;margin:5px 0}
+.dv::before{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1.5px;
+  background:var(--ink-4);opacity:.5}
+.dv i{position:absolute;top:0;bottom:0;border-radius:5px}
+.dv i.p{background:linear-gradient(90deg,var(--brand-2),var(--brand))}
+.dv i.n{background:linear-gradient(270deg,#d4718c,var(--warm))}
+.dv em{position:absolute;top:0;bottom:0;display:flex;align-items:center;font-style:normal;
+  font-size:11px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.dv-lb{display:flex;gap:8px;font-size:11px;color:var(--ink-4);font-weight:700}
+.dv-lb span:first-child{flex:0 0 72px;text-align:right;color:var(--ink-3)}
+.pm details{margin-top:9px}
+.pm summary{font-size:12px;color:var(--brand-dk);cursor:pointer;font-weight:700}
+.pm details table{margin-top:8px;font-size:12.5px}
+
+/* ── 熱力圖 ── */
+.ctl{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin-bottom:14px}
+.ctl label{font-size:11.5px;font-weight:700;color:var(--ink-3)}
+.ctl select{font:inherit;font-size:13px;font-weight:700;color:var(--ink-2);background:#fff;
+  border:1.5px solid var(--line);border-radius:10px;padding:7px 10px}
+.ctl select:focus{outline:none;border-color:var(--brand)}
+.hm{overflow-x:auto;margin:0 -3px}
+.hm table{border-collapse:separate;border-spacing:3px;font-size:11.5px;
+  font-variant-numeric:tabular-nums;width:auto;min-width:100%}
+.hm th{font-size:10.5px;color:var(--ink-3);font-weight:800;padding:2px 5px;white-space:nowrap;
+  background:none;border:0}
+.hm th.rh{text-align:right;max-width:120px;white-space:normal;line-height:1.3}
+.hm td{border:0;border-radius:7px;padding:6px 8px;text-align:center;min-width:62px;
+  background:var(--line-2);color:var(--ink-2)}
+.hm td b{display:block;font-size:12.5px;font-weight:800}
+.hm td i{font-style:normal;font-size:9.5px;opacity:.8}
+.hm td.v{color:#fff} .hm td.v.lo{color:var(--ink)}
+.hm td.na{color:var(--ink-4)}
+.hm td.few{outline:1.5px dashed var(--ink-4);outline-offset:-1.5px}
+.hm-lg{display:flex;align-items:center;gap:6px;margin:0 0 9px;
+  font-size:11px;color:var(--ink-3);font-weight:700}
+.hm-lg i{flex:0 0 118px;height:8px;border-radius:5px;
+  background:linear-gradient(90deg,rgba(14,122,83,.1),rgba(14,122,83,.92))}
+.hm-lg em{font-style:normal;font-weight:700;color:var(--ink-4)}
+
+/* ── 自訂條件 ── */
+.fl{display:grid;gap:7px}
+.fl-row{display:grid;grid-template-columns:minmax(74px,88px) 1fr;gap:4px 10px;align-items:start;
+  padding:5px 0;border-top:1px solid var(--line-2)}
+.fl-row:first-child{border-top:0}
+.fl-row>.n{font-size:12px;font-weight:800;color:var(--ink-2);text-align:right;line-height:1.5;padding-top:3px}
+.fl-row>.n em{font-style:normal;display:block;font-size:10px;font-weight:700;color:var(--ink-4)}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:3px 10px;
+  font:inherit;font-size:11.5px;font-weight:700;color:var(--ink-2);cursor:pointer;transition:.12s;
+  font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--brand-line);background:var(--brand-soft)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip em{font-style:normal;opacity:.6;margin-left:4px;font-weight:700}
+.fl-res{margin-top:16px;border:1px solid var(--brand-line);border-radius:14px;
+  background:var(--brand-soft);padding:15px 17px}
+.fl-res .n{font-size:13px;font-weight:800;color:var(--brand-dk);margin-bottom:11px;
+  font-variant-numeric:tabular-nums}
+.fl-res .box{background:#fff}
+.fl-res .locked{font-size:13px;color:#8a6516;background:var(--gold-soft);
+  border:1px solid var(--gold-line);border-radius:11px;padding:12px 14px;line-height:1.7}
 
 .notes{list-style:decimal;padding-left:22px;margin:8px 0 0;font-size:13px;color:var(--ink-2)}
-.notes li{margin:5px 0}
+.notes li{margin:6px 0;line-height:1.75}
+.cav{display:grid;gap:9px}
+.cav>div{display:flex;gap:10px;font-size:13px;line-height:1.8;color:var(--ink-2);
+  background:#fafcfd;border:1px solid var(--line);border-radius:12px;padding:12px 15px}
+.cav>div::before{content:"※";flex:0 0 auto;color:var(--gold);font-weight:900}
 .empty{text-align:center;padding:58px 24px;color:var(--ink-3);max-width:560px;margin:0 auto}
 .empty h2{color:var(--ink);font-size:22px;font-weight:900;margin:0 0 10px}
 .empty p{margin:0 0 12px;line-height:1.75}
@@ -110,14 +254,18 @@ td.barcell{width:32%;padding:5px 10px}
 .btn.p{background:linear-gradient(145deg,var(--brand-2),var(--brand));color:#fff;border-color:transparent;
   box-shadow:0 2px 6px rgba(14,122,83,.26),0 10px 24px -8px rgba(14,122,83,.45)}
 .btn.p:hover{background:linear-gradient(145deg,var(--brand),var(--brand-dk));color:#fff}
+.btn.s{padding:6px 13px;font-size:12.5px;border-radius:10px}
 
 @media print{
   body{background:#fff}
   .hero{background:#1f3a52 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   .card{box-shadow:none;break-inside:avoid}
-  .gbox,.narr{break-inside:avoid}
+  .box,.pm,.st,.sum>div,.cav>div,.hm{break-inside:avoid}
   .toolbar,.noprint{display:none !important}
   h2.sec{break-after:avoid}
+  .st-bar i,.rb i,.dv i,.hm td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .pm details{display:block}
+  .pm details>*{display:block !important}
 }
 </style>
 <?!= include('header-bg') ?>
@@ -135,21 +283,721 @@ td.barcell{width:32%;padding:5px 10px}
 
 <script>
 var BOOT = <?!= BOOT ?>;
+var ST = BOOT.stats;
+
 var $ = function (s, r) { return (r || document).querySelector(s); };
-var fmt = function (n) {
-  if (n === null || n === undefined || n === '' || isNaN(n)) return '—';
-  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-};
 var esc = function (s) {
   return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
     return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
   });
 };
+var fmt = function (n) {
+  if (n === null || n === undefined || n === '' || isNaN(n)) return '—';
+  return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+};
+var wan = function (v) {
+  if (v === null || v === undefined || v === '' || isNaN(v)) return '—';
+  var n = Number(v) / 10000;
+  return (n >= 100 ? Math.round(n) : Math.round(n * 10) / 10) + '萬';
+};
+var sgn = function (v) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return (v > 0 ? '+' : '') + (Math.round(v * 10) / 10) + '%';
+};
+// 綠色單色階（有順序的維度、熱力圖都用這一條，深淺＝大小）
+var RAMP = ['#d7ece2', '#aedcc8', '#7cc4a7', '#4caa86', '#229067', '#0e7a53', '#0a5c3e'];
+var NEUTRAL = '#9aa7b1';     // 「其他」「未填」不是真的分類，固定給中性灰
+// 後端 profile 的 ord 只代表「有指定排序」，不代表有高低（工作區域、工作型態都有 ord）。
+// 色階＝大小，所以只有真的能排高低的維度才畫成堆疊色階，其餘一律用單色排名長條。
+var ORDINAL_KEYS = ['yrs_band', 'age_band', 'education', 'osh_license_top', 'company_size',
+  'job_title', 'subordinates', 'lang_level', 'raise_last_year', 'satisfaction', 'job_seeking'];
+function rampAt(i, n) {
+  if (n <= 1) return RAMP[4];
+  var t = i / (n - 1);
+  return RAMP[Math.round(t * (RAMP.length - 1))];
+}
 
-var ST = BOOT.stats;
+// 空集合的統計值在後端是 null，經 google.script.run 會變 undefined，
+// 所以一律用 n 或 Number(v) > 0 判斷，不要比對 null
+function has(s) { return s && Number(s.n) > 0; }
+function pctl(s, p) {
+  if (!s.length) return null;
+  if (s.length === 1) return s[0];
+  var idx = (s.length - 1) * (p / 100), lo = Math.floor(idx), hi = Math.ceil(idx);
+  return lo === hi ? s[lo] : s[lo] + (s[hi] - s[lo]) * (idx - lo);
+}
+// 與後端 _numericStat 同一套算法（線性內插百分位），前端算子集合時用
+function nstat(arr) {
+  if (!arr.length) return { n: 0 };
+  var s = arr.slice().sort(function (a, b) { return a - b; });
+  var sum = 0;
+  s.forEach(function (x) { sum += x; });
+  return {
+    n: s.length, min: s[0], max: s[s.length - 1], mean: Math.round(sum / s.length),
+    median: Math.round(pctl(s, 50)), p25: Math.round(pctl(s, 25)), p75: Math.round(pctl(s, 75)),
+    p10: Math.round(pctl(s, 10)), p90: Math.round(pctl(s, 90))
+  };
+}
 
+
+// ══════════════════════════════════
+// micro：逐列匿名資料（交叉熱力圖、自訂條件篩選用）
+// ══════════════════════════════════
+var MI = null;
+var METRICS = [
+  { k: 'a',  label: '全年本業總收入', hour: false },
+  { k: 'm',  label: '月薪',           hour: false },
+  { k: 'b',  label: '年終獎金',       hour: false },
+  { k: 'ot', label: '每月加班時數',   hour: true }
+];
+function metricOf(k) {
+  for (var i = 0; i < METRICS.length; i++) if (METRICS[i].k === k) return METRICS[i];
+  return METRICS[0];
+}
+function mv(k, v) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  return metricOf(k).hour ? (fmt(v) + ' 小時') : wan(v);
+}
+function micro() {
+  if (MI) return MI;
+  var m = (ST && ST.micro) || null;
+  if (!m || !m.dims || !m.dims.length || !m.rows) return null;
+  var nd = m.dims.length;
+  var cell = function (x) { return (x === '' || x === undefined) ? null : Number(x); };
+  var out = [];
+  String(m.rows).split(';').forEach(function (line) {
+    if (!line) return;
+    var p = line.split(',');
+    if (p.length < nd + 4) return;
+    var c = [];
+    for (var j = 0; j < nd; j++) c.push(Number(p[j]));
+    out.push({ c: c, m: cell(p[nd]), b: cell(p[nd + 1]), a: cell(p[nd + 2]), ot: cell(p[nd + 3]) });
+  });
+  if (!out.length) return null;
+  MI = { dims: m.dims, rows: out, minCellN: Number(m.minCellN) > 0 ? Number(m.minCellN) : 5 };
+  return MI;
+}
+
+
+// ══════════════════════════════════
+// 共用圖形元件
+// ══════════════════════════════════
+/* 箱型圖式橫條：淺綠盒＝P25～P75，深綠線＝中位數，金點＝平均數 */
+function bxBar(s) {
+  if (!has(s) || !(Number(s.median) >= 0)) return '<p class="hint" style="margin:0">沒有可用數字。</p>';
+  // 鬚線取 Tukey 1.5 倍四分位距：只要有一筆離譜的數字，min~max 刻度就會把整個盒子壓到最左邊
+  var iqr = s.p75 - s.p25;
+  var lo = s.min, hi = s.max;
+  if (iqr > 0) {
+    lo = Math.max(s.min, s.p25 - 1.5 * iqr);
+    hi = Math.min(s.max, s.p75 + 1.5 * iqr);
+  }
+  if (!(hi > lo)) { lo = s.min; hi = s.max; }
+  var span = (hi - lo) || 1;
+  var at = function (v) { return Math.max(0, Math.min(100, (v - lo) / span * 100)); };
+  var p25 = at(s.p25), p75 = at(s.p75), med = at(s.median), mean = at(s.mean);
+  var outLo = s.min < lo, outHi = s.max > hi;
+  var f = arguments.length > 1 ? arguments[1] : wan;
+  // 標籤直接錨在自己的記號下方；太靠邊就改成靠邊對齊，免得被切掉
+  var tag = function (pos, txt, extra) {
+    var cls = pos < 7 ? ' class="l' + (extra || '') + '"'
+            : pos > 93 ? ' class="r' + (extra || '') + '"'
+            : (extra ? ' class="' + extra + '"' : '');
+    return '<span' + cls + ' style="left:' + pos + '%">' + txt + '</span>';
+  };
+  return '<div class="bxw">' +
+    '<div class="bx-med">' + tag(med, '中位 ' + f(s.median)) + '</div>' +
+    '<div class="bx" title="n=' + s.n + '　中位數 ' + f(s.median) + '　平均 ' + f(s.mean) +
+      '　P25 ' + f(s.p25) + '　P75 ' + f(s.p75) + '">' +
+      '<u></u><s style="left:0"></s><s style="right:0"></s>' +
+      '<q style="left:' + p25 + '%;width:' + Math.max(1, p75 - p25) + '%"></q>' +
+      '<o style="left:calc(' + med + '% - 1.5px)"></o>' +
+      '<i style="left:calc(' + mean + '% - 5px)"></i>' +
+      (outLo ? '<b class="lo">‹</b>' : '') + (outHi ? '<b class="hi">›</b>' : '') +
+    '</div>' +
+    '<div class="bx-x">' + tag(0, f(lo)) + tag(p25, 'P25 ' + f(s.p25)) +
+      tag(p75, 'P75 ' + f(s.p75)) + tag(100, f(hi)) + '</div>' +
+    (outLo || outHi ?
+      '<p class="bx-n">' + (outLo && outHi ? '‹ 和 ›' : outLo ? '‹' : '›') +
+      ' 代表鬚線外還有極端值沒有畫進來；實際全距 ' + f(s.min) + ' ～ ' + f(s.max) + '。</p>' : '') +
+    '</div>';
+}
+function boxOf(title, s, f) {
+  return '<div class="box"><div class="box-h"><span>' + esc(title) + '</span>' +
+    '<em>n=' + (has(s) ? s.n : 0) + (has(s) ? '　平均 ' + (f || wan)(s.mean) : '') + '</em></div>' +
+    bxBar(s, f || wan) + '</div>';
+}
+
+/* 100% 堆疊長條：只給「有順序」的維度（年資、學歷、證照等級…），深淺就是級距高低 */
+function stackBar(p) {
+  var rows = (p.rows || []).filter(function (r) { return r.count > 0; });
+  if (!rows.length) return '';
+  var real = rows.filter(function (r) { return r.label !== '其他' && r.label !== '未填'; });
+  var color = function (r, i) {
+    if (r.label === '其他' || r.label === '未填') return NEUTRAL;
+    return rampAt(real.indexOf(r), real.length);
+  };
+  var n = rows.reduce(function (a, b) { return a + b.count; }, 0);
+  return '<div class="st"><div class="st-h"><span>' + esc(p.title) + '</span><em>n=' + n + '</em></div>' +
+    '<div class="st-bar">' + rows.map(function (r, i) {
+      return '<i style="width:' + r.pct + '%;background:' + color(r, i) + '" title="' +
+        esc(r.label) + '　' + r.count + ' 筆（' + r.pct.toFixed(1) + '%）"></i>';
+    }).join('') + '</div>' +
+    '<div class="st-lg">' + rows.map(function (r, i) {
+      return '<span><b style="background:' + color(r, i) + '"></b>' + esc(r.label) +
+        ' <em>' + r.count + '・' + r.pct.toFixed(1) + '%</em></span>';
+    }).join('') + '</div></div>';
+}
+
+/* 排名長條：無順序的維度與複選題，長度＝人數，身份靠文字標籤 */
+function rankBars(title, rows, opt) {
+  rows = (rows || []).filter(function (r) { return r.count > 0; });
+  if (!rows.length) return '';
+  opt = opt || {};
+  var cut = opt.limit ? rows.slice(0, opt.limit) : rows;
+  var max = Math.max.apply(null, cut.map(function (r) { return r.count; })) || 1;
+  var body = '<div class="rk thin">' + cut.map(function (r) {
+    var w = Math.max(3, r.count / max * 100), inside = w > 42;
+    return '<div>' + esc(r.label) + '<em>n=' + r.count + '</em></div>' +
+      '<div><div class="rb" title="' + esc(r.label) + '　' + r.count + ' 筆（' + r.pct.toFixed(1) + '%）">' +
+        '<i style="width:' + w + '%"></i>' +
+        '<b style="' + (inside ? 'right:auto;left:8px;color:#fff' : 'left:calc(' + w + '% + 8px)') + '">' +
+        r.pct.toFixed(1) + '%</b></div></div>';
+  }).join('') + '</div>';
+  return '<div><h3>' + esc(title) + '</h3>' + body +
+    (opt.limit && rows.length > opt.limit
+      ? '<p class="hint">另有 ' + (rows.length - opt.limit) + ' 項人數更少，未列出。</p>' : '') +
+    '</div>';
+}
+
+/* 百分位表：同一組數字的 n／最小／P25／中位／P75／最大 */
+function statTable(items, f) {
+  f = f || wan;
+  var rows = items.filter(function (it) { return has(it[1]); });
+  if (!rows.length) return '';
+  return '<div class="tw"><table><thead><tr><th>項目</th><th>n</th><th>最小值</th>' +
+    '<th>P10</th><th>P25</th><th>中位數</th><th>P75</th><th>P90</th><th>平均</th><th>最大值</th>' +
+    '</tr></thead><tbody>' + rows.map(function (it) {
+      var s = it[1];
+      return '<tr><td>' + esc(it[0]) + '</td><td class="tnum">' + s.n + '</td>' +
+        ['min', 'p10', 'p25', 'median', 'p75', 'p90', 'mean', 'max'].map(function (k, i) {
+          var v = f(s[k]);
+          return '<td class="tnum">' + (k === 'median' ? '<b>' + v + '</b>' : v) + '</td>';
+        }).join('') + '</tr>';
+    }).join('') + '</tbody></table></div>';
+}
+
+
+// ══════════════════════════════════
+// 各區塊
+// ══════════════════════════════════
+function secSummary(a) {
+  var tb = '<div class="toolbar noprint">' +
+    '<button class="btn p" onclick="window.print()">🖨 列印／另存 PDF</button>' +
+    '<a class="btn" href="' + esc(BOOT.webAppUrl) + '" target="_blank" rel="noopener">前往填寫問卷</a>' +
+    '<button class="btn" id="bRefresh">重新整理統計</button></div>';
+  if (!a || !a.summary || !a.summary.length) return '<div class="card">' + tb + '</div>';
+  return '<div class="card"><h3>執行摘要</h3>' +
+    '<p class="lead">以下每一條都是由本次資料現算出來的，只講「看表看不出來的事」；' +
+    '所有比較都附樣本數，組間差距先算解釋力再排名。</p>' +
+    '<div class="sum">' + a.summary.map(function (s) {
+      return '<div><span>' + esc(s) + '</span></div>';
+    }).join('') + '</div>' + tb + '</div>';
+}
+
+function secIntake(k) {
+  if (!k) return '';
+  var max = Math.max.apply(null, k.days.map(function (d) { return d.count; })) || 1;
+  return '<h2 class="sec">調查回收</h2><div class="card">' +
+    '<div class="kpi">' +
+      '<div><div class="k">有效樣本</div><div class="v">' + k.valid + ' <em>筆</em></div></div>' +
+      '<div><div class="k">排除異常值</div><div class="v">' + k.excluded + ' <em>筆</em></div></div>' +
+      '<div><div class="k">近 7 天新增</div><div class="v">' + k.weekCount + ' <em>筆</em></div></div>' +
+      '<div><div class="k">舊調查匯入</div><div class="v">' + k.legacyN + ' <em>筆</em></div></div>' +
+      '<div><div class="k">調查期間</div><div class="v" style="font-size:14px">' +
+        esc(k.startRoc) + '<br>～ ' + esc(ST.deadline) + '</div></div>' +
+      '<div><div class="k">狀態</div><div class="v" style="font-size:15px">' +
+        (k.open ? '進行中' : '已結束') + '</div></div>' +
+    '</div>' +
+    '<h3>近 21 天回收</h3>' +
+    '<div class="trend">' + k.days.map(function (d) {
+      var h = Math.round(d.count / max * 62);
+      return '<div title="' + esc(d.label) + '　' + d.count + ' 筆">' +
+        (d.count ? '<b>' + d.count + '</b>' : '') +
+        '<i class="' + (d.count ? '' : 'z') + '" style="height:' + (d.count ? Math.max(3, h) : 2) + 'px"></i></div>';
+    }).join('') + '</div>' +
+    '<div class="trend-x">' + k.days.map(function (d, i) {
+      return '<div>' + (i % 3 === 0 || i === k.days.length - 1 ? esc(d.label) : '') + '</div>';
+    }).join('') + '</div>' +
+    (k.legacyN ? '<p class="hint">其中 ' + k.legacyN + ' 筆來自「' + esc(k.legacyTag) +
+      '」，問的是 2022 年度收入，時間戳不在上面的區間內，會把中位數往下拉。</p>' : '') +
+    '</div>';
+}
+
+function secProfile(prof) {
+  if (!prof || !prof.length) return '';
+  var isOrd = function (p) {
+    if (ORDINAL_KEYS.indexOf(p.key) < 0) return false;
+    // 只剩兩格的「級距」畫成色階沒有意義，丟給排名長條
+    return (p.rows || []).filter(function (r) { return r.count > 0; }).length >= 3;
+  };
+  var ord = prof.filter(isOrd);
+  var cat = prof.filter(function (p) { return !isOrd(p); });
+  var h = '<h2 class="sec">樣本結構</h2>';
+  if (ord.length) {
+    h += '<div class="card"><h3>有高低順序的條件</h3>' +
+      '<p class="lead">每條長條是一個維度的 100% 分布，由淺到深＝由低到高；' +
+      '「其他」「未填」不是真的級距，固定給灰色。百分比以該維度的有效樣本為分母。</p>' +
+      '<div class="grid2 wide">' + ord.map(stackBar).join('') + '</div></div>';
+  }
+  if (cat.length) {
+    h += '<div class="card"><h3>沒有高低之分的條件</h3>' +
+      '<p class="lead">類別之間沒有高低，所以不上色階、改按人數排序；長度＝人數，百分比標在長條旁。</p>' +
+      '<div class="grid2">' + cat.map(function (p) {
+        return rankBars(p.title, p.rows, { limit: 12 });
+      }).join('') + '</div></div>';
+  }
+  return h;
+}
+
+function secMulti(multi) {
+  if (!multi || !multi.length) return '';
+  var any = multi.some(function (m) { return m.rows && m.rows.length; });
+  if (!any) return '';
+  return '<h2 class="sec">複選題分布</h2><div class="card">' +
+    '<p class="lead">可多選，百分比以有效樣本 ' + ST.total + ' 筆為分母，' +
+    '所以同一張圖裡加總會超過 100%。</p>' +
+    '<div class="grid2">' + multi.map(function (m) {
+      return rankBars(m.title, m.rows, { limit: 14 });
+    }).join('') + '</div></div>';
+}
+
+function secSalary() {
+  var o = (ST.salary && ST.salary.overall) || null;
+  if (!o) return '';
+  var h = '<h2 class="sec">薪資總覽</h2><div class="card">' +
+    '<p class="lead">月薪＝每月經常性給予的薪資總和（不含加班費）；年終＝' + ST.year +
+    ' 年度年總獎金；全年本業總收入＝' + ST.year + ' 年度本業全部收入。' +
+    '淺綠方塊＝P25～P75（中間一半的人），深綠直線＝中位數，金色圓點＝平均數；' +
+    '鬚線只畫到 1.5 倍四分位距，離譜的數字不會把整條刻度拉歪。' +
+    '金點明顯落在深綠線右邊，就是少數高薪把平均拉高了。</p>' +
+    boxOf('月薪', o.monthly) + boxOf('年終獎金', o.bonus) + boxOf('全年本業總收入', o.annual) +
+    statTable([['月薪', o.monthly], ['年終獎金', o.bonus], ['全年本業總收入', o.annual]]) +
+    '</div>';
+  var ot = ST.overtime, lv = ST.leave;
+  if (has(ot) || has(lv)) {
+    h += '<div class="card"><h3>工時與年假</h3>' +
+      '<p class="lead">加班時數已把「每日」填答乘上個人工作天數換算成每月；' +
+      '加班異常值與薪資異常值分開判定，填得離譜只會排除於加班統計。</p>' +
+      (has(ot) ? boxOf('每月加班時數（小時）', ot, fmt) : '') +
+      statTable([['每月加班時數（小時）', ot], ['年假天數（天）', lv]], fmt) +
+      '</div>';
+  }
+  return h;
+}
+
+function secDrivers(a) {
+  var d = (a && a.drivers) || [];
+  if (!d.length) return '';
+  var max = Math.max.apply(null, d.map(function (x) { return x.eps; })) || 1;
+  return '<h2 class="sec">薪資分析</h2><div class="card"><h3>哪些條件真的能解釋收入差異</h3>' +
+    '<p class="lead">把每個條件拿來比「對年收入（取對數）的組間變異占比」，並校正組數（ε²）—— ' +
+    '條件切得越細本來就越容易看起來有解釋力，校正後才能互相比較。只納入樣本 ≥ ' +
+    (a.minCellN || 5) + ' 筆的組別，「其他」「未填」不算一組。</p>' +
+    '<div class="rk">' + d.map(function (x) {
+      // ε² 是 0（校正後組間差異全被組數吃掉）就不要畫殘條，否則看起來像「有一點解釋力」
+      var w = x.eps > 0 ? Math.max(4, x.eps / max * 100) : 0, inside = w > 42;
+      return '<div>' + esc(x.label) + '<em>' + x.k + ' 組・n=' + x.n + '</em></div>' +
+        '<div><div class="rb" title="η²=' + x.eta + '%　ε²=' + x.eps + '%">' +
+          '<i style="width:' + w + '%"></i>' +
+          '<b style="' + (inside ? 'left:9px;color:#fff' : 'left:calc(' + w + '% + 9px)') + '">' +
+          x.eps + '%</b></div></div>';
+    }).join('') + '</div>' +
+    '<div class="tw" style="margin-top:16px"><table><thead><tr>' +
+      '<th>條件</th><th>解釋力 ε²</th><th>最高組</th><th>中位數</th><th>最低組</th><th>中位數</th><th>高低差</th>' +
+      '</tr></thead><tbody>' + d.map(function (x) {
+        return '<tr><td>' + esc(x.label) + '</td><td class="tnum">' + x.eps + '%</td>' +
+          '<td>' + esc(x.hi.label) + ' <span class="small">n=' + x.hi.n + '</span></td>' +
+          '<td class="tnum"><b>' + wan(x.hi.median) + '</b></td>' +
+          '<td>' + esc(x.lo.label) + ' <span class="small">n=' + x.lo.n + '</span></td>' +
+          '<td class="tnum">' + wan(x.lo.median) + '</td>' +
+          '<td class="tnum">' + wan(x.gap) + '（' + sgn(x.gapPct) + '）</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+}
+
+function secCurve(a) {
+  var c = (a && a.curve) || null;
+  if (!c || !c.rows || c.rows.length < 2) return '';
+  var max = Math.max.apply(null, c.rows.map(function (r) { return r.annual; })) || 1;
+  var stepOf = function (band) {
+    for (var i = 0; i < c.steps.length; i++) if (c.steps[i].to === band) return c.steps[i];
+    return null;
+  };
+  return '<div class="card"><h3>年資報酬曲線</h3>' +
+    '<p class="lead">各年資帶的年收入中位數，以及跨過下一個級距時的漲幅。' +
+    '這是橫斷面資料，不是同一批人的成長軌跡 —— 它說的是「現在這個年資的人大概在哪」。</p>' +
+    '<div class="rk">' + c.rows.map(function (r, i) {
+      var w = Math.max(6, r.annual / max * 100), inside = w > 42;
+      var st = stepOf(r.band);
+      return '<div>' + esc(r.band) + '<em>n=' + r.n + '</em></div>' +
+        '<div><div class="rb" title="年收入中位數 ' + wan(r.annual) +
+          (Number(r.monthly) > 0 ? '　月薪中位數 ' + wan(r.monthly) : '') + '">' +
+          '<i style="width:' + w + '%;background:linear-gradient(90deg,' + rampAt(i, c.rows.length) +
+          ',' + rampAt(Math.min(i + 1, c.rows.length - 1), c.rows.length) + ')"></i>' +
+          '<b style="' + (inside ? 'left:9px;color:#fff' : 'left:calc(' + w + '% + 9px)') + '">' +
+          wan(r.annual) + (st ? '　<span style="opacity:.75">' + sgn(st.pct) + '</span>' : '') +
+          '</b></div></div>';
+    }).join('') + '</div>' +
+    (c.fastest && c.slowest && c.fastest.to !== c.slowest.to
+      ? '<p class="hint">漲幅最陡的一段是 ' + esc(c.fastest.from) + ' → ' + esc(c.fastest.to) +
+        '（' + sgn(c.fastest.pct) + '，' + wan(c.fastest.delta) + '），' +
+        '最平的一段是 ' + esc(c.slowest.from) + ' → ' + esc(c.slowest.to) +
+        '（' + sgn(c.slowest.pct) + '）。</p>' : '') +
+    '</div>';
+}
+
+// 後端的 shrink = (1 - adj/raw)：原始差距接近 0 或正負號翻掉時會算出 566%、800% 這種
+// 沒有意義的數字，而且話術會變成「大半的領先來自年資」—— 明明根本沒有領先。
+// 所以百分比只在「同向而且確實變小」時才講，其餘情況改用文字描述。
+function shrinkNote(x) {
+  var raw = Number(x.rawPct), adj = Number(x.adjPct);
+  if (isNaN(raw) || isNaN(adj)) return '';
+  var p = function (s) { return '<p class="hint">' + s + '</p>'; };
+  if (Math.abs(raw) < 3 && Math.abs(adj) < 3) {
+    return p('原始差距與同年資帶內差距都在 ±3% 以內，這個條件看不出溢酬。');
+  }
+  if ((raw >= 0) !== (adj >= 0)) {
+    return p('控制年資前後方向相反（原始 ' + sgn(raw) + '、同年資帶內 ' + sgn(adj) +
+      '）—— 表面上的差距是兩組人年資分布不同造成的，拉平年資後就反過來了，' +
+      '兩邊都不大，視為沒有實質差別。');
+  }
+  if (Math.abs(adj) >= Math.abs(raw)) {
+    return p('控制年資後差距反而變大（' + sgn(raw) + ' → ' + sgn(adj) +
+      '）—— 原本是年資分布把這個差距壓住了。');
+  }
+  var shrink = Math.round((1 - adj / raw) * 1000) / 10;
+  return p('控制年資後差距縮掉 ' + shrink + '%' +
+    (shrink >= 50 ? ' —— 大半的領先其實來自年資分布，不是這個條件本身。' : '。'));
+}
+
+function secPremiums(a) {
+  var p = (a && a.premiums) || [];
+  if (!p.length) return '';
+  var VD = { solid: '站得住', mild: '偏弱但仍在', flat: '幾乎沒差', reverse: '反向', thin: '樣本不足' };
+  var max = 1;
+  p.forEach(function (x) {
+    max = Math.max(max, Math.abs(Number(x.rawPct) || 0), Math.abs(Number(x.adjPct) || 0));
+  });
+  var dvBar = function (label, v) {
+    if (v === null || v === undefined || isNaN(v)) {
+      return '<div class="dv-lb"><span>' + label + '</span><span>—</span></div>';
+    }
+    var w = Math.min(50, Math.abs(v) / max * 50);
+    var pos = v >= 0;
+    return '<div class="dv-lb"><span>' + label + '</span></div>' +
+      '<div class="dv" title="' + label + ' ' + sgn(v) + '">' +
+        '<i class="' + (pos ? 'p' : 'n') + '" style="left:' + (pos ? 50 : 50 - w) + '%;width:' + w + '%"></i>' +
+        '<em style="' + (pos ? 'left:calc(' + (50 + w) + '% + 7px)' : 'right:calc(' + (50 + w) + '% + 7px)') +
+        '">' + sgn(v) + '</em></div>';
+  };
+  return '<div class="card"><h3>控制年資後，還剩多少溢酬</h3>' +
+    '<p class="lead">同一個條件直接比，常常只是「資深的人剛好集中在那一組」。' +
+    '這裡在每個年資帶內各比一次年收入中位數，再以兩組較小的 n 加權平均（同年資帶內差距）。' +
+    '向右綠色＝有溢酬，向左紅色＝反而較低；每段年資帶至少各 3 人才納入。</p>' +
+    p.map(function (x) {
+      return '<div class="pm"><div class="pm-h"><h4>' + esc(x.label) + '</h4>' +
+        '<span class="vd ' + x.verdict + '">' + VD[x.verdict] + '</span></div>' +
+        '<p class="lead" style="margin:2px 0 10px">' + esc(x.lead) +
+        '　<span class="small">n=' + x.nHi + ' vs ' + x.nLo + '；中位數 ' +
+        wan(x.medHi) + ' vs ' + wan(x.medLo) + '</span></p>' +
+        dvBar('原始差距', x.rawPct) + dvBar('同年資帶內', x.adjPct) +
+        shrinkNote(x) +
+        (x.bands && x.bands.length
+          ? '<details><summary>各年資帶明細（' + x.bands.length + ' 段，覆蓋加權 n=' + x.coverage + '）</summary>' +
+            '<div class="tw"><table><thead><tr><th>年資帶</th><th>n（高）</th><th>n（低）</th><th>差距</th>' +
+            '</tr></thead><tbody>' + x.bands.map(function (b) {
+              return '<tr><td>' + esc(b.band) + '</td><td class="tnum">' + b.nHi + '</td>' +
+                '<td class="tnum">' + b.nLo + '</td><td class="tnum">' + sgn(b.pct) + '</td></tr>';
+            }).join('') + '</tbody></table></div></details>'
+          : '') +
+        '</div>';
+    }).join('') + '</div>';
+}
+
+function secSpread(a) {
+  var s = (a && a.spread) || [];
+  if (s.length < 2) return '';
+  var max = Math.max.apply(null, s.map(function (x) { return x.iqrPct; })) || 1;
+  return '<div class="card"><h3>同一群人裡面差多少（收入可預測性）</h3>' +
+    '<p class="lead">長條是「中間一半的人」橫跨的幅度占中位數的比例（IQR ÷ 中位數）。' +
+    '越長代表同一組裡面落差越大、行情越不可預測，談判空間也越大；' +
+    '只列樣本 20 筆以上的行業別。</p>' +
+    '<div class="rk">' + s.map(function (x) {
+      var w = Math.max(5, x.iqrPct / max * 100), inside = w > 42;
+      return '<div>' + esc(x.label) + '<em>n=' + x.n + '</em></div>' +
+        '<div><div class="rb" title="中位數 ' + wan(x.median) + '　P25 ' + wan(x.p25) +
+          '　P75 ' + wan(x.p75) + '　P90 ' + wan(x.p90) + '">' +
+          '<i style="width:' + w + '%"></i>' +
+          '<b style="' + (inside ? 'left:9px;color:#fff' : 'left:calc(' + w + '% + 9px)') + '">' +
+          x.iqrPct + '%　<span style="opacity:.75">' + wan(x.iqr) + '</span></b></div></div>';
+    }).join('') + '</div>' +
+    '<div class="tw" style="margin-top:14px"><table><thead><tr><th>行業別</th><th>n</th>' +
+      '<th>P25</th><th>中位數</th><th>P75</th><th>P90</th><th>IQR</th><th>IQR ÷ 中位數</th>' +
+      '</tr></thead><tbody>' + s.map(function (x) {
+        return '<tr><td>' + esc(x.label) + '</td><td class="tnum">' + x.n + '</td>' +
+          '<td class="tnum">' + wan(x.p25) + '</td><td class="tnum"><b>' + wan(x.median) + '</b></td>' +
+          '<td class="tnum">' + wan(x.p75) + '</td><td class="tnum">' + wan(x.p90) + '</td>' +
+          '<td class="tnum">' + wan(x.iqr) + '</td><td class="tnum">' + x.iqrPct + '%</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+}
+
+function secLadder(a) {
+  var l = (a && a.ladder) || [];
+  if (!l.length) return '';
+  return '<div class="card"><h3>談判參考階梯</h3>' +
+    '<p class="lead">按年資帶列出月薪與全年本業總收入的 P25／中位數／P75。' +
+    '開口開在 P25 以下通常是低估，P75 以上要有對應的條件（證照、外語、職級）才站得住。</p>' +
+    '<div class="tw"><table><thead><tr><th rowspan="2">年資帶</th><th rowspan="2">n</th>' +
+      '<th colspan="3">月薪</th><th colspan="3">全年本業總收入</th></tr>' +
+      '<tr><th>P25</th><th>中位數</th><th>P75</th><th>P25</th><th>中位數</th><th>P75</th></tr></thead><tbody>' +
+      l.map(function (x) {
+        var m = x.monthly, an = x.annual;
+        return '<tr><td>' + esc(x.band) + '</td><td class="tnum">' + x.n + '</td>' +
+          '<td class="tnum">' + wan(m.p25) + '</td><td class="tnum"><b>' + wan(m.median) + '</b></td>' +
+          '<td class="tnum">' + wan(m.p75) + '</td>' +
+          '<td class="tnum">' + wan(an.p25) + '</td><td class="tnum"><b>' + wan(an.median) + '</b></td>' +
+          '<td class="tnum">' + wan(an.p75) + '</td></tr>';
+      }).join('') + '</tbody></table></div></div>';
+}
+
+
+// ══════════════════════════════════
+// 交叉熱力圖（micro，瀏覽器現算）
+// ══════════════════════════════════
+var HM = { r: 0, c: 1, k: 'a' };
+function secCross() {
+  var M = micro();
+  if (!M) return '';
+  // 預設：行業別 × 年資（跟後台同一組），找不到就用前兩個維度
+  var ix = function (key, def) {
+    for (var i = 0; i < M.dims.length; i++) if (M.dims[i].key === key) return i;
+    return def;
+  };
+  HM.r = ix('cat', 0); HM.c = ix('yrs', 1);
+  return '<h2 class="sec">交叉分析</h2><div class="card">' +
+    '<p class="lead">兩個條件交叉後的中位數。顏色越深代表越高；' +
+    '格子樣本不足 ' + M.minCellN + ' 筆就不顯示數字，虛線框代表 n &lt; 10、任何一筆極端值都會明顯移動中位數。' +
+    '這一段是在你的瀏覽器裡用逐列匿名資料現算的，所以可以任意換維度。</p>' +
+    '<div class="ctl noprint">' +
+      '<label>列</label><select id="hmR">' + dimOpts(M, HM.r) + '</select>' +
+      '<label>欄</label><select id="hmC">' + dimOpts(M, HM.c) + '</select>' +
+      '<label>指標</label><select id="hmK">' + METRICS.map(function (m) {
+        return '<option value="' + m.k + '"' + (m.k === HM.k ? ' selected' : '') + '>' +
+          esc(m.label) + '</option>';
+      }).join('') + '</select>' +
+    '</div><div id="hmBox">' + crossBody() + '</div></div>';
+}
+function dimOpts(M, sel) {
+  return M.dims.map(function (d, i) {
+    return '<option value="' + i + '"' + (i === sel ? ' selected' : '') + '>' + esc(d.label) + '</option>';
+  }).join('');
+}
+function crossBody() {
+  var M = micro();
+  if (!M) return '';
+  if (HM.r === HM.c) return '<p class="hint">列與欄請選不同的條件。</p>';
+  var R = M.dims[HM.r], C = M.dims[HM.c], k = HM.k;
+  var bucket = [];
+  R.values.forEach(function () {
+    var row = [];
+    C.values.forEach(function () { row.push([]); });
+    bucket.push(row);
+  });
+  M.rows.forEach(function (r) {
+    var v = r[k];
+    if (v === null || v === undefined || isNaN(v)) return;
+    var a = r.c[HM.r], b = r.c[HM.c];
+    if (!(a >= 0) || !(b >= 0)) return;
+    bucket[a][b].push(v);
+  });
+  var cells = bucket.map(function (row) {
+    return row.map(function (arr) {
+      if (arr.length < M.minCellN) return { n: arr.length, median: null };
+      return { n: arr.length, median: Math.round(pctl(arr.slice().sort(function (x, y) { return x - y; }), 50)) };
+    });
+  });
+  // 有數字的列與欄才畫出來，免得整排都是「—」
+  var rIdx = [], cIdx = [];
+  cells.forEach(function (row, i) {
+    if (row.some(function (x) { return x.median !== null; })) rIdx.push(i);
+  });
+  C.values.forEach(function (v, j) {
+    if (cells.some(function (row) { return row[j].median !== null; })) cIdx.push(j);
+  });
+  if (!rIdx.length || !cIdx.length) {
+    return '<p class="hint">這組交叉目前沒有任何格子達到 ' + M.minCellN + ' 筆。換一個條件試試。</p>';
+  }
+  var vals = [];
+  rIdx.forEach(function (i) {
+    cIdx.forEach(function (j) { if (cells[i][j].median !== null) vals.push(cells[i][j].median); });
+  });
+  // 用名次而不是數值比例決定深淺：只要有一格特別高，線性比例會把其餘格子全部壓到最淺的一端
+  var uniq = vals.slice().sort(function (a, b) { return a - b; })
+    .filter(function (v, i, s) { return i === 0 || v !== s[i - 1]; });
+  var alpha = function (v) {
+    var t = uniq.length < 2 ? 1 : uniq.indexOf(v) / (uniq.length - 1);
+    return Math.round((0.1 + t * 0.82) * 100) / 100;
+  };
+  var head = '<tr><th></th>' + cIdx.map(function (j) {
+    return '<th>' + esc(C.values[j]) + '<br><span style="font-weight:700;opacity:.7">n=' +
+      C.counts[j] + '</span></th>';
+  }).join('') + '</tr>';
+  var body = rIdx.map(function (i) {
+    return '<tr><th class="rh">' + esc(R.values[i]) + '<br><span style="font-weight:700;opacity:.7">n=' +
+      R.counts[i] + '</span></th>' + cIdx.map(function (j) {
+      var x = cells[i][j];
+      if (x.median === null) {
+        return '<td class="na" title="樣本 ' + x.n + ' 筆，未達 ' + M.minCellN + ' 筆不顯示">' +
+          '<b>—</b><i>n=' + x.n + '</i></td>';
+      }
+      var al = alpha(x.median);
+      var cls = 'v' + (al > 0.55 ? '' : ' lo') + (x.n < 10 ? ' few' : '');
+      return '<td class="' + cls + '" style="background:rgba(14,122,83,' + al + ')" title="' +
+        esc(R.values[i]) + ' × ' + esc(C.values[j]) + '　' + mv(k, x.median) + '（n=' + x.n + '）">' +
+        '<b>' + mv(k, x.median) + '</b><i>n=' + x.n + '</i></td>';
+    }).join('') + '</tr>';
+  }).join('');
+  return '<h3 style="margin-top:0">' + esc(R.label) + ' × ' + esc(C.label) + '　' +
+    esc(metricOf(k).label) + '中位數</h3>' +
+    '<div class="hm-lg"><span>低</span><i></i><span>高</span><em>' +
+      mv(k, uniq[0]) + '　→　' + mv(k, uniq[uniq.length - 1]) + '</em></div>' +
+    '<div class="hm"><table>' + head + body + '</table></div>';
+}
+
+
+// ══════════════════════════════════
+// 自訂條件篩選（micro，瀏覽器現算）
+// ══════════════════════════════════
+var FL = {};
+function secFilter() {
+  var M = micro();
+  if (!M) return '';
+  return '<h2 class="sec">自訂條件</h2><div class="card">' +
+    '<p class="lead">勾選條件看那一群人的薪資分布：同一列裡複選＝任一符合即可，不同列之間＝要同時符合。' +
+    '一樣在你的瀏覽器裡現算，子集合不足 ' + M.minCellN + ' 筆就不顯示任何數字。' +
+    '算的資料只有分組級距與薪資數字，沒有聯絡資訊、自填文字與填答時間，單獨一列無法對應到任何人。</p>' +
+    '<div class="fl" id="flBox">' + flRows() + '</div>' +
+    '<div class="toolbar noprint" style="margin-top:13px">' +
+      '<button class="btn s" data-flreset="1">清除所有條件</button></div>' +
+    '<div class="fl-res" id="flRes">' + flBody() + '</div></div>';
+}
+function flRows() {
+  var M = micro();
+  return M.dims.map(function (d, i) {
+    var sel = FL[i] || [];
+    return '<div class="fl-row" data-row="' + i + '">' +
+      '<div class="n">' + esc(d.label) +
+        '<em>' + (sel.length ? '已選 ' + sel.length + ' 項' : '全部') + '</em></div>' +
+      '<div class="chips">' + d.values.map(function (v, j) {
+        if (!d.counts[j]) return '';
+        return '<button class="chip' + (sel.indexOf(j) >= 0 ? ' on' : '') +
+          '" data-fl="' + i + '" data-v="' + j + '">' + esc(v) +
+          '<em>' + d.counts[j] + '</em></button>';
+      }).join('') + '</div></div>';
+  }).join('');
+}
+function flRowsSel() {
+  var M = micro();
+  return M.rows.filter(function (r) {
+    for (var k in FL) {
+      if (!FL.hasOwnProperty(k)) continue;
+      var sel = FL[k];
+      if (!sel || !sel.length) continue;
+      if (sel.indexOf(r.c[Number(k)]) < 0) return false;
+    }
+    return true;
+  });
+}
+function flLabel() {
+  var M = micro(), parts = [];
+  M.dims.forEach(function (d, i) {
+    var sel = FL[i] || [];
+    if (!sel.length) return;
+    parts.push(d.label + '＝' + sel.map(function (j) { return d.values[j]; }).join('／'));
+  });
+  return parts.length ? parts.join('；') : '全部有效樣本';
+}
+function flBody() {
+  var M = micro(), rows = flRowsSel();
+  var head = '<div class="n">目前條件：' + esc(flLabel()) + '　→　' + rows.length + ' 筆</div>';
+  if (rows.length < M.minCellN) {
+    return head + '<div class="locked">這組條件只剩 ' + rows.length + ' 筆，未達 ' + M.minCellN +
+      ' 筆，不顯示任何統計數字 —— 樣本太少的數字不只是誤差大，還可能反推出個別填答者。' +
+      '請放寬條件。</div>';
+  }
+  var pick = function (k) {
+    return rows.map(function (r) { return r[k]; })
+      .filter(function (v) { return v !== null && v !== undefined && !isNaN(v); });
+  };
+  var m = nstat(pick('m')), an = nstat(pick('a')), b = nstat(pick('b')), ot = nstat(pick('ot'));
+  var base = (ST.analysis || {});
+  var cmp = function (s, ref, name) {
+    if (!has(s) || !(Number(ref) > 0)) return '';
+    var dp = Math.round((s.median - ref) / ref * 1000) / 10;
+    return '<p class="hint" style="margin:4px 0 0">' + name + '中位數 ' + wan(s.median) +
+      '，相對全體（' + wan(ref) + '）' + sgn(dp) + '。</p>';
+  };
+  return head +
+    (has(m) ? boxOf('月薪', m) + cmp(m, base.monthly && base.monthly.median, '月薪') : '') +
+    (has(an) ? boxOf('全年本業總收入', an) + cmp(an, base.annual && base.annual.median, '年收入') : '') +
+    statTable([['月薪', m], ['年終獎金', b], ['全年本業總收入', an]]) +
+    (has(ot) ? statTable([['每月加班時數（小時）', ot]], fmt) : '') +
+    '<p class="hint">n 在 10 以下的子集合，任何一筆極端值都會明顯移動中位數，請連著 n 一起看。</p>';
+}
+
+
+// ══════════════════════════════════
+// 備註與資料限制
+// ══════════════════════════════════
+function secCaveats(a) {
+  var c = (a && a.caveats) || [];
+  var h = '<h2 class="sec">資料限制與備註</h2><div class="card">';
+  if (c.length) {
+    h += '<h3 style="margin-top:0">這份資料不能做什麼</h3><div class="cav">' +
+      c.map(function (x) { return '<div><span>' + esc(x) + '</span></div>'; }).join('') + '</div>';
+  }
+  h += '<h3>備註</h3><ol class="notes">' +
+    '<li>本結果係透過線上問卷蒐集資料，並刪除異常值後進行統計分析（本次排除 ' + ST.excluded + ' 筆）。</li>' +
+    '<li>本調查非專業統計或民調，請勿過度解讀。惟從學歷、工作經驗及年資的分布來看，比例尚屬合理。</li>' +
+    '<li>薪資主要取決於任職公司、個人運氣及面試談判技巧，本調查可作為您未來薪資談判時的參考依據。</li>' +
+    '<li>各分組若樣本數偏少（n &lt; 10），統計值易受單筆極端值影響，表中已標示 n 值，請自行斟酌。</li>' +
+    '<li>本報告只呈現彙總統計與匿名的逐列級距資料，不含任何可識別個人的內容；' +
+      '薪資答案與抽獎聯絡資訊分存兩張表、刻意無法對應。</li>' +
+    '</ol>' +
+    '<div class="toolbar noprint">' +
+      '<button class="btn p" onclick="window.print()">🖨 列印／另存 PDF</button>' +
+      '<a class="btn" href="' + esc(BOOT.webAppUrl) + '" target="_blank" rel="noopener">前往填寫問卷</a>' +
+    '</div></div>';
+  return h;
+}
+
+
+// ══════════════════════════════════
+// 繪製
+// ══════════════════════════════════
 function render() {
   $('#hTitle').textContent = BOOT.title + '報告';
+
+  if (BOOT.statsError && !ST) {
+    $('#hSub').textContent = '統計暫時無法產生';
+    $('#hMeta').innerHTML = '';
+    $('#app').innerHTML = '<div class="card empty"><h2>統計暫時無法產生</h2>' +
+      '<p class="small">' + esc(BOOT.statsError) + '</p>' +
+      '<button class="btn p" id="bRefresh">重新整理統計</button></div>';
+    bind();
+    return;
+  }
+
   if (!ST || ST.locked || !ST.total) {
     var have = (ST && ST.total) || 0;
     var need = (ST && ST.minPublicN) || BOOT.minPublicN || 100;
@@ -168,135 +1016,93 @@ function render() {
     return;
   }
 
-  $('#hSub').textContent = '資料更新時間 ' + ST.generatedAt + '　·　本報告僅呈現彙總統計，不含任何個別填答內容';
+  $('#hSub').textContent = '資料更新時間 ' + ST.generatedAt +
+    '　·　本報告僅呈現彙總統計與匿名級距資料，不含任何個別填答內容';
   $('#hMeta').innerHTML = [
     ['調查截止日', ST.deadline || BOOT.endRoc],
     ['有效樣本', ST.total + ' 筆'],
     ['排除異常值', ST.excluded + ' 筆'],
     ['薪資年度', ST.year + ' 年度'],
-    ['調查來源', '網路公開填答']
+    ['統計門檻', 'n ≥ ' + ST.minPublicN]
   ].map(function (m) {
     return '<div><div class="k">' + esc(m[0]) + '</div><div class="v">' + esc(m[1]) + '</div></div>';
   }).join('');
 
-  var h = '';
+  var a = ST.analysis || null;
+  $('#app').innerHTML =
+    secSummary(a) +
+    secIntake(ST.intake) +
+    secProfile(ST.profile) +
+    secMulti(ST.multi) +
+    secSalary() +
+    secDrivers(a) +
+    secCurve(a) +
+    secPremiums(a) +
+    secSpread(a) +
+    secLadder(a) +
+    secCross() +
+    secFilter() +
+    secCaveats(a);
+  bind();
+}
 
-  /* ── 備註 ── */
-  h += '<div class="card"><h3>備註</h3><ol class="notes">' +
-    '<li>本結果係透過線上問卷蒐集資料，並刪除異常值後進行統計分析（本次排除 ' + ST.excluded + ' 筆）。</li>' +
-    '<li>本調查非專業統計或民調，請勿過度解讀。惟從學歷、工作經驗及年資的分布來看，比例尚屬合理。</li>' +
-    '<li>薪資主要取決於任職公司、個人運氣及面試談判技巧，本調查可作為您未來薪資談判時的參考依據。</li>' +
-    '<li>各分組若樣本數偏少（n &lt; 10），統計值易受單筆極端值影響，表中已標示 n 值，請自行斟酌。</li>' +
-    '</ol><div class="toolbar">' +
-    '<button class="btn p" onclick="window.print()">🖨 列印／另存 PDF</button>' +
-    '<a class="btn" href="' + esc(BOOT.webAppUrl) + '" target="_blank" rel="noopener">前往填寫問卷</a>' +
-    '<button class="btn" id="bRefresh">重新整理統計</button></div></div>';
-
-  /* ── 整體資料分析 ── */
-  h += '<h2 class="sec">整體資料分析</h2><div class="card"><div class="grid2">';
-  var order = ['education', 'osh_license_top', 'intl_license_has', 'other_license_has', 'skill_has', 'lang_level',
-    'is_dedicated', 'yrs_band', 'job_category', 'work_region', 'age_band',
-    'company_size', 'job_title', 'shift_type', 'ot_pay_type', 'raise_last_year', 'job_seeking'];
-  order.forEach(function (k) {
-    var p = ST.profile[k];
-    if (!p || !p.rows.length) return;
-    h += profileTable(p.title, p.rows);
-  });
-  h += '</div></div>';
-
-  /* ── 複選題分布 ── */
-  h += '<div class="card"><h3>複選題分布（百分比以有效樣本 ' + ST.total + ' 筆為分母，加總會超過 100%）</h3>' +
-    '<div class="grid2">' +
-    profileTable('現職工作內容', ST.jobContents.slice(0, 14)) +
-    profileTable('專業能力', ST.skillsDetail.slice(0, 14)) +
-    profileTable('國際職安證照', (ST.intlLicenseDetail || []).slice(0, 14)) +
-    profileTable('其他證照', ST.otherLicenseDetail.slice(0, 14)) +
-    profileTable('公司福利', ST.benefits.slice(0, 14)) +
-    '</div></div>';
-
-  /* ── 薪資分析 ── */
-  h += '<h2 class="sec">薪資分析</h2>';
-  h += '<div class="card"><h3>整體分析</h3>' +
-    '<p class="lead">月薪＝每月經常性給予的薪資總和；年終＝' + ST.year +
-    ' 年度年總獎金；總薪水＝' + ST.year + ' 年度全年本業總收入。</p>' +
-    salaryBox('薪資結構', ST.salary.overall) +
-    overtimeBox() + '</div>';
-
-  ST.salary.groups.forEach(function (g) {
-    var items = g.items.filter(function (i) { return i.n > 0; });
-    if (!items.length) return;
-    h += '<div class="card"><h3>' + esc(g.title) + '</h3>' +
-      '<p class="lead">共 ' + items.length + ' 組；n &lt; 10 的組別統計值僅供參考。</p>' +
-      '<div class="grid2 sal">' + items.map(function (i) { return salaryBox(i.label, i); }).join('') +
-      '</div></div>';
-  });
-
-  /* ── 分析結論 ── */
-  if (ST.narrative && ST.narrative.length) {
-    h += '<h2 class="sec">分析報告</h2><div class="card">' +
-      '<p class="lead">以下結論由系統依現有資料自動產生，僅比較各組「中位數」，' +
-      '且只納入樣本數 ≥ 5 的組別。</p>' +
-      ST.narrative.map(function (n) {
-        return '<div class="narr"><h4>' + esc(n.title) + '</h4>' +
-          '<p class="ld">' + esc(n.lead) + '</p><ul>' +
-          n.bullets.map(function (b) { return '<li>' + esc(b) + '</li>'; }).join('') +
-          '</ul><div class="cc">' + esc(n.conclusion) + '</div></div>';
-      }).join('') + '</div>';
-  }
-
-  $('#app').innerHTML = h;
+function bind() {
   var rf = $('#bRefresh');
-  if (rf) rf.addEventListener('click', function () {
-    rf.disabled = true; rf.textContent = '統計中…';
-    google.script.run.withSuccessHandler(function (s) { ST = s; render(); })
-      .withFailureHandler(function (e) { rf.disabled = false; rf.textContent = '重新整理統計'; alert(e.message); })
-      .apiStats(true);
+  if (rf) {
+    rf.addEventListener('click', function () {
+      rf.disabled = true; rf.textContent = '統計中…';
+      google.script.run
+        .withSuccessHandler(function (s) { ST = s; MI = null; FL = {}; render(); })
+        .withFailureHandler(function (e) {
+          rf.disabled = false; rf.textContent = '重新整理統計';
+          alert(e && e.message ? e.message : '統計失敗');
+        })
+        .apiStats(true);
+    });
+  }
+  ['hmR', 'hmC', 'hmK'].forEach(function (id) {
+    var el = $('#' + id);
+    if (!el) return;
+    el.addEventListener('change', function () {
+      if (id === 'hmK') HM.k = el.value;
+      else {
+        var v = Number(el.value);
+        var other = (id === 'hmR') ? HM.c : HM.r;
+        if (v === other) {   // 兩邊選到同一個維度，就把原本那邊換成對方
+          if (id === 'hmR') { HM.c = HM.r; $('#hmC').value = String(HM.c); }
+          else { HM.r = HM.c; $('#hmR').value = String(HM.r); }
+        }
+        if (id === 'hmR') HM.r = v; else HM.c = v;
+      }
+      $('#hmBox').innerHTML = crossBody();
+    });
   });
 }
 
-function profileTable(title, rows) {
-  if (!rows || !rows.length) return '';
-  var max = Math.max.apply(null, rows.map(function (r) { return r.count; })) || 1;
-  return '<div><h3>' + esc(title) + '</h3><table><thead><tr>' +
-    '<th>項目</th><th>人數</th><th>比例</th><th>　</th></tr></thead><tbody>' +
-    rows.map(function (r) {
-      return '<tr><td>' + esc(r.label) + '</td><td class="tnum">' + r.count + '</td>' +
-        '<td class="tnum">' + r.pct.toFixed(1) + '%</td>' +
-        '<td class="barcell"><div class="bar"><i style="width:' +
-        Math.round(r.count / max * 100) + '%"></i></div></td></tr>';
-    }).join('') + '</tbody></table></div>';
-}
-
-function salaryBox(label, s) {
-  var weak = s.n < 10;
-  function row(name, d) {
-    return '<tr><td>' + name + '</td>' +
-      '<td class="tnum">' + fmt(d.min) + '</td>' +
-      '<td class="tnum">' + fmt(d.max) + '</td>' +
-      '<td class="tnum">' + fmt(d.mean) + '</td>' +
-      '<td class="tnum"><b>' + fmt(d.median) + '</b></td>' +
-      '<td class="tnum">' + fmt(d.p25) + '</td>' +
-      '<td class="tnum">' + fmt(d.p75) + '</td></tr>';
+document.addEventListener('click', function (e) {
+  if (!e.target.closest) return;
+  var chip = e.target.closest('[data-fl]');
+  if (chip) {
+    var i = Number(chip.getAttribute('data-fl')), j = Number(chip.getAttribute('data-v'));
+    var sel = FL[i] || (FL[i] = []);
+    var at = sel.indexOf(j);
+    if (at >= 0) sel.splice(at, 1); else sel.push(j);
+    chip.classList.toggle('on', at < 0);
+    var row = chip.closest('.fl-row');
+    if (row) {
+      var em = row.querySelector('.n em');
+      if (em) em.textContent = sel.length ? '已選 ' + sel.length + ' 項' : '全部';
+    }
+    $('#flRes').innerHTML = flBody();
+    return;
   }
-  return '<div class="gbox"><div class="gh">' + esc(label) +
-    '<span>n = ' + s.n + (weak ? '（樣本偏少）' : '') + '</span></div>' +
-    '<div class="tw"><table><thead><tr><th>　</th><th>最小值</th><th>最大值</th><th>平均值</th>' +
-    '<th>中位數</th><th>P25</th><th>P75</th></tr></thead><tbody>' +
-    row('月薪', s.monthly) + row('年終', s.bonus) + row('總薪水', s.annual) +
-    '</tbody></table></div></div>';
-}
-
-function overtimeBox() {
-  var o = ST.overtime;
-  if (!o || !o.n) return '';
-  return '<div class="gbox" style="margin-top:14px"><div class="gh">每月加班時數（已將「每日」填答乘上個人工作天數換算）' +
-    '<span>n = ' + o.n + '</span></div><div class="tw"><table><thead><tr>' +
-    '<th>　</th><th>最小值</th><th>最大值</th><th>平均值</th><th>中位數</th><th>P25</th><th>P75</th>' +
-    '</tr></thead><tbody><tr><td>小時／月</td>' +
-    '<td class="tnum">' + o.min + '</td><td class="tnum">' + o.max + '</td>' +
-    '<td class="tnum">' + o.mean + '</td><td class="tnum"><b>' + o.median + '</b></td>' +
-    '<td class="tnum">' + o.p25 + '</td><td class="tnum">' + o.p75 + '</td></tr></tbody></table></div></div>';
-}
+  var rs = e.target.closest('[data-flreset]');
+  if (rs) {
+    FL = {};
+    $('#flBox').innerHTML = flRows();
+    $('#flRes').innerHTML = flBody();
+  }
+});
 
 render();
 </script>
