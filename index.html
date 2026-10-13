@@ -401,7 +401,7 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .b-new{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;background:var(--gold);color:#fff;border:0;font-size:9px;font-weight:700;letter-spacing:.14em;font-family:var(--mono)}
 .bulletin-item .b-text{font-size:14px;line-height:1.85;color:var(--text2);letter-spacing:.008em}
 .bulletin-item .b-text b,.bulletin-item .b-text strong{color:var(--text);font-weight:700}
-.bulletin-item .b-text img{max-width:100%;border-radius:9px;margin-top:8px;border:1px solid var(--edge2)}
+.bulletin-item .b-text img{max-width:100%;border-radius:9px;margin-top:8px;border:1px solid var(--edge2);cursor:zoom-in}
 .bulletin-item .b-text ol,.bulletin-item .b-text ul{margin-left:18px;margin-top:6px;margin-bottom:6px}
 .bulletin-item .b-text li::marker{color:var(--accent-bar)}
 .bulletin-item .b-actions{position:absolute;top:12px;right:12px;display:flex;gap:2px;opacity:0;transition:.16s;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);padding:2px;border-radius:999px;border:1px solid var(--edge);box-shadow:var(--sh1)}
@@ -478,6 +478,9 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .doc-complete.yes{color:var(--accent2)}
 .doc-complete.no{color:var(--danger)}
 .doc-note{font-size:11.5px;color:var(--faint);max-width:200px;line-height:1.6}
+/* 備註內的圖片：表格裡只顯示縮圖，點擊放大（inline style 來自插入時的 <img>，故用 !important 壓過） */
+.doc-note img{display:block!important;width:200px!important;max-width:100%!important;height:auto!important;border-radius:7px;margin:6px 0!important;border:1px solid var(--edge2);cursor:zoom-in}
+.rte-body img{max-width:100%;height:auto;border-radius:7px;margin:6px 0}
 .scope-table th small{display:block;font-family:'DM Sans','Noto Sans TC',sans-serif;font-size:9.5px;font-weight:400;letter-spacing:.02em;text-transform:none;color:var(--faint);margin-top:3px}
 .scope-table td{vertical-align:top}
 .scope-badge{display:inline-block;min-width:98px;padding:5px 10px;border-radius:8px;font-size:11.5px;font-weight:600;line-height:1.3;text-align:center;font-family:var(--mono);letter-spacing:.02em}
@@ -1323,7 +1326,7 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 
 <!-- Modals -->
 <div class="modal-overlay hidden" id="mBul" onclick="closeBulM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mBT">新增公告</div><div class="modal-form"><div><label class="form-label">公告內容</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd('underline')"><u>U</u></button><button class="rte-btn" onclick="rteCmd('strikeThrough')"><s>S</s></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd('foreColor',this.value)"><input type="color" class="rte-color" value="#fef08a" onchange="rteCmd('hiliteColor',this.value)"><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('removeFormat')" style="font-size:11px">✕</button><div class="rte-sep"></div><button class="rte-btn" onclick="insertBulImage()" title="插入圖片" style="font-size:14px">🖼️</button></div><input type="file" id="bulImgInput" accept="image/*" style="display:none" onchange="handleBulImage(this)"><div class="rte-body" contenteditable="true" id="rteBody" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeBulM()">取消</button><button class="btn-primary" onclick="saveBul()" id="bBul">發布</button></div></div></div></div>
-<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">完成狀態</label><label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text);user-select:none"><input type="checkbox" id="inTDoneCk" onchange="trkDoneCkChg()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> ✅ 已完成</label><div id="trkDoneAtWrap" style="display:none;margin-top:8px"><label class="form-label">完成日期</label><input class="form-input" id="inTDoneAt" type="date"><div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">週報的「✅ 本期完成」會列出完成日期落在報告期間（週一～週日）的事項。</div></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button></div><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
+<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">完成狀態</label><label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text);user-select:none"><input type="checkbox" id="inTDoneCk" onchange="trkDoneCkChg()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> ✅ 已完成</label><div id="trkDoneAtWrap" style="display:none;margin-top:8px"><label class="form-label">完成日期</label><input class="form-input" id="inTDoneAt" type="date"><div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">週報的「✅ 本期完成」會列出完成日期落在報告期間（週一～週日）的事項。</div></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button><div class="rte-sep"></div><button class="rte-btn" onclick="insertTrkImage()" title="插入圖片" style="font-size:14px">🖼️</button></div><input type="file" id="trkImgInput" accept="image/*" style="display:none" onchange="handleTrkImage(this)"><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mDone" onclick="closeDoneM()"><div class="modal-box" style="max-width:360px" onclick="event.stopPropagation()"><div class="modal-title">✅ 標記完成</div><div class="modal-form"><div id="doneTaskName" style="font-size:14px;font-weight:600;color:var(--text);background:var(--bg2);border-radius:8px;padding:10px 12px;line-height:1.5"></div><div><label class="form-label">完成日期</label><input class="form-input" id="inDoneAt" type="date" onkeydown="if(event.key==='Enter')confirmDone()"></div><div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:-4px">週報的「✅ 本期完成」會依這個日期判斷要不要列入（報告期間：週一～週日）。之後在列表上還可以再改。</div><div class="modal-actions"><button class="btn-secondary" onclick="closeDoneM()">取消</button><button class="btn-primary" onclick="confirmDone()">標記完成</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mSec" onclick="closeSecM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title">新增區塊</div><div class="modal-form"><div><label class="form-label">區塊名稱</label><input class="form-input" id="inSN" onkeydown="if(event.key==='Enter')saveSec()"></div><div class="modal-actions"><button class="btn-secondary" onclick="closeSecM()">取消</button><button class="btn-primary" onclick="saveSec()">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mLnk" onclick="closeLnkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mLT">新增連結</div><div class="modal-form"><div><label class="form-label">連結標題</label><input class="form-input" id="inLN"></div><div><label class="form-label">連結網址</label><input class="form-input" id="inLU" placeholder="https://"></div><div><label class="form-label">選擇圖示</label><div class="icon-picker-wrap"><button type="button" class="icon-picker-btn" onclick="toggleIc(event)"><span class="preview" id="icP">📄</span><span id="icL" style="flex:1">選擇圖示…</span><span class="arrow" id="icA">▼</span></button><div class="icon-dropdown hidden" id="icDD"></div></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeLnkM()">取消</button><button class="btn-primary" onclick="saveLnk()" id="bLnk">新增</button></div></div></div></div>
@@ -2220,7 +2223,11 @@ function openTrkM(id){eTrkId=id||null;$('mTT').textContent=id?'編輯事項':'�
 function trkDoneCkChg(){const ck=$('inTDoneCk'),w=$('trkDoneAtWrap');if(!ck||!w)return;w.style.display=ck.checked?'':'none';if(ck.checked&&!$('inTDoneAt').value)$('inTDoneAt').value=todayS();}
 function closeTrkM(){$('mTrk').classList.add('hidden');}
 function setPri(v){['H','M','L'].forEach(x=>{const el=$('pri'+x);if(el)el.className='';});const map={high:'H',mid:'M',low:'L'};const el=$('pri'+(map[v]||'M'));if(el)el.className='sel-'+v;}
-function saveTrk(){const n=$('inTN').value.trim();if(!n)return;const p=getCheckedPersons('trkPCks'),d=$('inTD').value;if(!d||!p)return;let note=$('inTNote').innerHTML.trim();if(note==='<br>')note='';const priority=document.querySelector('.pri-seg button[class*=sel-]')?.id==='priH'?'high':document.querySelector('.pri-seg button[class*=sel-]')?.id==='priL'?'low':'mid';const dk=$('inTDoneCk').checked,dv=$('inTDoneAt').value;if(eTrkId){const t=D.tasks.find(x=>x.id===eTrkId);if(t){t.name=n;t.person=p;t.deadline=d;t.note=note;t.priority=priority;t.done=dk;if(dk)t.doneAt=dv||t.doneAt||todayS();else delete t.doneAt;}}else{const nt={id:gid(),name:n,person:p,deadline:d,done:dk,note,priority};if(dk)nt.doneAt=dv||todayS();D.tasks.push(nt);}save();renderTab();closeTrkM();}
+function saveTrk(){const n=$('inTN').value.trim();if(!n)return;const p=getCheckedPersons('trkPCks'),d=$('inTD').value;if(!d||!p)return;let note=$('inTNote').innerHTML.trim();if(note==='<br>')note='';
+  // 防呆：base64 圖片（例如從剪貼簿直接貼上）會撐爆 Google Sheet 單格 50,000 字上限，導致整份資料存檔失敗
+  if(/src\s*=\s*["']?data:image/i.test(note)){showToast('⚠️ 備註內含未上傳的圖片（base64），請刪除後改用工具列 🖼️ 按鈕插入圖片','err');return;}
+  if(note.length>10000){showToast('⚠️ 備註內容過長（'+note.length+' 字），雲端無法儲存，請精簡內容','err');return;}
+  const priority=document.querySelector('.pri-seg button[class*=sel-]')?.id==='priH'?'high':document.querySelector('.pri-seg button[class*=sel-]')?.id==='priL'?'low':'mid';const dk=$('inTDoneCk').checked,dv=$('inTDoneAt').value;if(eTrkId){const t=D.tasks.find(x=>x.id===eTrkId);if(t){t.name=n;t.person=p;t.deadline=d;t.note=note;t.priority=priority;t.done=dk;if(dk)t.doneAt=dv||t.doneAt||todayS();else delete t.doneAt;}}else{const nt={id:gid(),name:n,person:p,deadline:d,done:dk,note,priority};if(dk)nt.doneAt=dv||todayS();D.tasks.push(nt);}save();renderTab();closeTrkM();}
 function delTsk(id){if(!confirm('刪除？'))return;D.tasks=D.tasks.filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 3 DOCUMENTS ═══
@@ -2760,6 +2767,11 @@ function exportSchXlsx(){
 }
 
 function openLB(src){$('lbImg').src=src;$('lightbox').classList.remove('hidden');}
+// 公告內文／追蹤事項備註裡的圖片：點一下用燈箱放大
+document.addEventListener('click',function(e){
+  const img=e.target&&e.target.closest?e.target.closest('.b-text img,.doc-note img'):null;
+  if(img&&img.src)openLB(img.src);
+});
 
 
 // ═══ Extra OT Records ═══
@@ -3088,7 +3100,8 @@ function sendTrkEmail(){
   // Outlook-compatible HTML (no gradients, no border-radius, table layout)
   function stripNote(raw){
     if(!raw)return[];
-    let s=raw;
+    // 備註裡的圖片無法放進信件表格（欄寬太窄），改成提示文字
+    let s=String(raw).replace(/<img[^>]*>/gi,'\n[🖼️ 附圖，請開啟系統查看]\n');
     // Convert ordered list items to "1. text"
     let olIdx=0;
     s=s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi,function(_,inner){
@@ -4104,11 +4117,14 @@ function toggleHideTab(key){
   save();renderTabs();
 }
 
-// ══ Bulletin Image Insert (upload to Drive via GAS) ══
+// ══ RTE Image Insert (upload to Drive via GAS) ══
+// 公告欄與追蹤事項備註共用：圖片不以 base64 塞進內文（Google Sheet 單格上限 50,000 字，塞 base64 會讓整份資料存檔失敗）
+// 改為：壓縮 → 上傳到 Drive（GAS uploadImage）→ 查回公開網址 → 只把 <img src="網址"> 放進內文
 function insertBulImage(){$('bulImgInput').click();}
-// 圖片不再以 base64 塞進公告內文（Google Sheet 單格上限 50,000 字，塞 base64 會讓整份資料存檔失敗）
-// 改為：壓縮 → 上傳到 Drive（GAS uploadImage）→ 查回公開網址 → 只把 <img src="網址"> 放進公告
-async function handleBulImage(input){
+function insertTrkImage(){$('trkImgInput').click();}
+function handleBulImage(input){return uploadRteImage(input,'rteBody','bulletin');}
+function handleTrkImage(input){return uploadRteImage(input,'inTNote','tracker');}
+async function uploadRteImage(input,targetId,prefix){
   const file=input.files[0];if(!file)return;
   if(!GAS_URL){showToast('⚠️ 未設定 GAS_URL，無法上傳圖片','err');input.value='';return;}
   showToast('⏳ 壓縮圖片中…');
@@ -4118,7 +4134,7 @@ async function handleBulImage(input){
     const kb=Math.round(compressed.length*0.75/1024);
     console.log('Compressed image size:',kb,'KB');
 
-    const uniqueName='bulletin-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+    const uniqueName=(prefix||'bulletin')+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
     showToast('⏳ 上傳圖片到 Drive… ('+kb+' KB)');
 
     // no-cors POST：資料會送出，但讀不到回應，所以之後再用 GET 查檔案網址
@@ -4143,7 +4159,7 @@ async function handleBulImage(input){
     if(!url)throw new Error(lastErr||'上傳逾時');
 
     // 插入 <img>（只存網址，不存 base64）
-    const rte=$('rteBody');
+    const rte=$(targetId);
     const imgHtml=`<img src="${url}" style="max-width:480px;width:100%;height:auto;border-radius:8px;margin:6px 0" alt=""><br>`;
     let inserted=false;
     try{rte.focus();inserted=document.execCommand('insertHTML',false,imgHtml);}catch(e){}
