@@ -802,15 +802,14 @@ function secDataNote() {
   if (fixed) how.push('修正 <b>' + fixed + '</b> 筆明顯填寫錯誤的金額');
   if (ex) how.push('排除 <b>' + ex + '</b> 筆數字互相矛盾、無法推回合理值的回覆');
   if (trimmed) {
-    var fc = (t.fence && t.fence.monthly_salary) || null;
-    var fa = (t.fence && t.fence.annual_total) || null;
-    var at = [];
-    if (fc) at.push('月薪 ' + wan(fc.hi));
-    if (fa) at.push('全年收入 ' + wan(fa.hi));
+    // 判界欄位由後端 TRIM_FIELDS 決定（目前只有月薪），文字跟著資料走，不寫死
+    var fl = (t.fields || []).filter(function (f) { return t.fence && t.fence[f.key]; });
+    var at = fl.map(function (f) { return esc(f.label) + ' ' + wan(t.fence[f.key].hi); });
+    var names = (t.fields || []).map(function (f) { return esc(f.label); }).join('或') || '月薪';
     how.push((how.length ? '再' : '') + '以統計上常用的 <b>Tukey ' + esc(String(t.k)) +
       ' 倍四分位距法</b>（上界 ＝ P75 ＋ ' + esc(String(t.k)) + '×IQR' +
       (at.length ? '，本次為' + at.join('、') : '') + '）' +
-      '剃除 <b>' + trimmed + '</b> 筆高於上界的極端值');
+      '剃除 <b>' + trimmed + '</b> 筆<b>' + names + '</b>高於上界的極端值');
   }
 
   var head = '<h2><span>⚠️</span>資料處理與統計口徑</h2>';
@@ -829,8 +828,10 @@ function secDataNote() {
     '最終以 <b>' + ST.total + '</b> 筆資料計算' +
     (trimmed ? '（剃除前為 ' + t.beforeN + ' 筆）' : '') + '。</p>' +
     (trimmed
-      ? '<p>' + (hiOnly
-          ? '<b>低薪端不剃除</b>：剃掉低薪會讓每一條百分位虛高，' +
+      ? '<p><b>年終獎金與全年收入不作為剃除依據</b>：高年終本來就是正常現象，' +
+        '拿全年收入判界會把「月薪一般、只是年終高」的人誤剃掉。' +
+        (hiOnly
+          ? '<b>低薪端也不剃除</b>：剃掉低薪會讓每一條百分位虛高，' +
             '也等於把新人、派遣、沒有年終的同業從「市場」裡刪掉；' +
             '真正低到不合理的數字已由上述規則處理。'
           : '上下兩端都以同一條界線剃除。') +
@@ -862,10 +863,16 @@ function secTrim() {
     '因此以統計上常用的 <b>Tukey ' + esc(String(t.k)) + ' 倍四分位距</b>為界' +
     '（上界 ＝ P75 ＋ ' + esc(String(t.k)) + '×IQR' +
     (t.tails === 'both' ? '、下界 ＝ P25 − ' + esc(String(t.k)) + '×IQR' : '') +
-    '），把月薪或全年收入<b>高於上界</b>的 <b>' + t.cut + '</b> 筆整列排除，' +
+    '），把 <b>' + ((t.fields || []).map(function (f) { return esc(f.label); }).join('或') || '月薪') +
+    '高於上界</b>的 <b>' + t.cut + '</b> 筆整列排除，' +
     '本報告所有圖表都以剩下的 <b>' + t.kept + '</b> 筆計算' +
     '（剃除前為 ' + t.beforeN + ' 筆）。這些資料本身沒有矛盾，只是數字特別極端；' +
     '中位數幾乎不受剃除影響，受影響的主要是平均數。</p>' +
+    '<p class="lead"><b>年終獎金與全年收入不作為判界依據</b>：外商、科技廠的分紅與績效獎金' +
+    '動輒好幾個月，高年終本來就是這個行業的正常現象，拿全年收入去判界會把' +
+    '「月薪很一般、只是年終高」的人誤剃掉 —— 而那正是這份報告最值得看的樣本。' +
+    '月薪才是結構性、可直接比較、談薪水時真正在談的數字；' +
+    '至於離譜的年終（例如月薪 8.5 萬卻填年終 300 萬），已由上方「異常值處理」的規則攔下。</p>' +
     (t.tails === 'both'
       ? '<p class="lead">下界外的資料同樣剃除。</p>'
       : '<p class="lead"><b>低薪端一律保留</b>' +

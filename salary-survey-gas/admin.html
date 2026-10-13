@@ -442,8 +442,9 @@ function renderPanel(message) {
     '<div class="card"><h2>極端值剃除（平均數校正）</h2>' +
       '<p class="hint">樣本數不多的時候，一兩筆特別高的薪水就能把<b>平均數</b>整體拉高，' +
       '看起來像「大家都領這麼多」。這裡用統計上標準的 <b>Tukey 1.5 倍四分位距</b>' +
-      '（上界 ＝ P75 ＋ 1.5×IQR）把<b>高於上界</b>的點剃掉 ——' +
-      '<b>低薪端一律保留</b>，剃掉低薪會讓百分位虛高、也等於把新人與派遣從市場裡刪掉。' +
+      '（上界 ＝ P75 ＋ 1.5×IQR）把<b>月薪高於上界</b>的點剃掉 ——' +
+      '只看<b>月薪</b>（年終高是正常的，不判界），而且<b>低薪端一律保留</b>' +
+      '（剃掉低薪會讓百分位虛高、也等於把新人與派遣從市場裡刪掉）。' +
       '先比較剃除前後的數字，再決定<b>分析報告要不要套用</b>。' +
       '這跟上面的「異常值審核」是兩件事：那邊處理的是<b>填錯的資料</b>，' +
       '這裡處理的是<b>真實但太極端</b>的資料。剃除只影響報告呈現，' +
@@ -951,7 +952,9 @@ function trimDelta(before, after) {
   var d = a - b, pct = Math.round(d / b * 1000) / 10;
   if (Math.abs(pct) < 0.05) return '持平';
   var cls = d < 0 ? 'dn' : 'up';
-  return '<span class="tr-d ' + cls + '">' + (d > 0 ? '+' : '−') + wan(Math.abs(d)) +
+  // 差額不到半萬時用「元」，否則 wan() 會四捨五入成看不懂的「−0萬」
+  var amt = Math.abs(d) >= 5000 ? wan(Math.abs(d)) : fmt(Math.abs(d)) + '元';
+  return '<span class="tr-d ' + cls + '">' + (d > 0 ? '+' : '−') + amt +
     '（' + (d > 0 ? '+' : '−') + Math.abs(pct) + '%）</span>';
 }
 
@@ -1053,12 +1056,17 @@ function paintTrim() {
       '</thead><tbody>' + cmpRows + '</tbody></table></div></div>' +
 
     '<div class="sec"><h3>上下界怎麼算出來的</h3>' +
-      '<p>以 ' + esc(String(t.k)) + ' 倍四分位距為界，月薪或全年收入<b>任一個高於上界</b>，' +
-      '這一筆就整列不納入統計（母體一致，各張圖的 n 才對得起來）。' +
+      '<p>以 ' + esc(String(t.k)) + ' 倍四分位距為界，' +
+      (t.fields.length > 1
+        ? t.fields.map(function (f) { return esc(f.label); }).join('或') + '<b>任一個高於上界</b>'
+        : '<b>' + esc((t.fields[0] || {}).label || '月薪') + '高於上界</b>') +
+      '，這一筆就整列不納入統計（母體一致，各張圖的 n 才對得起來）。' +
       (t.tails === 'both'
         ? '目前設定為<b>上下都剃</b>。'
         : '<b>只剃高端</b>：低於下界的一律保留（下一節會列出是哪幾筆）。') +
-      '年終獎金不列入判斷：0 元是合理答案，而誇張的年終已經由「異常值審核」那邊攔下。</p>' +
+      '<b>年終與全年收入不列入判界</b>：高年終本來就是正常現象（外商、科技廠的分紅動輒好幾個月），' +
+      '拿全年收入判界會把「月薪一般、只是年終高」的人誤剃掉；' +
+      '而離譜的年終（月薪 8.5 萬卻填年終 300 萬）已經由「異常值審核」那邊攔下。</p>' +
       '<div class="tw"><table><thead><tr><th class="tl">欄位</th><th class="n">P25</th>' +
         '<th class="n">P75</th><th class="n">IQR</th><th class="n">下界</th>' +
         '<th class="n after">上界（剃這邊）</th></tr></thead><tbody>' + fenceRows +

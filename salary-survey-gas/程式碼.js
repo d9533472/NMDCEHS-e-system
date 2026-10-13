@@ -191,9 +191,14 @@ const OUTLIER = {
 //   TRIM（這裡） ＝「這筆是真的，但它太極端」。樣本數不多時，一兩筆特別高的薪水就能把
 //                   平均數整體拉高，看起來像「大家都領這麼多」。剃掉上下界外的點之後，
 //                   平均數才貼近多數人的位置（中位數本來就不受影響）。
-// 只用月薪與全年收入兩個主要金額判界，任一個落在界外就「整列」不納入統計 ——
+// ★ 只用「月薪」判界（TRIM_FIELDS）。年終、全年收入都不判，理由：
+//   高年終本來就是正常現象 —— 外商、科技廠的分紅、績效獎金動輒好幾個月，
+//   拿全年收入去判界會把這些「月薪很一般、只是年終高」的人誤剃掉，
+//   而他們正是報告裡最值得看的樣本（同樣的月薪，別人多領幾個月）。
+//   月薪才是結構性、可直接比較、談薪水時真正在談的那個數字；
+//   而離譜的年終（月薪 8.5 萬卻填年終 300 萬）已經由 OUTLIER 的相對比例規則攔下。
+// 判界欄位落在界外就「整列」不納入統計 ——
 // 整列排除母體才會一致，不會出現箱型圖 n=120、交叉分析 n=118 這種對不起來的數字。
-// 年終獎金不列入判界：0 元是合理答案，而誇張的年終已經被 OUTLIER 規則攔下來了。
 // ★ 只剃高端，低薪端一律保留（TRIM_TAILS = 'high'）。理由：
 //   ① 這份報告是給人談薪水用的，剃掉低薪的人會讓每一條百分位虛高，
 //      讀者照著開口反而容易踩空，也等於把派遣、新人、沒年終的同業從「市場」裡刪掉。
@@ -206,8 +211,8 @@ const TRIM_K     = 1.5;               // 上界 = P75 + K × IQR，下界 = P25 
 const TRIM_TAILS = 'high';            // 'high' ＝只剃高端；'both' ＝上下都剃
 const TRIM_MIN_N = 12;                // 低於這個筆數，四分位距本身不可靠，一律不剃
 const TRIM_FIELDS = [
-  ['monthly_salary', '月薪'],
-  ['annual_total',   '全年收入']
+  ['monthly_salary', '月薪']
+  // 想連全年收入一起判界，就把 ['annual_total', '全年收入'] 加回來（前後端文案會自動跟著變）
 ];
 
 function _trimOn() {
@@ -1403,7 +1408,7 @@ function apiStats(force) {
       lowKept: tb.low.length,             // 落在下界外、刻意保留的筆數
       kept: base.length,
       beforeN: clean.length,
-      fence: tb.fence,                    // { monthly_salary:{lo,hi,p25,p75,iqr}, annual_total:{…} }
+      fence: tb.fence,                    // { monthly_salary:{lo,hi,p25,p75,iqr} }，鍵＝TRIM_FIELDS
       fields: TRIM_FIELDS.map(function (f) { return { key: f[0], label: f[1] }; }),
       blocked: tb.blocked
     },
