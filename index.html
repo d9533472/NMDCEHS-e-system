@@ -911,7 +911,11 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
   .roster-scope .tag2{background:#fde68a;color:#92400e} .roster-scope .tag1{background:#bae6fd;color:#075985}
 
   .roster-scope /* bottom sheet */
-  .sheet-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:40;display:flex;align-items:flex-end}
+  .sheet-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:1200;display:flex;align-items:flex-end}
+  /* 底部選單改掛在 <body> 底下的空殼容器：外層 .card 與 .roster-scope 都有 backdrop-filter，
+     會讓 position:fixed 改以它們為定位基準，選單被推到容器最底部（畫面上只剩一片黑幕）。
+     這個宿主只負責讓 .roster-scope xxx 選擇器繼續生效，本身不能有任何外觀樣式。 */
+  .roster-scope.rst-portal{background:none;border:0;box-shadow:none;backdrop-filter:none;overflow:visible;border-radius:0}
   .roster-scope .sheet{background:#fff;width:100%;max-width:760px;margin:0 auto;border-radius:18px 18px 0 0;padding:16px 16px 26px;
     box-shadow:0 -8px 30px rgba(0,0,0,.2);animation:up .18s ease}
   @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
@@ -1782,7 +1786,9 @@ async function fetchData(){
   try{
     const r=await fetch(GAS_URL);if(!r.ok)return false;
     const d=await r.json();
-    if(d&&typeof d==='object'&&Object.keys(d).length>1){D=d;fixData();return true;}
+    // window.D 一定要跟著換：排班系統（React）是靠 window.D.rosterData 讀寫並觸發雲端同步，
+    // 若 D 換了但 window.D 還指著舊物件，休假登記會寫進孤兒物件、永遠同步不上去。
+    if(d&&typeof d==='object'&&Object.keys(d).length>1){D=d;window.D=D;fixData();return true;}
   }catch(e){console.warn('Fetch:',e);}return false;
 }
 
@@ -1801,7 +1807,7 @@ async function pushData(){
   }
 }
 function fixData(){
-  if(!D)D=makeDefault();
+  if(!D)D=makeDefault();window.D=D;
   if(!D.parts)D.parts=makeDefault().parts;
   if(!D.sections)D.sections=[];
   if(!D.tasks)D.tasks=[];
@@ -1920,7 +1926,7 @@ function importData(){
         const d=JSON.parse(reader.result);
         if(!d||typeof d!=='object'){showToast('⚠️ 無效的 JSON 檔案','err');return;}
         if(!confirm('確定要匯入？這會覆蓋目前所有資料。'))return;
-        D=d;fixData();save();renderAll();
+        D=d;window.D=D;fixData();save();renderAll();
         showToast('✅ 匯入成功！記得按 💾 儲存同步到 Google Sheets');
       }catch(e){showToast('⚠️ 檔案格式錯誤：'+e.message,'err');}
     };reader.readAsText(file);
@@ -4600,12 +4606,12 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     setLoad(50,'雲端無資料，讀取本機快取…');
     try{
       const c=localStorage.getItem('env-cache');
-      if(c){const d=JSON.parse(c);if(d&&typeof d==='object'&&Object.keys(d).length>1){D=d;fixData();loaded=true;console.log('⚠️ loaded from localStorage');}}
+      if(c){const d=JSON.parse(c);if(d&&typeof d==='object'&&Object.keys(d).length>1){D=d;window.D=D;fixData();loaded=true;console.log('⚠️ loaded from localStorage');}}
     }catch(e){}
   }
 
   // 3) Defaults
-  if(!loaded){setLoad(60,'使用預設資料…');D=makeDefault();}
+  if(!loaded){setLoad(60,'使用預設資料…');D=makeDefault();window.D=D;}
 
   // 4) 背景同步（不阻擋畫面載入）
   localStorage.setItem('env-cache',JSON.stringify(D));
@@ -6086,7 +6092,23 @@ function LeavePanel({
     className: "note"
   }, "\u7070\u5E95\u70BA\u516D\u65E5\uFF0F\u570B\u5B9A\u5047\u65E5\u3002\u9EDE\u4E00\u4E0B\u767B\u8A18\u4F11\u5047\uFF08\u8B8A\u7D05\uFF09\uFF0C\u518D\u9EDE\u4E00\u4E0B\u53D6\u6D88\uFF1B\u6392\u73ED\u6703\u81EA\u52D5\u907F\u958B\u4E26\u91CD\u65B0\u88DC\u4EBA\u3002")));
 }
-function CellSheet({
+// 底部選單（挑班別／調整值班人數）一律用 portal 掛到 <body>。
+// 原本直接畫在排班表裡，但祖先元素 .card／.roster-scope 有 backdrop-filter，
+// 會成為 position:fixed 的定位基準 → 選單跑到 1800px 高的容器底部，使用者只看到黑幕。
+function sheetPortal(node) {
+  var host = document.getElementById('roster-sheet-portal');
+  if (!host) {
+    host = document.createElement('div');
+    host.id = 'roster-sheet-portal';
+    host.className = 'roster-scope rst-portal';
+    document.body.appendChild(host);
+  }
+  return ReactDOM.createPortal(node, host);
+}
+function CellSheet(props) {
+  return sheetPortal(React.createElement(CellSheetInner, props));
+}
+function CellSheetInner({
   sel,
   people,
   cur,
@@ -6139,7 +6161,10 @@ function CellSheet({
     onClick: onClose
   }, "\u95DC\u9589")));
 }
-function DaySheet({
+function DaySheet(props) {
+  return sheetPortal(React.createElement(DaySheetInner, props));
+}
+function DaySheetInner({
   date,
   cur,
   onPick,
