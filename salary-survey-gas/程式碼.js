@@ -185,6 +185,102 @@ const OUTLIER = {
   annualMonthsMax: 40   // 年收入超過 40 個月月薪（12 個月本薪 + 24 個月年終上限還要留加班的餘裕）
 };
 
+// ── 極端值剃除（Tukey 1.5 倍四分位距）──
+// 這一組跟上面的 OUTLIER 是兩件不同的事：
+//   OUTLIER      ＝「這筆填錯了」（月薪 8.5 萬卻填年終 300 萬），資料本身有矛盾，整筆標記排除。
+//   TRIM（這裡） ＝「這筆是真的，但它太極端」。樣本數不多時，一兩筆特別高的薪水就能把
+//                   平均數整體拉高，看起來像「大家都領這麼多」。剃掉上下界外的點之後，
+//                   平均數才貼近多數人的位置（中位數本來就不受影響）。
+// 只用月薪與全年收入兩個主要金額判界，任一個落在界外就「整列」不納入統計 ——
+// 整列排除母體才會一致，不會出現箱型圖 n=120、交叉分析 n=118 這種對不起來的數字。
+// 年終獎金不列入判界：0 元是合理答案，而誇張的年終已經被 OUTLIER 規則攔下來了。
+// ★ 只剃高端，低薪端一律保留（TRIM_TAILS = 'high'）。理由：
+//   ① 這份報告是給人談薪水用的，剃掉低薪的人會讓每一條百分位虛高，
+//      讀者照著開口反而容易踩空，也等於把派遣、新人、沒年終的同業從「市場」裡刪掉。
+//   ② 薪資分布的左尾本來就被基本工資壓住，真正「低到不合理」的數字幾乎都是填錯，
+//      而那種情況已經由 OUTLIER.monthlyMin（2 萬）／annualMin（20 萬）攔下來了。
+//   ③ 高端不一樣：單一筆外商高薪就能把平均數整體拉高，這才是要校正的失真。
+//   要改成上下都剃，把 TRIM_TAILS 改成 'both' 即可（後台會一起顯示低端會剃掉哪幾筆）。
+const PROP_TRIM  = 'TRIM_OUTLIERS';   // Script Properties：'1' ＝分析報告套用剃除
+const TRIM_K     = 1.5;               // 上界 = P75 + K × IQR，下界 = P25 − K × IQR
+const TRIM_TAILS = 'high';            // 'high' ＝只剃高端；'both' ＝上下都剃
+const TRIM_MIN_N = 12;                // 低於這個筆數，四分位距本身不可靠，一律不剃
+const TRIM_FIELDS = [
+  ['monthly_salary', '月薪'],
+  ['annual_total',   '全年收入']
+];
+
+function _trimOn() {
+  try { return PropertiesService.getScriptProperties().getProperty(PROP_TRIM) === '1'; }
+  catch (e) { return false; }
+}
+
+// 單一欄位的上下界；樣本太少或四分位距為 0（大家填得一樣）時回 null＝這欄不判
+function _trimFence(rows, field) {
+  const arr = rows.map(function (r) { return r[field]; }).filter(_pos)
+                  .sort(function (a, b) { return a - b; });
+  if (arr.length < TRIM_MIN_N) return null;
+  const p25 = _percentile(arr, 25), p75 = _percentile(arr, 75), iqr = p75 - p25;
+  if (!(iqr > 0)) return null;
+  return {
+    n: arr.length,
+    p25: Math.round(p25), p75: Math.round(p75), iqr: Math.round(iqr),
+    lo: Math.round(p25 - TRIM_K * iqr), hi: Math.round(p75 + TRIM_K * iqr)
+  };
+}
+
+// 把乾淨資料切成「留下的」與「剃掉的」，每筆剃掉的都附上理由（後台要逐筆攤給管理者看）。
+// low ＝落在下界外、但按 TRIM_TAILS='high' 刻意留下來的那幾筆，後台要看得到自己留了什麼。
+function _trimSplit(rows) {
+  const fence = {};
+  TRIM_FIELDS.forEach(function (f) { fence[f[0]] = _trimFence(rows, f[0]); });
+  const kept = [], cut = [], low = [];
+  rows.forEach(function (r) {
+    const hiWhy = [], loWhy = [];
+    TRIM_FIELDS.forEach(function (f) {
+      const fc = fence[f[0]], v = r[f[0]];
+      if (!fc || !_pos(v)) return;
+      if (v > fc.hi) hiWhy.push(f[1] + ' ' + _wan(v) + ' 高於上界 ' + _wan(fc.hi));
+      else if (v < fc.lo) loWhy.push(f[1] + ' ' + _wan(v) + ' 低於下界 ' + _wan(fc.lo));
+    });
+    if (hiWhy.length) { cut.push({ row: r, why: hiWhy.join('；'), tail: 'high' }); return; }
+    if (loWhy.length) {
+      if (TRIM_TAILS === 'both') { cut.push({ row: r, why: loWhy.join('；'), tail: 'low' }); return; }
+      low.push({ row: r, why: loWhy.join('；'), tail: 'low' });   // 保留，但記下來
+    }
+    kept.push(r);
+  });
+  return { kept: kept, cut: cut, low: low, fence: fence, tails: TRIM_TAILS };
+}
+
+// 報告與百分位回饋共用的「統計母體」。
+// 後台開了剃除、而且剃完還達得到公開門檻時才真的剃；否則照原樣回傳並說明為什麼沒剃。
+function _statBase(clean) {
+  const on = _trimOn();
+  const split = _trimSplit(clean);
+  const applied = on && split.cut.length > 0 && split.kept.length >= MIN_PUBLIC_N;
+  return {
+    on: on, applied: applied, k: TRIM_K, tails: TRIM_TAILS,
+    rows: applied ? split.kept : clean,
+    cut: split.cut, low: split.low, fence: split.fence,
+    blocked: (on && split.cut.length && !applied)
+      ? '剃除後只剩 ' + split.kept.length + ' 筆，低於公開門檻 ' + MIN_PUBLIC_N +
+        ' 筆，這次自動不剃除'
+      : ''
+  };
+}
+
+// 每日摘要信固定用「未剃除」的口徑（那是監控用的現況）；
+// 後台若開了剃除，就在信裡補一句對照，免得信上的平均數和報告上的對不起來。
+function _digestTrimNote(clean) {
+  const tb = _statBase(clean);
+  if (!tb.on || !tb.cut.length) return '';
+  const after = _salaryStat(tb.rows);
+  return '　這封信一律是<b>未剃除</b>的口徑；分析報告目前已剃除 ' + tb.cut.length +
+    ' 筆極端值（剩 ' + tb.rows.length + ' 筆），剃除後月薪平均 ' + _wan(after.monthly.mean) +
+    '、全年收入平均 ' + _wan(after.annual.mean) + '。';
+}
+
 // ── 報告章節順序：只有後台（密碼保護）能調，調完所有人看到的都是這個順序 ──
 // key 必須跟 report.html 裡 SEC 對照表的鍵一模一樣，改名要兩邊一起改。
 // 「薪資分析」在前端是五個函式串起來的一整塊（驅動因子／年資曲線／加給／離散／階梯），
@@ -225,8 +321,19 @@ function _reportOrder() {
 }
 
 // 改過 apiStats 的回傳結構就要跳版號，否則舊快取會餵給新前端（欄位對不上、整頁空白）
-const CACHE_KEY = 'salary_stats_v2';
+const CACHE_KEY = 'salary_stats_v3';
 const CACHE_SEC = 120;
+
+// 剃除極端值的開關會換掉整份統計，兩種口徑各自存一份快取，切換開關時不會拿到另一邊的數字。
+// 任何會動到資料的動作都要呼叫 _clearStats()，把兩種口徑一起清掉。
+function _ckey(on)      { return CACHE_KEY + (on ? ':trim' : ':raw'); }
+function _ckeyMicro(on) { return CACHE_KEY_MICRO + (on ? ':trim' : ':raw'); }
+function _clearStats() {
+  try {
+    CacheService.getScriptCache().removeAll(
+      [_ckey(true), _ckey(false), _ckeyMicro(true), _ckeyMicro(false)]);
+  } catch (e) {}
+}
 
 
 // ══════════════════════════════════
@@ -306,7 +413,7 @@ function _ss() {
 // 把現有的試算表指定給獨立式專案（想自己指定檔案時用）
 function setSpreadsheetId(id) {
   PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', id);
-  CacheService.getScriptCache().remove(CACHE_KEY);
+  _clearStats();
   return '已綁定試算表：' + SpreadsheetApp.openById(id).getUrl();
 }
 
@@ -418,7 +525,7 @@ function apiSubmit(payload) {
     const email = String(d.email || '').trim();
     if (email) _appendDrawEntry(ss, email, d.phone, d.address);
 
-    CacheService.getScriptCache().remove(CACHE_KEY);
+    _clearStats();
     _log('submit', row.resp_id + ' / ' + row.job_category);
     _notifyNewResponse(row, Math.max(0, sh.getLastRow() - 1));
 
@@ -762,7 +869,8 @@ function sendDailyDigest() {
       th('P25') + th('P75') + '</tr>' +
       line('月全薪', st.monthly) + line('年終獎金', st.bonus) + line('全年收入', st.annual) +
       '</table>' +
-      note('綠色是中位數、金色是平均數。平均明顯高過中位數，就是少數高薪把平均拉上去了。');
+      note('綠色是中位數、金色是平均數。平均明顯高過中位數，就是少數高薪把平均拉上去了。' +
+           _digestTrimNote(clean));
 
     body += h3('薪資分布') +
       note('淺綠方塊＝P25～P75（中間一半的人），深綠直線＝中位數，<b style="color:#b8862b">' +
@@ -1075,12 +1183,16 @@ function _checkOutlier(monthly, bonus, annual, otMonthly) {
 // ══════════════════════════════════
 function _percentileReport(row) {
   const rows = _readResponses();
-  const clean = rows.filter(function (r) { return !r.outlier; });
+  const valid = rows.filter(function (r) { return !r.outlier; });
 
   // 樣本不足時完全不回傳任何統計數字，連百分位都不算
-  if (clean.length < MIN_PUBLIC_N) {
-    return { locked: true, totalN: clean.length, minPublicN: MIN_PUBLIC_N };
+  if (valid.length < MIN_PUBLIC_N) {
+    return { locked: true, totalN: valid.length, minPublicN: MIN_PUBLIC_N };
   }
+
+  // 母體跟分析報告用同一套（後台開剃除就一起剃），
+  // 否則填答者看到的百分位會跟報告上的中位數算在兩個不同的母體上
+  const clean = _statBase(valid).rows;
 
   function block(label, subset) {
     const annual = subset.map(function (r) { return r.annual_total; }).filter(_pos);
@@ -1239,13 +1351,14 @@ function _buildMicro(clean) {
 
 function apiStats(force) {
   const cache = CacheService.getScriptCache();
+  const trimOn = _trimOn();
   if (!force) {
     try {
-      const hit = cache.get(CACHE_KEY);
+      const hit = cache.get(_ckey(trimOn));
       if (hit) {
         const o = JSON.parse(hit);
         if (o && o.micro) {
-          o.micro.rows = cache.get(CACHE_KEY_MICRO) || '';
+          o.micro.rows = cache.get(_ckeyMicro(trimOn)) || '';
           if (!o.micro.rows) throw new Error('micro cache miss');
         }
         return o;
@@ -1262,9 +1375,14 @@ function apiStats(force) {
       deadline: _toRoc(SURVEY_END),
       generatedAt: Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm')
     };
-    try { cache.put(CACHE_KEY, JSON.stringify(gated), CACHE_SEC); } catch (e) {}
+    try { cache.put(_ckey(trimOn), JSON.stringify(gated), CACHE_SEC); } catch (e) {}
     return gated;
   }
+
+  // 統計母體：後台若開了「剃除極端值」，以下所有圖表都改用剃除後的 base
+  // （薪資、樣本結構、交叉分析、micro、分析結論全部同一個母體，數字才對得起來）
+  const tb = _statBase(clean);
+  const base = tb.rows;
 
   const stats = {
     generatedAt: Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm'),
@@ -1272,9 +1390,23 @@ function apiStats(force) {
     deadline: _toRoc(SURVEY_END),
     year: SURVEY_YEAR,
     totalRaw: rows.length,
-    total: clean.length,
+    total: base.length,
     excluded: rows.length - clean.length,
     minPublicN: MIN_PUBLIC_N,
+    trim: {
+      on: tb.on,
+      applied: tb.applied,
+      k: tb.k,
+      tails: tb.tails,                    // 'high' ＝只剃高端，低薪端全部保留
+      cut: tb.applied ? tb.cut.length : 0,
+      candidates: tb.cut.length,          // 不管開關，符合剃除條件的筆數
+      lowKept: tb.low.length,             // 落在下界外、刻意保留的筆數
+      kept: base.length,
+      beforeN: clean.length,
+      fence: tb.fence,                    // { monthly_salary:{lo,hi,p25,p75,iqr}, annual_total:{…} }
+      fields: TRIM_FIELDS.map(function (f) { return { key: f[0], label: f[1] }; }),
+      blocked: tb.blocked
+    },
     profile: [],
     salary: {}
   };
@@ -1294,11 +1426,14 @@ function apiStats(force) {
   }
   stats.intake = {
     total: rows.length,
-    valid: clean.length,
+    valid: base.length,
+    // excluded 專指「填寫矛盾、整筆不計入」的異常值（報告的「異常值處理」在算這個）；
+    // 剃除極端值另外算在 trimCut，兩者不能混在一起加總
     excluded: rows.length - clean.length,
+    trimCut: tb.applied ? tb.cut.length : 0,
     minPublicN: MIN_PUBLIC_N,
     weekCount: days.slice(-7).reduce(function (a, b) { return a + b.count; }, 0),
-    legacyN: clean.filter(function (r) { return String(r.source) === LEGACY_TAG; }).length,
+    legacyN: base.filter(function (r) { return String(r.source) === LEGACY_TAG; }).length,
     legacyTag: LEGACY_TAG,
     fix: _fixStats(rows),
     days: days,
@@ -1332,45 +1467,45 @@ function apiStats(force) {
   // 每個維度各自算分母：rows 已排除「未填」，blank 另外帶給前端標註
   stats.profile = profileDims.map(function (d) {
     let blank = 0;
-    clean.forEach(function (r) { if (_mergeOther(r[d[0]]) === '未填') blank++; });
+    base.forEach(function (r) { if (_mergeOther(r[d[0]]) === '未填') blank++; });
     return {
       key: d[0], title: d[1], ord: !!d[2],
-      rows: _countBy(clean, d[0], d[2], 'answered'),
-      answered: clean.length - blank,
+      rows: _countBy(base, d[0], d[2], 'answered'),
+      answered: base.length - blank,
       blank: blank,
-      base: clean.length
+      base: base.length
     };
   });
 
   // ── 複選題 ──
   stats.multi = [
-    { key: 'job_contents',   title: '現職工作內容', rows: _countByMulti(clean, 'job_contents') },
-    { key: 'benefits',       title: '公司提供的福利', rows: _countByMulti(clean, 'benefits') },
-    { key: 'skills',         title: '其他專業能力', rows: _countByMulti(clean, 'skills') },
-    { key: 'other_licenses', title: '其他證照',     rows: _countByMulti(clean, 'other_licenses') },
-    { key: 'intl_licenses',  title: '國際職安證照', rows: _countByMulti(clean, 'intl_licenses') }
+    { key: 'job_contents',   title: '現職工作內容', rows: _countByMulti(base, 'job_contents') },
+    { key: 'benefits',       title: '公司提供的福利', rows: _countByMulti(base, 'benefits') },
+    { key: 'skills',         title: '其他專業能力', rows: _countByMulti(base, 'skills') },
+    { key: 'other_licenses', title: '其他證照',     rows: _countByMulti(base, 'other_licenses') },
+    { key: 'intl_licenses',  title: '國際職安證照', rows: _countByMulti(base, 'intl_licenses') }
   ];
 
   // ── 薪資與工時 ──
-  stats.salary.overall = _salaryStat(clean);
+  stats.salary.overall = _salaryStat(base);
   stats.overtime = _numericStat(
-    clean.map(function (r) { return r.ot_monthly; })
+    base.map(function (r) { return r.ot_monthly; })
          .filter(function (v) { return _pos(v) && v <= OUTLIER.otMax; }));
   stats.leave = _numericStat(
-    clean.map(function (r) { return _num(r.annual_leave_days); })
+    base.map(function (r) { return _num(r.annual_leave_days); })
          .filter(function (v) { return !isNaN(v) && v >= 0 && v <= 60; }));
 
   // ── 逐列匿名資料（前端自己算子集合用）──
-  stats.micro = _buildMicro(clean);
+  stats.micro = _buildMicro(base);
 
   // ── 分析結論 ──
-  stats.analysis = _buildAnalysis(clean);
+  stats.analysis = _buildAnalysis(base);
 
   try {
     const rowsStr = stats.micro.rows;
     stats.micro.rows = '';
-    cache.put(CACHE_KEY, JSON.stringify(stats), CACHE_SEC);
-    cache.put(CACHE_KEY_MICRO, rowsStr, CACHE_SEC);
+    cache.put(_ckey(trimOn), JSON.stringify(stats), CACHE_SEC);
+    cache.put(_ckeyMicro(trimOn), rowsStr, CACHE_SEC);
     stats.micro.rows = rowsStr;
   } catch (e) {}
   return stats;
@@ -2128,7 +2263,7 @@ function adminClear(pw, target) {
     if (n > 0) sh.deleteRows(2, n);
     done.push(name + ' ' + Math.max(0, n) + ' 筆');
   });
-  CacheService.getScriptCache().remove(CACHE_KEY);
+  _clearStats();
   _log('admin_clear', '清除 ' + done.join('、'));
   const s = adminSummary(pw);
   s.message = '已清除：' + (done.length ? done.join('、') : '沒有可清除的資料');
@@ -2145,7 +2280,7 @@ function adminDeleteResponse(pw, respId) {
   for (let i = 0; i < ids.length; i++) {
     if (String(ids[i][0]).trim() === String(respId).trim()) {
       sh.deleteRow(i + 2);
-      CacheService.getScriptCache().remove(CACHE_KEY);
+      _clearStats();
       _log('admin_delete', '刪除回覆 ' + respId);
       const s = adminSummary(pw);
       s.message = '已刪除 ' + respId;
@@ -2183,7 +2318,7 @@ function adminDeleteResponses(pw, ids) {
     .sort(function (a, b) { return b - a; })
     .forEach(function (r) { sh.deleteRow(r); });
 
-  CacheService.getScriptCache().remove(CACHE_KEY);
+  _clearStats();
   found.forEach(function (id) { _log('admin_delete', '刪除回覆 ' + id); });
 
   const s = adminSummary(pw);
@@ -2331,7 +2466,7 @@ function adminEditSalary(pw, respId, patch) {
         .setValue(Math.round(now.bonus / now.monthly * 10) / 10);
     }
 
-    CacheService.getScriptCache().remove(CACHE_KEY);
+    _clearStats();
     // 修正後若已不算異常，回覆資料上的 outlier_reason 會被清成空字串，
     // 「當初為什麼要修」只剩日誌記得 —— 報告的修正說明就是靠這一段。
     const whyChk = _checkOutlier(before.monthly, before.bonus, before.annual, before.ot);
@@ -2401,7 +2536,7 @@ function adminSetOutlier(pw, respId, include) {
       : chk.reason;
     sh.getRange(r, idx.outlier + 1).setValue(flag);
     sh.getRange(r, idx.outlier_reason + 1).setValue(reason);
-    CacheService.getScriptCache().remove(CACHE_KEY);
+    _clearStats();
     _log('admin_outlier', respId + ' → ' + (include ? '計入統計' : '排除'));
     const s = adminSummary(pw);
     s.message = respId + ' 已設為' + (include ? '<b>計入統計</b>' : '<b>排除於統計</b>');
@@ -2413,6 +2548,78 @@ function adminSetOutlier(pw, respId, include) {
 // ══════════════════════════════════
 // 後台統計（監控導向，跟對外報告分工不同）
 // ══════════════════════════════════
+// ══════════════════════════════════
+// 後台：極端值剃除（統計口徑）
+// 剃除前／剃除後兩組數字一起回傳，讓管理者自己比較再決定報告要不要套用
+// ══════════════════════════════════
+function _trimRowOut(c) {
+  return {
+    id: c.row.resp_id, why: c.why, tail: c.tail,
+    monthly: c.row.monthly_salary, bonus: c.row.annual_bonus,
+    annual: c.row.annual_total,
+    cat: _mergeOther(c.row.job_category), yrs: c.row.yrs_band,
+    city: c.row.work_city, source: c.row.source
+  };
+}
+
+function adminGetTrim(pw) {
+  _auth(pw);
+  const rows = _readResponses();
+  const clean = rows.filter(function (r) { return !r.outlier; });
+  const split = _trimSplit(clean);
+  const on = _trimOn();
+  const applied = on && split.cut.length > 0 && split.kept.length >= MIN_PUBLIC_N;
+
+  return {
+    ok: true,
+    on: on,
+    applied: applied,
+    k: TRIM_K,
+    tails: TRIM_TAILS,
+    minN: TRIM_MIN_N,
+    minPublicN: MIN_PUBLIC_N,
+    fields: TRIM_FIELDS.map(function (f) { return { key: f[0], label: f[1] }; }),
+    fence: split.fence,
+    n: { before: clean.length, after: split.kept.length },
+    before: _salaryStat(clean),
+    after: _salaryStat(split.kept),
+    overtime: {
+      before: _numericStat(clean.map(function (r) { return r.ot_monthly; })
+                                .filter(function (v) { return _pos(v) && v <= OUTLIER.otMax; })),
+      after: _numericStat(split.kept.map(function (r) { return r.ot_monthly; })
+                                   .filter(function (v) { return _pos(v) && v <= OUTLIER.otMax; }))
+    },
+    cut: split.cut.map(_trimRowOut)
+      .sort(function (a, b) { return (Number(b.annual) || 0) - (Number(a.annual) || 0); }),
+    // 落在下界外、但 TRIM_TAILS='high' 刻意保留的那幾筆：讓管理者看得到自己留了什麼
+    low: split.low.map(_trimRowOut)
+      .sort(function (a, b) { return (Number(a.annual) || 0) - (Number(b.annual) || 0); }),
+    blocked: (on && split.cut.length && !applied)
+      ? '剃除後只剩 ' + split.kept.length + ' 筆，低於公開門檻 ' + MIN_PUBLIC_N +
+        ' 筆，報告目前自動改用「不剃除」'
+      : '',
+    legacyTag: LEGACY_TAG,
+    generatedAt: Utilities.formatDate(new Date(), 'Asia/Taipei', 'yyyy-MM-dd HH:mm')
+  };
+}
+
+// on = true → 分析報告（含填答者看到的百分位）改用剃除後的母體
+function adminSetTrim(pw, on) {
+  _auth(pw);
+  const props = PropertiesService.getScriptProperties();
+  if (on) props.setProperty(PROP_TRIM, '1');
+  else props.deleteProperty(PROP_TRIM);
+  _clearStats();
+  _log('admin_trim', '分析報告極端值剃除：' + (on ? '開啟（Tukey ' + TRIM_K + ' 倍 IQR）' : '關閉'));
+  const r = adminGetTrim(pw);
+  r.message = on
+    ? (r.applied
+        ? '已開啟剃除：報告母體 <b>' + r.n.after + '</b> 筆（剃掉 ' + r.cut.length + ' 筆極端值）'
+        : '已開啟剃除，但' + (r.cut.length ? r.blocked : '目前沒有任何一筆落在上下界外，數字不會變'))
+    : '已關閉剃除：報告改用全部 <b>' + r.n.before + '</b> 筆有效資料';
+  return r;
+}
+
 const ADMIN_DIMS = [
   ['job_category',     '行業別'],
   ['yrs_band',         '年資'],
@@ -2624,12 +2831,12 @@ function recalcDerivedColumns() {
     }
   });
   sh.getRange(2, 1, values.length, RESP_HEADERS.length).setValues(values);
-  CacheService.getScriptCache().remove(CACHE_KEY);
+  _clearStats();
   return '已重算 ' + values.length + ' 筆' +
     (migrated ? '，其中 ' + migrated + ' 筆的欄位已搬回正確位置（補上國際證照兩欄）' : '');
 }
 
 function clearStatsCache() {
-  CacheService.getScriptCache().remove(CACHE_KEY);
+  _clearStats();
   return '快取已清除';
 }

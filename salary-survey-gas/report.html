@@ -20,6 +20,7 @@
   --brand-soft:#e8f5ef; --brand-line:#bfe0d1;
   --gold:#b8862b; --gold-soft:#fdf5e3; --gold-line:#ecd9a8;
   --warm:#c0486b; --warm-soft:#fdeef2; --warm-line:#f0ccd8;
+  --alert:#b0341f; --alert-soft:#fdeeea; --alert-line:#e8a492;
   --r:18px; --sh:0 2px 4px rgba(11,27,43,.04),0 12px 32px -8px rgba(11,27,43,.10);
 }
 *{box-sizing:border-box}
@@ -268,6 +269,19 @@ tbody tr:hover{background:#fafcfe}
 .fl-res .locked{font-size:13px;color:#8a6516;background:var(--gold-soft);
   border:1px solid var(--gold-line);border-radius:11px;padding:12px 14px;line-height:1.7}
 
+/* 資料處理公告：報告的第一句話。數字怎麼被動過，讀者第一眼就該看到，所以用紅框獨立出來 */
+.dnote{border:2px solid var(--alert-line);background:linear-gradient(170deg,var(--alert-soft),#fff);
+  border-radius:var(--r);padding:18px 22px;margin:22px 0 0;position:relative;
+  box-shadow:var(--sh)}
+.dnote h2{margin:0 0 7px;font-size:15.5px;font-weight:900;color:var(--alert);
+  display:flex;align-items:center;gap:8px;letter-spacing:.2px}
+.dnote h2 span{font-size:17px;line-height:1}
+.dnote p{margin:0;font-size:13.5px;line-height:1.85;color:var(--ink-2)}
+.dnote p+p{margin-top:8px}
+.dnote b{color:var(--alert)}
+.dnote .q{font-size:12.5px;color:var(--ink-3);margin-top:9px}
+.dnote .q b{color:var(--ink-2)}
+@media print{.dnote{box-shadow:none;break-inside:avoid}}
 .notes{list-style:decimal;padding-left:22px;margin:8px 0 0;font-size:13px;color:var(--ink-2)}
 .notes li{margin:6px 0;line-height:1.75}
 .cav{display:grid;gap:9px}
@@ -775,6 +789,97 @@ function secFix(k) {
         '整筆不納入任何薪資統計。</p>' : '');
 }
 
+/* 報告的第一句話：數字在統計前被怎麼動過 —— 用什麼方法剔除、剔除了幾筆。
+   寫在最上面的紅框，讀者不必翻到最後的「資料限制與備註」才知道口徑。 */
+function secDataNote() {
+  var k = ST.intake || {}, t = ST.trim || null;
+  var fixed = fixN(k), ex = ST.excluded || 0;
+  var trimmed = t && t.applied && t.cut ? t.cut : 0;
+  var hiOnly = !t || t.tails !== 'both';
+
+  // ① 用什麼方法：規則判定的填寫錯誤（修正／排除）＋ 統計方法剃除的極端值
+  var how = [];
+  if (fixed) how.push('修正 <b>' + fixed + '</b> 筆明顯填寫錯誤的金額');
+  if (ex) how.push('排除 <b>' + ex + '</b> 筆數字互相矛盾、無法推回合理值的回覆');
+  if (trimmed) {
+    var fc = (t.fence && t.fence.monthly_salary) || null;
+    var fa = (t.fence && t.fence.annual_total) || null;
+    var at = [];
+    if (fc) at.push('月薪 ' + wan(fc.hi));
+    if (fa) at.push('全年收入 ' + wan(fa.hi));
+    how.push((how.length ? '再' : '') + '以統計上常用的 <b>Tukey ' + esc(String(t.k)) +
+      ' 倍四分位距法</b>（上界 ＝ P75 ＋ ' + esc(String(t.k)) + '×IQR' +
+      (at.length ? '，本次為' + at.join('、') : '') + '）' +
+      '剃除 <b>' + trimmed + '</b> 筆高於上界的極端值');
+  }
+
+  var head = '<h2><span>⚠️</span>資料處理與統計口徑</h2>';
+  if (!how.length) {
+    return '<div class="dnote">' + head +
+      '<p>本報告<b>未修正、未排除、未剃除</b>任何一筆資料，' +
+      '所有 <b>' + ST.total + '</b> 筆有效回覆原封不動納入統計。</p></div>';
+  }
+
+  // 前面是「規則判定的填寫錯誤」，最後一項是「統計方法剃除」，用分號斷開才不會唸成一串
+  var howText = trimmed && how.length > 1
+    ? how.slice(0, -1).join('、') + '；' + how[how.length - 1]
+    : how.join('、');
+  return '<div class="dnote">' + head +
+    '<p>為避免少數極端值讓分析失準，本報告在統計前先' + howText + '，' +
+    '最終以 <b>' + ST.total + '</b> 筆資料計算' +
+    (trimmed ? '（剃除前為 ' + t.beforeN + ' 筆）' : '') + '。</p>' +
+    (trimmed
+      ? '<p>' + (hiOnly
+          ? '<b>低薪端不剃除</b>：剃掉低薪會讓每一條百分位虛高，' +
+            '也等於把新人、派遣、沒有年終的同業從「市場」裡刪掉；' +
+            '真正低到不合理的數字已由上述規則處理。'
+          : '上下兩端都以同一條界線剃除。') +
+        '剃除只影響<b>平均數</b>這類容易被單筆拉動的指標，<b>中位數</b>幾乎不受影響；' +
+        '界線怎麼算、剃掉幾筆，詳見文末「資料限制與備註」。</p>'
+      : '<p>本次未剃除任何極端值，所有有效資料全部納入計算；' +
+        '處理依據詳見文末「資料限制與備註」。</p>') +
+    '<p class="q">原始回覆完整保留於後台，所有處理都留有紀錄可供查核。' +
+    '本報告只呈現彙總統計與匿名級距資料，不含任何可識別個人的內容。</p>' +
+    '</div>';
+}
+
+/* 極端值剃除：動到所有數字的處理，一定要在報告上講清楚界線怎麼畫、剃掉幾筆 */
+function secTrim() {
+  var t = ST.trim;
+  if (!t || !t.applied || !t.cut) return '';
+  var fence = t.fence || {};
+  var rows = (t.fields || []).map(function (f) {
+    var fc = fence[f.key];
+    if (!fc) return '';
+    return '<tr><td class="tl">' + esc(f.label) + '</td>' +
+      '<td class="tnum">' + wan(fc.p25) + '</td>' +
+      '<td class="tnum">' + wan(fc.p75) + '</td>' +
+      '<td class="tnum">' + (fc.lo > 0 ? wan(fc.lo) : '不設下界') + '</td>' +
+      '<td class="tnum">' + wan(fc.hi) + '</td></tr>';
+  }).join('');
+  return '<h3>極端值剃除</h3>' +
+    '<p class="lead">本次樣本數有限，少數特別高的收入會把<b>平均數</b>整體拉高，' +
+    '因此以統計上常用的 <b>Tukey ' + esc(String(t.k)) + ' 倍四分位距</b>為界' +
+    '（上界 ＝ P75 ＋ ' + esc(String(t.k)) + '×IQR' +
+    (t.tails === 'both' ? '、下界 ＝ P25 − ' + esc(String(t.k)) + '×IQR' : '') +
+    '），把月薪或全年收入<b>高於上界</b>的 <b>' + t.cut + '</b> 筆整列排除，' +
+    '本報告所有圖表都以剩下的 <b>' + t.kept + '</b> 筆計算' +
+    '（剃除前為 ' + t.beforeN + ' 筆）。這些資料本身沒有矛盾，只是數字特別極端；' +
+    '中位數幾乎不受剃除影響，受影響的主要是平均數。</p>' +
+    (t.tails === 'both'
+      ? '<p class="lead">下界外的資料同樣剃除。</p>'
+      : '<p class="lead"><b>低薪端一律保留</b>' +
+        (t.lowKept ? '（本次有 ' + t.lowKept + ' 筆低於下界，全部計入）' : '') +
+        '：剃掉低薪會讓每一條百分位虛高，讀者照著開口容易踩空，' +
+        '也等於把新人、派遣、沒有年終的同業從「市場」裡刪掉。' +
+        '薪資分布的低端本來就被基本工資壓住，真正低到不合理的數字幾乎都是填寫錯誤，' +
+        '已由上方「異常值處理」的規則（月薪 2 萬、全年收入 20 萬為下限）處理掉。</p>') +
+    (rows ? '<div class="tw"><table><thead><tr><th>判界欄位</th><th>P25</th><th>P75</th>' +
+      '<th>下界' + (t.tails === 'both' ? '' : '（不剃，僅供參考）') + '</th>' +
+      '<th>上界（剃這邊）</th></tr></thead><tbody>' + rows +
+      '</tbody></table></div>' : '');
+}
+
 function secProfile(prof) {
   if (!prof || !prof.length) return '';
   var isOrd = function (p) {
@@ -1213,10 +1318,17 @@ function secCaveats(a) {
       c.map(function (x) { return '<div><span>' + esc(x) + '</span></div>'; }).join('') + '</div>';
   }
   h += secFix(k);
+  h += secTrim();
+  var tr = ST.trim;
   h += '<h3>備註</h3><ol class="notes">' +
     '<li>本結果係透過線上問卷蒐集資料，對明顯填寫有誤的金額先行修正、無法修正者排除後，' +
       '再進行統計分析（本次修正 ' + fixN(k) + ' 筆、排除 ' + ST.excluded +
       ' 筆，修正依據見上方「異常值處理」）。</li>' +
+    ((tr && tr.applied && tr.cut)
+      ? '<li>為避免少數極端值拉高平均數，另以 Tukey ' + esc(String(tr.k)) +
+        ' 倍四分位距為界剃除 ' + tr.cut + ' 筆界外資料，本報告統計母體為 ' + tr.kept +
+        ' 筆（詳見上方「極端值剃除」）。</li>'
+      : '') +
     ((k && k.legacyN)
       ? '<li>其中 ' + k.legacyN + ' 筆來自「' + esc(k.legacyTag) +
         '」，問的是 2022 年度收入，與本次的 ' + ST.year + ' 年度不同年份，會把中位數往下拉。</li>'
@@ -1273,13 +1385,16 @@ function render() {
 
   $('#hSub').textContent = '資料更新時間 ' + ST.generatedAt +
     '　·　本報告僅呈現彙總統計與匿名級距資料，不含任何個別填答內容';
+  var trimmed = ST.trim && ST.trim.applied && ST.trim.cut;
   $('#hMeta').innerHTML = [
     ['調查截止日', ST.deadline || BOOT.endRoc],
     ['有效樣本', ST.total + ' 筆'],
     ['已修正異常值', fixN(ST.intake) + ' 筆'],
+    // 統計口徑會改變每一張圖的數字，所以直接寫在頁首，不讓讀者翻到最後才知道
+    (trimmed ? ['統計口徑', '已剃除 ' + ST.trim.cut + ' 筆極端值'] : null),
     ['薪資年度', ST.year + ' 年度'],
     ['統計門檻', 'n ≥ ' + ST.minPublicN]
-  ].map(function (m) {
+  ].filter(Boolean).map(function (m) {
     return '<div><div class="k">' + esc(m[0]) + '</div><div class="v">' + esc(m[1]) + '</div></div>';
   }).join('');
 
@@ -1291,6 +1406,8 @@ function render() {
 
   var a = ST.analysis || null;
   $('#app').innerHTML =
+    // 資料處理公告永遠排第一，不受後台的章節順序影響
+    secDataNote() +
     // 章節順序由後台決定（Script Properties，見程式碼.js 的 REPORT_SECTIONS）。
     // 這裡的鍵要跟後端 REPORT_SECTIONS 的 key 對得上，少一個就會整段消失。
     buildSections(a);

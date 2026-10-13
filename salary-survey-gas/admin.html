@@ -105,7 +105,18 @@ table{border-collapse:collapse;width:100%;font-size:13px;margin-top:12px}
 th,td{border:1px solid var(--line);padding:7px 9px;text-align:left}
 th{background:var(--line-2);font-size:12px;color:var(--ink-3);font-weight:600}
 td.n{text-align:right;font-variant-numeric:tabular-nums}
+th.n{text-align:right}
+th.tl,td.tl{text-align:left}
 tr.out td{background:#fdf6f4;color:var(--red)}
+/* ── 極端值剃除：前後對照表 ── */
+.tw{overflow-x:auto}
+.tw table{margin-top:0}
+.tr-c th{white-space:nowrap}
+.tr-c .after{background:var(--brand-soft)}
+.tr-c td.after{font-weight:700;color:var(--brand-dk)}
+.tr-d{font-weight:700;font-size:12px;white-space:nowrap}
+.tr-d.dn{color:var(--brand-dk)}
+.tr-d.up{color:var(--red)}
 .mono{font-family:ui-monospace,Consolas,monospace;font-size:11.5px}
 
 .win{border:1px solid var(--gold-line);background:var(--gold-soft);border-radius:13px;
@@ -428,6 +439,18 @@ function renderPanel(message) {
       '<div id="stats"><p class="hint">載入中…</p></div>' +
     '</div>' +
 
+    '<div class="card"><h2>極端值剃除（平均數校正）</h2>' +
+      '<p class="hint">樣本數不多的時候，一兩筆特別高的薪水就能把<b>平均數</b>整體拉高，' +
+      '看起來像「大家都領這麼多」。這裡用統計上標準的 <b>Tukey 1.5 倍四分位距</b>' +
+      '（上界 ＝ P75 ＋ 1.5×IQR）把<b>高於上界</b>的點剃掉 ——' +
+      '<b>低薪端一律保留</b>，剃掉低薪會讓百分位虛高、也等於把新人與派遣從市場裡刪掉。' +
+      '先比較剃除前後的數字，再決定<b>分析報告要不要套用</b>。' +
+      '這跟上面的「異常值審核」是兩件事：那邊處理的是<b>填錯的資料</b>，' +
+      '這裡處理的是<b>真實但太極端</b>的資料。剃除只影響報告呈現，' +
+      '試算表裡的原始資料一筆都不會動。</p>' +
+      '<div id="trim"><p class="hint">載入中…</p></div>' +
+    '</div>' +
+
     '<div class="card"><h2>報告章節順序</h2>' +
       '<p class="hint">分析報告上各區塊的先後順序。<b>只有這裡能調</b>，' +
       '看報告的人沒有任何可以改順序的地方；存檔後他們重新整理就會看到新的排法。</p>' +
@@ -530,7 +553,8 @@ function renderStats() {
   box.innerHTML =
     secIntake(d) + secSalary(d) + secRank(d) + secCross(d) + secSource(d) + secQuality(d) +
     '<p class="hint" style="margin:18px 0 0;text-align:right">統計時間 ' + esc(d.generatedAt) +
-    '　|　已排除 ' + d.outliers + ' 筆異常值</p>';
+    '　|　已排除 ' + d.outliers + ' 筆異常值　|　口徑：<b>未剃除極端值</b>' +
+    '（剃除後的數字見下方「極端值剃除」卡片）</p>';
   bindRankTabs();
 }
 
@@ -900,10 +924,186 @@ function bindPanel() {
 
   bindClearButtons();
   bindDeleteByIds();
+  loadTrim();
   loadOrder();
   loadNotify();
   loadStats();
   loadRows();
+}
+
+/* ── 極端值剃除 ──
+   後端一次把「剃除前」與「剃除後」兩組統計都算好回傳，前端只負責排版比較；
+   開關是立即生效（送出去就改 Script Properties 並清快取），報告重新整理就會換口徑。 */
+var TRIM = null;
+
+function loadTrim() {
+  var box = $('#trim');
+  if (!box) return;
+  call('adminGetTrim', [PW],
+    function (r) { TRIM = r; paintTrim(); },
+    function (m) { if ($('#trim')) $('#trim').innerHTML = '<div class="msg err">' + esc(m) + '</div>'; });
+}
+
+/* 平均數被拉高多少：剃除後 − 剃除前 */
+function trimDelta(before, after) {
+  var b = Number(before), a = Number(after);
+  if (!(b > 0) || !(a > 0)) return '—';
+  var d = a - b, pct = Math.round(d / b * 1000) / 10;
+  if (Math.abs(pct) < 0.05) return '持平';
+  var cls = d < 0 ? 'dn' : 'up';
+  return '<span class="tr-d ' + cls + '">' + (d > 0 ? '+' : '−') + wan(Math.abs(d)) +
+    '（' + (d > 0 ? '+' : '−') + Math.abs(pct) + '%）</span>';
+}
+
+function paintTrim() {
+  var box = $('#trim'), t = TRIM;
+  if (!box || !t) return;
+  if (!t.n.before) {
+    box.innerHTML = '<p class="hint" style="margin:0">目前還沒有有效資料，無法計算上下界。</p>';
+    return;
+  }
+
+  // ① 上下界：樣本太少或大家填得一樣（IQR=0）時，那一欄不判，fence 會是空的
+  var fenceRows = t.fields.map(function (f) {
+    var fc = t.fence && t.fence[f.key];
+    if (!fc) {
+      return '<tr><th class="tl">' + esc(f.label) + '</th>' +
+        '<td colspan="5" class="hint" style="margin:0">有效筆數不足 ' + t.minN +
+        ' 筆（或四分位距為 0），這一欄不列入判斷</td></tr>';
+    }
+    var both = t.tails === 'both';
+    return '<tr><th class="tl">' + esc(f.label) + '</th>' +
+      '<td class="n">' + wan(fc.p25) + '</td>' +
+      '<td class="n">' + wan(fc.p75) + '</td>' +
+      '<td class="n">' + wan(fc.iqr) + '</td>' +
+      '<td class="n"' + (both ? '' : ' style="color:var(--ink-4)"') + '>' +
+        (fc.lo > 0 ? wan(fc.lo) : '—') + (both ? '' : '<br><em style="font-style:normal;' +
+        'font-size:10.5px">不剃，全部保留</em>') + '</td>' +
+      '<td class="n after"><b>' + wan(fc.hi) + '</b></td></tr>';
+  }).join('');
+
+  // ② 剃除前後對照：三個金額各一列
+  var metrics = [
+    ['月薪', 'monthly'], ['年終獎金', 'bonus'], ['全年本業總收入', 'annual']
+  ];
+  var cmpRows = metrics.map(function (m) {
+    var b = t.before[m[1]] || {}, a = t.after[m[1]] || {};
+    var cell = function (bv, av) {
+      return '<td class="n">' + wan(bv) + '</td><td class="n after">' + wan(av) + '</td>';
+    };
+    return '<tr><th class="tl">' + m[0] + '</th>' +
+      cell(b.mean, a.mean) +
+      '<td class="n">' + trimDelta(b.mean, a.mean) + '</td>' +
+      cell(b.median, a.median) +
+      cell(b.p75, a.p75) +
+      cell(b.max, a.max) +
+      '</tr>';
+  }).join('');
+
+  // ③ 被剃掉的那幾筆（只有後台看得到；報告上只會出現筆數與上下界）
+  var rowList = function (list, whyHead) {
+    return '<div class="tw"><table><thead><tr><th>編號</th><th class="n">月薪</th>' +
+      '<th class="n">年終</th><th class="n">年收入</th><th>行業／年資</th>' +
+      '<th>' + whyHead + '</th></tr></thead><tbody>' +
+      list.map(function (c) {
+        return '<tr><td class="mono">' + esc(c.id) + '</td>' +
+          '<td class="n">' + wan(c.monthly) + '</td>' +
+          '<td class="n">' + wan(c.bonus) + '</td>' +
+          '<td class="n"><b>' + wan(c.annual) + '</b></td>' +
+          '<td>' + esc(c.cat || '—') + '　' + esc(c.yrs || '') +
+            (String(c.source) === (TRIM.legacyTag || '2023調查匯入')
+              ? '<span class="tagk src" style="margin-left:6px">匯入</span>' : '') + '</td>' +
+          '<td>' + esc(c.why) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  };
+  var cutTable = !t.cut.length
+    ? '<p class="hint" style="margin:0">目前沒有任何一筆落在上界外，開關開不開都不會改變數字。</p>'
+    : rowList(t.cut, '為什麼被剃掉');
+  var low = t.low || [];
+  var lowSec = !low.length ? '' :
+    '<div class="sec"><h3>低薪端保留的 ' + low.length + ' 筆</h3>' +
+      '<p>這幾筆落在下界外，但<b>刻意保留</b>。剃掉低薪的人會讓每一條百分位虛高，' +
+      '讀者照著開口容易踩空，也等於把派遣、新人、沒年終的同業從「市場」裡刪掉；' +
+      '而真正低到不合理的數字（月薪 &lt; 2 萬、年收入 &lt; 20 萬）已經由「異常值審核」攔下。</p>' +
+      rowList(low, '落在下界外的原因（仍計入統計）') + '</div>';
+
+  box.innerHTML =
+    '<div class="kpi">' +
+      '<div><b class="num">' + t.n.before + '</b><span>剃除前（有效樣本）</span></div>' +
+      '<div class="' + (t.applied ? 'hot' : '') + '"><b class="num">' + t.n.after +
+        '</b><span>剃除後</span></div>' +
+      '<div class="' + (t.cut.length ? 'bad' : '') + '"><b class="num">' + t.cut.length +
+        '</b><span>高於上界（剃除）</span></div>' +
+      '<div><b class="num">' + (t.low || []).length + '</b><span>低於下界（保留）</span></div>' +
+      '<div><b class="num" style="font-size:16px;padding-top:5px">' +
+        (t.applied ? '已套用' : (t.on ? '開啟但未套用' : '未套用')) +
+        '</b><span>分析報告目前</span></div>' +
+    '</div>' +
+
+    '<div class="sec"><h3>剃除前 vs 剃除後</h3>' +
+      '<p>深色的那一欄是剃除後。<b>平均數</b>通常會往下修，<b>中位數</b>幾乎不動 ——' +
+      ' 這正好說明「平均被少數高薪拉高了」。</p>' +
+      '<div class="tw"><table class="tr-c"><thead>' +
+        '<tr><th rowspan="2" class="tl">項目</th><th colspan="3">平均數</th>' +
+          '<th colspan="2">中位數</th><th colspan="2">P75</th><th colspan="2">最高值</th></tr>' +
+        '<tr><th class="n">前</th><th class="n after">後</th><th class="n">變化</th>' +
+          '<th class="n">前</th><th class="n after">後</th>' +
+          '<th class="n">前</th><th class="n after">後</th>' +
+          '<th class="n">前</th><th class="n after">後</th></tr>' +
+      '</thead><tbody>' + cmpRows + '</tbody></table></div></div>' +
+
+    '<div class="sec"><h3>上下界怎麼算出來的</h3>' +
+      '<p>以 ' + esc(String(t.k)) + ' 倍四分位距為界，月薪或全年收入<b>任一個高於上界</b>，' +
+      '這一筆就整列不納入統計（母體一致，各張圖的 n 才對得起來）。' +
+      (t.tails === 'both'
+        ? '目前設定為<b>上下都剃</b>。'
+        : '<b>只剃高端</b>：低於下界的一律保留（下一節會列出是哪幾筆）。') +
+      '年終獎金不列入判斷：0 元是合理答案，而誇張的年終已經由「異常值審核」那邊攔下。</p>' +
+      '<div class="tw"><table><thead><tr><th class="tl">欄位</th><th class="n">P25</th>' +
+        '<th class="n">P75</th><th class="n">IQR</th><th class="n">下界</th>' +
+        '<th class="n after">上界（剃這邊）</th></tr></thead><tbody>' + fenceRows +
+        '</tbody></table></div></div>' +
+
+    '<div class="sec"><h3>高於上界的 ' + t.cut.length + ' 筆</h3>' +
+      '<p>這些是「資料本身沒有矛盾、但數字特別極端」的回覆。' +
+      '原始資料完整保留在試算表裡，只是不計入報告的統計。</p>' +
+      cutTable + '</div>' +
+    lowSec +
+
+    '<div class="ol-f" style="margin-top:20px">' +
+      '<p><b>分析報告的統計口徑</b>　勾選後，報告上所有圖表（薪資箱型圖、交叉分析、' +
+      '自訂條件、分析結論）與填答者送出問卷後看到的百分位，都改用剃除後的母體，' +
+      '報告<b>第一句話的紅框</b>會自動寫出用了什麼統計方法、剃掉幾筆，' +
+      '文末「資料限制與備註」再附上上下界表格。' +
+      '剃除後若低於公開門檻 ' + t.minPublicN + ' 筆，系統會自動改回不剃除。</p>' +
+      '<label class="ol-c" id="trimLbl" style="margin:0"><input type="checkbox" id="trimOn"' +
+        (t.on ? ' checked' : '') + '><span>分析報告剃除極端值（Tukey ' + esc(String(t.k)) +
+        ' 倍 IQR，' + (t.tails === 'both' ? '上下都剃' : '只剃高端') + '）</span></label>' +
+      (t.blocked ? '<p class="ol-r" style="margin:11px 0 0">⚠️ ' + esc(t.blocked) + '</p>' : '') +
+      '<div class="btns" style="margin-top:12px">' +
+        '<button class="btn g" id="trimRefresh">重新計算</button>' +
+      '</div>' +
+    '</div>' +
+    '<p class="hint" style="margin:12px 0 0;text-align:right">計算時間 ' +
+      esc(t.generatedAt || '') + '</p>';
+
+  $('#trimOn').addEventListener('change', function () {
+    var on = this.checked;
+    this.disabled = true;
+    call('adminSetTrim', [PW, on], function (r) {
+      TRIM = r; paintTrim(); toast(r.message, 'ok');
+      loadStats();   // 上面那張「統計數據」永遠是剃除前的口徑，順手重抓以免看起來不一致
+    }, function (m) {
+      var el = $('#trimOn');
+      if (el) { el.disabled = false; el.checked = !on; }
+      defaultFail(m);
+    });
+  });
+  $('#trimRefresh').addEventListener('click', function () {
+    var b = this; b.disabled = true;
+    $('#trim').innerHTML = '<p class="hint" style="margin:0">重新計算中…</p>';
+    loadTrim();
+  });
 }
 
 /* ── 報告章節順序 ──
