@@ -1468,7 +1468,7 @@ function PhotoBtn({ record }) {
 }
 
 // ─── STATS TAB ───────────────────────────────────────────────
-function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles }) {
+function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOptions }) {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo,   setDateTo]   = useState('');
   const [sortKey,  setSortKey]  = useState('total');
@@ -1593,17 +1593,30 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles }) {
 
       {/* 合計列 + U值 */}
       {(() => {
+        // 「優點」項目不列入 U 值的次數與件數（依項目名稱判斷，無設定時預設項目 7）
+        const meritKeys = new Set(Object.entries(itemOptions || {})
+          .filter(([,v]) => String(v).includes('優點') || String(v).includes('優良'))
+          .map(([k]) => String(k)));
+        if (meritKeys.size === 0 && !(itemOptions && itemOptions['7'])) meritKeys.add('7');
+        const isMerit = it => meritKeys.has(String(it));
+
         const roleStats = {};
-        rows.forEach(r => {
-          const rk = roles[r.issuer];
+        filtered.forEach(r => {
+          const rk = roles[r.issuer || '（未填）'];
           if (!rk) return;
+          const defs = (r.defects && r.defects.length > 0) ? r.defects : [{ item: r.item }];
+          const counted = defs.filter(d => !isMerit(d.item));
+          if (counted.length === 0) return; // 整張都是優點 → 次數不計
           if (!roleStats[rk]) roleStats[rk] = { total:0, defects:0 };
-          roleStats[rk].total += r.total;
-          roleStats[rk].defects += r.defects;
+          roleStats[rk].total++;
+          roleStats[rk].defects += counted.length;
         });
-        const uParts = ['A','B','C'].map(k => roleStats[k] && roleStats[k].total > 0 ? roleStats[k].defects / roleStats[k].total : null);
-        const validU = uParts.filter(v => v !== null);
-        const uVal = validU.length > 0 ? (validU.reduce((s,v)=>s+v,0)/3).toFixed(2) : null;
+        // U 值：只計入有資料的角色，分母＝有資料的角色數（例如 C 沒有或為 0 → 除以 2）
+        const validU = ['A','B','C']
+          .map(k => (roleStats[k] && roleStats[k].total > 0) ? { k, v: roleStats[k].defects / roleStats[k].total } : null)
+          .filter(Boolean);
+        const uVal = validU.length > 0 ? (validU.reduce((s,p)=>s+p.v,0)/validU.length).toFixed(2) : null;
+        const uFormula = `= (${validU.map(p=>`${p.k}件/${p.k}次`).join(' + ')}) / ${validU.length}`;
         return (<>
           <div style={{display:'flex',gap:12,marginBottom:12,flexWrap:'wrap'}}>
             <div style={{flex:1,minWidth:120,background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
@@ -1631,7 +1644,8 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles }) {
               <div style={{flex:1,minWidth:160,background:'linear-gradient(135deg,rgba(124,58,237,.12),rgba(14,165,233,.08))',border:'2px solid rgba(124,58,237,.3)',borderRadius:'var(--radius)',padding:'14px 18px'}}>
                 <div style={{fontSize:11,fontWeight:700,color:'#7c3aed',textTransform:'uppercase',marginBottom:4}}>U 值</div>
                 <div style={{fontFamily:'var(--num)',fontSize:36,fontWeight:900,color:'#7c3aed'}}>{uVal}</div>
-                <div style={{fontSize:9,color:'var(--text-muted)',marginTop:4}}>= (A件/A次 + B件/B次 + C件/C次) / 3</div>
+                <div style={{fontSize:9,color:'var(--text-muted)',marginTop:4}}>{uFormula}</div>
+                <div style={{fontSize:9,color:'var(--text-muted)',marginTop:2}}>※ 不含「優點」項目</div>
               </div>
             )}
           </div>
@@ -2702,6 +2716,7 @@ function App() {
           }
         }} />}
         {tab==='stats' && <StatsTab records={records} onFilterClick={filter=>{ setActiveFilter({...filter, _ts:Date.now()}); setTab('records'); }}
+          itemOptions={config.itemOptions||DEFAULT_ITEMS}
           issuerRoles={config.issuerRoles||{}}
           onSaveRoles={async (newRoles)=>{
             const newConfig = {...config, issuerRoles: newRoles};
