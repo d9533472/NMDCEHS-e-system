@@ -12421,6 +12421,12 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
  border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
 .annBoard .annLive{margin-left:auto;font-size:.7rem;color:var(--accent);letter-spacing:2px}
 .annBoard .annLive::before{content:'●';margin-right:4px;animation:pulse 1.6s infinite}
+/* 公告附件：固定在該則公告最右邊的膠囊鈕（📎＋檔案類型圖示＋「附件」字樣） */
+.annBoard .annClip{margin-left:auto;align-self:center;flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;
+ padding:3px 10px;border:1px solid;border-radius:999px;background:#fff;text-decoration:none;
+ font-size:.78rem;font-weight:700;white-space:nowrap;line-height:1.6;transition:all .15s}
+.annBoard .annClip:hover{background:var(--navy);border-color:var(--navy)!important;color:#fff!important}
+@media(max-width:575.98px){.annBoard .annClip .annClipTxt{display:none}}
 /* (3) 系統管理頁 */
 #viewAdmin .nav-tabs{border:0;gap:6px;flex-wrap:wrap;margin-bottom:4px}
 #viewAdmin .nav-tabs .nav-link{border:1px solid var(--line);border-radius:8px;color:var(--navy);background:#fff;
@@ -12730,13 +12736,19 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       <div id="userList" class="table-responsive"></div>
     </div>
     <div class="tab-pane fade" id="tabCompanies">
+      <!-- 編輯模式提示條（display 由 JS 控制：d-none 與 d-flex 同時掛會被 Bootstrap 的 d-flex 蓋掉） -->
+      <div id="coEditBar" class="alert alert-warning py-1 px-2 small mb-2 align-items-center gap-2" style="display:none">
+        <span>✏️ <b data-i18n="admin.coEditing">Editing an existing company</b>　<b id="coEditName"></b></span>
+        <button class="btn btn-sm btn-outline-secondary ms-auto text-nowrap" onclick="cancelEditCompany()"
+          data-i18n="ann.cancelEdit">Cancel editing</button>
+      </div>
       <div class="row g-2 mb-3">
         <div class="col-md-3"><input id="coNameZh" class="form-control" placeholder="公司名稱（中文）"></div>
         <div class="col-md-3"><input id="coNameEn" class="form-control" placeholder="Company Name (EN)"></div>
         <div class="col-md-3"><select id="coType" class="form-select">
           <option value="Contractor" data-l>Contractor 承商</option><option value="NMDC">NMDC</option><option value="TPC" data-l>TPC 台電</option>
         </select></div>
-        <div class="col-md-3"><button class="btn btn-navy w-100" onclick="addCompany()" data-i18n="admin.addCompany"></button></div>
+        <div class="col-md-3"><button class="btn btn-navy w-100" id="btnCoSave" onclick="saveCompany()"><span id="btnCoSaveTxt" data-i18n="admin.addCompany"></span></button></div>
       </div>
       <div class="d-flex gap-2 mb-2 flex-wrap">
         <input id="coSearch" class="form-control" style="max-width:240px" data-l-ph placeholder="搜尋公司 Search company…" oninput="loadCompanies()">
@@ -13682,7 +13694,7 @@ var STRINGS = {
  'apply.vessel':{en:'Working Vessel',zh:'所屬工作船舶'},'apply.reason':{en:'Application Reason',zh:'申請原因'},
  'apply.tier':{en:'Requested Tier',zh:'預計申請 Tier'},
  'apply.tierGateTitle':{en:'Before you apply — Tier 1–5 roles',zh:'申請前請先確認 Tier 1～5 角色'},
- 'apply.tierGateSub':{en:'Pick the tier that matches your actual role — a wrong tier is the most common reason an application is returned.',zh:'請依實際職務選擇 Tier；選錯層級是申請被退回最常見的原因。'},
+ 'apply.tierGateSub':{en:'Pick the tier that matches your role',zh:'請依實際職務選擇 Tier'},
  'apply.tierGateOk':{en:'I understand — continue',zh:'我了解了，繼續申請'},
  'apply.password':{en:'Password (≥8 chars, letters+numbers)',zh:'密碼（≥8 碼，含英文與數字）'},
  'apply.confirm':{en:'Confirm Password',zh:'確認密碼'},'apply.submit':{en:'Submit Application',zh:'送出申請'},
@@ -13740,7 +13752,7 @@ var STRINGS = {
  'ann.title':{en:'System Announcements',zh:'系統公告'},
  'ann.hint':{en:'choose where each one appears — sign-in page and / or Dashboard',zh:'可分別選擇張貼在登入頁／Dashboard'},
  'ann.publish':{en:'Publish',zh:'發布'},
- 'ann.linkUrl':{en:'Link URL (optional) — shown as an icon',zh:'連結網址（選填）— 公告後方顯示為 icon'},
+ 'ann.linkUrl':{en:'Link URL (optional) — shown as a 📎 Attachment button',zh:'連結網址（選填）— 公告最右邊顯示「📎 附件」鈕'},
  'ann.linkText':{en:'Link label (optional)',zh:'連結說明（選填）'},
  'ann.uploadPdf':{en:'Upload File',zh:'上傳檔案'},
  'ann.uploaded':{en:'File uploaded — link filled in below',zh:'檔案已上傳，連結已自動填入'},
@@ -13789,6 +13801,10 @@ var STRINGS = {
  'admin.delete':{en:'Delete',zh:'刪除'},'admin.deleteUserConfirm':{en:'⚠️ Permanently delete this user from the system? This CANNOT be undone. Historical PTW / approval / audit records are kept, but this person\\'s name will no longer be shown in them.',zh:'⚠️ 確定將此使用者自系統永久刪除？此操作無法復原。歷史 PTW／簽核／稽核紀錄會保留，但其中將無法再顯示此人姓名。'},
  'ptw.delete':{en:'Delete PTW',zh:'刪除 PTW'},'ptw.deleteConfirm':{en:'Delete this PTW? It will be removed from all lists (audit trail is kept).',zh:'確定刪除此 PTW？將自所有清單移除（稽核紀錄保留）。'},
  'admin.resetPw':{en:'Reset Password',zh:'重設密碼'},'admin.addCompany':{en:'Add Company',zh:'新增公司'},
+ 'admin.coEdit':{en:'Edit this company',zh:'編輯此公司'},
+ 'admin.coSave':{en:'Save changes',zh:'儲存變更'},
+ 'admin.coEditing':{en:'Editing an existing company — Save to apply',zh:'正在編輯既有公司 — 按「儲存變更」生效'},
+ 'admin.coEnMissing':{en:'English name is missing or not in English — the sign-up company list will fall back to Chinese',zh:'英文名稱未填或不是英文 — 申請帳號的公司下拉在英文介面會顯示中文'},
  'admin.exportUsers':{en:'Export Users (CSV)',zh:'匯出使用者 (CSV)'},
  'admin.status':{en:'Status',zh:'狀態'},'admin.email':{en:'Email',zh:'Email'},'admin.name':{en:'Name',zh:'姓名'},
  'admin.tier':{en:'Tier',zh:'Tier'},'admin.company':{en:'Company',zh:'公司'},
@@ -13988,6 +14004,8 @@ function applyI18n(){
     });
     apT.innerHTML=h;
   }
+  // 申請帳號 公司下拉：公司名有中英兩種，切語言要跟著重畫（選到的公司會保留）
+  try{ renderCompanyOptions(); }catch(e){}
 }
 function switchLang(l){
   lang=(l==='zh')?'zh':'en';
@@ -14222,18 +14240,30 @@ function showView(v){
   renderAcctMenu(u);
   $('subtitle').textContent=u?(bi(u.nameEn,u.nameZh)+' · Tier '+u.tier+(u.isAdmin?' · Admin':'')):T('app.project');
 }
+/* 申請帳號的公司下拉：抓一次後存在 companyOpts，顯示文字依當下語言重畫。
+   （以前抓到就不再重建，所以先用中文開頁、之後切 EN 時公司名還是中文。） */
+var companyOpts=null;
 function loadCompanyOptions(){
-  var sel=$('apCompany'); if(!sel||sel.options.length>1) return;
+  var sel=$('apCompany'); if(!sel) return;
+  if(companyOpts){ renderCompanyOptions(); return; }
   api('company.options',{}).then(function(res){
     if(!res.ok) return;
-    var h='<option value="">--</option>';
-    res.data.forEach(function(c){
-      var nm=(lang==='zh'?(c.nameZh||c.nameEn):(c.nameEn||c.nameZh));
-      h+='<option value="'+esc(c.nameZh||c.nameEn)+'" data-type="'+esc(c.type||'')+'">'+esc(nm)+(c.type?'（'+esc(c.type)+'）':'')+'</option>';
-    });
-    sel.innerHTML=h;
+    companyOpts=res.data;
+    renderCompanyOptions();
     try{ apDeptSync(); }catch(e){}
   });
+}
+function renderCompanyOptions(){
+  var sel=$('apCompany'); if(!sel||!companyOpts) return;
+  var Z=(lang==='zh'), cur=sel.value;
+  var h='<option value="">--</option>';
+  companyOpts.forEach(function(c){
+    var nm=(Z?(c.nameZh||c.nameEn):(c.nameEn||c.nameZh));
+    var v=c.nameZh||c.nameEn;                      /* value 一律送中文名，後端比對不受語言影響 */
+    h+='<option value="'+esc(v)+'"'+(cur===v?' selected':'')+' data-type="'+esc(c.type||'')+'">'+
+       esc(nm)+(c.type?(Z?'（'+esc(c.type)+'）':' ('+esc(c.type)+')'):'')+'</option>';
+  });
+  sel.innerHTML=h;
 }
 /* 帳號申請：公司下拉選單找不到自家公司時的說明 */
 function showCompanyHelp(){
@@ -14253,8 +14283,9 @@ function showCompanyHelp(){
     okText:'💬 '+(Z?'聯繫系統管理員':'Contact administrator'),
     cancelText:(Z?'關閉':'Close')}).then(function(ok){ if(ok) showContact(); });
 }
-/* Tier 1–5 角色說明內容（「?」說明視窗與按「申請帳號」時的提醒視窗共用同一份） */
-function tierHelpHtml(){
+/* Tier 1–5 角色說明內容（「?」說明視窗與按「申請帳號」時的提醒視窗共用同一份）
+   brief=true：只列角色名稱不列職責說明（申請前的提醒視窗用，詳細內容按 Tier 欄位旁的 ? 看） */
+function tierHelpHtml(brief){
   var Z=(lang==='zh');
   var rows=[
     ['Tier 1',Z?'承商持有人／申請人 Contractor Holder / Applicant':'Contractor Holder / Applicant','C',
@@ -14271,8 +14302,9 @@ function tierHelpHtml(){
     '<span style="color:#0b6bcb;font-weight:700">■ NMDC</span></div><div class="mt-2" style="text-align:left">';
   rows.forEach(function(r){
     var con=(r[2]==='C');
-    h+='<div style="border-left:4px solid '+(con?'#b35c00':'#0b6bcb')+';background:'+(con?'#fdf6ee':'#f2f8fd')+';border-radius:6px;padding:6px 10px;margin-bottom:6px">'+
-      '<b style="color:'+(con?'#b35c00':'#0b6bcb')+'">'+r[0]+'・'+esc(r[1])+'</b><div class="small text-muted">'+esc(r[3])+'</div></div>';
+    h+='<div style="border-left:4px solid '+(con?'#b35c00':'#0b6bcb')+';background:'+(con?'#fdf6ee':'#f2f8fd')+';border-radius:6px;padding:'+(brief?'4px 10px':'6px 10px')+';margin-bottom:'+(brief?'4px':'6px')+'">'+
+      '<b style="color:'+(con?'#b35c00':'#0b6bcb')+'">'+r[0]+'・'+esc(r[1])+'</b>'+
+      (brief?'':'<div class="small text-muted">'+esc(r[3])+'</div>')+'</div>';
   });
   return h+'</div>';
 }
@@ -14289,7 +14321,7 @@ function showPanel(name){
     /* 先看 Tier 1–5 角色說明再填表：每次按「申請帳號」都跳，按下「我了解了」才開申請視窗。
        申請的 Tier 選錯最常造成退件，所以這一關刻意擋在表單前面。 */
     uiDialog({icon:'🪪',title:T('apply.tierGateTitle'),sub:T('apply.tierGateSub'),
-      html:tierHelpHtml(),width:600,okText:T('apply.tierGateOk'),
+      html:tierHelpHtml(true),width:600,okText:T('apply.tierGateOk'),
       cancelText:(lang==='zh'?'先不要':'Not now')}).then(function(ok){
       if(!ok) return;                 /* 按「先不要」＝不開申請表，留在登入頁 */
       ap.classList.remove('d-none');
@@ -15876,7 +15908,7 @@ function annText(s,color){
   }
   return out+esc(src.substring(last));
 }
-/* 公告附加連結 → 文字後方的 icon（依副檔名給圖示，認不出來就用 🔗） */
+/* 公告附加連結 → 一律以 📎 呈現，後面再補檔案類型圖示（認不出類型就只有 📎） */
 var ANN_ICONS=[
   [/\\.pdf$/i,'📄'],
   [/\\.(doc|docx|rtf|odt)$/i,'📝'],
@@ -15889,18 +15921,32 @@ var ANN_ICONS=[
   [/\\.(txt|log|md)$/i,'📃'],
   [/\\.(dwg|dxf)$/i,'📐']
 ];
+/* 檔案類型圖示（檔名優先，Drive 連結網址不含副檔名；認不出來回空字串） */
+function annTypeIcon(a){
+  var name=String((a&&a.linkText)||'').trim();
+  var url=String((a&&a.linkUrl)||'').split(/[?#]/)[0];
+  for(var i=0;i<ANN_ICONS.length;i++){
+    if(ANN_ICONS[i][0].test(name)||ANN_ICONS[i][0].test(url)) return ANN_ICONS[i][1];
+  }
+  return '';
+}
+/* 後台公告清單用的小圖示（文字後方） */
 function annLinkIcon(a,color){
   if(!a||!a.linkUrl) return '';
-  /* 檔名優先（Drive 連結網址不含副檔名），其次才看網址本身 */
-  var name=String(a.linkText||'').trim();
-  var url=String(a.linkUrl).split(/[?#]/)[0];
-  var ic='🔗';
-  for(var i=0;i<ANN_ICONS.length;i++){
-    if(ANN_ICONS[i][0].test(name)||ANN_ICONS[i][0].test(url)){ ic=ANN_ICONS[i][1]; break; }
-  }
   var tip=(a.linkText||T('ann.openLink'));
   return ' <a href="'+esc(a.linkUrl)+'" target="_blank" rel="noopener" title="'+esc(tip)+'" '+
-    'style="text-decoration:none;font-size:1.05rem;color:'+color+'">'+ic+'</a>';
+    'style="text-decoration:none;font-size:1.05rem;color:'+color+'">📎'+annTypeIcon(a)+'</a>';
+}
+/* 公告欄用：固定在整列最右邊的「附件」下載鈕 —— 讓人一眼知道有東西可以下載。
+   st＝renderAnnouncements 的配色組（[底色,框線,文字色,emoji]）。 */
+function annLinkChip(a,st){
+  if(!a||!a.linkUrl) return '';
+  var ic=annTypeIcon(a), Z=(lang==='zh');
+  var tip=String(a.linkText||'').trim()||T('ann.openLink');
+  return '<a class="annClip" href="'+esc(a.linkUrl)+'" target="_blank" rel="noopener" '+
+    'title="'+esc(tip)+'" style="border-color:'+st[1]+';color:'+st[2]+'">'+
+    '<span style="font-size:.95rem">📎</span>'+(ic?'<span>'+ic+'</span>':'')+
+    '<span class="annClipTxt">'+(Z?'附件':'Attachment')+'</span></a>';
 }
 /* 公告欄：兩個版面各自依勾選決定。
    annWrap     ＝ 登入後 Dashboard（勾「顯示於 Dashboard」者）
@@ -15920,8 +15966,9 @@ function renderAnnouncements(rows){
         items+='<div style="background:'+st[0]+';border:1px solid '+st[1]+';color:'+st[2]+';border-radius:10px;'+
           'padding:7px 12px;margin-bottom:6px;display:flex;gap:9px;align-items:flex-start">'+
           '<span>'+st[3]+'</span>'+
-          '<div><b>'+annText(Z?a.textZh:a.textEn,st[2])+'</b>'+annLinkIcon(a,st[2])+
-          '<span class="small ms-2" style="opacity:.6">'+esc(String(a.createdAt||'').substring(0,10))+'</span></div></div>';
+          '<div style="min-width:0"><b>'+annText(Z?a.textZh:a.textEn,st[2])+'</b>'+
+          '<span class="small ms-2" style="opacity:.6">'+esc(String(a.createdAt||'').substring(0,10))+'</span></div>'+
+          annLinkChip(a,st)+'</div>';
       });
     }else{
       items='<div class="small" style="opacity:.6">'+(Z?'（目前無公告 — 一切正常，安全作業！）':'(No announcements — all clear, work safe!)')+'</div>';
@@ -16510,9 +16557,14 @@ function loadCompanies(pre){
     })};
     var h='<table class="table table-sm table-hover"><thead><tr><th>Name (EN)</th><th>名稱（中）</th><th>Type</th><th>'+T('admin.status')+'</th><th></th></tr></thead><tbody>';
     res.data.forEach(function(c){
-      h+='<tr><td>'+esc(c.nameEn)+'</td><td>'+esc(c.nameZh)+'</td><td>'+esc(c.type)+'</td>'+
+      /* 英文名留空或打成中文 → 英文介面的公司下拉會顯示中文，這裡標出來提醒管理員修 */
+      var badEn=!String(c.nameEn||'').trim()||/[\\u4e00-\\u9fff]/.test(String(c.nameEn||''));
+      h+='<tr><td>'+esc(c.nameEn)+(badEn?' <span class="badge bg-warning text-dark" title="'+esc(T('admin.coEnMissing'))+'">!</span>':'')+
+        '</td><td>'+esc(c.nameZh)+'</td><td>'+esc(c.type)+'</td>'+
         '<td>'+(c.isActive?'<span class="badge bg-success">Active</span>':'<span class="badge bg-secondary">Disabled</span>')+'</td>'+
-        '<td>'+(c.isActive
+        '<td class="text-nowrap"><button class="btn btn-sm btn-outline-secondary me-1" title="'+esc(T('admin.coEdit'))+'"'+
+          ' onclick="startEditCompany(\\''+c.id+'\\')">✏️</button>'+
+        (c.isActive
           ?'<button class="btn btn-sm btn-outline-secondary" onclick="companyAction(\\'company.disable\\',\\''+c.id+'\\')">'+T('admin.disable')+'</button>'
           :'<button class="btn btn-sm btn-success" onclick="companyAction(\\'company.enable\\',\\''+c.id+'\\')">'+T('admin.enable')+'</button>')+
         '</td></tr>';
@@ -16522,13 +16574,46 @@ function loadCompanies(pre){
   if(pre&&!(($('coSearch')&&$('coSearch').value.trim())||($('cofType')&&$('cofType').value))){ handle({ok:true,data:pre}); return; }
   api('company.list',{}).then(handle);
 }
-function addCompany(){
-  api('company.create',{nameZh:$('coNameZh').value.trim(),nameEn:$('coNameEn').value.trim(),type:$('coType').value})
-  .then(function(res){
-    if(res.ok){ toast((lang==='zh'?'公司已新增':'Company added'),true); $('coNameZh').value='';$('coNameEn').value=''; loadCompanies(); }
-    else toast(apiMsg(res));
+/* 公司新增／編輯共用上方那一列欄位；coEditId＝正在編輯的公司 id（null＝新增模式）。
+   會需要編輯，是因為英文名若打成中文（或留空），申請帳號的公司下拉在英文介面就會顯示中文。 */
+var coEditId=null;
+function coSetEditMode(id,label){
+  coEditId=id||null;
+  var editing=!!coEditId;
+  $('coEditBar').style.display=editing?'flex':'none';
+  $('coEditName').textContent=editing?(label||''):'';
+  var tx=$('btnCoSaveTxt'), key=editing?'admin.coSave':'admin.addCompany';
+  tx.setAttribute('data-i18n',key); tx.textContent=T(key);   /* 切語言時 applyI18n 才會拿到對的字 */
+}
+function startEditCompany(id){
+  var c=null;
+  (companies||[]).forEach(function(x){ if(x.id===id) c=x; });
+  if(!c){ toast(lang==='zh'?'找不到此公司，請重新整理':'Company not found — please refresh'); return; }
+  $('coNameZh').value=c.nameZh||''; $('coNameEn').value=c.nameEn||''; $('coType').value=c.type||'Contractor';
+  coSetEditMode(id,(c.nameEn||'')+'／'+(c.nameZh||''));
+  try{ $('coEditBar').scrollIntoView({block:'center',behavior:'smooth'}); }catch(e){}
+  try{ $('coNameEn').focus(); }catch(e){}
+}
+function cancelEditCompany(){
+  $('coNameZh').value='';$('coNameEn').value='';$('coType').value='Contractor';
+  coSetEditMode(null);
+}
+function saveCompany(){
+  var zh=$('coNameZh').value.trim(), en=$('coNameEn').value.trim();
+  if(!zh||!en){ toast(lang==='zh'?'中文與英文公司名稱皆必填':'Both Chinese and English company names are required'); return; }
+  var editing=coEditId;
+  var p=editing?{companyId:editing,nameZh:zh,nameEn:en,type:$('coType').value}
+               :{nameZh:zh,nameEn:en,type:$('coType').value};
+  api(editing?'company.update':'company.create',p).then(function(res){
+    if(!res.ok){ toast(apiMsg(res)); return; }
+    toast(editing?(lang==='zh'?'公司資料已更新':'Company updated')
+                 :(lang==='zh'?'公司已新增':'Company added'),true);
+    cancelEditCompany();
+    loadCompanies();
   });
 }
+/* 舊名稱保留（避免快取住的舊頁面呼叫不到） */
+function addCompany(){ saveCompany(); }
 function companyAction(action,id){
   api(action,{companyId:id}).then(function(res){ if(res.ok){ toast('OK',true); loadCompanies(); } else toast(apiMsg(res)); });
 }
