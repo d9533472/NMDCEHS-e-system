@@ -530,6 +530,8 @@ function App(){
   const sortedNotes=useMemo(()=>[...notes].sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||b.id-a.id),[notes]);
   const[sub,sSub]=useState(false);const[logs,sLogs]=useState(null);const[snaps,sSnaps]=useState(null);const[snapLd,sSnapLd]=useState(false);
   const[fC,sFC]=useState('');const[fS,sFS]=useState('');const[fD1,sFD1]=useState('');const[fD2,sFD2]=useState('');
+  /* 查驗紀錄頁專用篩選：狀態（階段）／預算項目／提送批次（提交台電日） */
+  const[fSt,sFSt]=useState('');const[fIt,sFIt]=useState('');const[fB,sFB]=useState('');
   const api=useRef(null);
 
   const toast=(m,t='ok')=>{const id=Date.now();sTs(x=>[...x,{id,m,t}]);setTimeout(()=>sTs(x=>x.filter(z=>z.id!==id)),4000)};
@@ -696,10 +698,21 @@ function App(){
       const hit=String(g.id).toLowerCase().includes(q)||String(g.work_area||'').toLowerCase().includes(q)||
         g.rows.some(r=>String(r.item_name_snapshot||'').toLowerCase().includes(q)||String(r.note||'').toLowerCase().includes(q));
       if(!hit)return false}
+    /* 狀態：0~3 階段（fSt 是字串，0 不可當 falsy 判斷） */
+    if(fSt!==''&&g.stage!==Number(fSt))return false;
+    /* 項目：這張表只要有一筆明細屬於該預算項目就算命中 */
+    if(fIt&&!g.rows.some(r=>r.budget_item_id===fIt))return false;
+    /* 提送批次：__none = 尚未提交台電 */
+    if(fB){const sd=String(g.submit_date||'').slice(0,10);
+      if(fB==='__none'){if(sd)return false}else if(sd!==fB)return false}
     const d=String(g.inspection_date||'').slice(0,10);
     if(fD1&&d<fD1)return false;if(fD2&&d>fD2)return false;
-    return true}),[groups,sm,fC,fS,fD1,fD2]);
-  const clr=()=>{sFC('');sFS('');sFD1('');sFD2('');sPArea('');sPStat('')};
+    return true}),[groups,sm,fC,fS,fD1,fD2,fSt,fIt,fB]);
+  const clr=()=>{sFC('');sFS('');sFD1('');sFD2('');sFSt('');sFIt('');sFB('');sPArea('');sPStat('')};
+  /* 項目下拉：只列出「查驗紀錄裡出現過」的預算項目（並隨已選類別縮小） */
+  const recItems=useMemo(()=>{const ids=new Set(ins.map(i=>i.budget_item_id));
+    return sm.filter(b=>ids.has(b.id)&&(!fC||b.category===fC))
+      .sort((a,b)=>String(a.item_no).localeCompare(String(b.item_no),undefined,{numeric:true}))},[sm,ins,fC]);
 
   /* ── 查驗進度：工區清單（預設清單＋資料裡出現過的） ── */
   const AREAS=useMemo(()=>[...new Set([...WORK_AREAS,...ins.map(i=>i.work_area),...plans.map(p=>p.work_area)].filter(Boolean))],[ins,plans]);
@@ -1062,7 +1075,21 @@ function App(){
         <div style={{display:'flex',alignItems:'center',gap:12}}><h1 style={{fontSize:24,fontWeight:700,color:'var(--fg2)'}}>查驗紀錄</h1><Cloud s={ss==='syncing'?'syncing':'ok'} t={ls}/></div>
         <div style={{display:'flex',gap:8}}>{SyncBtn}<button className="bg" onClick={csv}>📥 CSV</button>{auth&&<button className="bp" onClick={()=>sMl({t:'add'})}>＋ 新增查驗表</button>}</div>
       </div>
-      <div style={{display:'flex',gap:10,marginBottom:16,flexWrap:'wrap'}}><select value={fC} onChange={e=>sFC(e.target.value)} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select><input placeholder="搜尋編號/項目/工區..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:220}}/><input type="date" value={fD1} onChange={e=>sFD1(e.target.value)} style={{width:150}}/><span style={{alignSelf:'center',color:'var(--muted)',fontSize:12}}>～</span><input type="date" value={fD2} onChange={e=>sFD2(e.target.value)} style={{width:150}}/>{(fC||fS||fD1||fD2)&&<button className="bg" onClick={clr} style={{fontSize:11}}>✕ 清除</button>}</div>
+      <div style={{display:'flex',gap:10,marginBottom:10,flexWrap:'wrap'}}>
+        <select value={fSt} onChange={e=>sFSt(e.target.value)} style={{width:168}}><option value="">全部狀態</option>{STAGES.map(st=><option key={st.n} value={String(st.n)}>{st.n}. {st.l}（{TT.sc[st.n]}）</option>)}</select>
+        <select value={fC} onChange={e=>{sFC(e.target.value);sFIt('')}} style={{width:150}}><option value="">全部類別</option>{cats.map(c=><option key={c} value={c}>{c}</option>)}</select>
+        <select value={fIt} onChange={e=>sFIt(e.target.value)} style={{flex:'0 1 290px',minWidth:200}}><option value="">全部項目</option>{recItems.map(b=><option key={b.id} value={b.id}>{b.item_no} {shortItem(b.item_name_cn)}</option>)}</select>
+        <select value={fB} onChange={e=>sFB(e.target.value)} style={{width:210}}><option value="">全部提送批次</option><option value="__none">尚未提交台電（{groups.filter(g=>!String(g.submit_date||'').slice(0,10)).length}）</option>{BATCHES.map(B=><option key={B.date} value={B.date}>{fD(B.date)}（{B.groups.length} 張）</option>)}</select>
+        <input placeholder="搜尋編號/項目/工區..." value={fS} onChange={e=>sFS(e.target.value)} style={{width:220}}/>
+        <input type="date" value={fD1} onChange={e=>sFD1(e.target.value)} style={{width:150}}/><span style={{alignSelf:'center',color:'var(--muted)',fontSize:12}}>～</span><input type="date" value={fD2} onChange={e=>sFD2(e.target.value)} style={{width:150}}/>
+        {(fC||fS||fD1||fD2||fSt!==''||fIt||fB)&&<button className="bg" onClick={clr} style={{fontSize:11}}>✕ 清除</button>}
+      </div>
+      {(fSt!==''||fIt||fB)&&<div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14,alignItems:'center'}}>
+        <span style={{fontSize:10.5,color:'var(--muted2)'}}>已套用：</span>
+        {fSt!==''&&<span className="chip" style={{fontSize:10.5,cursor:'pointer',color:stageOf(fSt).c,borderColor:stageOf(fSt).c}} onClick={()=>sFSt('')}>狀態 {stageOf(fSt).l} ✕</span>}
+        {fIt&&<span className="chip" style={{fontSize:10.5,cursor:'pointer'}} onClick={()=>sFIt('')}>項目 {bItem(fIt)?.item_no} {shortItem(bItem(fIt)?.item_name_cn)} ✕</span>}
+        {fB&&<span className="chip" style={{fontSize:10.5,cursor:'pointer'}} onClick={()=>sFB('')}>批次 {fB==='__none'?'尚未提交台電':fD(fB)} ✕</span>}
+      </div>}
 
       {fGr.length===0?<div className="card" style={{padding:56,textAlign:'center',color:'var(--muted)'}}>{groups.length===0?'尚無查驗表':'無符合條件'}</div>
       :<div style={{display:'flex',flexDirection:'column',gap:10}}>
