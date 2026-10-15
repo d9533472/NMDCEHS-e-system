@@ -178,7 +178,7 @@ var SHEETS = {
                           'createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Downloads: ['id','title','titleZh','titleEn','description','category','fileName','driveFileId','fileUrl',
               'uploadedBy','uploadedAt','createdAt','createdBy','updatedAt','updatedBy','isActive'],
-  Announcements: ['id','textZh','textEn','level','linkUrl','linkText','showOnLanding','createdAt','createdBy','updatedAt','updatedBy','isActive'],
+  Announcements: ['id','textZh','textEn','level','linkUrl','linkText','showOnLanding','showOnDashboard','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   PasswordResets: ['id','userId','tokenHash','expiresAt','usedAt','createdAt']
 };
 
@@ -4905,7 +4905,9 @@ var DriveService = (function () {
     return ok_({ disabled: true });
   }
 
-  /** (公告) 新增系統公告（可附一個外部連結；首頁公告文字後以 icon 呈現） */
+  /** (公告) 新增系統公告（可附一個外部連結；首頁公告文字後以 icon 呈現）
+   *  兩個張貼位置獨立：showOnLanding＝登入／註冊頁、showOnDashboard＝登入後 Dashboard。
+   *  未帶任何位置參數（舊版前端）時，兩邊都預設張貼。 */
   function announceAdd(user, payload) {
     SecurityService.requireAdmin(user);
     requireFields_(payload, ['textZh', 'textEn']);
@@ -4913,43 +4915,111 @@ var DriveService = (function () {
     if (payload.linkUrl && !url) {
       throw ApiError_('BAD_URL', 'Link must start with http:// or https://', '連結網址必須以 http:// 或 https:// 開頭');
     }
+    var hasWhere = (payload.showOnLanding !== undefined) || (payload.showOnDashboard !== undefined);
+    var onLanding = hasWhere ? asBool_(payload.showOnLanding) : true;
+    var onDash = hasWhere ? asBool_(payload.showOnDashboard) : true;
+    if (!onLanding && !onDash) {
+      throw ApiError_('NO_TARGET', 'Choose at least one place to publish (sign-in page / Dashboard)',
+        '請至少勾選一個張貼位置（登入頁／Dashboard）');
+    }
     var row = Repo.insert('Announcements', {
       textZh: payload.textZh, textEn: payload.textEn,
       level: payload.level || 'info',
       linkUrl: url, linkText: String(payload.linkText || '').substring(0, 120),
-      showOnLanding: asBool_(payload.showOnLanding)
+      showOnLanding: onLanding, showOnDashboard: onDash
     }, user.id);
-    AuditService.log({ user: user, actionType: 'ANNOUNCE_ADD', entityType: 'Announcement', entityId: row.id, success: true });
+    AuditService.log({ user: user, actionType: 'ANNOUNCE_ADD', entityType: 'Announcement', entityId: row.id,
+      newValue: { showOnLanding: onLanding, showOnDashboard: onDash }, success: true });
     return ok_({ id: row.id });
   }
-  /** (公告) 公開清單（最新在前，取 5 則） */
+  /** (公告) 公開清單（最新在前，取 10 則）
+   *  取 10 是因為兩個張貼位置各自會再篩選，取 5 的話其中一邊可能被另一邊的公告擠掉。
+   *  每個版面最多顯示 5 則由前端 renderAnnouncements 負責。 */
   function announceList() {
     var rows = Repo.find('Announcements', function (a) { return asBool_(a.isActive); });
     rows.sort(function (a, b) { return a.createdAt < b.createdAt ? 1 : -1; });
-    return ok_(rows.slice(0, 5).map(function (a) {
+    return ok_(rows.slice(0, 10).map(function (a) {
       return { id: a.id, textZh: a.textZh, textEn: a.textEn, level: a.level || 'info',
         linkUrl: safeHttpUrl_(a.linkUrl), linkText: a.linkText || '',
-        showOnLanding: asBool_(a.showOnLanding), createdAt: a.createdAt };
+        showOnLanding: asBool_(a.showOnLanding),
+        /* 舊資料沒有這個欄位（空白）＝ 沿用舊行為：Dashboard 顯示 */
+        showOnDashboard: a.showOnDashboard === '' || a.showOnDashboard === undefined ? true : asBool_(a.showOnDashboard),
+        createdAt: a.createdAt };
     }));
   }
-  /** (公告) 切換「是否顯示於登入／註冊頁」（Admin） */
+  /** (公告) 切換張貼位置（Admin）；field: 'landing'（登入／註冊頁）或 'dashboard'（登入後首頁）
+   *  未帶 field 時維持舊行為＝切換登入頁，舊版前端呼叫不會壞。
+   *  兩邊都關掉等於公告不會出現在任何地方，因此擋下來。 */
   function announceSetLanding(user, payload) {
     SecurityService.requireAdmin(user);
     requireFields_(payload, ['id']);
+    var row = Repo.getById('Announcements', payload.id);
+    if (!row || !asBool_(row.isActive)) throw ApiError_('NOT_FOUND', 'Announcement not found', '找不到此公告');
+    var isDash = String(payload.field || 'landing') === 'dashboard';
+    var key = isDash ? 'showOnDashboard' : 'showOnLanding';
     var show = asBool_(payload.show);
-    Repo.update('Announcements', payload.id, { showOnLanding: show }, user.id);
-    AuditService.log({ user: user, actionType: 'ANNOUNCE_SET_LANDING', entityType: 'Announcement',
-      entityId: payload.id, newValue: { showOnLanding: show }, success: true });
-    return ok_({ id: payload.id, showOnLanding: show });
+    var other = isDash
+      ? asBool_(row.showOnLanding)
+      : (row.showOnDashboard === '' || row.showOnDashboard === undefined ? true : asBool_(row.showOnDashboard));
+    if (!show && !other) {
+      throw ApiError_('NO_TARGET', 'An announcement must stay on at least one page — remove it instead',
+        '公告至少要張貼在一個位置；若不想顯示請直接下架');
+    }
+    var patch = {}; patch[key] = show;
+    Repo.update('Announcements', payload.id, patch, user.id);
+    AuditService.log({ user: user, actionType: isDash ? 'ANNOUNCE_SET_DASHBOARD' : 'ANNOUNCE_SET_LANDING',
+      entityType: 'Announcement', entityId: payload.id, newValue: patch, success: true });
+    return ok_({ id: payload.id, field: key, show: show });
   }
-  /** (公告) 上傳附件（多為 PDF）到 Drive 並回傳公開連結，供公告的 icon 連結使用（Admin） */
+  /** (公告) 編輯既有公告（Admin）；只更新「這次有帶上來」的欄位
+   *  文字欄位帶空字串＝沒填完，直接擋下（避免公告被改成空白一條）。
+   *  張貼位置沿用 announceSetLanding 的規則：至少要留一個位置。 */
+  function announceUpdate(user, payload) {
+    SecurityService.requireAdmin(user);
+    requireFields_(payload, ['id']);
+    var row = Repo.getById('Announcements', payload.id);
+    if (!row || !asBool_(row.isActive)) throw ApiError_('NOT_FOUND', 'Announcement not found', '找不到此公告');
+    var patch = {};
+    if (payload.textZh !== undefined) {
+      if (!String(payload.textZh).trim()) throw ApiError_('BAD_REQUEST', 'Chinese text is required', '中文公告內容必填');
+      patch.textZh = payload.textZh;
+    }
+    if (payload.textEn !== undefined) {
+      if (!String(payload.textEn).trim()) throw ApiError_('BAD_REQUEST', 'English text is required', '英文公告內容必填');
+      patch.textEn = payload.textEn;
+    }
+    if (payload.level !== undefined) patch.level = payload.level || 'info';
+    if (payload.linkUrl !== undefined) {
+      var url = safeHttpUrl_(payload.linkUrl);
+      if (payload.linkUrl && !url) {
+        throw ApiError_('BAD_URL', 'Link must start with http:// or https://', '連結網址必須以 http:// 或 https:// 開頭');
+      }
+      patch.linkUrl = url;
+    }
+    if (payload.linkText !== undefined) patch.linkText = String(payload.linkText || '').substring(0, 120);
+    if (payload.showOnLanding !== undefined || payload.showOnDashboard !== undefined) {
+      var onLanding = payload.showOnLanding !== undefined ? asBool_(payload.showOnLanding) : asBool_(row.showOnLanding);
+      var onDash = payload.showOnDashboard !== undefined ? asBool_(payload.showOnDashboard)
+        : (row.showOnDashboard === '' || row.showOnDashboard === undefined ? true : asBool_(row.showOnDashboard));
+      if (!onLanding && !onDash) {
+        throw ApiError_('NO_TARGET', 'Choose at least one place to publish (sign-in page / Dashboard)',
+          '請至少勾選一個張貼位置（登入頁／Dashboard）');
+      }
+      patch.showOnLanding = onLanding; patch.showOnDashboard = onDash;
+    }
+    Repo.update('Announcements', payload.id, patch, user.id);
+    AuditService.log({ user: user, actionType: 'ANNOUNCE_UPDATE', entityType: 'Announcement', entityId: payload.id,
+      oldValue: { textZh: row.textZh, textEn: row.textEn, level: row.level, linkUrl: row.linkUrl,
+        linkText: row.linkText, showOnLanding: row.showOnLanding, showOnDashboard: row.showOnDashboard },
+      newValue: patch, success: true });
+    return ok_({ id: payload.id, updated: true });
+  }
+  /** (公告) 上傳附件到 Drive 並回傳公開連結，供公告的 icon 連結使用（Admin）
+   *  公告附件「不限檔案類型」（僅管理員可上傳，故不做副檔名白名單；
+   *  PTW 附件 uploadAttachment 仍沿用 ALLOWED_EXT 白名單，不受此處影響）。 */
   function announceUploadFile(user, payload) {
     SecurityService.requireAdmin(user);
     requireFields_(payload, ['fileName', 'mimeType', 'base64']);
-    var ext = String(payload.fileName).split('.').pop().toLowerCase();
-    if (ALLOWED_EXT.indexOf(ext) < 0) {
-      throw ApiError_('BAD_FILE_TYPE', 'File type not allowed: .' + ext, '不允許的檔案類型：.' + ext);
-    }
     var bytes;
     try { bytes = Utilities.base64Decode(payload.base64); }
     catch (e) { throw ApiError_('BAD_FILE', 'Invalid file data', '檔案資料無效'); }
@@ -5019,6 +5089,7 @@ var DriveService = (function () {
   return { uploadAttachment: uploadAttachment, listAttachments: listAttachments,
     ptwFolderUrl: ptwFolderUrl, savePtwFile: savePtwFile, saveSitePdf: saveSitePdf,
     announceAdd: announceAdd, announceList: announceList, announceDisable: announceDisable,
+    announceUpdate: announceUpdate,
     announceUploadFile: announceUploadFile, announceSetLanding: announceSetLanding,
     disableAttachment: disableAttachment, copyApplicationAttachments: copyApplicationAttachments,
     listCopyableAttachments: listCopyableAttachments, copyOneAttachment: copyOneAttachment,
@@ -9987,7 +10058,10 @@ function routes_() {
     'announce.list':          function () { return DriveService.announceList(); },
     'admin.announce.add':     function (u, p) { return DriveService.announceAdd(u, p); },
     'admin.announce.disable': function (u, p) { return DriveService.announceDisable(u, p); },
+    // 編輯既有公告（內文／等級／連結／張貼位置）；只更新帶上來的欄位
+    'admin.announce.update':  function (u, p) { return DriveService.announceUpdate(u, p); },
     'admin.announce.upload':  function (u, p) { return DriveService.announceUploadFile(u, p); },
+    // 切換張貼位置；p.field = 'landing'（登入／註冊頁）或 'dashboard'（登入後首頁），省略＝landing
     'admin.announce.landing': function (u, p) { return DriveService.announceSetLanding(u, p); },
     'admin.download.upload':   function (u, p) { return DriveService.uploadPublicDoc(u, p); },
     'admin.download.disable':  function (u, p) { return DriveService.disableDownload(u, p); },
@@ -11848,6 +11922,23 @@ function ensureAnnounceLandingDefault_() {
   } catch (e) { console.error('ensureAnnounceLandingDefault_ failed: ' + e.message); }
 }
 
+/** 既有部署自動升級（僅執行一次）：新增「顯示於 Dashboard」欄位後，
+ *  既有公告一律預設為「顯示」—— 舊版 Dashboard 本來就顯示全部公告，
+ *  不補這一刀的話升級後登入首頁會突然空白。 */
+function ensureAnnounceDashboardDefault_() {
+  var sp;
+  try { sp = PropertiesService.getScriptProperties(); } catch (e) { return; }
+  if (sp.getProperty('annDashboardDefaultDone') === '1') return;
+  try {
+    Repo.readAll('Announcements').forEach(function (a) {
+      if (asBool_(a.isActive) && String(a.showOnDashboard === undefined ? '' : a.showOnDashboard) === '') {
+        Repo.update('Announcements', a.id, { showOnDashboard: true }, 'system');
+      }
+    });
+    sp.setProperty('annDashboardDefaultDone', '1');
+  } catch (e) { console.error('ensureAnnounceDashboardDefault_ failed: ' + e.message); }
+}
+
 /** 既有部署自動升級：Tier 0 已取消 → 所有 Tier 0 使用者（含待審申請）自動轉為 Tier 1 */
 function ensureNoTierZero_() {
   try {
@@ -11867,6 +11958,7 @@ function doGet(e) {
   ensureNoTierZero_();
   ensureTestNmdcAdmin_();
   ensureAnnounceLandingDefault_();
+  ensureAnnounceDashboardDefault_();
   if (e && e.parameter && e.parameter.api) {
     return ContentService.createTextOutput(JSON.stringify(
       ok_({ service: 'Offshore PTW System API', time: fmtDateTime_(), version: 'M4.1-onefile' })
@@ -12760,7 +12852,13 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       <div id="adminDlList" class="table-responsive"></div>
     </div>
     <div class="tab-pane fade" id="tabAnnounce">
-      <h6>📢 <span data-i18n="ann.title">System Announcements 系統公告</span>（<span class="small text-muted" data-i18n="ann.hint">shown at the top of the home page 顯示於首頁頂部</span>）</h6>
+      <h6>📢 <span data-i18n="ann.title">System Announcements 系統公告</span>（<span class="small text-muted" data-i18n="ann.hint">choose where each one appears — sign-in page and / or Dashboard 可分別選擇張貼在登入頁／Dashboard</span>）</h6>
+      <!-- 編輯模式提示條（display 用 JS 控制：d-none 與 d-flex 同時掛會被 Bootstrap 的 d-flex 蓋掉） -->
+      <div id="annEditBar" class="alert alert-warning py-1 px-2 small mb-2 align-items-center gap-2" style="display:none">
+        <span>✏️ <b data-i18n="ann.editingNow">Editing an existing announcement</b></span>
+        <button class="btn btn-sm btn-outline-secondary ms-auto text-nowrap" onclick="cancelEditAnnounce()"
+          data-i18n="ann.cancelEdit">Cancel editing</button>
+      </div>
       <div class="row g-2 mb-2">
         <div class="col-md-5"><input id="annZh" class="form-control form-control-sm" placeholder="公告內容（中文）＊"></div>
         <div class="col-md-5"><input id="annEn" class="form-control form-control-sm" placeholder="Announcement (English) ＊"></div>
@@ -12774,14 +12872,21 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
         <div class="col-md-4"><input id="annLinkUrl" class="form-control form-control-sm" data-i18n-ph="ann.linkUrl" placeholder="https://…"></div>
         <div class="col-md-3"><input id="annLinkText" class="form-control form-control-sm" data-i18n-ph="ann.linkText" placeholder=""></div>
         <div class="col-md-3 d-flex gap-1">
-          <input type="file" id="annFile" class="form-control form-control-sm" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
-          <button class="btn btn-sm btn-outline-primary text-nowrap" id="btnAnnUpload" onclick="adminUploadAnnounceFile()">📎 <span data-i18n="ann.uploadPdf">Upload PDF</span></button>
+          <input type="file" id="annFile" class="form-control form-control-sm" title="不限檔案類型 Any file type">
+          <button class="btn btn-sm btn-outline-primary text-nowrap" id="btnAnnUpload" onclick="adminUploadAnnounceFile()">📎 <span data-i18n="ann.uploadPdf">Upload File</span></button>
         </div>
-        <div class="col-md-2"><button class="btn btn-sm btn-navy w-100" onclick="adminAddAnnounce()">📢 <span data-i18n="ann.publish">Publish 發布</span></button></div>
+        <div class="col-md-2"><button class="btn btn-sm btn-navy w-100" id="btnAnnSave" onclick="adminSaveAnnounce()"><span id="btnAnnSaveIcon">📢</span> <span id="btnAnnSaveTxt" data-i18n="ann.publish">Publish 發布</span></button></div>
       </div>
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="annShowLanding" checked>
-        <label class="form-check-label small" for="annShowLanding" data-i18n="ann.showLanding">Also show on the sign-in / sign-up page</label>
+      <div class="d-flex flex-wrap gap-3 mb-2 align-items-center">
+        <span class="small text-muted" data-i18n="ann.whereLabel">Publish to:</span>
+        <div class="form-check m-0">
+          <input class="form-check-input" type="checkbox" id="annShowLanding" checked>
+          <label class="form-check-label small" for="annShowLanding">🏠 <span data-i18n="ann.showLanding">Sign-in / sign-up page</span></label>
+        </div>
+        <div class="form-check m-0">
+          <input class="form-check-input" type="checkbox" id="annShowDashboard" checked>
+          <label class="form-check-label small" for="annShowDashboard">📊 <span data-i18n="ann.showDashboard">Dashboard (after sign-in)</span></label>
+        </div>
       </div>
       <div id="annLinkMsg" class="small text-muted mb-2"></div>
       <div id="adminAnnList"></div>
@@ -13576,6 +13681,9 @@ var STRINGS = {
  'apply.title2':{en:'Job Title',zh:'職稱'},'apply.phone':{en:'Contact Phone',zh:'聯絡電話'},
  'apply.vessel':{en:'Working Vessel',zh:'所屬工作船舶'},'apply.reason':{en:'Application Reason',zh:'申請原因'},
  'apply.tier':{en:'Requested Tier',zh:'預計申請 Tier'},
+ 'apply.tierGateTitle':{en:'Before you apply — Tier 1–5 roles',zh:'申請前請先確認 Tier 1～5 角色'},
+ 'apply.tierGateSub':{en:'Pick the tier that matches your actual role — a wrong tier is the most common reason an application is returned.',zh:'請依實際職務選擇 Tier；選錯層級是申請被退回最常見的原因。'},
+ 'apply.tierGateOk':{en:'I understand — continue',zh:'我了解了，繼續申請'},
  'apply.password':{en:'Password (≥8 chars, letters+numbers)',zh:'密碼（≥8 碼，含英文與數字）'},
  'apply.confirm':{en:'Confirm Password',zh:'確認密碼'},'apply.submit':{en:'Submit Application',zh:'送出申請'},
  'apply.success':{en:'Application submitted. You will receive an email once approved.',zh:'申請已送出，核准後將收到 Email 通知。'},
@@ -13630,16 +13738,24 @@ var STRINGS = {
  'common.loading':{en:'Loading…',zh:'載入中…'},
  'common.save':{en:'Save',zh:'儲存'},
  'ann.title':{en:'System Announcements',zh:'系統公告'},
- 'ann.hint':{en:'shown at the top of the home page',zh:'顯示於首頁頂部'},
+ 'ann.hint':{en:'choose where each one appears — sign-in page and / or Dashboard',zh:'可分別選擇張貼在登入頁／Dashboard'},
  'ann.publish':{en:'Publish',zh:'發布'},
  'ann.linkUrl':{en:'Link URL (optional) — shown as an icon',zh:'連結網址（選填）— 公告後方顯示為 icon'},
  'ann.linkText':{en:'Link label (optional)',zh:'連結說明（選填）'},
- 'ann.uploadPdf':{en:'Upload PDF',zh:'上傳 PDF'},
+ 'ann.uploadPdf':{en:'Upload File',zh:'上傳檔案'},
  'ann.uploaded':{en:'File uploaded — link filled in below',zh:'檔案已上傳，連結已自動填入'},
  'ann.openLink':{en:'Open attached link',zh:'開啟附件連結'},
  'apply.noCompany':{en:"Can't see your company?",zh:'沒有看見您的公司嗎？'},
- 'ann.showLanding':{en:'Also show on the sign-in / sign-up page',zh:'同時顯示於登入／註冊頁'},
+ 'ann.whereLabel':{en:'Publish to:',zh:'張貼位置：'},
+ 'ann.showLanding':{en:'Sign-in / sign-up page',zh:'登入／註冊頁'},
+ 'ann.showDashboard':{en:'Dashboard (after sign-in)',zh:'Dashboard（登入後首頁）'},
  'ann.landingCol':{en:'Sign-in page',zh:'登入頁'},
+ 'ann.dashboardCol':{en:'Dashboard',zh:'Dashboard'},
+ 'ann.needTarget':{en:'Choose at least one place to publish',zh:'請至少勾選一個張貼位置'},
+ 'ann.editBtn':{en:'Edit this announcement',zh:'編輯此公告'},
+ 'ann.editingNow':{en:'Editing an existing announcement — Save to apply',zh:'正在編輯既有公告 — 按「儲存變更」生效'},
+ 'ann.cancelEdit':{en:'Cancel editing',zh:'取消編輯'},
+ 'ann.saveEdit':{en:'Save changes',zh:'儲存變更'},
  'lb.title':{en:'Active PTW Overview',zh:'執行中 PTW 總表'},
  'lb.search':{en:'Search PTW no. / vessel / area…',zh:'搜尋 PTW 編號／船舶／區域…'},
  'lb.readonly':{en:'View only — this table cannot be edited.',zh:'此總表僅供檢視，無法進行任何修改。'},
@@ -14137,7 +14253,8 @@ function showCompanyHelp(){
     okText:'💬 '+(Z?'聯繫系統管理員':'Contact administrator'),
     cancelText:(Z?'關閉':'Close')}).then(function(ok){ if(ok) showContact(); });
 }
-function showTierHelp(){
+/* Tier 1–5 角色說明內容（「?」說明視窗與按「申請帳號」時的提醒視窗共用同一份） */
+function tierHelpHtml(){
   var Z=(lang==='zh');
   var rows=[
     ['Tier 1',Z?'承商持有人／申請人 Contractor Holder / Applicant':'Contractor Holder / Applicant','C',
@@ -14150,15 +14267,18 @@ function showTierHelp(){
      Z?'安衛面審查：危害辨識、預防措施與法規符合性。':'HSE review: hazards, precautions and compliance.'],
     ['Tier 5',Z?'NMDC PTW 協調員／系統管理員':'NMDC PTW Coordinator / System Admin','N',
      Z?'最終簽發、暫停與關閉 PTW；具系統管理權限。':'Final issue, suspension and close-out; has system administration rights.']];
-  var h='<b style="font-size:1.05rem">'+(Z?'Tier 1–5 角色說明':'Tier 1–5 Roles')+'</b>'+
-    '<div class="small mt-1"><span style="color:#b35c00;font-weight:700">■ '+(Z?'承商 Contractor':'Contractor')+'</span>　'+
+  var h='<div class="small"><span style="color:#b35c00;font-weight:700">■ '+(Z?'承商 Contractor':'Contractor')+'</span>　'+
     '<span style="color:#0b6bcb;font-weight:700">■ NMDC</span></div><div class="mt-2" style="text-align:left">';
   rows.forEach(function(r){
     var con=(r[2]==='C');
     h+='<div style="border-left:4px solid '+(con?'#b35c00':'#0b6bcb')+';background:'+(con?'#fdf6ee':'#f2f8fd')+';border-radius:6px;padding:6px 10px;margin-bottom:6px">'+
       '<b style="color:'+(con?'#b35c00':'#0b6bcb')+'">'+r[0]+'・'+esc(r[1])+'</b><div class="small text-muted">'+esc(r[3])+'</div></div>';
   });
-  uiAlert(null,h+'</div>');
+  return h+'</div>';
+}
+function showTierHelp(){
+  uiDialog({icon:'🪪',title:(lang==='zh'?'Tier 1–5 角色說明':'Tier 1–5 Roles'),
+    html:tierHelpHtml(),noCancel:true,width:600});
 }
 /* 登入／註冊頁面板切換：Apply＝浮動視窗（蓋在登入頁上），Login／Forgot＝左欄卡片 */
 function showPanel(name){
@@ -14166,10 +14286,17 @@ function showPanel(name){
   if(name==='Apply'){
     $('panelLogin').classList.remove('d-none');
     $('panelForgot').classList.add('d-none');
-    ap.classList.remove('d-none');
-    try{ document.body.style.overflow='hidden'; }catch(e){}
-    loadCompanyOptions();
-    try{ ap.scrollTop=0; }catch(e){}
+    /* 先看 Tier 1–5 角色說明再填表：每次按「申請帳號」都跳，按下「我了解了」才開申請視窗。
+       申請的 Tier 選錯最常造成退件，所以這一關刻意擋在表單前面。 */
+    uiDialog({icon:'🪪',title:T('apply.tierGateTitle'),sub:T('apply.tierGateSub'),
+      html:tierHelpHtml(),width:600,okText:T('apply.tierGateOk'),
+      cancelText:(lang==='zh'?'先不要':'Not now')}).then(function(ok){
+      if(!ok) return;                 /* 按「先不要」＝不開申請表，留在登入頁 */
+      ap.classList.remove('d-none');
+      try{ document.body.style.overflow='hidden'; }catch(e){}
+      loadCompanyOptions();
+      try{ ap.scrollTop=0; }catch(e){}
+    });
     return;
   }
   ap.classList.add('d-none');
@@ -15598,25 +15725,68 @@ function loadAdminDownloads(){
   });
 }
 /* ===== 系統公告（首頁頂部） ===== */
-function adminAddAnnounce(){
+/* annEditId＝正在編輯的公告 id（null＝新增模式）；發布與編輯共用上方那一組欄位，不另開表單。
+   adminAnnRows＝後台清單最後一次抓到的原始資料，編輯時用來回填（避免把逸出過的 HTML 塞回輸入框）。 */
+var annEditId=null, adminAnnRows=[];
+function annClearForm(){
+  $('annZh').value='';$('annEn').value='';$('annLinkUrl').value='';$('annLinkText').value='';
+  $('annLinkMsg').textContent=''; $('annLevel').value='info';
+  $('annShowLanding').checked=true; $('annShowDashboard').checked=true;
+}
+function annSetEditMode(id){
+  annEditId=id||null;
+  var editing=!!annEditId;
+  $('annEditBar').style.display=editing?'flex':'none';
+  $('btnAnnSaveIcon').textContent=editing?'💾':'📢';
+  var tx=$('btnAnnSaveTxt'), key=editing?'ann.saveEdit':'ann.publish';
+  tx.setAttribute('data-i18n',key); tx.textContent=T(key);   /* 切語言時 applyI18n 才會拿到對的字 */
+}
+/* 後台清單的 ✏️：把該則公告回填到上方欄位並切成編輯模式 */
+function startEditAnnounce(id){
+  var a=null;
+  adminAnnRows.forEach(function(r){ if(r.id===id) a=r; });
+  if(!a){ toast(lang==='zh'?'找不到此公告，請重新整理':'Announcement not found — please refresh'); return; }
+  $('annZh').value=a.textZh||''; $('annEn').value=a.textEn||'';
+  $('annLevel').value=a.level||'info';
+  $('annLinkUrl').value=a.linkUrl||''; $('annLinkText').value=a.linkText||'';
+  $('annShowLanding').checked=!!a.showOnLanding;
+  $('annShowDashboard').checked=(a.showOnDashboard===undefined||a.showOnDashboard==='')?true:!!a.showOnDashboard;
+  $('annLinkMsg').textContent='';
+  annSetEditMode(id);
+  try{ $('annEditBar').scrollIntoView({block:'center',behavior:'smooth'}); }catch(e){}
+  try{ $('annZh').focus(); }catch(e){}
+}
+function cancelEditAnnounce(){ annClearForm(); annSetEditMode(null); }
+/* 發布（新增）或儲存（編輯）— 看 annEditId 決定打哪一支 API */
+function adminSaveAnnounce(){
   var z=$('annZh').value.trim(), e=$('annEn').value.trim();
   var url=$('annLinkUrl').value.trim(), ltx=$('annLinkText').value.trim();
   if(!z||!e){ toast(lang==='zh'?'中文與英文公告內容皆必填':'Both Chinese and English texts are required'); return; }
   if(url&&!/^https?:\\/\\//i.test(url)){ toast(lang==='zh'?'連結網址必須以 http:// 或 https:// 開頭':'Link must start with http:// or https://'); return; }
-  api('admin.announce.add',{textZh:z,textEn:e,level:$('annLevel').value,linkUrl:url,linkText:ltx,
-    showOnLanding:$('annShowLanding').checked}).then(function(res){
+  var onL=$('annShowLanding').checked, onD=$('annShowDashboard').checked;
+  if(!onL&&!onD){ toast(T('ann.needTarget')); return; }
+  var editing=annEditId;
+  var p={textZh:z,textEn:e,level:$('annLevel').value,linkUrl:url,linkText:ltx,
+    showOnLanding:onL,showOnDashboard:onD};
+  if(editing) p.id=editing;
+  api(editing?'admin.announce.update':'admin.announce.add',p).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
-    $('annZh').value='';$('annEn').value='';$('annLinkUrl').value='';$('annLinkText').value='';
-    $('annLinkMsg').textContent='';
-    toast(lang==='zh'?'公告已發布':'Published',true);
-    loadAdminAnnounces();
+    annClearForm(); annSetEditMode(null);
+    toast(editing?(lang==='zh'?'公告已更新':'Announcement updated')
+                 :(lang==='zh'?'公告已發布':'Published'),true);
+    /* 登入頁的公告有快取，發布／編輯後要讓它重新抓 */
+    try{ sessionStorage.removeItem('ptw_landing_cache'); }catch(e2){}
+    landingRows=null; landingLoadedAt=0;
+    loadAdminAnnounces(); loadPublicAnnounces();
   });
 }
-/* 公告附件（PDF…）上傳 → 自動填入「連結網址」 */
+/* 舊名稱保留（避免快取住的舊頁面呼叫不到） */
+function adminAddAnnounce(){ adminSaveAnnounce(); }
+/* 公告附件上傳（不限檔案類型）→ 自動填入「連結網址」 */
 function adminUploadAnnounceFile(){
   var f=$('annFile').files[0];
   if(!f){ toast(lang==='zh'?'請先選擇檔案':'Please choose a file first'); return; }
-  if(f.size>25*1024*1024){ toast('Max 25 MB'); return; }
+  if(f.size>25*1024*1024){ toast(lang==='zh'?'檔案超過上限 25 MB':'Max 25 MB'); return; }
   var btn=$('btnAnnUpload'); btn.disabled=true; var old=btn.innerHTML; btn.innerHTML='⏳';
   var reader=new FileReader();
   reader.onload=function(ev){
@@ -15636,42 +15806,59 @@ function adminUploadAnnounceFile(){
 function loadAdminAnnounces(){
   api('announce.list',{}).then(function(res){
     if(!res.ok){ return; }
+    adminAnnRows=res.data||[];                      /* 編輯時回填用的原始資料 */
     if(!res.data.length){ $('adminAnnList').innerHTML='<div class="text-muted small">'+(lang==='zh'?'（目前無公告）':'(No announcements)')+'</div>'; return; }
     var lv={info:'ℹ️',warning:'⚠️',danger:'🚨'};
     var h='<table class="table table-sm align-middle"><thead><tr><th></th><th></th>'+
-      '<th class="small text-nowrap">🏠 '+esc(T('ann.landingCol'))+'</th><th></th><th></th></tr></thead><tbody>';
+      '<th class="small text-nowrap text-center">🏠 '+esc(T('ann.landingCol'))+'</th>'+
+      '<th class="small text-nowrap text-center">📊 '+esc(T('ann.dashboardCol'))+'</th>'+
+      '<th></th><th></th></tr></thead><tbody>';
     res.data.forEach(function(a){
+      var onD=(a.showOnDashboard===undefined||a.showOnDashboard==='')?true:!!a.showOnDashboard;
       h+='<tr><td style="width:30px">'+(lv[a.level]||'ℹ️')+'</td>'+
         '<td><b>'+esc(a.textZh)+'</b>'+annLinkIcon(a,'#0b6bcb')+
         '<br><small class="text-muted">'+esc(a.textEn)+'</small>'+
         (a.linkUrl?'<br><small style="opacity:.6">🔗 '+esc(a.linkUrl)+'</small>':'')+'</td>'+
-        '<td class="text-center" style="width:90px"><div class="form-check d-inline-block m-0">'+
+        '<td class="text-center" style="width:86px"><div class="form-check d-inline-block m-0">'+
           '<input class="form-check-input" type="checkbox" title="'+esc(T('ann.showLanding'))+'"'+
-          (a.showOnLanding?' checked':'')+' onchange="toggleAnnounceLanding(\\''+a.id+'\\',this)"></div></td>'+
+          (a.showOnLanding?' checked':'')+' onchange="toggleAnnounceWhere(\\''+a.id+'\\',\\'landing\\',this)"></div></td>'+
+        '<td class="text-center" style="width:86px"><div class="form-check d-inline-block m-0">'+
+          '<input class="form-check-input" type="checkbox" title="'+esc(T('ann.showDashboard'))+'"'+
+          (onD?' checked':'')+' onchange="toggleAnnounceWhere(\\''+a.id+'\\',\\'dashboard\\',this)"></div></td>'+
         '<td class="small text-nowrap">'+esc(String(a.createdAt||'').substring(0,10))+'</td>'+
-        '<td><button class="btn btn-sm btn-outline-danger" onclick="removeAnnounce(\\''+a.id+'\\')">✕</button></td></tr>';
+        '<td class="text-nowrap">'+
+          '<button class="btn btn-sm btn-outline-secondary me-1" title="'+esc(T('ann.editBtn'))+'"'+
+          ' onclick="startEditAnnounce(\\''+a.id+'\\')">✏️</button>'+
+          '<button class="btn btn-sm btn-outline-danger" onclick="removeAnnounce(\\''+a.id+'\\')">✕</button></td></tr>';
     });
     $('adminAnnList').innerHTML=h+'</tbody></table>'+
-      '<div class="small text-muted">🏠 '+esc(T('ann.showLanding'))+'</div>';
+      '<div class="small text-muted">🏠 '+esc(T('ann.showLanding'))+'　·　📊 '+esc(T('ann.showDashboard'))+'</div>';
   });
 }
-/* 後台清單：切換「是否顯示於登入／註冊頁」 */
-function toggleAnnounceLanding(id,el){
-  var want=!!el.checked;
+/* 後台清單：切換張貼位置（where='landing' 登入／註冊頁、'dashboard' 登入後首頁）
+   兩邊都取消會被後端擋下（公告至少要出現在一個地方），勾勾會自動復原。 */
+function toggleAnnounceWhere(id,where,el){
+  var want=!!el.checked, isD=(where==='dashboard');
+  var Z=(lang==='zh');
+  var place=isD?(Z?'Dashboard':'the Dashboard'):(Z?'登入／註冊頁':'the sign-in page');
   el.disabled=true;
-  api('admin.announce.landing',{id:id,show:want}).then(function(res){
+  api('admin.announce.landing',{id:id,field:where,show:want}).then(function(res){
     el.disabled=false;
     if(!res.ok){ el.checked=!want; toast(apiMsg(res)); return; }
-    toast(want?(lang==='zh'?'已加到登入／註冊頁':'Shown on the sign-in page')
-              :(lang==='zh'?'已從登入／註冊頁移除':'Removed from the sign-in page'),true);
+    toast(want?(Z?'已加到'+place:'Shown on '+place):(Z?'已從'+place+'移除':'Removed from '+place),true);
     try{ sessionStorage.removeItem('ptw_landing_cache'); }catch(e){}
     landingRows=null; landingLoadedAt=0;
+    loadPublicAnnounces();
   });
 }
+/* 舊名稱保留（避免快取住的舊頁面呼叫不到） */
+function toggleAnnounceLanding(id,el){ toggleAnnounceWhere(id,'landing',el); }
 function removeAnnounce(id){
   uiConfirm(lang==='zh'?'下架此公告？':'Remove this announcement?').then(function(ok){ if(!ok) return;
     api('admin.announce.disable',{id:id}).then(function(res){
-      if(res.ok){ toast('OK',true); loadAdminAnnounces(); loadPublicAnnounces(); } else toast(apiMsg(res));
+      if(res.ok){ toast('OK',true);
+        if(annEditId===id) cancelEditAnnounce();    /* 正在編輯的那一則被下架 → 退出編輯模式 */
+        loadAdminAnnounces(); loadPublicAnnounces(); } else toast(apiMsg(res));
     });
   });
 }
@@ -15689,15 +15876,36 @@ function annText(s,color){
   }
   return out+esc(src.substring(last));
 }
-/* 公告附加連結 → 文字後方的 icon（PDF 顯示 📄，其他 🔗） */
+/* 公告附加連結 → 文字後方的 icon（依副檔名給圖示，認不出來就用 🔗） */
+var ANN_ICONS=[
+  [/\\.pdf$/i,'📄'],
+  [/\\.(doc|docx|rtf|odt)$/i,'📝'],
+  [/\\.(xls|xlsx|xlsm|csv|ods)$/i,'📊'],
+  [/\\.(ppt|pptx|odp)$/i,'📽️'],
+  [/\\.(png|jpg|jpeg|gif|bmp|webp|tif|tiff|heic|svg)$/i,'🖼️'],
+  [/\\.(zip|rar|7z|tar|gz)$/i,'🗜️'],
+  [/\\.(mp4|mov|avi|mkv|wmv|webm)$/i,'🎬'],
+  [/\\.(mp3|wav|m4a|aac|ogg)$/i,'🎵'],
+  [/\\.(txt|log|md)$/i,'📃'],
+  [/\\.(dwg|dxf)$/i,'📐']
+];
 function annLinkIcon(a,color){
   if(!a||!a.linkUrl) return '';
-  var isPdf=/\\.pdf(\\?|$)/i.test(a.linkUrl)||/\\.pdf$/i.test(String(a.linkText||''));
+  /* 檔名優先（Drive 連結網址不含副檔名），其次才看網址本身 */
+  var name=String(a.linkText||'').trim();
+  var url=String(a.linkUrl).split(/[?#]/)[0];
+  var ic='🔗';
+  for(var i=0;i<ANN_ICONS.length;i++){
+    if(ANN_ICONS[i][0].test(name)||ANN_ICONS[i][0].test(url)){ ic=ANN_ICONS[i][1]; break; }
+  }
   var tip=(a.linkText||T('ann.openLink'));
   return ' <a href="'+esc(a.linkUrl)+'" target="_blank" rel="noopener" title="'+esc(tip)+'" '+
-    'style="text-decoration:none;font-size:1.05rem;color:'+color+'">'+(isPdf?'📄':'🔗')+'</a>';
+    'style="text-decoration:none;font-size:1.05rem;color:'+color+'">'+ic+'</a>';
 }
-/* 首頁公告欄：登入後首頁顯示「全部」公告；登入／註冊頁只顯示勾選「顯示於登入頁」者 */
+/* 公告欄：兩個版面各自依勾選決定。
+   annWrap     ＝ 登入後 Dashboard（勾「顯示於 Dashboard」者）
+   authAnnWrap ＝ 登入／註冊頁（勾「顯示於登入頁」者）
+   每個版面最多 5 則（後端一次給 10 則，避免一邊的公告被另一邊擠掉）。 */
 function renderAnnouncements(rows){
   window._annCache=rows||[];
   var style={info:['#f2f7fb','#d4e2ee','#123b5c','ℹ️'],
@@ -15723,8 +15931,11 @@ function renderAnnouncements(rows){
       '<span class="annLive">LIVE</span></div>'+items+'</div>';
   };
   var all=rows||[];
-  var landing=all.filter(function(a){ return a.showOnLanding; });
-  var w1=$('annWrap');      if(w1){ w1.innerHTML=build(all);     w1.classList.remove('d-none'); }
+  /* 舊資料沒有 showOnDashboard 欄位時視為「要顯示」（沿用舊行為） */
+  var onDash=function(a){ return a.showOnDashboard===undefined||a.showOnDashboard===''?true:!!a.showOnDashboard; };
+  var dash   =all.filter(onDash).slice(0,5);
+  var landing=all.filter(function(a){ return !!a.showOnLanding; }).slice(0,5);
+  var w1=$('annWrap');      if(w1){ w1.innerHTML=build(dash);    w1.classList.remove('d-none'); }
   var w2=$('authAnnWrap');  if(w2){ w2.innerHTML=build(landing); w2.classList.remove('d-none'); }
 }
 function loadPublicAnnounces(){
