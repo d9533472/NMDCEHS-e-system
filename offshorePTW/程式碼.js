@@ -350,6 +350,10 @@ function requireFields_(obj, fields) {
 /** 布林正規化（Sheets 讀回可能為字串） */
 function asBool_(v) { return v === true || v === 'TRUE' || v === 'true' || v === 1 || v === '1'; }
 
+/** 可兼任系統管理員的層級：Tier 4（審核）與 Tier 5（PTW 協調員） */
+var ADMIN_ELIGIBLE_TIERS = [4, 5];
+function canHoldAdmin_(tier) { return ADMIN_ELIGIBLE_TIERS.indexOf(Number(tier)) >= 0; }
+
 /**
  * PTW 時間狀態（只看已核發的 Active/Extended）：
  *   'notStarted' = 已核發但 validFrom 未到（待生效）
@@ -740,21 +744,22 @@ var SecurityService = (function () {
   }
 
   /**
-   * 系統管理員專用。Tier 5 是「PTW 協調員」這個作業角色，不等於系統管理員；
-   * 管理員權限一律要在「使用者管理」勾選「系統管理員」才取得（欄位 isAdmin，限 Tier 5 可勾）。
+   * 系統管理員專用。Tier 4／Tier 5 是作業角色（審核／PTW 協調員），不等於系統管理員；
+   * 管理員權限一律要在「使用者管理」勾選「系統管理員」才取得（欄位 isAdmin，限 Tier 4、5 可勾）。
    * 協調員才需要的作業權限請改用 requireAdminOrTier5()。
    */
   function requireAdmin(user) {
     if (!user) throw ApiError_('FORBIDDEN', 'Administrator only', '僅限系統管理員');
     if (asBool_(user.isAdmin)) return;
-    // 引導例外：系統內還沒有任何管理員時，Tier 5 可暫時進入後台指派第一位管理員；
-    // 一旦有人被勾選為管理員，這個例外就自動失效。
-    if (Number(user.tier) === 5 && noAdminYet_()) {
-      console.warn('requireAdmin bootstrap: no active administrator exists, temporarily allowing Tier 5 ' + user.email);
+    // 引導例外：系統內還沒有任何管理員時，可兼任管理員的層級（Tier 4／5）可暫時進入後台
+    // 指派第一位管理員；一旦有人被勾選為管理員，這個例外就自動失效。
+    if (canHoldAdmin_(user.tier) && noAdminYet_()) {
+      console.warn('requireAdmin bootstrap: no active administrator exists, temporarily allowing Tier ' +
+        Number(user.tier) + ' ' + user.email);
       return;
     }
     throw ApiError_('FORBIDDEN', 'Administrator only — ask an administrator to grant it in User Management',
-      '僅限系統管理員（Tier 5 不等於管理員，請由管理員在「使用者管理」中勾選「系統管理員」）');
+      '僅限系統管理員（Tier 4／5 不等於管理員，請由管理員在「使用者管理」中勾選「系統管理員」）');
   }
 
   /** 管理員或 PTW 協調員（Tier 5）：啟用／暫停／恢復／關閉、報表等協調員作業 */
@@ -2007,7 +2012,7 @@ var UserService = (function () {
 
     Repo.update('Users', target.id, {
       status: 'Active', companyId: payload.companyId, tier: tier,
-      isAdmin: asBool_(payload.isAdmin) && Number(payload.tier) === 5, // Admin 僅可由 Tier 5 兼任
+      isAdmin: asBool_(payload.isAdmin) && canHoldAdmin_(tier), // Admin 僅可由 Tier 4／5 兼任
       mustChangePassword: false
     }, user.id);
     AuditService.log({ user: user, actionType: 'ACCOUNT_APPROVE', entityType: 'User', entityId: target.id,
@@ -2065,7 +2070,7 @@ var UserService = (function () {
       email: email, nameZh: payload.nameZh, nameEn: payload.nameEn,
       companyId: payload.companyId, title: payload.title, phone: payload.phone || '',
       vessel: payload.vessel || '', tier: Number(payload.tier),
-      isAdmin: asBool_(payload.isAdmin) && Number(payload.tier) === 5,
+      isAdmin: asBool_(payload.isAdmin) && canHoldAdmin_(payload.tier),
       isHse: asBool_(payload.isHse),
       badgeNo: payload.badgeNo || '', department: String(payload.department || ''),
       signatureFileId: sigFileId,
@@ -2094,12 +2099,12 @@ var UserService = (function () {
         throw ApiError_('BAD_TIER', 'Tier must be 1–5', 'Tier 須為 1–5');
       }
     }
-    // 管理員權限只能由此勾選取得，且僅 Tier 5 可兼任；被調離 Tier 5 時一併收回，
+    // 管理員權限只能由此勾選取得，且僅 Tier 4／5 可兼任；被調離這些層級時一併收回，
     // 否則會留下「Tier 3 卻還是管理員」的孤兒權限
     var newTier = patch.tier !== undefined ? patch.tier : Number(target.tier);
     if (patch.isAdmin !== undefined) {
-      patch.isAdmin = asBool_(patch.isAdmin) && newTier === 5;
-    } else if (newTier !== 5 && asBool_(target.isAdmin)) {
+      patch.isAdmin = asBool_(patch.isAdmin) && canHoldAdmin_(newTier);
+    } else if (!canHoldAdmin_(newTier) && asBool_(target.isAdmin)) {
       patch.isAdmin = false;
     }
     var updated = Repo.update('Users', target.id, patch, user.id);
@@ -14690,7 +14695,7 @@ function openUserEdit(uid){
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isHse"'+((r.isHse===true||r.isHse==='TRUE')?' checked':'')+'>'+
       '<label class="form-check-label small" for="ue_isHse">'+(Z?'HSE 人員（不可任持有人）':'HSE (cannot be a holder)')+'</label></div></div>'+
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isAdmin"'+((r.isAdmin===true||r.isAdmin==='TRUE')?' checked':'')+'>'+
-      '<label class="form-check-label small" for="ue_isAdmin">'+(Z?'系統管理員（限 Tier 5 可勾；Tier 5 不會自動取得）':'Administrator (Tier 5 only — not granted automatically)')+'</label></div></div>'+
+      '<label class="form-check-label small" for="ue_isAdmin">'+(Z?'系統管理員（限 Tier 4／5 可勾；不會自動取得）':'Administrator (Tier 4 / 5 only — not granted automatically)')+'</label></div></div>'+
     '</div>'+
     '<div class="d-flex gap-2 mt-3 justify-content-end">'+
     '<button class="btn btn-sm btn-outline-secondary" onclick="closeUserEdit()">'+(Z?'取消':'Cancel')+'</button>'+
@@ -14734,6 +14739,10 @@ function ueSaveSignature(uid){
 }
 function closeUserEdit(){ var m=$('userEditModal'); if(m) m.remove(); }
 function saveUserEdit(uid){
+  var ueTier=Number($('ue_tier').value);
+  if($('ue_isAdmin').checked&&ueTier!==4&&ueTier!==5){
+    toast(lang==='zh'?'系統管理員限 Tier 4／5 可兼任':'Administrator can only be held by Tier 4 / 5'); return;
+  }
   api('user.update',{userId:uid,
     nameZh:$('ue_nameZh').value.trim(),nameEn:$('ue_nameEn').value.trim(),
     companyId:$('ue_companyId').value,tier:Number($('ue_tier').value),
@@ -16392,7 +16401,12 @@ function renderFlowChart(users){
   [3,4].forEach(function(t){
     h+=arrow+tierBox(t,nmdcUsers.filter(function(u){ return Number(u.tier)===t; }),true);
   });
-  var t5=act.filter(function(u){ return Number(u.tier)===5||u.isAdmin===true||u.isAdmin==='TRUE'; });
+  // Tier 5 格：含協調員與管理員；Tier 4 兼任管理員者已在上面的 Tier 4 格出現，不再重複列
+  var t5=act.filter(function(u){
+    if(Number(u.tier)===5) return true;
+    if(!asB(u.isAdmin)) return false;
+    return !(nmdcCo.indexOf(u.companyId)>=0&&(Number(u.tier)===3||Number(u.tier)===4));
+  });
   var seen={},t5u=[]; t5.forEach(function(u){ if(!seen[u.id]){ seen[u.id]=1; t5u.push(u); } });
   h+=arrow+tierBox(5,t5u,true);
   h+='<div style="text-align:center;margin-top:8px;color:#166534;font-weight:700">'+arrow+'🏁 '+(Z?'簽發 → 執行 → 關閉':'Issue → Execute → Close')+'</div>';
