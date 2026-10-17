@@ -524,7 +524,7 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .sch-table thead .sch-hol{background:#123f5e!important;box-shadow:inset 0 -2.5px 0 var(--gold)}
 .sch-table tbody .sch-hol{background:rgba(217,154,11,.22)!important}
 /* 班表四種顏色：平日上班（R／中／霄 同一色）、平日休假（灰）、假日上班、假日休假 */
-:root{--sch-wd-work-bg:#d7f0ea;--sch-wd-work:#0f6b5c;--sch-wd-off-bg:#e3e6ea;--sch-wd-off:#7b8794;
+:root{--sch-wd-work-bg:#d7f0ea;--sch-wd-work:#0f6b5c;--sch-wd-off-bg:#6b7280;--sch-wd-off:#ffffff;
   --sch-hd-work-bg:#ffd8b0;--sch-hd-work:#a2400c;--sch-hd-off-bg:#fff1c9;--sch-hd-off:#a07a1c}
 .sch-v-R,.sch-v-中,.sch-v-霄{background:var(--sch-wd-work-bg);color:var(--sch-wd-work);font-weight:700}
 .sch-v-H{background:var(--sch-wd-off-bg);color:var(--sch-wd-off);font-weight:600}
@@ -3662,7 +3662,7 @@ function exportSchImg(){
   // Build fully inline-styled HTML for accurate rendering
   const CELL='border:1px solid #dce3ea;padding:4px 6px;text-align:center;font-family:DM Sans,Noto Sans TC,Arial,sans-serif;font-size:12px;vertical-align:middle;';
   // 跟畫面一樣的四種顏色：平日上班／平日休假／假日上班／假日休假
-  const SCH_COL={wdWork:{bg:'#d7f0ea',color:'#0f6b5c'},wdOff:{bg:'#e3e6ea',color:'#7b8794'},hdWork:{bg:'#ffd8b0',color:'#a2400c'},hdOff:{bg:'#fff1c9',color:'#a07a1c'}};
+  const SCH_COL={wdWork:{bg:'#d7f0ea',color:'#0f6b5c'},wdOff:{bg:'#6b7280',color:'#ffffff'},hdWork:{bg:'#ffd8b0',color:'#a2400c'},hdOff:{bg:'#fff1c9',color:'#a07a1c'}};
   const cellCol=(v,off)=>v==='H'?(off?SCH_COL.hdOff:SCH_COL.wdOff):(off?SCH_COL.hdWork:SCH_COL.wdWork);
   const HOL_BG='#fdf4e2';
   const MERGE_BG='#fbeae7'; const MERGE_COLOR='#cc3527';
