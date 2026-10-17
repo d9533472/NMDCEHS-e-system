@@ -523,14 +523,13 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .sch-table thead th.sch-name{background:var(--navy);color:rgba(255,255,255,.6);font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:500;border-right-color:rgba(255,255,255,.4)!important;box-shadow:none}
 .sch-table thead .sch-hol{background:#123f5e!important;box-shadow:inset 0 -2.5px 0 var(--gold)}
 .sch-table tbody .sch-hol{background:rgba(217,154,11,.22)!important}
-.sch-v-R{background:rgba(20,163,187,.12);color:var(--cyan);font-weight:700}
-.sch-v-H{background:rgba(10,27,42,.075);color:#51616f;font-weight:600}
-.sch-v-中{background:rgba(0,176,80,.12);color:var(--accent2);font-weight:700}
-.sch-v-霄{background:rgba(124,77,255,.1);color:#5b35c7;font-weight:700}
-.sch-table tbody .sch-hol.sch-v-R{background:rgba(217,154,11,.26)!important;color:var(--cyan)}
-.sch-table tbody .sch-hol.sch-v-中{background:rgba(217,154,11,.26)!important;color:var(--accent2)}
-.sch-table tbody .sch-hol.sch-v-霄{background:rgba(217,154,11,.26)!important;color:#5b35c7}
-.sch-table tbody .sch-hol.sch-v-H{background:rgba(217,154,11,.2)!important;color:#7a6326}
+/* 班表四種顏色：平日上班（R／中／霄 同一色）、平日休假（灰）、假日上班、假日休假 */
+:root{--sch-wd-work-bg:#d7f0ea;--sch-wd-work:#0f6b5c;--sch-wd-off-bg:#e3e6ea;--sch-wd-off:#7b8794;
+  --sch-hd-work-bg:#ffd8b0;--sch-hd-work:#a2400c;--sch-hd-off-bg:#fff1c9;--sch-hd-off:#a07a1c}
+.sch-v-R,.sch-v-中,.sch-v-霄{background:var(--sch-wd-work-bg);color:var(--sch-wd-work);font-weight:700}
+.sch-v-H{background:var(--sch-wd-off-bg);color:var(--sch-wd-off);font-weight:600}
+.sch-table tbody .sch-hol.sch-v-R,.sch-table tbody .sch-hol.sch-v-中,.sch-table tbody .sch-hol.sch-v-霄{background:var(--sch-hd-work-bg)!important;color:var(--sch-hd-work)}
+.sch-table tbody .sch-hol.sch-v-H{background:var(--sch-hd-off-bg)!important;color:var(--sch-hd-off)}
 .sch-cell{cursor:default;transition:.12s;user-select:none;font-size:12.5px;height:34px}
 .sch-cell:hover{filter:brightness(.96)}
 .sch-merge{background:var(--danger-bg)!important;color:var(--danger)!important;font-weight:700;font-size:10.5px;box-shadow:inset 0 0 0 1px var(--danger-line);cursor:pointer;letter-spacing:.06em}
@@ -563,8 +562,8 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .sch-legend .sl-i{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .sch-legend .sl-k{display:inline-flex;align-items:center;justify-content:center;min-width:25px;height:22px;padding:0 6px;border-radius:6px;
   font-size:12px;font-weight:700;font-style:normal;border:1px solid var(--edge2)}
-.sch-legend .sch-v-H{background:var(--bg2)}
-.sch-legend .sl-hol{background:rgba(217,154,11,.24);border-color:var(--gold-line)}
+.sch-legend .sl-hd-work{background:var(--sch-hd-work-bg);color:var(--sch-hd-work)}
+.sch-legend .sl-hd-off{background:var(--sch-hd-off-bg);color:var(--sch-hd-off)}
 .sch-legend .sl-today{background:var(--accent);border-color:var(--accent-bar)}
 .sch-legend .sl-merge{background:var(--danger-bg);border-color:var(--danger-line);color:var(--danger);font-size:10.5px}
 .sch-legend .sl-sep{width:1px;height:17px;background:var(--edge2)}
@@ -2572,12 +2571,11 @@ function renderOneMonth(mo){
 
   // ── 圖例 ──
   h+=`<div class="sch-legend"><span class="sl-t">圖例</span>`
-    +`<span class="sl-i"><i class="sl-k sch-v-中">中</i>台中</span>`
-    +`<span class="sl-i"><i class="sl-k sch-v-霄">霄</i>通霄</span>`
-    +`<span class="sl-i"><i class="sl-k sch-v-R">R</i>辦公室</span>`
-    +`<span class="sl-i"><i class="sl-k sch-v-H">H</i>休假・請假</span>`
+    +`<span class="sl-i"><i class="sl-k sch-v-R">R</i><i class="sl-k sch-v-中">中</i><i class="sl-k sch-v-霄">霄</i>平日上班（R 辦公室・中 台中・霄 通霄）</span>`
+    +`<span class="sl-i"><i class="sl-k sch-v-H">H</i>平日休假・請假</span>`
     +`<span class="sl-sep"></span>`
-    +`<span class="sl-i"><i class="sl-k sl-hol"></i>週末・國定假日</span>`
+    +`<span class="sl-i"><i class="sl-k sl-hd-work">R</i>假日上班</span>`
+    +`<span class="sl-i"><i class="sl-k sl-hd-off">H</i>假日休假（週末・國定假日）</span>`
     +(todayD?`<span class="sl-i"><i class="sl-k sl-today"></i>今天</span>`:'')
     +`<span class="sl-i"><i class="sl-k sl-merge">特</i>特殊事項</span>`
     +`</div>`;
@@ -3663,12 +3661,9 @@ function exportSchImg(){
 
   // Build fully inline-styled HTML for accurate rendering
   const CELL='border:1px solid #dce3ea;padding:4px 6px;text-align:center;font-family:DM Sans,Noto Sans TC,Arial,sans-serif;font-size:12px;vertical-align:middle;';
-  const COLORS={
-    'R':  {bg:'#e6f4f7',color:'#0a7183'},
-    'H':  {bg:'#eef1f4',color:'#5c6b78'},
-    '中': {bg:'#e6f6ec',color:'#00703a'},
-    '霄': {bg:'#f0ebff',color:'#5b35c7'},
-  };
+  // 跟畫面一樣的四種顏色：平日上班／平日休假／假日上班／假日休假
+  const SCH_COL={wdWork:{bg:'#d7f0ea',color:'#0f6b5c'},wdOff:{bg:'#e3e6ea',color:'#7b8794'},hdWork:{bg:'#ffd8b0',color:'#a2400c'},hdOff:{bg:'#fff1c9',color:'#a07a1c'}};
+  const cellCol=(v,off)=>v==='H'?(off?SCH_COL.hdOff:SCH_COL.wdOff):(off?SCH_COL.hdWork:SCH_COL.wdWork);
   const HOL_BG='#fdf4e2';
   const MERGE_BG='#fbeae7'; const MERGE_COLOR='#cc3527';
 
@@ -3704,8 +3699,8 @@ function exportSchImg(){
       if(inMg){d++;continue;}
       const v=sd.cells[p]?.[d]||'R';
       const off=isDayOff(y,m,d);
-      const col=COLORS[v]||COLORS['R'];
-      const bg=off?HOL_BG:col.bg;
+      const col=cellCol(v,off);
+      const bg=col.bg;
       const color=col.color;
       html+=`<td style="${CELL}background:${bg};color:${color};font-weight:700">${v}</td>`;
       d++;
@@ -3713,6 +3708,11 @@ function exportSchImg(){
     html+='</tr>';
   });
   html+='</tbody></table>';
+  // 圖例
+  const LG=(c,t,x)=>`<span style="display:inline-flex;align-items:center;gap:5px;margin-right:16px"><span style="display:inline-block;min-width:22px;padding:2px 6px;border-radius:5px;text-align:center;font-weight:700;background:${c.bg};color:${c.color}">${t}</span>${x}</span>`;
+  html+='<div style="margin-top:10px;font-size:12px;color:#2b4257;font-family:DM Sans,Noto Sans TC,Arial,sans-serif">'
+    +LG(SCH_COL.wdWork,'R 中 霄','平日上班')+LG(SCH_COL.wdOff,'H','平日休假')+LG(SCH_COL.hdWork,'R 中 霄','假日上班')+LG(SCH_COL.hdOff,'H','假日休假')
+    +'<span style="color:#556c80">R 辦公室・中 台中・霄 通霄</span></div>';
 
   // Summary table
   html+='<table style="border-collapse:collapse;font-size:13px;margin-top:14px">';
