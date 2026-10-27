@@ -4031,6 +4031,7 @@ var PTWService = (function () {
           validFrom: p.validFrom, validTo: p.validTo, currentTier: p.currentTier,
           version: p.version, updatedAt: p.updatedAt,
           isMine: p.applicantUserId === user.id,
+          driveFolderId: p.driveFolderId || '',
           // 完工申報／關單：同承商公司人員皆可（未到期亦可提前關單），Tier 5／管理員亦可
           canClose: asBool_(user.isAdmin) || Number(user.tier) === 5 ||
             (!!p.companyId && String(p.companyId) === String(user.companyId)) };
@@ -16854,6 +16855,8 @@ function renderPtwListData(data){
            '<button class="btn btn-sm btn-outline-success ms-1" title="'+esc(T('pdf.certs'))+'" onclick="quickPdf(\\''+r.id+'\\',\\'certs\\')">📑</button>':'')+
         (r.canClose&&['Approved','Active','Extended','Suspended','Expired'].indexOf(r.status)>=0
           ?'<button class="btn btn-sm btn-danger ms-1" title="'+(lang==='zh'?'完工申報／關閉 PTW':'Declare completion / close PTW')+'" onclick="quickClosure(\\''+r.id+'\\')">🏁 '+(lang==='zh'?'關閉':'Close')+'</button>':'')+
+        (r.driveFolderId
+          ?'<a class="btn btn-sm btn-outline-secondary ms-1" target="_blank" rel="noopener" title="'+(lang==='zh'?'開啟此 PTW 的雲端硬碟資料夾':'Open this PTW Drive folder')+'" href="https://drive.google.com/drive/folders/'+esc(r.driveFolderId)+'">📁</a>':'')+
         (canDeletePtw()
           ?'<button class="btn btn-sm btn-outline-danger ms-1" title="'+esc(T('ptw.delete'))+(lang==='zh'?'（僅管理員）':' (Admin only)')+'" onclick="doDeletePtwRow(\\''+r.id+'\\',\\''+esc(String(r.number||'')).replace(/'/g,"\\\\'")+'\\')">🗑</button>':'')+
         '</td></tr>';
