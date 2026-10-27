@@ -912,7 +912,10 @@ var SequenceService = (function () {
       if (mm) used[Number(mm[1])] = true;
     };
     if (key === 'PTW') {
-      Repo.readAll('PTW_Master').forEach(function (p) { if (p.ptwNumber) take(p.ptwNumber); });
+      // 測試帳號的 PTW 以 Example-xxx 當正式號，不佔用 OPTW 序號
+      Repo.readAll('PTW_Master').forEach(function (p) {
+        if (p.ptwNumber && !/^Example-/i.test(String(p.ptwNumber))) take(p.ptwNumber);
+      });
     } else if (key === 'TMP') {
       Repo.readAll('PTW_Master').forEach(function (p) { if (p.tempNumber) take(p.tempNumber); });
     } else {
@@ -923,7 +926,7 @@ var SequenceService = (function () {
     return used;
   }
 
-  /** 原子取下一號：優先補中間空號；已存在的號碼一律保留不動。 */
+  /** 原子取下一號：PTW 正式號照核發順序遞增；其餘（草稿/證書）優先補中間空號；已存在的號碼一律保留不動。 */
   function next(key) {
     if (!FORMATS[key]) throw new Error('Unknown sequence key: ' + key);
     return Repo.withLock(function () {
@@ -941,7 +944,13 @@ var SequenceService = (function () {
         try { cache.remove('seqres_' + key + '_' + n); } catch (e) {}  // 已寫入資料列 → 解除預約
       });
       var value = 0;
-      for (var i = 1; i <= maxUsed + 50; i++) {
+      if (key === 'PTW') {
+        // 正式編號與草稿編號無關：依 Tier 5 核發先後取「目前最大號 + 1」，不補空號、不回收，
+        // 確保 OPTW 號碼永遠照核發順序遞增
+        value = Math.max(Number((row && row.currentValue) || 0), maxUsed) + 1;
+        while (cache.get('seqres_' + key + '_' + value)) value++;
+      }
+      for (var i = 1; !value && i <= maxUsed + 50; i++) {
         if (used[i]) continue;
         if (cache.get('seqres_' + key + '_' + i)) continue;   // 已預約（尚未寫入資料列）
         value = i; break;
@@ -11230,7 +11239,7 @@ function runAllTests_M42() {
     assert(n.length >= 1 && n[0].ptwId === d.data.ptwId, 'review notification missing ptwId');
   });
 
-  t('T59 編號補空號：釋出的中間號碼會被下一張補上；已發出的號碼不變', function () {
+  t('T59 正式編號照核發順序：釋出的中間號碼不回收；已發出的號碼不變', function () {
     // 取三個 PTW 號並實際寫入 → 造出中間空號
     var mk = function () {
       return Repo.insert('PTW_Master', { ptwNumber: SequenceService.next('PTW'), status: CFG.STATUS.APPROVED,
@@ -11243,7 +11252,8 @@ function runAllTests_M42() {
     // 刪除中間那張（號碼釋出）
     Repo.update('PTW_Master', a2.id, { ptwNumber: '', isActive: false }, 'test');
     var next1 = SequenceService.next('PTW');
-    assert(next1 === gapNo, 'gap not reused: expected ' + gapNo + ' got ' + next1);
+    assert(next1 !== gapNo && n({ ptwNumber: next1 }) === n(a3) + 1,
+      'official number not issued in order: expected after ' + keepNo + ' got ' + next1);
     // 已發出的號碼未被更動
     assert(Repo.getById('PTW_Master', a3.id).ptwNumber === keepNo, 'issued number changed!');
     // 證書編號同規則
