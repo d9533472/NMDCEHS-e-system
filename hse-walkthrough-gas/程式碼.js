@@ -53,7 +53,11 @@ var DEFAULTS = {
   project: 'MFY',
   riskDays: { P1: 3, P2: 7, P3: 14 },
   hseRep: '',
-  sectionRep: ''
+  sectionRep: '',
+  contractorDays: 3,        // 承包商填報頁的預設改善期限（巡查日＋N 天）
+  overdueMail: false,       // 逾期是否每天寄信給承包商負責人
+  contractorEmails: {},     // 承包商名稱 → 負責人信箱（多個用逗號分隔）
+  overdueCc: ''             // 逾期通知的副本收件人
 };
 
 /* ============================ 入口 ============================ */
@@ -693,6 +697,27 @@ function hseDeletePhoto(key, photoId) {
   }
 }
 
+/* ============================ 逾期通知承包商 ============================ */
+
+/**
+ * 寄信由承包商回報那支 GAS 負責（它本來就有寄信權限）；這裡只負責每天早上 8 點叫它一次。
+ * 這樣主系統不用多要一個寄信權限，也就不必重新授權。
+ */
+var CONTRACTOR_URL = 'https://script.google.com/macros/s/AKfycbxudeT6PVO69kzOb0sEbeADyTpcMeExayzfZpKxRzRbxRh8k3EMLghjawUagGhzWJYnZA/exec';
+var OVERDUE_KEY = 'nmdc-hse-overdue-2026';
+
+function overdueDaily() {
+  var res = UrlFetchApp.fetch(CONTRACTOR_URL + '?act=overdue&key=' + OVERDUE_KEY, { muteHttpExceptions: true });
+  console.log('overdue mail: ' + res.getResponseCode() + ' ' + res.getContentText().slice(0, 500));
+}
+
+function syncOverdueTrigger_(on) {
+  var have = ScriptApp.getProjectTriggers().filter(function (t) { return t.getHandlerFunction() === 'overdueDaily'; });
+  if (on && have.length === 1) return;
+  have.forEach(function (t) { ScriptApp.deleteTrigger(t); });
+  if (on) ScriptApp.newTrigger('overdueDaily').timeBased().everyDays(1).atHour(8).inTimezone(TZ).create();
+}
+
 function hseSaveConfig(key, obj) {
   auth_(key);
   var lock = LockService.getScriptLock();
@@ -713,7 +738,10 @@ function hseSaveConfig(key, obj) {
       if (map[k]) sh.getRange(map[k], 2).setValue(v);
       else sh.appendRow([k, v]);
     });
-    return { ok: true, config: cfg_(r.ss) };
+    var cfg = cfg_(r.ss);
+    var trig = '';
+    try { syncOverdueTrigger_(!!cfg.overdueMail); } catch (e) { trig = String(e.message || e); }
+    return { ok: true, config: cfg, triggerError: trig };
   } catch (err) {
     return { ok: false, error: String(err.message || err) };
   } finally {

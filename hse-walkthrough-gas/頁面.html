@@ -156,6 +156,22 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .gh span{color:#8a97a5;font-weight:700;margin-left:6px}
 @media(hover:hover){.lr:hover{background:#f7fafd}}
 .tag.src{background:#ffe7b8;color:#7a4b00;font-weight:800}
+
+/* 逾期提示列 */
+.odb{display:flex;align-items:center;gap:10px;background:#fdecec;border:1px solid #f5c6c6;border-radius:14px;
+ padding:10px 14px;margin-bottom:11px;cursor:pointer;color:#a61f1f;font-size:13.5px;font-weight:700;line-height:1.45}
+.odb b{font-size:18px;font-weight:900;color:#c62828}
+.odb .go{margin-left:auto;flex:0 0 auto;font-size:12px;font-weight:900;background:#c62828;color:#fff;border-radius:999px;padding:5px 11px}
+.odb .ic{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#c62828;color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900}
+@media(hover:hover){.odb:hover{background:#fbe1e1}}
+
+/* 設定頁：逾期通知 */
+.csec{margin:22px 0 2px;padding-top:14px;border-top:1px solid #eef1f4;font-size:13.5px;font-weight:900;color:#16324f;letter-spacing:.5px}
+label.sw{display:flex;align-items:center;gap:9px;cursor:pointer;margin-top:14px;font-size:14px;color:#16324f}
+label.sw input{width:20px;height:20px;flex:0 0 auto;box-shadow:none;accent-color:#00B050}
+.cm{display:grid;grid-template-columns:minmax(80px,30%) 1fr;gap:7px;align-items:center;margin-bottom:7px}
+.cm span{font-size:13px;font-weight:800;color:#38475a;word-break:break-all}
+.cm input{padding:9px 10px;font-size:14px}
 .srcb{display:inline-block;font-size:10px;font-weight:900;color:#7a4b00;background:#ffe7b8;border-radius:5px;padding:1px 6px;margin-left:5px;vertical-align:1px}
 
 .btn{display:block;width:100%;border:0;border-radius:16px;padding:14px;font-size:16px;font-weight:700;
@@ -305,6 +321,8 @@ details summary::-webkit-details-marker{display:none}
 </div>
 
 <div class="wrap">
+
+ <div class="odb" id="odb" onclick="flt('overdue')" style="display:none"></div>
 
  <div class="kpis">
   <div class="kpi k0" onclick="flt('')"><b id="k0">—</b><span data-i="kAll"></span></div>
@@ -471,6 +489,18 @@ details summary::-webkit-details-marker{display:none}
    <div class="hint" data-i="cDaysH"></div>
    <label data-i="cHseRep"></label><input id="c_hseRep">
    <label data-i="cSecRep"></label><input id="c_sectionRep">
+
+   <div class="csec" data-i="cOdSec"></div>
+   <label data-i="cConDays"></label><input id="c_conDays" type="number" min="1" max="60">
+   <div class="hint" data-i="cConDaysH"></div>
+   <label class="sw"><input type="checkbox" id="c_odMail" onchange="odUi()"><span data-i="cOdMail"></span></label>
+   <div class="hint" data-i="cOdMailH"></div>
+   <div id="odBox">
+    <label data-i="cConMail"></label>
+    <div id="c_conMail"></div>
+    <div class="hint" data-i="cConMailH"></div>
+    <label data-i="cOdCc"></label><input id="c_odCc" data-p="pOdCc">
+   </div>
    <div style="height:12px"></div>
    <button class="btn btn2" onclick="saveCfg()" data-i="cSave" style="margin:0"></button>
    </div>
@@ -562,7 +592,14 @@ var L={zh:{
  lAll:"所有日期", lN:" 筆", lBack:"✕ 回日期檢視",
  soOver:"逾期優先", soDate:"日期新→舊", soCon:"依承包商",
  lNone:"沒有符合的紀錄", noCon:"未填承包商", tDue:"預定 ", tSrc:"承包商填報", ovD:" 天",
- hzN:"未填危害", eidMiss:"找不到這筆紀錄（可能已刪除或改了日期）"
+ hzN:"未填危害", eidMiss:"找不到這筆紀錄（可能已刪除或改了日期）",
+ odb1:"有 ", odb2:" 筆改善單已逾期未改善", odbGo:"查看 →",
+ cOdSec:"承包商改善期限與逾期通知",
+ cConDays:"承包商回報的預設改善期限（天）", cConDaysH:"承包商填報頁送出時，預定完成日期＝巡查日＋這個天數；承包商頁上也會顯示這個期限。",
+ cOdMail:"逾期未改善時，自動寄信給承包商負責人", cOdMailH:"開啟後每天早上 08:00 檢查一次，逾期且未結案的改善單會整理成一封信寄給該承包商；結案後就不再寄。",
+ cConMail:"承包商負責人信箱（多個用逗號分隔，留白＝不寄）", cConMailH:"清單跟上面的「承包商清單」連動。",
+ cOdCc:"副本 CC（選填，多個用逗號分隔）", pOdCc:"例：jin.wang@nmdc-group.com",
+ okTrig:"已儲存 ✓ 逾期通知已開啟（每天 08:00）", badMail:"信箱格式不正確："
 },en:{
  title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
  kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue",
@@ -630,7 +667,14 @@ var L={zh:{
  lAll:"All dates", lN:"", lBack:"✕ Back to daily view",
  soOver:"Overdue first", soDate:"Newest first", soCon:"By contractor",
  lNone:"No matching findings", noCon:"No contractor", tDue:"Target ", tSrc:"Contractor report", ovD:" d",
- hzN:"No hazard type", eidMiss:"That finding was not found (deleted or moved to another date)"
+ hzN:"No hazard type", eidMiss:"That finding was not found (deleted or moved to another date)",
+ odb1:"", odb2:" finding(s) overdue and not yet fixed", odbGo:"View →",
+ cOdSec:"Contractor deadline & overdue notice",
+ cConDays:"Default fix deadline for contractor reports (days)", cConDaysH:"Target date = inspection date + these days; also shown on the contractor page.",
+ cOdMail:"Email the contractor contact when items are overdue", cOdMailH:"Checked daily at 08:00; each contractor gets one email listing its open overdue items. Stops once closed.",
+ cConMail:"Contractor contact emails (comma-separated; blank = no email)", cConMailH:"Follows the contractor list above.",
+ cOdCc:"CC (optional, comma-separated)", pOdCc:"e.g. jin.wang@nmdc-group.com",
+ okTrig:"Saved ✓ Overdue emails on (daily 08:00)", badMail:"Invalid email: "
 }};
 
 function $(i){return document.getElementById(i)}
@@ -1097,6 +1141,9 @@ function paint(){
  $("k1").textContent=COUNTS.open||0;
  $("k2").textContent=COUNTS.closed||0;
  $("k3").textContent=COUNTS.overdue||0;
+ var od=COUNTS.overdue||0;
+ $("odb").style.display=(od&&!(MODE==="list"&&FILTER==="overdue"))?"flex":"none";
+ if(od)$("odb").innerHTML='<span class="ic">!</span><span>'+esc(t("odb1"))+'<b>'+od+'</b>'+esc(t("odb2"))+'</span><span class="go">'+esc(t("odbGo"))+'</span>';
  updExpBtn();updDsel();
 
  $("dwrap").style.display=MODE==="list"?"none":"";
@@ -1337,7 +1384,26 @@ function fillCfgForm(){
  $("c_d3").value=(CFG.riskDays&&CFG.riskDays.P3)||14;
  $("c_hseRep").value=CFG.hseRep||"";
  $("c_sectionRep").value=CFG.sectionRep||"";
+ $("c_conDays").value=CFG.contractorDays||3;
+ $("c_odMail").checked=!!CFG.overdueMail;
+ $("c_odCc").value=CFG.overdueCc||"";
+ CMAIL=JSON.parse(JSON.stringify(CFG.contractorEmails||{}));
+ buildConMail();odUi();
 }
+/** 負責人信箱欄位跟著承包商清單長；打到一半的值先記在 CMAIL，重畫也不會掉。 */
+var CMAIL={};
+function buildConMail(){
+ var box=$("c_conMail");
+ box.querySelectorAll("input").forEach(function(i){CMAIL[i.dataset.c]=i.value.trim()});
+ box.innerHTML="";
+ lines("c_contractors").filter(function(c){return c!=="NMDC"}).forEach(function(c){
+  var r=document.createElement("div");r.className="cm";
+  var sp=document.createElement("span");sp.textContent=c;
+  var ip=document.createElement("input");ip.type="email";ip.dataset.c=c;ip.value=CMAIL[c]||"";ip.placeholder="name@company.com";
+  r.appendChild(sp);r.appendChild(ip);box.appendChild(r);
+ });
+}
+function odUi(){$("odBox").style.opacity=$("c_odMail").checked?"1":".55"}
 function lines(id){return $(id).value.split("\n").map(function(s){return s.trim()}).filter(String)}
 function saveCfg(){
  var obj={
@@ -1348,13 +1414,27 @@ function saveCfg(){
   project:$("c_project").value.trim(),
   riskDays:{P1:+$("c_d1").value||3,P2:+$("c_d2").value||7,P3:+$("c_d3").value||14},
   hseRep:$("c_hseRep").value.trim(),
-  sectionRep:$("c_sectionRep").value.trim()
+  sectionRep:$("c_sectionRep").value.trim(),
+  contractorDays:Math.max(1,Math.min(60,+$("c_conDays").value||3)),
+  overdueMail:$("c_odMail").checked,
+  overdueCc:$("c_odCc").value.trim()
  };
+ buildConMail();
+ var cm={},bad="",re=/^[^@,;\s]+@[^@,;\s]+\.[^@,;\s]+$/;
+ Object.keys(CMAIL).forEach(function(c){
+  if(lines("c_contractors").indexOf(c)<0||!CMAIL[c])return;
+  CMAIL[c].split(/[,;，]/).map(function(x){return x.trim()}).filter(String).forEach(function(x){if(!re.test(x))bad=bad||x});
+  cm[c]=CMAIL[c];
+ });
+ obj.overdueCc.split(/[,;，]/).map(function(x){return x.trim()}).filter(String).forEach(function(x){if(!re.test(x))bad=bad||x});
+ if(bad){toast(t("badMail")+bad);return}
+ obj.contractorEmails=cm;
  google.script.run.withSuccessHandler(function(r){
   if(r&&r.ok){CFG=r.config;$("c_members").dataset.filled="";
    $("opReporter").dataset.built="";
    $("f_con").dataset.sig="";$("f_haz").dataset.sig="";$("f_action").dataset.sig="";
-   buildOptions();fillCfgForm();toast(t("okSave"))}
+   buildOptions();fillCfgForm();
+   toast(r.triggerError?(t("fail")+r.triggerError):t(obj.overdueMail?"okTrig":"okSave"))}
   else toast(t("fail")+((r&&r.error)||"?"));
  }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))}).hseSaveConfig(KEY,obj);
 }
@@ -1370,6 +1450,7 @@ function saveCfg(){
  applyLang();
  $("f_obsZh").addEventListener("blur",function(){autoTr("f_obsZh","f_obsEn")});
  $("f_recZh").addEventListener("blur",function(){autoTr("f_recZh","f_recEn")});
+ $("c_contractors").addEventListener("input",buildConMail);
  $("f_obsEn").addEventListener("input",function(){this.dataset.auto=""});
  $("f_recEn").addEventListener("input",function(){this.dataset.auto=""});
  ["f_obsZh","f_recZh"].forEach(function(id){

@@ -22,6 +22,7 @@ var NOTIFY = [
   'paul.tong@nmdc-group.com'
 ];
 var SITE = 'NMDC 通霄工區';
+var CONTRACTOR_PAGE = 'https://script.google.com/macros/s/AKfycbxudeT6PVO69kzOb0sEbeADyTpcMeExayzfZpKxRzRbxRh8k3EMLghjawUagGhzWJYnZA/exec';
 // 業主自己不是承包商，不出現在承包商的選項裡
 var HIDE_CONTRACTORS = ['NMDC'];
 var MAX_PHOTOS = 6;
@@ -29,6 +30,23 @@ var MAX_LEN = 2000;
 
 function doGet(e) {
   var q = (e && e.parameter) || {};
+  if (q.act === 'overdue') {
+    var od;
+    try {
+      if (q.key !== OVERDUE_KEY) throw new Error('unauthorized');
+      od = overdueRun_(q.force === '1');
+    } catch (err) { od = { ok: false, error: String(err && err.message || err) }; }
+    return ContentService.createTextOutput(JSON.stringify(od)).setMimeType(ContentService.MimeType.JSON);
+  }
+  if (q.act === 'overduepreview') {
+    var pv;
+    try {
+      if (q.key !== TEST_KEY) throw new Error('unauthorized');
+      if (NOTIFY.indexOf(String(q.to || '')) < 0) throw new Error('收件人不在通知名單內');
+      pv = overdueRun_(false, String(q.to));
+    } catch (err) { pv = { ok: false, error: String(err && err.message || err) }; }
+    return ContentService.createTextOutput(JSON.stringify(pv)).setMimeType(ContentService.MimeType.JSON);
+  }
   if (q.act === 'testmail') {
     var out;
     try {
@@ -56,13 +74,13 @@ function setup() {
 
 /** 承包商頁只需要承包商清單、危害種類與專案名稱，其餘設定不外流。 */
 function publicCfg_() {
-  var out = { contractors: [], hazards: [], project: 'MFY' };
+  var out = { contractors: [], hazards: [], project: 'MFY', contractorDays: 3 };
   try {
     var sh = SpreadsheetApp.openById(SS_ID).getSheetByName('Settings');
     var n = sh.getLastRow();
     if (n > 1) {
       sh.getRange(2, 1, n - 1, 2).getValues().forEach(function (r) {
-        if (['contractors', 'hazards', 'project'].indexOf(r[0]) < 0) return;
+        if (['contractors', 'hazards', 'project', 'contractorDays'].indexOf(r[0]) < 0) return;
         try { out[r[0]] = JSON.parse(r[1]); } catch (e) { out[r[0]] = r[1]; }
       });
     }
@@ -81,6 +99,11 @@ function cTranslate(text) {
   }
 }
 
+function days_(cfg) { var n = parseInt(cfg.contractorDays, 10); return n > 0 && n <= 60 ? n : 3; }
+function addDays_(ymd, n) {
+  var p = ymd.split('-');
+  return Utilities.formatDate(new Date(+p[0], +p[1] - 1, +p[2] + n, 12), TZ, 'yyyy-MM-dd');
+}
 function clip_(v) { return String(v == null ? '' : v).trim().slice(0, MAX_LEN); }
 function newId_(p) { return p + Date.now().toString(36) + Math.random().toString(36).substring(2, 7); }
 function stamp_(d) { return Utilities.formatDate(d, TZ, 'yyyy-MM-dd HH:mm:ss'); }
@@ -118,17 +141,17 @@ function cSubmit(p) {
       id: newId_('R'), date: date, time: time, reporter: reporter, members: '',
       project: cfg.project || 'MFY', contractor: contractor, hazard: hazard,
       obsZh: obsZh, obsEn: obsEn, recZh: recZh, recEn: recEn,
-      actionBy: '', risk: '', targetDate: '', status: 'Open', closeOutDate: '',
+      actionBy: '', risk: '', targetDate: addDays_(date, days_(cfg)), status: 'Open', closeOutDate: '',
       createdAt: stamp_(now), updatedAt: stamp_(now), deleted: '', source: 'contractor'
     };
+    rec.days = days_(cfg);   // 只給通知信用；表頭沒有這欄，不會寫進試算表
 
-    // 改善後照片是選填；有附也維持「開放中」，由 NMDC 確認後再結案
+    // 改善後照片是選填；有附就直接結案（跟主系統貼改善後照片一樣），結案日＝今天
     var blobs = [], after = [];
     var lock = LockService.getScriptLock();
     lock.waitLock(30000);
     try {
       var ss = SpreadsheetApp.openById(SS_ID);
-      appendByHeader_(ss.getSheetByName('Records'), rec);
       var folder = DriveApp.getFolderById(PHOTO_ID);
       var psh = ss.getSheetByName('Photos');
       var save = function (list, kind, out) {
@@ -150,12 +173,16 @@ function cSubmit(p) {
       };
       save(p.photos, 'before', blobs);
       save(p.photosAfter, 'after', after);
+      // 照片先存完再寫紀錄，才知道改善後照片有沒有真的存進去
+      if (after.length) { rec.status = 'Closed'; rec.closeOutDate = Utilities.formatDate(now, TZ, 'yyyy-MM-dd'); }
+      appendByHeader_(ss.getSheetByName('Records'), rec);
     } finally {
       lock.releaseLock();
     }
 
     var mailed = notify_(rec, blobs, after);
-    return { ok: true, id: rec.id, photoCount: blobs.length, afterCount: after.length, mailed: mailed };
+    return { ok: true, id: rec.id, photoCount: blobs.length, afterCount: after.length, mailed: mailed,
+      targetDate: rec.targetDate, closed: rec.status === 'Closed' };
   } catch (err) {
     return { ok: false, error: String(err.message || err) };
   }
@@ -240,9 +267,12 @@ function buildMail_(rec, blobs, after, opt) {
   };
   var pics = gallery(blobs, 'p', '改善前照片', 'BEFORE', '#546e7a') +
     gallery(after, 'q', '改善後照片', 'AFTER', '#1b8a4a');
-  var todo = after.length
-    ? '<b style="color:#1b6e3c">承包商已附改善後照片</b>　請確認後結案，並補填權責單位 · 風險等級 · 預定完成日期'
-    : '<b style="color:#b26a00">待 NMDC 補填</b>　權責單位 · 風險等級 · 預定完成日期';
+  var closed = rec.status === 'Closed';
+  var todo = closed
+    ? '<b style="color:#1b6e3c">承包商已附改善後照片，系統已自動結案</b>' + (rec.closeOutDate ? '（結案日 ' + esc_(rec.closeOutDate) + '）' : '') +
+      '<br>如照片不符可按「編輯這一筆」重新開啟；權責單位 · 風險等級可視需要補填。'
+    : '<b style="color:#b26a00">改善期限 ' + esc_(rec.targetDate || '—') + '</b>（預設巡查日起 ' + (rec.days || 3) + ' 天內）' +
+      '<br>待 NMDC 補填：權責單位 · 風險等級；期限可在系統內調整。';
 
   var btn = function (href, label, primary) {
     return '<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr>' +
@@ -277,7 +307,9 @@ function buildMail_(rec, blobs, after, opt) {
     '<div style="' + F + 'font-size:24px;line-height:1.3;color:#ffffff;font-weight:900;margin-top:8px">' + esc_(hz.zh) + '</div>' +
     (hz.en ? '<div style="' + F + 'font-size:13px;color:#9fb6cb;margin-top:3px">' + esc_(hz.en) + '</div>' : '') +
     '</td><td valign="top" align="right" width="110">' +
-    '<span style="' + F + 'display:inline-block;background:#fff3df;color:#b26a00;font-size:12px;font-weight:900;border-radius:999px;padding:6px 12px;white-space:nowrap">● 開放中 OPEN</span>' +
+    (closed
+      ? '<span style="' + F + 'display:inline-block;background:#e2f2e6;color:#1b6e3c;font-size:12px;font-weight:900;border-radius:999px;padding:6px 12px;white-space:nowrap">✓ 已結案 CLOSED</span>'
+      : '<span style="' + F + 'display:inline-block;background:#fff3df;color:#b26a00;font-size:12px;font-weight:900;border-radius:999px;padding:6px 12px;white-space:nowrap">● 開放中 OPEN</span>') +
     '</td></tr></table></td></tr>' +
     '<tr><td height="4" bgcolor="#00B050" style="background:#00B050;font-size:0;line-height:0">&nbsp;</td></tr>' +
     // 基本資料四格
@@ -345,8 +377,176 @@ function testMail_(to) {
   };
   var blob = function (p) { return DriveApp.getFileById(p.fileId).getBlob(); };
   var blobs = ph.slice(0, MAX_PHOTOS).map(blob), after = pa.slice(0, MAX_PHOTOS).map(blob);
+  var cfg = publicCfg_();
+  r.days = days_(cfg);
+  r.targetDate = addDays_(r.date, r.days);
+  if (after.length) { r.status = 'Closed'; r.closeOutDate = fmtD(rec.closeOutDate, 'yyyy-MM-dd') || r.date; }
   var m = buildMail_(r, blobs, after, { test: true });
   MailApp.sendEmail({ to: to, subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE 承包商回報' });
   return { ok: true, to: to, record: r.id, date: r.date, photos: blobs.length, after: after.length };
+}
+
+/* ============================ 逾期通知承包商 ============================ */
+
+/**
+ * 主系統每天 08:00 用 ?act=overdue&key=… 叫這裡一次（主系統沒有寄信權限）。
+ * 讀主系統 Settings：overdueMail 沒開就什麼都不做；開了就把「未結案且預定完成日已過」的改善單
+ * 依承包商分組，每個有填負責人信箱的承包商寄一封彙整信。
+ * 同一天只寄一次（記在指令碼屬性），避免重複觸發時連寄。
+ * previewTo：只把信寄給這個 NMDC 信箱預覽（不寄承包商、不記錄），測試用。
+ */
+var OVERDUE_KEY = 'nmdc-hse-overdue-2026';
+
+function readSheet_(ss, name) {
+  var sh = ss.getSheetByName(name), v = sh.getDataRange().getValues(), h = v.shift();
+  return v.map(function (r) { var o = {}; h.forEach(function (k, i) { o[k] = r[i]; }); return o; })
+    .filter(function (o) { return o.id && String(o.deleted) !== '1'; });
+}
+function ymdOf_(v) {
+  return Object.prototype.toString.call(v) === '[object Date]' ? Utilities.formatDate(v, TZ, 'yyyy-MM-dd') : String(v || '').trim();
+}
+function fullCfg_(ss) {
+  var out = {};
+  var sh = ss.getSheetByName('Settings'), n = sh.getLastRow();
+  if (n > 1) sh.getRange(2, 1, n - 1, 2).getValues().forEach(function (r) {
+    if (!r[0]) return;
+    try { out[r[0]] = JSON.parse(r[1]); } catch (e) { out[r[0]] = r[1]; }
+  });
+  return out;
+}
+function mails_(s) {
+  return String(s || '').split(/[,;，]/).map(function (x) { return x.trim(); })
+    .filter(function (x) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x); });
+}
+
+function overdueRun_(force, previewTo) {
+  var ss = SpreadsheetApp.openById(SS_ID);
+  var cfg = fullCfg_(ss);
+  if (!previewTo && !cfg.overdueMail) return { ok: true, skipped: 'overdueMail off' };
+  var today = Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd');
+  var props = PropertiesService.getScriptProperties();
+  if (!previewTo && !force && props.getProperty('OVERDUE_SENT') === today) return { ok: true, skipped: 'already sent today' };
+
+  var emails = cfg.contractorEmails || {};
+  var photos = readSheet_(ss, 'Photos');
+  var groups = {};
+  readSheet_(ss, 'Records').forEach(function (x) {
+    var st = String(x.status || 'Open');
+    if (st === 'Closed' || st === 'Pending') return;
+    var td = ymdOf_(x.targetDate);
+    if (!td || td >= today || !x.contractor) return;
+    (groups[x.contractor] = groups[x.contractor] || []).push(x);
+  });
+
+  // 預覽時如果目前沒有逾期項目，就拿最近兩筆有照片的紀錄假裝逾期 2 天，好看得到版面
+  if (previewTo && !Object.keys(groups).length) {
+    var recs = readSheet_(ss, 'Records'), ids = {}, demo = [];
+    for (var i = photos.length - 1; i >= 0 && demo.length < 2; i--) {
+      var hit = recs.filter(function (x) { return x.id === photos[i].recordId; })[0];
+      if (hit && !ids[hit.id]) { ids[hit.id] = 1; demo.push(hit); }
+    }
+    var p0 = today.split('-');
+    var past = Utilities.formatDate(new Date(+p0[0], p0[1] - 1, +p0[2] - 2, 12), TZ, 'yyyy-MM-dd');
+    demo.forEach(function (x) { x.targetDate = past; });
+    if (demo.length) groups[demo[0].contractor || '琿宏HH'] = demo;
+  }
+
+  var sent = [], noMail = [];
+  Object.keys(groups).forEach(function (con) {
+    var to = mails_(emails[con]);
+    if (!previewTo && !to.length) { noMail.push(con); return; }
+    var list = groups[con].sort(function (a, b) { return ymdOf_(a.targetDate).localeCompare(ymdOf_(b.targetDate)); });
+    var m = buildOverdueMail_(con, list, photos, today, !!previewTo);
+    var opt = { subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE' };
+    if (previewTo) opt.to = previewTo;
+    else {
+      opt.to = to.join(',');
+      var cc = mails_(cfg.overdueCc);
+      if (cc.length) opt.cc = cc.join(',');
+      opt.replyTo = cc.length ? cc[0] : NOTIFY[0];
+    }
+    MailApp.sendEmail(opt);
+    sent.push({ contractor: con, items: list.length, to: opt.to });
+  });
+  if (!previewTo) props.setProperty('OVERDUE_SENT', today);
+  return { ok: true, today: today, sent: sent, noEmail: noMail };
+}
+
+function buildOverdueMail_(con, list, photos, today, preview) {
+  var F = "font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',Arial,sans-serif;";
+  var inline = { logo: Utilities.newBlob(Utilities.base64Decode(LOGO_B64), 'image/png', 'nmdc.png') };
+  var dd = function (a, b) {
+    var p = a.split('-'), q = b.split('-');
+    return Math.round((Date.UTC(+q[0], q[1] - 1, +q[2]) - Date.UTC(+p[0], p[1] - 1, +p[2])) / 86400000);
+  };
+  var maxOver = 0;
+  var items = list.map(function (x, i) {
+    var td = ymdOf_(x.targetDate), over = dd(td, today);
+    if (over > maxOver) maxOver = over;
+    var hz = splitHz_(x.hazard);
+    var ph = photos.filter(function (p) { return p.recordId === x.id && p.kind === 'before'; })[0];
+    var img = '';
+    if (ph && i < 10) {
+      try {
+        inline['o' + i] = DriveApp.getFileById(ph.fileId).getBlob();
+        img = '<td width="120" valign="top" style="padding-left:14px"><img src="cid:o' + i + '" width="120" alt="" ' +
+          'style="display:block;width:120px;height:auto;border-radius:10px;border:1px solid #e3e9f0"></td>';
+      } catch (e) { }
+    }
+    return '<tr><td style="padding:0 28px 14px">' +
+      '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #f1d4d4;border-radius:14px">' +
+      '<tr><td style="padding:14px 16px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td valign="top">' +
+      '<div style="' + F + 'font-size:11px;font-weight:800;letter-spacing:.5px;color:#8a97a5">' + esc_(ymdOf_(x.date)) +
+      (hz.zh ? '　·　' + esc_(hz.zh) : '') + '</div>' +
+      '<div style="' + F + 'font-size:15px;line-height:1.6;color:#1c2732;font-weight:700;margin-top:4px">' + esc_(x.obsZh) + '</div>' +
+      (x.obsEn ? '<div style="' + F + 'font-size:12.5px;line-height:1.5;color:#6b7784;margin-top:2px">' + esc_(x.obsEn) + '</div>' : '') +
+      '<div style="' + F + 'font-size:13px;line-height:1.55;color:#1b6e3c;margin-top:8px"><b>改善建議</b>　' + esc_(x.recZh) + '</div>' +
+      '<div style="margin-top:10px"><span style="' + F + 'display:inline-block;background:#fde3e3;color:#c62828;font-size:12px;font-weight:900;' +
+      'border-radius:999px;padding:4px 10px">已逾期 ' + over + ' 天</span>' +
+      '<span style="' + F + 'font-size:12px;color:#8a97a5;margin-left:8px">改善期限 ' + esc_(td) + '</span></div>' +
+      '</td>' + img + '</tr></table></td></tr></table></td></tr>';
+  }).join('');
+
+  var subject = (preview ? '[測試] ' : '') + '[NMDC HSE] 逾期未改善通知｜' + con + '｜' + list.length + ' 項';
+  var html =
+    '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"></head>' +
+    '<body style="margin:0;padding:0;background:#eef2f6">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#eef2f6" style="background:#eef2f6"><tr>' +
+    '<td align="center" style="padding:28px 12px">' +
+    (preview ? '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px"><tr>' +
+      '<td bgcolor="#fff3df" style="' + F + 'background:#fff3df;border:1px solid #f1d9a8;border-radius:10px;padding:10px 16px;font-size:13px;color:#7a4b00">' +
+      '⚠ 預覽：這是寄給承包商「' + esc_(con) + '」的逾期通知樣式，這封只寄給你，沒有寄給承包商。</td></tr>' +
+      '<tr><td height="12" style="font-size:0;line-height:0">&nbsp;</td></tr></table>' : '') +
+    '<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%;max-width:600px">' +
+    '<tr><td style="padding:0 4px 14px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
+    '<td><img src="cid:logo" width="96" height="32" alt="NMDC ENERGY" style="display:block;border:0"></td>' +
+    '<td align="right" style="' + F + 'font-size:11px;letter-spacing:2px;color:#7d8ea0;font-weight:700">HSE · ' + esc_(SITE) + '</td>' +
+    '</tr></table></td></tr>' +
+    '<tr><td bgcolor="#ffffff" style="background:#ffffff;border:1px solid #e1e7ee;border-radius:18px;overflow:hidden">' +
+    '<table role="presentation" width="100%" cellpadding="0" cellspacing="0">' +
+    '<tr><td bgcolor="#7f1d1d" style="background:#7f1d1d;padding:24px 28px 22px;border-radius:18px 18px 0 0">' +
+    '<div style="' + F + 'font-size:11px;letter-spacing:2px;color:#fca5a5;font-weight:800">逾期未改善通知 · OVERDUE NOTICE</div>' +
+    '<div style="' + F + 'font-size:23px;line-height:1.35;color:#ffffff;font-weight:900;margin-top:8px">' + esc_(con) + '　共 ' + list.length + ' 項逾期</div>' +
+    '<div style="' + F + 'font-size:13px;color:#fecaca;margin-top:4px">最久已逾期 ' + maxOver + ' 天，請儘速完成改善並回報。</div>' +
+    '</td></tr>' +
+    '<tr><td height="4" bgcolor="#c62828" style="background:#c62828;font-size:0;line-height:0">&nbsp;</td></tr>' +
+    '<tr><td style="' + F + 'padding:20px 28px 16px;font-size:14px;line-height:1.7;color:#38475a">' +
+    '您好，以下為貴公司於 NMDC 通霄工區的 HSE 改善項目，已超過改善期限仍未結案。' +
+    '請儘速完成改善，並透過「承包商安全回報」頁面上傳改善後照片，或直接回覆此信告知改善情形。</td></tr>' +
+    items +
+    '<tr><td style="padding:6px 28px 26px">' +
+    '<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr>' +
+    '<td align="center" bgcolor="#00a24a" style="border-radius:12px;background:#00a24a">' +
+    '<a href="' + CONTRACTOR_PAGE + '" style="' + F + 'display:block;padding:15px 18px;font-size:16px;font-weight:800;letter-spacing:.5px;text-decoration:none;color:#ffffff">' +
+    '開啟承包商安全回報頁 →</a></td></tr></table></td></tr>' +
+    '</table></td></tr>' +
+    '<tr><td align="center" style="' + F + 'padding:16px 10px 0;font-size:11px;line-height:1.7;color:#98a2ad">' +
+    '此信由 NMDC HSE 系統於每天 08:00 自動寄出，項目結案後就不會再收到。<br>NMDC ENERGY · HSE Walkthrough</td></tr>' +
+    '</table></td></tr></table></body></html>';
+
+  var text = subject + '\n\n' + list.map(function (x) {
+    return '- ' + ymdOf_(x.date) + ' ' + x.obsZh + '（改善期限 ' + ymdOf_(x.targetDate) + '）';
+  }).join('\n') + '\n\n承包商安全回報頁：' + CONTRACTOR_PAGE;
+  return { subject: subject, html: html, text: text, inline: inline };
 }
 

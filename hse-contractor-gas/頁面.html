@@ -50,6 +50,10 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
  align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:800;color:#56657a;cursor:pointer;text-align:center}
 .add b{font-size:26px;color:var(--green-d);line-height:1}
 .add.af{background:#f3f9f5;border-color:#b9dcc6}
+.dl{display:flex;align-items:center;gap:11px;margin-top:14px;background:#fff8ec;border:1px solid #f3dcae;border-radius:14px;padding:11px 13px}
+.dl .ic{flex:0 0 auto;width:34px;height:34px;border-radius:50%;background:#c07a18;color:#fff;display:flex;align-items:center;justify-content:center;font-size:17px}
+.dl b{display:block;font-size:14.5px;color:#8a5200;font-weight:900;line-height:1.35}
+.dl small{display:block;font-size:11.5px;color:#9a7a45;margin-top:2px;line-height:1.5}
 .hint{font-size:11.5px;color:#8a97a5;margin-top:5px;line-height:1.55}
 .btn{display:block;width:100%;border:0;border-radius:15px;padding:15px;font-size:16px;font-weight:900;letter-spacing:2px;
  color:#fff;cursor:pointer;font-family:inherit;margin-top:20px;
@@ -92,6 +96,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
 <div class="wrap">
  <div class="card">
   <div id="form">
+   <div class="dl"><span class="ic">⏱</span><div><b id="dlTit"></b><small data-i="dlSub"></small></div></div>
    <div class="sec" data-i="secBasic"></div>
    <label class="req" data-i="lDT"></label>
    <div class="two"><input id="f_date" type="date"><input id="f_time" type="time"></div>
@@ -159,8 +164,10 @@ var L={zh:{
  lRec:"改善建議 Recommendation", pRec:"例：立即補設護欄並加掛警示標示",
  autoEn:"AUTO ENGLISH · 可修改", pAuto:"輸入中文後會自動翻譯到這裡",
  lPh:"改善前照片 Before", ePh:"最多 6 張，會自動壓縮", addPh:"拍照／相簿",
- lPhA:"改善後照片 After", ePhA:"選填", hPhA:"如已改善完成可直接上傳，沒有可留空。",
+ lPhA:"改善後照片 After", ePhA:"選填", hPhA:"如已改善完成可直接上傳，沒有可留空；附上改善後照片，送出後即結案。",
  rB:"改善前 ", rA:"改善後 ",
+ dl1:"每張改善單預設期限：", dl2:" 天內完成改善", dlSub:"自巡查日起算；逾期未改善，NMDC 將通知貴公司負責人。",
+ rDue:"改善期限", rSt:"狀態", stOpen:"開放中（待改善）", stClosed:"已結案",
  send:"送出 SUBMIT", up:"上傳中…", busy:"照片處理中…", trBusy:"翻譯中…",
  fine:"送出後會直接送到 NMDC HSE 部門，同時寄信通知相關人員。",
  need:"請填寫必填欄位", fail:"送出失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
@@ -178,8 +185,10 @@ var L={zh:{
  lRec:"Recommendation", pRec:"e.g. Install guardrail and warning signs immediately",
  autoEn:"AUTO ENGLISH · EDITABLE", pAuto:"Auto-translated from the Chinese text",
  lPh:"Before photos", ePh:"Up to 6, auto-compressed", addPh:"Camera / album",
- lPhA:"After photos", ePhA:"Optional", hPhA:"If it is already fixed, upload them here; otherwise leave blank.",
+ lPhA:"After photos", ePhA:"Optional", hPhA:"If it is already fixed, upload them here (the item is closed on submit); otherwise leave blank.",
  rB:"Before ", rA:"After ",
+ dl1:"Default deadline: fix within ", dl2:" days", dlSub:"Counted from the inspection date. NMDC will notify your company contact if it is overdue.",
+ rDue:"Deadline", rSt:"Status", stOpen:"Open (to be fixed)", stClosed:"Closed",
  send:"SUBMIT", up:"Uploading…", busy:"Processing photos…", trBusy:"Translating…",
  fine:"Your report goes straight to the NMDC HSE team, who are notified by email.",
  need:"Please fill in the required fields", fail:"Submit failed: ", phMax:"Max 6 photos; extras skipped", rdFail:"One photo could not be read",
@@ -205,6 +214,7 @@ function applyLang(){
  document.querySelectorAll("[data-i]").forEach(function(el){el.textContent=t(el.getAttribute("data-i"))});
  document.querySelectorAll("[data-p]").forEach(function(el){el.placeholder=t(el.getAttribute("data-p"))});
  if(!BUSY)$("send").textContent=t("send");
+ $("dlTit").textContent=t("dl1")+(CFG.contractorDays||3)+t("dl2");
  buildCons();buildHaz();paintPh();
 }
 
@@ -340,17 +350,20 @@ function submit0(retry){
  google.script.run.withSuccessHandler(function(r){
   BUSY=0;$("send").disabled=false;$("send").textContent=t("send");
   if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
-  showDone(pay,r.photoCount||0,r.afterCount||0);
+  showDone(pay,r.photoCount||0,r.afterCount||0,r);
  }).withFailureHandler(function(e){
   BUSY=0;$("send").disabled=false;$("send").textContent=t("send");
   toast(t("fail")+(e&&e.message||e));
  }).cSubmit(pay);
 }
-function showDone(p,n,na){
+function showDone(p,n,na,r){
+ r=r||{};
  var row=function(k,v){return '<div><span>'+esc(t(k))+'</span><i>'+esc(v)+'</i></div>'};
  $("rcpt").innerHTML=row("rDate",p.date+" "+p.time)+row("rRep",p.reporter+"（"+p.contractor+"）")+
   row("rHaz",hzLabel(p.hazard))+row("rObs",p.obsZh)+
-  row("rPh",t("rB")+n+t("rPhN")+(na?"　"+t("rA")+na+t("rPhN"):""));
+  row("rPh",t("rB")+n+t("rPhN")+(na?"　"+t("rA")+na+t("rPhN"):""))+
+  row("rSt",t(r.closed?"stClosed":"stOpen"))+
+  (r.closed||!r.targetDate?"":row("rDue",r.targetDate));
  $("form").style.display="none";$("done").style.display="block";
  try{window.scrollTo(0,0)}catch(e){}
 }
