@@ -122,8 +122,8 @@ function cSubmit(p) {
       createdAt: stamp_(now), updatedAt: stamp_(now), deleted: '', source: 'contractor'
     };
 
-    var photos = (p.photos || []).slice(0, MAX_PHOTOS);
-    var blobs = [];
+    // 改善後照片是選填；有附也維持「開放中」，由 NMDC 確認後再結案
+    var blobs = [], after = [];
     var lock = LockService.getScriptLock();
     lock.waitLock(30000);
     try {
@@ -131,27 +131,31 @@ function cSubmit(p) {
       appendByHeader_(ss.getSheetByName('Records'), rec);
       var folder = DriveApp.getFolderById(PHOTO_ID);
       var psh = ss.getSheetByName('Photos');
-      photos.forEach(function (ph, i) {
-        var d = ph && ph.data;
-        if (!d || d.length > 4000000) return;
-        try {
-          var name = date + '_' + rec.id + '_before_' + (i + 1) + '.jpg';
-          var blob = Utilities.newBlob(Utilities.base64Decode(d), 'image/jpeg', name);
-          var f = folder.createFile(blob);
-          try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) { }
-          appendByHeader_(psh, {
-            id: newId_('P'), recordId: rec.id, kind: 'before', fileId: f.getId(),
-            name: name, createdAt: stamp_(new Date()), deleted: ''
-          });
-          blobs.push(blob);
-        } catch (e) { }
-      });
+      var save = function (list, kind, out) {
+        (list || []).slice(0, MAX_PHOTOS).forEach(function (ph, i) {
+          var d = ph && ph.data;
+          if (!d || d.length > 4000000) return;
+          try {
+            var name = date + '_' + rec.id + '_' + kind + '_' + (i + 1) + '.jpg';
+            var blob = Utilities.newBlob(Utilities.base64Decode(d), 'image/jpeg', name);
+            var f = folder.createFile(blob);
+            try { f.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch (e) { }
+            appendByHeader_(psh, {
+              id: newId_('P'), recordId: rec.id, kind: kind, fileId: f.getId(),
+              name: name, createdAt: stamp_(new Date()), deleted: ''
+            });
+            out.push(blob);
+          } catch (e) { }
+        });
+      };
+      save(p.photos, 'before', blobs);
+      save(p.photosAfter, 'after', after);
     } finally {
       lock.releaseLock();
     }
 
-    var mailed = notify_(rec, blobs);
-    return { ok: true, id: rec.id, photoCount: blobs.length, mailed: mailed };
+    var mailed = notify_(rec, blobs, after);
+    return { ok: true, id: rec.id, photoCount: blobs.length, afterCount: after.length, mailed: mailed };
   } catch (err) {
     return { ok: false, error: String(err.message || err) };
   }
@@ -166,9 +170,9 @@ function esc_(s) {
 /* ============================ 通知信 ============================ */
 
 /** 寄通知信；失敗不影響送出（資料已經寫進去了）。 */
-function notify_(rec, blobs) {
+function notify_(rec, blobs, after) {
   try {
-    var m = buildMail_(rec, blobs);
+    var m = buildMail_(rec, blobs, after);
     MailApp.sendEmail({
       to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text,
       inlineImages: m.inline, name: 'NMDC HSE 承包商回報'
@@ -190,8 +194,9 @@ function splitHz_(s) {
  * 信件版面全部用 table＋行內樣式＋bgcolor：公司信箱多半是 Outlook，
  * 它不吃 div 寬度、漸層和 flex，只有表格排版兩邊都穩。
  */
-function buildMail_(rec, blobs, opt) {
+function buildMail_(rec, blobs, after, opt) {
   opt = opt || {};
+  blobs = blobs || []; after = after || [];
   var F = "font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',Arial,sans-serif;";
   var hz = splitHz_(rec.hazard);
   var subject = (opt.test ? '[測試] ' : '') + '[HSE 承包商回報] ' + rec.contractor + '｜' + hz.zh + '｜' + rec.date + ' ' + rec.time;
@@ -216,21 +221,28 @@ function buildMail_(rec, blobs, opt) {
       '</td></tr></table></td></tr>';
   };
 
-  var pics = '';
-  if (blobs.length) {
-    var one = blobs.length === 1, cells = [];
-    blobs.forEach(function (b, i) {
-      inline['p' + i] = b;
+  // 照片區：一張就滿版，兩張以上一列兩張。pre＝內嵌圖片代號前綴（p 改善前／q 改善後）
+  var gallery = function (list, pre, zhLabel, enLabel, color) {
+    if (!list.length) return '';
+    var one = list.length === 1, cells = [];
+    list.forEach(function (b, i) {
+      inline[pre + i] = b;
       cells.push('<td width="' + (one ? '100%' : '50%') + '" valign="top" style="padding:' + (one ? '0 0 12px 0' : (i % 2 ? '0 0 12px 6px' : '0 6px 12px 0')) + '">' +
-        '<img src="cid:p' + i + '" width="' + (one ? 544 : 266) + '" alt="改善前照片 ' + (i + 1) + '" ' +
+        '<img src="cid:' + pre + i + '" width="' + (one ? 544 : 266) + '" alt="' + zhLabel + ' ' + (i + 1) + '" ' +
         'style="display:block;width:100%;max-width:' + (one ? 544 : 266) + 'px;height:auto;border-radius:12px;border:1px solid #e3e9f0"></td>');
     });
     var rows = '';
     for (var r = 0; r < cells.length; r += 2) rows += '<tr>' + cells[r] + (cells[r + 1] || (one ? '' : '<td width="50%"></td>')) + '</tr>';
-    pics = '<tr><td style="padding:24px 28px 0">' +
-      '<div style="' + F + 'font-size:11px;letter-spacing:1.5px;font-weight:800;color:#546e7a">改善前照片　<span style="color:#9aa6b2">BEFORE · ' + blobs.length + '</span></div>' +
+    return '<tr><td style="padding:24px 28px 0">' +
+      '<div style="' + F + 'font-size:11px;letter-spacing:1.5px;font-weight:800;color:' + color + '">' + zhLabel +
+      '　<span style="color:#9aa6b2">' + enLabel + ' · ' + list.length + '</span></div>' +
       '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:10px">' + rows + '</table></td></tr>';
-  }
+  };
+  var pics = gallery(blobs, 'p', '改善前照片', 'BEFORE', '#546e7a') +
+    gallery(after, 'q', '改善後照片', 'AFTER', '#1b8a4a');
+  var todo = after.length
+    ? '<b style="color:#1b6e3c">承包商已附改善後照片</b>　請確認後結案，並補填權責單位 · 風險等級 · 預定完成日期'
+    : '<b style="color:#b26a00">待 NMDC 補填</b>　權責單位 · 風險等級 · 預定完成日期';
 
   var btn = function (href, label, primary) {
     return '<table role="presentation" cellpadding="0" cellspacing="0" width="100%"><tr>' +
@@ -281,7 +293,7 @@ function buildMail_(rec, blobs, opt) {
     '<tr><td style="padding:22px 28px 0">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
     '<td bgcolor="#fffaf0" style="' + F + 'background:#fffaf0;border:1px dashed #efd29a;border-radius:12px;padding:12px 16px;font-size:13px;line-height:1.6;color:#7a5a1e">' +
-    '<b style="color:#b26a00">待 NMDC 補填</b>　權責單位 · 風險等級 · 預定完成日期</td></tr></table></td></tr>' +
+    todo + '</td></tr></table></td></tr>' +
     // 按鈕
     '<tr><td style="padding:22px 28px 6px">' + btn(editUrl, '✎　編輯這一筆', true) + '</td></tr>' +
     '<tr><td style="padding:4px 28px 26px">' + btn(dayUrl, '查看 ' + rec.date + ' 全部巡查紀錄 →', false) + '</td></tr>' +
@@ -312,23 +324,29 @@ function testMail_(to) {
     return v.map(function (r) { var o = {}; h.forEach(function (k, i) { o[k] = r[i]; }); return o; })
       .filter(function (o) { return o.id && String(o.deleted) !== '1'; });
   };
-  var photos = read('Photos').filter(function (p) { return p.kind === 'before'; });
+  var all = read('Photos');
   var recs = read('Records');
-  var rec = null, ph = [];
-  for (var i = photos.length - 1; i >= 0 && !rec; i--) {
-    var hit = recs.filter(function (x) { return x.id === photos[i].recordId; })[0];
-    if (hit) { rec = hit; ph = photos.filter(function (p) { return p.recordId === hit.id; }); }
-  }
+  var kinds = function (id, k) { return all.filter(function (p) { return p.recordId === id && p.kind === k; }); };
+  // 優先挑最近一筆「改善前、改善後都有照片」的紀錄，才看得到兩區照片；沒有就退回只有改善前的
+  var rec = null;
+  [true, false].forEach(function (needAfter) {
+    for (var i = all.length - 1; i >= 0 && !rec; i--) {
+      var hit = recs.filter(function (x) { return x.id === all[i].recordId; })[0];
+      if (hit && kinds(hit.id, 'before').length && (!needAfter || kinds(hit.id, 'after').length)) rec = hit;
+    }
+  });
   if (!rec) throw new Error('找不到有照片的紀錄');
+  var ph = kinds(rec.id, 'before'), pa = kinds(rec.id, 'after');
   var fmtD = function (v, f) { return Object.prototype.toString.call(v) === '[object Date]' ? Utilities.formatDate(v, TZ, f) : String(v || ''); };
   var r = {
     id: rec.id, date: fmtD(rec.date, 'yyyy-MM-dd'), time: fmtD(rec.time, 'HH:mm'),
     reporter: rec.reporter || '陳志明', contractor: rec.contractor || '琿宏HH', hazard: rec.hazard || '其他 Other',
     obsZh: rec.obsZh, obsEn: rec.obsEn, recZh: rec.recZh, recEn: rec.recEn
   };
-  var blobs = ph.slice(0, MAX_PHOTOS).map(function (p) { return DriveApp.getFileById(p.fileId).getBlob(); });
-  var m = buildMail_(r, blobs, { test: true });
+  var blob = function (p) { return DriveApp.getFileById(p.fileId).getBlob(); };
+  var blobs = ph.slice(0, MAX_PHOTOS).map(blob), after = pa.slice(0, MAX_PHOTOS).map(blob);
+  var m = buildMail_(r, blobs, after, { test: true });
   MailApp.sendEmail({ to: to, subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE 承包商回報' });
-  return { ok: true, to: to, record: r.id, date: r.date, photos: blobs.length };
+  return { ok: true, to: to, record: r.id, date: r.date, photos: blobs.length, after: after.length };
 }
 

@@ -49,6 +49,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
 .add{aspect-ratio:1;border-radius:12px;background:#f5f8fb;border:1.5px dashed #b9c6d3;display:flex;flex-direction:column;
  align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:800;color:#56657a;cursor:pointer;text-align:center}
 .add b{font-size:26px;color:var(--green-d);line-height:1}
+.add.af{background:#f3f9f5;border-color:#b9dcc6}
 .hint{font-size:11.5px;color:#8a97a5;margin-top:5px;line-height:1.55}
 .btn{display:block;width:100%;border:0;border-radius:15px;padding:15px;font-size:16px;font-weight:900;letter-spacing:2px;
  color:#fff;cursor:pointer;font-family:inherit;margin-top:20px;
@@ -117,8 +118,13 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
 
    <div class="sec" data-i="secPh"></div>
    <label><span data-i="lPh"></span><em data-i="ePh"></em></label>
-   <div class="ups" id="ups"></div>
-   <input id="fp" type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files)">
+   <div class="ups" id="ups_b"></div>
+   <input id="fp_b" type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'b')">
+
+   <label style="margin-top:18px"><span data-i="lPhA"></span><em data-i="ePhA"></em></label>
+   <div class="ups" id="ups_a"></div>
+   <div class="hint" data-i="hPhA"></div>
+   <input id="fp_a" type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'a')">
    <input id="f_hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
 
    <button class="btn" id="send" onclick="submit0()"></button>
@@ -140,7 +146,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
 
 <script>
 var CFG=<?!= CFG ?>;
-var LG="zh", PH=[], PBUSY=0, TRB=0, BUSY=0, CON="", OTHER="__other__";
+var LG="zh", PH={b:[],a:[]}, PBUSY=0, TRB=0, BUSY=0, CON="", OTHER="__other__";
 
 var L={zh:{
  title:"承包商安全回報", sub:"CONTRACTOR HSE REPORT · NMDC 通霄工區",
@@ -153,6 +159,8 @@ var L={zh:{
  lRec:"改善建議 Recommendation", pRec:"例：立即補設護欄並加掛警示標示",
  autoEn:"AUTO ENGLISH · 可修改", pAuto:"輸入中文後會自動翻譯到這裡",
  lPh:"改善前照片 Before", ePh:"最多 6 張，會自動壓縮", addPh:"拍照／相簿",
+ lPhA:"改善後照片 After", ePhA:"選填", hPhA:"如已改善完成可直接上傳，沒有可留空。",
+ rB:"改善前 ", rA:"改善後 ",
  send:"送出 SUBMIT", up:"上傳中…", busy:"照片處理中…", trBusy:"翻譯中…",
  fine:"送出後會直接送到 NMDC HSE 部門，同時寄信通知相關人員。",
  need:"請填寫必填欄位", fail:"送出失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
@@ -170,6 +178,8 @@ var L={zh:{
  lRec:"Recommendation", pRec:"e.g. Install guardrail and warning signs immediately",
  autoEn:"AUTO ENGLISH · EDITABLE", pAuto:"Auto-translated from the Chinese text",
  lPh:"Before photos", ePh:"Up to 6, auto-compressed", addPh:"Camera / album",
+ lPhA:"After photos", ePhA:"Optional", hPhA:"If it is already fixed, upload them here; otherwise leave blank.",
+ rB:"Before ", rA:"After ",
  send:"SUBMIT", up:"Uploading…", busy:"Processing photos…", trBusy:"Translating…",
  fine:"Your report goes straight to the NMDC HSE team, who are notified by email.",
  need:"Please fill in the required fields", fail:"Submit failed: ", phMax:"Max 6 photos; extras skipped", rdFail:"One photo could not be read",
@@ -265,37 +275,40 @@ function compress(f,cb){
  rd.onerror=function(){cb(null)};
  rd.readAsDataURL(f);
 }
-function addPhotos(fs){
- var arr=Array.prototype.slice.call(fs),room=6-PH.length;
+/** k＝"b" 改善前／"a" 改善後，各自最多 6 張。 */
+function addPhotos(fs,k){
+ var list=PH[k],arr=Array.prototype.slice.call(fs),room=6-list.length;
  if(arr.length>room){toast(t("phMax"));arr=arr.slice(0,Math.max(0,room))}
  arr.forEach(function(f){
   var o={data:null,url:""};
   try{o.url=URL.createObjectURL(f)}catch(e){}
-  PH.push(o);PBUSY++;
-  compress(f,function(d){PBUSY--;if(!d){toast(t("rdFail"));phDel(o);return}o.data=d});
+  list.push(o);PBUSY++;
+  compress(f,function(d){PBUSY--;if(!d){toast(t("rdFail"));phDel(o,k);return}o.data=d});
  });
- $("fp").value="";paintPh();
+ $("fp_"+k).value="";paintPh(k);
 }
-function phDel(o){
- var i=PH.indexOf(o);if(i>=0)PH.splice(i,1);
+function phDel(o,k){
+ var i=PH[k].indexOf(o);if(i>=0)PH[k].splice(i,1);
  if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}
- paintPh();
+ paintPh(k);
 }
-function paintPh(){
- var box=$("ups");box.innerHTML="";
- PH.forEach(function(o){
+function paintPh(k){
+ if(!k){paintPh("b");paintPh("a");return}
+ var box=$("ups_"+k);box.innerHTML="";
+ PH[k].forEach(function(o){
   var d=document.createElement("div");d.className="th";
   d.innerHTML='<img src="'+esc(o.url)+'" alt=""><span class="x">✕</span>';
-  d.querySelector(".x").onclick=function(){phDel(o)};
+  d.querySelector(".x").onclick=function(){phDel(o,k)};
   box.appendChild(d);
  });
- if(PH.length<6){
-  var a=document.createElement("div");a.className="add";
+ if(PH[k].length<6){
+  var a=document.createElement("div");a.className="add"+(k==="a"?" af":"");
   a.innerHTML='<b>＋</b>'+esc(t("addPh"));
-  a.onclick=function(){$("fp").click()};
+  a.onclick=function(){$("fp_"+k).click()};
   box.appendChild(a);
  }
 }
+function phData(k){return PH[k].filter(function(p){return p.data}).map(function(p){return {data:p.data}})}
 
 /* ---------- 送出 ---------- */
 function submit0(retry){
@@ -322,21 +335,22 @@ function submit0(retry){
   obsZh:$("f_obsZh").value.trim(), obsEn:$("f_obsEn").value.trim(),
   recZh:$("f_recZh").value.trim(), recEn:$("f_recEn").value.trim(),
   hp:$("f_hp").value,
-  photos:PH.filter(function(p){return p.data}).map(function(p){return {data:p.data}})
+  photos:phData("b"), photosAfter:phData("a")
  };
  google.script.run.withSuccessHandler(function(r){
   BUSY=0;$("send").disabled=false;$("send").textContent=t("send");
   if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
-  showDone(pay,r.photoCount||0);
+  showDone(pay,r.photoCount||0,r.afterCount||0);
  }).withFailureHandler(function(e){
   BUSY=0;$("send").disabled=false;$("send").textContent=t("send");
   toast(t("fail")+(e&&e.message||e));
  }).cSubmit(pay);
 }
-function showDone(p,n){
+function showDone(p,n,na){
  var row=function(k,v){return '<div><span>'+esc(t(k))+'</span><i>'+esc(v)+'</i></div>'};
  $("rcpt").innerHTML=row("rDate",p.date+" "+p.time)+row("rRep",p.reporter+"（"+p.contractor+"）")+
-  row("rHaz",hzLabel(p.hazard))+row("rObs",p.obsZh)+row("rPh",n+t("rPhN"));
+  row("rHaz",hzLabel(p.hazard))+row("rObs",p.obsZh)+
+  row("rPh",t("rB")+n+t("rPhN")+(na?"　"+t("rA")+na+t("rPhN"):""));
  $("form").style.display="none";$("done").style.display="block";
  try{window.scrollTo(0,0)}catch(e){}
 }
@@ -344,7 +358,7 @@ function showDone(p,n){
 function again(){
  ["f_obsZh","f_obsEn","f_recZh","f_recEn"].forEach(function(id){var e=$(id);e.value="";e.dataset.auto="";e.dataset.last=""});
  $("f_haz").value="";
- PH.forEach(function(o){if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}});PH=[];paintPh();
+ PH.b.concat(PH.a).forEach(function(o){if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}});PH={b:[],a:[]};paintPh();
  $("f_date").value=fmt(new Date());$("f_time").value=nowHM();
  $("done").style.display="none";$("form").style.display="block";
  try{window.scrollTo(0,0)}catch(e){}
