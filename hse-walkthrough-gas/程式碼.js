@@ -22,12 +22,12 @@ var PK = {
 };
 
 var SH = { rec: 'Records', pho: 'Photos', cfg: 'Settings', rep: 'Reports' };
-var SCHEMA = 'v4';   // v3：取消 Pending 待複查；v4：加入危害種類 hazard
+var SCHEMA = 'v5';   // v3：取消 Pending 待複查；v4：加入危害種類 hazard；v5：來源 source（contractor＝承包商填報頁）
 
 // 欄位順序＝試算表欄位順序，只能往後加，中間插欄會把既有資料整排錯開。
 var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'contractor',
   'obsZh', 'obsEn', 'recZh', 'recEn', 'actionBy', 'risk', 'targetDate',
-  'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted', 'hazard'];
+  'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted', 'hazard', 'source'];
 var PHO_COLS = ['id', 'recordId', 'kind', 'fileId', 'name', 'createdAt', 'deleted'];
 var REP_COLS = ['date', 'docId', 'pdfId', 'docxId', 'generatedAt'];
 
@@ -77,6 +77,9 @@ function doGet(e) {
       if (act === 'boot') out = hseBoot(ACCESS_KEY, e.parameter.date || '');
       else if (act === 'report') out = hseBuildReport(ACCESS_KEY, e.parameter.date || '');
       else if (act === 'stats') out = hseStats(ACCESS_KEY, e.parameter.from || '', e.parameter.to || '');
+      else if (act === 'list') out = hseList(ACCESS_KEY, e.parameter.f || '');
+      // 承包商填報頁（另一支 GAS）要直接寫進同一份試算表與照片資料夾，用這個查 ID
+      else if (act === 'ids') { var ir = ensure_(); out = { ok: true, ssId: ir.ssId, photoId: ir.photoId }; }
       else out = { ok: false, error: 'unknown act' };
     } catch (err) {
       out = { ok: false, error: String(err && err.message || err), stack: String(err && err.stack || '') };
@@ -88,6 +91,9 @@ function doGet(e) {
   var t = HtmlService.createTemplateFromFile('頁面');
   t.KEY = ACCESS_KEY;
   t.LOGO = LOGO_B64;   // 與報告共用同一張範本標誌，不另外畫
+  // 通知信的連結會帶 &d=YYYY-MM-DD，打開直接跳到那一天
+  var d0 = String((e && e.parameter && e.parameter.d) || '');
+  t.DATE = /^\d{4}-\d{2}-\d{2}$/.test(d0) ? d0 : '';
   return t.evaluate()
     .setTitle(SITE + ' HSE 現場巡查紀錄')
     .addMetaTag('viewport', 'width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover')
@@ -299,6 +305,7 @@ function packRec_(r, photos) {
     targetDate: ymd_(r.targetDate),
     status: status_(r.status),
     closeOutDate: ymd_(r.closeOutDate),
+    source: r.source || '',
     photos: photos || []
   };
 }
@@ -348,6 +355,7 @@ function hseBoot(key, date) {
 
   var counts = { total: 0, open: 0, closed: 0, overdue: 0 };
   var dates = {};
+  var cal = {};   // 日曆用：日期 → [總數, 未結案, 承包商填報]
   recs.forEach(function (x) {
     counts.total++;
     var st = status_(x.status);
@@ -356,7 +364,13 @@ function hseBoot(key, date) {
     else counts.open++;
     if (st !== 'Closed' && ymd_(x.targetDate) && ymd_(x.targetDate) < td) counts.overdue++;
     var d = ymd_(x.date);
-    if (d) dates[d] = (dates[d] || 0) + 1;
+    if (d) {
+      dates[d] = (dates[d] || 0) + 1;
+      var c = cal[d] || (cal[d] = [0, 0, 0]);
+      c[0]++;
+      if (st !== 'Closed') c[1]++;
+      if (x.source === 'contractor') c[2]++;
+    }
   });
 
   var want = date || td;
@@ -372,6 +386,7 @@ function hseBoot(key, date) {
     date: want,
     config: cfg,
     counts: counts,
+    cal: cal,
     dates: Object.keys(dates).sort().reverse().slice(0, 120).map(function (d) {
       return { date: d, n: dates[d] };
     }),
@@ -423,6 +438,37 @@ function hseStats(key, from, to) {
   });
 
   return { ok: true, from: f, to: t, first: first, last: last, totals: tot, rows: rowsOut };
+}
+
+/**
+ * 跨日期清單：主畫面上方四顆按鈕用。f＝''（全部）／Open／Closed／overdue。
+ * sn 跟按日期看時一樣，是當天依時間排序的項次。
+ */
+function hseList(key, f) {
+  auth_(key);
+  var r = ensure_();
+  var recs = rows_(r.ss.getSheetByName(SH.rec), REC_COLS);
+  var pmap = photosByRecord_(r.ss);
+  var td = today_();
+  var byDay = {};
+  recs.forEach(function (x) { var d = ymd_(x.date); (byDay[d] = byDay[d] || []).push(x); });
+  Object.keys(byDay).forEach(function (d) {
+    byDay[d].sort(function (a, b) {
+      var t = hm_(a.time).localeCompare(hm_(b.time));
+      return t !== 0 ? t : String(a.createdAt).localeCompare(String(b.createdAt));
+    });
+    byDay[d].forEach(function (x, i) { x._sn = i + 1; });
+  });
+  var out = recs.filter(function (x) {
+    var st = status_(x.status);
+    if (f === 'Open' || f === 'Closed') return st === f;
+    if (f === 'overdue') return st !== 'Closed' && ymd_(x.targetDate) && ymd_(x.targetDate) < td;
+    return true;
+  });
+  return {
+    ok: true, today: td, filter: f,
+    records: out.map(function (x) { var o = packRec_(x, pmap[x.id] || []); o.sn = x._sn; return o; })
+  };
 }
 
 function hseSearch(key, q, status) {
@@ -493,7 +539,8 @@ function hseSave(key, payload) {
       closeOutDate: ymd_(payload.closeOutDate),
       createdAt: nowS,
       updatedAt: nowS,
-      deleted: ''
+      deleted: '',
+      source: ''
     };
 
     var existing = null;
@@ -503,6 +550,7 @@ function hseSave(key, payload) {
     }
     if (existing) {
       rec.createdAt = existing.createdAt;
+      rec.source = existing.source || '';
       sh.getRange(existing._row, 1, 1, REC_COLS.length)
         .setValues([REC_COLS.map(function (c) { return rec[c]; })]);
     } else {
@@ -764,7 +812,14 @@ function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
   // 時間只用來排序當天的紀錄，不印在報告上
   // 巡查成員是固定班底，不隨每筆紀錄變動；順序照設定裡的清單
   var roster = (cfg.members && cfg.members.length) ? cfg.members : DEFAULTS.members;
-  var members = roster.join(', ');
+  // 承包商自己填的紀錄，填報人也列進巡查成員（附承包商名稱），同名只列一次
+  var extra = [];
+  recs.forEach(function (x) {
+    if (x.source !== 'contractor' || !x.reporter) return;
+    var nm = String(x.reporter).trim() + (x.contractor ? ' (' + String(x.contractor).trim() + ')' : '');
+    if (extra.indexOf(nm) < 0 && roster.indexOf(String(x.reporter).trim()) < 0) extra.push(nm);
+  });
+  var members = roster.concat(extra).join(', ');
   var project = recs[0].project || cfg.project || DEFAULTS.project;
 
   var hdr = doc.getHeader() || doc.addHeader();

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+/* 承包商安全回報：墨藍漸層頁首＋白色浮起表單卡，沿用巡查系統的墨藍 #002038／NMDC 綠 #00B050 */
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--ink:#002038;--green:#00B050;--green-d:#1b6e3c;--red:#c62828;--muted:#7d8ea0;--line:#dbe2ea;--text:#1c2732}
+body{font-family:"Microsoft JhengHei","PingFang TC","Noto Sans TC",system-ui,sans-serif;color:var(--text);
+ background:#f1f4f8;padding-bottom:40px;-webkit-font-smoothing:antialiased}
+.hero{background:linear-gradient(150deg,#002038 0%,#0b3c60 58%,#0f5a49 100%);color:#fff;
+ padding:16px max(16px,env(safe-area-inset-left)) 46px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,#002038,#00B050,#002038)}
+.hin{max-width:620px;margin:0 auto}
+.row{display:flex;align-items:center;gap:9px}
+.lgo{height:30px;background:#fff;border-radius:7px;padding:3px 6px;display:block}
+.lg{margin-left:auto;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.32);color:#fff;
+ border-radius:999px;padding:6px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.hero h1{margin-top:16px;font-size:23px;font-weight:900;letter-spacing:.8px}
+.hero p{margin-top:3px;font-size:11.5px;letter-spacing:1.2px;opacity:.78}
+.wrap{max-width:620px;margin:-28px auto 0;padding:0 12px;position:relative}
+.card{background:#fff;border-radius:20px;box-shadow:0 12px 30px rgba(16,24,40,.12);padding:6px 16px 18px}
+.sec{font-size:11px;font-weight:900;letter-spacing:1.5px;color:var(--green-d);margin:18px 0 2px;display:flex;align-items:center;gap:7px}
+.sec::before{content:"";width:4px;height:14px;border-radius:2px;background:linear-gradient(180deg,var(--ink),var(--green))}
+.sec:first-child{margin-top:14px}
+label{display:block;font-size:13.5px;font-weight:800;color:#46566a;margin:13px 0 6px}
+label.req::after{content:" ＊";color:var(--red)}
+label em{font-style:normal;font-weight:600;color:var(--muted);font-size:11.5px;margin-left:5px}
+input,textarea,select{width:100%;border:1.5px solid var(--line);border-radius:13px;padding:11px 12px;font-size:16px;
+ font-family:inherit;background:#fff;color:var(--text);transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+select{background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237d8ea0' stroke-width='2' fill='none'/%3E%3C/svg%3E") no-repeat right 14px center;padding-right:36px}
+textarea{height:84px;line-height:1.5;resize:vertical}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(0,176,80,.15)}
+.err{border-color:var(--red)!important;background:#fdf4f4!important}
+.two{display:grid;grid-template-columns:1.25fr 1fr;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:9px 14px;border-radius:12px;border:1.5px solid #ccd3da;background:#fff;font-size:14px;font-weight:800;
+ color:#5a6b7c;cursor:pointer;user-select:none;transition:.13s;font-family:inherit}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:0 3px 10px rgba(0,32,56,.28)}
+.chips.err{border-radius:12px;outline:2px solid var(--red);outline-offset:4px;background:none!important}
+.auto{margin-top:7px;position:relative}
+.auto textarea{height:64px;background:#f3f9f5;border:1.5px dashed #b9dcc6;font-size:14px;color:#3d5a49;padding-top:24px}
+.auto b{position:absolute;left:13px;top:8px;font-size:9.5px;letter-spacing:1.2px;color:var(--green-d);pointer-events:none}
+.ups{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.th{position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#e7ecf1;border:1px solid #dfe4ea}
+.th img{width:100%;height:100%;object-fit:cover;display:block}
+.th .x{position:absolute;top:5px;right:5px;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;
+ background:rgba(198,40,40,.92);color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+.add{aspect-ratio:1;border-radius:12px;background:#f5f8fb;border:1.5px dashed #b9c6d3;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:800;color:#56657a;cursor:pointer;text-align:center}
+.add b{font-size:26px;color:var(--green-d);line-height:1}
+.hint{font-size:11.5px;color:#8a97a5;margin-top:5px;line-height:1.55}
+.btn{display:block;width:100%;border:0;border-radius:15px;padding:15px;font-size:16px;font-weight:900;letter-spacing:2px;
+ color:#fff;cursor:pointer;font-family:inherit;margin-top:20px;
+ background:linear-gradient(135deg,#1b8a4a,#00B050);box-shadow:0 6px 16px rgba(0,176,80,.28)}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{background:#9bb3a5;box-shadow:none}
+.btn2{background:#fff;color:var(--ink);border:1.5px solid var(--ink);box-shadow:none;margin-top:16px}
+.fine{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;line-height:1.6}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
+
+#done{display:none;text-align:center;padding:30px 4px 6px}
+.ok{width:70px;height:70px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,#1b8a4a,#00B050);
+ display:flex;align-items:center;justify-content:center;color:#fff;font-size:34px;font-weight:900;box-shadow:0 8px 22px rgba(0,176,80,.32);
+ animation:pop .35s ease-out}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+#done h2{font-size:20px;color:var(--ink)}
+#done p{margin-top:6px;font-size:13px;color:#56657a;line-height:1.6}
+.rcpt{margin-top:18px;text-align:left;background:#f5f8fb;border:1px solid #e3e9f0;border-radius:14px;padding:12px 14px;font-size:13.5px;line-height:1.9}
+.rcpt div{display:flex;gap:10px}
+.rcpt span{color:var(--muted);flex:0 0 74px;font-weight:700}
+.rcpt i{font-style:normal;min-width:0;word-break:break-word}
+#msg{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:rgba(0,32,56,.95);color:#fff;
+ padding:11px 22px;border-radius:999px;font-size:14px;display:none;z-index:99;max-width:90%;text-align:center;
+ box-shadow:0 6px 24px rgba(16,42,67,.45)}
+.foot{text-align:center;font-size:11px;color:#98a2ad;margin-top:16px;letter-spacing:.5px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="hero"><div class="hin">
+ <div class="row">
+  <img class="lgo" src="data:image/png;base64,<?!= LOGO ?>" alt="NMDC ENERGY">
+  <button class="lg" id="lang" onclick="setLang(LG==='zh'?'en':'zh')">EN</button>
+ </div>
+ <h1 data-i="title"></h1>
+ <p data-i="sub"></p>
+</div></div>
+
+<div class="wrap">
+ <div class="card">
+  <div id="form">
+   <div class="sec" data-i="secBasic"></div>
+   <label class="req" data-i="lDT"></label>
+   <div class="two"><input id="f_date" type="date"><input id="f_time" type="time"></div>
+   <div class="hint" data-i="hDT"></div>
+
+   <label class="req" for="f_rep" data-i="lRep"></label>
+   <input id="f_rep" autocomplete="name" data-p="pRep">
+
+   <label class="req" data-i="lCon"></label>
+   <div class="chips" id="cons"></div>
+   <input id="f_conOther" style="margin-top:8px;display:none" data-p="pOther">
+
+   <div class="sec" data-i="secFind"></div>
+   <label class="req" for="f_haz" data-i="lHaz"></label>
+   <select id="f_haz"></select>
+
+   <label class="req" for="f_obsZh"><span data-i="lObs"></span><em data-i="eZh"></em></label>
+   <textarea id="f_obsZh" data-p="pObs"></textarea>
+   <div class="auto"><b data-i="autoEn"></b><textarea id="f_obsEn" data-p="pAuto"></textarea></div>
+
+   <label class="req" for="f_recZh"><span data-i="lRec"></span><em data-i="eZh"></em></label>
+   <textarea id="f_recZh" data-p="pRec"></textarea>
+   <div class="auto"><b data-i="autoEn"></b><textarea id="f_recEn" data-p="pAuto"></textarea></div>
+
+   <div class="sec" data-i="secPh"></div>
+   <label><span data-i="lPh"></span><em data-i="ePh"></em></label>
+   <div class="ups" id="ups"></div>
+   <input id="fp" type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files)">
+   <input id="f_hp" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+   <button class="btn" id="send" onclick="submit0()"></button>
+   <div class="fine" data-i="fine"></div>
+  </div>
+
+  <div id="done">
+   <div class="ok">✓</div>
+   <h2 data-i="dTit"></h2>
+   <p data-i="dSub"></p>
+   <div class="rcpt" id="rcpt"></div>
+   <button class="btn btn2" onclick="again()" data-i="again"></button>
+  </div>
+ </div>
+ <div class="foot">NMDC ENERGY · HSE CONTRACTOR REPORT</div>
+</div>
+
+<div id="msg"></div>
+
+<script>
+var CFG=<?!= CFG ?>;
+var LG="zh", PH=[], PBUSY=0, TRB=0, BUSY=0, CON="", OTHER="__other__";
+
+var L={zh:{
+ title:"承包商安全回報", sub:"CONTRACTOR HSE REPORT · NMDC 通霄工區",
+ secBasic:"基本資料 BASIC", secFind:"巡查內容 FINDING", secPh:"照片 PHOTOS",
+ lDT:"日期／時間 Date / Time", hDT:"預設為現在，可以自己修改。",
+ lRep:"填報人 Reporter", pRep:"請輸入姓名",
+ lCon:"承包商 Contractor", other:"其他", pOther:"請輸入承包商名稱",
+ lHaz:"危害種類 Hazard", pick:"請選擇…",
+ lObs:"巡查發現 Observation", eZh:"打中文即可", pObs:"例：二樓平台開口未設護欄",
+ lRec:"改善建議 Recommendation", pRec:"例：立即補設護欄並加掛警示標示",
+ autoEn:"AUTO ENGLISH · 可修改", pAuto:"輸入中文後會自動翻譯到這裡",
+ lPh:"改善前照片 Before", ePh:"最多 6 張，會自動壓縮", addPh:"拍照／相簿",
+ send:"送出 SUBMIT", up:"上傳中…", busy:"照片處理中…", trBusy:"翻譯中…",
+ fine:"送出後會直接送到 NMDC HSE 部門，同時寄信通知相關人員。",
+ need:"請填寫必填欄位", fail:"送出失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
+ dTit:"已送出，謝謝！", dSub:"NMDC HSE 部門已收到這筆回報。",
+ rDate:"日期", rRep:"填報人", rHaz:"危害", rObs:"巡查發現", rPh:"照片", rPhN:" 張",
+ again:"＋ 再填一筆"
+},en:{
+ title:"Contractor HSE Report", sub:"NMDC ENERGY · TUNGHSIAO SITE",
+ secBasic:"BASIC", secFind:"FINDING", secPh:"PHOTOS",
+ lDT:"Date / Time", hDT:"Defaults to now; you can change it.",
+ lRep:"Reporter", pRep:"Your name",
+ lCon:"Contractor", other:"Other", pOther:"Contractor name",
+ lHaz:"Hazard type", pick:"Choose…",
+ lObs:"Observation", eZh:"Chinese is fine", pObs:"e.g. Open edge on level 2 platform without guardrail",
+ lRec:"Recommendation", pRec:"e.g. Install guardrail and warning signs immediately",
+ autoEn:"AUTO ENGLISH · EDITABLE", pAuto:"Auto-translated from the Chinese text",
+ lPh:"Before photos", ePh:"Up to 6, auto-compressed", addPh:"Camera / album",
+ send:"SUBMIT", up:"Uploading…", busy:"Processing photos…", trBusy:"Translating…",
+ fine:"Your report goes straight to the NMDC HSE team, who are notified by email.",
+ need:"Please fill in the required fields", fail:"Submit failed: ", phMax:"Max 6 photos; extras skipped", rdFail:"One photo could not be read",
+ dTit:"Submitted. Thank you!", dSub:"The NMDC HSE team has received your report.",
+ rDate:"Date", rRep:"Reporter", rHaz:"Hazard", rObs:"Finding", rPh:"Photos", rPhN:"",
+ again:"＋ Submit another"
+}};
+
+function $(i){return document.getElementById(i)}
+function t(k){return (L[LG]&&L[LG][k])||L.zh[k]||k}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function toast(s){var m=$("msg");m.textContent=s;m.style.display="block";
+ clearTimeout(m._t);m._t=setTimeout(function(){m.style.display="none"},3200)}
+function fmt(d){return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2)}
+function nowHM(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2)}
+function store(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+function recall(k){try{return localStorage.getItem(k)||""}catch(e){return ""}}
+
+function setLang(l){LG=l;store("HSECR_LANG",l);applyLang()}
+function applyLang(){
+ $("lang").textContent=LG==="zh"?"EN":"中";
+ document.querySelectorAll("[data-i]").forEach(function(el){el.textContent=t(el.getAttribute("data-i"))});
+ document.querySelectorAll("[data-p]").forEach(function(el){el.placeholder=t(el.getAttribute("data-p"))});
+ if(!BUSY)$("send").textContent=t("send");
+ buildCons();buildHaz();paintPh();
+}
+
+/* ---------- 承包商、危害種類 ---------- */
+function buildCons(){
+ var h="";
+ (CFG.contractors||[]).concat([OTHER]).forEach(function(c){
+  var on=(c===OTHER)?(CON===OTHER):(CON===c);
+  h+='<button type="button" class="chip'+(on?" on":"")+'" data-v="'+esc(c)+'">'+esc(c===OTHER?t("other"):c)+'</button>';
+ });
+ $("cons").innerHTML=h;
+ $("cons").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){pickCon(b.getAttribute("data-v"))}});
+ $("f_conOther").style.display=CON===OTHER?"block":"none";
+}
+function pickCon(v){CON=v;$("cons").classList.remove("err");buildCons();if(v===OTHER)$("f_conOther").focus()}
+function getCon(){return CON===OTHER?$("f_conOther").value.trim():CON}
+/** 清單是「中文 English」一串；英文模式只顯示英文那半，送出的值不變。 */
+function hzLabel(s){
+ var i=String(s).search(/[A-Za-z]/);
+ if(LG==="en"&&i>0)return s.slice(i).trim();
+ return s;
+}
+function buildHaz(){
+ var s=$("f_haz"),cur=s.value;
+ s.innerHTML='<option value="">'+esc(t("pick"))+'</option>'+
+  (CFG.hazards||[]).map(function(h){return '<option value="'+esc(h)+'">'+esc(hzLabel(h))+'</option>'}).join("");
+ s.value=cur;
+}
+
+/* ---------- 自動翻譯 ---------- */
+function autoTr(srcId,dstId){
+ var src=$(srcId),dst=$(dstId),z=src.value.trim();
+ if(!z||z===src.dataset.last)return;
+ if(dst.value.trim()&&dst.dataset.auto!=="1")return;   // 使用者自己改過英文就不蓋掉
+ src.dataset.last=z;
+ TRB++;dst.placeholder=t("trBusy");
+ google.script.run.withSuccessHandler(function(r){
+  TRB--;dst.placeholder=t("pAuto");
+  if(r&&r.ok&&src.value.trim()===z){dst.value=r.text||"";dst.dataset.auto="1"}
+ }).withFailureHandler(function(){TRB--;dst.placeholder=t("pAuto")}).cTranslate(z);
+}
+function hookTr(a,b){
+ var tm;
+ $(a).addEventListener("blur",function(){clearTimeout(tm);autoTr(a,b)});
+ // 停手 1.5 秒也先翻，不用等離開欄位
+ $(a).addEventListener("input",function(){this.classList.remove("err");clearTimeout(tm);tm=setTimeout(function(){autoTr(a,b)},1500)});
+ $(b).addEventListener("input",function(){this.dataset.auto=""});
+}
+
+/* ---------- 照片 ---------- */
+function compress(f,cb){
+ var rd=new FileReader();
+ rd.onload=function(){
+  var img=new Image();
+  img.onload=function(){
+   try{
+    var mx=1400,w=img.width,h=img.height,r=Math.min(1,mx/Math.max(w,h));
+    var cv=document.createElement("canvas");cv.width=Math.round(w*r);cv.height=Math.round(h*r);
+    cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height);
+    var du=cv.toDataURL("image/jpeg",0.8).split(",")[1];
+    if(!du)throw new Error("empty");
+    cb(du);
+   }catch(e){cb(null)}
+  };
+  img.onerror=function(){cb(null)};
+  img.src=rd.result;
+ };
+ rd.onerror=function(){cb(null)};
+ rd.readAsDataURL(f);
+}
+function addPhotos(fs){
+ var arr=Array.prototype.slice.call(fs),room=6-PH.length;
+ if(arr.length>room){toast(t("phMax"));arr=arr.slice(0,Math.max(0,room))}
+ arr.forEach(function(f){
+  var o={data:null,url:""};
+  try{o.url=URL.createObjectURL(f)}catch(e){}
+  PH.push(o);PBUSY++;
+  compress(f,function(d){PBUSY--;if(!d){toast(t("rdFail"));phDel(o);return}o.data=d});
+ });
+ $("fp").value="";paintPh();
+}
+function phDel(o){
+ var i=PH.indexOf(o);if(i>=0)PH.splice(i,1);
+ if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}
+ paintPh();
+}
+function paintPh(){
+ var box=$("ups");box.innerHTML="";
+ PH.forEach(function(o){
+  var d=document.createElement("div");d.className="th";
+  d.innerHTML='<img src="'+esc(o.url)+'" alt=""><span class="x">✕</span>';
+  d.querySelector(".x").onclick=function(){phDel(o)};
+  box.appendChild(d);
+ });
+ if(PH.length<6){
+  var a=document.createElement("div");a.className="add";
+  a.innerHTML='<b>＋</b>'+esc(t("addPh"));
+  a.onclick=function(){$("fp").click()};
+  box.appendChild(a);
+ }
+}
+
+/* ---------- 送出 ---------- */
+function submit0(retry){
+ if(BUSY&&!retry)return;
+ var miss=[];
+ if(!$("f_date").value)miss.push("f_date");
+ if(!$("f_rep").value.trim())miss.push("f_rep");
+ if(!getCon())miss.push(CON===OTHER?"f_conOther":"cons");
+ if(!$("f_haz").value)miss.push("f_haz");
+ if(!$("f_obsZh").value.trim())miss.push("f_obsZh");
+ if(!$("f_recZh").value.trim())miss.push("f_recZh");
+ if(miss.length){
+  miss.forEach(function(id){$(id).classList.add("err")});
+  toast(t("need"));$(miss[0]).scrollIntoView({behavior:"smooth",block:"center"});return;
+ }
+ BUSY=1;$("send").disabled=true;
+ if(PBUSY>0){$("send").textContent=t("busy");setTimeout(function(){submit0(1)},500);return}
+ if(TRB>0){$("send").textContent=t("trBusy");setTimeout(function(){submit0(1)},500);return}
+ $("send").textContent=t("up");
+ store("HSECR_REP",$("f_rep").value.trim());store("HSECR_CON",getCon());
+ var pay={
+  date:$("f_date").value, time:$("f_time").value||nowHM(),
+  reporter:$("f_rep").value.trim(), contractor:getCon(), hazard:$("f_haz").value,
+  obsZh:$("f_obsZh").value.trim(), obsEn:$("f_obsEn").value.trim(),
+  recZh:$("f_recZh").value.trim(), recEn:$("f_recEn").value.trim(),
+  hp:$("f_hp").value,
+  photos:PH.filter(function(p){return p.data}).map(function(p){return {data:p.data}})
+ };
+ google.script.run.withSuccessHandler(function(r){
+  BUSY=0;$("send").disabled=false;$("send").textContent=t("send");
+  if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
+  showDone(pay,r.photoCount||0);
+ }).withFailureHandler(function(e){
+  BUSY=0;$("send").disabled=false;$("send").textContent=t("send");
+  toast(t("fail")+(e&&e.message||e));
+ }).cSubmit(pay);
+}
+function showDone(p,n){
+ var row=function(k,v){return '<div><span>'+esc(t(k))+'</span><i>'+esc(v)+'</i></div>'};
+ $("rcpt").innerHTML=row("rDate",p.date+" "+p.time)+row("rRep",p.reporter+"（"+p.contractor+"）")+
+  row("rHaz",hzLabel(p.hazard))+row("rObs",p.obsZh)+row("rPh",n+t("rPhN"));
+ $("form").style.display="none";$("done").style.display="block";
+ try{window.scrollTo(0,0)}catch(e){}
+}
+/** 再填一筆：保留填報人與承包商，其餘清空、時間重設為現在。 */
+function again(){
+ ["f_obsZh","f_obsEn","f_recZh","f_recEn"].forEach(function(id){var e=$(id);e.value="";e.dataset.auto="";e.dataset.last=""});
+ $("f_haz").value="";
+ PH.forEach(function(o){if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}});PH=[];paintPh();
+ $("f_date").value=fmt(new Date());$("f_time").value=nowHM();
+ $("done").style.display="none";$("form").style.display="block";
+ try{window.scrollTo(0,0)}catch(e){}
+}
+
+/* ---------- 啟動 ---------- */
+(function(){
+ LG=recall("HSECR_LANG")==="en"?"en":"zh";
+ $("f_date").value=fmt(new Date());$("f_time").value=nowHM();
+ $("f_rep").value=recall("HSECR_REP");
+ var c=recall("HSECR_CON");
+ if(c)CON=(CFG.contractors||[]).indexOf(c)>=0?c:OTHER;
+ if(CON===OTHER)$("f_conOther").value=c;
+ applyLang();
+ hookTr("f_obsZh","f_obsEn");hookTr("f_recZh","f_recEn");
+ ["f_rep","f_conOther","f_date"].forEach(function(id){$(id).addEventListener("input",function(){this.classList.remove("err")})});
+ $("f_haz").addEventListener("change",function(){this.classList.remove("err")});
+})();
+</script>
+</body>
+</html>

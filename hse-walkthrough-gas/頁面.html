@@ -79,7 +79,84 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .nav{flex:0 0 auto;width:42px;height:44px;border-radius:13px;border:0;background:#fff;color:#16324f;
  font-size:18px;font-weight:800;box-shadow:0 1px 3px rgba(16,24,40,.08);cursor:pointer}
 .nav:active{transform:scale(.95)}
-.dsum{text-align:center;font-size:12.5px;color:#6b7784;margin:-4px 0 10px;font-weight:600}
+.kpi.k1.act{box-shadow:0 0 0 2.5px #c07a18,0 8px 24px rgba(16,24,40,.10)}
+.kpi.k2.act{box-shadow:0 0 0 2.5px #1b6e3c,0 8px 24px rgba(16,24,40,.10)}
+.kpi.k3.act{box-shadow:0 0 0 2.5px #c62828,0 8px 24px rgba(16,24,40,.10)}
+
+/* 日期按鈕＋自製日曆（每天格子裡顯示筆數） */
+.dsel{flex:1;min-width:0;height:44px;border-radius:13px;border:0;background:#fff;color:#16324f;font-family:inherit;
+ font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;
+ box-shadow:0 1px 3px rgba(16,24,40,.08);font-variant-numeric:tabular-nums}
+.dsel i{font-style:normal;font-size:11px;color:#8a97a5}
+.dsel.on{box-shadow:0 0 0 2px #00B050,0 1px 3px rgba(16,24,40,.08)}
+.cal{display:none;background:#fff;border-radius:18px;border:1px solid #e3e9f0;margin:-3px 0 11px;padding:11px 11px 9px;
+ box-shadow:0 14px 34px rgba(16,24,40,.14);animation:up .15s ease-out}
+.cal .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+.cal .mh button{width:36px;height:34px;border-radius:10px;border:0;background:#f5f8fb;color:#16324f;font-size:17px;font-weight:900;cursor:pointer}
+.cal .mh div{text-align:center}
+.cal .mh b{display:block;font-size:15px;color:#002038}
+.cal .mh small{font-size:11px;color:#8a97a5;font-weight:700}
+.wk,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.wk span{font-size:10.5px;font-weight:800;color:#8a97a5;text-align:center;padding:2px 0}
+.wk span:first-child,.wk span:last-child{color:#c28a8a}
+.dc{height:48px;border-radius:10px;border:0;background:none;cursor:pointer;font-family:inherit;padding:5px 0 0;
+ display:flex;flex-direction:column;align-items:center;gap:3px;font-variant-numeric:tabular-nums}
+.dc b{font-size:13px;font-weight:700;color:#38475a;line-height:1}
+.dc.o b{color:#c3ccd5}
+.dc i{font-style:normal;font-size:10.5px;font-weight:900;line-height:1;min-width:20px;text-align:center;border-radius:999px;padding:2px 5px}
+.dc i.a{background:#fff3df;color:#c07a18}
+.dc i.c{background:#e2f2e6;color:#1b6e3c}
+.dc.today{box-shadow:inset 0 0 0 1.5px #bfe5cd}
+.dc.today b{color:#1b6e3c;font-weight:900}
+.dc.sel{background:#002038}
+.dc.sel b{color:#fff}
+.dc.sel i{background:#fff;color:#002038}
+.leg{display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:11px;color:#6b7784;font-weight:700}
+.leg i{display:inline-block;width:15px;height:10px;border-radius:999px;vertical-align:-1px;margin-right:4px}
+@media(hover:hover){.dc:hover{background:#f2f6fa}.dc.sel:hover{background:#002038}}
+
+/* 當天摘要卡 */
+.dsum{display:flex;align-items:center;gap:13px;background:#fff;border:1px solid #e8ecf1;border-radius:16px;
+ padding:11px 14px;margin:0 0 11px;box-shadow:0 1px 3px rgba(16,24,40,.04)}
+.dsum .big{font-size:27px;font-weight:900;color:#002038;line-height:1;font-variant-numeric:tabular-nums;text-align:center;min-width:52px}
+.dsum .big small{display:block;font-size:10px;font-weight:800;color:#8a97a5;letter-spacing:.4px;margin-top:4px;white-space:nowrap}
+.dsum .seg{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.dsum .bar{height:9px}
+.dsum p{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;font-weight:800}
+.dsum .o{color:#c07a18}.dsum .c{color:#1b6e3c}.dsum .s{color:#8a97a5}
+
+/* 跨日期精簡清單 */
+.fbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 9px}
+.fbar strong{font-size:14px;color:#002038}
+.fbar strong em{font-style:normal}
+.chipx{flex:0 0 auto;font-family:inherit;font-size:12px;font-weight:800;color:#56657a;background:#fff;border:1px solid #d3dde8;
+ border-radius:999px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.sorts{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.sorts button{font-family:inherit;font-size:12px;font-weight:800;padding:6px 12px;border-radius:999px;border:0;
+ background:#e6ebf0;color:#5a6b7c;cursor:pointer}
+.sorts button.on{background:#002038;color:#fff}
+.rows{background:#fff;border:1px solid #e8ecf1;border-radius:16px;overflow:hidden;
+ box-shadow:0 1px 3px rgba(16,24,40,.04),0 8px 20px rgba(16,24,40,.05)}
+.lr{display:grid;grid-template-columns:5px 46px minmax(0,1fr) auto;align-items:center;gap:10px;
+ padding:10px 12px 10px 0;border-top:1px solid #eef1f4;cursor:pointer}
+.rows>.lr:first-child,.rows>.gh:first-child{border-top:0}
+.lr .st{align-self:stretch;background:#c07a18}
+.lr .st.ov{background:#c62828}.lr .st.cl{background:#1b6e3c}
+.lr .d{font-size:12.5px;font-weight:900;color:#002038;line-height:1.15;text-align:center;font-variant-numeric:tabular-nums}
+.lr .d small{display:block;font-weight:700;color:#8a97a5;font-size:10.5px;margin-top:1px}
+.lr .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:600}
+.lr .t p{margin-top:2px;font-size:11.5px;color:#8a97a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lr .con{font-weight:900;color:#1b3a5c}
+.lr .pill{font-size:11px;padding:3px 9px}
+.pill.ov{background:#fde3e3;color:#c62828}
+.lr.on{background:#f7fafd}
+.lexp{padding:4px 10px 2px;background:#f7fafd;border-top:1px dashed #dfe6ee}
+.lexp .card{margin-bottom:10px}
+.gh{padding:7px 14px;font-size:11.5px;font-weight:900;letter-spacing:.5px;color:#1b3a5c;background:#f2f5f8;border-top:1px solid #e8ecf1}
+.gh span{color:#8a97a5;font-weight:700;margin-left:6px}
+@media(hover:hover){.lr:hover{background:#f7fafd}}
+.tag.src{background:#ffe7b8;color:#7a4b00;font-weight:800}
+.srcb{display:inline-block;font-size:10px;font-weight:900;color:#7a4b00;background:#ffe7b8;border-radius:5px;padding:1px 6px;margin-left:5px;vertical-align:1px}
 
 .btn{display:block;width:100%;border:0;border-radius:16px;padding:14px;font-size:16px;font-weight:700;
  letter-spacing:2px;margin-bottom:10px;color:#fff;cursor:pointer;
@@ -230,7 +307,7 @@ details summary::-webkit-details-marker{display:none}
 <div class="wrap">
 
  <div class="kpis">
-  <div class="kpi k0 act" onclick="flt('')"><b id="k0">—</b><span data-i="kAll"></span></div>
+  <div class="kpi k0" onclick="flt('')"><b id="k0">—</b><span data-i="kAll"></span></div>
   <div class="kpi k1" onclick="flt('Open')"><b id="k1">—</b><span data-i="kOpen"></span></div>
   <div class="kpi k2" onclick="flt('Closed')"><b id="k2">—</b><span data-i="kClosed"></span></div>
   <div class="kpi k3" onclick="flt('overdue')"><b id="k3">—</b><span data-i="kOver"></span></div>
@@ -239,11 +316,27 @@ details summary::-webkit-details-marker{display:none}
  <div id="dwrap">
   <div class="dbar">
    <button class="nav" onclick="shiftDay(-1)">‹</button>
-   <input id="dt" type="date" onchange="load()">
+   <button class="dsel" id="dsel" onclick="calToggle()"><span id="dselTxt"></span><i>▾</i></button>
+   <input id="dt" type="hidden">
    <button class="nav" onclick="shiftDay(1)">›</button>
    <button class="nav" onclick="goToday()" style="width:auto;padding:0 13px;font-size:13px" data-i="btnToday"></button>
   </div>
+  <div class="cal" id="cal">
+   <div class="mh"><button onclick="calMove(-1)">‹</button><div><b id="calTit"></b><small id="calSub"></small></div><button onclick="calMove(1)">›</button></div>
+   <div class="wk" id="calWk"></div>
+   <div class="days" id="calDays"></div>
+   <div class="leg"><span><i style="background:#fff3df"></i><em data-i="legA" style="font-style:normal"></em></span><span><i style="background:#e2f2e6"></i><em data-i="legC" style="font-style:normal"></em></span></div>
+  </div>
   <div class="dsum" id="dsum"></div>
+ </div>
+
+ <div id="lbar" style="display:none">
+  <div class="fbar"><strong id="lTit"></strong><button class="chipx" onclick="backDay()" data-i="lBack"></button></div>
+  <div class="sorts">
+   <button id="so_over" onclick="setSort('over')" data-i="soOver"></button>
+   <button id="so_date" onclick="setSort('date')" data-i="soDate"></button>
+   <button id="so_con" onclick="setSort('con')" data-i="soCon"></button>
+  </div>
  </div>
 
  <div class="mask" id="mRep" onclick="maskClick(event,'rep')">
@@ -397,6 +490,9 @@ var LG="zh", CFG=null, DATA=[], COUNTS={}, DATES=[], TODAY="", FILTER="", RISK="
 var EXPTOUCH=0;
 var EDIT="", AFID="", TRB=0, BUSY=0;
 var REP_OTHER="__other__";
+var DATE0="<?!= DATE ?>";              // 通知信連結帶的 &d=，直接開到那一天
+var MODE="day", LIST=[], SORT="over", OPENID="", LSEQ=0;   // MODE：day＝按日期看、list＝上方按鈕的跨日期清單
+var CAL={}, CALM="";                    // CAL：日期 → [總數, 未結案, 承包商填報]；CALM：日曆目前顯示的月份 YYYY-MM
 
 var L={zh:{
  title:"NMDC 通霄工區", sub:"HSE 現場巡查紀錄 · INSPECTION WALKTHROUGH",
@@ -458,7 +554,14 @@ var L={zh:{
  other:"其他",
  lbOpen:"在雲端開啟原圖 ↗",
  fail:"失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
- foot:"NMDC ENERGY · HSE 現場巡查紀錄｜手機填報 → 每日匯出報告"
+ foot:"NMDC ENERGY · HSE 現場巡查紀錄｜手機填報 → 每日匯出報告",
+ wk:["日","一","二","三","四","五","六"], calY:" 年 ", calM:" 月",
+ calS1:"本月 ", calS2:" 筆 · 開放 ", legA:"有未結案", legC:"全部結案",
+ sumN:" 筆數", sOpenN:"開放 ", sClosedN:"結案 ", sConN:"承包商填 ",
+ lAll:"所有日期", lN:" 筆", lBack:"✕ 回日期檢視",
+ soOver:"逾期優先", soDate:"日期新→舊", soCon:"依承包商",
+ lNone:"沒有符合的紀錄", noCon:"未填承包商", tDue:"預定 ", tSrc:"承包商填報", ovD:" 天",
+ hzN:"未填危害"
 },en:{
  title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
  kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue",
@@ -519,7 +622,14 @@ var L={zh:{
  other:"Other",
  lbOpen:"Open original in Drive ↗",
  fail:"Failed: ", phMax:"Max 6 photos; extras skipped", rdFail:"One photo could not be read",
- foot:"NMDC ENERGY · HSE Walkthrough Record｜Mobile entry → daily report"
+ foot:"NMDC ENERGY · HSE Walkthrough Record｜Mobile entry → daily report",
+ wk:["Su","Mo","Tu","We","Th","Fr","Sa"], calY:" / ", calM:"",
+ calS1:"This month ", calS2:" · open ", legA:"Has open items", legC:"All closed",
+ sumN:" total", sOpenN:"Open ", sClosedN:"Closed ", sConN:"By contractor ",
+ lAll:"All dates", lN:"", lBack:"✕ Back to daily view",
+ soOver:"Overdue first", soDate:"Newest first", soCon:"By contractor",
+ lNone:"No matching findings", noCon:"No contractor", tDue:"Target ", tSrc:"Contractor report", ovD:" d",
+ hzN:"No hazard type"
 }};
 
 function $(i){return document.getElementById(i)}
@@ -549,26 +659,159 @@ function dayDiff(a,b){return Math.round((new Date(a+"T00:00:00")-new Date(b+"T00
 
 /* ---------- 載入 ---------- */
 function load(){
- $("list").innerHTML='<div class="muted">'+esc(t("lding"))+'</div>';
+ updDsel();
+ if(MODE==="day")$("list").innerHTML='<div class="muted">'+esc(t("lding"))+'</div>';
  google.script.run.withSuccessHandler(function(r){
   if(!r||!r.ok){$("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'</div>';return}
   TODAY=r.today; if(!$("dt").value)$("dt").value=r.date;
   // 表單沒開也不在編輯中時，讓新增用的巡查日跟著上面切換的日期走。
   if(!EDIT&&!isOpen("rep"))$("f_date").value=$("dt").value||TODAY;
-  CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[];
+  CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[]; CAL=r.cal||{};
   buildOptions(); buildDateOpts(); fillCfgForm(); paint();
+  // 在跨日期清單裡按了結案／編輯等動作，清單也要跟著重抓
+  if(MODE==="list")loadList();
  }).withFailureHandler(function(e){
   $("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'<br><small>'+esc(e&&e.message||e)+'</small></div>';
  }).hseBoot(KEY,$("dt").value||"");
 }
 
+/* ---------- 上方四顆按鈕：跨日期精簡清單 ---------- */
+/** 按一下進清單模式；再按同一顆就回按日期看。 */
 function flt(f){
- FILTER=(FILTER===f)?"":f;
+ if(MODE==="list"&&FILTER===f){backDay();return}
+ if(MODE!=="list"||FILTER!==f){LIST=[];OPENID=""}
+ MODE="list";FILTER=f;calClose();
+ kpiAct();paint();loadList();
+ try{window.scrollTo(0,0)}catch(e){}
+}
+function backDay(){MODE="day";FILTER="";OPENID="";kpiAct();paint()}
+function kpiAct(){
  document.querySelectorAll(".kpi").forEach(function(el,i){
-  var k=["","Open","Closed","overdue"][i];
-  el.classList.toggle("act", k===FILTER || (FILTER===""&&i===0));
+  el.classList.toggle("act",MODE==="list"&&["","Open","Closed","overdue"][i]===FILTER);
  });
- paint();
+}
+function loadList(){
+ var seq=++LSEQ,f=FILTER;
+ if(!LIST.length)$("list").innerHTML='<div class="muted">'+esc(t("lding"))+'</div>';
+ google.script.run.withSuccessHandler(function(r){
+  if(seq!==LSEQ||MODE!=="list")return;   // 連按不同按鈕時，只採用最後一次的結果
+  if(!r||!r.ok){$("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'</div>';return}
+  if(r.today)TODAY=r.today;
+  LIST=r.records||[];paint();
+ }).withFailureHandler(function(e){
+  if(seq!==LSEQ)return;
+  $("list").innerHTML='<div class="muted">'+esc(t("lfail"))+'<br><small>'+esc(e&&e.message||e)+'</small></div>';
+ }).hseList(KEY,f);
+}
+function setSort(k){SORT=k;try{localStorage.setItem("HSEWT_SORT",k)}catch(e){}paint()}
+function rowTog(id){OPENID=(OPENID===id)?"":id;paint()}
+/** 逾期天數；沒逾期（或已結案、沒期限）回 0。 */
+function overDays(x){
+ if(x.status==="Closed"||!x.targetDate||!TODAY||x.targetDate>=TODAY)return 0;
+ return -dayDiff(x.targetDate,TODAY);
+}
+function byNewest(a,b){return b.date.localeCompare(a.date)||(b.sn||0)-(a.sn||0)}
+function sortList(list){
+ if(SORT==="date")return list.sort(byNewest);
+ if(SORT==="con")return list.sort(function(a,b){
+  var ca=a.contractor||"￿",cb=b.contractor||"￿";
+  return ca.localeCompare(cb)||byNewest(a,b);
+ });
+ // 逾期優先：逾期越久越前面，接著是還開著的，已結案墊底；同一群裡新的在前
+ return list.sort(function(a,b){
+  var oa=overDays(a),ob=overDays(b);
+  if(oa!==ob)return ob-oa;
+  var ca=a.status==="Closed"?1:0,cb=b.status==="Closed"?1:0;
+  return ca-cb||byNewest(a,b);
+ });
+}
+function paintList(){
+ var list=sortList(LIST.slice());
+ var k={"":"kAll",Open:"kOpen",Closed:"kClosed",overdue:"kOver"}[FILTER];
+ var col={"":"#1b3a5c",Open:"#c07a18",Closed:"#1b6e3c",overdue:"#c62828"}[FILTER];
+ $("lTit").innerHTML=esc(t(k)+" · "+t("lAll")+" ")+'<em style="color:'+col+'">'+list.length+esc(t("lN"))+'</em>';
+ ["over","date","con"].forEach(function(s){$("so_"+s).classList.toggle("on",SORT===s)});
+ if(!list.length){$("list").innerHTML='<div class="muted"><b>'+esc(t("lNone"))+'</b></div>';return}
+ var h='<div class="rows">',grp=null;
+ list.forEach(function(x){
+  if(SORT==="con"&&grp!==(x.contractor||"")){
+   grp=x.contractor||"";
+   var n=list.filter(function(y){return (y.contractor||"")===grp}).length;
+   h+='<div class="gh">'+esc(grp||t("noCon"))+'<span>'+n+esc(t("lN"))+'</span></div>';
+  }
+  h+=lrow(x);
+  if(OPENID===x.id)h+='<div class="lexp">'+card(x)+'</div>';
+ });
+ $("list").innerHTML=h+'</div>';
+}
+function lrow(x){
+ var od=overDays(x),cl=x.status==="Closed";
+ var stc=cl?"cl":(od?"ov":"");
+ var pill=cl?'<span class="pill Closed">'+esc(t("kClosed"))+'</span>'
+  :od?'<span class="pill ov">'+esc(t("over1")+od+t("ovD"))+'</span>'
+  :'<span class="pill Open">'+esc(t("kOpen"))+'</span>';
+ var hz=t("hzN");
+ if(x.hazard){   // 「墜落防護 Fall protection」→ 中文模式取前半、英文模式取後半
+  var hi=String(x.hazard).search(/[A-Za-z]/);
+  hz=hi>0?(LG==="en"?x.hazard.slice(hi):x.hazard.slice(0,hi)).trim():x.hazard;
+ }
+ var sub=[hz];
+ if(x.targetDate&&!cl)sub.push(t("tDue")+x.targetDate.slice(5).replace("-","/"));
+ if(cl&&x.closeOutDate)sub.push(t("tClose")+x.closeOutDate.slice(5).replace("-","/"));
+ sub.push(t("tBy")+(x.reporter||"—"));
+ var txt=(LG==="en"&&x.obsEn)?x.obsEn:x.obsZh;
+ return '<div class="lr'+(OPENID===x.id?" on":"")+'" onclick="rowTog(\''+x.id+'\')">'+
+  '<span class="st '+stc+'"></span>'+
+  '<span class="d">'+esc(x.date.slice(5).replace("-","/"))+'<small>#'+esc(x.sn||"")+'</small></span>'+
+  '<div class="t"><div>'+(x.contractor?'<span class="con">【'+esc(x.contractor)+'】</span>':'')+esc(txt)+
+   (x.source==="contractor"?'<span class="srcb">'+esc(t("tSrc"))+'</span>':'')+'</div>'+
+  '<p>'+esc(sub.join(" · "))+'</p></div>'+pill+'</div>';
+}
+
+/* ---------- 日期按鈕＋自製日曆 ---------- */
+function wkName(d){return t("wk")[new Date(d+"T00:00:00").getDay()]}
+function updDsel(){
+ var d=$("dt").value||TODAY;if(!d)return;
+ $("dselTxt").textContent=d+(LG==="zh"?"（"+wkName(d)+"）":" "+wkName(d));
+}
+function calToggle(){
+ if($("cal").style.display==="block"){calClose();return}
+ CALM=($("dt").value||TODAY||fmt(new Date())).slice(0,7);
+ calPaint();$("cal").style.display="block";$("dsel").classList.add("on");
+}
+function calClose(){$("cal").style.display="none";$("dsel").classList.remove("on")}
+function calMove(n){
+ var d=new Date(+CALM.slice(0,4),+CALM.slice(5,7)-1+n,1);
+ CALM=fmt(d).slice(0,7);calPaint();
+}
+function calPaint(){
+ if(!CALM)return;
+ var y=+CALM.slice(0,4),m=+CALM.slice(5,7);
+ $("calTit").textContent=y+t("calY")+m+t("calM");
+ var tot=0,op=0;
+ Object.keys(CAL).forEach(function(d){if(d.slice(0,7)===CALM){tot+=CAL[d][0];op+=CAL[d][1]}});
+ $("calSub").textContent=t("calS1")+tot+t("calS2")+op;
+ $("calWk").innerHTML=t("wk").map(function(w){return '<span>'+esc(w)+'</span>'}).join("");
+ var first=new Date(y,m-1,1),start=first.getDay();
+ var cur=$("dt").value||TODAY,h="";
+ // 6 週固定 42 格，換月時高度不會跳
+ for(var i=0;i<42;i++){
+  var dd=new Date(y,m-1,1-start+i),ds=fmt(dd),c=CAL[ds];
+  var cls="dc"+(dd.getMonth()!==m-1?" o":"")+(ds===cur?" sel":"")+(ds===TODAY?" today":"");
+  h+='<button class="'+cls+'" onclick="calPick(\''+ds+'\')"><b>'+dd.getDate()+'</b>'+
+   (c&&c[0]?'<i class="'+(c[1]?"a":"c")+'">'+c[0]+'</i>':'')+'</button>';
+ }
+ $("calDays").innerHTML=h;
+}
+function calPick(d){$("dt").value=d;calClose();load()}
+function dsumPaint(){
+ var d=$("dt").value||TODAY,c=CAL[d]||[0,0,0];
+ var n=DATA.length||c[0],op=c[1],cl=n-op,con=c[2];
+ var pc=n?Math.round(op/n*100):0;
+ $("dsum").innerHTML='<div class="big">'+n+'<small>'+esc(d.slice(5).replace("-","/")+t("sumN"))+'</small></div>'+
+  '<div class="seg"><div class="bar">'+(n?'<i class="o" style="width:'+pc+'%"></i><i class="c" style="width:'+(100-pc)+'%"></i>':'')+'</div>'+
+  '<p><span class="o">'+esc(t("sOpenN"))+op+'</span><span class="c">'+esc(t("sClosedN"))+cl+'</span>'+
+  (con?'<span class="s">'+esc(t("sConN"))+con+'</span>':'')+'</p></div>';
 }
 
 /* ---------- 下拉與選項 ---------- */
@@ -781,7 +1024,7 @@ function submit0(retry){
   photos:PH.filter(function(p){return p.data}).map(function(p){return {data:p.data}})
  };
  if(EDIT){
-  var cur=DATA.filter(function(x){return x.id===EDIT})[0];
+  var cur=findRec(EDIT);
   if(cur){pay.status=cur.status;pay.closeOutDate=cur.closeOutDate}
  }
  google.script.run.withSuccessHandler(function(r){
@@ -812,8 +1055,9 @@ function resetForm(){
  updTargetHint();
 }
 
+function findRec(id){return DATA.concat(LIST).filter(function(r){return r.id===id})[0]}
 function editRec(id){
- var x=DATA.filter(function(r){return r.id===id})[0];if(!x)return;
+ var x=findRec(id);if(!x)return;
  EDIT=id;
  openM("rep");
  $("f_time").value=x.time||nowHM();
@@ -848,13 +1092,15 @@ function paint(){
  $("k1").textContent=COUNTS.open||0;
  $("k2").textContent=COUNTS.closed||0;
  $("k3").textContent=COUNTS.overdue||0;
+ updExpBtn();updDsel();
+
+ $("dwrap").style.display=MODE==="list"?"none":"";
+ $("lbar").style.display=MODE==="list"?"":"none";
+ if(MODE==="list"){if(LIST.length||LSEQ)paintList();return}
 
  var list=DATA.slice();
- if(FILTER==="overdue")list=list.filter(function(x){return x.status!=="Closed"&&x.targetDate&&x.targetDate<TODAY});
- else if(FILTER)list=list.filter(function(x){return x.status===FILTER});
-
- $("dsum").textContent=t("dsum1")+DATA.length+t("dsum2")+(FILTER?"（"+list.length+"）":"");
- updExpBtn();
+ dsumPaint();
+ if($("cal").style.display==="block")calPaint();
 
  if(!list.length){
   $("list").innerHTML='<div class="muted"><b>'+esc(t("nodata"))+'</b><br>'+esc(t("nodataH"))+'</div>';
@@ -873,6 +1119,7 @@ function applyLangStatic(){
 function card(x){
  var st=x.status||"Open";
  var tags="";
+ if(x.source==="contractor")tags+='<span class="tag src">'+esc(t("tSrc"))+'</span>';
  if(x.hazard)tags+='<span class="tag hz">'+esc(x.hazard)+'</span>';
  if(x.actionBy)tags+='<span class="tag">'+esc(t("tAction")+x.actionBy)+'</span>';
  if(x.contractor)tags+='<span class="tag">'+esc(t("tCon")+x.contractor)+'</span>';
@@ -1111,7 +1358,8 @@ function saveCfg(){
 (function(){
  try{LG=localStorage.getItem("HSEWT_LANG")||"zh"}catch(e){}
  if(LG!=="zh"&&LG!=="en")LG="zh";
- $("dt").value=fmt(new Date());
+ try{var so=localStorage.getItem("HSEWT_SORT");if(so==="over"||so==="date"||so==="con")SORT=so}catch(e){}
+ $("dt").value=DATE0||fmt(new Date());
  $("f_date").value=fmt(new Date());
  $("f_time").value=nowHM();
  applyLang();
@@ -1125,6 +1373,14 @@ function saveCfg(){
  document.addEventListener("keydown",function(e){
   if(e.key!=="Escape")return;
   Object.keys(MKEY).forEach(function(k){if(isOpen(k))closeM(k)});
+  calClose();
+ });
+ // 點日曆以外的地方就收起來
+ document.addEventListener("click",function(e){
+  if($("cal").style.display!=="block")return;
+  if(!document.body.contains(e.target))return;   // 日曆重畫時被換掉的按鈕
+  if($("cal").contains(e.target)||$("dsel").contains(e.target))return;
+  calClose();
  });
  load();
 })();
