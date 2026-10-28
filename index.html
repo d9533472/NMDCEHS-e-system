@@ -1369,6 +1369,13 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
   <div class="modal-actions"><button class="btn-secondary" onclick="closeMergeM()">取消</button><button class="btn-primary" onclick="saveMerge()">確定</button></div>
 </div></div></div>
 
+<div class="modal-overlay hidden" id="mSpDay" onclick="closeSpDayM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mSpDayT">颱風假／特殊假</div><div class="modal-form">
+  <div style="font-size:12px;color:var(--muted);line-height:1.6">設定後這一天所有人都會變成 <b>H</b>，表頭顯示註記；移除時會還原成設定前的班別。</div>
+  <div><label class="form-label">註記</label><input class="form-input" id="inSpL" placeholder="颱風假"></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" class="btn-add-row" style="margin:0;padding:4px 12px;font-size:12px" onclick="$('inSpL').value='颱風假'">🌀 颱風假</button><button type="button" class="btn-add-row" style="margin:0;padding:4px 12px;font-size:12px" onclick="$('inSpL').value='特殊假'">⭐ 特殊假</button></div>
+  <div class="modal-actions"><button class="btn-secondary" id="bSpDel" onclick="delSpDay()" style="margin-right:auto;color:#dc2626">移除特殊假</button><button class="btn-secondary" onclick="closeSpDayM()">取消</button><button class="btn-primary" onclick="saveSpDay()">確定</button></div>
+</div></div></div>
+
 <script>
 const $=id=>document.getElementById(id);
 const AK='env-es-auth',CRED={pass:'1234'};
@@ -2528,6 +2535,8 @@ function renderSchHTML(){
 function renderOneMonth(mo){
   const sd=getSchData(mo);const [y,m]=mo.split('-').map(Number);const days=new Date(y,m,0).getDate();
   const mLabel=`${y}年${m}月`;
+  // 颱風假／特殊假：整欄視同假日，表頭顯示註記
+  const spLbl=d=>sd.specialDays?.[d]?.label||'';
 
   // 今天（只有當檢視的月份就是本月時才有值）
   const _now=new Date();
@@ -2561,7 +2570,7 @@ function renderOneMonth(mo){
 
   // ── 今日人員去向 ──
   if(todayD){
-    const tdow=new Date(y,m-1,todayD).getDay();const thn=holName(y,m,todayD);
+    const tdow=new Date(y,m-1,todayD).getDay();const thn=spLbl(todayD)||holName(y,m,todayD);
     h+=`<div class="sch-today-bar"><div class="stb-h">今日人員去向 <small>${m}/${todayD}（${WKDAYS[tdow]}）${thn?' · '+esc(thn):''}</small></div><div class="stb-grid">`;
     PLIST.forEach(p=>{
       const ci=cellInfo(p,todayD);
@@ -2579,14 +2588,17 @@ function renderOneMonth(mo){
     +`<span class="sl-i"><i class="sl-k sl-hd-off">H</i>假日休假（週末・國定假日）</span>`
     +(todayD?`<span class="sl-i"><i class="sl-k sl-today"></i>今天</span>`:'')
     +`<span class="sl-i"><i class="sl-k sl-merge">特</i>特殊事項</span>`
+    +(sd.specialDays&&Object.keys(sd.specialDays).length?`<span class="sl-i"><i class="sl-k sl-hd-off">H</i>颱風假・特殊假（表頭註記）</span>`:'')
     +`</div>`;
+  if(isEditor)h+=`<div style="font-size:11px;color:var(--muted);margin:-4px 0 8px">💡 點日期表頭可設定／移除「颱風假・特殊假」（當天全員 H）</div>`;
 
   // Table
   h+=`<div class="sch-wrap" data-mo="${mo}"><table class="sch-table"><thead><tr><th class="sch-name" style="position:sticky;left:0;z-index:3">姓名</th>`;
   for(let d=1;d<=days;d++){
-    const dt=new Date(y,m-1,d);const dow=dt.getDay();const off=isDayOff(y,m,d);const hn=holName(y,m,d);
+    const dt=new Date(y,m-1,d);const dow=dt.getDay();const sp=spLbl(d);const off=isDayOff(y,m,d)||!!sp;const hn=sp||holName(y,m,d);
     const cls=[off?'sch-hol':'',d===todayD?'sch-td':'',(dow===1&&d>1)?'sch-wk':''].filter(Boolean).join(' ');
-    h+=`<th class="${cls}" title="${m}/${d}（${WKDAYS[dow]}）${hn?' '+esc(hn):''}${d===todayD?' · 今天':''}"><div class="sch-day-hd">${d}</div><span class="sch-dow">${WKDAYS[dow]}</span>${hn?`<span class="sch-hol-label">${hn}</span>`:''}</th>`;
+    const thAct=isEditor?` onclick="openSpDayM('${mo}',${d})" style="cursor:pointer"`:'';
+    h+=`<th class="${cls}"${thAct} title="${m}/${d}（${WKDAYS[dow]}）${hn?' '+esc(hn):''}${d===todayD?' · 今天':''}${isEditor?(sp?'（點擊修改／移除特殊假）':'（點擊設定颱風假／特殊假）'):''}"><div class="sch-day-hd">${d}</div><span class="sch-dow">${WKDAYS[dow]}</span>${hn?`<span class="sch-hol-label">${esc(hn)}</span>`:''}</th>`;
   }
   h+=`</tr></thead><tbody>`;
 
@@ -2607,7 +2619,7 @@ function renderOneMonth(mo){
       const inMg=sd.merges?.find(x=>x.person===p&&d>x.start&&d<=x.end);
       if(inMg){d++;continue;}
       const v=sd.cells[p]?.[d]||'R';
-      const off=isDayOff(y,m,d);
+      const off=isDayOff(y,m,d)||!!spLbl(d);
       const dow=new Date(y,m-1,d).getDay();
       const cls=`sch-cell sch-v-${v}${off?' sch-hol':''}${d===todayD?' sch-td':''}${(dow===1&&d>1)?' sch-wk':''}`;
       const tip=`${p}｜${m}/${d}（${WKDAYS[dow]}）・${SCH_LBL[v]||v}${d===todayD?'・今天':''}`;
@@ -2701,6 +2713,46 @@ function setSch(mo,p,d,v){
   requestAnimationFrame(()=>{const sw2=document.querySelector('.sch-wrap');if(sw2)sw2.scrollLeft=_sl;});
 }
 
+// ── 颱風假／特殊假：整天全員 H，記住原班別以便移除時還原 ──
+let spDayCtx=null;
+function openSpDayM(mo,d){
+  const sd=getSchData(mo);const cur=sd.specialDays?.[d];const [y,m]=mo.split('-').map(Number);
+  spDayCtx={mo,d};
+  $('mSpDayT').textContent=`颱風假／特殊假　${m}/${d}（${WKDAYS[new Date(y,m-1,d).getDay()]}）`;
+  $('inSpL').value=cur?cur.label:'颱風假';
+  $('bSpDel').style.display=cur?'':'none';
+  $('mSpDay').classList.remove('hidden');
+  setTimeout(()=>$('inSpL').focus(),0);
+}
+function closeSpDayM(){$('mSpDay').classList.add('hidden');spDayCtx=null;}
+function keepSchScroll(fn){const sw=document.querySelector('.sch-wrap'),sl=sw?sw.scrollLeft:0;fn();requestAnimationFrame(()=>{const sw2=document.querySelector('.sch-wrap');if(sw2)sw2.scrollLeft=sl;});}
+function saveSpDay(){
+  if(!spDayCtx)return;const {mo,d}=spDayCtx;
+  const label=$('inSpL').value.trim()||'特殊假';
+  const sd=getSchData(mo);if(!sd.specialDays)sd.specialDays={};
+  const [y,m]=mo.split('-').map(Number);
+  if(sd.specialDays[d]){sd.specialDays[d].label=label;}
+  else{
+    const prev={};
+    PLIST.forEach(p=>{if(!sd.cells[p])sd.cells[p]={};prev[p]=sd.cells[p][d]||'R';sd.cells[p][d]='H';});
+    sd.specialDays[d]={label,prev};
+    // 平日放颱風假 → 正常工作日少一天（否則會被算成缺勤）
+    if(!isDayOff(y,m,d))sd.normalDays=Math.max(0,(+sd.normalDays||0)-1);
+  }
+  saveDraft();closeSpDayM();keepSchScroll(renderTab);
+  showToast(`🌀 ${m}/${d} 已設為「${label}」`);
+}
+function delSpDay(){
+  if(!spDayCtx)return;const {mo,d}=spDayCtx;
+  const sd=getSchData(mo);const cur=sd.specialDays?.[d];if(!cur)return closeSpDayM();
+  const [y,m]=mo.split('-').map(Number);
+  PLIST.forEach(p=>{if(!sd.cells[p])sd.cells[p]={};if(sd.cells[p][d]==='H')sd.cells[p][d]=cur.prev?.[p]||(isDayOff(y,m,d)?'H':'R');});
+  delete sd.specialDays[d];
+  if(!isDayOff(y,m,d))sd.normalDays=(+sd.normalDays||0)+1;
+  saveDraft();closeSpDayM();keepSchScroll(renderTab);
+  showToast(`已移除 ${m}/${d} 的特殊假`);
+}
+
 function openMergeM(){
   $('inMMo').innerHTML=D.schMonths.map(mo=>`<option value="${mo}">${mo}</option>`).join('');
   $('inMP').innerHTML=PLIST.map(p=>`<option>${p}</option>`).join('');
@@ -2735,7 +2787,7 @@ function exportSchXlsx(){
     hdr.push('正常工作日','實際上班日','加班天數','加班工時');
     rows.push(hdr);
     // Header row 2: weekday + holiday
-    const dow=[''];for(let d=1;d<=days;d++){const dt=new Date(y,m-1,d);const hn=holName(y,m,d);dow.push(WKDAYS[dt.getDay()]+(hn?' '+hn:''));}
+    const dow=[''];for(let d=1;d<=days;d++){const dt=new Date(y,m-1,d);const hn=sd.specialDays?.[d]?.label||holName(y,m,d);dow.push(WKDAYS[dt.getDay()]+(hn?' '+hn:''));}
     dow.push('','','','');rows.push(dow);
     // Person rows
     PLIST.forEach(p=>{
@@ -2757,7 +2809,7 @@ function exportSchXlsx(){
     ws['!cols'].push({wch:10},{wch:10},{wch:8},{wch:8});
     // Color holiday columns
     for(let d=1;d<=days;d++){
-      if(isDayOff(y,m,d)){
+      if(isDayOff(y,m,d)||sd.specialDays?.[d]){
         for(let r=0;r<rows.length;r++){
           const cell=XLSX.utils.encode_cell({r,c:d});
           if(!ws[cell])ws[cell]={v:'',t:'s'};
@@ -5265,6 +5317,17 @@ function App() {
         });
       });
       sched.normalDays = normalDays;
+      // 班表檢視設定過的颱風假／特殊假：重新套用（全員 H、平日扣正常工作日）
+      if (sched.specialDays) Object.keys(sched.specialDays).forEach(function(k) {
+        var d = +k, sp = sched.specialDays[k], prev = {};
+        people.forEach(function(p) {
+          if (!sched.cells[p.name]) sched.cells[p.name] = {};
+          prev[p.name] = sched.cells[p.name][d] || 'R';
+          sched.cells[p.name][d] = 'H';
+        });
+        sp.prev = prev;
+        if (typeof isDayOff === 'function' && !isDayOff(y, m, d)) sched.normalDays = Math.max(0, sched.normalDays - 1);
+      });
       // Add month to schMonths (dedupe and sort)
       if (!window.D.schMonths) window.D.schMonths = [];
       if (window.D.schMonths.indexOf(monthKey) === -1) {

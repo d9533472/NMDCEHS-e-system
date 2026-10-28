@@ -79,6 +79,35 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
  padding:11px 22px;border-radius:999px;font-size:14px;display:none;z-index:99;max-width:90%;text-align:center;
  box-shadow:0 6px 24px rgba(16,42,67,.45)}
 .foot{text-align:center;font-size:11px;color:#98a2ad;margin-top:16px;letter-spacing:.5px}
+
+/* 分頁：新增回報／待改善清單 */
+.tabs{display:flex;gap:4px;background:#eef2f6;border-radius:14px;padding:4px;margin-top:12px}
+.tabs button{flex:1;border:0;background:none;border-radius:11px;padding:10px 6px;font-size:14px;font-weight:900;color:#5a6b7c;
+ cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(16,24,40,.12)}
+.tabs .n{min-width:20px;height:20px;line-height:20px;border-radius:999px;background:var(--red);color:#fff;font-size:11.5px;padding:0 6px}
+#todo{display:none}
+.empty{text-align:center;color:var(--muted);font-size:13.5px;padding:26px 8px;line-height:1.7}
+.empty b{display:block;font-size:30px;margin-bottom:4px}
+.it{display:flex;gap:11px;margin-top:10px;border:1px solid #e3e9f0;border-radius:15px;padding:11px;cursor:pointer;background:#fff;transition:.13s}
+.it:active{transform:scale(.99)}
+.it.od{border-color:#f1c9c9;background:#fffafa}
+.it .pic{flex:0 0 74px;height:74px;border-radius:11px;background:#e7ecf1 center/cover no-repeat;display:flex;align-items:center;justify-content:center;color:#a9b4c0;font-size:22px}
+.it .bd{min-width:0;flex:1}
+.it .mt{font-size:11px;font-weight:800;color:#8a97a5;letter-spacing:.3px}
+.it .ob{font-size:14.5px;font-weight:800;color:var(--text);line-height:1.45;margin-top:2px;
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.bdg{display:inline-block;margin-top:6px;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:900}
+.bdg.r{background:#fde3e3;color:var(--red)}
+.bdg.y{background:#fff3df;color:#b26a00}
+.back{border:0;background:none;color:var(--ink);font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;padding:14px 0 2px}
+.dbox{margin-top:8px;background:#f5f8fb;border:1px solid #e3e9f0;border-radius:14px;padding:12px 14px;font-size:14px;line-height:1.65}
+.dbox h4{font-size:11px;letter-spacing:1.2px;color:var(--muted);font-weight:900;margin-top:10px}
+.dbox h4:first-child{margin-top:0}
+.dbox p{font-weight:700}
+.dbox small{display:block;color:#6b7784;font-size:12.5px;line-height:1.5}
+.bph{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.bph div{aspect-ratio:1;border-radius:10px;background:#e7ecf1 center/cover no-repeat}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -95,6 +124,30 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
 
 <div class="wrap">
  <div class="card">
+  <div class="tabs"><button id="tb_new" class="on" onclick="tab('new')" data-i="tNew"></button>
+   <button id="tb_todo" onclick="tab('todo')"><span data-i="tTodo"></span><span class="n" id="tN" style="display:none"></span></button></div>
+
+  <div id="todo">
+   <div id="tPick">
+    <label class="req" data-i="lCon"></label>
+    <div class="chips" id="tcons"></div>
+    <input id="t_other" style="margin-top:8px;display:none" data-p="pOther">
+    <div class="hint" data-i="hTodo"></div>
+    <div id="tlist"></div>
+   </div>
+   <div id="tDet" style="display:none">
+    <button class="back" onclick="tBack()" data-i="back"></button>
+    <div class="dbox" id="tInfo"></div>
+    <label class="req" for="c_rep" data-i="lRep"></label>
+    <input id="c_rep" autocomplete="name" data-p="pRep">
+    <label class="req"><span data-i="lPhA"></span><em data-i="ePh"></em></label>
+    <div class="ups" id="ups_c"></div>
+    <input id="fp_c" type="file" accept="image/*" multiple style="display:none" onchange="addPhotos(this.files,'c')">
+    <button class="btn" id="csend" onclick="cSend()"></button>
+    <div class="fine" data-i="cFine"></div>
+   </div>
+  </div>
+
   <div id="form">
    <div class="dl"><span class="ic">⏱</span><div><b id="dlTit"></b><small data-i="dlSub"></small></div></div>
    <div class="sec" data-i="secBasic"></div>
@@ -151,7 +204,7 @@ input:focus,textarea:focus,select:focus{outline:none;border-color:var(--green);b
 
 <script>
 var CFG=<?!= CFG ?>;
-var LG="zh", PH={b:[],a:[]}, PBUSY=0, TRB=0, BUSY=0, CON="", OTHER="__other__";
+var LG="zh", PH={b:[],a:[],c:[]}, PBUSY=0, DONE=0, TRB=0, BUSY=0, CON="", OTHER="__other__";
 
 var L={zh:{
  title:"承包商安全回報", sub:"CONTRACTOR HSE REPORT · NMDC 通霄工區",
@@ -173,7 +226,12 @@ var L={zh:{
  need:"請填寫必填欄位", fail:"送出失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
  dTit:"已送出，謝謝！", dSub:"NMDC HSE 部門已收到這筆回報。",
  rDate:"日期", rRep:"填報人", rHaz:"危害", rObs:"巡查發現", rPh:"照片", rPhN:" 張",
- again:"＋ 再填一筆"
+ again:"＋ 再填一筆",
+ tNew:"＋ 新增回報", tTodo:"待改善清單", hTodo:"選擇公司後會列出尚未結案的改善項目，點選項目即可上傳改善後照片結案。",
+ back:"‹ 返回清單", loading:"載入中…", noTodo:"目前沒有待改善的項目", loadFail:"讀取失敗：",
+ od:"已逾期 {n} 天", left:"剩 {n} 天", dueToday:"今天到期", noDue:"未定期限",
+ cSend:"上傳並結案 CLOSE", cFine:"送出後此項目即結案，並通知 NMDC HSE 部門。",
+ cNeed:"請填寫姓名並附改善後照片", cOk:"已結案，謝謝！"
 },en:{
  title:"Contractor HSE Report", sub:"NMDC ENERGY · TUNGHSIAO SITE",
  secBasic:"BASIC", secFind:"FINDING", secPh:"PHOTOS",
@@ -194,7 +252,12 @@ var L={zh:{
  need:"Please fill in the required fields", fail:"Submit failed: ", phMax:"Max 6 photos; extras skipped", rdFail:"One photo could not be read",
  dTit:"Submitted. Thank you!", dSub:"The NMDC HSE team has received your report.",
  rDate:"Date", rRep:"Reporter", rHaz:"Hazard", rObs:"Finding", rPh:"Photos", rPhN:"",
- again:"＋ Submit another"
+ again:"＋ Submit another",
+ tNew:"＋ New report", tTodo:"To-do list", hTodo:"Pick your company to see its open items, then tap one to upload after photos and close it.",
+ back:"‹ Back to list", loading:"Loading…", noTodo:"No open items", loadFail:"Load failed: ",
+ od:"Overdue {n} day(s)", left:"{n} day(s) left", dueToday:"Due today", noDue:"No deadline",
+ cSend:"UPLOAD & CLOSE", cFine:"The item is closed on submit and the NMDC HSE team is notified.",
+ cNeed:"Please enter your name and add an after photo", cOk:"Closed. Thank you!"
 }};
 
 function $(i){return document.getElementById(i)}
@@ -216,6 +279,8 @@ function applyLang(){
  if(!BUSY)$("send").textContent=t("send");
  $("dlTit").textContent=t("dl1")+(CFG.contractorDays||3)+t("dl2");
  buildCons();buildHaz();paintPh();
+ if(!CBUSY)$("csend").textContent=t("cSend");
+ buildTCons();tRender();if(TCUR)tInfo(TCUR);
 }
 
 /* ---------- 承包商、危害種類 ---------- */
@@ -303,7 +368,7 @@ function phDel(o,k){
  paintPh(k);
 }
 function paintPh(k){
- if(!k){paintPh("b");paintPh("a");return}
+ if(!k){paintPh("b");paintPh("a");paintPh("c");return}
  var box=$("ups_"+k);box.innerHTML="";
  PH[k].forEach(function(o){
   var d=document.createElement("div");d.className="th";
@@ -364,17 +429,124 @@ function showDone(p,n,na,r){
   row("rPh",t("rB")+n+t("rPhN")+(na?"　"+t("rA")+na+t("rPhN"):""))+
   row("rSt",t(r.closed?"stClosed":"stOpen"))+
   (r.closed||!r.targetDate?"":row("rDue",r.targetDate));
- $("form").style.display="none";$("done").style.display="block";
+ DONE=1;$("form").style.display="none";$("done").style.display="block";
  try{window.scrollTo(0,0)}catch(e){}
 }
 /** 再填一筆：保留填報人與承包商，其餘清空、時間重設為現在。 */
 function again(){
  ["f_obsZh","f_obsEn","f_recZh","f_recEn"].forEach(function(id){var e=$(id);e.value="";e.dataset.auto="";e.dataset.last=""});
  $("f_haz").value="";
- PH.b.concat(PH.a).forEach(function(o){if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}});PH={b:[],a:[]};paintPh();
+ PH.b.concat(PH.a).forEach(function(o){if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}});PH.b=[];PH.a=[];paintPh();DONE=0;
  $("f_date").value=fmt(new Date());$("f_time").value=nowHM();
  $("done").style.display="none";$("form").style.display="block";
  try{window.scrollTo(0,0)}catch(e){}
+}
+
+/* ---------- 待改善清單：選公司 → 列出未結案 → 補改善後照片結案 ---------- */
+var VIEW="new", TCON="", TOTHER=0, TITEMS=null, TCUR=null, THUMB={}, CBUSY=0;
+function tab(v){
+ VIEW=v;
+ $("tb_new").classList.toggle("on",v==="new");$("tb_todo").classList.toggle("on",v==="todo");
+ $("todo").style.display=v==="todo"?"block":"none";
+ $("form").style.display=v==="new"&&!DONE?"block":"none";
+ $("done").style.display=v==="new"&&DONE?"block":"none";
+ if(v==="todo"&&!TCON){var c=getCon();if(c&&(CFG.contractors||[]).indexOf(c)>=0)tLoad(c)}
+ try{window.scrollTo(0,0)}catch(e){}
+}
+function buildTCons(){
+ var h="";
+ (CFG.contractors||[]).concat([OTHER]).forEach(function(c){
+  var on=c===OTHER?TOTHER:(!TOTHER&&TCON===c);
+  h+='<button type="button" class="chip'+(on?" on":"")+'" data-v="'+esc(c)+'">'+esc(c===OTHER?t("other"):c)+'</button>';
+ });
+ $("tcons").innerHTML=h;
+ $("tcons").querySelectorAll(".chip").forEach(function(b){b.onclick=function(){
+  var v=b.getAttribute("data-v");
+  if(v===OTHER){TOTHER=1;buildTCons();$("t_other").focus();if($("t_other").value.trim())tLoad($("t_other").value.trim(),1)}
+  else{TOTHER=0;tLoad(v)}
+ }});
+ $("t_other").style.display=TOTHER?"block":"none";
+}
+function dueBadge(x){
+ if(x.left==null)return '<span class="bdg y">'+esc(t("noDue"))+'</span>';
+ if(x.left<0)return '<span class="bdg r">'+esc(t("od").replace("{n}",-x.left))+'</span>';
+ return '<span class="bdg y">'+esc(x.left===0?t("dueToday"):t("left").replace("{n}",x.left))+' · '+esc(x.targetDate)+'</span>';
+}
+function tLoad(c,other){
+ TCON=c;TOTHER=other?1:0;TITEMS=null;tBack(1);buildTCons();
+ $("tlist").innerHTML='<div class="empty">'+esc(t("loading"))+'</div>';
+ google.script.run.withSuccessHandler(function(r){
+  if(TCON!==c)return;
+  if(!r||!r.ok){$("tlist").innerHTML='<div class="empty">'+esc(t("loadFail")+((r&&r.error)||"?"))+'</div>';return}
+  TITEMS=r.items||[];tRender();
+ }).withFailureHandler(function(e){
+  if(TCON===c)$("tlist").innerHTML='<div class="empty">'+esc(t("loadFail")+(e&&e.message||e))+'</div>';
+ }).cTodo(c);
+}
+function tRender(){
+ var n=$("tN");
+ if(TITEMS&&TITEMS.length){n.textContent=TITEMS.length;n.style.display="inline-block"}else n.style.display="none";
+ if(!TITEMS)return;
+ if(!TITEMS.length){$("tlist").innerHTML='<div class="empty"><b>✓</b>'+esc(t("noTodo"))+'</div>';return}
+ $("tlist").innerHTML=TITEMS.map(function(x,i){
+  return '<div class="it'+(x.left!=null&&x.left<0?" od":"")+'" data-n="'+i+'"><div class="pic" id="pic_'+esc(x.id)+'">'+(x.photos?"":"📷")+'</div>'+
+   '<div class="bd"><div class="mt">'+esc(x.date)+' · '+esc(hzLabel(x.hazard))+'</div>'+
+   '<div class="ob">'+esc(LG==="en"&&x.obsEn?x.obsEn:x.obsZh)+'</div>'+dueBadge(x)+'</div></div>';
+ }).join("");
+ $("tlist").querySelectorAll(".it").forEach(function(el){el.onclick=function(){tOpen(TITEMS[+el.getAttribute("data-n")])}});
+ TITEMS.forEach(function(x){if(x.photos)thumb(x,0,$("pic_"+x.id))});
+}
+/** 改善前照片向後端要一次就快取起來，清單跟明細共用。 */
+function thumb(x,i,el){
+ var k=x.id+"_"+i,con=TCON;
+ var put=function(u){if(el&&u)el.style.backgroundImage='url("'+u+'")'};
+ if(THUMB[k]!=null){put(THUMB[k]);return}
+ google.script.run.withSuccessHandler(function(r){
+  if(!r||!r.ok||!r.data)return;
+  THUMB[k]="data:"+(r.type||"image/jpeg")+";base64,"+r.data;put(THUMB[k]);
+ }).cThumb(x.id,con,i);
+}
+function tOpen(x){
+ TCUR=x;tInfo(x);
+ PH.c.forEach(function(o){if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}});PH.c=[];paintPh("c");
+ if(!$("c_rep").value)$("c_rep").value=recall("HSECR_REP");
+ $("tPick").style.display="none";$("tDet").style.display="block";
+ try{window.scrollTo(0,0)}catch(e){}
+}
+function tInfo(x){
+ var row=function(k,v,en){return '<h4>'+esc(t(k))+'</h4><p>'+esc(v)+'</p>'+(en?'<small>'+esc(en)+'</small>':'')};
+ var ph="";for(var i=0;i<Math.min(x.photos,6);i++)ph+='<div id="bph_'+i+'"></div>';
+ $("tInfo").innerHTML=row("rDate",x.date+" "+x.time)+row("rHaz",hzLabel(x.hazard))+
+  row("lObs",x.obsZh,x.obsEn)+row("lRec",x.recZh,x.recEn)+
+  '<h4>'+esc(t("rDue"))+'</h4>'+dueBadge(x)+
+  (ph?'<h4>'+esc(t("lPh"))+'</h4><div class="bph">'+ph+'</div>':"");
+ for(var j=0;j<Math.min(x.photos,6);j++)thumb(x,j,$("bph_"+j));
+}
+function tBack(quiet){
+ TCUR=null;$("tDet").style.display="none";$("tPick").style.display="block";
+ if(!quiet)try{window.scrollTo(0,0)}catch(e){}
+}
+function cSend(retry){
+ if(CBUSY&&!retry)return;
+ var who=$("c_rep").value.trim();
+ if(!who||!PH.c.length){
+  if(!who)$("c_rep").classList.add("err");
+  toast(t("cNeed"));return;
+ }
+ CBUSY=1;$("csend").disabled=true;
+ if(PBUSY>0){$("csend").textContent=t("busy");setTimeout(function(){cSend(1)},500);return}
+ $("csend").textContent=t("up");
+ store("HSECR_REP",who);
+ var x=TCUR;
+ google.script.run.withSuccessHandler(function(r){
+  CBUSY=0;$("csend").disabled=false;$("csend").textContent=t("cSend");
+  if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
+  TITEMS=(TITEMS||[]).filter(function(y){return y.id!==x.id});
+  PH.c=[];tBack();tRender();toast(t("cOk"));
+ }).withFailureHandler(function(e){
+  CBUSY=0;$("csend").disabled=false;$("csend").textContent=t("cSend");
+  toast(t("fail")+(e&&e.message||e));
+ }).cClose({id:x.id,contractor:TCON,reporter:who,photos:phData("c")});
 }
 
 /* ---------- 啟動 ---------- */
@@ -389,6 +561,15 @@ function again(){
  hookTr("f_obsZh","f_obsEn");hookTr("f_recZh","f_recEn");
  ["f_rep","f_conOther","f_date"].forEach(function(id){$(id).addEventListener("input",function(){this.classList.remove("err")})});
  $("f_haz").addEventListener("change",function(){this.classList.remove("err")});
+ $("c_rep").addEventListener("input",function(){this.classList.remove("err")});
+ $("t_other").addEventListener("change",function(){var v=this.value.trim();if(v)tLoad(v,1)});
+ // 逾期通知信的按鈕：?tab=todo&co=承包商
+ var op=CFG.open||{};
+ if(op.tab==="todo"){
+  if(op.c)tLoad(op.c,(CFG.contractors||[]).indexOf(op.c)<0?1:0);
+  if(TOTHER)$("t_other").value=op.c;
+  tab("todo");
+ }
 })();
 </script>
 </body>
