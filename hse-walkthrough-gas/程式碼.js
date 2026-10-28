@@ -94,6 +94,9 @@ function doGet(e) {
   // 通知信的連結會帶 &d=YYYY-MM-DD，打開直接跳到那一天
   var d0 = String((e && e.parameter && e.parameter.d) || '');
   t.DATE = /^\d{4}-\d{2}-\d{2}$/.test(d0) ? d0 : '';
+  // &e=<紀錄 id>：通知信的「編輯這一筆」，打開後直接進那筆的編輯表單
+  var e0 = String((e && e.parameter && e.parameter.e) || '');
+  t.EID = /^R[a-z0-9]+$/.test(e0) ? e0 : '';
   return t.evaluate()
     .setTitle(SITE + ' HSE 現場巡查紀錄')
     .addMetaTag('viewport', 'width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover')

@@ -491,6 +491,7 @@ var EXPTOUCH=0;
 var EDIT="", AFID="", TRB=0, BUSY=0;
 var REP_OTHER="__other__";
 var DATE0="<?!= DATE ?>";              // 通知信連結帶的 &d=，直接開到那一天
+var EID0="<?!= EID ?>";                // 通知信「編輯這一筆」帶的 &e=，第一次載入完就打開那筆的編輯表單
 var MODE="day", LIST=[], SORT="over", OPENID="", LSEQ=0;   // MODE：day＝按日期看、list＝上方按鈕的跨日期清單
 var CAL={}, CALM="";                    // CAL：日期 → [總數, 未結案, 承包商填報]；CALM：日曆目前顯示的月份 YYYY-MM
 
@@ -561,7 +562,7 @@ var L={zh:{
  lAll:"所有日期", lN:" 筆", lBack:"✕ 回日期檢視",
  soOver:"逾期優先", soDate:"日期新→舊", soCon:"依承包商",
  lNone:"沒有符合的紀錄", noCon:"未填承包商", tDue:"預定 ", tSrc:"承包商填報", ovD:" 天",
- hzN:"未填危害"
+ hzN:"未填危害", eidMiss:"找不到這筆紀錄（可能已刪除或改了日期）"
 },en:{
  title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
  kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue",
@@ -629,7 +630,7 @@ var L={zh:{
  lAll:"All dates", lN:"", lBack:"✕ Back to daily view",
  soOver:"Overdue first", soDate:"Newest first", soCon:"By contractor",
  lNone:"No matching findings", noCon:"No contractor", tDue:"Target ", tSrc:"Contractor report", ovD:" d",
- hzN:"No hazard type"
+ hzN:"No hazard type", eidMiss:"That finding was not found (deleted or moved to another date)"
 }};
 
 function $(i){return document.getElementById(i)}
@@ -668,6 +669,10 @@ function load(){
   if(!EDIT&&!isOpen("rep"))$("f_date").value=$("dt").value||TODAY;
   CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[]; CAL=r.cal||{};
   buildOptions(); buildDateOpts(); fillCfgForm(); paint();
+  if(EID0){
+   var eid=EID0;EID0="";
+   if(findRec(eid))editRec(eid);else toast(t("eidMiss"));
+  }
   // 在跨日期清單裡按了結案／編輯等動作，清單也要跟著重抓
   if(MODE==="list")loadList();
  }).withFailureHandler(function(e){
