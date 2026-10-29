@@ -1583,11 +1583,10 @@ function updateVisitDisplay(){
     el.innerHTML=`👥 ${_visitCount.toLocaleString()} 人次`;
     el.style.display='inline-flex';
     el.style.cursor='pointer';
-    el.title=isEditor?'點擊查看每日統計':'登入後可查看詳細統計';
+    el.title=isEditor?'點擊查看每日統計':'';
     el.onclick=()=>{
       if(isEditor){showVisitStats();return;}
       _pendingVisitStats=true;
-      showToast('🔑 請先登入才能查看詳細統計');
       showLogin();
     };
   }
