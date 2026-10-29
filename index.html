@@ -1482,6 +1482,7 @@ let _ncrCache=null; // cache fetched NCR data
 const MAIL_FONT_CSS="font-family:'Microsoft JhengHei','微軟正黑體','PingFang TC','Noto Sans TC','Segoe UI',Arial,sans-serif;mso-fareast-font-family:'Microsoft JhengHei';mso-ascii-font-family:'Microsoft JhengHei';mso-hansi-font-family:'Microsoft JhengHei'";
 let _ncrOpen=null; // 所有尚未結案的改善單（含未到期），僅在抓取全部紀錄時可得
 let _visitCount=null; // 累計瀏覽人次
+let _pendingVisitStats=false; // 未登入時點人次 → 登入成功後自動打開統計
 
 // Track external link click (fire-and-forget)
 function trackLinkClick(id, name, url){
@@ -1582,8 +1583,13 @@ function updateVisitDisplay(){
     el.innerHTML=`👥 ${_visitCount.toLocaleString()} 人次`;
     el.style.display='inline-flex';
     el.style.cursor='pointer';
-    el.title='點擊查看每日統計';
-    el.onclick=showVisitStats;
+    el.title=isEditor?'點擊查看每日統計':'登入後可查看詳細統計';
+    el.onclick=()=>{
+      if(isEditor){showVisitStats();return;}
+      _pendingVisitStats=true;
+      showToast('🔑 請先登入才能查看詳細統計');
+      showLogin();
+    };
   }
 }
 
@@ -1894,7 +1900,7 @@ function showLogin(){
   const i=$('loginPass');i.value='';
   setTimeout(()=>i.focus(),60);
 }
-function closeLogin(){const ov=$('loginOverlay');if(ov)ov.classList.add('hidden');}
+function closeLogin(){const ov=$('loginOverlay');if(ov)ov.classList.add('hidden');_pendingVisitStats=false;}
 function submitLogin(){
   const i=$('loginPass');if(!i)return;
   if(i.value!==CRED.pass){
@@ -1903,14 +1909,16 @@ function submitLogin(){
     $('loginErr').textContent='⚠ ACCESS DENIED — 密碼錯誤';
     i.select();return;
   }
+  const wantStats=_pendingVisitStats;
   closeLogin();
   isEditor=true;sessionStorage.setItem(AK,'1');renderAll();
   showToast('✏️ 已進入編輯模式');
+  if(wantStats)showVisitStats();
 }
 function renderAuth(){
   const visitBadge=`<span id="visitCounter" style="display:none;align-items:center;padding:4px 10px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;margin-right:6px"></span>`;
   document.body.classList.toggle('is-editor',!!isEditor);
-  $('authBar').innerHTML=isEditor?`${visitBadge}<div class="auth-status editor"><span class="dot"></span>✏️<span class="lbl"> 編輯模式</span> <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()" title="儲存至 Google Sheets">💾<span class="lbl"> 儲存</span></button><button class="btn-auth btn-logout-sm" onclick="exportData()" title="匯出 JSON 備份">📤<span class="lbl"> 匯出</span></button><button class="btn-auth btn-logout-sm" onclick="importData()" title="匯入 JSON 備份">📥<span class="lbl"> 匯入</span></button><button class="btn-auth btn-logout-sm" onclick="doLogout()" title="登出編輯模式">🚪<span class="lbl"> 登出</span></button>`:'';
+  $('authBar').innerHTML=isEditor?`${visitBadge}<div class="auth-status editor"><span class="dot"></span>✏️<span class="lbl"> 編輯模式</span> <span class="sync-badge synced" id="syncBadge"><span class="sd"></span>已同步</span></div><button class="btn-auth btn-save-sm" onclick="manualSave()" title="儲存至 Google Sheets">💾<span class="lbl"> 儲存</span></button><button class="btn-auth btn-logout-sm" onclick="exportData()" title="匯出 JSON 備份">📤<span class="lbl"> 匯出</span></button><button class="btn-auth btn-logout-sm" onclick="importData()" title="匯入 JSON 備份">📥<span class="lbl"> 匯入</span></button><button class="btn-auth btn-logout-sm" onclick="doLogout()" title="登出編輯模式">🚪<span class="lbl"> 登出</span></button>`:visitBadge;
   updateVisitDisplay();
 }
 
