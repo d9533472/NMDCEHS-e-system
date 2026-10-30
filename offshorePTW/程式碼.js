@@ -2102,6 +2102,11 @@ var UserService = (function () {
     var allowed = ['nameZh', 'nameEn', 'companyId', 'title', 'phone', 'vessel', 'tier', 'badgeNo', 'isAdmin', 'langPref', 'isHse', 'department'];
     var patch = {};
     allowed.forEach(function (k) { if (payload[k] !== undefined) patch[k] = payload[k]; });
+    // 管理員直接設為已通過訓練：自今天起效期 3 年（與快速新增帳號一致）
+    if (asBool_(payload.grantTraining)) {
+      patch.trainingPassedAt = fmtDateTime_();
+      patch.trainingValidUntil = fmtDate_(new Date(Date.now() + 3 * 365 * 86400000));
+    }
     if (patch.tier !== undefined) {
       patch.tier = Number(patch.tier);
       if (!(patch.tier >= 1 && patch.tier <= 5)) {
@@ -14707,6 +14712,9 @@ function openUserEdit(uid){
       '<label class="form-check-label small" for="ue_isHse">'+(Z?'HSE 人員（不可任持有人）':'HSE (cannot be a holder)')+'</label></div></div>'+
     '<div class="col-6 pt-2"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_isAdmin"'+((r.isAdmin===true||r.isAdmin==='TRUE')?' checked':'')+'>'+
       '<label class="form-check-label small" for="ue_isAdmin">'+(Z?'系統管理員（限 Tier 4／5 可勾；不會自動取得）':'Administrator (Tier 4 / 5 only — not granted automatically)')+'</label></div></div>'+
+    '<div class="col-12 pt-1"><div class="form-check"><input class="form-check-input" type="checkbox" id="ue_grantTraining">'+
+      '<label class="form-check-label small" for="ue_grantTraining">'+(Z?'直接設為已通過訓練（自今天起效期 3 年）':'Mark training as passed (valid 3 years from today)')+'</label>'+
+      '<div class="small text-muted">'+(Z?'目前訓練效期：':'Current training valid until: ')+esc(r.trainingValidUntil?String(r.trainingValidUntil).substring(0,10):(Z?'未通過':'Not passed'))+'</div></div></div>'+
     '</div>'+
     '<div class="d-flex gap-2 mt-3 justify-content-end">'+
     '<button class="btn btn-sm btn-outline-secondary" onclick="closeUserEdit()">'+(Z?'取消':'Cancel')+'</button>'+
@@ -14759,7 +14767,8 @@ function saveUserEdit(uid){
     companyId:$('ue_companyId').value,tier:Number($('ue_tier').value),
     title:$('ue_title').value.trim(),phone:$('ue_phone').value.trim(),
     vessel:$('ue_vessel').value.trim(),badgeNo:$('ue_badgeNo').value.trim(),department:$('ue_department').value,
-    isHse:$('ue_isHse').checked,isAdmin:$('ue_isAdmin').checked
+    isHse:$('ue_isHse').checked,isAdmin:$('ue_isAdmin').checked,
+    grantTraining:$('ue_grantTraining').checked
   }).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
     toast('✅ '+(lang==='zh'?'已更新':'Updated'),true);
