@@ -56,6 +56,7 @@ namespace LocalLineAlbums {
             string result=(text ?? "").Trim();
             result=Regex.Replace(result,@"(?<=[\p{IsCJKUnifiedIdeographs}\p{IsCJKSymbolsandPunctuation}])\s+(?=[\p{IsCJKUnifiedIdeographs}\p{IsCJKSymbolsandPunctuation}])","");
             result=Regex.Replace(result,@"(?<=\d)\s*(/|:)\s*(?=\d)","$1");
+            result=Regex.Replace(result,@"(?<=\d)\s+(?=[\p{IsCJKUnifiedIdeographs}])","");
             return result;
         }
         public static bool TryCount(string text, out int count) {
@@ -114,6 +115,8 @@ namespace LocalLineAlbums {
         [DllImport("user32.dll",CharSet=CharSet.Unicode)] public static extern int GetWindowText(IntPtr hwnd,StringBuilder text,int max);
         [DllImport("user32.dll")] public static extern bool GetClientRect(IntPtr hwnd,out RECT rect);
         [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr hwnd,out RECT rect);
+        [DllImport("user32.dll")] public static extern IntPtr GetWindow(IntPtr hwnd,uint command);
+        [DllImport("user32.dll")] public static extern uint GetDpiForWindow(IntPtr hwnd);
         [DllImport("user32.dll")] public static extern bool ClientToScreen(IntPtr hwnd,ref POINT point);
         [DllImport("user32.dll")] public static extern bool SetCursorPos(int x,int y);
         [DllImport("user32.dll")] public static extern IntPtr WindowFromPoint(POINT point);
@@ -147,6 +150,26 @@ namespace LocalLineAlbums {
             var screen=new POINT{X=r.X+point.X,Y=r.Y+point.Y};
             if(Pid(WindowFromPoint(screen)) != Pid(hwnd)) throw new Exception("LINE 被其他視窗遮住，已停止。");
             SetCursorPos(screen.X,screen.Y); mouse_event(2,0,0,0,UIntPtr.Zero); mouse_event(4,0,0,0,UIntPtr.Zero);
+        }
+        public static void ClickScreen(IntPtr hwnd,Point point) {
+            Guard(hwnd); var screen=new POINT{X=point.X,Y=point.Y};
+            if(Pid(WindowFromPoint(screen))!=Pid(hwnd))throw new Exception("選單被其他程式遮住，已停止。");
+            SetCursorPos(point.X,point.Y);mouse_event(2,0,0,0,UIntPtr.Zero);mouse_event(4,0,0,0,UIntPtr.Zero);
+        }
+        public static double DpiScale(IntPtr hwnd) { try{return Math.Max(1.0,GetDpiForWindow(hwnd)/96.0);}catch{return 1.0;} }
+        public static List<Rectangle> MenuRegions(IntPtr target) {
+            var regions=new List<Rectangle>{Bounds(target)};uint pid=Pid(target);
+            EnumWindows(delegate(IntPtr h,IntPtr unused){
+                if(h!=target && IsWindowVisible(h) && Pid(h)==pid && GetWindow(h,4)==target){
+                    RECT r;if(GetWindowRect(h,out r)){var box=new Rectangle(r.Left,r.Top,r.Right-r.Left,r.Bottom-r.Top);if(box.Width>=70&&box.Width<=900&&box.Height>=40&&box.Height<=900){box.Intersect(SystemInformation.VirtualScreen);if(box.Width>0&&box.Height>0)regions.Add(box);}}
+                }return true;
+            },IntPtr.Zero);return regions;
+        }
+        public static Bitmap CaptureRegion(IntPtr target,Rectangle region) {
+            Guard(target);var image=new Bitmap(region.Width,region.Height);using(var g=Graphics.FromImage(image))g.CopyFromScreen(region.Location,Point.Empty,region.Size);return image;
+        }
+        public static void CloseAlbumWindow(IntPtr hwnd) {
+            Guard(hwnd);keybd_event(0x12,0,0,UIntPtr.Zero);keybd_event(0x73,0,0,UIntPtr.Zero);keybd_event(0x73,0,2,UIntPtr.Zero);keybd_event(0x12,0,2,UIntPtr.Zero);
         }
         public static void Scroll(IntPtr hwnd,int direction) {
             Guard(hwnd); var r=Bounds(hwnd); var p=new POINT{X=r.X+r.Width/2,Y=r.Y+(int)(r.Height*.72)};
@@ -284,6 +307,13 @@ namespace LocalLineAlbums {
             }
             TextTools.AssignFolders(albums);return new ScanResult{Albums=albums,ReachedBottom=false,Reason="已達掃描頁數上限，清單可能未完整。"};
         }
+        public async Task<ScanResult> ScanCurrentPage() {
+            await Validate();using(var image=await Capture()) {
+                var rows=Rows(image,await ocr.Read(image));var items=rows.Select(r=>r.Data).ToList();
+                if(items.Count==0)throw new Exception("目前頁沒有完整顯示的相簿名稱與照片張數，請稍微捲動總覽再試。");
+                TextTools.AssignFolders(items);return new ScanResult{Albums=items,ReachedBottom=false,Reason="僅掃描目前顯示的相簿，可選取一列進行單本測試。"};
+            }
+        }
         async Task<VisibleAlbum> Find(Album target) {
             string last="";int stable=0;
             for(int page=0;page<2500;page++) {
@@ -297,25 +327,48 @@ namespace LocalLineAlbums {
                 Native.Scroll(window,-240);await Wait(settle);
             } throw new Exception("找相簿時已達頁數上限。");
         }
-        AutomationElement FolderDialog() {
+        AutomationElement FolderDialog(IntPtr owner) {
             try {
-                var root=AutomationElement.FromHandle(window);
+                var root=AutomationElement.FromHandle(owner);
                 var edit=root.FindFirst(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Edit),new PropertyCondition(AutomationElement.AutomationIdProperty,"1152")));
                 if(edit!=null)return edit;
-                var peers=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,(int)Native.Pid(window)));
+                var peers=AutomationElement.RootElement.FindAll(TreeScope.Children,new PropertyCondition(AutomationElement.ProcessIdProperty,(int)Native.Pid(owner)));
                 foreach(AutomationElement peer in peers) { edit=peer.FindFirst(TreeScope.Descendants,new AndCondition(new PropertyCondition(AutomationElement.ControlTypeProperty,ControlType.Edit),new PropertyCondition(AutomationElement.AutomationIdProperty,"1152")));if(edit!=null)return edit; }
             }catch{}return null;
         }
-        async Task SaveAll(VisibleAlbum row,string folder) {
-            Check();Native.Click(window,row.Menu);await Wait(650);
-            using(var image=await Capture()) {
-                var lines=await ocr.Read(image);Check();
-                var save=lines.FirstOrDefault(l=> new[]{"儲存全部","全部儲存","Saveall","SaveAll"}.Contains(TextTools.Clean(l.Text)));
-                if(save==null) { Native.Escape(window);throw new Exception("未辨識到『儲存全部』選單。已停止，沒有點選其他功能。"); }
-                Native.Click(window,new Point((int)(save.Box.Left+save.Box.Width/2),(int)(save.Box.Top+save.Box.Height/2)));
+        async Task<IntPtr> SaveAll(VisibleAlbum row,string folder) {
+            Check();var prior=new HashSet<IntPtr>(Native.Windows().Select(w=>w.Handle));
+            // The first ellipsis in the overview opens a separate album window.
+            Native.Click(window,row.Menu);IntPtr albumWindow=IntPtr.Zero;
+            for(int i=0;i<35;i++) {
+                await Wait(200);var candidates=Native.Windows().Where(w=>w.Handle!=window&&Native.Pid(w.Handle)==Native.Pid(window)).ToList();
+                var added=candidates.Where(w=>!prior.Contains(w.Handle)).ToList();
+                if(added.Count==1){albumWindow=added[0].Handle;break;}
+                var active=candidates.Where(w=>w.Handle==Native.GetForegroundWindow()).ToList();
+                if(active.Count==1){albumWindow=active[0].Handle;break;}
             }
+            if(albumWindow==IntPtr.Zero)throw new Exception("點第一個三點後，未找到單本相簿視窗，已停止。");
+            Native.Guard(albumWindow);await Wait(settle);
+            using(var image=Native.Capture(albumWindow)) {
+                var lines=await ocr.Read(image);Native.Guard(albumWindow);
+                string heading=TextTools.Clean(String.Join("",lines.Where(l=>l.Box.Top<image.Height*.4).OrderBy(l=>l.Box.Top).Select(l=>l.Text)));
+                if(!heading.Contains(TextTools.Clean(row.Data.Name)))throw new Exception("單本相簿標題與總覽不符，已停止，沒有按儲存。");
+            }
+            // Second ellipsis: top right in the newly opened album, 50 logical pixels below its top.
+            var bounds=Native.Bounds(albumWindow);double dpi=Native.DpiScale(albumWindow);
+            Native.Click(albumWindow,new Point(bounds.Width-(int)(22*dpi),(int)(50*dpi)));await Wait(650);
+            Point? savePoint=null;
+            foreach(var region in Native.MenuRegions(albumWindow).AsEnumerable().Reverse()) {
+                using(var image=Native.CaptureRegion(albumWindow,region)) {
+                    var lines=await ocr.Read(image);Native.Guard(albumWindow);
+                    var save=lines.FirstOrDefault(l=>new[]{"儲存全部","全部儲存","Saveall","SaveAll"}.Contains(TextTools.Clean(l.Text)));
+                    if(save!=null){savePoint=new Point(region.X+(int)(save.Box.Left+save.Box.Width/2),region.Y+(int)(save.Box.Top+save.Box.Height/2));break;}
+                }
+            }
+            if(savePoint==null){Native.Escape(albumWindow);throw new Exception("第二個三點選單中未辨識到『儲存全部』，已停止，沒有點其他功能。");}
+            Native.ClickScreen(albumWindow,savePoint.Value);
             AutomationElement edit=null;
-            for(int i=0;i<50;i++) { await Wait(200);edit=FolderDialog();if(edit!=null)break; }
+            for(int i=0;i<50;i++) { await Wait(200);edit=FolderDialog(albumWindow);if(edit!=null)break; }
             if(edit==null)throw new Exception("未找到 LINE 的『選擇資料夾』視窗，已停止。");
             token.ThrowIfCancellationRequested();
             if(!Native.IsLine(Native.GetForegroundWindow()))throw new Exception("資料夾選擇視窗失去焦點，已停止。");
@@ -331,7 +384,7 @@ namespace LocalLineAlbums {
                     if(!(text.Contains("選擇資料夾") || text.Contains("選取資料夾") || text.Contains("Select Folder") || text.Contains("Select folder")))throw new Exception("對話框確認按鈕名稱不符，已停止。");
                     token.ThrowIfCancellationRequested();
                     object invoke;if(!button.TryGetCurrentPattern(InvokePattern.Pattern,out invoke))throw new Exception("選取資料夾按鈕無法操作。");
-                    ((InvokePattern)invoke).Invoke();return;
+                    ((InvokePattern)invoke).Invoke();return albumWindow;
                 }
                 root=TreeWalker.ControlViewWalker.GetParent(root);if(root==null)break;
             }
@@ -369,14 +422,17 @@ namespace LocalLineAlbums {
                 string staging=Path.Combine(root,".line-partial-"+Guid.NewGuid().ToString("N"));Directory.CreateDirectory(staging);
                 album.State="下載中";album.ActualPath=staging;persist();
                 log("開始 #"+album.No+"："+album.Name);
-                await SaveAll(visible,staging);
+                IntPtr albumWindow=await SaveAll(visible,staging);
                 var files=await WaitFiles(staging,album.Count,timeoutSeconds);
                 token.ThrowIfCancellationRequested();
                 string destination=Path.Combine(root,album.Folder),unique=destination;int index=2;
                 while(Directory.Exists(unique)||File.Exists(unique))unique=destination+" ("+index+++")";
                 Directory.Move(staging,unique);
                 album.ActualPath=unique;album.Files=files.Select(f=>Path.Combine(unique,f.Substring(staging.Length).TrimStart(Path.DirectorySeparatorChar))).ToList();album.State="完成";persist();
-                log("完成："+Path.GetFileName(unique)+"（"+album.Files.Count+" 張）");await Wait(500);
+                log("完成："+Path.GetFileName(unique)+"（"+album.Files.Count+" 張）");
+                token.ThrowIfCancellationRequested();
+                if(Native.IsWindow(albumWindow)){Native.Guard(albumWindow);Native.CloseAlbumWindow(albumWindow);await Wait(400);}
+                Native.SetForegroundWindow(window);await Wait(500);Check();
             }
         }
     }
@@ -384,7 +440,8 @@ namespace LocalLineAlbums {
         public static bool PreviewMode;
         protected override bool ShowWithoutActivation { get { return PreviewMode || base.ShowWithoutActivation; } }
         ComboBox windows=new ComboBox();TextBox destination=new TextBox();DataGridView grid=new DataGridView();TextBox messages=new TextBox();
-        Button browse=new Button(), refresh=new Button(), scan=new Button(), start=new Button(), stop=new Button(), open=new Button();
+        Button browse=new Button(), refresh=new Button(), scan=new Button(), current=new Button(), start=new Button(), stop=new Button(), open=new Button();
+        CheckBox selectedOnly=new CheckBox{Text="僅下載選取的相簿",AutoSize=true};
         NumericUpDown delay=new NumericUpDown(),timeout=new NumericUpDown();Label summary=new Label();
         List<Album> albums=new List<Album>();bool busy=false;CancellationTokenSource cancellation;WindowItem selected;
         readonly JavaScriptSerializer json=new JavaScriptSerializer{MaxJsonLength=20000000};
@@ -397,11 +454,12 @@ namespace LocalLineAlbums {
             var wrow=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3};wrow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,110));wrow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));wrow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,105));wrow.Controls.Add(new Label{Text="LINE 視窗",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,0);windows.Dock=DockStyle.Fill;windows.DropDownStyle=ComboBoxStyle.DropDownList;wrow.Controls.Add(windows,1,0);refresh.Text="重新整理";refresh.Dock=DockStyle.Fill;wrow.Controls.Add(refresh,2,0);panel.Controls.Add(wrow,0,1);
             var drow=new TableLayoutPanel{Dock=DockStyle.Fill,ColumnCount=3};drow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,110));drow.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));drow.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,105));drow.Controls.Add(new Label{Text="儲存位置",Dock=DockStyle.Fill,TextAlign=ContentAlignment.MiddleLeft},0,0);destination.Dock=DockStyle.Fill;drow.Controls.Add(destination,1,0);browse.Text="瀏覽資料夾";browse.Dock=DockStyle.Fill;drow.Controls.Add(browse,2,0);panel.Controls.Add(drow,0,2);
             var options=new FlowLayoutPanel{Dock=DockStyle.Fill};delay.Minimum=400;delay.Maximum=5000;delay.Value=900;delay.Increment=100;delay.Width=85;timeout.Minimum=60;timeout.Maximum=7200;timeout.Value=600;timeout.Increment=60;timeout.Width=90;options.Controls.Add(new Label{Text="換頁等待（毫秒）",AutoSize=true,Padding=new Padding(0,5,0,0)});options.Controls.Add(delay);options.Controls.Add(new Label{Text="　每本下載上限（秒）",AutoSize=true,Padding=new Padding(0,5,0,0)});options.Controls.Add(timeout);panel.Controls.Add(options,0,3);
-            var actions=new FlowLayoutPanel{Dock=DockStyle.Fill};scan.Text="① 掃描相簿";start.Text="② 開始下載";stop.Text="停止（F8）";open.Text="開啟儲存位置";foreach(var b in new[]{scan,start,stop,open}) { b.AutoSize=true;actions.Controls.Add(b); }stop.Enabled=false;start.Enabled=false;panel.Controls.Add(actions,0,4);
+            options.Controls.Add(selectedOnly);
+            var actions=new FlowLayoutPanel{Dock=DockStyle.Fill};scan.Text="① 掃描相簿";current.Text="掃描目前頁";start.Text="② 開始下載";stop.Text="停止（F8）";open.Text="開啟儲存位置";foreach(var b in new[]{scan,current,start,stop,open}) { b.AutoSize=true;actions.Controls.Add(b); }stop.Enabled=false;start.Enabled=false;panel.Controls.Add(actions,0,4);
             grid.Dock=DockStyle.Fill;grid.AutoGenerateColumns=false;grid.AllowUserToAddRows=false;grid.AllowUserToDeleteRows=false;grid.RowHeadersVisible=false;grid.SelectionMode=DataGridViewSelectionMode.FullRowSelect;grid.Columns.Add(new DataGridViewTextBoxColumn{DataPropertyName="No",HeaderText="#",Width=45,ReadOnly=true});grid.Columns.Add(new DataGridViewTextBoxColumn{DataPropertyName="Name",HeaderText="LINE 辨識名稱（供比對）",AutoSizeMode=DataGridViewAutoSizeColumnMode.Fill,ReadOnly=true});grid.Columns.Add(new DataGridViewTextBoxColumn{DataPropertyName="Folder",HeaderText="下載資料夾名稱（可修正 OCR）",AutoSizeMode=DataGridViewAutoSizeColumnMode.Fill});grid.Columns.Add(new DataGridViewTextBoxColumn{DataPropertyName="Count",HeaderText="照片數",Width=75,ReadOnly=true});grid.Columns.Add(new DataGridViewTextBoxColumn{DataPropertyName="State",HeaderText="狀態",Width=90,ReadOnly=true});panel.Controls.Add(grid,0,5);
             messages.Multiline=true;messages.ScrollBars=ScrollBars.Vertical;messages.ReadOnly=true;messages.Dock=DockStyle.Fill;messages.BackColor=Color.FromArgb(245,248,250);panel.Controls.Add(messages,0,6);summary.Dock=DockStyle.Fill;summary.Text="操作期間請不要移動 LINE 視窗或使用滑鼠；F8 可停止後續操作。";panel.Controls.Add(summary,0,7);
             refresh.Click+=(s,e)=>RefreshWindows();browse.Click+=(s,e)=>{using(var dlg=new FolderBrowserDialog{Description="選擇所有 LINE 相簿的儲存位置",ShowNewFolderButton=true})if(dlg.ShowDialog(this)==DialogResult.OK)destination.Text=dlg.SelectedPath;};open.Click+=(s,e)=>{if(Directory.Exists(destination.Text))Process.Start(new ProcessStartInfo("explorer.exe","\""+destination.Text+"\""){UseShellExecute=true});};
-            scan.Click+=async(s,e)=>await Run(false);start.Click+=async(s,e)=>await Run(true);stop.Click+=(s,e)=>Cancel();
+            scan.Click+=async(s,e)=>await Run(false);current.Click+=async(s,e)=>await Run(false,true);start.Click+=async(s,e)=>await Run(true);stop.Click+=(s,e)=>Cancel();
             Shown+=(s,e)=>{if(PreviewMode)return;RefreshWindows();if(!Native.RegisterHotKey(Handle,1,0x4000,0x77))Log("F8 已被其他程式使用；請以停止按鈕中止。");};
             FormClosing+=(s,e)=>{if(busy){e.Cancel=true;Cancel();}else Native.UnregisterHotKey(Handle,1);};
         }
@@ -409,27 +467,29 @@ namespace LocalLineAlbums {
         void Cancel(){if(cancellation!=null)cancellation.Cancel();Log("已要求停止；LINE 已開始的檔案傳輸可能仍會繼續。");}
         void Log(string text){if(IsDisposed)return;if(InvokeRequired){BeginInvoke(new Action<string>(Log),text);return;}messages.AppendText(DateTime.Now.ToString("HH:mm:ss")+"  "+text+Environment.NewLine);if(runFolder!=null)try{File.AppendAllText(Path.Combine(runFolder,"下載紀錄.log"),DateTime.Now.ToString("s")+" "+text+Environment.NewLine,Encoding.UTF8);}catch{}}
         void RefreshWindows(){windows.Items.Clear();foreach(var item in Native.Windows())windows.Items.Add(item);if(windows.Items.Count>0)windows.SelectedIndex=0;Log("找到 "+windows.Items.Count+" 個 LINE 視窗。請選相簿總覽，勿選聊天視窗。");}
-        void SetBusy(bool state){busy=state;foreach(var c in new Control[]{refresh,browse,scan,windows,destination,delay,timeout})c.Enabled=!state;grid.ReadOnly=state;stop.Enabled=state;start.Enabled=!state&&albums.Count>0;}
+        void SetBusy(bool state){busy=state;foreach(var c in new Control[]{refresh,browse,scan,current,selectedOnly,windows,destination,delay,timeout})c.Enabled=!state;grid.ReadOnly=state;stop.Enabled=state;start.Enabled=!state&&albums.Count>0;}
         void Persist(){if(runFolder==null)return;Directory.CreateDirectory(runFolder);string file=Path.Combine(runFolder,"相簿清單.json"),temp=file+".new";File.WriteAllText(temp,json.Serialize(albums),Encoding.UTF8);if(File.Exists(file)){File.Replace(temp,file,null);}else File.Move(temp,file);var csv=new StringBuilder("順序,LINE原始辨識名稱,預定資料夾,照片數,狀態,實際路徑\r\n");foreach(var a in albums)csv.AppendLine(a.No+","+TextTools.Csv(a.Name)+","+TextTools.Csv(a.Folder)+","+a.Count+","+TextTools.Csv(a.State)+","+TextTools.Csv(a.ActualPath));File.WriteAllText(Path.Combine(runFolder,"相簿名稱對照.csv"),csv.ToString(),new UTF8Encoding(true));}
-        async Task Run(bool download){
+        async Task Run(bool download,bool currentPage=false){
             if(busy)return;
             if(windows.SelectedItem==null){MessageBox.Show(this,"請先開啟 LINE 相簿總覽，再按重新整理。");return;}
             selected=(WindowItem)windows.SelectedItem;
+            List<Album> requested=albums;
             if(download){
                 grid.EndEdit();string root=destination.Text.Trim();
+                if(selectedOnly.Checked){requested=grid.SelectedRows.Cast<DataGridViewRow>().Select(r=>r.DataBoundItem as Album).Where(a=>a!=null).OrderBy(a=>a.No).ToList();if(requested.Count==0){MessageBox.Show(this,"請先選取要測試下載的相簿列。");return;}}
                 if(root.Length==0 || !Path.IsPathRooted(root)){MessageBox.Show(this,"請用瀏覽資料夾選擇儲存位置。");return;}
                 try{root=Path.GetFullPath(root);if(root.Length>130)throw new Exception("儲存路徑過長，請改用較短路徑（130 字以內）。");Directory.CreateDirectory(root);}catch(Exception ex){MessageBox.Show(this,ex.Message);return;}
                 TextTools.AssignFolders(albums);destination.Text=root;
-                if(MessageBox.Show(this,"即將下載掃描清單中的 "+albums.Count+" 本相簿到：\n"+root+"\n\n請先確認清單名稱與數量。操作中不要移動 LINE 視窗。\n同名資料夾會加序號，不覆蓋既有照片。", "開始批次下載",MessageBoxButtons.OKCancel)!=DialogResult.OK)return;
+                if(MessageBox.Show(this,"即將下載 "+requested.Count+" 本相簿到：\n"+root+"\n\n"+String.Join("\n",requested.Take(5).Select(a=>a.Name+"（"+a.Count+" 張）"))+"\n\n請先確認清單名稱與數量。操作中不要移動 LINE 視窗。\n同名資料夾會加序號，不覆蓋既有照片。", "開始批次下載",MessageBoxButtons.OKCancel)!=DialogResult.OK)return;
                 if(runFolder==null)runFolder=Path.Combine(root,"LINE下載紀錄_"+DateTime.Now.ToString("yyyyMMdd_HHmmss"));Persist();
             }
             cancellation=new CancellationTokenSource();SetBusy(true);int ms=(int)delay.Value,seconds=(int)timeout.Value;IntPtr handle=selected.Handle;string downloadRoot=destination.Text;
             try{
                 Log("3 秒後開始，請保持 LINE 相簿總覽可見。");WindowState=FormWindowState.Minimized;await Task.Delay(1000,cancellation.Token);
                 Native.SetForegroundWindow(handle);await Task.Delay(700,cancellation.Token);
-                if(download)await Task.Run(async()=>{var runner=new Runner(handle,cancellation.Token,Log,ms);await runner.Download(albums,downloadRoot,seconds,Persist);});
-                else {var result=await Task.Run(async()=>{var runner=new Runner(handle,cancellation.Token,Log,ms);return await runner.Scan();});albums=result.Albums;runFolder=null;grid.DataSource=null;grid.DataSource=albums;Log("掃描找到 "+albums.Count+" 本。"+result.Reason);if(!result.ReachedBottom)MessageBox.Show(this,result.Reason+"\n請核對相簿數量；程式不會把這次掃描標示為已確認完整。","請核對清單");}
-                if(download)Log("本次清單已完成："+albums.Count(a=>Runner.Verified(a))+" / "+albums.Count+" 本。");
+                if(download)await Task.Run(async()=>{var runner=new Runner(handle,cancellation.Token,Log,ms);await runner.Download(requested,downloadRoot,seconds,Persist);});
+                else {var result=await Task.Run(async()=>{var runner=new Runner(handle,cancellation.Token,Log,ms);return currentPage?await runner.ScanCurrentPage():await runner.Scan();});albums=result.Albums;runFolder=null;grid.DataSource=null;grid.DataSource=albums;Log("掃描找到 "+albums.Count+" 本。"+result.Reason);if(!result.ReachedBottom&&!currentPage)MessageBox.Show(this,result.Reason+"\n請核對相簿數量；程式不會把這次掃描標示為已確認完整。","請核對清單");}
+                if(download)Log("本次清單已完成："+requested.Count(a=>Runner.Verified(a))+" / "+requested.Count+" 本。");
             }catch(OperationCanceledException){Log("已停止；完成與暫存檔均保留。");}
             catch(Exception ex){Log("停止："+ex.Message);MessageBox.Show(this,ex.Message,"已停止，請確認 LINE 畫面");}
             finally{if(download){try{Persist();}catch(Exception ex){Log("紀錄儲存失敗："+ex.Message);}}SetBusy(false);WindowState=FormWindowState.Normal;Activate();grid.Refresh();summary.Text="清單 "+albums.Count+" 本；已驗證完成 "+albums.Count(a=>Runner.Verified(a))+" 本。可修正資料夾名稱後重試。";}
@@ -439,18 +499,19 @@ namespace LocalLineAlbums {
         [STAThread] static void Main(string[] args){
             if(args.Length>0 && args[0]=="--self-test"){SelfTests();return;}
             if(args.Length>1 && args[0]=="--ocr-test"){try{using(var bitmap=new Bitmap(args[1])){var lines=new Recognizer().Read(bitmap).GetAwaiter().GetResult();File.WriteAllText(args[1]+".ocr.txt",String.Join(Environment.NewLine,lines.Select(l=>l.Text)),Encoding.UTF8);}}catch(Exception ex){File.WriteAllText(args[1]+".ocr-error.txt",ex.ToString());Environment.ExitCode=1;}return;}
+            if(args.Length>1 && args[0]=="--reference-test") {try{using(var bitmap=new Bitmap(args[1])){var lines=new Recognizer().Read(bitmap).GetAwaiter().GetResult();var rows=Runner.Rows(bitmap,lines);var report=new StringBuilder();foreach(var l in lines)report.AppendLine(l.Text);report.AppendLine("--- DETECTED ALBUMS ---");foreach(var row in rows)report.AppendLine(row.Data.Name+" | "+row.Data.Count+" | menu="+row.Menu);File.WriteAllText(args[1]+".analysis.txt",report.ToString(),Encoding.UTF8);if(rows.Count!=1||rows[0].Data.Count!=10)Environment.ExitCode=2;}}catch(Exception ex){File.WriteAllText(args[1]+".analysis-error.txt",ex.ToString());Environment.ExitCode=1;}return;}
             if(args.Length>0 && args[0]=="--render-preview") { Native.SetProcessDPIAware();Application.EnableVisualStyles();MainForm.PreviewMode=true;using(var form=new MainForm()){form.ShowInTaskbar=false;form.StartPosition=FormStartPosition.Manual;form.Location=new Point(-30000,-30000);form.Show();Application.DoEvents();form.PerformLayout();using(var image=new Bitmap(form.Width,form.Height)){form.DrawToBitmap(image,new Rectangle(Point.Empty,form.Size));image.Save(Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"介面預覽.png"),ImageFormat.Png);}form.Close();}return; }
             Native.SetProcessDPIAware();Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);Application.Run(new MainForm());
         }
         static void SelfTests(){
             var errors=new List<string>();Action<bool,string> assert=(ok,msg)=>{if(!ok)errors.Add(msg);};
-            assert(TextTools.SafeFolder("2026/10/31:水車?")=="2026_10_31_水車_","非法字元替換");assert(TextTools.SafeFolder("CON")=="_CON","保留名稱");assert(TextTools.SafeFolder(" .. ")=="未命名相簿","空白名稱");assert(TextTools.AlbumName("水 車 跟 水 表")=="水車跟水表","中文 OCR 空白");assert(TextTools.AlbumName("Team A")=="Team A","保留英文空白");
+            assert(TextTools.SafeFolder("2026/10/31:水車?")=="2026_10_31_水車_","非法字元替換");assert(TextTools.SafeFolder("CON")=="_CON","保留名稱");assert(TextTools.SafeFolder(" .. ")=="未命名相簿","空白名稱");assert(TextTools.AlbumName("水 車 跟 水 表")=="水車跟水表","中文 OCR 空白");assert(TextTools.AlbumName("Team A")=="Team A","保留英文空白");assert(TextTools.AlbumName("2026 / 10 / 31 早 上 水 車 跟 水 表")=="2026/10/31早上水車跟水表","相簿實際日期名稱空白");
             var albums=new List<Album>{new Album{Name="a/b"},new Album{Name="a:b"},new Album{Name="A_B"}};TextTools.AssignFolders(albums);assert(albums.Select(a=>a.Folder).Distinct(StringComparer.OrdinalIgnoreCase).Count()==3,"名稱碰撞");
             int count;assert(TextTools.TryCount("9",out count)&&count==9,"照片數字");assert(TextTools.TryCount("10 張照片",out count)&&count==10,"照片數字中文");assert(!TextTools.TryCount("2026/10/31",out count),"日期不可誤判數量");assert(!TextTools.TryCount("0",out count),"零張相簿不當作可下載");
             assert(TextTools.Distance("0000000000000000","FFFFFFFFFFFFFFFF")==64,"圖像比對距離");
             using(var image=new Bitmap(400,700)){var lines=new List<WordLine>{new WordLine{Text="2026/10/31水車",Box=new RectangleF(15,450,200,20)},new WordLine{Text="9",Box=new RectangleF(15,478,12,15)}};var rows=Runner.Rows(image,lines);assert(rows.Count==1&&rows[0].Data.Count==9,"相簿標題及照片數配對");}
             var fake=new Album{State="完成",Count=1,ActualPath="X:\\missing",Files=new List<string>{"X:\\missing\\x.jpg"}};assert(!Runner.Verified(fake),"缺失檔案不可略過");
-            string path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"self-test-result.txt");File.WriteAllText(path,errors.Count==0?"PASS: 13 checks":String.Join(Environment.NewLine,errors),Encoding.UTF8);if(errors.Count>0)Environment.ExitCode=1;
+            string path=Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"self-test-result.txt");File.WriteAllText(path,errors.Count==0?"PASS: 14 checks":String.Join(Environment.NewLine,errors),Encoding.UTF8);if(errors.Count>0)Environment.ExitCode=1;
         }
     }
 }
