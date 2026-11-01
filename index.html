@@ -1449,7 +1449,7 @@ function makeDefault(){return{hiddenTabs:[],vessels:[],contacts:[],eventTypes:JS
 let D=makeDefault(); window.D=D; window.__mainSystem={};
 let isEditor=false,openSec={},syncTimer=null,pushing=false;
 let eBulId=null,eTrkId=null,eDocId=null,eSecId=null,eLSId=null,eLId=null,selIc='📄';
-let activeTab='bulletin',trkFilter='All',docFilter='All',editingTabKey=null,showDone=false;
+let activeTab='bulletin',trkFilter='All',docFilter='All',editingTabKey=null,showDone=false,trkDue='';
 let showArchive=false;
 let schViewMonth=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0'); window.schViewMonth=schViewMonth;
 let schSubView='schedule'; window.schSubView=schSubView; // 'schedule' | 'roster'
@@ -2039,8 +2039,8 @@ function renderIbStats(today){
   return '<div class="ib-stats">'
     +'<div class="ib-sg">📋 追蹤事項</div><div class="ib-sg w3">🛠️ 改善單</div>'
     +'<div class="ib-sh">逾期</div><div class="ib-sh">三天內到期</div><div class="ib-sh">逾期</div><div class="ib-sh">三天內到期</div><div class="ib-sh">尚未結案</div>'
-    +cell(trkOver,'red',"switchTab('tracker')",t=>t.person,trkTitle(trkOver)||'前往追蹤事項')
-    +cell(trkSoon,'orange',"switchTab('tracker')",t=>t.person,trkTitle(trkSoon)||'前往追蹤事項')
+    +cell(trkOver,'red',"switchTab('tracker','over')",t=>t.person,trkTitle(trkOver)||'前往追蹤事項')
+    +cell(trkSoon,'orange',"switchTab('tracker','soon')",t=>t.person,trkTitle(trkSoon)||'前往追蹤事項')
     +cell(ncrOver,'red',goNcr,r=>r.issuer,ncrTitle(ncrOver)||'開啟改善單系統')
     +cell(ncrSoon,'orange',goNcr,r=>r.issuer,ncrTitle(ncrSoon)||'開啟改善單系統')
     +cell(ncrOpen,'blue',goNcr,r=>r.issuer,ncrTitle(ncrOpen)||'開啟改善單系統')
@@ -2146,7 +2146,8 @@ function renderTabs(){let h='';const hidden=D.hiddenTabs||[];D.parts.forEach(p=>
 function startTabEdit(key){editingTabKey=key;renderTabs();}
 function cfmTabEdit(){const inp=$('tabEditIn');if(inp?.value.trim()){const p=D.parts.find(x=>x.key===editingTabKey);if(p)p.title=inp.value.trim();}editingTabKey=null;save();renderTabs();}
 function canTabEdit(){editingTabKey=null;renderTabs();}
-function switchTab(k){activeTab=k;renderTabs();renderTab();}
+// due：'over'＝只看逾期、'soon'＝只看三天內到期（資訊列統計點進來用）；一般切頁籤會清掉
+function switchTab(k,due){activeTab=k;trkDue=due||'';if(trkDue)trkFilter='All';renderTabs();renderTab();}
 function renderTab(){window.renderTab=renderTab;window.activeTab=activeTab;let h='';
   // (listener wiring below)
   if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='envscope')h=renderScopeHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();else if(activeTab==='contacts')h=renderContactsHTML();
@@ -2210,7 +2211,9 @@ function dlC(dl,done){if(done)return'deadline-ok';const t=todayS(),tm=tmrS();if(
 function renderTrkHTML(){
   const PRIORD={high:0,mid:1,low:2};
   const byFilter=trkFilter==='All'?D.tasks:D.tasks.filter(t=>(t.person||'').includes(trkFilter));
-  const filtered=(showDone?byFilter:byFilter.filter(t=>!t.done))
+  const today=todayS();
+  const dueOk=t=>{if(!trkDue)return true;if(t.done||!t.deadline)return false;const n=daysBetween(today,t.deadline);return trkDue==='over'?n<0:n>=0&&n<=2;};
+  const filtered=(showDone&&!trkDue?byFilter:byFilter.filter(t=>!t.done)).filter(dueOk)
     .slice().sort((a,b)=>{
       if(a.done!==b.done)return a.done?1:-1;
       const pa=PRIORD[a.priority||'mid']??1,pb=PRIORD[b.priority||'mid']??1;
@@ -2228,8 +2231,9 @@ function renderTrkHTML(){
   if(isEditor)h+=`<button onclick="sendTrkEmail()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent2)'">📧 寄出追蹤摘要</button>`;
   if(isEditor)h+=`<button onclick="showMailCfgM()" title="ENV WEEKLY REPORT：收件者、開頭文字、現場照片、KPI 圖（每週一 09:00 自動寄出）" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">📧 週報設定</button>`;
   h+='</div>';
+  if(trkDue){const red=trkDue==='over';h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid ${red?'#fca5a5':'#fcd34d'};background:${red?'#fef2f2':'#fffbeb'};color:${red?'#b91c1c':'#b45309'}">${red?'⚠️ 只顯示已逾期項目':'🔶 只顯示三天內到期項目'}（${filtered.length} 筆）<button onclick="trkDue='';renderTab()" style="margin-left:auto;padding:3px 10px;border-radius:6px;border:1px solid currentColor;background:#fff;color:inherit;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✕ 顯示全部</button></div>`;}
   h+=`<table class="tracker-table"><thead><tr><th style="width:32px"></th><th>事項</th><th>負責人</th><th>完成期限</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
-  if(!filtered.length)h+=`<tr><td colspan="5" class="tracker-empty">${showDone?'無追蹤事項':'無待辦事項'}</td></tr>`;
+  if(!filtered.length)h+=`<tr><td colspan="5" class="tracker-empty">${trkDue==='over'?'沒有逾期項目':trkDue==='soon'?'沒有三天內到期的項目':showDone?'無追蹤事項':'無待辦事項'}</td></tr>`;
   else filtered.forEach(t=>{const dc=dlC(t.deadline,t.done);const tag=!t.done&&dc==='deadline-red'?'<br><span style="font-size:11px">⚠️ 已逾期</span>':!t.done&&dc==='deadline-orange'?'<br><span style="font-size:11px">🔶 即將到期</span>':'';
     const ri=D.tasks.indexOf(t);const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('tasks',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('tasks',${ri},1)" ${ri===D.tasks.length-1?'disabled':''}>▼</button>`:'';
     const priMap={high:'🔴 高',mid:'🟡 中',low:'🟢 低'};const priCls={high:'pri-high',mid:'pri-mid',low:'pri-low'};
