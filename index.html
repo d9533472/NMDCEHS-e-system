@@ -202,15 +202,13 @@ body.hdr-dark .site-header .btn-logout-sm{border-color:rgba(255,255,255,.12);bac
 body.hdr-dark .site-header .btn-save-sm{border-color:rgba(56,229,138,.35);background:rgba(56,229,138,.14);color:#6fe8a8}
 body.hdr-dark .site-header .btn-save-sm:hover{background:#38e58a;color:#04281a}
 body.hdr-dark .btn-login-tiny{color:rgba(255,255,255,.55)}
-/* 節慶點綴（保留） */
+/* 季節點綴：十一月 深秋・立冬 */
 .hdr-season{position:relative;width:48px;height:42px;display:flex;align-items:flex-end;justify-content:center;margin-right:2px;cursor:default}
 .hdr-season:empty{display:none}
-.hdr-season .hsun{position:absolute;top:4px;right:2px;width:24px;height:24px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#fff 0deg 13deg,#0b3a8f 13deg 30deg);animation:sunGlow 3s ease-in-out infinite;box-shadow:0 0 0 1px rgba(10,27,42,.12)}
-.hdr-season .hsun::after{content:"";position:absolute;inset:27%;border-radius:50%;background:#fff;box-shadow:0 0 0 2px #0b3a8f}
-.hdr-season .hfw{position:relative;font-size:18px;line-height:1;transform:translateX(-8px);animation:float 3s ease-in-out infinite}
-@keyframes sunGlow{0%,100%{box-shadow:0 0 10px 2px rgba(11,58,143,.3)}50%{box-shadow:0 0 18px 6px rgba(206,17,38,.28)}}
-body.season-oct .site-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,#0b3a8f 0%,#0b3a8f 34%,#fff 34%,#fff 40%,#ce1126 40%,#ce1126 100%);opacity:.85;z-index:2}
-body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:var(--danger-line);color:var(--danger)}
+.hdr-season .hleaf{position:relative;font-size:20px;line-height:1;transform-origin:50% 0;animation:leafSway 4s ease-in-out infinite;filter:drop-shadow(0 2px 4px rgba(0,0,0,.25))}
+.hdr-season .hleaf.l2{position:absolute;top:3px;right:3px;font-size:13px;opacity:.85;animation-delay:-1.7s}
+@keyframes leafSway{0%,100%{transform:rotate(-10deg) translateY(0)}50%{transform:rotate(12deg) translateY(-3px)}}
+body.season-nov .site-header::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:linear-gradient(90deg,#7a2e12 0%,#c2410c 28%,#d99a0b 58%,#e8c46a 80%,rgba(232,196,106,0) 100%);opacity:.9;z-index:2}
 
 /* ══ 資訊列＝主控儀表板，四角工程圖角標 ════════════════════════════ */
 .info-bar{
@@ -271,21 +269,25 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .info-bar .ib-stats .ib-sp{font-size:10px;color:var(--faint);line-height:1.45;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all}
 .info-bar .ib-stats .ib-sp:empty{display:none}
 
-/* ══ 節慶橫幅（保留） ═══════════════════════════════════════════════ */
-.season-banner{position:relative;overflow:hidden;display:flex;align-items:center;gap:18px;padding:17px 22px;margin:0 0 20px;border-radius:var(--r-lg);background:linear-gradient(115deg,#00174a 0%,#0b2a6b 46%,#7d1020 82%,#a5121f 100%);color:#f1f5f9;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px -18px rgba(10,30,70,.6);animation:slideUp .55s}
-.season-banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#0b3a8f 0%,#0b3a8f 34%,#fff 34%,#fff 40%,#ce1126 40%,#ce1126 100%);opacity:.95}
-.season-banner .sb-stars{position:absolute;inset:0;pointer-events:none;opacity:.65;background-image:radial-gradient(1.5px 1.5px at 12% 30%,#fde68a 50%,transparent 51%),radial-gradient(1px 1px at 28% 75%,#fff 50%,transparent 51%),radial-gradient(1.5px 1.5px at 47% 22%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 60% 66%,#fecaca 50%,transparent 51%),radial-gradient(1.5px 1.5px at 72% 18%,#fde68a 50%,transparent 51%),radial-gradient(1.5px 1.5px at 93% 40%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 5% 85%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 82% 80%,#fde68a 50%,transparent 51%);animation:sparkTwinkle 3.5s ease-in-out infinite}
-@keyframes sparkTwinkle{0%,100%{opacity:.4}50%{opacity:.85}}
-.season-banner .sb-sunwrap{position:relative;width:104px;height:44px;flex-shrink:0;pointer-events:none}
-.season-banner .sb-sun{position:absolute;right:8px;top:-34px;width:86px;height:86px;border-radius:50%;background:repeating-conic-gradient(from 0deg,#fff 0deg 13deg,#0b3a8f 13deg 30deg);box-shadow:0 0 44px 14px rgba(122,170,255,.26);opacity:.95}
-.season-banner .sb-sun::after{content:"";position:absolute;inset:27%;border-radius:50%;background:#fff;box-shadow:0 0 0 5px #0b3a8f}
-.season-banner .sb-fw{position:absolute;right:56px;top:12px;font-size:24px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));animation:float 3s ease-in-out infinite}
+/* ══ 季節橫幅：十一月 深秋・立冬（墨藍 → 楓褐） ════════════════════ */
+.season-banner{position:relative;overflow:hidden;display:flex;align-items:center;gap:18px;padding:17px 22px;margin:0 0 20px;border-radius:var(--r-lg);background:linear-gradient(115deg,#07263d 0%,#0e3247 44%,#5a2a14 82%,#8a3a12 100%);color:#f1f5f9;border:1px solid rgba(255,255,255,.1);box-shadow:0 16px 40px -18px rgba(60,30,10,.6);animation:slideUp .55s}
+.season-banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#7a2e12 0%,#c2410c 28%,#d99a0b 58%,#e8c46a 80%,rgba(232,196,106,0) 100%);opacity:.95}
+.season-banner .sb-leaves{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.season-banner .sb-leaves i{position:absolute;top:-22px;font-style:normal;font-size:13px;line-height:1;opacity:0;animation:leafFall 10s linear infinite}
+.season-banner .sb-leaves i:nth-child(1){left:14%;animation-delay:0s}
+.season-banner .sb-leaves i:nth-child(2){left:33%;font-size:11px;animation-delay:-3.2s;animation-duration:12s}
+.season-banner .sb-leaves i:nth-child(3){left:52%;animation-delay:-6.1s}
+.season-banner .sb-leaves i:nth-child(4){left:68%;font-size:15px;animation-delay:-1.8s;animation-duration:11s}
+.season-banner .sb-leaves i:nth-child(5){left:86%;font-size:11px;animation-delay:-7.6s;animation-duration:13s}
+@keyframes leafFall{0%{transform:translate(0,0) rotate(0deg);opacity:0}12%{opacity:.75}85%{opacity:.6}100%{transform:translate(-46px,130px) rotate(320deg);opacity:0}}
+.season-banner .sb-deco{position:relative;width:90px;height:44px;flex-shrink:0;pointer-events:none}
+.season-banner .sb-big{position:absolute;right:4px;top:-20px;font-size:58px;line-height:1;opacity:.92;transform-origin:50% 10%;filter:drop-shadow(0 6px 18px rgba(0,0,0,.45));animation:leafSway 5s ease-in-out infinite}
 .season-banner .sb-item{position:relative;display:flex;align-items:center;gap:13px;flex:1;min-width:220px}
 .season-banner .sb-ico{font-size:28px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45));animation:float 3.5s ease-in-out infinite;flex-shrink:0}
 .season-banner .sb-sep+.sb-item .sb-ico{animation-delay:1.2s}
 .season-banner .sb-t{font-family:'Outfit','Noto Sans TC',sans-serif;font-size:15px;font-weight:700;letter-spacing:-.005em;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .season-banner .sb-d{font-size:11.5px;color:rgba(255,255,255,.62);margin-top:4px;line-height:1.55}
-.season-banner .sb-cd{display:inline-block;padding:2px 9px;border-radius:999px;background:rgba(253,230,138,.14);color:#fde68a;font-size:10px;font-weight:700;border:1px solid rgba(253,230,138,.32);white-space:nowrap;font-family:var(--mono)}
+.season-banner .sb-cd{display:inline-block;padding:2px 9px;border-radius:999px;background:rgba(251,191,120,.14);color:#fcd29a;font-size:10px;font-weight:700;border:1px solid rgba(251,191,120,.34);white-space:nowrap;font-family:var(--mono)}
 .season-banner .sb-sep{width:1px;height:36px;background:rgba(255,255,255,.14);flex-shrink:0}
 .season-banner .sb-close{position:relative;background:none;border:none;color:rgba(255,255,255,.45);cursor:pointer;font-size:14px;padding:4px 8px;border-radius:var(--r-sm);transition:.15s;flex-shrink:0;align-self:flex-start}
 .season-banner .sb-close:hover{color:#fff;background:rgba(255,255,255,.12)}
@@ -795,7 +797,7 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
 .site-footer::before{content:"";position:absolute;left:0;right:0;top:0;height:2.5px;background:linear-gradient(90deg,transparent,var(--accent) 24%,var(--accent) 76%,transparent);box-shadow:0 0 16px rgba(0,176,80,.7)}
 .ftr-season{max-width:var(--page-w);margin:0 auto;padding:28px 28px 0}
 .ftr-season:empty{display:none}
-.ftr-season-box{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 18px;border-radius:var(--r);background:linear-gradient(100deg,rgba(11,58,143,.3),rgba(206,17,38,.2));border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(255,255,255,.72)}
+.ftr-season-box{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px 18px;border-radius:var(--r);background:linear-gradient(100deg,rgba(194,65,12,.22),rgba(217,154,11,.14));border:1px solid rgba(255,255,255,.1);font-size:12.5px;color:rgba(255,255,255,.72)}
 .ftr-season-box .fs-ico{font-size:20px;letter-spacing:5px;white-space:nowrap}
 .ftr-season-box .fs-q{color:#ffe0a3;font-weight:600}
 .ftr-season-box .fs-note{color:rgba(255,255,255,.45);font-size:11.5px}
@@ -1116,7 +1118,7 @@ body.season-oct .info-bar .ib-chip.hol{background:var(--danger-bg);border-color:
   .hdr-nav-inner{padding:0 6px}.main-tab{padding:0 12px;font-size:13px;height:42px}
   .site-header .auth-status.editor{font-size:11px;padding:4px 8px}.site-header .btn-auth{padding:5px 8px;font-size:11px}
   .info-bar{padding:9px 12px;gap:8px}.info-bar .ib-date{font-size:14px}.info-bar .ib-sep{display:none}.info-bar .ib-next{margin-left:0;width:100%;padding-left:4px}.info-bar .ib-next .ib-t{max-width:none;flex:1}.info-bar .ib-stats .ib-sp{-webkit-line-clamp:1}
-  .season-banner{padding:12px 14px;gap:10px;flex-direction:column;align-items:stretch}.season-banner .sb-sunwrap{position:absolute;right:0;top:0;height:0}.season-banner .sb-sun{right:-30px;top:-34px;width:76px;height:76px}.season-banner .sb-fw{right:36px;top:6px;font-size:18px}.season-banner .sb-sep{display:none}.season-banner .sb-close{position:absolute;top:8px;right:8px}.season-banner .sb-item{padding-right:40px}
+  .season-banner{padding:12px 14px;gap:10px;flex-direction:column;align-items:stretch}.season-banner .sb-deco{position:absolute;right:0;top:0;height:0}.season-banner .sb-big{right:34px;top:4px;font-size:34px;opacity:.5}.season-banner .sb-sep{display:none}.season-banner .sb-close{position:absolute;top:8px;right:8px}.season-banner .sb-item{padding-right:40px}
   .bul-head .bh-search{min-width:0;width:100%;order:3}
   .ftr-inner{grid-template-columns:1fr;gap:26px;padding:28px 18px 16px}.ftr-season{padding:18px 18px 0}
 }
@@ -2044,33 +2046,34 @@ function renderIbStats(today){
     +cell(ncrOpen,'blue',goNcr,r=>r.issuer,ncrTitle(ncrOpen)||'開啟改善單系統')
     +'</div>';
 }
-// ── 國慶日（10/10）＋ 臺灣光復節（10/25）：9/26 ~ 10/31 顯示 ──
+// ── 十一月沒有節慶，掛「深秋・立冬」季節風格：整個十一月顯示 ──
 function seasonInfo(){
   const now=new Date();const force=/[?&]season=1/.test(location.search);
-  const m=now.getMonth(),d=now.getDate();
-  const inWin=(m===9)||(m===8&&d>=26);   // 9/26 起預告，整個十月都掛著
-  if(!inWin&&!force)return null;
+  const m=now.getMonth();
+  if(m!==10&&!force)return null;
   const y=now.getFullYear();
-  const nd=new Date(y,9,10);
-  const rd=new Date(y,9,25);
+  // 立冬：21 世紀節氣公式 [Y×0.2422+C]−[(Y−1)/4]，C=7.438（2026 → 11/7）
+  const yy=y%100;
+  const ld=new Date(y,10,Math.floor(yy*0.2422+7.438)-Math.floor((yy-1)/4));
   const t=todayS();
-  return{y,nd,rd,dNd:daysBetween(t,dateS(nd)),dRd:daysBetween(t,dateS(rd)),key:'nd'+y+'-'+String(m+1).padStart(2,'0')};
+  return{y,ld,dLd:daysBetween(t,dateS(ld)),key:'nov'+y+'-'+String(m+1).padStart(2,'0')};
 }
-function cdTxt(n){return n>0?`還有 ${n} 天`:n===0?'就是今天 🎉':'';}
+function cdTxt(n){return n>0?`還有 ${n} 天`:n===0?'就是今天':'';}
 function renderSeason(){
   const s=seasonInfo();
   const hs=$('hdrSeason'),sb=$('seasonBanner'),fs=$('ftrSeason');
-  document.body.classList.toggle('season-oct',!!s);
+  document.body.classList.toggle('season-nov',!!s);
   if(!s){if(hs)hs.innerHTML='';if(sb)sb.innerHTML='';if(fs)fs.innerHTML='';return;}
-  if(hs)hs.innerHTML=`<div class="hsun"></div><span class="hfw" title="雙十國慶快樂 · ${fmtMD(s.nd)}">🎆</span>`;
+  if(hs)hs.innerHTML=`<span class="hleaf" title="深秋 · 立冬 ${fmtMD(s.ld)}">🍁</span><span class="hleaf l2">🍂</span>`;
   let closed='';try{closed=localStorage.getItem('season-banner-closed')||'';}catch(e){}
-  if(sb)sb.innerHTML=closed===s.key?'':`<div class="season-banner"><div class="sb-stars"></div>
-    <div class="sb-item"><span class="sb-ico">🎆</span><div><div class="sb-t">雙十國慶快樂 <span class="sb-cd">${fmtMD(s.nd)}${cdTxt(s.dNd)?' · '+cdTxt(s.dNd):''}</span></div><div class="sb-d">中華民國生日 · 青天白日滿地紅，祝各位同仁國泰民安、闔家順心</div></div></div>
+  const ldTag=s.dLd<0?'已立冬':cdTxt(s.dLd);
+  if(sb)sb.innerHTML=closed===s.key?'':`<div class="season-banner"><div class="sb-leaves"><i>🍂</i><i>🍁</i><i>🍂</i><i>🍁</i><i>🍂</i></div>
+    <div class="sb-item"><span class="sb-ico">🍁</span><div><div class="sb-t">深秋 · 立冬 <span class="sb-cd">${fmtMD(s.ld)}${ldTag?' · '+ldTag:''}</span></div><div class="sb-d">早晚溫差變大，外出作業記得添件外套，照顧好自己</div></div></div>
     <div class="sb-sep"></div>
-    <div class="sb-item"><span class="sb-ico">🏮</span><div><div class="sb-t">臺灣光復節 <span class="sb-cd">${fmtMD(s.rd)}${cdTxt(s.dRd)?' · '+cdTxt(s.dRd):''}</span></div><div class="sb-d">民國34年10月25日臺灣光復 · 記取來時路，與大家一同守護這片土地</div></div></div>
-    <div class="sb-sunwrap"><div class="sb-sun"></div><span class="sb-fw">🎆</span></div>
+    <div class="sb-item"><span class="sb-ico">🌬️</span><div><div class="sb-t">東北季風季節 <span class="sb-cd">揚塵防制</span></div><div class="sb-d">風大易起揚塵 · 裸露地覆蓋、灑水、車輛清洗要確實</div></div></div>
+    <div class="sb-deco"><span class="sb-big">🍁</span></div>
     <button class="sb-close" onclick="closeSeason()" title="本月不再顯示">✕</button></div>`;
-  if(fs)fs.innerHTML=`<div class="ftr-season-box"><span class="fs-ico">🎆🎇🏮</span><span class="fs-q">「莫忘來時路，同心向前行。」</span><span class="fs-note">十月 · 雙十國慶、臺灣光復，祝福國泰民安、風調雨順</span><span class="fs-ico" style="margin-left:auto">🎇🎊</span></div>`;
+  if(fs)fs.innerHTML=`<div class="ftr-season-box"><span class="fs-ico">🍁🍂</span><span class="fs-q">「秋收冬藏，穩穩做好每一件事。」</span><span class="fs-note">十一月 · 深秋入冬，注意保暖、季風揚塵</span><span class="fs-ico" style="margin-left:auto">🍂🍁</span></div>`;
 }
 function closeSeason(){const s=seasonInfo();try{if(s)localStorage.setItem('season-banner-closed',s.key);}catch(e){}const sb=$('seasonBanner');if(sb)sb.innerHTML='';}
 function renderFooter(){
