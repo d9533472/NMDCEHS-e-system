@@ -1468,9 +1468,15 @@ function PhotoBtn({ record }) {
 }
 
 // ─── STATS TAB ───────────────────────────────────────────────
-function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOptions }) {
+function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOptions, billingPeriods, onSaveBilling }) {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo,   setDateTo]   = useState('');
+  // 請款期別：'unbilled' 未請款 / 'all' 全部 / 數字＝第幾期
+  const [scope, setScope] = useState('unbilled');
+  const [cutoff, setCutoff] = useState('');
+  const [savingBill, setSavingBill] = useState(false);
+  const periods = billingPeriods || [];
+  const lastCut = periods.length ? periods[periods.length-1].to : '';
   const [sortKey,  setSortKey]  = useState('total');
   const [sortDir,  setSortDir]  = useState(-1);
   const [roles, setRoles] = useState(issuerRoles || {});
@@ -1526,8 +1532,72 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOption
     }
   };
 
+  // 請款期別範圍：第 n 期＝(前一期截止日, 本期截止日]；未請款＝最後截止日之後
+  const inScope = (r, sc) => {
+    const d = r.date || '';
+    if (sc === 'all') return true;
+    if (sc === 'unbilled') return !lastCut || d > lastCut;
+    const p = periods[sc-1]; if (!p) return false;
+    const prev = sc > 1 ? periods[sc-2].to : '';
+    return (!prev || d > prev) && d <= p.to;
+  };
+
+  // 「優點」項目不列入 U 值的次數與件數（依項目名稱判斷，無設定時預設項目 7）
+  const meritKeys = new Set(Object.entries(itemOptions || {})
+    .filter(([,v]) => String(v).includes('優點') || String(v).includes('優良'))
+    .map(([k]) => String(k)));
+  if (meritKeys.size === 0 && !(itemOptions && itemOptions['7'])) meritKeys.add('7');
+  const isMerit = it => meritKeys.has(String(it));
+  const calcRoleStats = recs => {
+    const roleStats = {};
+    recs.forEach(r => {
+      const rk = roles[r.issuer || '（未填）'];
+      if (!rk) return;
+      const defs = (r.defects && r.defects.length > 0) ? r.defects : [{ item: r.item }];
+      const counted = defs.filter(d => !isMerit(d.item));
+      if (counted.length === 0) return; // 整張都是優點 → 次數不計
+      if (!roleStats[rk]) roleStats[rk] = { total:0, defects:0 };
+      roleStats[rk].total++;
+      roleStats[rk].defects += counted.length;
+    });
+    // U 值：只計入有資料的角色，分母＝有資料的角色數（例如 C 沒有或為 0 → 除以 2）
+    const validU = ['A','B','C']
+      .map(k => (roleStats[k] && roleStats[k].total > 0) ? { k, v: roleStats[k].defects / roleStats[k].total } : null)
+      .filter(Boolean);
+    const uVal = validU.length > 0 ? (validU.reduce((s,p)=>s+p.v,0)/validU.length).toFixed(2) : null;
+    return { roleStats, validU, uVal };
+  };
+  const countDefects = r => (r.defects && r.defects.length > 0) ? r.defects.length : 1;
+
+  const handleSettle = async () => {
+    const to = cutoff || today();
+    if (lastCut && to <= lastCut) { alert(`截止日必須晚於上一期截止日 ${lastCut}`); return; }
+    if (dirty) { alert('角色設定尚未儲存，請先按「儲存角色設定」再結算（U 值依角色計算）'); return; }
+    const recs = records.filter(r => inScope(r, 'unbilled') && (r.date || '') <= to);
+    if (recs.length === 0) { alert('這段期間沒有未請款的開單'); return; }
+    const { uVal } = calcRoleStats(recs);
+    const total = recs.length, defects = recs.reduce((s,r)=>s+countDefects(r), 0);
+    if (!confirm(`第 ${periods.length+1} 期請款結算\n範圍：${lastCut ? lastCut+' 之後' : '最早'} ～ ${to}\n開單 ${total} 張、缺失 ${defects} 件${uVal?`、U 值 ${uVal}`:''}\n\n結算後這些開單下次不再計入，確定？`)) return;
+    setSavingBill(true);
+    try {
+      await onSaveBilling([...periods, { no: periods.length+1, from: lastCut, to, closedAt: new Date().toISOString(), total, defects, u: uVal }]);
+      setCutoff(''); setScope('unbilled');
+    } finally { setSavingBill(false); }
+  };
+
+  const handleUndo = async () => {
+    const p = periods[periods.length-1]; if (!p) return;
+    if (!confirm(`撤銷第 ${p.no} 期請款結算（截止日 ${p.to}）？\n該期開單會回到「未請款」。`)) return;
+    setSavingBill(true);
+    try {
+      await onSaveBilling(periods.slice(0, -1));
+      if (scope === p.no) setScope('unbilled');
+    } finally { setSavingBill(false); }
+  };
+
   // 篩選紀錄
   const filtered = records.filter(r =>
+    inScope(r, scope) &&
     (!dateFrom || r.date >= dateFrom) &&
     (!dateTo   || r.date <= dateTo)
   );
@@ -1538,7 +1608,7 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOption
     const issuer = r.issuer || '（未填）';
     if (!statsMap[issuer]) statsMap[issuer] = { issuer, total: 0, defects: 0, dates: [] };
     statsMap[issuer].total++;
-    statsMap[issuer].defects += (r.defects && r.defects.length > 0) ? r.defects.length : 1;
+    statsMap[issuer].defects += countDefects(r);
     if (r.date) statsMap[issuer].dates.push(r.date);
   });
 
@@ -1568,6 +1638,38 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOption
         </div>
       </div>
 
+      {/* 請款期別 */}
+      <div className="filter-bar period-bar">
+        <span className="filter-label">請款期別</span>
+        <button onClick={()=>setScope('unbilled')} className={`chip${scope==='unbilled'?' active':''}`}>
+          🆕 未請款{lastCut ? `（${lastCut} 之後）` : ''}
+        </button>
+        {periods.map(p=>(
+          <button key={p.no} onClick={()=>setScope(p.no)} className={`chip${scope===p.no?' active':''}`}
+            title={`${p.from ? p.from+' 之後' : '最早'} ～ ${p.to}｜結算於 ${String(p.closedAt||'').slice(0,10)}｜${p.total} 張 ${p.defects} 件${p.u?`｜U ${p.u}`:''}`}>
+            第{p.no}期 ～{p.to.slice(5)}
+          </button>
+        ))}
+        <button onClick={()=>setScope('all')} className={`chip${scope==='all'?' active':''}`}>全部</button>
+        <span style={{flex:1}}></span>
+        <span style={{fontSize:12,color:'var(--text-muted)'}}>結算截止日</span>
+        <input type="date" value={cutoff} min={lastCut||undefined} onChange={e=>setCutoff(e.target.value)} title="留空＝今天"
+          style={{background:'var(--bg-input)',border:'1px solid var(--border)',color:'var(--text-primary)',borderRadius:'var(--radius-sm)',padding:'5px 10px',fontSize:12,fontFamily:'inherit'}} />
+        <button className="btn btn-primary btn-sm" onClick={handleSettle} disabled={savingBill}>
+          {savingBill ? '⏳ 儲存中...' : '🧾 本次請款結算'}
+        </button>
+        {periods.length > 0 && (
+          <button className="btn btn-secondary btn-sm" onClick={handleUndo} disabled={savingBill} title={`撤銷第 ${periods.length} 期`}>
+            ↩ 撤銷第{periods.length}期
+          </button>
+        )}
+      </div>
+      {typeof scope === 'number' && periods[scope-1] && (() => { const p = periods[scope-1]; return (
+        <div style={{fontSize:12,color:'var(--text-secondary)',margin:'-4px 0 10px',padding:'6px 12px',background:'var(--bg-card)',border:'1px dashed var(--border)',borderRadius:'var(--radius-sm)'}}>
+          🧾 第 {p.no} 期：{p.from ? `${p.from} 之後` : '最早'} ～ {p.to}　結算於 {String(p.closedAt||'').slice(0,10)}　當時 {p.total} 張 / {p.defects} 件{p.u ? ` / U 值 ${p.u}` : ''}
+        </div>
+      ); })()}
+
       {/* 日期篩選 */}
       <div className="filter-bar period-bar">
         <span className="filter-label">篩選期間</span>
@@ -1593,29 +1695,7 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOption
 
       {/* 合計列 + U值 */}
       {(() => {
-        // 「優點」項目不列入 U 值的次數與件數（依項目名稱判斷，無設定時預設項目 7）
-        const meritKeys = new Set(Object.entries(itemOptions || {})
-          .filter(([,v]) => String(v).includes('優點') || String(v).includes('優良'))
-          .map(([k]) => String(k)));
-        if (meritKeys.size === 0 && !(itemOptions && itemOptions['7'])) meritKeys.add('7');
-        const isMerit = it => meritKeys.has(String(it));
-
-        const roleStats = {};
-        filtered.forEach(r => {
-          const rk = roles[r.issuer || '（未填）'];
-          if (!rk) return;
-          const defs = (r.defects && r.defects.length > 0) ? r.defects : [{ item: r.item }];
-          const counted = defs.filter(d => !isMerit(d.item));
-          if (counted.length === 0) return; // 整張都是優點 → 次數不計
-          if (!roleStats[rk]) roleStats[rk] = { total:0, defects:0 };
-          roleStats[rk].total++;
-          roleStats[rk].defects += counted.length;
-        });
-        // U 值：只計入有資料的角色，分母＝有資料的角色數（例如 C 沒有或為 0 → 除以 2）
-        const validU = ['A','B','C']
-          .map(k => (roleStats[k] && roleStats[k].total > 0) ? { k, v: roleStats[k].defects / roleStats[k].total } : null)
-          .filter(Boolean);
-        const uVal = validU.length > 0 ? (validU.reduce((s,p)=>s+p.v,0)/validU.length).toFixed(2) : null;
+        const { roleStats, validU, uVal } = calcRoleStats(filtered);
         const uFormula = `= (${validU.map(p=>`${p.k}件/${p.k}次`).join(' + ')}) / ${validU.length}`;
         return (<>
           <div style={{display:'flex',gap:12,marginBottom:12,flexWrap:'wrap'}}>
@@ -2241,6 +2321,7 @@ function App() {
         unitOptions:  (data.config?.unitOptions  || data.unitOptions)  || DEFAULT_UNITS,
         peopleOptions:(data.config?.peopleOptions|| data.peopleOptions)|| DEFAULT_PEOPLE,
         issuerRoles:  (data.config?.issuerRoles  || {}),
+        billingPeriods: (data.config?.billingPeriods || []),
         mailConfig:   mergeMailConfig(data.config?.mailConfig),
       };
       if (cloudRecords.length === 0) {
@@ -2721,6 +2802,10 @@ function App() {
           onSaveRoles={async (newRoles)=>{
             const newConfig = {...config, issuerRoles: newRoles};
             await saveConfig(newConfig);
+          }}
+          billingPeriods={config.billingPeriods||[]}
+          onSaveBilling={async (newPeriods)=>{
+            await saveConfig({...config, billingPeriods: newPeriods});
           }} />}
         {tab==='records' && (
           <RecordsTab
