@@ -1346,7 +1346,41 @@ function trkKpiCard_(num, zh, en, color, subZh, subEn, unit, pos, icon, okColor)
       '</td></tr></table>' +
     '</td></tr></table></td>';
 }
-function trkKpiStrip_(range, cards) {
+// 橫式卡片（一列兩張用）：標題＋圖示在上，大數字在左、狀態膠囊在右
+function trkKpiWide_(num, zh, en, color, subZh, subEn, unit, pos, icon, okColor) {
+  var pad = pos === 'first' ? '0 6px 0 0' : '0 0 0 6px';
+  var ok = /^✓/.test(subZh);
+  var accent = ok && okColor ? okColor : color;
+  var t = KPI_TINT[color] || { card: '#ffffff', soft: '#f1f5f9' };
+  var ta = KPI_TINT[accent] || t;
+  return '<td class="stat" width="50%" valign="top" style="padding:' + pad + ';">' +
+    '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+    '<td bgcolor="' + t.card + '" style="background-color:' + t.card + ';border:1px solid #e2e8f0;border-left:4px solid ' + color + ';padding:14px 14px 14px;">' +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+        '<td valign="top">' +
+          trkP_(zh, 'font-size:12px;font-weight:bold;color:#0f172a;letter-spacing:.2px;white-space:nowrap;') +
+          trkP_(en, 'font-size:8.5px;color:#8a97a8;margin-top:3px;letter-spacing:1px;text-transform:uppercase;line-height:1.4;') +
+        '</td>' +
+        '<td width="30" valign="top" align="right" style="padding-left:4px;">' +
+          '<table cellpadding="0" cellspacing="0" border="0" align="right"><tr><td bgcolor="' + ta.soft + '" width="30" height="30" align="center" valign="middle" style="background-color:' + ta.soft + ';width:30px;height:30px;font-size:15px;line-height:30px;text-align:center;">' + icon + '</td></tr></table>' +
+        '</td>' +
+      '</tr></table>' +
+      '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;"><tr>' +
+        '<td valign="bottom" style="white-space:nowrap;">' +
+          trkP_('<span style="font-size:40px;font-weight:bold;line-height:1;color:' + color + ';' + TRK_FONT + '">' + num + '</span>' +
+                '<span style="font-size:13px;color:#64748b;padding-left:6px;' + TRK_FONT + '">' + unit + '</span>', 'line-height:1;white-space:nowrap;') +
+        '</td>' +
+        '<td valign="bottom" align="right" style="padding-left:8px;">' +
+          '<table cellpadding="0" cellspacing="0" border="0" align="right"><tr><td bgcolor="' + ta.soft + '" style="background-color:' + ta.soft + ';padding:5px 10px;">' +
+            trkP_(subZh, 'font-size:11px;font-weight:bold;color:' + accent + ';white-space:nowrap;') +
+          '</td></tr></table>' +
+          trkP_(subEn, 'font-size:10px;color:#64748b;margin-top:6px;text-align:right;clear:both;') +
+        '</td>' +
+      '</tr></table>' +
+    '</td></tr></table></td>';
+}
+// ncrCards：改善單 2 張橫式卡（一列）；trkCards：待辦事項 4 張直式卡（一列）
+function trkKpiStrip_(range, ncrCards, trkCards) {
   var eyebrow = function(zh, en, color) {
     return '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-bottom:3px solid ' + color + ';padding:0 2px 6px;">' +
       trkP_(zh + ' <span style="font-weight:normal;color:#64748b;font-size:10px;letter-spacing:.8px;' + TRK_FONT + '">' + en + '</span>', 'font-size:13px;font-weight:bold;color:' + color + ';letter-spacing:.5px;white-space:nowrap;') +
@@ -1362,11 +1396,10 @@ function trkKpiStrip_(range, cards) {
            trkP_('📅&nbsp; ' + range.from + ' ~ ' + range.to, 'font-size:12px;font-weight:bold;color:#0b1f33;white-space:nowrap;') +
          '</td></tr></table></td>' +
        '</tr></table></td></tr>';
-  h += '<tr><td style="padding:16px 0 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
-       '<td class="stat" width="25%" style="padding:0 6px 0 0;">' + eyebrow('改善單', 'NCR / WM', '#ea580c') + '</td>' +
-       '<td class="stat" width="75%" colspan="3" style="padding:0 0 0 6px;">' + eyebrow('待辦事項', 'TRACKER ITEMS', '#0e7490') + '</td>' +
-       '</tr></table></td></tr>';
-  h += '<tr><td style="padding:10px 0 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' + cards.join('') + '</tr></table></td></tr>';
+  h += '<tr><td style="padding:16px 0 0;">' + eyebrow('改善單', 'NCR / WM', '#ea580c') + '</td></tr>';
+  h += '<tr><td style="padding:10px 0 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' + ncrCards.join('') + '</tr></table></td></tr>';
+  h += '<tr><td style="padding:20px 0 0;">' + eyebrow('待辦事項', 'TRACKER ITEMS', '#0e7490') + '</td></tr>';
+  h += '<tr><td style="padding:10px 0 0;"><table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' + trkCards.join('') + '</tr></table></td></tr>';
   return h + '</table>';
 }
 function trkDaysLabel_(d) {
@@ -1497,7 +1530,8 @@ function trkDoneTable_(rows, doTr) {
 }
 
 // ── 改善單：從改善單系統 GAS 抓「全部紀錄」，同前端公告欄的算法（未結案 + 期限在 days 天內或已逾期） ──
-function getNcrOpenFromGas_(days) {
+// range（可省略）：{fromIso, toIso}，有給就另外算「報告期間內結案」件數（以回覆日 submitDate 判斷）
+function getNcrOpenFromGas_(days, range) {
   var resp = UrlFetchApp.fetch(NCR_GAS_URL + '?action=index&_=' + Date.now(), { muteHttpExceptions: true, followRedirects: true });
   if (resp.getResponseCode() !== 200) throw new Error('改善單 GAS 回應 HTTP ' + resp.getResponseCode());
   var data = JSON.parse(resp.getContentText());
@@ -1516,7 +1550,11 @@ function getNcrOpenFromGas_(days) {
   }).filter(function(r){ return r.daysLeft != null && r.daysLeft <= days; });
   list.sort(function(a, b){ return a.daysLeft - b.daysLeft; });
   var open = data.records.filter(function(r){ return r && r.status !== 'Closed'; }).length;
-  return { ok: true, records: list, total: data.records.length, open: open, closed: data.records.length - open };
+  var closedInRange = range ? data.records.filter(function(r){
+    var d = r && r.status === 'Closed' ? String(r.submitDate || '').slice(0, 10) : '';
+    return d && d >= range.fromIso && d <= range.toIso;
+  }).length : 0;
+  return { ok: true, records: list, total: data.records.length, open: open, closed: data.records.length - open, closedInRange: closedInRange };
 }
 function trkNcrTable_(rows, doTr) {
   if (!rows.length) return '';
@@ -1537,7 +1575,8 @@ function trkNcrTable_(rows, doTr) {
     h += '<tr bgcolor="' + bg + '">';
     h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' +
            trkP_(trkEsc_(r.type || '—'), 'font-size:10px;font-weight:bold;color:' + typeColor + ';letter-spacing:1px;') +
-           trkP_(trkEsc_(r.number || '—'), 'font-size:12px;font-weight:bold;color:#0f172a;margin-top:2px;') + '</td>';
+           trkP_(trkEsc_(r.number || '—'), 'font-size:12px;font-weight:bold;color:#0f172a;margin-top:2px;') +
+           (r.area ? trkP_('📍 ' + trkEsc_(String(r.area).replace(/&/g, '、')), 'font-size:11px;color:#64748b;margin-top:4px;line-height:1.4;') : '') + '</td>';
     h += '<td bgcolor="' + bg + '" style="' + TD + 'background-color:' + bg + ';">' + trkZhEn_(r.description || '—', 'font-size:13px;color:#1e293b;', '', doTr) + '</td>';
     h += '<td bgcolor="' + dlBg + '" style="' + TD + 'background-color:' + dlBg + ';">' +
            trkP_(trkEsc_(r.deadline || '—'), 'font-size:12px;font-weight:bold;color:' + dlColor + ';') +
@@ -1830,7 +1869,7 @@ function buildTrackerMail_(opts) {
 
   // 改善單（已逾期 + 7 天內到期）— 來源是改善單系統 GAS；讀不到也不能讓週報失敗
   var ncr = [], ncrErr = '', ncrStat = null;
-  try { ncrStat = getNcrOpenFromGas_(7); ncr = ncrStat.records || []; }
+  try { ncrStat = getNcrOpenFromGas_(7, range); ncr = ncrStat.records || []; }
   catch(e) { ncrErr = e.message; }
   var ncrOverdue = ncr.filter(function(r){ return r.daysLeft < 0; });
   var ncrSoon    = ncr.filter(function(r){ return r.daysLeft >= 0; });
@@ -1892,14 +1931,20 @@ function buildTrackerMail_(opts) {
 
   // KPI 卡片
   add(trkKpiStrip_(range, [
-    trkKpiCard_(String(ncr.length), '改善單待處理', 'NCR / WM', '#ea580c',
+    trkKpiWide_(String(ncr.length), '改善單待處理', 'Pending · NCR / WM', '#ea580c',
       ncrOverdue.length ? '⚠ 逾期 ' + ncrOverdue.length + ' · 7 天內 ' + ncrSoon.length : (ncr.length ? '7 天內到期 ' + ncrSoon.length + ' 筆' : '✓ 無待處理'),
       ncrOverdue.length ? ncrOverdue.length + ' overdue · ' + ncrSoon.length + ' due in 7d' : (ncr.length ? ncrSoon.length + ' due within 7 days' : 'Nothing pending'), '筆', 'first', '🔧', '#16a34a'),
+    trkKpiWide_(ncrStat ? String(ncrStat.closedInRange) : '—', '改善單本期結案', 'Closed this period', '#16a34a',
+      ncrStat ? '✓ 累計結案 ' + ncrStat.closed + ' 件' : '資料暫時無法讀取',
+      ncrStat ? ncrStat.closed + ' closed in total' : 'Data unavailable', '件', 'last', '✅', '#16a34a')
+  ], [
     trkKpiCard_(String(overdue.length), '追蹤事項逾期', 'Overdue', '#dc2626',
-      overdue.length ? '⚠ 請優先處理' : '✓ 無逾期', overdue.length ? 'Action needed' : 'All on track', '項', 'mid', '🕒', '#16a34a'),
+      overdue.length ? '⚠ 請優先處理' : '✓ 無逾期', overdue.length ? 'Action needed' : 'All on track', '項', 'first', '🕒', '#16a34a'),
     trkKpiCard_(String(thisWeek.length), '本週到期', 'Due this week', '#d97706',
       thisWeek.length ? '本週內完成' : '✓ 本週無到期', thisWeek.length ? 'Due within 7 days' : 'Nothing due this week', '項', 'mid', '📅', '#16a34a'),
-    trkKpiCard_(String(later.length), '排程中', 'Scheduled', '#0369a1', '7 天後到期', 'Due after 7 days', '項', 'last', '📌', '')
+    trkKpiCard_(String(later.length), '排程中', 'Scheduled', '#0369a1', '7 天後到期', 'Due after 7 days', '項', 'mid', '📌', ''),
+    trkKpiCard_(String(doneInRange.length), '本期完成', 'Completed', '#16a34a',
+      doneInRange.length ? '✓ 已完成' : '本期尚無完成', doneInRange.length ? 'Done this period' : 'None this period', '項', 'last', '✅', '#16a34a')
   ]));
 
   // 改善單
