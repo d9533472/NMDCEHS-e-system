@@ -1806,7 +1806,9 @@ function StatsTab({ records, onFilterClick, issuerRoles, onSaveRoles, itemOption
 
 function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, saving, gasUrl, connected, activeFilter }) {
   const { itemOptions, areaOptions, unitOptions } = config;
-  const [filters, setFilters] = useState({ type:'', area:'', unit:'', status:'', item:'', issuer:'', search:'', _overdue:false, _neardue:false, _thisweek:false });
+  const EMPTY_FILTERS = { type:'', area:'', unit:'', status:'', item:'', issuer:'', search:'', _overdue:false, _neardue:false, _thisweek:false };
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const hasFilter = Object.keys(EMPTY_FILTERS).some(k => filters[k] !== EMPTY_FILTERS[k]);
   const [sort, setSort] = useState({ key:'date', dir:'desc' });
   const [showModal, setShowModal] = useState(false);
   const [editRec, setEditRec] = useState(null);
@@ -1868,9 +1870,9 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
       <div className="page-header">
         <div>
           <div className="page-title">📋 紀錄管理
-            {filters._overdue && <span style={{marginLeft:10,fontSize:13,background:'rgba(239,68,68,.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⚠️ 逾期未結</span>}
-            {filters._neardue && <span style={{marginLeft:10,fontSize:13,background:'rgba(245,158,11,.1)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>⏰ 即將到期</span>}
-            {filters._thisweek && <span style={{marginLeft:10,fontSize:13,background:'rgba(139,92,246,.1)',color:'var(--accent-purple)',border:'1px solid rgba(139,92,246,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600}}>📅 本週新增</span>}
+            {filters._overdue && <span onClick={()=>setF('_overdue',false)} title="點擊清除篩選" style={{marginLeft:10,fontSize:13,background:'rgba(239,68,68,.1)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600,cursor:'pointer'}}>⚠️ 逾期未結 ✕</span>}
+            {filters._neardue && <span onClick={()=>setF('_neardue',false)} title="點擊清除篩選" style={{marginLeft:10,fontSize:13,background:'rgba(245,158,11,.1)',color:'#d97706',border:'1px solid rgba(245,158,11,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600,cursor:'pointer'}}>⏰ 即將到期 ✕</span>}
+            {filters._thisweek && <span onClick={()=>setF('_thisweek',false)} title="點擊清除篩選" style={{marginLeft:10,fontSize:13,background:'rgba(139,92,246,.1)',color:'var(--accent-purple)',border:'1px solid rgba(139,92,246,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600,cursor:'pointer'}}>📅 本週新增 ✕</span>}
             {filters.issuer && <span onClick={()=>setF('issuer','')} title="點擊清除篩選" style={{marginLeft:10,fontSize:13,background:'var(--accent-blue-dim)',color:'var(--accent-blue)',border:'1px solid rgba(14,165,233,.3)',borderRadius:20,padding:'2px 12px',fontWeight:600,cursor:'pointer'}}>👤 {filters.issuer} ✕</span>}
           </div>
           <div className="page-sub">共 {filtered.length} 筆 | Open: {openCnt} | Closed: {filtered.length - openCnt}</div>
@@ -1914,6 +1916,7 @@ function RecordsTab({ records, config, onAdd, onEdit, onDelete, onRefresh, savin
           </select>
         </div>
         <div className="filter-spacer"></div>
+        {hasFilter && <button className="btn btn-secondary" onClick={()=>setFilters(EMPTY_FILTERS)} title="清除所有篩選，顯示全部紀錄">✖ 清除篩選</button>}
         <input type="text" value={filters.search} onChange={e=>setF('search',e.target.value)} placeholder="🔍 搜尋..." style={{minWidth:160}} />
       </div>
 
