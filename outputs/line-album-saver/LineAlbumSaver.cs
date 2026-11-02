@@ -466,10 +466,10 @@ namespace LineAlbumSaver {
     }
 
     static class Theme {
-        public static readonly Color Page = Color.FromArgb(8, 18, 28), Card = Color.FromArgb(13, 29, 43), Field = Color.FromArgb(9, 21, 32),
-            Border = Color.FromArgb(31, 58, 80), BorderHi = Color.FromArgb(46, 197, 255), Text = Color.FromArgb(226, 238, 244), Muted = Color.FromArgb(128, 156, 174),
-            Green = Color.FromArgb(6, 199, 85), GreenHi = Color.FromArgb(25, 224, 122), Cyan = Color.FromArgb(46, 197, 255), Amber = Color.FromArgb(255, 184, 64), Red = Color.FromArgb(255, 96, 88),
-            OkBg = Color.FromArgb(12, 48, 36), BadBg = Color.FromArgb(56, 24, 28), SkipBg = Color.FromArgb(20, 36, 50), RunBg = Color.FromArgb(48, 40, 16);
+        public static readonly Color Page = Color.FromArgb(0, 16, 30), Card = Color.FromArgb(0, 30, 54), Field = Color.FromArgb(0, 20, 38),
+            Border = Color.FromArgb(22, 62, 96), BorderHi = Color.FromArgb(0, 176, 80), Text = Color.FromArgb(226, 236, 244), Muted = Color.FromArgb(124, 152, 176),
+            Green = Color.FromArgb(0, 176, 80), GreenHi = Color.FromArgb(28, 214, 110), Cyan = Color.FromArgb(70, 160, 210), Amber = Color.FromArgb(255, 184, 64), Red = Color.FromArgb(255, 96, 88),
+            OkBg = Color.FromArgb(0, 50, 44), BadBg = Color.FromArgb(58, 22, 34), SkipBg = Color.FromArgb(10, 36, 60), RunBg = Color.FromArgb(50, 42, 20);
         public static System.Drawing.Drawing2D.GraphicsPath Round(RectangleF r, float rad) {
             var p = new System.Drawing.Drawing2D.GraphicsPath(); float d = rad * 2;
             if (d <= 0) { p.AddRectangle(r); return p; }
@@ -530,13 +530,13 @@ namespace LineAlbumSaver {
         readonly float S;
         readonly Bitmap nmdcLogo, lineLogo;
         readonly ComboBox windows = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, FlatStyle = FlatStyle.Flat, DrawMode = DrawMode.OwnerDrawFixed };
-        readonly TextBox dest = new TextBox { Dock = DockStyle.Fill, ReadOnly = true, BorderStyle = BorderStyle.None };
+        readonly TextBox dest = new TextBox { Dock = DockStyle.Fill, ReadOnly = true, BorderStyle = BorderStyle.None, TabStop = false };
         readonly Btn refresh, browse, start, stop, recheck, openDir;
         readonly NumericUpDown timeout = new NumericUpDown { Minimum = 60, Maximum = 7200, Value = 600, Increment = 60, TextAlign = HorizontalAlignment.Center, BorderStyle = BorderStyle.None };
         readonly Label hint = new Label { AutoSize = true };
         readonly Label chipAll, chipOk, chipSkip, chipBad;
         readonly DataGridView grid = new DataGridView();
-        readonly TextBox logBox = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, BorderStyle = BorderStyle.None };
+        readonly TextBox logBox = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.None, BorderStyle = BorderStyle.None, TabStop = false };
         readonly Panel header = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
         readonly ToolTip tips = new ToolTip();
         readonly List<AlbumRow> rows = new List<AlbumRow>();
@@ -547,25 +547,25 @@ namespace LineAlbumSaver {
         public MainForm() {
             AutoScaleMode = AutoScaleMode.None; DoubleBuffered = true;
             using (var g = CreateGraphics()) S = g.DpiX / 96f;
-            Font = new Font("Microsoft JhengHei UI", 9f); Text = "LINE 相簿批次儲存 · NMDC"; BackColor = Theme.Page; ForeColor = Theme.Text;
+            Font = new Font("Microsoft JhengHei UI", 8.25f); Text = "LINE 相簿批次儲存 · NMDC"; BackColor = Theme.Page; ForeColor = Theme.Text;
             nmdcLogo = Theme.LogoForDark(Theme.Resource("nmdc.jpg")); lineLogo = Theme.Resource("line.png");
             if (lineLogo != null) try { Icon = Icon.FromHandle(new Bitmap(lineLogo, 32, 32).GetHicon()); } catch { }
-            ClientSize = new Size(P(760), P(600)); MinimumSize = new Size(P(680), P(580));
+            ClientSize = new Size(P(680), P(560)); MinimumSize = new Size(P(600), P(520));
             StartPosition = FormStartPosition.Manual;
             var wa = Screen.PrimaryScreen.WorkingArea;
             Location = new Point(Math.Max(wa.Left, wa.Right - Width - P(12)), Math.Max(wa.Top, wa.Top + (wa.Height - Height) / 2));
 
             refresh = MakeButton("⟳  重新整理"); browse = MakeButton("選擇資料夾");
-            start = MakeButton("▶  逐步往下掃描並儲存"); start.Primary = true; start.Font = new Font(Font.FontFamily, 9.75f, FontStyle.Bold); start.Padding = new Padding(P(14), P(5), P(14), P(5));
+            start = MakeButton("▶  逐步往下掃描並儲存"); start.Primary = true; start.Font = new Font(Font.FontFamily, 8.5f, FontStyle.Bold); start.Padding = new Padding(P(12), P(3), P(12), P(3));
             stop = MakeButton("■  停止  F8"); stop.Danger = true; stop.Enabled = false;
             recheck = MakeButton("✓  重新核對"); openDir = MakeButton("開啟資料夾");
             chipAll = Chip(Theme.Text, Color.FromArgb(22, 42, 58)); chipOk = Chip(Theme.GreenHi, Theme.OkBg); chipSkip = Chip(Theme.Muted, Theme.SkipBg); chipBad = Chip(Theme.Red, Theme.BadBg);
 
             var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Margin = new Padding(0), BackColor = Theme.Page };
-            root.RowStyles.Add(new RowStyle(SizeType.Absolute, P(70)));
+            root.RowStyles.Add(new RowStyle(SizeType.Absolute, P(52)));
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 64));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 36));
+            root.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            root.RowStyles.Add(new RowStyle(SizeType.Absolute, P(96)));
             Controls.Add(root);
 
             header.Paint += PaintHeader; header.Resize += (s, e) => header.Invalidate();
@@ -575,7 +575,7 @@ namespace LineAlbumSaver {
             // 設定
             var form = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3, Margin = new Padding(0), BackColor = Theme.Card };
             form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            windows.ItemHeight = P(20); windows.BackColor = Theme.Field; windows.ForeColor = Theme.Text; windows.DrawItem += DrawWindowItem;
+            windows.ItemHeight = P(17); windows.BackColor = Theme.Field; windows.ForeColor = Theme.Text; windows.DrawItem += DrawWindowItem;
             dest.BackColor = Theme.Field; dest.ForeColor = Theme.Text;
             form.Controls.Add(FieldLabel("LINE 視窗"), 0, 0); form.Controls.Add(Field(windows, windows.ItemHeight + P(6)), 1, 0); form.Controls.Add(refresh, 2, 0);
             form.Controls.Add(FieldLabel("儲存位置"), 0, 1); form.Controls.Add(Field(dest, dest.PreferredHeight), 1, 1); form.Controls.Add(browse, 2, 1);
@@ -584,12 +584,12 @@ namespace LineAlbumSaver {
             for (int i = 0; i < 5; i++) actions.ColumnStyles.Add(i == 3 ? new ColumnStyle(SizeType.Percent, 100) : new ColumnStyle(SizeType.AutoSize));
             actions.Controls.Add(start, 0, 0); actions.Controls.Add(stop, 1, 0); actions.Controls.Add(recheck, 2, 0);
             var wait = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Anchor = AnchorStyles.Right, Margin = new Padding(0), BackColor = Theme.Card };
-            wait.Controls.Add(new Label { Text = "每本上限", AutoSize = true, ForeColor = Theme.Muted, Margin = new Padding(0, P(8), P(6), 0) });
-            timeout.BackColor = Theme.Field; timeout.ForeColor = Theme.Text; timeout.Width = P(60);
-            var tf = Field(timeout, timeout.PreferredHeight); tf.Width = P(78); tf.Dock = DockStyle.None; tf.Margin = new Padding(0, P(3), P(5), 0); wait.Controls.Add(tf);
-            wait.Controls.Add(new Label { Text = "秒", AutoSize = true, ForeColor = Theme.Muted, Margin = new Padding(0, P(8), 0, 0) });
+            wait.Controls.Add(new Label { Text = "每本上限", AutoSize = true, ForeColor = Theme.Muted, Margin = new Padding(0, P(7), P(6), 0) });
+            timeout.BackColor = Theme.Field; timeout.ForeColor = Theme.Text; timeout.Width = P(52);
+            var tf = Field(timeout, timeout.PreferredHeight); tf.Dock = DockStyle.None; tf.Size = new Size(P(66), timeout.PreferredHeight + P(6)); tf.Padding = new Padding(P(6), P(4), P(2), P(4)); tf.Margin = new Padding(0, P(3), P(5), 0); timeout.Dock = DockStyle.Fill; wait.Controls.Add(tf);
+            wait.Controls.Add(new Label { Text = "秒", AutoSize = true, ForeColor = Theme.Muted, Margin = new Padding(0, P(7), 0, 0) });
             actions.Controls.Add(wait, 4, 0);
-            hint.Margin = new Padding(P(1), P(7), 0, 0); hint.ForeColor = Theme.Muted;
+            hint.Margin = new Padding(P(1), P(5), 0, 0); hint.ForeColor = Theme.Muted;
 
             var setup = CardTable("設定", "SETUP");
             setup.Controls.Add(form); setup.Controls.Add(actions); setup.Controls.Add(hint);
@@ -614,7 +614,7 @@ namespace LineAlbumSaver {
 
             // 執行紀錄
             var logCard = CardTable("執行紀錄", "CONSOLE"); logCard.Dock = DockStyle.Fill; logCard.AutoSize = false; logCard.Margin = new Padding(P(12), P(5), P(12), P(12));
-            logBox.BackColor = Theme.Field; logBox.ForeColor = Color.FromArgb(150, 230, 190); logBox.Font = new Font("Consolas", 9f);
+            logBox.BackColor = Theme.Field; logBox.ForeColor = Color.FromArgb(140, 220, 175); logBox.Font = new Font("Consolas", 8f);
             var logHost = new Panel { Dock = DockStyle.Fill, Padding = new Padding(P(8), P(6), P(4), P(6)), BackColor = Theme.Field, Margin = new Padding(0) };
             logHost.Paint += (s, e) => { using (var p = new Pen(Theme.Border)) e.Graphics.DrawRectangle(p, 0, 0, logHost.Width - 1, logHost.Height - 1); };
             logHost.Controls.Add(logBox);
@@ -639,63 +639,70 @@ namespace LineAlbumSaver {
             UpdateSummary(); UpdateButtons();
         }
 
+        // NMDC 標誌裡 M 的那道斜槓：往右上傾斜的平行四邊形。
+        static System.Drawing.Drawing2D.GraphicsPath Slash(float x, float y, float w, float h, float skew) {
+            var p = new System.Drawing.Drawing2D.GraphicsPath();
+            p.AddPolygon(new[] { new PointF(x + skew, y), new PointF(x + skew + w, y), new PointF(x + w, y + h), new PointF(x, y + h) });
+            return p;
+        }
+
         void PaintHeader(object sender, PaintEventArgs e) {
             var g = e.Graphics; var r = header.ClientRectangle; if (r.Width < 4) return;
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            using (var b = new System.Drawing.Drawing2D.LinearGradientBrush(r, Color.FromArgb(5, 14, 22), Color.FromArgb(10, 38, 58), 0f)) g.FillRectangle(b, r);
-            // 淡淡的網格與光暈
-            using (var p = new Pen(Color.FromArgb(14, 46, 197, 255))) { int step = P(18); for (int x = 0; x < r.Width; x += step) g.DrawLine(p, x, 0, x, r.Height); for (int y = 0; y < r.Height; y += step) g.DrawLine(p, 0, y, r.Width, y); }
-            using (var path = new System.Drawing.Drawing2D.GraphicsPath()) {
-                var glow = new RectangleF(r.Width * 0.55f, -r.Height * 1.2f, r.Width * 0.6f, r.Height * 3f); path.AddEllipse(glow);
-                using (var pb = new System.Drawing.Drawing2D.PathGradientBrush(path) { CenterColor = Color.FromArgb(46, 6, 199, 85), SurroundColors = new[] { Color.FromArgb(0, 6, 199, 85) } }) g.FillPath(pb, path);
-            }
-            using (var lb = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, r.Height - P(2), r.Width, P(2)), Theme.Green, Theme.Cyan, 0f)) g.FillRectangle(lb, 0, r.Height - P(2), r.Width, P(2));
+            using (var b = new System.Drawing.Drawing2D.LinearGradientBrush(r, Color.FromArgb(0, 18, 34), Color.FromArgb(0, 36, 64), 0f)) g.FillRectangle(b, r);
+            // 細點陣
+            using (var b = new SolidBrush(Color.FromArgb(22, 120, 180, 220))) { int step = P(12); for (int y = step / 2; y < r.Height; y += step) for (int x = r.Width / 2; x < r.Width; x += step) g.FillRectangle(b, x, y, Math.Max(1, P(1)), Math.Max(1, P(1))); }
+            // 右側斜槓群（呼應標誌）
+            float sh = r.Height, sk = sh * 0.55f, sw = P(22), sx = r.Width - P(300);
+            for (int i = 0; i < 4; i++) using (var path = Slash(sx + i * (sw + P(10)), 0, sw, sh, sk)) using (var b = new SolidBrush(Color.FromArgb(22 + i * 12, 60, 130, 200))) g.FillPath(b, path);
+            using (var path = Slash(sx + 4 * (sw + P(10)), 0, sw * 0.6f, sh, sk)) using (var b = new SolidBrush(Color.FromArgb(150, Theme.Green))) g.FillPath(b, path);
+            using (var lb = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, r.Height - P(2), r.Width, P(2)), Theme.Green, Color.FromArgb(0, 0, 176, 80), 0f)) g.FillRectangle(lb, 0, r.Height - P(2), r.Width, P(2));
 
-            int x0 = P(18), cy = r.Height / 2;
-            if (nmdcLogo != null) { int h = P(30), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(16); }
-            using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(18), x0, cy + P(18));
-            x0 += P(16);
-            if (lineLogo != null) { int h = P(36); g.DrawImage(lineLogo, x0, cy - h / 2, h, h); x0 += h + P(12); }
-            using (var f1 = new Font(Font.FontFamily, 13f, FontStyle.Bold)) using (var f2 = new Font("Consolas", 8f))
-            using (var w1 = new SolidBrush(Color.White)) using (var w2 = new SolidBrush(Color.FromArgb(120, 200, 230))) {
-                g.DrawString("LINE 相簿批次儲存", f1, w1, x0 - P(3), cy - P(22));
-                g.DrawString("ALBUM BATCH SAVER  //  LOCAL OCR  //  OFFLINE", f2, w2, x0, cy + P(5));
+            int x0 = P(16), cy = r.Height / 2;
+            if (nmdcLogo != null) { int h = P(24), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(13); }
+            using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(14), x0, cy + P(14));
+            x0 += P(13);
+            if (lineLogo != null) { int h = P(26); g.DrawImage(lineLogo, x0, cy - h / 2, h, h); x0 += h + P(10); }
+            using (var f1 = new Font(Font.FontFamily, 10.5f, FontStyle.Bold)) using (var f2 = new Font("Consolas", 6.75f))
+            using (var w1 = new SolidBrush(Color.White)) using (var w2 = new SolidBrush(Color.FromArgb(110, 170, 200))) {
+                g.DrawString("LINE 相簿批次儲存", f1, w1, x0 - P(3), cy - P(17));
+                g.DrawString("ALBUM BATCH SAVER // LOCAL OCR // OFFLINE", f2, w2, x0, cy + P(3));
             }
-            // 右側狀態燈
+            // 狀態燈
             string st = busy ? "RUNNING" : "READY"; Color sc = busy ? Theme.Amber : Theme.GreenHi;
-            using (var f = new Font("Consolas", 8.5f, FontStyle.Bold)) {
-                var sz = g.MeasureString(st, f); float pw = sz.Width + P(30), ph = P(24), px = r.Width - pw - P(18), py = cy - ph / 2;
+            using (var f = new Font("Consolas", 7f, FontStyle.Bold)) {
+                var sz = g.MeasureString(st, f); float pw = sz.Width + P(24), ph = P(19), px = r.Width - pw - P(14), py = cy - ph / 2;
                 using (var path = Theme.Round(new RectangleF(px, py, pw, ph), ph / 2)) {
-                    using (var b = new SolidBrush(Color.FromArgb(40, sc))) g.FillPath(b, path);
-                    using (var p = new Pen(Color.FromArgb(150, sc))) g.DrawPath(p, path);
+                    using (var b = new SolidBrush(Color.FromArgb(200, 0, 20, 36))) g.FillPath(b, path);
+                    using (var p = new Pen(Color.FromArgb(160, sc))) g.DrawPath(p, path);
                 }
-                using (var b = new SolidBrush(Color.FromArgb(70, sc))) g.FillEllipse(b, px + P(8), cy - P(6), P(12), P(12));
-                using (var b = new SolidBrush(sc)) { g.FillEllipse(b, px + P(11), cy - P(3), P(6), P(6)); g.DrawString(st, f, b, px + P(22), cy - sz.Height / 2); }
+                using (var b = new SolidBrush(Color.FromArgb(70, sc))) g.FillEllipse(b, px + P(6), cy - P(5), P(10), P(10));
+                using (var b = new SolidBrush(sc)) { g.FillEllipse(b, px + P(8.5f), cy - P(2.5f), P(5), P(5)); g.DrawString(st, f, b, px + P(18), cy - sz.Height / 2); }
             }
         }
 
         Btn MakeButton(string text) {
-            return new Btn { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(P(10), P(4), P(10), P(4)), Margin = new Padding(0, P(3), P(8), P(3)), ForeColor = Theme.Text };
+            return new Btn { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(P(8), P(2), P(8), P(2)), Margin = new Padding(0, P(2), P(6), P(2)), ForeColor = Theme.Text };
         }
         // 卡片：圓角深色底＋標題列（中文＋英文小字）。內容依序往下排。
         TableLayoutPanel CardTable(string title, string en) {
-            var t = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, BackColor = Theme.Card, Padding = new Padding(P(14), P(10), P(14), P(12)) };
+            var t = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, BackColor = Theme.Card, Padding = new Padding(P(12), P(7), P(12), P(9)) };
             t.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
             t.Paint += (s, e) => {
                 e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 using (var p = new Pen(Theme.Border)) e.Graphics.DrawRectangle(p, 0, 0, t.Width - 1, t.Height - 1);
-                using (var b = new SolidBrush(Theme.Green)) e.Graphics.FillRectangle(b, 0, P(12), P(3), P(16));
+                using (var path = Slash(0, P(8), P(6), P(14), P(3))) using (var b = new SolidBrush(Theme.Green)) e.Graphics.FillPath(b, path);
             };
             t.Resize += (s, e) => t.Invalidate();
-            var head = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 0, 0, P(6)), BackColor = Theme.Card };
-            head.Controls.Add(new Label { Text = title, AutoSize = true, ForeColor = Theme.Text, Font = new Font(Font.FontFamily, 10f, FontStyle.Bold), Margin = new Padding(0) });
-            head.Controls.Add(new Label { Text = en, AutoSize = true, ForeColor = Color.FromArgb(70, 130, 160), Font = new Font("Consolas", 8f, FontStyle.Bold), Margin = new Padding(P(6), P(4), 0, 0) });
+            var head = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 0, 0, P(4)), BackColor = Theme.Card };
+            head.Controls.Add(new Label { Text = title, AutoSize = true, ForeColor = Theme.Text, Font = new Font(Font.FontFamily, 8.75f, FontStyle.Bold), Margin = new Padding(0) });
+            head.Controls.Add(new Label { Text = en, AutoSize = true, ForeColor = Color.FromArgb(70, 130, 160), Font = new Font("Consolas", 6.75f, FontStyle.Bold), Margin = new Padding(P(5), P(3), 0, 0) });
             t.Controls.Add(head);
             return t;
         }
         Panel Field(Control c, int innerHeight) {
-            var p = new Panel { Height = innerHeight + P(12), Dock = DockStyle.Fill, BackColor = Theme.Field, Padding = new Padding(P(8), P(6), P(6), P(6)), Margin = new Padding(0, P(4), P(8), P(4)) };
+            var p = new Panel { Height = innerHeight + P(8), Dock = DockStyle.Fill, BackColor = Theme.Field, Padding = new Padding(P(7), P(4), P(5), P(4)), Margin = new Padding(0, P(2), P(6), P(2)) };
             bool focus = false;
             p.Paint += (s, e) => { using (var pen = new Pen(focus ? Theme.Cyan : Theme.Border)) e.Graphics.DrawRectangle(pen, 0, 0, p.Width - 1, p.Height - 1); };
             c.GotFocus += (s, e) => { focus = true; p.Invalidate(); }; c.LostFocus += (s, e) => { focus = false; p.Invalidate(); };
@@ -703,7 +710,7 @@ namespace LineAlbumSaver {
             p.Controls.Add(c); return p;
         }
         Label FieldLabel(string text) { return new Label { Text = text, AutoSize = true, Anchor = AnchorStyles.Left, ForeColor = Theme.Muted, Margin = new Padding(0, 0, P(12), 0) }; }
-        Label Chip(Color fg, Color bg) { return new Label { AutoSize = true, BackColor = bg, ForeColor = fg, Padding = new Padding(P(8), P(3), P(8), P(3)), Margin = new Padding(0, P(2), P(6), P(2)), Font = new Font(Font, FontStyle.Bold) }; }
+        Label Chip(Color fg, Color bg) { return new Label { AutoSize = true, BackColor = bg, ForeColor = fg, Padding = new Padding(P(7), P(2), P(7), P(2)), Margin = new Padding(0, P(2), P(5), P(2)), Font = new Font(Font, FontStyle.Bold) }; }
 
         void DrawWindowItem(object sender, DrawItemEventArgs e) {
             bool edit = (e.State & DrawItemState.ComboBoxEdit) != 0, sel = (e.State & DrawItemState.Selected) != 0 && !edit;
@@ -719,17 +726,17 @@ namespace LineAlbumSaver {
         void SetupGrid() {
             grid.Dock = DockStyle.Fill; grid.ScrollBars = ScrollBars.Vertical; grid.ReadOnly = true; grid.AllowUserToAddRows = false; grid.AllowUserToDeleteRows = false; grid.AllowUserToResizeRows = false;
             grid.RowHeadersVisible = false; grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect; grid.MultiSelect = false;
-            grid.BackgroundColor = Theme.Field; grid.BorderStyle = BorderStyle.None; grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal; grid.GridColor = Color.FromArgb(24, 44, 60);
+            grid.BackgroundColor = Theme.Field; grid.BorderStyle = BorderStyle.None; grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal; grid.GridColor = Color.FromArgb(14, 46, 74);
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill; grid.EnableHeadersVisualStyles = false;
-            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None; grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing; grid.ColumnHeadersHeight = P(28);
-            var hs = grid.ColumnHeadersDefaultCellStyle; hs.BackColor = Color.FromArgb(16, 36, 52); hs.ForeColor = Color.FromArgb(110, 170, 200); hs.Font = new Font("Microsoft JhengHei UI", 8.5f, FontStyle.Bold); hs.Padding = new Padding(P(4), 0, 0, 0); hs.SelectionBackColor = hs.BackColor;
-            grid.RowTemplate.Height = P(27);
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None; grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing; grid.ColumnHeadersHeight = P(23);
+            var hs = grid.ColumnHeadersDefaultCellStyle; hs.BackColor = Color.FromArgb(0, 36, 64); hs.ForeColor = Color.FromArgb(110, 165, 200); hs.Font = new Font("Microsoft JhengHei UI", 7.75f, FontStyle.Bold); hs.Padding = new Padding(P(4), 0, 0, 0); hs.SelectionBackColor = hs.BackColor;
+            grid.RowTemplate.Height = P(22);
             var cs = grid.DefaultCellStyle; cs.BackColor = Theme.Field; cs.ForeColor = Theme.Text; cs.Padding = new Padding(P(4), 0, P(2), 0); cs.WrapMode = DataGridViewTriState.False;
-            cs.SelectionBackColor = Color.FromArgb(20, 70, 92); cs.SelectionForeColor = Color.White;
+            cs.SelectionBackColor = Color.FromArgb(0, 70, 110); cs.SelectionForeColor = Color.White;
             string[] heads = { "#", "相簿名稱", "應有", "實際", "狀態", "資料夾" }; float[] weights = { 6, 36, 9, 9, 24, 26 };
             for (int i = 0; i < heads.Length; i++) {
                 var c = new DataGridViewTextBoxColumn { HeaderText = heads[i], FillWeight = weights[i], SortMode = DataGridViewColumnSortMode.NotSortable, MinimumWidth = P(i == 1 ? 110 : 36) };
-                if (i == 0 || i == 2 || i == 3) { c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; c.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter; c.DefaultCellStyle.Font = new Font("Consolas", 9.5f); }
+                if (i == 0 || i == 2 || i == 3) { c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; c.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter; c.DefaultCellStyle.Font = new Font("Consolas", 8.25f); }
                 grid.Columns.Add(c);
             }
             grid.ShowCellToolTips = true;
@@ -746,7 +753,7 @@ namespace LineAlbumSaver {
 
         void Log(string s) {
             if (InvokeRequired) { BeginInvoke(new Action<string>(Log), s); return; }
-            logBox.AppendText(DateTime.Now.ToString("HH:mm:ss") + "  › " + s + Environment.NewLine);
+            logBox.AppendText(DateTime.Now.ToString("HH:mm:ss") + "  › " + s.Replace("　", "  ") + Environment.NewLine);
         }
 
         public void Report(AlbumRow r) {

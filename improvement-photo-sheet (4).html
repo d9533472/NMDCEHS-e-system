@@ -652,8 +652,8 @@ function App(){
       setProgress({pct:88,text:'上傳 Word...'});
       const b64=await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result.split(',')[1]);reader.readAsDataURL(wordBlob)});
       const label=r.label||r.id;
-      const fmtSuffix = format==='POE' ? '_POE' : '';
-      const uploadRes=await xhrPostRetry(GAS_URL,{action:'uploadToFolder',label,fileName:'照片改善表_'+label+fmtSuffix+'.docx',base64:b64,mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+      const fmtSuffix = format==='POE' ? '' : '(含改善對策表)';
+      const uploadRes=await xhrPostRetry(GAS_URL,{action:'uploadToFolder',label,fileName:label+'改善單'+fmtSuffix+'.docx',base64:b64,mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
 
       if(uploadRes.ok&&uploadRes.folderUrl){
         setFolderLink({url:uploadRes.folderUrl,name:uploadRes.matchedFolder||'雲端資料夾'});
@@ -1009,8 +1009,8 @@ function App(){
 
           <div className="btn-group">
             <button className="btn btn-primary" onClick={saveOnly} disabled={syncing}>{syncing?'⏳ 處理中...':dirty?'💾 儲存 ●':'💾 儲存'}</button>
-            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>☁️ TPC 匯出</button>
-            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>☁️ POE 匯出</button>
+            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>☁️ 生成照片改善單(含改善對策表)</button>
+            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>☁️ 生成照片改善單</button>
             <button className="btn btn-secondary" onClick={()=>setTab('preview')}>👁 預覽</button>
             <button className="btn btn-secondary" onClick={()=>setTab('list')}>📑 列表</button>
           </div>
@@ -1029,8 +1029,8 @@ function App(){
           </div>
           <div className="btn-group" style={{marginTop:16}}>
             <button className="btn btn-primary" onClick={saveOnly} disabled={syncing}>{syncing?'⏳ 處理中...':dirty?'💾 儲存 ●':'💾 儲存'}</button>
-            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>☁️ TPC 匯出</button>
-            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>☁️ POE 匯出</button>
+            <button className="btn btn-sync" onClick={()=>saveAndExport('TPC')} disabled={syncing}>☁️ 生成照片改善單(含改善對策表)</button>
+            <button className="btn btn-sync" style={{background:'#2980b9'}} onClick={()=>saveAndExport('POE')} disabled={syncing}>☁️ 生成照片改善單</button>
             <button className="btn btn-secondary" onClick={()=>setTab('edit')}>✏️ 編輯</button>
           </div>
         </div>}
