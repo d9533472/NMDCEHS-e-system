@@ -412,6 +412,9 @@ function doPost(e) {
       case 'uploadToFolder':
         result = _uploadToExistingFolder(payload.data);
         break;
+      case 'addAttachmentLink':
+        result = _addAttachmentLink(payload.data);
+        break;
       case 'importBudgetData':
         result = _importBudgetData(payload.data);
         break;
@@ -1244,6 +1247,27 @@ function _uploadToExistingFolder(data) {
   }
 
   return result;
+}
+
+// 附件以雲端連結登記（大檔超過上傳上限時用）
+// Drive 檔案連結只存檔案 ID（與上傳的附件同格式），其他連結存完整網址
+function _addAttachmentLink(data) {
+  const url = String(data.url || '').trim();
+  if (!/^https?:\/\//i.test(url)) throw new Error('連結必須以 http(s):// 開頭');
+  const m = url.match(/\/file\/d\/([\w-]{20,})/) || url.match(/[?&]id=([\w-]{20,})/);
+  const id = m ? m[1] : url.replace(/,/g, '%2C');
+  const name = (String(data.name || '').trim() || (m ? '雲端檔案' : '雲端連結')).replace(/,/g, '，');
+
+  const sheet = _ensureInspectColumns();
+  const grp = _findGroupRows(sheet, data.inspection_id);
+  const rowIdx = grp.length ? grp[0].idx : _findInspectionRow(sheet, data.inspection_id);
+  if (rowIdx <= 0) throw new Error('找不到查驗紀錄 ' + data.inspection_id);
+  const row = sheet.getRange(rowIdx, 1, 1, INSPECT_COLS).getValues()[0];
+  const existingIds = row[COL_ATT_IDS - 1] ? row[COL_ATT_IDS - 1].toString() : '';
+  const existingNames = row[COL_ATT_NAMES - 1] ? row[COL_ATT_NAMES - 1].toString() : '';
+  sheet.getRange(rowIdx, COL_ATT_IDS).setValue(existingIds ? existingIds + ',' + id : id);
+  sheet.getRange(rowIdx, COL_ATT_NAMES).setValue(existingNames ? existingNames + ',' + name : name);
+  return { success: true, file_id: id, file_name: name };
 }
 
 function _uploadToFolder_internal(data, folderId) {

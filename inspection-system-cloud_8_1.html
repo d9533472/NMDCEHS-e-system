@@ -138,6 +138,8 @@ const groupIdOf=id=>{const s=String(id==null?'':id).trim();const m=s.match(/^(.*
 const groupOf=r=>r?.group_id||groupIdOf(r?.id);
 /* 附件單檔上限 MB（Apps Script 單次請求上限約 50MB，超過會直接失敗） */
 const MAX_FILE_MB=40;
+/* 附件 ID：上傳的檔案存 Drive 檔案 ID；貼連結的非 Drive 檔案存完整網址 */
+const attUrl=fid=>/^https?:\/\//i.test(fid)?fid:'https://drive.google.com/file/d/'+fid+'/view';
 const DEFAULT_API='https://script.google.com/macros/s/AKfycbxJAuZHtubqyArcDCJetUH7Czdffo_vbystwcipZP-rqEG3Uzmv61emQ7fZp-JYM3Bffg/exec';
 const{useState,useEffect,useMemo,useCallback,useRef}=React;
 
@@ -221,6 +223,8 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     ?init.rows.map(r=>({row_id:r.id,budget_item_id:r.budget_item_id,qty:String(r.inspected_qty??''),note:r.note||''}))
     :[{row_id:'',budget_item_id:fixId||'',qty:'',note:''}]);
   const[files,sFiles]=useState([]);const fr=useRef();
+  const[links,sLinks]=useState([]);const[lk,sLk]=useState({url:'',name:''});
+  const addLink=()=>{const url=lk.url.trim();if(!/^https?:\/\//i.test(url))return alert('請貼上完整連結（https:// 開頭）');sLinks(p=>[...p,{url,name:lk.name.trim()}]);sLk({url:'',name:''})};
 
   const bItem=id=>bi.find(b=>b.id===id);
   const setRow=(i,patch)=>sRows(p=>p.map((r,j)=>j===i?{...r,...patch}:r));
@@ -256,7 +260,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
       if(q>rem)return alert(n+'（'+b.item_name_cn+'）超過剩餘量，最多 '+(isLS(b)?fP(rem):fQty(rem)));
     }
     onOk({inspection_no:f.inspection_no,work_area:f.work_area,inspection_date:f.inspection_date,submit_date:f.submit_date,note:f.note,stage:f.stage,link_folder_url:f.link_folder_url,
-      items:rows.map(r=>({row_id:r.row_id||'',budget_item_id:r.budget_item_id,inspected_qty:parseFloat(r.qty),note:r.note||''})),attachments:files});
+      items:rows.map(r=>({row_id:r.row_id||'',budget_item_id:r.budget_item_id,inspected_qty:parseFloat(r.qty),note:r.note||''})),attachments:files,links:lk.url.trim()?[...links,{url:lk.url.trim(),name:lk.name.trim()}]:links});
   };
 
   return<div>
@@ -334,10 +338,17 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
       <button className="bg" onClick={()=>fr.current?.click()} style={{marginBottom:6}}>📎 選擇檔案 <span style={{fontSize:10,color:'var(--muted2)'}}>(不限張數，單檔 ≤{MAX_FILE_MB}MB)</span></button>
       {files.length>0&&<div style={{fontSize:10,color:'var(--muted)',marginBottom:4}}>共 {files.length} 檔 · {(files.reduce((s,f)=>s+f.size,0)/1024/1024).toFixed(1)} MB（逐檔上傳，總量不限）</div>}
       {files.map((x,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,background:'var(--card2)',padding:'5px 10px',borderRadius:6,border:'1px solid var(--border)',marginBottom:3}}>📄 {x.filename} <span style={{color:'var(--muted2)'}}>({(x.size/1024).toFixed(1)}KB)</span><button onClick={()=>sFiles(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--red)',marginLeft:'auto'}}>✕</button></div>)}
+      <label className="fl" style={{marginTop:12}}>或貼雲端連結 <span style={{fontWeight:400,color:'var(--muted2)'}}>（超過 {MAX_FILE_MB}MB 的大檔先自己傳到 Drive，再把分享連結貼這裡）</span></label>
+      <div style={{display:'flex',gap:6}}>
+        <input value={lk.url} placeholder="https://drive.google.com/..." onChange={e=>sLk(x=>({...x,url:e.target.value}))} onKeyDown={e=>{if(e.key==='Enter')addLink()}} style={{fontSize:12,flex:2}}/>
+        <input value={lk.name} placeholder="顯示名稱（選填）" onChange={e=>sLk(x=>({...x,name:e.target.value}))} onKeyDown={e=>{if(e.key==='Enter')addLink()}} style={{fontSize:12,flex:1}}/>
+        <button className="bg" onClick={addLink} style={{whiteSpace:'nowrap'}}>🔗 加入</button>
+      </div>
+      {links.map((x,i)=><div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,background:'var(--card2)',padding:'5px 10px',borderRadius:6,border:'1px solid var(--border)',marginTop:3}}>🔗 {x.name||'雲端連結'} <span style={{color:'var(--muted2)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',maxWidth:300}}>{x.url}</span><button onClick={()=>sLinks(p=>p.filter((_,j)=>j!==i))} style={{background:'none',border:'none',color:'var(--red)',marginLeft:'auto'}}>✕</button></div>)}
     </div>
 
     {init?.folder_id&&<div style={{marginBottom:14}}><label className="fl">目前連結的資料夾</label><a href={'https://drive.google.com/drive/folders/'+init.folder_id} target="_blank" rel="noopener" style={{fontSize:12,color:'var(--accent)',textDecoration:'none'}}>📁 {init.folder_name||init.folder_id}</a></div>}
-    {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'4px 10px',borderRadius:6,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
+    {init?.attachment_ids?.length>0&&<div style={{marginBottom:14}}><label className="fl">已上傳附件</label><div style={{display:'flex',flexWrap:'wrap',gap:6}}>{init.attachment_ids.map((fid,i)=><a key={fid} href={attUrl(fid)} target="_blank" rel="noopener" style={{fontSize:11,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'4px 10px',borderRadius:6,border:'1px solid var(--border)'}}>📎 {init.attachment_names?.[i]||fid}</a>)}</div></div>}
 
     <div style={{display:'flex',justifyContent:'flex-end',gap:10,paddingTop:14,borderTop:'1px solid var(--border)'}}>
       <button className="bg" onClick={onNo}>取消</button>
@@ -360,7 +371,7 @@ function Detail({item:it,ins,onAdd,onEdit,onDel,auth}){
     {recs.length===0?<div style={{padding:32,textAlign:'center',color:'var(--muted)'}}>尚無查驗紀錄</div>
     :<div className="hscroll"><table><thead><tr><th>編號</th><th>階段</th><th>工區</th><th>查驗日期</th><th>提交台電日</th><th style={{textAlign:'right'}}>數量</th><th style={{textAlign:'right'}}>金額</th><th>備註</th><th>資料夾／附件</th>{auth&&<th>操作</th>}</tr></thead><tbody>
       {recs.map(r=><tr key={r.id}><td className="mono" style={{color:'var(--accent)',fontSize:11}}>{r.id}</td><td><SB stage={r.stage} small/></td><td style={{fontSize:11,whiteSpace:'nowrap'}}>{r.work_area||'—'}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.inspection_date)}</td><td style={{fontSize:12,whiteSpace:'nowrap'}}>{fD(r.submit_date)}</td><td className="num">{fQty(r.inspected_qty)}</td><td className="num" style={{color:mapStage(r.stage)>=FINAL_STAGE?'var(--green)':'var(--muted)'}}>{fmt(r.inspected_amount)}</td><td style={{fontSize:11,minWidth:100}}>{r.note||'—'}</td>
-      <td style={{whiteSpace:'nowrap'}}>{r.folder_id&&<a href={'https://drive.google.com/drive/folders/'+r.folder_id} target="_blank" rel="noopener" title={r.folder_name||''} style={{fontSize:11,color:'var(--accent)',marginRight:5}}>📁</a>}{r.attachment_ids?.length>0?r.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):(r.folder_id?'':'—')}</td>
+      <td style={{whiteSpace:'nowrap'}}>{r.folder_id&&<a href={'https://drive.google.com/drive/folders/'+r.folder_id} target="_blank" rel="noopener" title={r.folder_name||''} style={{fontSize:11,color:'var(--accent)',marginRight:5}}>📁</a>}{r.attachment_ids?.length>0?r.attachment_ids.map((fid,j)=><a key={fid} href={attUrl(fid)} target="_blank" rel="noopener" style={{fontSize:10,color:'var(--accent)',marginRight:4}}>📎{j+1}</a>):(r.folder_id?'':'—')}</td>
       {auth&&<td><div style={{display:'flex',gap:4}}><button className="bg" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onEdit(r)}>編輯</button><button className="bd" style={{fontSize:10,padding:'3px 8px'}} onClick={()=>onDel(r.id,'此明細 '+r.id+'（'+shortItem(r.item_name_snapshot)+'）')}>刪除</button></div></td>}</tr>)}
     </tbody></table></div>}
   </div>;
@@ -561,12 +572,22 @@ function App(){
 
   const doLogout=()=>{sAuth(false);toast('已登出')};
 
+  const saveLinks=async(iid,links)=>{
+    if(!links.length)return;
+    for(let i=0;i<links.length;i++){
+      try{await api.current.post('addAttachmentLink',{inspection_id:iid,...links[i]})}
+      catch(e){toast('連結'+(i+1)+'登記失敗: '+e.message,'err')}
+    }
+    toast('🔗 '+links.length+' 個雲端連結已加入附件');
+  };
+
   const addI=async d=>{sSub(true);try{
     /* 分離附件：先建紀錄（不帶附件），再逐一上傳 */
-    const files=d.attachments||[];
-    const payload={...d,attachments:[]};
+    const files=d.attachments||[],links=d.links||[];
+    const payload={...d,attachments:[],links:undefined};
+    const noAtt=files.length===0&&links.length===0;
     /* 沒有附件時請後端順便回傳最新統計，省掉一次 getSummary */
-    const r=await api.current.post('addInspection',payload,files.length===0);
+    const r=await api.current.post('addInspection',payload,noAtt);
     toast('☁ '+r.inspection_id+(r.item_count>1?'（'+r.item_count+' 個項目）':'')+' 已建立'+(r.snapshot?' · 已留快照':''));
     if(files.length>0&&r.folder_id){
       for(let i=0;i<files.length;i++){
@@ -577,13 +598,15 @@ function App(){
       }
       toast('☁ '+files.length+' 個附件已上傳');
     }
+    await saveLinks(r.inspection_id,links);
     sMl(null);
-    if(r.summary&&files.length===0)applySummary(r.summary);else await sync();
+    if(r.summary&&noAtt)applySummary(r.summary);else await sync();
   }catch(e){toast(e.message,'err')}finally{sSub(false)}};
 
   const updI=async(gid,d)=>{sSub(true);try{
-    const files=d.attachments||[];
-    const r=await api.current.post('updateInspection',{inspection_id:gid,inspection_no:d.inspection_no,work_area:d.work_area,inspection_date:d.inspection_date,submit_date:d.submit_date,note:d.note,stage:d.stage,link_folder_url:d.link_folder_url,items:d.items},files.length===0);
+    const files=d.attachments||[],links=d.links||[];
+    const noAtt=files.length===0&&links.length===0;
+    const r=await api.current.post('updateInspection',{inspection_id:gid,inspection_no:d.inspection_no,work_area:d.work_area,inspection_date:d.inspection_date,submit_date:d.submit_date,note:d.note,stage:d.stage,link_folder_url:d.link_folder_url,items:d.items},noAtt);
     toast('☁ 已更新至雲端'+(r.snapshot?' · 已留快照':''));
     const fid=r.folder_id;const newId=r.inspection_id||gid;
     if(files.length>0&&fid){
@@ -593,8 +616,9 @@ function App(){
       }
       toast('☁ '+files.length+' 個附件已上傳');
     }
+    await saveLinks(newId,links);
     sMl(null);
-    if(r.summary&&files.length===0)applySummary(r.summary);else await sync();
+    if(r.summary&&noAtt)applySummary(r.summary);else await sync();
   }catch(e){toast(e.message,'err')}finally{sSub(false)}};
 
   const updStage=async(gid,stage)=>{try{const r=await api.current.post('updateInspection',{inspection_id:gid,stage},true);toast('☁ 階段已更新');if(r.summary)applySummary(r.summary);else await sync()}catch(e){toast(e.message,'err')}};
@@ -1133,7 +1157,7 @@ function App(){
                 {auth&&<td style={{textAlign:'right'}}>{g.rows.length>1&&<button className="bd" style={{fontSize:9.5,padding:'2px 7px'}} onClick={()=>delI(r.id,'此明細（'+shortItem(r.item_name_snapshot)+'）')}>移除</button>}</td>}
               </tr>})}</tbody>
               <tfoot><tr><td colSpan={5} style={{textAlign:'right',color:'var(--muted)',fontWeight:600}}>本表合計</td><td className="num" style={{fontWeight:800,color:'var(--fg2)'}}>{fmt(g.amount)}</td><td colSpan={auth?2:1}/></tr></tfoot></table>
-              {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
+              {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={attUrl(fid)} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
             </div>}
           </div>;
         })}
@@ -1197,7 +1221,7 @@ function App(){
                       <td style={{fontSize:11,color:'var(--muted)'}}>{r.note||'—'}</td>
                     </tr>})}</tbody>
                     <tfoot><tr><td colSpan={5} style={{textAlign:'right',color:'var(--muted)',fontWeight:600}}>本表合計</td><td className="num" style={{fontWeight:800,color:'var(--fg2)'}}>{fmt(g.amount)}</td><td/></tr></tfoot></table>
-                    {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={'https://drive.google.com/file/d/'+fid+'/view'} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
+                    {g.attachment_ids.length>0&&<div style={{display:'flex',flexWrap:'wrap',gap:6,marginTop:10}}>{g.attachment_ids.map((fid,j)=><a key={fid} href={attUrl(fid)} target="_blank" rel="noopener" style={{fontSize:10.5,color:'var(--accent)',textDecoration:'none',background:'var(--card2)',padding:'3px 9px',borderRadius:5,border:'1px solid var(--border)'}}>📎 {g.attachment_names[j]||fid}</a>)}</div>}
                   </div>}
                 </div>})}
               <div style={{display:'flex',justifyContent:'flex-end',gap:14,padding:'4px 6px 0',fontSize:11,color:'var(--muted)'}}>
