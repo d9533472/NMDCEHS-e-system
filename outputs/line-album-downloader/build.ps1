@@ -1,3 +1,4 @@
+param([string]$OutputName = 'LINEAlbumDownloader.exe')
 $ErrorActionPreference = 'Stop'
 $compiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
 $metadata = Join-Path $env:WINDIR 'System32\WinMetadata'
@@ -5,7 +6,7 @@ $framework = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319'
 $refsRoot = Join-Path ${env:ProgramFiles(x86)} 'Reference Assemblies\Microsoft\Framework\.NETFramework'
 $facade = Get-ChildItem -LiteralPath $refsRoot -Filter System.Runtime.dll -Recurse | Where-Object FullName -Match 'v4\.7\.2\\Facades' | Select-Object -First 1 -ExpandProperty FullName
 if (-not $facade) { throw 'Missing .NET Framework reference assemblies (v4.7.2).' }
-$arguments = @('/nologo','/codepage:65001','/target:winexe','/platform:x64','/optimize+',('/out:' + (Join-Path $PSScriptRoot 'LINEAlbumDownloader.exe')),('/win32manifest:' + (Join-Path $PSScriptRoot 'app.manifest')))
+$arguments = @('/nologo','/codepage:65001','/target:winexe','/platform:x64','/optimize+',('/out:' + (Join-Path $PSScriptRoot $OutputName)),('/win32manifest:' + (Join-Path $PSScriptRoot 'app.manifest')))
 foreach ($reference in @('System.dll','System.Core.dll','System.Drawing.dll','System.Windows.Forms.dll','System.Web.Extensions.dll','WindowsBase.dll','UIAutomationClient.dll','UIAutomationTypes.dll')) {
     $candidate = Join-Path $framework $reference
     if (-not (Test-Path -LiteralPath $candidate)) { $candidate = Join-Path $framework ('WPF\' + $reference) }
@@ -17,4 +18,4 @@ foreach ($reference in @('Windows.Foundation.winmd','Windows.Globalization.winmd
 $arguments += Join-Path $PSScriptRoot 'LineAlbumDownloader.cs'
 & $compiler @arguments
 if ($LASTEXITCODE -ne 0) { throw 'Build failed.' }
-Write-Output (Join-Path $PSScriptRoot 'LINEAlbumDownloader.exe')
+Write-Output (Join-Path $PSScriptRoot $OutputName)

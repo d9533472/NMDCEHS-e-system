@@ -1,0 +1,8 @@
+﻿PASS: anchor title and count
+PASS: identical frame skips OCR
+PASS: scrolled label skips OCR
+PASS: scrolled cover keeps album identity
+Scaled dots: {X=669,Y=848,Width=5,Height=29} OCR: 2026 / 10 / 31 早 上 水 車 跟 水 表 {X=20.5,Y=39,Width=642.5,Height=52.5} NUMERIC: count|10 Rows: 2026/10/31早上水車跟水表 / 10
+PASS: 150 percent reference scale
+PASS: no dots means no label OCR
+PASS: two anchors produce two visible rows even with identical labels
