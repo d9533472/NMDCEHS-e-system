@@ -911,7 +911,8 @@ function App(){
           {selected.size>0&&<button onClick={()=>setSelected(new Set())}>取消</button>}
         </div>}
         {index.length===0&&<div style={{padding:32,textAlign:'center',color:'var(--text3)'}}>{loadingApp?'☁️ 載入中...':'📭 尚無紀錄'}</div>}
-        {index.map((r,i)=>(
+        {/* 顯示由新到舊（日期，同日再比建立時間 id）；i 保留原始索引給 loadRecord/deleteRecord */}
+        {index.map((r,i)=>({r,i})).sort((a,b)=>String(b.r.date||'').localeCompare(String(a.r.date||''))||(Number(b.r.id)||0)-(Number(a.r.id)||0)).map(({r,i})=>(
           <div key={r.id} className="record-item">
             <input type="checkbox" className="rec-check" checked={selected.has(String(r.id))} onClick={e=>e.stopPropagation()} onChange={e=>{setSelected(prev=>{const s=new Set(prev);if(e.target.checked)s.add(String(r.id));else s.delete(String(r.id));return s})}}/>
             <div className="rec-info" onClick={()=>loadRecord(i)} style={{cursor:'pointer',flex:1}}>
