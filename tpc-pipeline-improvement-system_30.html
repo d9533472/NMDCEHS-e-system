@@ -691,6 +691,11 @@ function RecordModal({ record, mode, records, config, onSave, onClose, saving, g
                 <option value="NCR">NCR 改善通知單</option>
                 <option value="PN">PN 罰單</option>
               </select>
+              {mode==='edit' && record && (record.type!==form.type || record.number!==form.number) && (
+                <div style={{fontSize:11,color:'var(--accent-orange)',marginTop:4}}>
+                  儲存後 Drive 資料夾會改名為「{form.date} {form.number}」並移到 {form.type} 資料夾，照片系統標籤同步更新
+                </div>
+              )}
             </div>
             <div className="form-group">
               <label>NMDC 編號</label>
@@ -2361,11 +2366,43 @@ function App() {
       if (!res.success) throw new Error(res.error || '儲存失敗');
       setLastSync(new Date().toLocaleString('zh-TW'));
       setSyncState('ok');
+      const fs = res.folderSync;
+      if (fs && fs.error) toast('⚠️ Drive 資料夾未同步：' + fs.error, 'error');
+      else if (fs) toast(`📁 Drive 資料夾已${fs.merged?'併入':'改為'}「${fs.to}」（${fs.type}）`);
+      // 後端可能已更新 driveFolderUrl/Id（資料夾改名、搬家、合併）
+      return res.record ? { ...record, driveFolderUrl: res.record.driveFolderUrl, driveFolderId: res.record.driveFolderId } : record;
     } catch(e) {
       setSyncState('error');
       toast('雲端儲存失敗：' + e.message, 'error');
       throw e;
     } finally { setSaving(false); }
+  };
+
+  // ── 編號改了 → 照片系統的紀錄標籤一起改（照片系統用標籤對應改善單）──
+  const renamePhotoLabel = async (oldLabel, newLabel) => {
+    if (!PHOTO_GAS_URL || !oldLabel || !newLabel || oldLabel === newLabel) return;
+    try {
+      const idx = await xhrGet(PHOTO_GAS_URL + '?action=index');
+      const recs = (idx.ok && idx.data && idx.data.records) || [];
+      const olds = recs.filter(r => r.label === oldLabel);
+      if (!olds.length) return;
+      if (recs.some(r => r.label === newLabel)) {
+        toast(`⚠️ 照片系統已有「${newLabel}」，原「${oldLabel}」未改名，請到照片系統手動處理`, 'error');
+        return;
+      }
+      for (const meta of olds) {
+        const r = await xhrGet(PHOTO_GAS_URL + '?action=record&id=' + meta.id);
+        if (!(r.ok && r.data)) throw new Error('讀不到照片紀錄 ' + meta.id);
+        const rec = { ...r.data, label: newLabel };
+        for (const k of ['before','during','after'])
+          if (Array.isArray(rec[k+'Photos'])) rec[k+'Photos'] = rec[k+'Photos'].map(p => ({ photoId:p.photoId, date:p.date }));
+        const s = await xhrPost(PHOTO_GAS_URL, { action:'saveRecord', record:rec, header:{ org:rec.org, title:rec.title, project:rec.project } });
+        if (!s.ok) throw new Error(s.error || '照片紀錄儲存失敗');
+      }
+      toast(`📷 照片系統標籤已改為 ${newLabel}`);
+    } catch(e) {
+      toast('⚠️ 照片系統標籤未更新：' + e.message, 'error');
+    }
   };
 
   // ── 郵件通知（交由 GAS 以 MailApp 寄出）────────────────────
@@ -2388,19 +2425,20 @@ function App() {
   // ── CRUD ──────────────────────────────────────────────────
   const addRecord = async (form) => {
     try {
-      await saveRecordToDrive(form);
-      setRecords(prev => [...prev, form]);
+      const saved = await saveRecordToDrive(form);
+      setRecords(prev => [...prev, saved]);
       toast('紀錄已新增並儲存至雲端');
-      sendMailNotify(form, 'new');
+      sendMailNotify(saved, 'new');
     } catch {}
   };
 
-  const editRecord = async (form) => {
-    const before = records.find(r => r.id === form.id);
+  const editRecord = async (input) => {
+    const before = records.find(r => r.id === input.id);
     try {
-      await saveRecordToDrive(form);
+      const form = await saveRecordToDrive(input);
       setRecords(prev => prev.map(r => r.id===form.id ? form : r));
       toast('紀錄已更新');
+      if (before && before.number !== form.number) renamePhotoLabel(before.number, form.number);
       // 由未關單 → 已關單 時寄出結案通知
       if (form.status === 'Closed' && (!before || before.status !== 'Closed'))
         sendMailNotify(form, 'closed');

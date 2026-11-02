@@ -68,7 +68,7 @@ function doGet(e) {
   if (action === 'ping') {
     var ok = true;
     try { getFolder(); } catch(err) { ok = false; }
-    return out({ ok: ok, v: '4.0', folderReady: ok });
+    return out({ ok: ok, v: '4.1', folderReady: ok });
   }
 
   if (action === 'index') {
@@ -103,6 +103,10 @@ function doPost(e) {
     if (action === 'saveRecord') {
       var folder = getFolder();
       var rec = body.record;
+      // 類型／編號／日期有改 → Drive 資料夾跟著改名、搬到新類型母資料夾
+      var prevIdx = readIndex(folder) || { records: [] };
+      var prev = prevIdx.records.filter(function(r){ return String(r.id)===String(rec.id); })[0] || null;
+      var folderSync = syncRecordFolder_(prev, rec);
       // 寫個別檔
       writeJson(folder, 'rec_' + rec.id + '.json', rec);
       // 更新索引
@@ -116,8 +120,11 @@ function doPost(e) {
         writeJson(folder, '_index.json', idx);
       } finally { lock.releaseLock(); }
       updateReadableSheet();
-      return out({ ok: true, success: true });
+      return out({ ok: true, success: true, record: rec, folderSync: folderSync });
     }
+
+    // ── 單筆／全部 Drive 資料夾對齊（修復已改類型但資料夾沒跟著改的舊資料）──
+    if (action === 'syncFolders') return out(syncAllRecordFolders(body.id));
 
     // ── 刪除單筆 ─────────────────────────────────────────
     if (action === 'deleteRecord') {
@@ -262,6 +269,77 @@ function handleArchiveAndDeleteFolder(body) {
     orig.setTrashed(true);
     return out({ ok:true, archiveName:body.archiveName });
   } catch(e) { return out({ ok:false, error:e.message }); }
+}
+
+// ── 類型／編號／日期變更 → Drive 資料夾同步 ─────────────────────
+//  資料夾命名規則：「日期 編號」，放在 FOLDER_IDS[類型] 底下
+//  WM-069 改成 NCR-106 時：把原資料夾改名成「日期 NCR-106」並搬進 NCR 母資料夾
+//  若 NCR 母資料夾已有同名資料夾（例如編輯視窗裡先按了「建立資料夾」）→ 把舊資料夾內容併過去
+function folderById_(id) {
+  if (!id) return null;
+  try { var f = DriveApp.getFolderById(id); return f.isTrashed() ? null : f; } catch(e) { return null; }
+}
+
+function syncRecordFolder_(prev, rec) {
+  try {
+    var parentId = FOLDER_IDS[rec.type];
+    if (!parentId) return null;
+    var newName = (rec.date||'') + ' ' + (rec.number||'');
+    // 先找「改之前」的資料夾，找不到才用這次送來的
+    var cur = folderById_(prev && prev.driveFolderId) || folderById_(rec.driveFolderId);
+    if (!cur && prev && FOLDER_IDS[prev.type]) {
+      var it = DriveApp.getFolderById(FOLDER_IDS[prev.type]).getFoldersByName((prev.date||'') + ' ' + (prev.number||''));
+      if (it.hasNext()) cur = it.next();
+    }
+    if (!cur) return null;
+
+    var parent = DriveApp.getFolderById(parentId);
+    var inParent = false, ps = cur.getParents();
+    while (ps.hasNext()) if (ps.next().getId() === parentId) inParent = true;
+    var oldName = cur.getName(), target = cur, merged = false;
+    var changed = oldName !== newName || !inParent;
+
+    if (changed) {
+      var dup = null, it2 = parent.getFoldersByName(newName);
+      while (it2.hasNext()) { var f = it2.next(); if (f.getId() !== cur.getId() && !f.isTrashed()) { dup = f; break; } }
+      if (dup) {
+        var fs = cur.getFiles();   while (fs.hasNext()) fs.next().moveTo(dup);
+        var ss = cur.getFolders(); while (ss.hasNext()) ss.next().moveTo(dup);
+        cur.setTrashed(true);
+        target = dup; merged = true;
+      } else {
+        cur.setName(newName);
+        if (!inParent) cur.moveTo(parent);
+      }
+    }
+    rec.driveFolderUrl = target.getUrl();
+    rec.driveFolderId  = target.getId();
+    return changed ? { from: oldName, to: newName, type: rec.type, merged: merged } : null;
+  } catch(e) { return { error: e.message }; }
+}
+
+// 對齊既有資料：id 有給只處理那一筆，沒給就全部掃一遍（編輯器也可直接執行）
+function syncAllRecordFolders(id) {
+  var folder = getFolder();
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  var changes = [];
+  try {
+    var idx = readIndex(folder) || { records: [], config: {} };
+    idx.records.forEach(function(rec) {
+      if (id && String(rec.id) !== String(id)) return;
+      var before = rec.driveFolderId;
+      var r = syncRecordFolder_(rec, rec);
+      if (r || rec.driveFolderId !== before) {
+        writeJson(folder, 'rec_' + rec.id + '.json', rec);
+        changes.push({ id: rec.id, number: rec.number, result: r });
+      }
+    });
+    if (changes.length) { idx.lastSync = new Date().toISOString(); writeJson(folder, '_index.json', idx); }
+  } finally { lock.releaseLock(); }
+  if (changes.length) updateReadableSheet();
+  Logger.log(JSON.stringify(changes));
+  return { ok: true, success: true, changes: changes };
 }
 
 
