@@ -1290,8 +1290,8 @@ function DashboardTab({ records, itemOptions, onFilterClick, onExport }) {
               <div style={{display:'flex',gap:20,marginTop:4}}>
                 <div><div style={{fontSize:11,color:'#d97706',fontWeight:700,marginBottom:2}}>3天內</div>
                   <div style={{fontFamily:'var(--num)',fontSize:32,fontWeight:900,color:near3Recs.length>0?'#ef4444':'#d97706',lineHeight:1}}>{near3Recs.length}</div></div>
-                <div><div style={{fontSize:11,color:'#92400e',fontWeight:700,marginBottom:2}}>7天內</div>
-                  <div style={{fontFamily:'var(--num)',fontSize:32,fontWeight:900,color:'#d97706',lineHeight:1}}>{near7Recs.length}</div></div>
+                <div><div style={{fontSize:11,color:'#92400e',fontWeight:700,marginBottom:2}}>4~7天</div>
+                  <div style={{fontFamily:'var(--num)',fontSize:32,fontWeight:900,color:'#d97706',lineHeight:1}}>{near7Recs.length-near3Recs.length}</div></div>
               </div>
               <div style={{marginTop:8,display:'flex',flexWrap:'wrap',gap:4}}>
                 {near7Recs.map(r=>(
