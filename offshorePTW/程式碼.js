@@ -1016,6 +1016,55 @@ var NotificationService = (function () {
     return { to: redir || 'paul.tong@nmdc-group.com', tag: '[TEST → ' + t + '] ' };
   }
 
+  /* ===== 合併寄信：同一個請求內「主旨＋內文＋附件」完全相同的信，合成一封、所有人放收件者 =====
+   * handleRequest_ / 排程進入點會 beginBatch() → 結束時 flushBatch()；不在批次中則立即寄出。
+   * 註：MailApp 額度算收件人數，合併不省額度，但寄件備份只會有一封。 */
+  var batch_ = null;
+  function beginBatch() {
+    if (batch_) return false;
+    batch_ = { groups: {}, order: [] };
+    return true;
+  }
+  function attachKey_(atts) {
+    if (!atts || !atts.length) return '';
+    return atts.map(function (b) {
+      try { return b.getName() + ':' + b.getBytes().length; } catch (e) { return String(b); }
+    }).join('|');
+  }
+  function sendMail_(mail, notifId) {
+    if (!batch_) {
+      MailApp.sendEmail(mail);
+      if (notifId) Repo.update('Notifications', notifId, { emailSent: true, emailSentAt: fmtDateTime_() }, 'system');
+      return;
+    }
+    var key = mail.subject + '\u0001' + mail.htmlBody + '\u0001' + attachKey_(mail.attachments);
+    var g = batch_.groups[key];
+    if (!g) { g = batch_.groups[key] = { mail: mail, to: [], seen: {}, notifIds: [] }; batch_.order.push(key); }
+    String(mail.to || '').split(',').forEach(function (t) {
+      t = t.trim(); var k = t.toLowerCase();
+      if (t && !g.seen[k]) { g.seen[k] = true; g.to.push(t); }
+    });
+    if (notifId) g.notifIds.push(notifId);
+  }
+  function flushBatch() {
+    var b = batch_; batch_ = null;
+    if (!b) return;
+    b.order.forEach(function (key) {
+      var g = b.groups[key];
+      try {
+        for (var i = 0; i < g.to.length; i += 50) {          // 單封上限 50 位收件者
+          var m = {}; for (var p in g.mail) m[p] = g.mail[p];
+          m.to = g.to.slice(i, i + 50).join(',');
+          MailApp.sendEmail(m);
+        }
+        var at = fmtDateTime_();
+        g.notifIds.forEach(function (id) {
+          Repo.update('Notifications', id, { emailSent: true, emailSentAt: at }, 'system');
+        });
+      } catch (e) { console.error('Batched email failed (' + g.to.join(',') + '): ' + e.message); }
+    });
+  }
+
   // attachments：選用，夾帶檔案（如關單文件 PDF）。有附件的信也要走同一個版型，
   // 不要另外用 MailApp 自己拼 HTML，否則收件匣裡會出現兩種長相的系統信。
   function push_(userId, type, ptwId, titleEn, titleZh, msgEn, msgZh, emailTo, attachments) {
@@ -1035,8 +1084,7 @@ var NotificationService = (function () {
           htmlBody: emailBody_(titleEn, titleZh, msgEn, msgZh, ptwId, type)
         };
         if (attachments && attachments.length) mail.attachments = attachments;
-        MailApp.sendEmail(mail);
-        Repo.update('Notifications', n.id, { emailSent: true, emailSentAt: fmtDateTime_() }, 'system');
+        sendMail_(mail, n.id);
       } catch (e) {
         console.error('Email send failed: ' + e.message);
       }
@@ -1395,7 +1443,7 @@ var NotificationService = (function () {
   /** 直接寄信到外部信箱（非系統使用者；核發通知清單用） */
   function emailRaw(email, titleEn, titleZh, msgEn, msgZh, ptwId, type) {
     try {
-      MailApp.sendEmail({
+      sendMail_({
         to: email,
         name: SENDER_NAME,
         subject: '[' + systemName_() + '] ' + titleEn + ' / ' + titleZh,
@@ -1548,11 +1596,12 @@ var NotificationService = (function () {
 
   function sendWeeklySummary(toEmails) {
     var sum = buildWeeklySummary();
-    var sent = 0;
-    (toEmails || []).forEach(function (e) {
-      try { MailApp.sendEmail({ to: e, name: SENDER_NAME, subject: sum.subject, htmlBody: sum.html }); sent++; }
-      catch (err) { console.error('weekly mail failed (' + e + '): ' + err.message); }
-    });
+    var sent = 0, list = toEmails || [];
+    for (var i = 0; i < list.length; i += 50) {   // 合併成一封，單封上限 50 位收件者
+      var chunk = list.slice(i, i + 50);
+      try { MailApp.sendEmail({ to: chunk.join(','), name: SENDER_NAME, subject: sum.subject, htmlBody: sum.html }); sent += chunk.length; }
+      catch (err) { console.error('weekly mail failed (' + chunk.join(',') + '): ' + err.message); }
+    }
     return { sent: sent, counts: sum.counts };
   }
 
@@ -1652,7 +1701,9 @@ var NotificationService = (function () {
     listMine: listMine,
     markRead: markRead,
     push: push_,
-    ptwLink: ptwLink_
+    ptwLink: ptwLink_,
+    beginBatch: beginBatch,
+    flushBatch: flushBatch
   };
 })();
 
@@ -9326,7 +9377,11 @@ var SchedulerService = (function () {
 })();
 
 /** trigger 進入點（頂層函式） */
-function scheduledScan() { SchedulerService.scanExpiry(); }
+function scheduledScan() {
+  var mailBatch = NotificationService.beginBatch();
+  try { SchedulerService.scanExpiry(); }
+  finally { if (mailBatch) NotificationService.flushBatch(); }
+}
 
 /* ============================== ReportService.gs ============================== */
 /**
@@ -10107,6 +10162,7 @@ function handleRequest_(req) {
   if (!table[action]) return err_('UNKNOWN_ACTION', 'Unknown action: ' + action, '未知的操作：' + action);
 
   var t0 = Date.now();
+  var mailBatch = NotificationService.beginBatch();   // 同一請求內相同的通知信合併成一封
   try {
     var user = null;
     if (!PUBLIC_ACTIONS[action]) {
@@ -10132,6 +10188,8 @@ function handleRequest_(req) {
     }
     errRes.serverMs = Date.now() - t0;
     return errRes;
+  } finally {
+    if (mailBatch) NotificationService.flushBatch();
   }
 }
 

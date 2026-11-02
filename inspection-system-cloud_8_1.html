@@ -239,6 +239,33 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     const same=rows.reduce((s,r,j)=>(j!==idx&&r.budget_item_id===bid)?s+(parseFloat(r.qty)||0):s,0);
     return other+same;
   };
+  /* ── 6.2 不可量化：依「累計工程進度」一次帶入全部細項 ──
+     本次比例 = 累計進度 × 預算數量 − 其他查驗表已請比例（不得為負、不得超過剩餘）；之後每列可再微調比例或金額 */
+  const lsItems=useMemo(()=>bi.filter(isLS).slice().sort((a,b)=>String(a.item_no).localeCompare(String(b.item_no),undefined,{numeric:true})),[bi]);
+  const[lsOpen,sLsOpen]=useState(false);const[lsPct,sLsPct]=useState('');
+  const usedOther=bid=>{const mine=rows.map(r=>r.row_id).filter(Boolean);
+    return ins.filter(i=>i.budget_item_id===bid&&!mine.includes(i.id)).reduce((s,i)=>s+(parseFloat(i.inspected_qty)||0),0)};
+  const lsBudget=lsItems.reduce((s,b)=>s+(parseFloat(b.budget_total)||0),0);
+  const lsPrevAmt=lsItems.reduce((s,b)=>s+usedOther(b.id)*(parseFloat(b.unit_price)||0),0);
+  const lsPrevP=lsBudget>0?lsPrevAmt/lsBudget:0;
+  const floor8=x=>Math.floor(x*1e8+1e-6)/1e8;
+  const applyLS=()=>{
+    const P=parseFloat(lsPct)/100;
+    if(isNaN(P)||P<0||P>1)return alert('累計工程進度請輸入 0 ~ 100 之間的數字');
+    const old={};rows.forEach(r=>{if(r.budget_item_id)old[r.budget_item_id]=r});
+    const add=[];let skip=0;
+    lsItems.forEach(b=>{const bq=parseFloat(b.budget_qty)||1,pv=usedOther(b.id);
+      const q=floor8(Math.max(0,Math.min(P*bq-pv,bq-pv)));
+      if(q<=0){skip++;return}
+      const o=old[b.id];add.push({row_id:o?.row_id||'',budget_item_id:b.id,qty:String(q),note:o?.note||''})});
+    if(!add.length)return alert('6.2 各細項累計已請比例都已達到或超過 '+(P*100).toFixed(1)+'%，本次沒有可請款的金額');
+    sRows(p=>{const keep=p.filter(r=>r.budget_item_id&&!isLS(bItem(r.budget_item_id)));return[...keep,...add]});
+    sLsOpen(false);
+    if(skip)alert('已帶入 '+add.length+' 個 6.2 細項；另有 '+skip+' 項之前已請到此進度，略過。');
+  };
+  /* LS 列的「比例 % / 金額」雙向輸入：正在打字的那格顯示原文，另一格即時換算 */
+  const lsEdit=(i,src,txt)=>{const r=rows[i],b=bItem(r.budget_item_id);const up=parseFloat(b?.unit_price)||0;const v=parseFloat(txt);
+    const q=isNaN(v)?'':String(src==='p'?v/100:(up>0?v/up:0));setRow(i,{qty:q,ed:{src,txt}})};
   const rowAmt=r=>{const b=bItem(r.budget_item_id);return b?(parseFloat(r.qty)||0)*(parseFloat(b.unit_price)||0):0};
   const total=rows.reduce((s,r)=>s+rowAmt(r),0);
   const names=rows.map(r=>bItem(r.budget_item_id)?.item_name_cn).filter(Boolean);
@@ -248,7 +275,7 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     if(isEdit&&!String(f.inspection_no||'').trim())return alert('編輯時必須保留查驗編號');
     if(!f.work_area)return alert('請選擇工區');
     if(!f.inspection_date)return alert('請輸入查驗日期');
-    const seen={};
+    const seen={},fix={};
     for(let i=0;i<rows.length;i++){
       const r=rows[i],b=bItem(r.budget_item_id),n='第 '+(i+1)+' 個項目';
       if(!r.budget_item_id)return alert(n+'尚未選擇預算項目');
@@ -257,10 +284,12 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
       const q=parseFloat(r.qty);
       if(isNaN(q)||q<=0)return alert(n+'的數量必須大於 0');
       const rem=(parseFloat(b.budget_qty)||0)-used(r.budget_item_id,i);
-      if(q>rem)return alert(n+'（'+b.item_name_cn+'）超過剩餘量，最多 '+(isLS(b)?fP(rem):fQty(rem)));
+      /* 6.2 用金額反算比例會有浮點尾差：超出不到 1e-6 視為剛好請滿 */
+      if(isLS(b)&&q>rem&&q<=rem+1e-6){fix[i]=Math.max(rem,0);continue}
+      if(q>rem+1e-9)return alert(n+'（'+b.item_name_cn+'）超過剩餘量，最多 '+(isLS(b)?fP(rem):fQty(rem)));
     }
     onOk({inspection_no:f.inspection_no,work_area:f.work_area,inspection_date:f.inspection_date,submit_date:f.submit_date,note:f.note,stage:f.stage,link_folder_url:f.link_folder_url,
-      items:rows.map(r=>({row_id:r.row_id||'',budget_item_id:r.budget_item_id,inspected_qty:parseFloat(r.qty),note:r.note||''})),attachments:files,links:lk.url.trim()?[...links,{url:lk.url.trim(),name:lk.name.trim()}]:links});
+      items:rows.map((r,i)=>({row_id:r.row_id||'',budget_item_id:r.budget_item_id,inspected_qty:i in fix?fix[i]:parseFloat(r.qty),note:r.note||''})),attachments:files,links:lk.url.trim()?[...links,{url:lk.url.trim(),name:lk.name.trim()}]:links});
   };
 
   return<div>
@@ -276,20 +305,57 @@ function Form({bi,ins,init,fixId,onOk,onNo,ld,api}){
     <div style={{marginBottom:16}}>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
         <label className="fl" style={{marginBottom:0}}>查驗項目（{rows.length} 項）</label>
-        <button className="bg" style={{fontSize:11,padding:'4px 12px'}} onClick={addRow}>＋ 新增項目</button>
+        <div style={{display:'flex',gap:6}}>
+          {lsItems.length>0&&<button className="bg" style={{fontSize:11,padding:'4px 12px',color:'var(--goldText)',borderColor:'rgba(201,162,39,.45)'}} onClick={()=>sLsOpen(v=>!v)}>＋ 6.2 不可量化（依工程進度）</button>}
+          <button className="bg" style={{fontSize:11,padding:'4px 12px'}} onClick={addRow}>＋ 新增項目</button>
+        </div>
       </div>
+      {lsOpen&&<div style={{background:'var(--goldBg)',border:'1px solid rgba(201,162,39,.4)',borderRadius:'var(--radius)',padding:'12px 14px',marginBottom:10}}>
+        <div style={{fontSize:12,fontWeight:700,color:'var(--goldText)',marginBottom:6}}>6.2 不可量化項目 — 依累計工程進度請款</div>
+        <div style={{fontSize:10.5,color:'var(--muted)',lineHeight:1.7,marginBottom:8}}>
+          共 {lsItems.length} 個細項，預算合計 <span className="mono">{fN(lsBudget)}</span>；其他查驗表已請 <span className="mono">{fN(lsPrevAmt)}</span>（加權 <span className="mono">{fP(lsPrevP)}</span>）<br/>
+          本次各細項比例 ＝ 累計進度 − 該細項已請比例；帶入後每列可再微調比例或金額。
+        </div>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <label className="fl" style={{marginBottom:0,whiteSpace:'nowrap'}}>累計工程進度</label>
+          <input type="number" step="any" min="0" max="100" value={lsPct} placeholder={(lsPrevP*100).toFixed(1)} autoFocus onChange={e=>sLsPct(e.target.value)} onKeyDown={e=>{if(e.key==='Enter')applyLS()}} style={{width:110,fontFamily:"'JetBrains Mono'"}}/>
+          <span style={{fontSize:13,color:'var(--muted)'}}>%</span>
+          {lsPct!==''&&!isNaN(parseFloat(lsPct))&&<span style={{fontSize:11,color:'var(--muted)'}}>預估本次 <span className="mono" style={{color:'var(--green)',fontWeight:700}}>{fN(lsItems.reduce((s,b)=>{const bq=parseFloat(b.budget_qty)||1,pv=usedOther(b.id);return s+Math.max(0,Math.min(parseFloat(lsPct)/100*bq-pv,bq-pv))*(parseFloat(b.unit_price)||0)},0))}</span></span>}
+          <button className="bp" style={{marginLeft:'auto',fontSize:11.5,padding:'6px 14px'}} onClick={applyLS}>帶入 6.2 各細項</button>
+        </div>
+        {rows.some(r=>r.budget_item_id&&isLS(bItem(r.budget_item_id)))&&<div style={{fontSize:10,color:'var(--muted2)',marginTop:6}}>※ 會取代本表目前已選的 6.2 細項</div>}
+      </div>}
       <div style={{display:'flex',flexDirection:'column',gap:8}}>
         {rows.map((r,i)=>{
           const b=bItem(r.budget_item_id);
           const rem=b?(parseFloat(b.budget_qty)||0)-used(r.budget_item_id,i):0;
-          const q=parseFloat(r.qty)||0;const over=b&&q>rem;
+          const q=parseFloat(r.qty)||0;const over=b&&q>rem+1e-6;
           return<div key={i} style={{background:'var(--card2)',border:'1px solid '+(over?'var(--red)':'var(--border)'),borderRadius:'var(--radius)',padding:'11px 12px'}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
               <span style={{width:22,height:22,flexShrink:0,borderRadius:6,background:'var(--accentBg)',color:'var(--accent)',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'JetBrains Mono'"}}>{i+1}</span>
-              <select value={r.budget_item_id} onChange={e=>setRow(i,{budget_item_id:e.target.value})} style={{fontSize:12.5}}><option value="">— 選擇預算項目 —</option>{bi.map(x=><option key={x.id} value={x.id}>{x.item_no} {x.item_name_cn}</option>)}</select>
+              <select value={r.budget_item_id} onChange={e=>setRow(i,{budget_item_id:e.target.value,ed:null})} style={{fontSize:12.5}}><option value="">— 選擇預算項目 —</option>{bi.map(x=><option key={x.id} value={x.id}>{x.item_no} {x.item_name_cn}</option>)}</select>
               {rows.length>1&&<button onClick={()=>delRow(i)} title="移除此項目" style={{flexShrink:0,background:'none',border:'none',color:'var(--muted2)',fontSize:15,padding:'0 2px'}}>✕</button>}
             </div>
-            {b&&<div style={{display:'grid',gridTemplateColumns:'1.1fr 1fr 1.4fr',gap:8,alignItems:'end'}}>
+            {b&&isLS(b)&&(()=>{const ed=r.ed||{};const pv=usedOther(r.budget_item_id),bq=parseFloat(b.budget_qty)||1;
+              const pTxt=ed.src==='p'?ed.txt:(r.qty===''?'':String(+(q*100).toFixed(4)));
+              const aTxt=ed.src==='a'?ed.txt:(r.qty===''?'':String(Math.round(rowAmt(r))));
+              const blur=()=>setRow(i,{ed:null});
+              return<div style={{display:'grid',gridTemplateColumns:'1fr 1.2fr 1.3fr',gap:8,alignItems:'end'}}>
+                <div>
+                  <label className="fl" style={{fontSize:9.5}}>本次請款比例 (%) *</label>
+                  <input type="number" step="any" min="0" value={pTxt} placeholder="0" onChange={e=>lsEdit(i,'p',e.target.value)} onBlur={blur} style={{fontFamily:"'JetBrains Mono'",borderColor:over?'var(--red)':undefined}}/>
+                </div>
+                <div>
+                  <label className="fl" style={{fontSize:9.5}}>本次金額 (NT$)</label>
+                  <input type="number" step="1" min="0" value={aTxt} placeholder="0" onChange={e=>lsEdit(i,'a',e.target.value)} onBlur={blur} style={{fontFamily:"'JetBrains Mono'",borderColor:over?'var(--red)':undefined}}/>
+                </div>
+                <div style={{fontSize:10.5,lineHeight:1.7,paddingBottom:4,textAlign:'right'}}>
+                  <div style={{color:'var(--muted)'}}>預算 <span className="mono">{fmt(b.budget_total)}</span></div>
+                  <div style={{color:'var(--muted)'}}>累計 <span className="mono">{fP(pv/bq)}</span> → <span className="mono" style={{color:'var(--green)',fontWeight:700}}>{fP((pv+q)/bq)}</span></div>
+                  <div style={{color:over?'var(--red)':'var(--rest)'}}>剩餘 <span className="mono">{fP(rem)}</span>{over&&' ⚠ 超過'}</div>
+                </div>
+              </div>})()}
+            {b&&!isLS(b)&&<div style={{display:'grid',gridTemplateColumns:'1.1fr 1fr 1.4fr',gap:8,alignItems:'end'}}>
               <div>
                 <label className="fl" style={{fontSize:9.5}}>{isLS(b)?'請款比例（0~1）*':'數量 ('+b.unit+') *'}</label>
                 <input type="number" step="any" min="0" value={r.qty} placeholder="0" onChange={e=>setRow(i,{qty:e.target.value})} style={{fontFamily:"'JetBrains Mono'",borderColor:over?'var(--red)':undefined}}/>
