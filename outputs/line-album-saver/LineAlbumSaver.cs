@@ -253,27 +253,32 @@ namespace LineAlbumSaver {
             log("開始：從目前捲軸位置往下逐本處理。螢幕縮放 " + (int)(scale * 100) + "%。");
 
             var done = new List<double>(); int no = 0, noMove = 0; bool first = true;
+            // 一般相簿卡片的高度。最後一本下方多一段空白，卡片會比較高，名稱位置要從頂端算。
+            int cardH = int.MaxValue; double small = SmallChange(bar);
+            if (small * scale >= 150 * scale) cardH = (int)Math.Round(small * scale);
             while (true) {
                 Check();
                 if (!N.IsWindow(overview)) throw new Exception("相簿總覽視窗被關掉了。");
                 var lr = Ui.R(list); double max; double v = ScrollValue(bar, out max);
                 var items = new List<AutomationElement>();
                 foreach (AutomationElement it in list.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem))) items.Add(it);
-                AutomationElement next = null; Rectangle nextBand = Rectangle.Empty; double nextAbs = 0;
+                AutomationElement next = null; Rectangle nextBand = Rectangle.Empty, nextCard = Rectangle.Empty; double nextAbs = 0;
+                foreach (var it in items) { int h = Ui.R(it).Height; if (h >= 150 * scale && h < cardH) cardH = h; }
                 foreach (var it in items.OrderBy(i => Ui.R(i).Top)) {
                     var r = Ui.R(it); if (r.Height < 100 * scale) continue;
                     double abs = v + (r.Top - lr.Top) / scale;
                     if (done.Any(d => Math.Abs(d - abs) < 30)) continue;
-                    var band = NameBand(r);
+                    var card = new Rectangle(r.X, r.Y, r.Width, Math.Min(r.Height, cardH));
+                    var band = NameBand(card);
                     if (band.Top < lr.Top) { if (first) done.Add(abs); continue; } // 名稱已經捲到上面看不到：屬於「目前位置之前」
                     if (band.Bottom > lr.Bottom) break; // 名稱還沒完整出現，先往下捲
-                    next = it; nextBand = band; nextAbs = abs; break;
+                    next = it; nextBand = band; nextCard = card; nextAbs = abs; break;
                 }
                 first = false;
                 if (next != null) {
                     done.Add(nextAbs); no++;
                     var row = new AlbumRow { No = no };
-                    try { DoAlbum(win, overview, nextBand, Ui.R(next), dest, row); }
+                    try { DoAlbum(win, overview, nextBand, nextCard, dest, row); }
                     catch (OperationCanceledException) { row.Status = "已停止"; report(row); throw; }
                     catch (Exception ex) { row.Status = "失敗：" + ex.Message; log("第 " + no + " 本失敗：" + ex.Message); CloseStray(); }
                     report(row);
@@ -290,12 +295,15 @@ namespace LineAlbumSaver {
             }
         }
 
-        // 相簿卡片下緣的名稱＋張數區（避開右邊的 ⋮）。
+        // 相簿卡片下緣的名稱＋張數區（避開右邊的 ⋮）。item 要傳「一般卡片高度」裁過的矩形。
         Rectangle NameBand(Rectangle item) {
             int h = (int)(56 * scale);
             return new Rectangle(item.Left + (int)(8 * scale), item.Bottom - h, item.Width - (int)(60 * scale), h - (int)(2 * scale));
         }
 
+        static double SmallChange(AutomationElement bar) {
+            try { object p; if (bar == null || !bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out p)) return 0; return ((RangeValuePattern)p).Current.SmallChange; } catch { return 0; }
+        }
         static double ScrollValue(AutomationElement bar, out double max) {
             max = 0; if (bar == null) return 0;
             object p; if (!bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out p)) return 0;
@@ -457,82 +465,279 @@ namespace LineAlbumSaver {
         }
     }
 
+    static class Theme {
+        public static readonly Color Page = Color.FromArgb(8, 18, 28), Card = Color.FromArgb(13, 29, 43), Field = Color.FromArgb(9, 21, 32),
+            Border = Color.FromArgb(31, 58, 80), BorderHi = Color.FromArgb(46, 197, 255), Text = Color.FromArgb(226, 238, 244), Muted = Color.FromArgb(128, 156, 174),
+            Green = Color.FromArgb(6, 199, 85), GreenHi = Color.FromArgb(25, 224, 122), Cyan = Color.FromArgb(46, 197, 255), Amber = Color.FromArgb(255, 184, 64), Red = Color.FromArgb(255, 96, 88),
+            OkBg = Color.FromArgb(12, 48, 36), BadBg = Color.FromArgb(56, 24, 28), SkipBg = Color.FromArgb(20, 36, 50), RunBg = Color.FromArgb(48, 40, 16);
+        public static System.Drawing.Drawing2D.GraphicsPath Round(RectangleF r, float rad) {
+            var p = new System.Drawing.Drawing2D.GraphicsPath(); float d = rad * 2;
+            if (d <= 0) { p.AddRectangle(r); return p; }
+            p.AddArc(r.X, r.Y, d, d, 180, 90); p.AddArc(r.Right - d, r.Y, d, d, 270, 90); p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90); p.AddArc(r.X, r.Bottom - d, d, d, 90, 90); p.CloseFigure();
+            return p;
+        }
+        public static Bitmap Resource(string name) {
+            using (var s = typeof(Theme).Assembly.GetManifestResourceStream(name)) return s == null ? null : new Bitmap(s);
+        }
+        // NMDC 標誌原圖是白底深藍字：白底轉透明、深藍轉白色、綠色保留，放在深色標題列上。
+        public static Bitmap LogoForDark(Bitmap src) {
+            if (src == null) return null;
+            var dst = new Bitmap(src.Width, src.Height, PixelFormat.Format32bppArgb);
+            for (int y = 0; y < src.Height; y++) for (int x = 0; x < src.Width; x++) {
+                var c = src.GetPixel(x, y);
+                int min = Math.Min(c.R, Math.Min(c.G, c.B));
+                int a = 255 - min; if (a < 24) { dst.SetPixel(x, y, Color.Transparent); continue; }
+                bool green = c.G > c.R + 40 && c.G > c.B + 20;
+                dst.SetPixel(x, y, green ? Color.FromArgb(Math.Min(255, a * 2), 30, 210, 90) : Color.FromArgb(Math.Min(255, (int)(a * 1.15)), 255, 255, 255));
+            }
+            return dst;
+        }
+    }
+
+    sealed class Btn : Button {
+        public bool Primary, Danger; bool hover, down;
+        public Btn() {
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.SupportsTransparentBackColor, true);
+            FlatStyle = FlatStyle.Flat; FlatAppearance.BorderSize = 0; Cursor = Cursors.Hand; BackColor = Color.Transparent;
+        }
+        protected override void OnMouseEnter(EventArgs e) { hover = true; Invalidate(); base.OnMouseEnter(e); }
+        protected override void OnMouseLeave(EventArgs e) { hover = down = false; Invalidate(); base.OnMouseLeave(e); }
+        protected override void OnMouseDown(MouseEventArgs e) { down = true; Invalidate(); base.OnMouseDown(e); }
+        protected override void OnMouseUp(MouseEventArgs e) { down = false; Invalidate(); base.OnMouseUp(e); }
+        protected override void OnEnabledChanged(EventArgs e) { Invalidate(); base.OnEnabledChanged(e); }
+        protected override void OnPaint(PaintEventArgs e) {
+            var g = e.Graphics; g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.Clear(Parent != null ? Parent.BackColor : Theme.Card);
+            var r = new RectangleF(0.5f, 0.5f, Width - 1.5f, Height - 1.5f); float rad = Height * 0.18f;
+            Color fill, border, fore;
+            if (!Enabled) { fill = Color.FromArgb(18, 34, 48); border = Color.FromArgb(30, 50, 66); fore = Color.FromArgb(70, 92, 108); }
+            else if (Primary) { fill = down ? Color.FromArgb(4, 160, 68) : hover ? Theme.GreenHi : Theme.Green; border = fill; fore = Color.FromArgb(4, 22, 12); }
+            else if (Danger) { fill = hover ? Color.FromArgb(70, 26, 28) : Color.FromArgb(40, 20, 24); border = Theme.Red; fore = Theme.Red; }
+            else { fill = hover ? Color.FromArgb(20, 48, 68) : Theme.Field; border = hover ? Theme.Cyan : Theme.Border; fore = Theme.Text; }
+            using (var path = Theme.Round(r, rad)) {
+                if (Primary && Enabled) using (var glow = new Pen(Color.FromArgb(hover ? 90 : 50, Theme.GreenHi), 3f)) g.DrawPath(glow, path);
+                using (var b = new SolidBrush(fill)) g.FillPath(b, path);
+                using (var p = new Pen(border)) g.DrawPath(p, path);
+            }
+            TextRenderer.DrawText(g, Text, Font, Rectangle.Round(r), fore, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+        }
+    }
+
     sealed class MainForm : Form {
-        readonly ComboBox windows = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill };
-        readonly Button refresh = new Button { Text = "重新整理" };
-        readonly TextBox dest = new TextBox { Dock = DockStyle.Fill, ReadOnly = true };
-        readonly Button browse = new Button { Text = "選擇資料夾" };
-        readonly Button start = new Button { Text = "▼ 逐步往下掃描並儲存" };
-        readonly Button stop = new Button { Text = "停止 (F8)", Enabled = false };
-        readonly Button recheck = new Button { Text = "重新核對張數" };
-        readonly NumericUpDown timeout = new NumericUpDown { Minimum = 60, Maximum = 7200, Value = 600, Increment = 60, Width = 80 };
-        readonly Label hint = new Label { AutoSize = true, ForeColor = Color.FromArgb(90, 98, 110) };
-        readonly DataGridView grid = new DataGridView { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false, AllowUserToDeleteRows = false, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect, BackgroundColor = Color.White, BorderStyle = BorderStyle.None, AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill };
-        readonly TextBox logBox = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, BackColor = Color.FromArgb(247, 248, 250), BorderStyle = BorderStyle.None };
-        readonly Label summary = new Label { Dock = DockStyle.Fill, TextAlign = ContentAlignment.MiddleLeft, Font = new Font("Microsoft JhengHei UI", 10f, FontStyle.Bold) };
+        static readonly string Settings = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LineAlbumSaver.txt");
+        public static bool PreviewMode;
+
+        readonly float S;
+        readonly Bitmap nmdcLogo, lineLogo;
+        readonly ComboBox windows = new ComboBox { DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, FlatStyle = FlatStyle.Flat, DrawMode = DrawMode.OwnerDrawFixed };
+        readonly TextBox dest = new TextBox { Dock = DockStyle.Fill, ReadOnly = true, BorderStyle = BorderStyle.None };
+        readonly Btn refresh, browse, start, stop, recheck, openDir;
+        readonly NumericUpDown timeout = new NumericUpDown { Minimum = 60, Maximum = 7200, Value = 600, Increment = 60, TextAlign = HorizontalAlignment.Center, BorderStyle = BorderStyle.None };
+        readonly Label hint = new Label { AutoSize = true };
+        readonly Label chipAll, chipOk, chipSkip, chipBad;
+        readonly DataGridView grid = new DataGridView();
+        readonly TextBox logBox = new TextBox { Dock = DockStyle.Fill, Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, BorderStyle = BorderStyle.None };
+        readonly Panel header = new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) };
+        readonly ToolTip tips = new ToolTip();
         readonly List<AlbumRow> rows = new List<AlbumRow>();
         Ocr ocr; CancellationTokenSource cts; bool busy;
-        static readonly Color Green = Color.FromArgb(6, 199, 85);
-        static readonly string Settings = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LineAlbumSaver.txt");
+
+        int P(float v) { return (int)Math.Round(v * S); }
 
         public MainForm() {
-            Text = "LINE 相簿批次儲存"; Font = new Font("Microsoft JhengHei UI", 9.5f); AutoScaleMode = AutoScaleMode.Dpi;
-            ClientSize = new Size(820, 640); MinimumSize = new Size(640, 480); BackColor = Color.White; StartPosition = FormStartPosition.Manual;
-            var wa = Screen.PrimaryScreen.WorkingArea; Location = new Point(Math.Max(wa.Left, wa.Right - Width - 10), wa.Top + 10);
+            AutoScaleMode = AutoScaleMode.None; DoubleBuffered = true;
+            using (var g = CreateGraphics()) S = g.DpiX / 96f;
+            Font = new Font("Microsoft JhengHei UI", 9f); Text = "LINE 相簿批次儲存 · NMDC"; BackColor = Theme.Page; ForeColor = Theme.Text;
+            nmdcLogo = Theme.LogoForDark(Theme.Resource("nmdc.jpg")); lineLogo = Theme.Resource("line.png");
+            if (lineLogo != null) try { Icon = Icon.FromHandle(new Bitmap(lineLogo, 32, 32).GetHicon()); } catch { }
+            ClientSize = new Size(P(760), P(600)); MinimumSize = new Size(P(680), P(580));
+            StartPosition = FormStartPosition.Manual;
+            var wa = Screen.PrimaryScreen.WorkingArea;
+            Location = new Point(Math.Max(wa.Left, wa.Right - Width - P(12)), Math.Max(wa.Top, wa.Top + (wa.Height - Height) / 2));
 
-            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, Padding = new Padding(14) };
+            refresh = MakeButton("⟳  重新整理"); browse = MakeButton("選擇資料夾");
+            start = MakeButton("▶  逐步往下掃描並儲存"); start.Primary = true; start.Font = new Font(Font.FontFamily, 9.75f, FontStyle.Bold); start.Padding = new Padding(P(14), P(5), P(14), P(5));
+            stop = MakeButton("■  停止  F8"); stop.Danger = true; stop.Enabled = false;
+            recheck = MakeButton("✓  重新核對"); openDir = MakeButton("開啟資料夾");
+            chipAll = Chip(Theme.Text, Color.FromArgb(22, 42, 58)); chipOk = Chip(Theme.GreenHi, Theme.OkBg); chipSkip = Chip(Theme.Muted, Theme.SkipBg); chipBad = Chip(Theme.Red, Theme.BadBg);
+
+            var root = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 4, Margin = new Padding(0), BackColor = Theme.Page };
+            root.RowStyles.Add(new RowStyle(SizeType.Absolute, P(70)));
             root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            root.RowStyles.Add(new RowStyle(SizeType.Absolute, 34));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 62));
-            root.RowStyles.Add(new RowStyle(SizeType.Percent, 38));
+            root.RowStyles.Add(new RowStyle(SizeType.Percent, 64));
+            root.RowStyles.Add(new RowStyle(SizeType.Percent, 36));
             Controls.Add(root);
 
-            root.Controls.Add(Line("① LINE 視窗", windows, refresh));
-            root.Controls.Add(Line("② 儲存資料夾", dest, browse));
-            var actions = new FlowLayoutPanel { AutoSize = true, Dock = DockStyle.Fill, WrapContents = true, Margin = new Padding(0, 6, 0, 4) };
-            foreach (var b in new[] { start, stop, recheck }) { b.AutoSize = true; b.Padding = new Padding(10, 4, 10, 4); b.FlatStyle = FlatStyle.Flat; b.Margin = new Padding(0, 0, 8, 0); actions.Controls.Add(b); }
-            start.BackColor = Green; start.ForeColor = Color.White; start.FlatAppearance.BorderSize = 0; start.Font = new Font(Font, FontStyle.Bold);
-            stop.FlatAppearance.BorderColor = Color.FromArgb(200, 80, 80); recheck.FlatAppearance.BorderColor = Color.Silver;
-            actions.Controls.Add(new Label { Text = "每本最長等待(秒)", AutoSize = true, Margin = new Padding(12, 8, 4, 0) });
-            actions.Controls.Add(timeout);
-            root.Controls.Add(actions);
-            hint.Text = "先在 LINE 打開群組的「相簿」總覽，捲到要開始的位置。執行中請勿動滑鼠，按 F8 可隨時停止。";
-            hint.Margin = new Padding(0, 0, 0, 6);
-            root.Controls.Add(hint);
-            root.Controls.Add(summary);
+            header.Paint += PaintHeader; header.Resize += (s, e) => header.Invalidate();
+            typeof(Panel).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).SetValue(header, true, null);
+            root.Controls.Add(header, 0, 0);
 
-            grid.Columns.Add("no", "#"); grid.Columns.Add("name", "相簿名稱"); grid.Columns.Add("exp", "應有"); grid.Columns.Add("act", "實際"); grid.Columns.Add("st", "狀態"); grid.Columns.Add("dir", "資料夾");
-            grid.Columns[0].FillWeight = 8; grid.Columns[1].FillWeight = 40; grid.Columns[2].FillWeight = 10; grid.Columns[3].FillWeight = 10; grid.Columns[4].FillWeight = 28; grid.Columns[5].FillWeight = 40;
-            grid.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(240, 244, 242); grid.EnableHeadersVisualStyles = false;
-            grid.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0 && e.RowIndex < rows.Count && Directory.Exists(rows[e.RowIndex].Folder)) Process.Start("explorer.exe", "\"" + rows[e.RowIndex].Folder + "\""); };
-            root.Controls.Add(grid);
-            root.Controls.Add(logBox);
+            // 設定
+            var form = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 3, Margin = new Padding(0), BackColor = Theme.Card };
+            form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize)); form.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); form.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            windows.ItemHeight = P(20); windows.BackColor = Theme.Field; windows.ForeColor = Theme.Text; windows.DrawItem += DrawWindowItem;
+            dest.BackColor = Theme.Field; dest.ForeColor = Theme.Text;
+            form.Controls.Add(FieldLabel("LINE 視窗"), 0, 0); form.Controls.Add(Field(windows, windows.ItemHeight + P(6)), 1, 0); form.Controls.Add(refresh, 2, 0);
+            form.Controls.Add(FieldLabel("儲存位置"), 0, 1); form.Controls.Add(Field(dest, dest.PreferredHeight), 1, 1); form.Controls.Add(browse, 2, 1);
 
+            var actions = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 5, Margin = new Padding(0, P(6), 0, 0), BackColor = Theme.Card };
+            for (int i = 0; i < 5; i++) actions.ColumnStyles.Add(i == 3 ? new ColumnStyle(SizeType.Percent, 100) : new ColumnStyle(SizeType.AutoSize));
+            actions.Controls.Add(start, 0, 0); actions.Controls.Add(stop, 1, 0); actions.Controls.Add(recheck, 2, 0);
+            var wait = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Anchor = AnchorStyles.Right, Margin = new Padding(0), BackColor = Theme.Card };
+            wait.Controls.Add(new Label { Text = "每本上限", AutoSize = true, ForeColor = Theme.Muted, Margin = new Padding(0, P(8), P(6), 0) });
+            timeout.BackColor = Theme.Field; timeout.ForeColor = Theme.Text; timeout.Width = P(60);
+            var tf = Field(timeout, timeout.PreferredHeight); tf.Width = P(78); tf.Dock = DockStyle.None; tf.Margin = new Padding(0, P(3), P(5), 0); wait.Controls.Add(tf);
+            wait.Controls.Add(new Label { Text = "秒", AutoSize = true, ForeColor = Theme.Muted, Margin = new Padding(0, P(8), 0, 0) });
+            actions.Controls.Add(wait, 4, 0);
+            hint.Margin = new Padding(P(1), P(7), 0, 0); hint.ForeColor = Theme.Muted;
+
+            var setup = CardTable("設定", "SETUP");
+            setup.Controls.Add(form); setup.Controls.Add(actions); setup.Controls.Add(hint);
+            setup.Margin = new Padding(P(12), P(10), P(12), P(5));
+            root.Controls.Add(setup, 0, 1);
+
+            // 下載結果
+            var result = CardTable("下載結果", "RESULTS"); result.Dock = DockStyle.Fill; result.AutoSize = false; result.Margin = new Padding(P(12), P(5), P(12), P(5));
+            var chips = new FlowLayoutPanel { AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = false, Anchor = AnchorStyles.Left, Margin = new Padding(0), BackColor = Theme.Card };
+            chips.Controls.Add(chipAll); chips.Controls.Add(chipOk); chips.Controls.Add(chipSkip); chips.Controls.Add(chipBad);
+            var bar = new TableLayoutPanel { Dock = DockStyle.Top, AutoSize = true, ColumnCount = 2, Margin = new Padding(0, 0, 0, P(6)), BackColor = Theme.Card };
+            bar.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); bar.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+            openDir.Anchor = AnchorStyles.Right; openDir.Margin = new Padding(0);
+            bar.Controls.Add(chips, 0, 0); bar.Controls.Add(openDir, 1, 0);
+            result.Controls.Add(bar);
+            SetupGrid();
+            var gridHost = new Panel { Dock = DockStyle.Fill, Padding = new Padding(1), BackColor = Theme.Border, Margin = new Padding(0) };
+            gridHost.Controls.Add(grid);
+            result.RowStyles.Add(new RowStyle(SizeType.AutoSize)); result.RowStyles.Add(new RowStyle(SizeType.AutoSize)); result.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            result.Controls.Add(gridHost);
+            root.Controls.Add(result, 0, 2);
+
+            // 執行紀錄
+            var logCard = CardTable("執行紀錄", "CONSOLE"); logCard.Dock = DockStyle.Fill; logCard.AutoSize = false; logCard.Margin = new Padding(P(12), P(5), P(12), P(12));
+            logBox.BackColor = Theme.Field; logBox.ForeColor = Color.FromArgb(150, 230, 190); logBox.Font = new Font("Consolas", 9f);
+            var logHost = new Panel { Dock = DockStyle.Fill, Padding = new Padding(P(8), P(6), P(4), P(6)), BackColor = Theme.Field, Margin = new Padding(0) };
+            logHost.Paint += (s, e) => { using (var p = new Pen(Theme.Border)) e.Graphics.DrawRectangle(p, 0, 0, logHost.Width - 1, logHost.Height - 1); };
+            logHost.Controls.Add(logBox);
+            logCard.RowStyles.Add(new RowStyle(SizeType.AutoSize)); logCard.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
+            logCard.Controls.Add(logHost);
+            root.Controls.Add(logCard, 0, 3);
+
+            Resize += (s, e) => FitHint();
             refresh.Click += (s, e) => RefreshWindows();
             browse.Click += (s, e) => {
                 using (var d = new FolderBrowserDialog { Description = "選擇相簿要存放的資料夾（每本相簿會建一個子資料夾）", ShowNewFolderButton = true, SelectedPath = dest.Text })
-                    if (d.ShowDialog(this) == DialogResult.OK) { dest.Text = d.SelectedPath; try { File.WriteAllText(Settings, d.SelectedPath, Encoding.UTF8); } catch { } }
+                    if (d.ShowDialog(this) == DialogResult.OK) { SetDest(d.SelectedPath); try { File.WriteAllText(Settings, d.SelectedPath, Encoding.UTF8); } catch { } }
             };
+            openDir.Click += (s, e) => { if (Directory.Exists(dest.Text)) Process.Start("explorer.exe", "\"" + dest.Text + "\""); };
             windows.SelectedIndexChanged += (s, e) => UpdateButtons();
             start.Click += (s, e) => Start();
             stop.Click += (s, e) => { if (cts != null) { cts.Cancel(); Log("收到停止指令，處理完目前動作後停止。"); } };
             recheck.Click += (s, e) => Recheck();
-            try { if (File.Exists(Settings)) dest.Text = File.ReadAllText(Settings, Encoding.UTF8).Trim(); } catch { }
-            Shown += (s, e) => { N.RegisterHotKey(Handle, 1, 0, (uint)Keys.F8); RefreshWindows(); };
+            try { if (File.Exists(Settings)) SetDest(File.ReadAllText(Settings, Encoding.UTF8).Trim()); } catch { }
+            Shown += (s, e) => { FitHint(); if (PreviewMode) return; N.RegisterHotKey(Handle, 1, 0, (uint)Keys.F8); RefreshWindows(); };
             FormClosed += (s, e) => N.UnregisterHotKey(Handle, 1);
+            UpdateSummary(); UpdateButtons();
         }
 
-        Control Line(string label, Control main, Button side) {
-            var p = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 3, AutoSize = true, Margin = new Padding(0, 2, 0, 2) };
-            p.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 104)); p.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100)); p.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
-            p.Controls.Add(new Label { Text = label, AutoSize = true, Anchor = AnchorStyles.Left, Font = new Font(Font, FontStyle.Bold) }, 0, 0);
-            main.Margin = new Padding(0, 3, 8, 3); p.Controls.Add(main, 1, 0);
-            side.AutoSize = true; side.FlatStyle = FlatStyle.Flat; side.FlatAppearance.BorderColor = Color.Silver; p.Controls.Add(side, 2, 0);
-            return p;
+        void PaintHeader(object sender, PaintEventArgs e) {
+            var g = e.Graphics; var r = header.ClientRectangle; if (r.Width < 4) return;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias; g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            using (var b = new System.Drawing.Drawing2D.LinearGradientBrush(r, Color.FromArgb(5, 14, 22), Color.FromArgb(10, 38, 58), 0f)) g.FillRectangle(b, r);
+            // 淡淡的網格與光暈
+            using (var p = new Pen(Color.FromArgb(14, 46, 197, 255))) { int step = P(18); for (int x = 0; x < r.Width; x += step) g.DrawLine(p, x, 0, x, r.Height); for (int y = 0; y < r.Height; y += step) g.DrawLine(p, 0, y, r.Width, y); }
+            using (var path = new System.Drawing.Drawing2D.GraphicsPath()) {
+                var glow = new RectangleF(r.Width * 0.55f, -r.Height * 1.2f, r.Width * 0.6f, r.Height * 3f); path.AddEllipse(glow);
+                using (var pb = new System.Drawing.Drawing2D.PathGradientBrush(path) { CenterColor = Color.FromArgb(46, 6, 199, 85), SurroundColors = new[] { Color.FromArgb(0, 6, 199, 85) } }) g.FillPath(pb, path);
+            }
+            using (var lb = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, r.Height - P(2), r.Width, P(2)), Theme.Green, Theme.Cyan, 0f)) g.FillRectangle(lb, 0, r.Height - P(2), r.Width, P(2));
+
+            int x0 = P(18), cy = r.Height / 2;
+            if (nmdcLogo != null) { int h = P(30), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(16); }
+            using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(18), x0, cy + P(18));
+            x0 += P(16);
+            if (lineLogo != null) { int h = P(36); g.DrawImage(lineLogo, x0, cy - h / 2, h, h); x0 += h + P(12); }
+            using (var f1 = new Font(Font.FontFamily, 13f, FontStyle.Bold)) using (var f2 = new Font("Consolas", 8f))
+            using (var w1 = new SolidBrush(Color.White)) using (var w2 = new SolidBrush(Color.FromArgb(120, 200, 230))) {
+                g.DrawString("LINE 相簿批次儲存", f1, w1, x0 - P(3), cy - P(22));
+                g.DrawString("ALBUM BATCH SAVER  //  LOCAL OCR  //  OFFLINE", f2, w2, x0, cy + P(5));
+            }
+            // 右側狀態燈
+            string st = busy ? "RUNNING" : "READY"; Color sc = busy ? Theme.Amber : Theme.GreenHi;
+            using (var f = new Font("Consolas", 8.5f, FontStyle.Bold)) {
+                var sz = g.MeasureString(st, f); float pw = sz.Width + P(30), ph = P(24), px = r.Width - pw - P(18), py = cy - ph / 2;
+                using (var path = Theme.Round(new RectangleF(px, py, pw, ph), ph / 2)) {
+                    using (var b = new SolidBrush(Color.FromArgb(40, sc))) g.FillPath(b, path);
+                    using (var p = new Pen(Color.FromArgb(150, sc))) g.DrawPath(p, path);
+                }
+                using (var b = new SolidBrush(Color.FromArgb(70, sc))) g.FillEllipse(b, px + P(8), cy - P(6), P(12), P(12));
+                using (var b = new SolidBrush(sc)) { g.FillEllipse(b, px + P(11), cy - P(3), P(6), P(6)); g.DrawString(st, f, b, px + P(22), cy - sz.Height / 2); }
+            }
         }
+
+        Btn MakeButton(string text) {
+            return new Btn { Text = text, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, Padding = new Padding(P(10), P(4), P(10), P(4)), Margin = new Padding(0, P(3), P(8), P(3)), ForeColor = Theme.Text };
+        }
+        // 卡片：圓角深色底＋標題列（中文＋英文小字）。內容依序往下排。
+        TableLayoutPanel CardTable(string title, string en) {
+            var t = new TableLayoutPanel { Dock = DockStyle.Fill, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, ColumnCount = 1, BackColor = Theme.Card, Padding = new Padding(P(14), P(10), P(14), P(12)) };
+            t.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+            t.Paint += (s, e) => {
+                e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                using (var p = new Pen(Theme.Border)) e.Graphics.DrawRectangle(p, 0, 0, t.Width - 1, t.Height - 1);
+                using (var b = new SolidBrush(Theme.Green)) e.Graphics.FillRectangle(b, 0, P(12), P(3), P(16));
+            };
+            t.Resize += (s, e) => t.Invalidate();
+            var head = new FlowLayoutPanel { AutoSize = true, WrapContents = false, Margin = new Padding(0, 0, 0, P(6)), BackColor = Theme.Card };
+            head.Controls.Add(new Label { Text = title, AutoSize = true, ForeColor = Theme.Text, Font = new Font(Font.FontFamily, 10f, FontStyle.Bold), Margin = new Padding(0) });
+            head.Controls.Add(new Label { Text = en, AutoSize = true, ForeColor = Color.FromArgb(70, 130, 160), Font = new Font("Consolas", 8f, FontStyle.Bold), Margin = new Padding(P(6), P(4), 0, 0) });
+            t.Controls.Add(head);
+            return t;
+        }
+        Panel Field(Control c, int innerHeight) {
+            var p = new Panel { Height = innerHeight + P(12), Dock = DockStyle.Fill, BackColor = Theme.Field, Padding = new Padding(P(8), P(6), P(6), P(6)), Margin = new Padding(0, P(4), P(8), P(4)) };
+            bool focus = false;
+            p.Paint += (s, e) => { using (var pen = new Pen(focus ? Theme.Cyan : Theme.Border)) e.Graphics.DrawRectangle(pen, 0, 0, p.Width - 1, p.Height - 1); };
+            c.GotFocus += (s, e) => { focus = true; p.Invalidate(); }; c.LostFocus += (s, e) => { focus = false; p.Invalidate(); };
+            p.Resize += (s, e) => p.Invalidate();
+            p.Controls.Add(c); return p;
+        }
+        Label FieldLabel(string text) { return new Label { Text = text, AutoSize = true, Anchor = AnchorStyles.Left, ForeColor = Theme.Muted, Margin = new Padding(0, 0, P(12), 0) }; }
+        Label Chip(Color fg, Color bg) { return new Label { AutoSize = true, BackColor = bg, ForeColor = fg, Padding = new Padding(P(8), P(3), P(8), P(3)), Margin = new Padding(0, P(2), P(6), P(2)), Font = new Font(Font, FontStyle.Bold) }; }
+
+        void DrawWindowItem(object sender, DrawItemEventArgs e) {
+            bool edit = (e.State & DrawItemState.ComboBoxEdit) != 0, sel = (e.State & DrawItemState.Selected) != 0 && !edit;
+            using (var b = new SolidBrush(sel ? Color.FromArgb(18, 60, 80) : Theme.Field)) e.Graphics.FillRectangle(b, e.Bounds);
+            if (e.Index < 0) return;
+            var w = windows.Items[e.Index] as LineWindow;
+            Color fc = w != null && w.IsOverview ? Theme.Text : Theme.Muted;
+            var rect = new Rectangle(e.Bounds.X + P(4), e.Bounds.Y, e.Bounds.Width - P(4), e.Bounds.Height);
+            if (w != null && w.IsOverview) { using (var b = new SolidBrush(Theme.GreenHi)) e.Graphics.FillEllipse(b, rect.X, rect.Y + rect.Height / 2 - P(3), P(6), P(6)); rect.X += P(12); rect.Width -= P(12); }
+            TextRenderer.DrawText(e.Graphics, windows.Items[e.Index].ToString(), windows.Font, rect, fc, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+        }
+
+        void SetupGrid() {
+            grid.Dock = DockStyle.Fill; grid.ScrollBars = ScrollBars.Vertical; grid.ReadOnly = true; grid.AllowUserToAddRows = false; grid.AllowUserToDeleteRows = false; grid.AllowUserToResizeRows = false;
+            grid.RowHeadersVisible = false; grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect; grid.MultiSelect = false;
+            grid.BackgroundColor = Theme.Field; grid.BorderStyle = BorderStyle.None; grid.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal; grid.GridColor = Color.FromArgb(24, 44, 60);
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill; grid.EnableHeadersVisualStyles = false;
+            grid.ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None; grid.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing; grid.ColumnHeadersHeight = P(28);
+            var hs = grid.ColumnHeadersDefaultCellStyle; hs.BackColor = Color.FromArgb(16, 36, 52); hs.ForeColor = Color.FromArgb(110, 170, 200); hs.Font = new Font("Microsoft JhengHei UI", 8.5f, FontStyle.Bold); hs.Padding = new Padding(P(4), 0, 0, 0); hs.SelectionBackColor = hs.BackColor;
+            grid.RowTemplate.Height = P(27);
+            var cs = grid.DefaultCellStyle; cs.BackColor = Theme.Field; cs.ForeColor = Theme.Text; cs.Padding = new Padding(P(4), 0, P(2), 0); cs.WrapMode = DataGridViewTriState.False;
+            cs.SelectionBackColor = Color.FromArgb(20, 70, 92); cs.SelectionForeColor = Color.White;
+            string[] heads = { "#", "相簿名稱", "應有", "實際", "狀態", "資料夾" }; float[] weights = { 6, 36, 9, 9, 24, 26 };
+            for (int i = 0; i < heads.Length; i++) {
+                var c = new DataGridViewTextBoxColumn { HeaderText = heads[i], FillWeight = weights[i], SortMode = DataGridViewColumnSortMode.NotSortable, MinimumWidth = P(i == 1 ? 110 : 36) };
+                if (i == 0 || i == 2 || i == 3) { c.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter; c.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter; c.DefaultCellStyle.Font = new Font("Consolas", 9.5f); }
+                grid.Columns.Add(c);
+            }
+            grid.ShowCellToolTips = true;
+            grid.CellDoubleClick += (s, e) => { if (e.RowIndex >= 0 && e.RowIndex < rows.Count && Directory.Exists(rows[e.RowIndex].Folder)) Process.Start("explorer.exe", "\"" + rows[e.RowIndex].Folder + "\""); };
+        }
+
+        void SetDest(string path) { dest.Text = path; tips.SetToolTip(dest, path); }
+        void FitHint() { if (hint.Parent != null) hint.MaximumSize = new Size(Math.Max(P(200), hint.Parent.ClientSize.Width - P(30)), 0); }
 
         protected override void WndProc(ref Message m) {
             if (m.Msg == 0x0312 && m.WParam.ToInt32() == 1 && cts != null) { cts.Cancel(); Log("F8：停止中…"); }
@@ -541,25 +746,28 @@ namespace LineAlbumSaver {
 
         void Log(string s) {
             if (InvokeRequired) { BeginInvoke(new Action<string>(Log), s); return; }
-            logBox.AppendText(DateTime.Now.ToString("HH:mm:ss") + "  " + s + Environment.NewLine);
+            logBox.AppendText(DateTime.Now.ToString("HH:mm:ss") + "  › " + s + Environment.NewLine);
         }
 
-        void Report(AlbumRow r) {
+        public void Report(AlbumRow r) {
             if (InvokeRequired) { BeginInvoke(new Action<AlbumRow>(Report), r); return; }
             int i = rows.IndexOf(r);
             if (i < 0) { rows.Add(r); i = grid.Rows.Add(); }
             var g = grid.Rows[i];
-            g.SetValues(r.No, r.Name, r.Expected >= 0 ? r.Expected.ToString() : "?", r.Actual, r.Status, r.Folder);
-            g.DefaultCellStyle.BackColor = r.Status.StartsWith("完成") ? Color.FromArgb(232, 248, 238) : r.Status.StartsWith("略過") ? Color.FromArgb(242, 244, 247)
-                : (r.Status.StartsWith("失敗") || r.Status.StartsWith("不完整")) ? Color.FromArgb(253, 236, 234) : Color.White;
-            grid.FirstDisplayedScrollingRowIndex = Math.Max(0, i - 3);
+            string folderName = string.IsNullOrEmpty(r.Folder) ? "" : Path.GetFileName(r.Folder);
+            g.SetValues(r.No, r.Name, r.Expected >= 0 ? r.Expected.ToString() : "?", r.Actual, r.Status, folderName);
+            g.Cells[5].ToolTipText = r.Folder; g.Cells[1].ToolTipText = r.Name; g.Cells[4].ToolTipText = r.Status;
+            bool ok = r.Status.StartsWith("完成"), skip = r.Status.StartsWith("略過"), bad = r.Status.StartsWith("失敗") || r.Status.StartsWith("不完整") || r.Status.StartsWith("已停止");
+            g.DefaultCellStyle.BackColor = ok ? Theme.OkBg : skip ? Theme.SkipBg : bad ? Theme.BadBg : Theme.RunBg;
+            g.Cells[4].Style.ForeColor = ok ? Theme.GreenHi : bad ? Theme.Red : skip ? Theme.Muted : Theme.Amber;
+            g.Cells[4].Style.Font = new Font(Font, FontStyle.Bold);
+            try { int shown = grid.DisplayedRowCount(false); if (shown > 0 && i >= shown) grid.FirstDisplayedScrollingRowIndex = i - shown + 1; } catch { }
             UpdateSummary();
         }
 
         void UpdateSummary() {
-            int ok = rows.Count(r => r.Status.StartsWith("完成")), skip = rows.Count(r => r.Status.StartsWith("略過")), bad = rows.Count(r => r.Status.StartsWith("失敗") || r.Status.StartsWith("不完整"));
-            summary.Text = "共 " + rows.Count + " 本　✔ 完成 " + ok + "　略過 " + skip + "　✘ 失敗/不完整 " + bad;
-            summary.ForeColor = bad > 0 ? Color.FromArgb(190, 50, 40) : Color.FromArgb(20, 110, 60);
+            int ok = rows.Count(r => r.Status.StartsWith("完成")), skip = rows.Count(r => r.Status.StartsWith("略過")), bad = rows.Count(r => r.Status.StartsWith("失敗") || r.Status.StartsWith("不完整") || r.Status.StartsWith("已停止"));
+            chipAll.Text = "共 " + rows.Count + " 本"; chipOk.Text = "✔ 完成 " + ok; chipSkip.Text = "略過 " + skip; chipBad.Text = "✘ 失敗 " + bad;
         }
 
         void RefreshWindows() {
@@ -581,17 +789,20 @@ namespace LineAlbumSaver {
             var w = windows.SelectedItem as LineWindow;
             start.Enabled = !busy && w != null && w.IsOverview && w.OnAlbumTab;
             stop.Enabled = busy; refresh.Enabled = browse.Enabled = recheck.Enabled = windows.Enabled = !busy;
-            if (!busy && w != null && !w.IsOverview) hint.Text = "這個是「" + w.Label.Trim() + "」，不是相簿總覽。請選名稱後面是「相簿」的那一個。";
-            else if (!busy && w != null && !w.OnAlbumTab) hint.Text = "相簿總覽目前在「記事本」頁籤，請在 LINE 切到「相簿」再按重新整理。";
-            else if (!busy) hint.Text = "先在 LINE 打開群組的「相簿」總覽，捲到要開始的位置。執行中請勿動滑鼠，按 F8 可隨時停止。";
+            header.Invalidate();
+            if (busy) return;
+            hint.ForeColor = Theme.Muted;
+            if (w != null && !w.IsOverview) { hint.Text = "⚠ 這是「" + w.Label.Trim() + "」，不是相簿總覽。請選名稱後面是「相簿」的那一個。"; hint.ForeColor = Theme.Amber; }
+            else if (w != null && !w.OnAlbumTab) { hint.Text = "⚠ 相簿總覽目前在「記事本」頁籤，請在 LINE 切到「相簿」再按重新整理。"; hint.ForeColor = Theme.Amber; }
+            else hint.Text = "在 LINE 打開群組的「相簿」總覽，捲到要開始的位置再按開始。執行中請勿動滑鼠，F8 可隨時停止。";
         }
 
         async void Start() {
             var w = windows.SelectedItem as LineWindow;
             if (w == null || !w.IsOverview) return;
-            if (string.IsNullOrWhiteSpace(dest.Text) || !Directory.Exists(dest.Text)) { MessageBox.Show(this, "請先選擇儲存資料夾。", "LINE 相簿批次儲存"); return; }
+            if (string.IsNullOrWhiteSpace(dest.Text) || !Directory.Exists(dest.Text)) { MessageBox.Show(this, "請先選擇儲存位置。", "LINE 相簿批次儲存"); return; }
             busy = true; cts = new CancellationTokenSource(); UpdateButtons();
-            hint.Text = "執行中，請勿動滑鼠或鍵盤。按 F8 停止。";
+            hint.Text = "● 執行中，請勿動滑鼠或鍵盤。按 F8 停止。"; hint.ForeColor = Theme.Amber;
             string root = dest.Text; var token = cts.Token; int secs = (int)timeout.Value;
             WindowState = FormWindowState.Minimized;
             try {
@@ -629,6 +840,28 @@ namespace LineAlbumSaver {
                 Log("核對表已存：" + path);
             } catch (Exception ex) { Log("核對表儲存失敗：" + ex.Message); }
         }
+
+        // 產生介面預覽圖（假資料），用來檢查版面有沒有被切到。
+        public static void RenderPreview(string path, int width, int height, bool running) {
+            PreviewMode = true;
+            using (var f = new MainForm()) {
+                f.ShowInTaskbar = false; f.StartPosition = FormStartPosition.Manual; f.Location = new Point(-32000, -32000);
+                if (width > 0) f.Size = new Size(width, height);
+                f.windows.Items.Add(new LineWindow { Label = "NMDC 通霄工安群組 相簿", IsOverview = true }); f.windows.SelectedIndex = 0;
+                f.SetDest(@"C:\Users\b7710\OneDrive\Desktop\新增資料夾");
+                f.Show(); Application.DoEvents();
+                f.Report(new AlbumRow { No = 1, Name = "20260831 KESI", Expected = 18, Actual = 18, Status = "完成 ✔", Folder = @"C:\x\20260831 KESI" });
+                f.Report(new AlbumRow { No = 2, Name = "20260826琿宏缺失改善", Expected = 7, Actual = 7, Status = "完成 ✔", Folder = @"C:\x\20260826琿宏缺失改善" });
+                f.Report(new AlbumRow { No = 3, Name = "20260725 TBM KY", Expected = 14, Actual = 11, Status = "不完整 11/14", Folder = @"C:\x\20260725 TBM KY" });
+                f.Report(new AlbumRow { No = 4, Name = "2026/10/31下午水車跟水表 很長很長的相簿名稱測試", Expected = 9, Actual = 9, Status = "略過（已下載過，張數相符）", Folder = @"C:\x\20261031下午水車跟水表" });
+                f.Report(new AlbumRow { No = 5, Name = "20260517 BLA 自檢表", Expected = 24, Actual = 13, Status = "下載中… 13/24", Folder = @"C:\x\20260517 BLA 自檢表" });
+                f.Log("開始：從目前捲軸位置往下逐本處理。螢幕縮放 150%。"); f.Log("第 1 本：點「20260831 KESI」"); f.Log("　完成 ✔　→ C:\\x\\20260831 KESI");
+                if (running) { f.busy = true; f.UpdateButtons(); }
+                Application.DoEvents(); f.PerformLayout(); Application.DoEvents();
+                using (var b = new Bitmap(f.Width, f.Height)) { f.DrawToBitmap(b, new Rectangle(Point.Empty, f.Size)); b.Save(path, ImageFormat.Png); }
+                f.Close();
+            }
+        }
     }
 
     static class Program {
@@ -637,6 +870,7 @@ namespace LineAlbumSaver {
             N.SetProcessDPIAware();
             if (args.Length > 0 && args[0] == "--probe") { Probe(args.Length > 1 ? args[1] : "probe.txt"); return; }
             Application.EnableVisualStyles(); Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Length > 1 && args[0] == "--preview") { try { MainForm.RenderPreview(args[1], args.Length > 3 ? int.Parse(args[2]) : 0, args.Length > 3 ? int.Parse(args[3]) : 0, args.Contains("--running")); } catch (Exception ex) { File.WriteAllText(args[1] + ".err.txt", ex.ToString()); } return; }
             Application.Run(new MainForm());
         }
         // 不點擊任何東西：列出視窗判斷結果，並讀出總覽目前畫面上每本相簿的名稱區。
@@ -652,7 +886,7 @@ namespace LineAlbumSaver {
                     if (bar != null && bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out p)) sv = ((RangeValuePattern)p).Current.Value + " / " + ((RangeValuePattern)p).Current.Maximum;
                     o.AppendLine("總覽 scale=" + scale + " 捲軸=" + sv + " 清單=" + Ui.R(list));
                     foreach (AutomationElement it in list.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem))) {
-                        var r = Ui.R(it); int h = (int)(56 * scale);
+                        var r = Ui.R(it); int h = (int)(56 * scale); object sc; if (bar != null && bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out sc) && ((RangeValuePattern)sc).Current.SmallChange * scale >= 150 * scale) r.Height = Math.Min(r.Height, (int)Math.Round(((RangeValuePattern)sc).Current.SmallChange * scale));
                         var band = new Rectangle(r.Left + (int)(8 * scale), r.Bottom - h, r.Width - (int)(60 * scale), h - (int)(2 * scale));
                         o.AppendLine("  項目 " + r + " 名稱區 → " + string.Join(" | ", ocr.Read(band).Select(l => Txt.Fix(l.Text) + " @" + (int)l.Box.X + "," + (int)l.Box.Y)));
                     }
