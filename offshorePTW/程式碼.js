@@ -4095,40 +4095,34 @@ var PTWService = (function () {
     return ok_(out);
   }
 
+  /** PTW 清單的狀態篩選鍵（前端狀態按鈕同一組）；底線開頭為組合條件，其餘為單一 status */
+  var LIST_STATUS_KEYS = ['_active', '_pending', '_returned', '_expiringSoon', '_overdueOpen',
+    'Draft', 'Approved', '_issuedPending', 'Expired', 'Closed', 'Cancelled'];
+
+  function statusPred_(key) {
+    var S = CFG.STATUS, now = fmtDateTime_();
+    var pend = [S.SUBMITTED, S.PENDING_T2, S.PENDING_T3, S.PENDING_T4, S.PENDING_T5];
+    if (key === '_pending') return function (p) { return pend.indexOf(p.status) >= 0; };
+    if (key === '_returned') return function (p) { return p.status === S.RETURNED || p.status === S.RETURNED_CORRECTION; };
+    if (key === '_active') return function (p) { return ptwTimeState_(p, now) === 'active'; };
+    if (key === '_issuedPending') return function (p) { return ptwTimeState_(p, now) === 'notStarted'; };
+    if (key === '_expiringSoon') {
+      var soon = fmtDateTime_(new Date(Date.now() + (Number(getSetting_('expiryReminderHours')) || 24) * 3600 * 1000));
+      return function (p) {
+        return (p.status === S.ACTIVE || p.status === S.EXTENDED) && p.validTo && p.validTo > now && p.validTo <= soon;
+      };
+    }
+    if (key === '_overdueOpen') {
+      var closed = [S.CLOSED, S.CANCELLED, S.DRAFT];
+      return function (p) { return p.validTo && p.validTo < now && closed.indexOf(p.status) < 0 && pend.indexOf(p.status) < 0; };
+    }
+    return function (p) { return p.status === key; };
+  }
+
   function list(user, payload) {
     var f = payload || {};
     var rows = Repo.find('PTW_Master', function (p) { return asBool_(p.isActive); });
     rows = SecurityService.scopePtwList(user, rows);
-    if (f.status) {
-      if (f.status === '_pending') {
-        var pend = [CFG.STATUS.SUBMITTED, CFG.STATUS.PENDING_T2, CFG.STATUS.PENDING_T3, CFG.STATUS.PENDING_T4, CFG.STATUS.PENDING_T5];
-        rows = rows.filter(function (p) { return pend.indexOf(p.status) >= 0; });
-      } else if (f.status === '_returned') {
-        rows = rows.filter(function (p) { return p.status === CFG.STATUS.RETURNED || p.status === CFG.STATUS.RETURNED_CORRECTION; });
-      } else if (f.status === '_active') {
-        var nowA = fmtDateTime_();
-        rows = rows.filter(function (p) { return ptwTimeState_(p, nowA) === 'active'; });
-      } else if (f.status === '_issuedPending') {
-        var nowI = fmtDateTime_();
-        rows = rows.filter(function (p) { return ptwTimeState_(p, nowI) === 'notStarted'; });
-      } else if (f.status === '_expiringSoon') {
-        var nowS = fmtDateTime_();
-        var soonS = fmtDateTime_(new Date(Date.now() + (Number(getSetting_('expiryReminderHours')) || 24) * 3600 * 1000));
-        rows = rows.filter(function (p) {
-          return (p.status === CFG.STATUS.ACTIVE || p.status === CFG.STATUS.EXTENDED) &&
-            p.validTo && p.validTo > nowS && p.validTo <= soonS;
-        });
-      } else if (f.status === '_overdueOpen') {
-        var now2 = fmtDateTime_();
-        var closed2 = [CFG.STATUS.CLOSED, CFG.STATUS.CANCELLED, CFG.STATUS.DRAFT];
-        var pend2 = [CFG.STATUS.SUBMITTED, CFG.STATUS.PENDING_T2, CFG.STATUS.PENDING_T3, CFG.STATUS.PENDING_T4, CFG.STATUS.PENDING_T5];
-        rows = rows.filter(function (p) {
-          return p.validTo && p.validTo < now2 && closed2.indexOf(p.status) < 0 && pend2.indexOf(p.status) < 0;
-        });
-      } else {
-        rows = rows.filter(function (p) { return p.status === f.status; });
-      }
-    }
     if (f.mine) rows = rows.filter(function (p) { return p.applicantUserId === user.id; });
     if (f.companyId) rows = rows.filter(function (p) { return p.companyId === f.companyId; });
     if (f.q) {
@@ -4138,13 +4132,17 @@ var PTWService = (function () {
           .toLowerCase().indexOf(q) >= 0;
       });
     }
+    // 狀態按鈕的數字：在套用狀態篩選「之前」逐一計數，數字與點下去看到的清單一致
+    var counts = { '': rows.length };
+    LIST_STATUS_KEYS.forEach(function (k) { counts[k] = rows.filter(statusPred_(k)).length; });
+    if (f.status) rows = rows.filter(statusPred_(f.status));
     var companies = {};
     Repo.readAll('Companies').forEach(function (c) { companies[c.id] = companyLabel_(c); });
     rows.sort(function (a, b) { return a.updatedAt < b.updatedAt ? 1 : -1; });
     var page = Math.max(1, f.page || 1);
     var size = f.forExport ? Math.min(2000, rows.length || 1) : Math.min(50, f.pageSize || 20);
     return ok_({
-      total: rows.length, page: page,
+      total: rows.length, page: page, counts: counts,
       rows: rows.slice((page - 1) * size, page * size).map(function (p) {
         return { id: p.id, number: p.ptwNumber || p.tempNumber, status: p.status,
           company: companies[p.companyId] || '', areaLocation: p.areaLocation,
@@ -9477,12 +9475,11 @@ var ReportService = (function () {
     Repo.readAll('Users').forEach(function (u) { if (asBool_(u.isTestUser)) tests[u.id] = true; });
     var comps = {};
     Repo.readAll('Companies').forEach(function (c) { comps[c.id] = c.nameEn || c.nameZh || ''; });
+    // 只列「執行中」：已開單、尚未關單／作廢、已開始生效（未來才生效的不列）。
+    // 已過期但還沒關單的照列（到期日標紅提醒關單）
     var rows = activePtws_().filter(function (p) {
-      if (p.status === S.CANCELLED || tests[p.applicantUserId]) return false;
-      var vf = String(p.validFrom || '').substring(0, 10), vt = String(p.validTo || '').substring(0, 10);
-      var overlap = (!vf || vf <= to) && (!vt || vt >= from);
-      var openOverdue = p.status !== S.CLOSED && p.validTo && String(p.validTo) < nowStr;
-      return overlap || openOverdue;
+      if (p.status === S.CLOSED || p.status === S.CANCELLED || tests[p.applicantUserId]) return false;
+      return !(p.validFrom && String(p.validFrom) > nowStr);
     }).map(function (p) {
       var closed = p.status === S.CLOSED, vt = String(p.validTo || '');
       return { company: comps[p.companyId] || '', number: p.ptwNumber || p.tempNumber,
@@ -13568,20 +13565,8 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
       </div>
     </div>
     <div class="card-x p-2 mb-2 d-flex flex-wrap gap-2 align-items-center" id="ptwFilters">
-      <select id="pfStatus" class="form-select form-select-sm" style="max-width:220px" onchange="loadPtwList()">
-        <option value="" data-l>All 全部</option>
-        <option value="Draft" data-l>Draft 草稿</option>
-        <option value="_pending" data-l>Pending 待簽核</option>
-        <option value="_returned" data-l>Returned 被退回</option>
-        <option value="Approved" data-l>Approved 已核准</option>
-        <option value="_active" data-l>Active 執行中</option>
-        <option value="_issuedPending" data-l>Issued 已核發待生效</option>
-        <option value="_expiringSoon" data-l>Expiring Soon 即將到期</option>
-        <option value="Expired" data-l>Expired 已到期</option>
-        <option value="_overdueOpen" data-l>Overdue 逾期未關</option>
-        <option value="Closed" data-l>Closed 已關閉</option>
-        <option value="Cancelled" data-l>Cancelled 已取消</option>
-      </select>
+      <input type="hidden" id="pfStatus" value="">
+      <div id="pfStatusBtns" class="d-flex flex-wrap gap-1 w-100"></div>
       <input id="pfQ" class="form-control form-control-sm" style="max-width:260px" data-l-ph placeholder="Search 搜尋（編號/位置/內容）">
       <div class="form-check form-check-inline small">
         <input class="form-check-input" type="checkbox" id="pfMine"><label class="form-check-label" for="pfMine">My PTW 我的</label>
@@ -14176,6 +14161,7 @@ function applyI18n(){
     if(!n.getAttribute('data-lraw')) n.setAttribute('data-lraw',n.getAttribute('placeholder')||'');
     n.setAttribute('placeholder',L(n.getAttribute('data-lraw')));
   });
+  try{ renderPfStatus(); }catch(e){}   // 狀態按鈕跟著切換語言
   // 申請帳號 Tier 下拉：依語言重建
   var apT=$('apTier');
   if(apT&&typeof TIER_TITLES!=='undefined'){
@@ -16271,7 +16257,8 @@ function openWeeklyReport(){
 }
 function weeklyReportHtml(d){
   var WD='日一二三四五六';
-  function md(s){ var p=String(s).split('-'); return (+p[1])+'/'+(+p[2])+'('+WD.charAt(new Date(+p[0],+p[1]-1,+p[2]).getDay())+')'; }
+  var WE=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function md(s){ var p=String(s).split('-'), w=new Date(+p[0],+p[1]-1,+p[2]).getDay(); return (+p[1])+'/'+(+p[2])+'('+WD.charAt(w)+' '+WE[w]+')'; }
   function ymd(s){ return String(s||'').substring(0,10).split('-').join('/'); }
   var groups=[], idx={};
   d.rows.forEach(function(r){
@@ -16303,15 +16290,17 @@ function weeklyReportHtml(d){
         '<td style="'+TD+GT+'width:15%"></td></tr>';
     });
   });
-  if(!body) body='<tr><td colspan="7" style="'+TD+'text-align:center;color:#8a99a8;padding:24px">本週無已開單 PTW　No issued PTW this week</td></tr>';
-  var title='PTW 周狀態更新 '+ymd(d.generated);
+  if(!body) body='<tr><td colspan="7" style="'+TD+'text-align:center;color:#8a99a8;padding:24px">本週無執行中 PTW　No PTW in progress this week</td></tr>';
+  var title='PTW 周狀態更新 Weekly Status Update '+ymd(d.generated);
   var sheet='<div id="sheet" style="background:#fff;border:1px solid #d5dee8;max-width:1200px;margin:0 auto;'+F+'">'+
     '<div style="text-align:center;padding:16px 10px 12px;border-bottom:1px solid #d5dee8">'+
     '<div style="font-size:21px;font-weight:bold;color:#0b3a5c;'+F+'">'+esc(title)+'</div>'+
-    '<div style="color:#5d6f82;font-size:13px;margin-top:4px;'+F+'">報表週 '+md(d.weekFrom)+' ~ '+md(d.weekTo)+'</div></div>'+
+    '<div style="color:#5d6f82;font-size:13px;margin-top:4px;'+F+'">報表週 Report Week '+md(d.weekFrom)+' ~ '+md(d.weekTo)+'</div></div>'+
     '<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse"><thead><tr>'+
-    '<th style="'+TH+'">包商名稱</th><th style="'+TH+'">許可號碼</th><th style="'+TH+'">工作地點</th><th style="'+TH+'">預計工作內容</th>'+
-    '<th style="'+TH+'">許可到期日<span style="'+LG+'">🟡 即將過期　🔴 已過期</span></th><th style="'+TH+'">未關數量(號碼)</th>'+
+    '<th style="'+TH+'">包商名稱<span style="'+LG+'">Contractor</span></th><th style="'+TH+'">許可號碼<span style="'+LG+'">Permit No.</span></th>'+
+    '<th style="'+TH+'">工作地點<span style="'+LG+'">Location</span></th><th style="'+TH+'">預計工作內容<span style="'+LG+'">Planned Work</span></th>'+
+    '<th style="'+TH+'">許可到期日<span style="'+LG+'">Expiry Date</span><span style="'+LG+'">🟡 即將過期 Expiring　🔴 已過期 Expired</span></th>'+
+    '<th style="'+TH+'">未關數量(號碼)<span style="'+LG+'">Overdue Not Closed (No.)</span></th>'+
     '<th style="'+TH+'">90 天驗證計畫<span style="'+LG+'">90 Days Verification</span></th></tr></thead><tbody>'+body+'</tbody></table></div>';
   // 複製：優先 Clipboard API 寫入 HTML＋純文字；不支援時退回「選取後 execCommand copy」
   var js='function done(m){var b=document.getElementById("cpb");b.textContent=m;setTimeout(function(){b.textContent="📋 複製表格（貼到信件） Copy for Email";},2500);}'+
@@ -17129,16 +17118,42 @@ function renderPtwListData(data){
     });
     $('ptwList').innerHTML=h+'</tbody></table><div class="small text-muted px-2">Total: '+res.data.total+'</div>';
 }
+/* ---- 狀態篩選按鈕（取代下拉）：常用 6 個＋「更多」；數字＝後端依相同條件計數 ---- */
+var PF_MAIN=[['','全部 All','#0b3a5c'],['_active','執行中 Active','#146c43'],['_pending','待簽核 Pending','#b7791f'],
+  ['_returned','被退回 Returned','#b02a37'],['_expiringSoon','即將到期 Expiring Soon','#b7791f'],['_overdueOpen','逾期未關 Overdue','#b02a37']];
+var PF_MORE=[['Draft','草稿 Draft','#6c757d'],['Approved','已核准 Approved','#0b6bcb'],['_issuedPending','已核發待生效 Issued','#0b6bcb'],
+  ['Expired','已到期 Expired','#b02a37'],['Closed','已關閉 Closed','#6c757d'],['Cancelled','已取消 Cancelled','#6c757d']];
+var pfCounts=null, pfMoreOpen=false;
+function pfBtn(d){
+  var on=$('pfStatus').value===d[0];
+  var n=(pfCounts&&pfCounts[d[0]]!==undefined)?pfCounts[d[0]]:'';
+  return '<button type="button" class="btn btn-sm" data-k="'+d[0]+'" onclick="setPtwStatus(this.dataset.k)" '+
+    'style="border:1px solid '+d[2]+';border-radius:16px;padding:2px 11px;font-weight:600;'+
+    (on?'background:'+d[2]+';color:#fff':'background:#fff;color:'+d[2])+'">'+esc(L(d[1]))+
+    (n!==''?' <span style="font-weight:800;opacity:.9">'+n+'</span>':'')+'</button>';
+}
+function renderPfStatus(){
+  var el=$('pfStatusBtns'); if(!el) return;
+  var sel=$('pfStatus').value;
+  var open=pfMoreOpen||PF_MORE.some(function(d){ return d[0]===sel; });
+  el.innerHTML=PF_MAIN.map(pfBtn).join('')+
+    '<button type="button" class="btn btn-sm btn-link text-decoration-none" style="padding:2px 6px" onclick="pfMoreOpen=!pfMoreOpen;renderPfStatus()">'+
+    (open?(lang==='zh'?'收合 ▴':'Less ▴'):(lang==='zh'?'更多 ▾':'More ▾'))+'</button>'+
+    (open?PF_MORE.map(pfBtn).join(''):'');
+}
+function setPtwStatus(k){ $('pfStatus').value=k||''; renderPfStatus(); loadPtwList(); }
 function loadPtwList(){
+  renderPfStatus();
   // 先用上次快取即時渲染（0 延遲），背景取新資料後更新
   var key='ptw_list_cache_'+((getUser()||{}).id||'')+'|'+$('pfStatus').value+'|'+$('pfQ').value.trim()+'|'+($('pfMine').checked?'1':'');
   var cached=null; try{ cached=JSON.parse(sget(key)||'null'); }catch(e){}
-  if(cached) renderPtwListData(cached);
+  if(cached){ renderPtwListData(cached); if(cached.counts){ pfCounts=cached.counts; renderPfStatus(); } }
   else $('ptwList').innerHTML='<div class="text-muted small p-2">Loading…</div>';
   api('ptw.list',{status:$('pfStatus').value,q:$('pfQ').value.trim(),mine:$('pfMine').checked?1:'' },{silent:!!cached}).then(function(res){
     if(!res.ok){ if(!cached) $('ptwList').innerHTML='<div class="text-danger p-2">'+esc(apiMsg(res))+'</div>'; return; }
     try{ sset(key,JSON.stringify(res.data)); }catch(e){}
     renderPtwListData(res.data);
+    if(res.data.counts){ pfCounts=res.data.counts; renderPfStatus(); }
   });
 }
 
