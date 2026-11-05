@@ -9867,6 +9867,7 @@ var PUBLIC_ACTIONS = {
   'home.landing': true,
   'downloads.list': true,
   'company.options': true,
+  'scope.options': true,
   'announce.list': true,
   'contact.get': true,
   'personnel.list': true,
@@ -9947,6 +9948,9 @@ function routes_() {
 
     // 工程範疇 Scope（Tier 3 送 D&M／Energy 的依據；建檔僅限管理員，清單所有登入者可讀）
     'scope.list':    function (u) { return ScopeService.list(u); },
+    // 免登入：只回啟用中 Scope 的名稱（OPTS 船舶資料選工作範疇用），不含部門
+    'scope.options': function () { return ok_(ScopeService.activeRows().map(function (s) {
+      return { id: s.id, nameEn: s.nameEn, nameZh: s.nameZh }; })); },
     'scope.create':  function (u, p) { return ScopeService.create(u, p); },
     'scope.update':  function (u, p) { return ScopeService.update(u, p); },
     'scope.disable': function (u, p) { return ScopeService.disable(u, p); },
