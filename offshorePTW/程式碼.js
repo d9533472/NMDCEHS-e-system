@@ -371,6 +371,26 @@ function ptwTimeState_(p, nowStr) {
   return 'active';
 }
 
+/** 已開單＝已核准核發：有正式 PTW 編號，或已進入核准後的狀態（草稿／審核中／退回不算） */
+function isIssuedPtw_(p) {
+  var S = CFG.STATUS;
+  if (String(p.ptwNumber || '').trim()) return true;
+  return [S.APPROVED, S.ACTIVE, S.SUSPENDED, S.EXTENDED, S.EXPIRED, S.WORK_COMPLETED,
+    S.PENDING_CLOSEOUT, S.CLOSED].indexOf(p.status) >= 0;
+}
+
+/**
+ * 證書上的「申請人」：包商（Tier 1–2、非管理員）自己建單 → 申請人本人；
+ * NMDC／管理員代建 → 改帶主持有人（包商 Tier 1）。回傳 { id, fromHolder }。
+ */
+function certApplicantOf_(m, usersById) {
+  var a = usersById ? usersById[m.applicantUserId] : Repo.getById('Users', m.applicantUserId);
+  if (a && Number(a.tier) <= 2 && !asBool_(a.isAdmin)) return { id: a.id, fromHolder: false };
+  var raw = String(m.holderUserId || ''), ids = [];
+  if (raw.charAt(0) === '[') { try { ids = JSON.parse(raw); } catch (e) {} } else if (raw) ids = [raw];
+  return { id: ids[0] || m.applicantUserId || '', fromHolder: true };
+}
+
 /**
  * 雙語名稱顯示：「英文 / 中文」。
  * 兩者相同（或其一為空）時只回傳一次，避免出現「Test Contractor Alpha / Test Contractor Alpha」。
@@ -648,6 +668,29 @@ var Repo = (function () {
     return removeWhere(name, function (r) { return r.id === id; });
   }
 
+  /** 批次更新：符合條件的列套用同一組 patch，一次寫回（只寫有變動的列區間）。傳回筆數。 */
+  function updateWhere(name, predicate, patch, actorId) {
+    var headers = headers_(name);
+    return withLock_(function () {
+      invalidate_(name);
+      var rows = readAllFresh_(name);
+      var hit = rows.filter(predicate);
+      if (!hit.length) return 0;
+      var ts = fmtDateTime_();
+      hit.forEach(function (r) {
+        for (var k in patch) r[k] = patch[k];
+        if (headers.indexOf('updatedAt') >= 0) r.updatedAt = ts;
+        if (headers.indexOf('updatedBy') >= 0) r.updatedBy = actorId || 'system';
+      });
+      var lo = hit[0]._rowIndex, hi = hit[hit.length - 1]._rowIndex;
+      var block = rows.filter(function (r) { return r._rowIndex >= lo && r._rowIndex <= hi; })
+        .map(function (r) { return objToRow_(headers, r); });
+      sheet_(name).getRange(lo, 1, block.length, headers.length).setValues(block);
+      invalidate_(name);
+      return hit.length;
+    });
+  }
+
   /** 以 script lock 執行寫入，30 秒逾時 */
   function withLock_(fn) {
     var lock = LockService.getScriptLock();
@@ -659,7 +702,7 @@ var Repo = (function () {
   return {
     readAll: readAll, find: find, findOne: findOne, getById: getById,
     insert: insert, update: update, upsertByKey: upsertByKey, withLock: withLock_,
-    remove: remove, removeWhere: removeWhere
+    remove: remove, removeWhere: removeWhere, updateWhere: updateWhere
   };
 })();
 
@@ -1440,6 +1483,14 @@ var NotificationService = (function () {
     return ok_({ read: true });
   }
 
+  /** 全部已讀：本人所有未讀通知一次標記 */
+  function markAllRead(user) {
+    var n = Repo.updateWhere('Notifications', function (r) {
+      return r.userId === user.id && asBool_(r.isActive) && !asBool_(r.isRead);
+    }, { isRead: true }, user.id);
+    return ok_({ marked: n });
+  }
+
   /** 直接寄信到外部信箱（非系統使用者；核發通知清單用） */
   function emailRaw(email, titleEn, titleZh, msgEn, msgZh, ptwId, type) {
     try {
@@ -1699,7 +1750,7 @@ var NotificationService = (function () {
     sendAccountRejected: sendAccountRejected,
     sendPasswordResetEmail: sendPasswordResetEmail,
     listMine: listMine,
-    markRead: markRead,
+    markRead: markRead, markAllRead: markAllRead,
     push: push_,
     ptwLink: ptwLink_,
     beginBatch: beginBatch,
@@ -4025,6 +4076,11 @@ var PTWService = (function () {
     var company = Repo.getById('Companies', m.companyId);
     var out = {}; for (var k in m) if (k !== '_rowIndex') out[k] = m[k];
     out.companyName = companyLabel_(company);
+    // 證書申請人（不可落回目前登入者）：前端以此顯示，主持有人尚未載入時也有值
+    var ca = certApplicantOf_(m), cu = ca.id ? Repo.getById('Users', ca.id) : null;
+    out.certApplicantFromHolder = ca.fromHolder;
+    out.certApplicantName = cu ? bilingualName_(cu.nameEn, cu.nameZh) : '';
+    out.certApplicantTitle = cu ? (cu.title || '') : '';
     out.requiredCerts = requiredCerts(m);
     out.certs = certDetails;
     out.completion = completion_(m);
@@ -8541,8 +8597,8 @@ var PdfService = (function () {
       return hs.join(' / ');
     }
     if (/_paTitle$/.test(id)) return ctx.titles[idList__(m.holderUserId)[0]] || '';
-    if (id === 'div_applicantName') return ctx.names[m.applicantUserId] || '';
-    if (id === 'div_applicantTitle') return ctx.titles[m.applicantUserId] || '';
+    if (id === 'div_applicantName') return ctx.names[certApplicantOf_(m).id] || '';
+    if (id === 'div_applicantTitle') return ctx.titles[certApplicantOf_(m).id] || '';
     if (id === 'div_vessel') return m.vessel || '';
     if (id === 'div_startDateTime') return m.validFrom || '';
     if (id === 'div_workNature') return m.workDescription || '';
@@ -8578,7 +8634,7 @@ var PdfService = (function () {
           var hsig = idList__(m.holderUserId).map(function (x) { return nameSig_(ctx, x); }).join('');
           if (hsig) disp = hsig;
         } else if (id === 'div_applicantName') {
-          disp = nameSig_(ctx, m.applicantUserId) || disp;
+          disp = nameSig_(ctx, certApplicantOf_(m).id) || disp;
         }
         h += '<tr><th style="width:55%">' + esc_(en_(label)) + '</th><td>' + disp + '</td></tr>';
       });
@@ -9396,8 +9452,49 @@ var ReportService = (function () {
     ['wtExcavation', 'Excavation 開挖'], ['wtElectricalIso', 'Electrical Iso 電氣隔離'],
     ['wtProcessIso', 'Process Iso 製程隔離']];
 
+  /** 報表只統計「已開單」（已核准核發）；草稿／審核中／退回不算 */
   function activePtws_() {
-    return Repo.find('PTW_Master', function (p) { return asBool_(p.isActive); });
+    return Repo.find('PTW_Master', function (p) { return asBool_(p.isActive) && isIssuedPtw_(p); });
+  }
+
+  /**
+   * 週狀態總表：報表週 = 最近一個週六（含今天）～ 該週五（台北日期）。
+   * 列入：已開單、未作廢、測試帳號除外，且有效期間與報表週重疊；
+   *       或至今仍未關單的逾期單（不論期間，方便追蹤）。
+   * expiry 狀態：closed 已關｜expired 已逾期未關｜soon 3 天內到期｜ok
+   */
+  function weekly(user) {
+    SecurityService.requireAdminOrTier5(user);
+    var S = CFG.STATUS, DAY = 86400000;
+    var today = fmtDate_(), t = today.split('-');
+    var base = new Date(Date.UTC(+t[0], +t[1] - 1, +t[2]));          // 台北日期當 UTC 日期算星期
+    var d0 = new Date(base.getTime() - ((base.getUTCDay() + 1) % 7) * DAY);   // 週六
+    var d1 = new Date(d0.getTime() + 6 * DAY);                               // 週五
+    var ymd = function (d) { return d.toISOString().substring(0, 10); };
+    var from = ymd(d0), to = ymd(d1);
+    var nowStr = fmtDateTime_(), soonStr = fmtDateTime_(new Date(Date.now() + 3 * DAY));
+    var tests = {};
+    Repo.readAll('Users').forEach(function (u) { if (asBool_(u.isTestUser)) tests[u.id] = true; });
+    var comps = {};
+    Repo.readAll('Companies').forEach(function (c) { comps[c.id] = c.nameEn || c.nameZh || ''; });
+    var rows = activePtws_().filter(function (p) {
+      if (p.status === S.CANCELLED || tests[p.applicantUserId]) return false;
+      var vf = String(p.validFrom || '').substring(0, 10), vt = String(p.validTo || '').substring(0, 10);
+      var overlap = (!vf || vf <= to) && (!vt || vt >= from);
+      var openOverdue = p.status !== S.CLOSED && p.validTo && String(p.validTo) < nowStr;
+      return overlap || openOverdue;
+    }).map(function (p) {
+      var closed = p.status === S.CLOSED, vt = String(p.validTo || '');
+      return { company: comps[p.companyId] || '', number: p.ptwNumber || p.tempNumber,
+        areaLocation: p.areaLocation || '', vessel: p.vessel || '', workDescription: p.workDescription || '',
+        validFrom: p.validFrom || '', validTo: vt, status: p.status,
+        closedAt: closed ? String(p.closedAt || '').substring(0, 10) : '',
+        expiry: closed ? 'closed' : (vt && vt < nowStr ? 'expired' : (vt && vt <= soonStr ? 'soon' : 'ok')) };
+    });
+    rows.sort(function (a, b) {
+      return a.company.localeCompare(b.company) || String(a.number).localeCompare(String(b.number), undefined, { numeric: true });
+    });
+    return ok_({ generated: today, weekFrom: from, weekTo: to, rows: rows });
   }
 
   function companyMap_() {
@@ -9411,7 +9508,7 @@ var ReportService = (function () {
     SecurityService.requireAdminOrTier5(user);
     var now = fmtDateTime_(), nowMs = Date.now();
     var companies = companyMap_();
-    var closedSet = [CFG.STATUS.CLOSED, CFG.STATUS.CANCELLED, CFG.STATUS.DRAFT];
+    var closedSet = [CFG.STATUS.CLOSED, CFG.STATUS.CANCELLED];
     var rows = activePtws_().filter(function (p) {
       if (closedSet.indexOf(p.status) >= 0) return false;
       return p.status === CFG.STATUS.EXPIRED || (p.validTo && p.validTo < now &&
@@ -9596,7 +9693,7 @@ var ReportService = (function () {
     return ok_({ rows: rows, gaps: gaps });
   }
 
-  return { overdue: overdue, byCompany: byCompany, byType: byType, monthly: monthly,
+  return { overdue: overdue, byCompany: byCompany, byType: byType, monthly: monthly, weekly: weekly,
     approvalsExport: approvalsExport, versionDiff: versionDiff, numbersOverview: numbersOverview,
     delegationList: delegationList, delegationDisable: delegationDisable };
 })();
@@ -10069,6 +10166,7 @@ function routes_() {
     'report.byCompany':       function (u) { return ReportService.byCompany(u); },
     'report.byType':          function (u) { return ReportService.byType(u); },
     'report.monthly':         function (u) { return ReportService.monthly(u); },
+    'report.weekly':          function (u) { return ReportService.weekly(u); },
     'report.approvalsExport': function (u) { return ReportService.approvalsExport(u); },
     'ptw.versionDiff':        function (u, p) { return ReportService.versionDiff(u, p); },
     'admin.delegation.list':    function (u) { return ReportService.delegationList(u); },
@@ -10077,6 +10175,7 @@ function routes_() {
     // Notifications
     'notify.list':     function (u, p) { return NotificationService.listMine(u, p); },
     'notify.markRead': function (u, p) { return NotificationService.markRead(u, p); },
+    'notify.markAllRead': function (u) { return NotificationService.markAllRead(u); },
 
     // Audit (Admin / T5)
     'admin.audit.list': function (u, p) { return AuditService.list(u, p); },
@@ -12995,6 +13094,7 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
           <button class="btn btn-sm btn-outline-secondary" onclick="exportReport('byType')" data-l>⬇︎ 類型 By Type</button>
           <button class="btn btn-sm btn-outline-secondary" onclick="exportReport('monthly')" data-l>⬇︎ 月度 Monthly</button>
           <button class="btn btn-sm btn-outline-secondary" onclick="exportApprovals()" data-l>⬇︎ 簽核歷程 Approvals</button>
+          <button class="btn btn-sm btn-navy" onclick="openWeeklyReport()" data-l>🗓 週狀態總表 Weekly Status</button>
         </div>
       </div>
       <div class="row g-3">
@@ -13390,7 +13490,10 @@ h1,h2,h3,h4,h5,h6{ color:var(--navy); }
     <div class="card-x p-3 mb-4 d-none" id="notifyPanel">
       <div class="d-flex justify-content-between align-items-center mb-2">
         <h5 class="mb-0">🔔 <span data-i18n="home.btnNotify">My Notifications</span></h5>
-        <button class="btn btn-sm btn-outline-secondary" onclick="$('notifyPanel').classList.add('d-none')">✕</button>
+        <div class="d-flex gap-1">
+          <button class="btn btn-sm btn-outline-primary" id="btnMarkAllRead" onclick="markAllNotify()" data-l>✔ 全部已讀 Mark All Read</button>
+          <button class="btn btn-sm btn-outline-secondary" onclick="$('notifyPanel').classList.add('d-none')">✕</button>
+        </div>
       </div>
       <div id="notifyList"></div>
     </div>
@@ -15059,7 +15162,7 @@ function renderHomeButtons(u){
   // 一般使用者四個功能一列：訓練 / 申請 PTW / 我的 PTW / 待辦與通知
   var defs=[
     {icon:'🎓',key:'home.btnTraining',fn:'requireLogin(openTraining)'},
-    {icon:'📝',key:'home.btnPtw',fn:'requireLogin(openPtwList)'},
+    {icon:'📝',key:'home.btnPtw',fn:'requireLogin(enterPtwList)'},
     {icon:'📁',key:'home.btnMyPtw',fn:'requireLogin(openMyPtw)',badge2:loggedIn?'hbtn_myptw_count':null},
     {icon:'🔔',key:'home.btnInbox',fn:'requireLogin(openInbox)',badge:loggedIn?'hbtn_notify_count':null}
   ];
@@ -15185,6 +15288,13 @@ function openNotify(){
   $('notifyPanel').scrollIntoView({behavior:'smooth'});
 }
 function markNotify(id){ api('notify.markRead',{notificationId:id}).then(function(){ openNotify(); renderHome(); }); }
+function markAllNotify(){
+  api('notify.markAllRead',{}).then(function(res){
+    if(!res.ok){ toast(apiMsg(res)); return; }
+    toast(lang==='zh'?('已將 '+res.data.marked+' 則通知標為已讀'):(res.data.marked+' notification(s) marked as read'),true);
+    openNotify(); renderHome();
+  });
+}
 /* ---------- 帳號管理 My Account ---------- */
 function openAccount(){
   showView('account');
@@ -16149,6 +16259,73 @@ function exportReport(kind){
   XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),kind);
   XLSX.writeFile(wb,'report_'+kind+'_'+new Date().toISOString().substring(0,10)+'.xlsx');
 }
+/* 週狀態總表：淺色、可列印／存 PDF；報表週 = 上週六～本週五（後端算） */
+function openWeeklyReport(){
+  var w=window.open('','_blank');   // 先同步開窗，避免非同步後被快顯封鎖
+  if(!w){ toast(lang==='zh'?'請允許此網站開啟新視窗':'Please allow pop-ups for this site'); return; }
+  w.document.write('<p style="font-family:sans-serif;padding:24px;color:#567">Loading… 載入中…</p>');
+  api('report.weekly',{}).then(function(res){
+    if(!res.ok){ w.close(); toast(apiMsg(res)); return; }
+    w.document.open(); w.document.write(weeklyReportHtml(res.data)); w.document.close();
+  });
+}
+function weeklyReportHtml(d){
+  var WD='日一二三四五六';
+  function md(s){ var p=String(s).split('-'); return (+p[1])+'/'+(+p[2])+'('+WD.charAt(new Date(+p[0],+p[1]-1,+p[2]).getDay())+')'; }
+  function ymd(s){ return String(s||'').substring(0,10).split('-').join('/'); }
+  var groups=[], idx={};
+  d.rows.forEach(function(r){
+    if(idx[r.company]===undefined){ idx[r.company]=groups.length; groups.push({company:r.company,rows:[]}); }
+    groups[idx[r.company]].rows.push(r);
+  });
+  var body='';
+  groups.forEach(function(g){
+    var open=g.rows.filter(function(r){ return r.expiry==='expired'; }).map(function(r){ return r.number; });
+    g.rows.forEach(function(r,i){
+      var cls='x-'+r.expiry;
+      body+='<tr'+(i===0?' class="grp"':'')+'>'+
+        (i===0?'<td class="co" rowspan="'+g.rows.length+'">'+esc(g.company||'—')+'</td>':'')+
+        '<td class="no">'+esc(r.number)+'</td>'+
+        '<td>'+esc(r.areaLocation||r.vessel||'')+'</td>'+
+        '<td class="wd">'+esc(r.workDescription)+'</td>'+
+        '<td class="exp '+cls+'">'+ymd(r.validTo)+(r.closedAt?'<div class="sub">已關 '+ymd(r.closedAt)+'</div>':'')+'</td>'+
+        (i===0?'<td class="open" rowspan="'+g.rows.length+'"><b>'+open.length+'</b>'+(open.length?'<div class="sub">'+esc(open.join('、'))+'</div>':'')+'</td>':'')+
+        '<td class="v90"></td></tr>';
+    });
+  });
+  if(!body) body='<tr><td colspan="7" style="text-align:center;color:#8a99a8;padding:24px">本週無已開單 PTW　No issued PTW this week</td></tr>';
+  var title='PTW 周狀態更新 '+ymd(d.generated);
+  return '<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+
+    '@page{size:A4 landscape;margin:10mm}'+
+    'body{margin:0;padding:20px;background:#f3f6f9;color:#1f2d3d;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif}'+
+    '.sheet{background:#fff;border:1px solid #d5dee8;border-radius:10px;max-width:1200px;margin:0 auto;overflow:hidden}'+
+    '.hd{text-align:center;padding:16px 10px 12px;border-bottom:1px solid #d5dee8}'+
+    '.hd h1{margin:0;font-size:21px;color:#0b3a5c}.hd .sub{color:#5d6f82;font-size:13px;margin-top:4px}'+
+    '.bar{max-width:1200px;margin:0 auto 10px;text-align:right}.bar button{font-size:14px;padding:6px 14px;border:1px solid #0b3a5c;background:#0b3a5c;color:#fff;border-radius:6px;cursor:pointer}'+
+    'table{width:100%;border-collapse:collapse;font-size:13px}'+
+    'th{background:#eaf1f7;color:#0b3a5c;font-weight:700;padding:8px 6px;border:1px solid #d5dee8;text-align:center}'+
+    'th .lg{display:block;font-size:10.5px;font-weight:400;color:#5d6f82}'+
+    'td{border:1px solid #dfe6ee;padding:7px 8px;vertical-align:middle}'+
+    'tr.grp td{border-top:2px solid #9fb3c8}'+
+    '.co{font-weight:700;vertical-align:top;background:#fafcfe;width:9%}'+
+    '.no{text-align:center;font-weight:700;color:#0b6bcb;width:7%}'+
+    '.wd{width:36%}.exp{text-align:center;white-space:nowrap;width:11%;font-family:Consolas,monospace}'+
+    '.open{text-align:center;vertical-align:top;width:10%}.v90{width:15%}'+
+    '.sub{font-size:10.5px;color:#6b7c8d;font-family:inherit;margin-top:2px}'+
+    '.x-ok{background:#e9f6ee;color:#1e7e34;font-weight:700}'+
+    '.x-soon{background:#fde68a;color:#7a4b00;font-weight:700}'+
+    '.x-expired{background:#fde2e2;color:#b91c1c;font-weight:700}'+
+    '.x-closed{background:#f2f4f7;color:#55606e}'+
+    '@media print{body{background:#fff;padding:0}.bar{display:none}.sheet{border:none;border-radius:0}'+
+    'thead{display:table-header-group}tr{page-break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
+    '</style></head><body>'+
+    '<div class="bar"><button onclick="window.print()">🖨 列印／存 PDF Print / Save PDF</button></div>'+
+    '<div class="sheet"><div class="hd"><h1>'+esc(title)+'</h1><div class="sub">報表週 '+md(d.weekFrom)+' ~ '+md(d.weekTo)+'</div></div>'+
+    '<table><thead><tr><th>包商名稱</th><th>許可號碼</th><th>工作地點</th><th>預計工作內容</th>'+
+    '<th>許可到期日<span class="lg">🟡 即將過期　🔴 已過期</span></th><th>未關數量(號碼)</th>'+
+    '<th>90 天驗證計畫<span class="lg">90 Days Verification</span></th></tr></thead><tbody>'+body+'</tbody></table></div>'+
+    '</body></html>';
+}
 function exportApprovals(){
   api('report.approvalsExport',{}).then(function(res){
     if(!res.ok){ toast(apiMsg(res)); return; }
@@ -16878,6 +17055,8 @@ var WT_INTRO={
  wtElectricalIso:['需對電氣設備隔離、掛牌上鎖（LOTO）後方可執行之作業','Work requiring electrical isolation and lock-out/tag-out (LOTO) before starting'],
  wtProcessIso:['需先對製程系統（管線／設備／儀器）隔離後方可執行之作業，含製程、電氣與機械隔離之確認','Work requiring process system isolation (piping/equipment/instrumentation) before starting, incl. process, electrical and mechanical isolation confirmation']};
 
+/* 從首頁進入「線上 PTW 申請系統」：預設篩選「執行中」（關閉表單返回清單時則保留原篩選） */
+function enterPtwList(){ $('pfStatus').value='_active'; $('pfMine').checked=false; openPtwList(); }
 function openPtwList(){ showView('ptw'); $('ptwFormWrap').classList.add('d-none'); $('ptwListWrap').classList.remove('d-none'); loadPtwList(); }
 function openMyPtw(){ showView('ptw'); $('pfMine').checked=true; $('ptwFormWrap').classList.add('d-none'); $('ptwListWrap').classList.remove('d-none'); loadPtwList(); }
 
@@ -18539,13 +18718,27 @@ function certAutoVal(id){
   if(/_duration$/.test(id)) return (cur.validFrom&&cur.validTo)?(cur.validFrom+' → '+cur.validTo):'';
   if(/_paName$/.test(id)) return idListOf(cur.holderUserId).map(pickerName).filter(Boolean).join('、');
   if(/_paTitle$/.test(id)) return pickerTitle(idListOf(cur.holderUserId)[0]||'');
-  if(id==='div_applicantName') return pickerName(cur.applicantUserId)||((getUser()||{}).nameEn||'');
-  if(id==='div_applicantTitle') return pickerTitle(cur.applicantUserId)||((getUser()||{}).title||'');
+  if(id==='div_applicantName') return certApplicant().name;
+  if(id==='div_applicantTitle') return certApplicant().title;
   if(id==='div_vessel') return cur.vessel||'';
   if(id==='div_startDateTime') return cur.validFrom||'';
   if(id==='div_workNature') return cur.workDescription||'';
   if(id==='rac_company'||id==='div_company') return cur.companyName||'';
   return null;
+}
+/* 證書申請人＝包商申請人；NMDC／管理員代建時帶主持有人。絕不帶目前登入者（審核人開單時會帶錯） */
+function certApplicant(){
+  var fromHolder=cur.certApplicantFromHolder;
+  if(fromHolder===undefined){ // 尚未存檔的新單：建單者就是自己
+    var me=getUser()||{};
+    if(Number(me.tier)<=2&&!me.isAdmin) return {name:bi(me.nameEn,me.nameZh),title:me.title||''};
+    fromHolder=true;
+  }
+  if(fromHolder===true||fromHolder==='true'){
+    var hid=idListOf(cur.holderUserId)[0]||'';   // 持有人可能剛改未存 → 以表單現值為準
+    return {name:pickerName(hid)||cur.certApplicantName||'',title:pickerTitle(hid)||cur.certApplicantTitle||''};
+  }
+  return {name:cur.certApplicantName||pickerName(cur.applicantUserId),title:cur.certApplicantTitle||pickerTitle(cur.applicantUserId)};
 }
 function pickerName(uid){
   if(!uid) return '';
