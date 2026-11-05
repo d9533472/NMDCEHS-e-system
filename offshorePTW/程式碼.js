@@ -16278,53 +16278,59 @@ function weeklyReportHtml(d){
     if(idx[r.company]===undefined){ idx[r.company]=groups.length; groups.push({company:r.company,rows:[]}); }
     groups[idx[r.company]].rows.push(r);
   });
+  // 表格一律 inline style：貼到 Outlook／Gmail 時 <style> 會被丟掉，inline 才保得住格式與顏色
+  var F='font-family:Microsoft JhengHei,Noto Sans TC,Arial,sans-serif;';   // 不加引號：外層樣板字串裡的反斜線跳脫會出事
+  var TD='border:1px solid #dfe6ee;padding:7px 8px;vertical-align:middle;font-size:13px;color:#1f2d3d;'+F;
+  var TH='background:#eaf1f7;color:#0b3a5c;font-weight:bold;padding:8px 6px;border:1px solid #d5dee8;text-align:center;font-size:13px;'+F;
+  var LG='display:block;font-size:10.5px;font-weight:normal;color:#5d6f82;';
+  var SUB='font-size:10.5px;color:#6b7c8d;margin-top:2px;font-weight:normal;'+F;
+  var EXP={ok:'background:#e9f6ee;color:#1e7e34;font-weight:bold;',soon:'background:#fde68a;color:#7a4b00;font-weight:bold;',
+    expired:'background:#fde2e2;color:#b91c1c;font-weight:bold;',closed:'background:#f2f4f7;color:#55606e;'};
   var body='';
   groups.forEach(function(g){
     var open=g.rows.filter(function(r){ return r.expiry==='expired'; }).map(function(r){ return r.number; });
     g.rows.forEach(function(r,i){
-      var cls='x-'+r.expiry;
-      body+='<tr'+(i===0?' class="grp"':'')+'>'+
-        (i===0?'<td class="co" rowspan="'+g.rows.length+'">'+esc(g.company||'—')+'</td>':'')+
-        '<td class="no">'+esc(r.number)+'</td>'+
-        '<td>'+esc(r.areaLocation||r.vessel||'')+'</td>'+
-        '<td class="wd">'+esc(r.workDescription)+'</td>'+
-        '<td class="exp '+cls+'">'+ymd(r.validTo)+(r.closedAt?'<div class="sub">已關 '+ymd(r.closedAt)+'</div>':'')+'</td>'+
-        (i===0?'<td class="open" rowspan="'+g.rows.length+'"><b>'+open.length+'</b>'+(open.length?'<div class="sub">'+esc(open.join('、'))+'</div>':'')+'</td>':'')+
-        '<td class="v90"></td></tr>';
+      var GT=i===0?'border-top:2px solid #9fb3c8;':'';
+      body+='<tr>'+
+        (i===0?'<td rowspan="'+g.rows.length+'" style="'+TD+GT+'font-weight:bold;vertical-align:top;background:#fafcfe;width:9%">'+esc(g.company||'—')+'</td>':'')+
+        '<td style="'+TD+GT+'text-align:center;font-weight:bold;color:#0b6bcb;width:7%">'+esc(r.number)+'</td>'+
+        '<td style="'+TD+GT+'">'+esc(r.areaLocation||r.vessel||'')+'</td>'+
+        '<td style="'+TD+GT+'width:36%">'+esc(r.workDescription)+'</td>'+
+        '<td style="'+TD+GT+'text-align:center;white-space:nowrap;width:11%;'+(EXP[r.expiry]||'')+'">'+ymd(r.validTo)+
+          (r.closedAt?'<div style="'+SUB+'">已關 '+ymd(r.closedAt)+'</div>':'')+'</td>'+
+        (i===0?'<td rowspan="'+g.rows.length+'" style="'+TD+GT+'text-align:center;vertical-align:top;width:10%"><b>'+open.length+'</b>'+
+          (open.length?'<div style="'+SUB+'">'+esc(open.join('、'))+'</div>':'')+'</td>':'')+
+        '<td style="'+TD+GT+'width:15%"></td></tr>';
     });
   });
-  if(!body) body='<tr><td colspan="7" style="text-align:center;color:#8a99a8;padding:24px">本週無已開單 PTW　No issued PTW this week</td></tr>';
+  if(!body) body='<tr><td colspan="7" style="'+TD+'text-align:center;color:#8a99a8;padding:24px">本週無已開單 PTW　No issued PTW this week</td></tr>';
   var title='PTW 周狀態更新 '+ymd(d.generated);
+  var sheet='<div id="sheet" style="background:#fff;border:1px solid #d5dee8;max-width:1200px;margin:0 auto;'+F+'">'+
+    '<div style="text-align:center;padding:16px 10px 12px;border-bottom:1px solid #d5dee8">'+
+    '<div style="font-size:21px;font-weight:bold;color:#0b3a5c;'+F+'">'+esc(title)+'</div>'+
+    '<div style="color:#5d6f82;font-size:13px;margin-top:4px;'+F+'">報表週 '+md(d.weekFrom)+' ~ '+md(d.weekTo)+'</div></div>'+
+    '<table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse"><thead><tr>'+
+    '<th style="'+TH+'">包商名稱</th><th style="'+TH+'">許可號碼</th><th style="'+TH+'">工作地點</th><th style="'+TH+'">預計工作內容</th>'+
+    '<th style="'+TH+'">許可到期日<span style="'+LG+'">🟡 即將過期　🔴 已過期</span></th><th style="'+TH+'">未關數量(號碼)</th>'+
+    '<th style="'+TH+'">90 天驗證計畫<span style="'+LG+'">90 Days Verification</span></th></tr></thead><tbody>'+body+'</tbody></table></div>';
+  // 複製：優先 Clipboard API 寫入 HTML＋純文字；不支援時退回「選取後 execCommand copy」
+  var js='function done(m){var b=document.getElementById("cpb");b.textContent=m;setTimeout(function(){b.textContent="📋 複製表格（貼到信件） Copy for Email";},2500);}'+
+    'function legacy(){var el=document.getElementById("sheet"),r=document.createRange(),s=getSelection();r.selectNode(el);s.removeAllRanges();s.addRange(r);'+
+    'var ok=false;try{ok=document.execCommand("copy");}catch(e){}s.removeAllRanges();done(ok?"✔ 已複製，可直接貼到信件 Copied":"✖ 無法自動複製，請手動選取表格複製");}'+
+    'function cp(){var el=document.getElementById("sheet");try{navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([el.outerHTML],{type:"text/html"}),'+
+    '"text/plain":new Blob([el.innerText],{type:"text/plain"})})]).then(function(){done("✔ 已複製，可直接貼到信件 Copied");},legacy);}catch(e){legacy();}}';
   return '<!doctype html><html><head><meta charset="utf-8"><title>'+esc(title)+'</title><style>'+
     '@page{size:A4 landscape;margin:10mm}'+
-    'body{margin:0;padding:20px;background:#f3f6f9;color:#1f2d3d;font-family:"Noto Sans TC","Microsoft JhengHei",Arial,sans-serif}'+
-    '.sheet{background:#fff;border:1px solid #d5dee8;border-radius:10px;max-width:1200px;margin:0 auto;overflow:hidden}'+
-    '.hd{text-align:center;padding:16px 10px 12px;border-bottom:1px solid #d5dee8}'+
-    '.hd h1{margin:0;font-size:21px;color:#0b3a5c}.hd .sub{color:#5d6f82;font-size:13px;margin-top:4px}'+
-    '.bar{max-width:1200px;margin:0 auto 10px;text-align:right}.bar button{font-size:14px;padding:6px 14px;border:1px solid #0b3a5c;background:#0b3a5c;color:#fff;border-radius:6px;cursor:pointer}'+
-    'table{width:100%;border-collapse:collapse;font-size:13px}'+
-    'th{background:#eaf1f7;color:#0b3a5c;font-weight:700;padding:8px 6px;border:1px solid #d5dee8;text-align:center}'+
-    'th .lg{display:block;font-size:10.5px;font-weight:400;color:#5d6f82}'+
-    'td{border:1px solid #dfe6ee;padding:7px 8px;vertical-align:middle}'+
-    'tr.grp td{border-top:2px solid #9fb3c8}'+
-    '.co{font-weight:700;vertical-align:top;background:#fafcfe;width:9%}'+
-    '.no{text-align:center;font-weight:700;color:#0b6bcb;width:7%}'+
-    '.wd{width:36%}.exp{text-align:center;white-space:nowrap;width:11%;font-family:Consolas,monospace}'+
-    '.open{text-align:center;vertical-align:top;width:10%}.v90{width:15%}'+
-    '.sub{font-size:10.5px;color:#6b7c8d;font-family:inherit;margin-top:2px}'+
-    '.x-ok{background:#e9f6ee;color:#1e7e34;font-weight:700}'+
-    '.x-soon{background:#fde68a;color:#7a4b00;font-weight:700}'+
-    '.x-expired{background:#fde2e2;color:#b91c1c;font-weight:700}'+
-    '.x-closed{background:#f2f4f7;color:#55606e}'+
-    '@media print{body{background:#fff;padding:0}.bar{display:none}.sheet{border:none;border-radius:0}'+
+    'body{margin:0;padding:20px;background:#f3f6f9}'+
+    '.bar{max-width:1200px;margin:0 auto 10px;text-align:right;font-family:Arial,sans-serif}'+
+    '.bar button{font-size:14px;padding:6px 14px;border:1px solid #0b3a5c;background:#0b3a5c;color:#fff;border-radius:6px;cursor:pointer;margin-left:6px}'+
+    '.bar button.alt{background:#fff;color:#0b3a5c}'+
+    '@media print{body{background:#fff;padding:0}.bar{display:none}#sheet{border:none!important}'+
     'thead{display:table-header-group}tr{page-break-inside:avoid}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}'+
-    '</style></head><body>'+
-    '<div class="bar"><button onclick="window.print()">🖨 列印／存 PDF Print / Save PDF</button></div>'+
-    '<div class="sheet"><div class="hd"><h1>'+esc(title)+'</h1><div class="sub">報表週 '+md(d.weekFrom)+' ~ '+md(d.weekTo)+'</div></div>'+
-    '<table><thead><tr><th>包商名稱</th><th>許可號碼</th><th>工作地點</th><th>預計工作內容</th>'+
-    '<th>許可到期日<span class="lg">🟡 即將過期　🔴 已過期</span></th><th>未關數量(號碼)</th>'+
-    '<th>90 天驗證計畫<span class="lg">90 Days Verification</span></th></tr></thead><tbody>'+body+'</tbody></table></div>'+
-    '</body></html>';
+    '</style><scr'+'ipt>'+js+'</scr'+'ipt></head><body>'+
+    '<div class="bar"><button id="cpb" onclick="cp()">📋 複製表格（貼到信件） Copy for Email</button>'+
+    '<button class="alt" onclick="window.print()">🖨 列印／存 PDF Print / Save PDF</button></div>'+
+    sheet+'</body></html>';
 }
 function exportApprovals(){
   api('report.approvalsExport',{}).then(function(res){
