@@ -109,7 +109,7 @@ var DUP_ACCOUNT_ALLOWED_EMAILS = ['paul.tong@nmdc-group.com'];
 var SHEETS = {
   Users: ['id','email','nameZh','nameEn','companyId','title','phone','vessel','tier','isAdmin','badgeNo',
           'passwordHash','passwordSalt','hashIter','signatureFileId','status','failedLoginCount','lockedUntil','mustChangePassword',
-          'applyReason','appliedTier','trainingPassedAt','trainingValidUntil','langPref','isTestUser','isHse','department',
+          'applyReason','appliedTier','trainingPassedAt','trainingValidUntil','langPref','isTestUser','isHse','department','contactEmail',
           'createdAt','createdBy','updatedAt','updatedBy','isActive'],
   Companies: ['id','nameZh','nameEn','type','createdAt','createdBy','updatedAt','updatedBy','isActive'],
   // 工程範疇（Scope）：決定第 3 關送 NMDC D&M 或 NMDC Energy
@@ -1061,11 +1061,12 @@ var NotificationService = (function () {
 
   /* ===== 合併寄信：同一個請求內「主旨＋內文＋附件」完全相同的信，合成一封、所有人放收件者 =====
    * handleRequest_ / 排程進入點會 beginBatch() → 結束時 flushBatch()；不在批次中則立即寄出。
-   * 註：MailApp 額度算收件人數，合併不省額度，但寄件備份只會有一封。 */
+   * 註：MailApp 額度算收件人數，合併不省額度，但寄件備份只會有一封。
+   * 內文不可含逐封變動的內容，否則併不起來：頁尾發送時間一律用 batch_.stamp（見 mailShell_）。 */
   var batch_ = null;
   function beginBatch() {
     if (batch_) return false;
-    batch_ = { groups: {}, order: [] };
+    batch_ = { groups: {}, order: [], stamp: fmtDateTime_() };
     return true;
   }
   function attachKey_(atts) {
@@ -1075,36 +1076,54 @@ var NotificationService = (function () {
     }).join('|');
   }
   function sendMail_(mail, notifId) {
+    // Email 欄不是信箱的帳號（admin、testnmdc 這類登入帳號）只收站內通知；
+    // 混進收件者會讓整封被拒、掉進逐一寄，其他人就又被拆開了。
+    var valid = String(mail.to || '').split(',').map(function (t) { return t.trim(); })
+      .filter(function (t) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(t); });
+    if (!valid.length) return;
     if (!batch_) {
-      MailApp.sendEmail(mail);
+      sendTo_(mail, valid.join(','));
       if (notifId) Repo.update('Notifications', notifId, { emailSent: true, emailSentAt: fmtDateTime_() }, 'system');
       return;
     }
     var key = mail.subject + '\u0001' + mail.htmlBody + '\u0001' + attachKey_(mail.attachments);
     var g = batch_.groups[key];
-    if (!g) { g = batch_.groups[key] = { mail: mail, to: [], seen: {}, notifIds: [] }; batch_.order.push(key); }
-    String(mail.to || '').split(',').forEach(function (t) {
-      t = t.trim(); var k = t.toLowerCase();
-      if (t && !g.seen[k]) { g.seen[k] = true; g.to.push(t); }
+    if (!g) { g = batch_.groups[key] = { mail: mail, to: [], seen: {}, notifs: [] }; batch_.order.push(key); }
+    valid.forEach(function (t) {
+      var k = t.toLowerCase();
+      if (!g.seen[k]) { g.seen[k] = true; g.to.push(t); }
     });
-    if (notifId) g.notifIds.push(notifId);
+    if (notifId) g.notifs.push({ id: notifId, to: String(mail.to || '').trim().toLowerCase() });
+  }
+  function sendTo_(mail, to) {
+    var m = {}; for (var p in mail) m[p] = mail[p];
+    m.to = to;
+    MailApp.sendEmail(m);
   }
   function flushBatch() {
     var b = batch_; batch_ = null;
     if (!b) return;
     b.order.forEach(function (key) {
-      var g = b.groups[key];
-      try {
-        for (var i = 0; i < g.to.length; i += 50) {          // 單封上限 50 位收件者
-          var m = {}; for (var p in g.mail) m[p] = g.mail[p];
-          m.to = g.to.slice(i, i + 50).join(',');
-          MailApp.sendEmail(m);
+      var g = b.groups[key], failed = {};
+      for (var i = 0; i < g.to.length; i += 50) {            // 單封上限 50 位收件者
+        var chunk = g.to.slice(i, i + 50);
+        try {
+          sendTo_(g.mail, chunk.join(','));
+        } catch (e) {
+          // 一個壞地址會讓整封失敗 → 改逐一寄，其他人仍收得到
+          console.error('Batched email failed, retrying one by one (' + chunk.join(',') + '): ' + e.message);
+          chunk.forEach(function (t) {
+            try { sendTo_(g.mail, t); }
+            catch (e2) { failed[t.toLowerCase()] = true; console.error('Email failed (' + t + '): ' + e2.message); }
+          });
         }
-        var at = fmtDateTime_();
-        g.notifIds.forEach(function (id) {
-          Repo.update('Notifications', id, { emailSent: true, emailSentAt: at }, 'system');
-        });
-      } catch (e) { console.error('Batched email failed (' + g.to.join(',') + '): ' + e.message); }
+      }
+      var at = fmtDateTime_();
+      g.notifs.forEach(function (n) {
+        if (failed[n.to]) return;
+        try { Repo.update('Notifications', n.id, { emailSent: true, emailSentAt: at }, 'system'); }
+        catch (e3) { console.error('Mark emailSent failed: ' + e3.message); }
+      });
     });
   }
 
@@ -1119,6 +1138,9 @@ var NotificationService = (function () {
     }, 'system');
     if (emailTo) {
       try {
+        // 有填聯絡信箱就寄到那裡；email 欄是登入帳號，不一定是信箱
+        var rcpt = userId ? Repo.getById('Users', userId) : null;
+        if (rcpt && rcpt.contactEmail) emailTo = rcpt.contactEmail;
         var rt = mailRoute_(emailTo);
         var mail = {
           to: rt.to,
@@ -1193,7 +1215,7 @@ var NotificationService = (function () {
       '<tr><td bgcolor="#f4f7fa" ' + td + 'background-color:#f4f7fa;border-top:1px solid #e1e8ef;padding:14px 22px;color:#7a8ba0;font-size:12px;line-height:1.8">' +
         '<b style="color:#4a5f75">\u901a\u9704\u96fb\u5ee0\u4e8c\u671f\u66f4\u65b0\u6539\u5efa\u8a08\u756b\u6d77\u5e95\u8f38\u6c23\u7ba1\u7dda\u7d71\u5305\u5de5\u7a0b</b><br>' +
         '\u672c\u4fe1\u4ef6\u7531\u7cfb\u7d71\u81ea\u52d5\u767c\u9001\uff0c\u8acb\u52ff\u76f4\u63a5\u56de\u8986\u3002This is an automated message \u2014 please do not reply.<br>' +
-        '\u767c\u9001\u6642\u9593 Sent\uff1a' + fmtDateTime_() +
+        '\u767c\u9001\u6642\u9593 Sent\uff1a' + (batch_ ? batch_.stamp : fmtDateTime_()) +
       '</td></tr>' +
       '</table></td></tr></table></body></html>';
   }
@@ -2201,9 +2223,13 @@ var UserService = (function () {
     SecurityService.requireAdmin(user);
     requireFields_(payload, ['userId']);
     var target = mustGet_(payload.userId);
-    var allowed = ['nameZh', 'nameEn', 'companyId', 'title', 'phone', 'vessel', 'tier', 'badgeNo', 'isAdmin', 'langPref', 'isHse', 'department'];
+    var allowed = ['nameZh', 'nameEn', 'companyId', 'title', 'phone', 'vessel', 'tier', 'badgeNo', 'isAdmin', 'langPref', 'isHse', 'department', 'contactEmail'];
     var patch = {};
     allowed.forEach(function (k) { if (payload[k] !== undefined) patch[k] = payload[k]; });
+    if (patch.contactEmail !== undefined) {
+      patch.contactEmail = normEmail_(patch.contactEmail);
+      if (patch.contactEmail && !isValidEmail_(patch.contactEmail)) throw ApiError_('BAD_EMAIL', 'Invalid contact email', '聯絡信箱格式錯誤');
+    }
     // 管理員直接設為已通過訓練：自今天起效期 3 年（與快速新增帳號一致）
     if (asBool_(payload.grantTraining)) {
       patch.trainingPassedAt = fmtDateTime_();
@@ -14855,6 +14881,7 @@ function openUserEdit(uid){
     '<div class="col-6"><label class="form-label small mb-0">Tier</label><select id="ue_tier" class="form-select form-select-sm">'+tierOpts+'</select></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'職稱':'Title')+'</label><input id="ue_title" class="form-control form-control-sm" value="'+esc(r.title||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'電話':'Phone')+'</label><input id="ue_phone" class="form-control form-control-sm" value="'+esc(r.phone||'')+'"></div>'+
+    '<div class="col-12"><label class="form-label small mb-0">'+(Z?'聯絡信箱（通知寄到這裡，留空則寄到登入 Email）':'Contact Email (notifications go here; blank = login email)')+'</label><input id="ue_contactEmail" type="email" class="form-control form-control-sm" value="'+esc(r.contactEmail||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'船舶':'Vessel')+'</label><input id="ue_vessel" class="form-control form-control-sm" value="'+esc(r.vessel||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'證號 Badge No':'Badge No')+'</label><input id="ue_badgeNo" class="form-control form-control-sm" value="'+esc(r.badgeNo||'')+'"></div>'+
     '<div class="col-6"><label class="form-label small mb-0">'+(Z?'所屬部門（NMDC）':'Department (NMDC)')+'</label><select id="ue_department" class="form-select form-select-sm">'+
@@ -14916,7 +14943,7 @@ function saveUserEdit(uid){
   api('user.update',{userId:uid,
     nameZh:$('ue_nameZh').value.trim(),nameEn:$('ue_nameEn').value.trim(),
     companyId:$('ue_companyId').value,tier:Number($('ue_tier').value),
-    title:$('ue_title').value.trim(),phone:$('ue_phone').value.trim(),
+    title:$('ue_title').value.trim(),phone:$('ue_phone').value.trim(),contactEmail:$('ue_contactEmail').value.trim(),
     vessel:$('ue_vessel').value.trim(),badgeNo:$('ue_badgeNo').value.trim(),department:$('ue_department').value,
     isHse:$('ue_isHse').checked,isAdmin:$('ue_isAdmin').checked,
     grantTraining:$('ue_grantTraining').checked
