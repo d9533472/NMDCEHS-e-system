@@ -166,6 +166,13 @@ namespace LineAlbumSaver {
             foreach (AutomationElement e in root.FindAll(scope, new PropertyCondition(AutomationElement.ClassNameProperty, cls))) list.Add(e);
             return list;
         }
+        // 清單的每一列。LINE 26.6 起相簿卡片的類型從 ListItem 變成 Button，兩種都收。
+        public static List<AutomationElement> Rows(AutomationElement list) {
+            var rows = new List<AutomationElement>();
+            var cond = new OrCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem), new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Button));
+            foreach (AutomationElement e in list.FindAll(TreeScope.Children, cond)) rows.Add(e);
+            return rows;
+        }
         public static AutomationElement First(AutomationElement root, string cls) {
             return root.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.ClassNameProperty, cls));
         }
@@ -261,7 +268,7 @@ namespace LineAlbumSaver {
                 if (!N.IsWindow(overview)) throw new Exception("相簿總覽視窗被關掉了。");
                 var lr = Ui.R(list); double max; double v = ScrollValue(bar, out max);
                 var items = new List<AutomationElement>();
-                foreach (AutomationElement it in list.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem))) items.Add(it);
+                items.AddRange(Ui.Rows(list));
                 AutomationElement next = null; Rectangle nextBand = Rectangle.Empty, nextCard = Rectangle.Empty; double nextAbs = 0;
                 foreach (var it in items) { int h = Ui.R(it).Height; if (h >= 150 * scale && h < cardH) cardH = h; }
                 foreach (var it in items.OrderBy(i => Ui.R(i).Top)) {
@@ -330,11 +337,8 @@ namespace LineAlbumSaver {
             try {
                 Sleep(1200);
                 // 2. 讀單本相簿的標題與張數
-                var bar = Ui.First(detail, "LcTitleBar"); int barBottom = bar != null ? Ui.R(bar).Bottom : Ui.R(detail).Top;
-                var texts = Ui.Find(detail, "LcText").Select(Ui.R).Where(r => r.Height > 0 && r.Top >= barBottom).OrderBy(r => r.Top).ThenBy(r => r.Left).ToList();
-                if (texts.Count < 2) throw new Exception("單本相簿視窗讀不到標題與張數的位置。");
-                string title = ocr.Text(Pad(texts[0], 4));
-                int expected = Txt.Count(ocr.Text(Pad(texts[1], 4)));
+                string title; int expected;
+                if (!AlbumInfo(detail, ocr, out title, out expected)) throw new Exception("單本相簿視窗讀不到標題與張數的位置。");
                 if (title.Length == 0) title = listName;
                 row.Name = title; row.Expected = expected;
                 log("　相簿名稱：" + (title.Length > 0 ? title : "（讀不到）") + "，" + (expected >= 0 ? expected + " 張" : "張數讀不到"));
@@ -371,6 +375,23 @@ namespace LineAlbumSaver {
 
         static Rectangle Pad(Rectangle r, int p) { return new Rectangle(r.X - p, r.Y - p, r.Width + p * 2, r.Height + p * 2); }
 
+        // 單本相簿的標題與張數。LINE 26.6 起 LcText 讀得到原文（舊版才要 OCR），而且標題重複兩行，
+        // 所以張數要認「N張」的格式，不能看排第幾行。
+        public static bool AlbumInfo(AutomationElement detail, Ocr ocr, out string title, out int count) {
+            title = ""; count = -1;
+            var bar = Ui.First(detail, "LcTitleBar"); int barBottom = bar != null ? Ui.R(bar).Bottom : Ui.R(detail).Top;
+            var texts = Ui.Find(detail, "LcText").Where(e => { var r = Ui.R(e); return r.Height > 0 && r.Top >= barBottom; }).OrderBy(e => Ui.R(e).Top).ThenBy(e => Ui.R(e).Left).ToList();
+            if (texts.Count < 2) return false;
+            var read = texts.Select(e => { string s = (e.Current.Name ?? "").Trim(); return s.Length > 0 ? s : ocr.Text(Pad(Ui.R(e), 4)); }).ToList();
+            title = read[0];
+            string name = Txt.Compact(title);
+            foreach (var s in read.Skip(1)) {
+                string c = Txt.Compact(s);
+                if (c != name && Regex.IsMatch(c, @"\d+(張|部|個|項|photo|video|item)", RegexOptions.IgnoreCase)) { count = Txt.Count(s); break; }
+            }
+            return true;
+        }
+
         AutomationElement WaitWindow(string cls, HashSet<IntPtr> before, int ms) {
             var sw = Stopwatch.StartNew();
             while (sw.ElapsedMilliseconds < ms) {
@@ -396,14 +417,19 @@ namespace LineAlbumSaver {
                 var menu = WaitWindow("LcContextMenu", before, 4000);
                 if (menu == null) { log("　⋮ 選單沒有出現，重試（" + attempt + "/3）"); N.Escape(); Sleep(500); continue; }
                 Sleep(300);
-                var items = Ui.Find(menu, "LcContextMenuItem").Select(Ui.R).Where(r => r.Height > 0).OrderBy(r => r.Top).ToList();
+                var menuEls = Ui.Find(menu, "LcContextMenuItem");
+                var items = menuEls.Select(Ui.R).Where(r => r.Height > 0).OrderBy(r => r.Top).ToList();
                 var lines = ocr.Read(Ui.R(menu));
                 Rectangle target = Rectangle.Empty;
-                foreach (var it in items) {
+                // 有原文就直接認字；「刪除相簿」就在隔壁，讀得到字時絕不靠位置猜。
+                var named = menuEls.FirstOrDefault(e => Txt.IsSaveAll(e.Current.Name));
+                bool hasNames = menuEls.Any(e => !string.IsNullOrEmpty(e.Current.Name));
+                if (named != null) target = Ui.R(named);
+                else foreach (var it in items) {
                     var hit = lines.FirstOrDefault(l => { float cy = l.Box.Top + l.Box.Height / 2; return cy >= it.Top && cy <= it.Bottom; });
                     if (hit != null && Txt.IsSaveAll(hit.Text)) { target = it; break; }
                 }
-                if (target.IsEmpty && items.Count == 5) {
+                if (target.IsEmpty && items.Count == 5 && !hasNames) {
                     target = items[2];
                     log("　選單文字沒讀到「儲存全部」，依位置點第 3 項。");
                 }
@@ -892,19 +918,18 @@ namespace LineAlbumSaver {
                     object p; string sv = "無捲軸";
                     if (bar != null && bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out p)) sv = ((RangeValuePattern)p).Current.Value + " / " + ((RangeValuePattern)p).Current.Maximum;
                     o.AppendLine("總覽 scale=" + scale + " 捲軸=" + sv + " 清單=" + Ui.R(list));
-                    foreach (AutomationElement it in list.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem))) {
+                    foreach (var it in Ui.Rows(list)) {
                         var r = Ui.R(it); int h = (int)(56 * scale); object sc; if (bar != null && bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out sc) && ((RangeValuePattern)sc).Current.SmallChange * scale >= 150 * scale) r.Height = Math.Min(r.Height, (int)Math.Round(((RangeValuePattern)sc).Current.SmallChange * scale));
                         var band = new Rectangle(r.Left + (int)(8 * scale), r.Bottom - h, r.Width - (int)(60 * scale), h - (int)(2 * scale));
                         o.AppendLine("  項目 " + r + " 名稱區 → " + string.Join(" | ", ocr.Read(band).Select(l => Txt.Fix(l.Text) + " @" + (int)l.Box.X + "," + (int)l.Box.Y)));
                     }
                 }
                 foreach (var win in Ui.TopWindows("AlbumDetailWindow")) {
-                    var bar = Ui.First(win, "LcTitleBar"); int bb = bar != null ? Ui.R(bar).Bottom : 0;
-                    var t = Ui.Find(win, "LcText").Select(Ui.R).Where(r => r.Height > 0 && r.Top >= bb).OrderBy(r => r.Top).ToList();
-                    o.AppendLine("單本相簿：" + string.Join(" | ", t.Take(3).Select(r => ocr.Text(new Rectangle(r.X - 4, r.Y - 4, r.Width + 8, r.Height + 8)))));
-                    if (t.Count > 1) o.AppendLine("  張數解析 = " + Txt.Count(ocr.Text(new Rectangle(t[1].X - 4, t[1].Y - 4, t[1].Width + 8, t[1].Height + 8))));
+                    string title; int count; bool ok = Runner.AlbumInfo(win, ocr, out title, out count);
+                    o.AppendLine("單本相簿：" + (ok ? title : "（讀不到）") + "　張數解析 = " + count + "　資料夾 = " + Txt.SafeFolder(title));
                 }
                 foreach (var menu in Ui.TopWindows("LcContextMenu")) {
+                    o.AppendLine("選單原文：" + string.Join(" | ", Ui.Find(menu, "LcContextMenuItem").Select(e => e.Current.Name + (Txt.IsSaveAll(e.Current.Name) ? "(★儲存全部)" : ""))));
                     var ocrLines = ocr.Read(Ui.R(menu));
                     o.AppendLine("選單：" + string.Join(" | ", ocrLines.Select(l => Txt.Fix(l.Text) + (Txt.IsSaveAll(l.Text) ? "(★儲存全部)" : ""))));
                 }
