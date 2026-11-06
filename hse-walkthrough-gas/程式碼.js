@@ -22,12 +22,13 @@ var PK = {
 };
 
 var SH = { rec: 'Records', pho: 'Photos', cfg: 'Settings', rep: 'Reports' };
-var SCHEMA = 'v5';   // v3：取消 Pending 待複查；v4：加入危害種類 hazard；v5：來源 source（contractor＝承包商填報頁）
+var SCHEMA = 'v6';   // v3：取消 Pending 待複查；v4：加入危害種類 hazard；v5：來源 source（contractor＝承包商填報頁）；v6：Smartsheet 上傳欄位
 
 // 欄位順序＝試算表欄位順序，只能往後加，中間插欄會把既有資料整排錯開。
 var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'contractor',
   'obsZh', 'obsEn', 'recZh', 'recEn', 'actionBy', 'risk', 'targetDate',
-  'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted', 'hazard', 'source'];
+  'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted', 'hazard', 'source',
+  'obsType', 'operation', 'smRowId', 'smAt'];
 var PHO_COLS = ['id', 'recordId', 'kind', 'fileId', 'name', 'createdAt', 'deleted'];
 var REP_COLS = ['date', 'docId', 'pdfId', 'docxId', 'generatedAt'];
 
@@ -50,6 +51,11 @@ var DEFAULTS = {
     '自動檢查 Self-inspection', '倒塌／崩塌 Collapse / Cave-in', '物體飛落 Falling objects',
     '人員權責 Roles and Responsibilities', '火災／爆炸 Fire / Explosion',
     '優點 Good practice', '其他 Other'],
+  // 這兩份清單照 SOC sheet 的下拉選項，上傳時要完全一致
+  obsTypes: ['優點 Good practice', '不安全行為 Unsafe action', '不安全條件 Unsafe condition'],
+  operations: ['潛盾作業 HDD', '潛水作業 Diving', '海管鋪設 Subsea pipeline laying', '海底疏浚 Subsea dreging',
+    '陸上開挖回填 Onshore excavation/backfill', '假設工程 Temporary facility', '物流運輸 Logistic & transportation',
+    '地質調查 Geological survey', '破堤作業 Seawall Breaking', '清障作業 Obstacle removal', '其他作業 Other'],
   project: 'MFY',
   riskDays: { P1: 3, P2: 7, P3: 14 },
   hseRep: '',
@@ -291,6 +297,11 @@ function newId_(p) {
   return p + Date.now().toString(36) + Math.random().toString(36).substring(2, 7);
 }
 
+/** 試算表可能把時間字串轉成 Date，比較前先統一成字串 */
+function stampS_(v) {
+  return v instanceof Date ? Utilities.formatDate(v, TZ, 'yyyy-MM-dd HH:mm:ss') : String(v || '');
+}
+
 function photoUrl_(fileId) {
   return 'https://drive.google.com/thumbnail?id=' + fileId + '&sz=w800';
 }
@@ -313,6 +324,10 @@ function packRec_(r, photos) {
     status: status_(r.status),
     closeOutDate: ymd_(r.closeOutDate),
     source: r.source || '',
+    obsType: r.obsType || '',
+    operation: r.operation || '',
+    updatedAt: stampS_(r.updatedAt),
+    smAt: stampS_(r.smAt),
     photos: photos || []
   };
 }
@@ -392,6 +407,7 @@ function hseBoot(key, date) {
     today: td,
     date: want,
     config: cfg,
+    smReady: !!PropertiesService.getScriptProperties().getProperty(SM_TOKEN_KEY),
     counts: counts,
     cal: cal,
     dates: Object.keys(dates).sort().reverse().slice(0, 120).map(function (d) {
@@ -547,7 +563,11 @@ function hseSave(key, payload) {
       createdAt: nowS,
       updatedAt: nowS,
       deleted: '',
-      source: ''
+      source: '',
+      obsType: String(payload.obsType || '').trim(),
+      operation: String(payload.operation || '').trim(),
+      smRowId: '',
+      smAt: ''
     };
 
     var existing = null;
@@ -558,6 +578,10 @@ function hseSave(key, payload) {
     if (existing) {
       rec.createdAt = existing.createdAt;
       rec.source = existing.source || '';
+      rec.obsType = rec.obsType || existing.obsType || '';
+      rec.operation = rec.operation || existing.operation || '';
+      rec.smRowId = existing.smRowId || '';
+      rec.smAt = existing.smAt || '';
       sh.getRange(existing._row, 1, 1, REC_COLS.length)
         .setValues([REC_COLS.map(function (c) { return rec[c]; })]);
     } else {
@@ -746,6 +770,183 @@ function hseSaveConfig(key, obj) {
     return { ok: false, error: String(err.message || err) };
   } finally {
     lock.releaseLock();
+  }
+}
+
+/* ============================ 上傳到 Smartsheet ============================ */
+
+// SOC sheet。權杖存在指令碼屬性，由設定頁寫入、不回傳給前端，也不放進程式碼
+var SM_API = 'https://api.smartsheet.com/2.0';
+var SM_SHEET_ID = '7938958622150532';
+var SM_TOKEN_KEY = 'HSE_SM_TOKEN';
+var SM_LOCATION = '通霄工區 TungHsiao';
+var SM_GOOD = '優點';
+var SM_PHOTO_RE = /^(before|after)_P[a-z0-9]+\.jpg$/;   // 只管理系統自己上傳的附件，手動加的不動
+var SM_MAX_MS = 300000;   // GAS 單次最多 6 分鐘，留時間收尾；剩下的照片再上傳一次會補齊
+var SM_COL = {
+  name: '姓名', company: '所屬公司', date: '填寫日期', obsType: '觀察種類', contractor: '觀察到的承攬商',
+  location: '地點', operation: '工作內容', hazard: '危害種類', desc: '請描述', solved: '問題已經解決',
+  measure: '改善措施', responsible: '改善人員', improved: '改善日期', duration: '改善天數'
+};
+
+function smFetch_(token, method, path, opt) {
+  opt = opt || {};
+  var o = { method: method, muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + token } };
+  if (opt.json) { o.contentType = 'application/json'; o.payload = JSON.stringify(opt.json); }
+  if (opt.blob) {
+    o.contentType = 'image/jpeg';
+    o.headers['Content-Disposition'] = 'attachment; filename="' + opt.name + '"';
+    o.payload = opt.blob.getBytes();
+  }
+  for (var i = 0; ; i++) {
+    var res = UrlFetchApp.fetch(SM_API + path, o), code = res.getResponseCode();
+    if (code === 429 && i < 3) { Utilities.sleep(20000); continue; }   // 附件每分鐘約 30 個的限制
+    var txt = res.getContentText(), j = {};
+    try { j = JSON.parse(txt || '{}'); } catch (e) { }
+    if (code >= 200 && code < 300) return j;
+    var err = new Error('Smartsheet ' + code + '：' + (j.message || String(txt).slice(0, 200)));
+    err.smCode = j.errorCode;
+    throw err;
+  }
+}
+
+function smCols_(token) {
+  var list = smFetch_(token, 'GET', '/sheets/' + SM_SHEET_ID + '/columns?includeAll=true').data || [];
+  var out = {};
+  Object.keys(SM_COL).forEach(function (k) {
+    var c = list.filter(function (x) { return String(x.title).indexOf(SM_COL[k]) === 0; })[0];
+    if (!c) throw new Error('Smartsheet 找不到欄位：' + SM_COL[k]);
+    out[k] = c;
+  });
+  return out;
+}
+
+function smKey_(s) { return String(s || '').replace(/／/g, '/').replace(/\s+/g, '').toLowerCase(); }
+
+/** 兩邊寫法不完全一樣（海義Hi-E／海義 HiE、警示／標示／警示/標示）：先比中文，沒有中文再比英文；都對不到就照原文寫入 */
+function smPick_(options, v) {
+  if (!v) return '';
+  var zh = smKey_(String(v).replace(/[A-Za-z].*$/, ''));
+  var en = smKey_(String(v).replace(/^[^A-Za-z]*/, '')).replace(/-/g, '');
+  var hit = (options || []).filter(function (o) { return zh && smKey_(o).indexOf(zh) === 0; })[0];
+  if (!hit) hit = (options || []).filter(function (o) { return en && smKey_(o).replace(/-/g, '').indexOf(en) >= 0; })[0];
+  return hit || v;
+}
+
+function smCells_(rec, cols) {
+  // 優點沒有改善項目，改善欄位留空（與 SOC sheet 既有資料一致）
+  var good = String(rec.obsType).indexOf(SM_GOOD) === 0;
+  var closed = !good && status_(rec.status) === 'Closed';
+  var improved = closed ? ymd_(rec.closeOutDate) : '';
+  var hazard = String(rec.hazard || '').indexOf(SM_GOOD) === 0 ? '' : rec.hazard;
+  var cells = [];
+  var put = function (k, v) { cells.push({ columnId: cols[k].id, value: v, strict: false }); };
+  put('name', String(rec.reporter || ''));
+  put('company', 'NMDC');
+  put('date', ymd_(rec.date));
+  put('obsType', rec.obsType);
+  put('contractor', smPick_(cols.contractor.options, rec.contractor));
+  put('location', SM_LOCATION);
+  put('operation', rec.operation);
+  put('hazard', smPick_(cols.hazard.options, hazard));
+  put('desc', String(rec.obsEn || rec.obsZh || ''));
+  put('solved', closed);
+  put('measure', good ? '' : String(rec.recEn || rec.recZh || ''));
+  put('responsible', good ? '' : smPick_(cols.responsible.options, rec.actionBy || rec.contractor));
+  put('improved', improved);
+  if (improved) cells.push({
+    columnId: cols.duration.id,
+    formula: '=[' + cols.improved.title + ']@row - [' + cols.date.title + ']@row + 1'
+  });
+  else put('duration', '');
+  return cells;
+}
+
+/** 已上傳過就更新同一列；那一列在 Smartsheet 被刪掉（1006）才新增 */
+function smUpsertRow_(token, rec) {
+  var cells = smCells_(rec, smCols_(token));
+  var path = '/sheets/' + SM_SHEET_ID + '/rows';
+  var old = String(rec.smRowId || '').replace(/^S/, '');
+  if (old) {
+    try {
+      smFetch_(token, 'PUT', path, { json: [{ id: Number(old), cells: cells }] });
+      return old;
+    } catch (e) {
+      if (e.smCode !== 1006) throw e;
+    }
+  }
+  return String(smFetch_(token, 'POST', path, { json: [{ toBottom: true, cells: cells }] }).result[0].id);
+}
+
+function smSyncPhotos_(token, rowId, photos, started) {
+  var path = '/sheets/' + SM_SHEET_ID + '/rows/' + rowId + '/attachments';
+  var have = {}, want = {}, out = { added: 0, removed: 0, left: 0 };
+  (smFetch_(token, 'GET', path + '?includeAll=true').data || []).forEach(function (a) {
+    if (SM_PHOTO_RE.test(a.name)) have[a.name] = a.id;
+  });
+  ['before', 'after'].forEach(function (kind) {
+    photos.filter(function (p) { return p.kind === kind; }).forEach(function (p) {
+      var name = kind + '_' + p.id + '.jpg';
+      want[name] = 1;
+      if (have[name]) return;
+      if (Date.now() - started > SM_MAX_MS) { out.left++; return; }
+      smFetch_(token, 'POST', path, { blob: DriveApp.getFileById(p.fileId).getBlob(), name: name });
+      out.added++;
+    });
+  });
+  // 系統裡刪掉的照片，Smartsheet 也拿掉
+  Object.keys(have).forEach(function (name) {
+    if (want[name]) return;
+    smFetch_(token, 'DELETE', '/sheets/' + SM_SHEET_ID + '/attachments/' + have[name]);
+    out.removed++;
+  });
+  return out;
+}
+
+/** 一次一筆，前端逐筆呼叫，才顯示得出進度，也不會碰到 GAS 的時間上限 */
+function hseSmUpload(key, id, obsType, operation) {
+  auth_(key);
+  var started = Date.now();
+  try {
+    var token = PropertiesService.getScriptProperties().getProperty(SM_TOKEN_KEY);
+    if (!token) throw new Error('尚未設定 Smartsheet 權杖');
+    if (!obsType || !operation) throw new Error('請選擇觀察種類與工作內容');
+    var r = ensure_(), sh = r.ss.getSheetByName(SH.rec), rec = null, rowId;
+    var lock = LockService.getScriptLock();
+    lock.waitLock(30000);
+    try {
+      var all = rows_(sh, REC_COLS);
+      for (var i = 0; i < all.length; i++) if (all[i].id === id) { rec = all[i]; break; }
+      if (!rec) throw new Error('找不到這筆紀錄');
+      rec.obsType = obsType;
+      rec.operation = operation;
+      setCell_(sh, rec._row, 'obsType', obsType);
+      setCell_(sh, rec._row, 'operation', operation);
+      rowId = smUpsertRow_(token, rec);
+      // 列 ID 有 16 位數，試算表只保留 15 位，加前綴存成文字
+      setCell_(sh, rec._row, 'smRowId', 'S' + rowId);
+    } finally {
+      lock.releaseLock();
+    }
+    var res = smSyncPhotos_(token, rowId, photosByRecord_(r.ss)[id] || [], started);
+    if (res.left) return { ok: false, error: '還有 ' + res.left + ' 張照片沒傳完，再上傳一次會補齊' };
+    setCell_(sh, rec._row, 'smAt', Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss'));
+    return { ok: true, added: res.added, removed: res.removed };
+  } catch (err) {
+    return { ok: false, error: String(err.message || err) };
+  }
+}
+
+function hseSmSetToken(key, token) {
+  auth_(key);
+  try {
+    token = String(token || '').trim();
+    if (!token) throw new Error('請貼上權杖');
+    smFetch_(token, 'GET', '/sheets/' + SM_SHEET_ID + '/columns?pageSize=1');
+    PropertiesService.getScriptProperties().setProperty(SM_TOKEN_KEY, token);
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: String(err.message || err) };
   }
 }
 
