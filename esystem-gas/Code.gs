@@ -945,7 +945,8 @@ function loadRosterState_(data) {
 
 // ═══════════════════════════════════════════════════════════════════════
 //  📧 環保部門週報 ENV WEEKLY REPORT
-//     每週一 09:00 自動寄出（追蹤事項 + 改善單 + 現場照片 + KPI 總結圖附件）
+//     每週固定時間自動寄出（預設週一 09:00，可在設定頁改成週一～週四的任一整點）
+//     （追蹤事項 + 改善單 + 現場照片 + KPI 總結圖附件）
 //     每週五 15:00 寄提醒信，提醒更新照片與 KPI 總結圖
 //
 //  部署後請在 Apps Script 編輯器手動執行一次 setupTrackerMailTrigger()
@@ -993,8 +994,40 @@ var MAIL_DEFAULT_CFG = {
   translate:       true,
   reminderEnabled: true,
   reminderTo:      'paul.tong@nmdc-group.com',
+  sendDay:         1,      // 自動寄出的星期：1=週一 … 4=週四（台北時間）
+  sendHour:        9,      // 自動寄出的整點：0～23
   photos:          []      // [{fileId, url, title, location, date, uploadedAt}]
 };
+
+// ── 寄送時間 ──
+// 只開放週一～週四：報告期間一律是「寄出日前一個完整的週一～週日」，週五 15:00 還要寄提醒信，
+// 週五以後寄就會變成寄「還沒過完的這一週」，規則就亂了。
+var MAIL_DAY_ZH = ['週日', '週一', '週二', '週三', '週四', '週五', '週六'];
+var MAIL_DAY_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+function mailSendDay_(v)  { v = parseInt(v, 10); return (v >= 1 && v <= 4) ? v : MAIL_DEFAULT_CFG.sendDay; }
+function mailSendHour_(v) { v = parseInt(v, 10); return (v >= 0 && v <= 23) ? v : MAIL_DEFAULT_CFG.sendHour; }
+var _mailSchedCache = null;
+// { day, hour, zh:'週二 10:00', en:'Tuesday 10:00' }；不帶 cfg 時讀已儲存的設定（同一次執行只讀一次）
+function mailSchedule_(cfg) {
+  if (!cfg && _mailSchedCache) return _mailSchedCache;
+  var c = cfg || readJsonCell_(MAIL_CFG_CELL) || {};
+  var d = mailSendDay_(c.sendDay), h = mailSendHour_(c.sendHour);
+  var hh = (h < 10 ? '0' : '') + h + ':00';
+  var r = { day: d, hour: h, zh: MAIL_DAY_ZH[d] + ' ' + hh, en: MAIL_DAY_EN[d] + ' ' + hh };
+  if (!cfg) _mailSchedCache = r;
+  return r;
+}
+// 依寄送時間重建 weeklyTrackerMail 觸發器（只動這一個，週五提醒不動）
+function installWeeklyTrigger_(sched) {
+  sched = sched || mailSchedule_();
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'weeklyTrackerMail') ScriptApp.deleteTrigger(t);
+  });
+  var wd = [null, ScriptApp.WeekDay.MONDAY, ScriptApp.WeekDay.TUESDAY, ScriptApp.WeekDay.WEDNESDAY, ScriptApp.WeekDay.THURSDAY][sched.day];
+  ScriptApp.newTrigger('weeklyTrackerMail').timeBased()
+    .onWeekDay(wd).atHour(sched.hour).nearMinute(0).inTimezone(MAIL_TZ).create();
+  return sched;
+}
 
 // Outlook 桌面版用 Word 引擎排版：字型不會從外層繼承，且中文一律用「東亞字型」（預設新細明體）。
 // 所以每個 <td>/<p> 都要自帶字型，正黑體放第一個，並加 mso-fareast-font-family。
@@ -1038,10 +1071,13 @@ function getMailConfig_() {
     translate:       cfg.translate !== false,
     reminderEnabled: cfg.reminderEnabled !== false,
     reminderTo:      String(pick('reminderTo')),
+    sendDay:         mailSendDay_(cfg.sendDay),
+    sendHour:        mailSendHour_(cfg.sendHour),
+    scheduleZh:      mailSchedule_(cfg).zh,
     photos:          Array.isArray(cfg.photos) ? cfg.photos : [],
     lastSentAt:      cfg.lastSentAt || '',
     lastSentRange:   cfg.lastSentRange || '',
-    autoSkip:        weeklySkipReason_(cfg),     // 非空字串 = 下一次週一排程會略過，設定頁要讓人看得到
+    autoSkip:        weeklySkipReason_(cfg),     // 非空字串 = 下一次自動排程會略過，設定頁要讓人看得到
     updatedAt:       cfg.updatedAt || '',
     saved:           !!Object.keys(cfg).length,
     kpi:             readJsonCell_(KPI_CELL)
@@ -1064,6 +1100,8 @@ function saveMailConfig_(cfg) {
     translate:       truthy(cfg.translate, true),
     reminderEnabled: truthy(cfg.reminderEnabled, true),
     reminderTo:      String(cfg.reminderTo != null ? cfg.reminderTo : (old.reminderTo || MAIL_DEFAULT_CFG.reminderTo)).trim(),
+    sendDay:         mailSendDay_(cfg.sendDay != null ? cfg.sendDay : old.sendDay),
+    sendHour:        mailSendHour_(cfg.sendHour != null ? cfg.sendHour : old.sendHour),
     photos:          photos,
     lastSentAt:      old.lastSentAt || '',
     lastSentRange:   old.lastSentRange || '',
@@ -1076,12 +1114,21 @@ function saveMailConfig_(cfg) {
     }
   });
   getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(clean));
-  return getMailConfig_();
+  _mailSchedCache = null;
+  // 寄送時間有改 → 重建週報觸發器（Web App 以部署者身分執行，可以直接建）
+  var trigErr = '';
+  if (clean.sendDay !== mailSendDay_(old.sendDay) || clean.sendHour !== mailSendHour_(old.sendHour)) {
+    try { installWeeklyTrigger_(mailSchedule_(clean)); Logger.log('週報觸發器改為每' + mailSchedule_(clean).zh); }
+    catch(e) { trigErr = e.message; Logger.log('重建週報觸發器失敗：' + e.message); }
+  }
+  var out = getMailConfig_();
+  if (trigErr) out.triggerError = trigErr;
+  return out;
 }
 function markMailSent_(sentPhotos, range) {
   var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
   cfg.lastSentAt = new Date().toISOString();
-  // 記下「這一封是哪一個報告期間」，週一的自動排程才知道同一份是不是已經寄過了
+  // 記下「這一封是哪一個報告期間」，自動排程才知道同一份是不是已經寄過了
   cfg.lastSentRange = range ? (range.fromIso + '~' + range.toIso) : '';
   var sentIds = (sentPhotos || []).map(function(p){ return p.fileId; });
   if (sentIds.length) {
@@ -1215,11 +1262,12 @@ function trkDaysLeft_(deadline, today) {
   if (!a || !b) return null;
   return Math.round((a - b) / 86400000);
 }
-// 報告期間：以「昨天」所在的那一週（週一～週日）為準。
-// 週一 09:00 寄出 → 上週一～上週日；週五提醒 → 本週一～本週日（即下週一要寄的那份）。
+// 報告期間：寄出日前一個完整的週一～週日。
+// 以「今天往前推 N 天」所在的那一週為準，N = 寄送星期（週一=1、週二=2…），週一寄就是原本的「昨天」。
+// 排程當天寄出 → 上週一～上週日；週五提醒 → 本週一～本週日（即下次排程要寄的那份）。
 function reportRange_() {
   var base = trkParse_(trkTodayStr_());
-  base = new Date(base.getTime() - 86400000);
+  base = new Date(base.getTime() - mailSchedule_().day * 86400000);
   var dow = base.getUTCDay();                       // 0=日
   var mon = new Date(base.getTime() - ((dow + 6) % 7) * 86400000);
   var sun = new Date(mon.getTime() + 6 * 86400000);
@@ -2037,7 +2085,7 @@ function buildTrackerMail_(opts) {
     '</td></tr>' +
     // 頁尾
     '<tr><td bgcolor="#f8fafc" class="pad" style="background-color:#f8fafc;border-top:1px solid #e5e9ef;padding:14px 28px;">' +
-      trkP_('此信件由 Environmental E-System 於每週一 09:00 自動寄出；收件者、開頭文字與現場照片可在系統「追蹤事項 → 📧 週報設定」調整。' +
+      trkP_('此信件由 Environmental E-System 於每' + mailSchedule_().zh + ' 自動寄出；收件者、開頭文字與現場照片可在系統「追蹤事項 → 📧 週報設定」調整。' +
             (doTr ? '英文小字由系統自動翻譯，僅供參考。' : '') +
             '<br>Automated weekly report · NMDC Energy EHS Department' + (doTr ? ' · English lines are machine-translated for reference.' : ''), 'font-size:11px;color:#94a3b8;line-height:1.6;') +
     '</td></tr>' +
@@ -2071,7 +2119,7 @@ function explainSendError_(s) {
   if (/quota|limit exceeded/i.test(s)) return '可能是當日寄信額度用完或超過其他 Apps Script 配額，通常隔天會恢復。';
   if (/authoriz|permission|授權|script\.external_request/i.test(s)) return '後端授權失效，請到 Apps Script 編輯器手動執行一次 testMailLog() 重新授權。';
   if (/收件者|recipient/i.test(s)) return '收件者沒設定或格式不對，請到「📧 週報設定 ①」確認。';
-  if (/停用/.test(s)) return '週報自動寄送目前是關閉的，所以排程沒有寄出。要恢復請到「📧 週報設定 ①」勾選「啟用每週一 09:00 自動寄出」。';
+  if (/停用/.test(s)) return '週報自動寄送目前是關閉的，所以排程沒有寄出。要恢復請到「📧 週報設定 ①」勾選「啟用每週自動寄出」。';
   return '';
 }
 
@@ -2108,7 +2156,7 @@ function alertSendFailure_(kind, errMsg, extra) {
 }
 
 // ── 寄送週報 ──
-// source：'trigger'（每週一排程）或 'manual'（設定頁按鈕）；testTo 有值 = 測試信
+// source：'trigger'（每週排程）或 'manual'（設定頁按鈕）；testTo 有值 = 測試信
 function sendTrackerMail_(testTo, source) {
   var mc = getMailConfig_();
   var to = normalizeMails_(testTo);
@@ -2180,6 +2228,7 @@ function sendTrackerMail_(testTo, source) {
 function buildReminderMail_() {
   var mc = getMailConfig_();
   var range = reportRange_();
+  var sched = mailSchedule_();          // 下次自動寄出的星期／整點
   var photos = mc.photos || [];
   var kpi = mc.kpi;
   var fmt = function(iso) { try { return Utilities.formatDate(new Date(iso), MAIL_TZ, 'yyyy-MM-dd HH:mm'); } catch(e) { return iso || ''; } };
@@ -2212,9 +2261,9 @@ function buildReminderMail_() {
     '</td></tr>' +
     '<tr><td bgcolor="#f59e0b" style="background-color:#f59e0b;font-size:0;line-height:0;height:5px;">&nbsp;</td></tr>' +
     '<tr><td bgcolor="#fffbeb" style="background-color:#fffbeb;border-left:6px solid #f59e0b;padding:14px 28px;">' +
-      trkP_('下週一 09:00 將自動寄出 <b>ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')</b>', 'font-size:14px;color:#78350f;') +
-      trkP_('請在週一之前更新本週的現場照片。改善單 KPI 總結圖會自動處理，不用手動匯出。', 'font-size:13px;color:#92400e;margin-top:4px;') +
-      trkP_('The report will be sent automatically next Monday 09:00. Please update this week\'s site photos before then; the KPI summary image is generated automatically.', 'font-size:11px;color:#a16207;margin-top:4px;') +
+      trkP_('下' + sched.zh + ' 將自動寄出 <b>ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')</b>', 'font-size:14px;color:#78350f;') +
+      trkP_('請在下' + sched.zh + ' 之前更新本週的現場照片。改善單 KPI 總結圖會自動處理，不用手動匯出。', 'font-size:13px;color:#92400e;margin-top:4px;') +
+      trkP_('The report will be sent automatically next ' + sched.en + '. Please update this week\'s site photos before then; the KPI summary image is generated automatically.', 'font-size:11px;color:#a16207;margin-top:4px;') +
     '</td></tr>' +
     '<tr><td style="padding:14px 28px 6px;">' +
       '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
@@ -2377,9 +2426,9 @@ function testMailLog() {
 }
 
 // ── 觸發器呼叫的函式 ──
-// 週末自己先寄過同一份週報時，週一 09:00 的排程不要再寄第二遍。
-// 判斷依據是「報告期間」而不是時間差：reportRange_() 以昨天所在的那一週為準，
-// 所以週五～週日（甚至週一早上 09:00 前）手動寄的那封，期間和週一排程要寄的完全相同。
+// 週末自己先寄過同一份週報時，自動排程（預設週一 09:00，可在設定頁改）不要再寄第二遍。
+// 判斷依據是「報告期間」而不是時間差：reportRange_() 以寄出日前一個完整的週一～週日為準，
+// 所以週五～週日（甚至排程時間之前）手動寄的那封，期間和排程要寄的完全相同。
 // 只有該期間的週五（含）之後寄的才算數 —— 週二補寄的那封只有一兩天資料，
 // 不能拿來頂掉週一的完整週報。測試信不會寫 lastSentRange，所以不受影響；
 // 「立即寄出」也不走這個檢查，想重寄幾次都可以。
@@ -2395,7 +2444,7 @@ function weeklySkipReason_(cfg) {
   if (sent.getTime() < mon.getTime() + 4 * 86400000) return '';   // 早於該週週五 → 只是週中補寄
   return '報告期間 ' + range.label + ' 已於 ' + sentDay + ' ' + trkWeekdayZh_(sentDay) + ' 寄出';
 }
-function weeklyTrackerMail() {           // 每週一 09:00
+function weeklyTrackerMail() {           // 每週一 09:00（或設定頁選的星期／整點）
   var r;
   var skip = weeklySkipReason_();
   if (skip) {
@@ -2424,15 +2473,13 @@ function fridayReportReminder() {        // 每週五 15:00
 
 // 在編輯器手動執行一次即可（會先清掉舊的同名觸發器，可重複執行）
 function setupTrackerMailTrigger() {
-  var names = ['weeklyTrackerMail', 'fridayReportReminder'];
   ScriptApp.getProjectTriggers().forEach(function(t) {
-    if (names.indexOf(t.getHandlerFunction()) >= 0) ScriptApp.deleteTrigger(t);
+    if (t.getHandlerFunction() === 'fridayReportReminder') ScriptApp.deleteTrigger(t);
   });
-  ScriptApp.newTrigger('weeklyTrackerMail').timeBased()
-    .onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(9).nearMinute(0).inTimezone(MAIL_TZ).create();
+  var sched = installWeeklyTrigger_();       // 寄送時間讀已儲存的設定（預設週一 09:00）
   ScriptApp.newTrigger('fridayReportReminder').timeBased()
     .onWeekDay(ScriptApp.WeekDay.FRIDAY).atHour(15).nearMinute(0).inTimezone(MAIL_TZ).create();
-  var msg = '✅ 已安裝觸發器：每週一 09:00 寄出 ENV WEEKLY REPORT、每週五 15:00 寄更新提醒（台北時間）';
+  var msg = '✅ 已安裝觸發器：每' + sched.zh + ' 寄出 ENV WEEKLY REPORT、每週五 15:00 寄更新提醒（台北時間）';
   Logger.log(msg);
   return msg;
 }

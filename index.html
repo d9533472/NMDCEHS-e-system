@@ -2229,7 +2229,7 @@ function renderTrkHTML(){
   h+=`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card2);user-select:none"><input type="checkbox" onchange="showDone=this.checked;renderTab()" ${showDone?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"> 顯示已完成 <span style="font-size:11px;background:var(--bg2);padding:1px 6px;border-radius:10px">${doneCount}</span></label>`;
   if(isEditor)h+=`<button onclick="openTrkM()" title="新增追蹤事項" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.2s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">＋ 新增追蹤事項</button>`;
   if(isEditor)h+=`<button onclick="sendTrkEmail()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent2)'">📧 寄出追蹤摘要</button>`;
-  if(isEditor)h+=`<button onclick="showMailCfgM()" title="ENV WEEKLY REPORT：收件者、開頭文字、現場照片、KPI 圖（每週一 09:00 自動寄出）" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">📧 週報設定</button>`;
+  if(isEditor)h+=`<button onclick="showMailCfgM()" title="ENV WEEKLY REPORT：收件者、開頭文字、現場照片、KPI 圖（依設定的星期／時間自動寄出）" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">📧 週報設定</button>`;
   h+='</div>';
   if(trkDue){const red=trkDue==='over';h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid ${red?'#fca5a5':'#fcd34d'};background:${red?'#fef2f2':'#fffbeb'};color:${red?'#b91c1c':'#b45309'}">${red?'⚠️ 只顯示已逾期項目':'🔶 只顯示三天內到期項目'}（${filtered.length} 筆）<button onclick="trkDue='';renderTab()" style="margin-left:auto;padding:3px 10px;border-radius:6px;border:1px solid currentColor;background:#fff;color:inherit;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✕ 顯示全部</button></div>`;}
   h+=`<table class="tracker-table"><thead><tr><th style="width:32px"></th><th>事項</th><th>負責人</th><th>完成期限</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
@@ -3392,7 +3392,7 @@ function openOutlookForEmail(){
 }
 
 // ══ 📧 環保部門週報 ENV WEEKLY REPORT：收件者 / 開頭文字 / 現場照片 / KPI 圖 / 由系統寄出 ══
-//    GAS 觸發器：每週一 09:00 自動寄出、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
+//    GAS 觸發器：每週自動寄出（預設週一 09:00，設定頁可改成週一～週四任一整點）、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
 let _mailCfg=null,_mcPhotos=[],_mcBusy=false,_mcNormalizing=false,_mailCfgErr='';
 const MC_LOCS=['Taichung','TungHsiao','Project','Offshore','Tienli','Environmental Monitoring'];
 const MC_DEFAULT_INTRO='<p>Dear Chris, Sam</p><p>Please refer to the attached weekly report from the ENV Department for this week.<br>You are also welcome to discuss with us if you have any suggestions or comments.<br>Thank you all for your continued support.</p><p>BR,<br>Paul Tong</p>';
@@ -3437,9 +3437,20 @@ function mailCfgFromForm(){
   return {enabled:$('inMcEnabled').checked,to:$('inMcTo').value.trim(),cc:$('inMcCc').value.trim(),senderName:$('inMcName').value.trim(),
     intro:$('inMcIntro').innerHTML.trim(),translate:$('inMcTranslate').checked,
     reminderEnabled:$('inMcRemind').checked,reminderTo:$('inMcRemindTo').value.trim(),
+    sendDay:+$('inMcSendDay').value||1,sendHour:+$('inMcSendHour').value,
     photos:_mcPhotos.map(p=>({fileId:p.fileId,url:p.url,title:p.title||'',location:p.location||'',date:p.date||'',uploadedAt:p.uploadedAt||'',framed:!!p.framed}))};
 }
+// 自動寄出時間：星期（週一～週四）＋整點，台北時間
+const MC_DAYS=['週日','週一','週二','週三','週四'];
+function mcSchedText(day,hour){return (MC_DAYS[day]||'週一')+' '+String(hour).padStart(2,'0')+':00';}
+function mcSchedSync(){
+  const h=$('inMcSendHour');if(!h)return;
+  if(!h.options.length){h.innerHTML=Array.from({length:24},(_,i)=>'<option value="'+i+'">'+String(i).padStart(2,'0')+':00</option>').join('');h.value='9';}
+  const t=mcSchedText(+$('inMcSendDay').value||1,+h.value);
+  document.querySelectorAll('.mcSchedTxt').forEach(e=>e.textContent=t);
+}
 function fillMailCfgForm(c){
+  mcSchedSync();$('inMcSendDay').value=String(c.sendDay||1);$('inMcSendHour').value=String(c.sendHour!=null?c.sendHour:9);mcSchedSync();
   $('inMcEnabled').checked=c.enabled!==false;$('inMcTo').value=c.to||'';$('inMcCc').value=c.cc||'';$('inMcName').value=c.senderName||'';
   $('inMcIntro').innerHTML=(c.intro!=null&&c.intro!=='')?c.intro:MC_DEFAULT_INTRO;
   $('inMcTranslate').checked=c.translate!==false;
@@ -3447,12 +3458,13 @@ function fillMailCfgForm(c){
   _mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));
   renderMcPhotos();renderMcKpi(c.kpi);
   const ls=c.lastSentAt?new Date(c.lastSentAt).toLocaleString('zh-TW'):'尚未寄出過';
-  // autoSkip 非空＝這一份週報已經寄過，週一 09:00 的排程會自動略過（週末先寄的情況）
+  // autoSkip 非空＝這一份週報已經寄過，下一次自動排程會略過（週末先寄的情況）
   $('mcLastSent').innerHTML='上次寄出：'+esc(ls)+
-    (c.autoSkip?'<div style="color:var(--accent2);font-weight:600;margin-top:3px">✅ '+esc(c.autoSkip)+'，週一 09:00 排程會自動略過，不會重複寄一封</div>':'');
+    (c.autoSkip?'<div style="color:var(--accent2);font-weight:600;margin-top:3px">✅ '+esc(c.autoSkip)+'，'+esc(c.scheduleZh||mcSchedText(c.sendDay||1,c.sendHour!=null?c.sendHour:9))+' 的排程會自動略過，不會重複寄一封</div>':'');
 }
 async function showMailCfgM(){
   $('mMailCfg').classList.remove('hidden');
+  mcSchedSync();
   setMailCfgStatus('讀取雲端設定中…');
   const c=await loadMailCfg();
   if(c){fillMailCfgForm(c);setMailCfgStatus(c.saved?'已載入雲端設定':'尚未儲存過，目前顯示的是預設值，請確認後按「儲存設定」');normalizeMcPhotos();}
@@ -3512,8 +3524,15 @@ async function saveMailCfg(silent){
     const d=await gasPost({action:'saveMailConfig',cfg});
     if(!d||!d.ok)throw new Error((d&&d.error)||'儲存失敗');
     _mailCfg=d.config;
+    const sched=d.config.scheduleZh||mcSchedText(cfg.sendDay,cfg.sendHour);
+    if(d.config.triggerError){
+      // 設定已存，但排程沒改成功：舊的觸發器時間還在，要提醒到 Apps Script 編輯器執行 setupTrackerMailTrigger()
+      setMailCfgStatus('⚠️ 設定已儲存，但自動寄出時間沒有更新成功：'+d.config.triggerError+'。請到 Apps Script 編輯器執行一次 setupTrackerMailTrigger()','err');
+      if(!silent)showToast('⚠️ 寄送時間未更新成功，請看設定視窗下方說明','err');
+      return true;
+    }
     setMailCfgStatus('✅ 已儲存至雲端（'+new Date().toLocaleTimeString('zh-TW')+'）','ok');
-    if(!silent)showToast(cfg.enabled?'✅ 已儲存，每週一 09:00 會自動寄出':'✅ 已儲存，自動寄送已停用');
+    if(!silent)showToast(cfg.enabled?'✅ 已儲存，每'+sched+' 會自動寄出':'✅ 已儲存，自動寄送已停用');
     return true;
   }catch(e){setMailCfgStatus('⚠️ '+e.message,'err');showToast('⚠️ 儲存失敗：'+e.message,'err');return false;}
 }
@@ -4737,7 +4756,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>📧 環保部門週報設定 <small style="font-weight:500;color:var(--muted);font-size:12px">ENV WEEKLY REPORT</small></span><span id="mcLastSent" style="font-size:11px;color:var(--muted);font-weight:500"></span></div>
   <div class="modal-form" style="gap:12px">
     <div style="padding:10px 14px;border-radius:10px;background:var(--accent-light);border:1px solid rgba(22,163,74,.2);font-size:12px;color:var(--text2);line-height:1.7">
-      <b>每週一 09:00</b>（台北時間）自動寄出主旨為 <b>ENV WEEKLY REPORT (上週一~上週日)</b> 的週報：開頭文字 → KPI 卡片 → 改善單狀態（含 KPI 總結圖附件）→ 追蹤事項 → 現場照片，中文內容會自動加上英文小字。<br>
+      <b>每<span class="mcSchedTxt">週一 09:00</span></b>（台北時間，可在下方 ① 更改）自動寄出主旨為 <b>ENV WEEKLY REPORT (上週一~上週日)</b> 的週報：開頭文字 → KPI 卡片 → 改善單狀態（含 KPI 總結圖附件）→ 追蹤事項 → 現場照片，中文內容會自動加上英文小字。<br>
       <b>每週五 15:00</b> 會寄提醒信，提醒更新照片與 KPI 總結圖。排程讀的是<b>已儲存</b>的設定。<br>
       <b>⚠️ 寄不出去時</b>（任何原因：信太大、額度用完、收件者設錯、排程當掉…）系統會自動寄一封失敗通知到 <b>paul.tong@nmdc-group.com</b>，信裡有錯誤原因與處理方式；可按下方「⚠️ 測試失敗通知」先確認收得到。
     </div>
@@ -4750,8 +4769,14 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
         <div><label class="form-label">寄件者顯示名稱</label><input class="form-input" id="inMcName" placeholder="NMDC Environmental E-System"></div>
         <div><label class="form-label">週五提醒信收件者</label><input class="form-input" id="inMcRemindTo" placeholder="paul.tong@nmdc-group.com"></div>
       </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <label class="form-label" style="margin:0">自動寄出時間</label>
+        <select class="form-input" id="inMcSendDay" style="width:auto" onchange="mcSchedSync()"><option value="1">週一</option><option value="2">週二</option><option value="3">週三</option><option value="4">週四</option></select>
+        <select class="form-input" id="inMcSendHour" style="width:auto" onchange="mcSchedSync()"></select>
+        <small class="mc-note">台北時間；可選週一～週四，報告期間一律是寄出日前一個完整的週一～週日。按「儲存設定」後生效。</small>
+      </div>
       <div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:10px">
-        <label class="mc-chk"><input type="checkbox" id="inMcEnabled" checked> 啟用每週一 09:00 自動寄出</label>
+        <label class="mc-chk"><input type="checkbox" id="inMcEnabled" checked> 啟用每<span class="mcSchedTxt">週一 09:00</span> 自動寄出</label>
         <label class="mc-chk"><input type="checkbox" id="inMcRemind" checked> 啟用每週五 15:00 提醒更新照片</label>
         <label class="mc-chk"><input type="checkbox" id="inMcTranslate" checked> 中文內容自動加英文小字</label>
       </div>
