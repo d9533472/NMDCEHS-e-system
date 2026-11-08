@@ -65,6 +65,47 @@ namespace LineAlbumSaver {
         }
     }
 
+    // 檔案總管樣式的「選擇資料夾」視窗（IFileOpenDialog + FOS_PICKFOLDERS），取代舊的樹狀 FolderBrowserDialog。
+    static class FolderPicker {
+        [ComImport, Guid("DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7")] class FileOpenDialogCo { }
+        [ComImport, Guid("42f85136-db7e-439c-85f1-e4075d135fc8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        interface IFileOpenDialog {
+            [PreserveSig] int Show(IntPtr owner);
+            void SetFileTypes(uint c, IntPtr specs); void SetFileTypeIndex(uint i); void GetFileTypeIndex(out uint i);
+            void Advise(IntPtr sink, out uint cookie); void Unadvise(uint cookie);
+            void SetOptions(uint fos); void GetOptions(out uint fos);
+            void SetDefaultFolder(IShellItem si); void SetFolder(IShellItem si);
+            void GetFolder(out IShellItem si); void GetCurrentSelection(out IShellItem si);
+            void SetFileName([MarshalAs(UnmanagedType.LPWStr)] string name); void GetFileName([MarshalAs(UnmanagedType.LPWStr)] out string name);
+            void SetTitle([MarshalAs(UnmanagedType.LPWStr)] string title);
+            void SetOkButtonLabel([MarshalAs(UnmanagedType.LPWStr)] string text); void SetFileNameLabel([MarshalAs(UnmanagedType.LPWStr)] string text);
+            void GetResult(out IShellItem si);
+        }
+        [ComImport, Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        interface IShellItem {
+            void BindToHandler(IntPtr pbc, ref Guid bhid, ref Guid riid, out IntPtr ppv); void GetParent(out IShellItem si);
+            void GetDisplayName(uint sigdn, [MarshalAs(UnmanagedType.LPWStr)] out string name);
+            void GetAttributes(uint mask, out uint attrs); void Compare(IShellItem si, uint hint, out int order);
+        }
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+        static extern void SHCreateItemFromParsingName(string path, IntPtr pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem si);
+
+        public static string Pick(IWin32Window owner, string title, string initial) {
+            var dlg = (IFileOpenDialog)new FileOpenDialogCo();
+            try {
+                dlg.SetOptions(0x20 | 0x40 | 0x800);   // FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST
+                dlg.SetTitle(title);
+                if (!string.IsNullOrEmpty(initial) && Directory.Exists(initial)) {
+                    try { IShellItem si; SHCreateItemFromParsingName(initial, IntPtr.Zero, typeof(IShellItem).GUID, out si); dlg.SetFolder(si); } catch { }
+                }
+                if (dlg.Show(owner == null ? IntPtr.Zero : owner.Handle) != 0) return null;   // 取消
+                IShellItem res; dlg.GetResult(out res);
+                string path; res.GetDisplayName(0x80058000, out path);   // SIGDN_FILESYSPATH
+                return path;
+            } finally { Marshal.ReleaseComObject(dlg); }
+        }
+    }
+
     sealed class OcrLine { public string Text; public RectangleF Box; }
 
     sealed class Ocr {
@@ -651,8 +692,8 @@ namespace LineAlbumSaver {
             Resize += (s, e) => FitHint();
             refresh.Click += (s, e) => RefreshWindows();
             browse.Click += (s, e) => {
-                using (var d = new FolderBrowserDialog { Description = "選擇相簿要存放的資料夾（每本相簿會建一個子資料夾）", ShowNewFolderButton = true, SelectedPath = dest.Text })
-                    if (d.ShowDialog(this) == DialogResult.OK) { SetDest(d.SelectedPath); try { File.WriteAllText(Settings, d.SelectedPath, Encoding.UTF8); } catch { } }
+                var picked = FolderPicker.Pick(this, "選擇相簿要存放的資料夾（每本相簿會建一個子資料夾）", dest.Text);
+                if (picked != null) { SetDest(picked); try { File.WriteAllText(Settings, picked, Encoding.UTF8); } catch { } }
             };
             openDir.Click += (s, e) => { if (Directory.Exists(dest.Text)) Process.Start("explorer.exe", "\"" + dest.Text + "\""); };
             windows.SelectedIndexChanged += (s, e) => UpdateButtons();
