@@ -323,7 +323,7 @@ function cClose(p) {
     var mailed = false;
     try {
       var m = buildMail_(r, before, after, { closer: who });
-      MailApp.sendEmail({ to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE 承包商回報' });
+      MailApp.sendEmail(withCc_({ to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE 承包商回報' }, con));
       mailed = true;
     } catch (e) { console.error('close notify failed: ' + (e && e.message || e)); }
     return { ok: true, id: rec.id, afterCount: after.length, closeOutDate: today, mailed: mailed };
@@ -344,15 +344,25 @@ function esc_(s) {
 function notify_(rec, blobs, after) {
   try {
     var m = buildMail_(rec, blobs, after);
-    MailApp.sendEmail({
+    MailApp.sendEmail(withCc_({
       to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text,
       inlineImages: m.inline, name: 'NMDC HSE 承包商回報'
-    });
+    }, rec.contractor));
     return true;
   } catch (e) {
     console.error('notify failed: ' + (e && e.message || e));
     return false;
   }
+}
+
+/** CC 給該承包商的信箱（主系統 ⚙ 設定的 contractorEmails）；讀不到或沒填就照舊只寄 NOTIFY。 */
+function withCc_(opt, contractor) {
+  try {
+    var cc = mails_((fullCfg_(SpreadsheetApp.openById(SS_ID)).contractorEmails || {})[String(contractor || '').trim()])
+      .filter(function (x) { return NOTIFY.indexOf(x.toLowerCase()) < 0; });
+    if (cc.length) opt.cc = cc.join(',');
+  } catch (e) { console.error('contractor cc failed: ' + (e && e.message || e)); }
+  return opt;
 }
 
 function splitHz_(s) {
