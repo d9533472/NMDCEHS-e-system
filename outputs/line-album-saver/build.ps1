@@ -16,7 +16,7 @@ $arguments += '/r:' + $facade
 $arguments += '/r:' + (Join-Path $framework 'System.Runtime.WindowsRuntime.dll')
 foreach ($reference in @('Windows.Foundation.winmd','Windows.Globalization.winmd','Windows.Graphics.winmd','Windows.Media.winmd','Windows.Storage.winmd')) { $arguments += '/r:' + (Join-Path $metadata $reference) }
 if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'nmdc.jpg')) { $arguments += '/resource:' + (Join-Path $PSScriptRoot 'nmdc.jpg') + ',nmdc.jpg' }
-$arguments += '/resource:' + (Join-Path $PSScriptRoot 'line.png') + ',line.png'
+if (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'line.png')) { $arguments += '/resource:' + (Join-Path $PSScriptRoot 'line.png') + ',line.png' }
 $arguments += '/win32icon:' + (Join-Path $PSScriptRoot 'app.ico')
 $arguments += Join-Path $PSScriptRoot 'LineAlbumSaver.cs'
 & $compiler @arguments

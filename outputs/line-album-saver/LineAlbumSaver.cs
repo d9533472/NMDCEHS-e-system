@@ -618,6 +618,7 @@ namespace LineAlbumSaver {
             nmdcLogo = Theme.LogoForDark(Theme.Resource("nmdc.jpg")); lineLogo = Theme.Resource("line.png");
             Text = nmdcLogo != null ? "LINE 相簿批次儲存 · NMDC" : "LINE 相簿批次儲存";
             if (lineLogo != null) try { Icon = Icon.FromHandle(new Bitmap(lineLogo, 32, 32).GetHicon()); } catch { }
+            else try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             ClientSize = new Size(P(680), P(560)); MinimumSize = new Size(P(600), P(520));
             StartPosition = FormStartPosition.Manual;
             var wa = Screen.PrimaryScreen.WorkingArea;
