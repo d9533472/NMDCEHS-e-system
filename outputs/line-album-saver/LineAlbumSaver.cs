@@ -65,6 +65,47 @@ namespace LineAlbumSaver {
         }
     }
 
+    // 檔案總管樣式的「選擇資料夾」視窗（IFileOpenDialog + FOS_PICKFOLDERS），取代舊的樹狀 FolderBrowserDialog。
+    static class FolderPicker {
+        [ComImport, Guid("DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7")] class FileOpenDialogCo { }
+        [ComImport, Guid("42f85136-db7e-439c-85f1-e4075d135fc8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        interface IFileOpenDialog {
+            [PreserveSig] int Show(IntPtr owner);
+            void SetFileTypes(uint c, IntPtr specs); void SetFileTypeIndex(uint i); void GetFileTypeIndex(out uint i);
+            void Advise(IntPtr sink, out uint cookie); void Unadvise(uint cookie);
+            void SetOptions(uint fos); void GetOptions(out uint fos);
+            void SetDefaultFolder(IShellItem si); void SetFolder(IShellItem si);
+            void GetFolder(out IShellItem si); void GetCurrentSelection(out IShellItem si);
+            void SetFileName([MarshalAs(UnmanagedType.LPWStr)] string name); void GetFileName([MarshalAs(UnmanagedType.LPWStr)] out string name);
+            void SetTitle([MarshalAs(UnmanagedType.LPWStr)] string title);
+            void SetOkButtonLabel([MarshalAs(UnmanagedType.LPWStr)] string text); void SetFileNameLabel([MarshalAs(UnmanagedType.LPWStr)] string text);
+            void GetResult(out IShellItem si);
+        }
+        [ComImport, Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+        interface IShellItem {
+            void BindToHandler(IntPtr pbc, ref Guid bhid, ref Guid riid, out IntPtr ppv); void GetParent(out IShellItem si);
+            void GetDisplayName(uint sigdn, [MarshalAs(UnmanagedType.LPWStr)] out string name);
+            void GetAttributes(uint mask, out uint attrs); void Compare(IShellItem si, uint hint, out int order);
+        }
+        [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+        static extern void SHCreateItemFromParsingName(string path, IntPtr pbc, [MarshalAs(UnmanagedType.LPStruct)] Guid riid, out IShellItem si);
+
+        public static string Pick(IWin32Window owner, string title, string initial) {
+            var dlg = (IFileOpenDialog)new FileOpenDialogCo();
+            try {
+                dlg.SetOptions(0x20 | 0x40 | 0x800);   // FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST
+                dlg.SetTitle(title);
+                if (!string.IsNullOrEmpty(initial) && Directory.Exists(initial)) {
+                    try { IShellItem si; SHCreateItemFromParsingName(initial, IntPtr.Zero, typeof(IShellItem).GUID, out si); dlg.SetFolder(si); } catch { }
+                }
+                if (dlg.Show(owner == null ? IntPtr.Zero : owner.Handle) != 0) return null;   // 取消
+                IShellItem res; dlg.GetResult(out res);
+                string path; res.GetDisplayName(0x80058000, out path);   // SIGDN_FILESYSPATH
+                return path;
+            } finally { Marshal.ReleaseComObject(dlg); }
+        }
+    }
+
     sealed class OcrLine { public string Text; public RectangleF Box; }
 
     sealed class Ocr {
@@ -166,6 +207,13 @@ namespace LineAlbumSaver {
             foreach (AutomationElement e in root.FindAll(scope, new PropertyCondition(AutomationElement.ClassNameProperty, cls))) list.Add(e);
             return list;
         }
+        // 清單的每一列。LINE 26.6 起相簿卡片的類型從 ListItem 變成 Button，兩種都收。
+        public static List<AutomationElement> Rows(AutomationElement list) {
+            var rows = new List<AutomationElement>();
+            var cond = new OrCondition(new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem), new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.Button));
+            foreach (AutomationElement e in list.FindAll(TreeScope.Children, cond)) rows.Add(e);
+            return rows;
+        }
         public static AutomationElement First(AutomationElement root, string cls) {
             return root.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.ClassNameProperty, cls));
         }
@@ -261,7 +309,7 @@ namespace LineAlbumSaver {
                 if (!N.IsWindow(overview)) throw new Exception("相簿總覽視窗被關掉了。");
                 var lr = Ui.R(list); double max; double v = ScrollValue(bar, out max);
                 var items = new List<AutomationElement>();
-                foreach (AutomationElement it in list.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem))) items.Add(it);
+                items.AddRange(Ui.Rows(list));
                 AutomationElement next = null; Rectangle nextBand = Rectangle.Empty, nextCard = Rectangle.Empty; double nextAbs = 0;
                 foreach (var it in items) { int h = Ui.R(it).Height; if (h >= 150 * scale && h < cardH) cardH = h; }
                 foreach (var it in items.OrderBy(i => Ui.R(i).Top)) {
@@ -330,11 +378,8 @@ namespace LineAlbumSaver {
             try {
                 Sleep(1200);
                 // 2. 讀單本相簿的標題與張數
-                var bar = Ui.First(detail, "LcTitleBar"); int barBottom = bar != null ? Ui.R(bar).Bottom : Ui.R(detail).Top;
-                var texts = Ui.Find(detail, "LcText").Select(Ui.R).Where(r => r.Height > 0 && r.Top >= barBottom).OrderBy(r => r.Top).ThenBy(r => r.Left).ToList();
-                if (texts.Count < 2) throw new Exception("單本相簿視窗讀不到標題與張數的位置。");
-                string title = ocr.Text(Pad(texts[0], 4));
-                int expected = Txt.Count(ocr.Text(Pad(texts[1], 4)));
+                string title; int expected;
+                if (!AlbumInfo(detail, ocr, out title, out expected)) throw new Exception("單本相簿視窗讀不到標題與張數的位置。");
                 if (title.Length == 0) title = listName;
                 row.Name = title; row.Expected = expected;
                 log("　相簿名稱：" + (title.Length > 0 ? title : "（讀不到）") + "，" + (expected >= 0 ? expected + " 張" : "張數讀不到"));
@@ -371,6 +416,23 @@ namespace LineAlbumSaver {
 
         static Rectangle Pad(Rectangle r, int p) { return new Rectangle(r.X - p, r.Y - p, r.Width + p * 2, r.Height + p * 2); }
 
+        // 單本相簿的標題與張數。LINE 26.6 起 LcText 讀得到原文（舊版才要 OCR），而且標題重複兩行，
+        // 所以張數要認「N張」的格式，不能看排第幾行。
+        public static bool AlbumInfo(AutomationElement detail, Ocr ocr, out string title, out int count) {
+            title = ""; count = -1;
+            var bar = Ui.First(detail, "LcTitleBar"); int barBottom = bar != null ? Ui.R(bar).Bottom : Ui.R(detail).Top;
+            var texts = Ui.Find(detail, "LcText").Where(e => { var r = Ui.R(e); return r.Height > 0 && r.Top >= barBottom; }).OrderBy(e => Ui.R(e).Top).ThenBy(e => Ui.R(e).Left).ToList();
+            if (texts.Count < 2) return false;
+            var read = texts.Select(e => { string s = (e.Current.Name ?? "").Trim(); return s.Length > 0 ? s : ocr.Text(Pad(Ui.R(e), 4)); }).ToList();
+            title = read[0];
+            string name = Txt.Compact(title);
+            foreach (var s in read.Skip(1)) {
+                string c = Txt.Compact(s);
+                if (c != name && Regex.IsMatch(c, @"\d+(張|部|個|項|photo|video|item)", RegexOptions.IgnoreCase)) { count = Txt.Count(s); break; }
+            }
+            return true;
+        }
+
         AutomationElement WaitWindow(string cls, HashSet<IntPtr> before, int ms) {
             var sw = Stopwatch.StartNew();
             while (sw.ElapsedMilliseconds < ms) {
@@ -396,14 +458,19 @@ namespace LineAlbumSaver {
                 var menu = WaitWindow("LcContextMenu", before, 4000);
                 if (menu == null) { log("　⋮ 選單沒有出現，重試（" + attempt + "/3）"); N.Escape(); Sleep(500); continue; }
                 Sleep(300);
-                var items = Ui.Find(menu, "LcContextMenuItem").Select(Ui.R).Where(r => r.Height > 0).OrderBy(r => r.Top).ToList();
+                var menuEls = Ui.Find(menu, "LcContextMenuItem");
+                var items = menuEls.Select(Ui.R).Where(r => r.Height > 0).OrderBy(r => r.Top).ToList();
                 var lines = ocr.Read(Ui.R(menu));
                 Rectangle target = Rectangle.Empty;
-                foreach (var it in items) {
+                // 有原文就直接認字；「刪除相簿」就在隔壁，讀得到字時絕不靠位置猜。
+                var named = menuEls.FirstOrDefault(e => Txt.IsSaveAll(e.Current.Name));
+                bool hasNames = menuEls.Any(e => !string.IsNullOrEmpty(e.Current.Name));
+                if (named != null) target = Ui.R(named);
+                else foreach (var it in items) {
                     var hit = lines.FirstOrDefault(l => { float cy = l.Box.Top + l.Box.Height / 2; return cy >= it.Top && cy <= it.Bottom; });
                     if (hit != null && Txt.IsSaveAll(hit.Text)) { target = it; break; }
                 }
-                if (target.IsEmpty && items.Count == 5) {
+                if (target.IsEmpty && items.Count == 5 && !hasNames) {
                     target = items[2];
                     log("　選單文字沒讀到「儲存全部」，依位置點第 3 項。");
                 }
@@ -547,9 +614,11 @@ namespace LineAlbumSaver {
         public MainForm() {
             AutoScaleMode = AutoScaleMode.None; DoubleBuffered = true;
             using (var g = CreateGraphics()) S = g.DpiX / 96f;
-            Font = new Font("Microsoft JhengHei UI", 8.25f); Text = "LINE 相簿批次儲存 · NMDC"; BackColor = Theme.Page; ForeColor = Theme.Text;
+            Font = new Font("Microsoft JhengHei UI", 8.25f); BackColor = Theme.Page; ForeColor = Theme.Text;
             nmdcLogo = Theme.LogoForDark(Theme.Resource("nmdc.jpg")); lineLogo = Theme.Resource("line.png");
+            Text = nmdcLogo != null ? "LINE 相簿批次儲存 · NMDC" : "LINE 相簿批次儲存";
             if (lineLogo != null) try { Icon = Icon.FromHandle(new Bitmap(lineLogo, 32, 32).GetHicon()); } catch { }
+            else try { Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
             ClientSize = new Size(P(680), P(560)); MinimumSize = new Size(P(600), P(520));
             StartPosition = FormStartPosition.Manual;
             var wa = Screen.PrimaryScreen.WorkingArea;
@@ -625,8 +694,8 @@ namespace LineAlbumSaver {
             Resize += (s, e) => FitHint();
             refresh.Click += (s, e) => RefreshWindows();
             browse.Click += (s, e) => {
-                using (var d = new FolderBrowserDialog { Description = "選擇相簿要存放的資料夾（每本相簿會建一個子資料夾）", ShowNewFolderButton = true, SelectedPath = dest.Text })
-                    if (d.ShowDialog(this) == DialogResult.OK) { SetDest(d.SelectedPath); try { File.WriteAllText(Settings, d.SelectedPath, Encoding.UTF8); } catch { } }
+                var picked = FolderPicker.Pick(this, "選擇相簿要存放的資料夾（每本相簿會建一個子資料夾）", dest.Text);
+                if (picked != null) { SetDest(picked); try { File.WriteAllText(Settings, picked, Encoding.UTF8); } catch { } }
             };
             openDir.Click += (s, e) => { if (Directory.Exists(dest.Text)) Process.Start("explorer.exe", "\"" + dest.Text + "\""); };
             windows.SelectedIndexChanged += (s, e) => UpdateButtons();
@@ -660,9 +729,11 @@ namespace LineAlbumSaver {
             using (var lb = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, r.Height - P(2), r.Width, P(2)), Theme.Green, Color.FromArgb(0, 0, 176, 80), 0f)) g.FillRectangle(lb, 0, r.Height - P(2), r.Width, P(2));
 
             int x0 = P(16), cy = r.Height / 2;
-            if (nmdcLogo != null) { int h = P(24), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(13); }
-            using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(14), x0, cy + P(14));
-            x0 += P(13);
+            if (nmdcLogo != null) {
+                int h = P(24), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(13);
+                using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(14), x0, cy + P(14));
+                x0 += P(13);
+            }
             if (lineLogo != null) { int h = P(26); g.DrawImage(lineLogo, x0, cy - h / 2, h, h); x0 += h + P(10); }
             using (var f1 = new Font(Font.FontFamily, 10.5f, FontStyle.Bold)) using (var f2 = new Font("Consolas", 6.75f))
             using (var w1 = new SolidBrush(Color.White)) using (var w2 = new SolidBrush(Color.FromArgb(110, 170, 200))) {
@@ -854,8 +925,8 @@ namespace LineAlbumSaver {
             using (var f = new MainForm()) {
                 f.ShowInTaskbar = false; f.StartPosition = FormStartPosition.Manual; f.Location = new Point(-32000, -32000);
                 if (width > 0) f.Size = new Size(width, height);
-                f.windows.Items.Add(new LineWindow { Label = "NMDC 通霄工安群組 相簿", IsOverview = true }); f.windows.SelectedIndex = 0;
-                f.SetDest(@"C:\Users\b7710\OneDrive\Desktop\新增資料夾");
+                f.windows.Items.Add(new LineWindow { Label = "範例群組 相簿", IsOverview = true }); f.windows.SelectedIndex = 0;
+                f.SetDest(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "LINE相簿"));
                 f.Show(); Application.DoEvents();
                 f.Report(new AlbumRow { No = 1, Name = "20260831 KESI", Expected = 18, Actual = 18, Status = "完成 ✔", Folder = @"C:\x\20260831 KESI" });
                 f.Report(new AlbumRow { No = 2, Name = "20260826琿宏缺失改善", Expected = 7, Actual = 7, Status = "完成 ✔", Folder = @"C:\x\20260826琿宏缺失改善" });
@@ -892,19 +963,18 @@ namespace LineAlbumSaver {
                     object p; string sv = "無捲軸";
                     if (bar != null && bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out p)) sv = ((RangeValuePattern)p).Current.Value + " / " + ((RangeValuePattern)p).Current.Maximum;
                     o.AppendLine("總覽 scale=" + scale + " 捲軸=" + sv + " 清單=" + Ui.R(list));
-                    foreach (AutomationElement it in list.FindAll(TreeScope.Children, new PropertyCondition(AutomationElement.ControlTypeProperty, ControlType.ListItem))) {
+                    foreach (var it in Ui.Rows(list)) {
                         var r = Ui.R(it); int h = (int)(56 * scale); object sc; if (bar != null && bar.TryGetCurrentPattern(RangeValuePattern.Pattern, out sc) && ((RangeValuePattern)sc).Current.SmallChange * scale >= 150 * scale) r.Height = Math.Min(r.Height, (int)Math.Round(((RangeValuePattern)sc).Current.SmallChange * scale));
                         var band = new Rectangle(r.Left + (int)(8 * scale), r.Bottom - h, r.Width - (int)(60 * scale), h - (int)(2 * scale));
                         o.AppendLine("  項目 " + r + " 名稱區 → " + string.Join(" | ", ocr.Read(band).Select(l => Txt.Fix(l.Text) + " @" + (int)l.Box.X + "," + (int)l.Box.Y)));
                     }
                 }
                 foreach (var win in Ui.TopWindows("AlbumDetailWindow")) {
-                    var bar = Ui.First(win, "LcTitleBar"); int bb = bar != null ? Ui.R(bar).Bottom : 0;
-                    var t = Ui.Find(win, "LcText").Select(Ui.R).Where(r => r.Height > 0 && r.Top >= bb).OrderBy(r => r.Top).ToList();
-                    o.AppendLine("單本相簿：" + string.Join(" | ", t.Take(3).Select(r => ocr.Text(new Rectangle(r.X - 4, r.Y - 4, r.Width + 8, r.Height + 8)))));
-                    if (t.Count > 1) o.AppendLine("  張數解析 = " + Txt.Count(ocr.Text(new Rectangle(t[1].X - 4, t[1].Y - 4, t[1].Width + 8, t[1].Height + 8))));
+                    string title; int count; bool ok = Runner.AlbumInfo(win, ocr, out title, out count);
+                    o.AppendLine("單本相簿：" + (ok ? title : "（讀不到）") + "　張數解析 = " + count + "　資料夾 = " + Txt.SafeFolder(title));
                 }
                 foreach (var menu in Ui.TopWindows("LcContextMenu")) {
+                    o.AppendLine("選單原文：" + string.Join(" | ", Ui.Find(menu, "LcContextMenuItem").Select(e => e.Current.Name + (Txt.IsSaveAll(e.Current.Name) ? "(★儲存全部)" : ""))));
                     var ocrLines = ocr.Read(Ui.R(menu));
                     o.AppendLine("選單：" + string.Join(" | ", ocrLines.Select(l => Txt.Fix(l.Text) + (Txt.IsSaveAll(l.Text) ? "(★儲存全部)" : ""))));
                 }

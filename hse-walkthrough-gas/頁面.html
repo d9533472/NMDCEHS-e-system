@@ -137,9 +137,22 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .sorts button.on{background:#002038;color:#fff}
 .rows{background:#fff;border:1px solid #e8ecf1;border-radius:16px;overflow:hidden;
  box-shadow:0 1px 3px rgba(16,24,40,.04),0 8px 20px rgba(16,24,40,.05)}
-.lr{display:grid;grid-template-columns:5px 46px minmax(0,1fr) auto;align-items:center;gap:10px;
+.lr{display:grid;grid-template-columns:5px 20px 46px minmax(0,1fr) auto;align-items:center;gap:10px;
  padding:10px 12px 10px 0;border-top:1px solid #eef1f4;cursor:pointer}
 .rows>.lr:first-child,.rows>.gh:first-child{border-top:0}
+.smc{width:18px;height:18px;margin:0;padding:0;flex:none;vertical-align:-3px;accent-color:#1b3a5c;cursor:pointer}
+.lexp .smc{display:none}
+.tag.sm{background:#e4f1fb;color:#14507c;font-weight:800}
+.smbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;align-items:center;gap:7px;flex-wrap:wrap;
+ padding:10px 14px;background:#fff;border-top:1px solid #dfe5ec;box-shadow:0 -6px 20px rgba(16,24,40,.12)}
+.smbar b{flex:1;min-width:70px;font-size:13.5px;color:#16324f}
+.smb{border:1px solid #d7dee6;background:#f5f8fb;color:#3c5568;border-radius:10px;padding:8px 11px;font-size:13px;font-weight:700;cursor:pointer}
+.smb.go{background:#1b3a5c;border-color:#1b3a5c;color:#fff}
+.smr{border-bottom:1px solid #eef1f4;padding:10px 0}
+.smr .smt{font-size:13px;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.smr .sms{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px;margin-top:7px}
+.smr .smst{font-size:12px;color:#6b7784;margin-top:5px}
+.smr .smst.ok{color:#1b6e3c;font-weight:700}.smr .smst.bad{color:#c62828;font-weight:700}
 .lr .st{align-self:stretch;background:#c07a18}
 .lr .st.ov{background:#c62828}.lr .st.cl{background:#1b6e3c}
 .lr .d{font-size:12.5px;font-weight:900;color:#002038;line-height:1.15;text-align:center;font-variant-numeric:tabular-nums}
@@ -389,6 +402,12 @@ details summary::-webkit-details-marker{display:none}
    <input id="f_hazOther" style="margin-top:7px;display:none" data-p="pOther">
    <div class="hint" data-i="hHaz"></div>
 
+   <label class="req" data-i="lOType"></label>
+   <select id="f_otype"></select>
+
+   <label class="req" data-i="lOper"></label>
+   <select id="f_oper"></select>
+
    <label class="req" data-i="lObs"></label>
    <textarea id="f_obsZh" data-p="pObs"></textarea>
    <label data-i="lObsEn"></label>
@@ -426,6 +445,33 @@ details summary::-webkit-details-marker{display:none}
  </div>
 
  <div id="list"><div class="muted" data-i="lding"></div></div>
+
+ <div class="smbar" id="smBar">
+  <b id="smN"></b>
+  <button class="smb" onclick="smAll()" data-i="smAll"></button>
+  <button class="smb" onclick="smClear()" data-i="smClr"></button>
+  <button class="smb go" onclick="smOpen()" data-i="smUp"></button>
+ </div>
+
+ <div class="mask" id="mSm" onclick="maskClick(event,'sm')">
+  <div class="sheet">
+   <div class="shd">
+    <h2 class="ft" data-i="smTit"></h2>
+    <button class="x" onclick="closeM('sm')">✕</button>
+   </div>
+   <div class="sbd">
+    <div class="hint" data-i="smH"></div>
+    <label data-i="smBulk"></label>
+    <div class="sms" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px">
+     <select id="smAT" onchange="smApply('t',this.value)"></select>
+     <select id="smAO" onchange="smApply('o',this.value)"></select>
+    </div>
+    <div id="smRows" style="margin-top:8px"></div>
+    <div style="height:12px"></div>
+    <button class="btn" id="smGo" onclick="smGo()" style="margin:0"></button>
+   </div>
+  </div>
+ </div>
 
  <div class="mask" id="mExp" onclick="maskClick(event,'exp')">
   <div class="sheet">
@@ -503,6 +549,10 @@ details summary::-webkit-details-marker{display:none}
    </div>
    <div style="height:12px"></div>
    <button class="btn btn2" onclick="saveCfg()" data-i="cSave" style="margin:0"></button>
+   <label data-i="cSm"></label>
+   <input id="c_smToken" type="password" autocomplete="off">
+   <div class="hint" id="smState"></div>
+   <button class="btn btn2" onclick="saveSmToken()" data-i="cSmSave" style="margin:8px 0 0"></button>
    </div>
   </div>
  </div>
@@ -566,6 +616,14 @@ var L={zh:{
  aAfter:"📷 改善後照片", aClose:"✓ 結案", aReopen:"↺ 重新開啟", aEdit:"✎ 編輯", aDel:"🗑 刪除",
  cfmDel:"確定刪除這筆紀錄？", cfmPDel:"確定刪除這張照片？", cfmClose:"確認結案？結案日期先填今天，之後可以在卡片上改。",
  okSave:"已儲存 ✓", okDel:"已刪除 ✓", okPhoto:"照片已上傳 ✓",
+ lOType:"觀察種類 Observation Type", lOper:"工作內容 Operation",
+ smSel:"已選 ", smAll:"全選本頁", smClr:"清除", smUp:"☁ 上傳到 Smartsheet", smTit:"上傳到 Smartsheet（SOC sheet）",
+ smH:"已上傳過的紀錄會更新原本那一列；巡查發現與改善建議填英文，改善前後照片上傳成附件。",
+ smBulk:"全部套用（可再逐筆調整）", smBT:"觀察種類…", smBO:"工作內容…", smGo:"開始上傳", smGoing:"上傳中…",
+ smWait:"等待上傳", smDoing:"上傳中…", smOk:"✓ 已上傳", smFix:"請先選好標示紅框的欄位", smUpd:"已上傳過，這次會更新同一列",
+ smPh:" 張照片", smDone1:"上傳完成：成功 ", smDone2:" 筆，失敗 ", smDone3:" 筆",
+ smTag:"☁ 已上傳 ", smTagC:"☁ 上傳後有修改", smNoTok:"請先在設定貼上 Smartsheet 權杖",
+ cSm:"Smartsheet API 權杖", cSmSave:"儲存權杖", smOn:"已設定。權杖只會存在後端，這裡不會顯示；要更換時直接貼上新的。", smOff:"尚未設定。",
  okPhotoClosed:"照片已上傳，已自動結案 ✓（日期可在卡片上改）",
  etit:"匯出當日報告 Daily Report",
  eHint:"依照 HSE Walkthrough Inspection 範本格式產生（A4 橫式、中英對照、每筆下方含改善前後照片）。",
@@ -641,6 +699,14 @@ var L={zh:{
  aAfter:"📷 After photos", aClose:"✓ Close out", aReopen:"↺ Reopen", aEdit:"✎ Edit", aDel:"🗑 Delete",
  cfmDel:"Delete this finding?", cfmPDel:"Delete this photo?", cfmClose:"Close out? Today's date is filled in; you can change it on the card.",
  okSave:"Saved ✓", okDel:"Deleted ✓", okPhoto:"Photos uploaded ✓",
+ lOType:"Observation Type", lOper:"Operation",
+ smSel:"Selected ", smAll:"Select page", smClr:"Clear", smUp:"☁ Upload to Smartsheet", smTit:"Upload to Smartsheet (SOC sheet)",
+ smH:"Findings already uploaded update their existing row. Text is uploaded in English; before and after photos become attachments.",
+ smBulk:"Apply to all (adjust each below if needed)", smBT:"Observation type…", smBO:"Operation…", smGo:"Start upload", smGoing:"Uploading…",
+ smWait:"Waiting", smDoing:"Uploading…", smOk:"✓ Uploaded", smFix:"Complete the fields marked in red", smUpd:"Already uploaded; this updates the same row",
+ smPh:" photos", smDone1:"Upload finished: ", smDone2:" succeeded, ", smDone3:" failed",
+ smTag:"☁ Uploaded ", smTagC:"☁ Changed since upload", smNoTok:"Enter the Smartsheet token in Settings first",
+ cSm:"Smartsheet API token", cSmSave:"Save token", smOn:"Set. The token stays on the server and is not shown here; paste a new one to replace it.", smOff:"Not set.",
  okPhotoClosed:"Photos uploaded, closed out ✓ (date editable on the card)",
  etit:"Daily Report Export",
  eHint:"Generated in the HSE Walkthrough Inspection template format (A4 landscape, bilingual, before/after photos under each item).",
@@ -712,6 +778,7 @@ function load(){
   // 表單沒開也不在編輯中時，讓新增用的巡查日跟著上面切換的日期走。
   if(!EDIT&&!isOpen("rep"))$("f_date").value=$("dt").value||TODAY;
   CFG=r.config; COUNTS=r.counts; DATA=r.records; DATES=r.dates||[]; CAL=r.cal||{};
+  SMREADY=!!r.smReady;smTokenUi();
   buildOptions(); buildDateOpts(); fillCfgForm(); paint();
   if(EID0){
    var eid=EID0;EID0="";
@@ -808,9 +875,10 @@ function lrow(x){
  if(x.targetDate&&!cl)sub.push(t("tDue")+x.targetDate.slice(5).replace("-","/"));
  if(cl&&x.closeOutDate)sub.push(t("tClose")+x.closeOutDate.slice(5).replace("-","/"));
  sub.push(t("tBy")+(x.reporter||"—"));
+ if(x.smAt)sub.push("☁");
  var txt=(LG==="en"&&x.obsEn)?x.obsEn:x.obsZh;
  return '<div class="lr'+(OPENID===x.id?" on":"")+'" onclick="rowTog(\''+x.id+'\')">'+
-  '<span class="st '+stc+'"></span>'+
+  '<span class="st '+stc+'"></span>'+smBox(x)+
   '<span class="d">'+esc(x.date.slice(5).replace("-","/"))+'<small>#'+esc(x.sn||"")+'</small></span>'+
   '<div class="t"><div>'+(x.contractor?'<span class="con">【'+esc(x.contractor)+'】</span>':'')+esc(txt)+
    (x.source==="contractor"?'<span class="srcb">'+esc(t("tSrc"))+'</span>':'')+'</div>'+
@@ -882,6 +950,14 @@ function buildOptions(){
  fillSel("f_con",CFG.contractors,true);
  fillSel("f_haz",CFG.hazards,true);
  fillSel("f_action",CFG.actionBy,true);
+ fillSel("f_otype",CFG.obsTypes||[],false);
+ fillSel("f_oper",CFG.operations||[],false);
+ if(!$("f_haz").dataset.ot){
+  $("f_haz").dataset.ot="1";
+  $("f_haz").addEventListener("change",function(){
+   if(this.value.indexOf(GOOD)===0)$("f_otype").value=(CFG.obsTypes||[]).filter(function(o){return o.indexOf(GOOD)===0})[0]||"";
+  });
+ }
  if(!$("f_project").value)$("f_project").value=CFG.project||"";
 }
 
@@ -920,7 +996,7 @@ function selVal(id){
 }
 
 /* ---------- 浮動視窗 ---------- */
-var MKEY={rep:"mRep",exp:"mExp",stat:"mStat",cfg:"mCfg"};
+var MKEY={rep:"mRep",exp:"mExp",stat:"mStat",cfg:"mCfg",sm:"mSm"};
 
 function isOpen(k){var m=$(MKEY[k]);return !!m&&m.classList.contains("on")}
 function openM(k){
@@ -1043,6 +1119,9 @@ function submit0(retry){
  var reporter=getReporter(), obs=$("f_obsZh").value.trim(), rec=$("f_recZh").value.trim();
  if(!reporter)miss.push("opReporter");
  if(!selVal("f_haz"))miss.push("f_haz");   // 統計要靠這欄，所以設成必填
+ // 舊紀錄沒有這兩欄：編輯時不擋，上傳到 Smartsheet 時再補
+ if(!EDIT&&!$("f_otype").value)miss.push("f_otype");
+ if(!EDIT&&!$("f_oper").value)miss.push("f_oper");
  if(!obs)miss.push("f_obsZh");
  if(!rec)miss.push("f_recZh");
  if(miss.length){
@@ -1065,6 +1144,8 @@ function submit0(retry){
   project:$("f_project").value.trim(),
   contractor:selVal("f_con"),
   hazard:selVal("f_haz"),
+  obsType:$("f_otype").value,
+  operation:$("f_oper").value,
   obsZh:obs, obsEn:$("f_obsEn").value.trim(),
   recZh:rec, recEn:$("f_recEn").value.trim(),
   actionBy:selVal("f_action"),
@@ -1094,7 +1175,7 @@ function resetForm(){
   var e=$(id);if(e){e.value="";e.dataset.auto="";e.dataset.last=""}});
  $("f_target").value="";$("th").innerHTML="";
  ["P1","P2","P3"].forEach(function(x){$("r"+x).className="risk"});
- $("f_con").value="";$("f_haz").value="";$("f_action").value="";
+ $("f_con").value="";$("f_haz").value="";$("f_action").value="";$("f_otype").value="";$("f_oper").value="";
  ["f_conOther","f_hazOther","f_actionOther"].forEach(function(id){$(id).style.display="none"});
  $("f_time").value=nowHM();
  $("f_date").value=curDate();
@@ -1115,6 +1196,7 @@ function editRec(id){
  $("f_project").value=x.project||"";
  setSel("f_con",x.contractor);
  setSel("f_haz",x.hazard);
+ $("f_otype").value=x.obsType||"";$("f_oper").value=x.operation||"";
  $("f_obsZh").value=x.obsZh;$("f_obsEn").value=x.obsEn;
  $("f_recZh").value=x.recZh;$("f_recEn").value=x.recEn;
  $("f_obsZh").dataset.last=x.obsZh;$("f_recZh").dataset.last=x.recZh;
@@ -1173,6 +1255,7 @@ function card(x){
  var tags="";
  if(x.source==="contractor")tags+='<span class="tag src">'+esc(t("tSrc"))+'</span>';
  if(x.hazard)tags+='<span class="tag hz">'+esc(x.hazard)+'</span>';
+ tags+=smTag(x);
  if(x.actionBy)tags+='<span class="tag">'+esc(t("tAction")+x.actionBy)+'</span>';
  if(x.contractor)tags+='<span class="tag">'+esc(t("tCon")+x.contractor)+'</span>';
  if(x.targetDate){
@@ -1202,7 +1285,7 @@ function card(x){
  }
 
  return '<div class="card it '+st+'">'+
-  '<div class="row1"><span class="sn">#'+x.sn+'　<span style="font-weight:600;color:#6b7784">'+esc(x.time||"")+'　'+esc(t("tBy")+x.reporter)+'</span></span>'+
+  '<div class="row1"><span class="sn">'+smBox(x)+' #'+x.sn+'　<span style="font-weight:600;color:#6b7784">'+esc(x.time||"")+'　'+esc(t("tBy")+x.reporter)+'</span></span>'+
   '<span class="pill '+st+'">'+esc(t("s"+st))+'</span></div>'+
   '<div class="lbl">'+esc(t("tObs"))+'</div>'+
   '<div class="zh">'+esc(x.obsZh)+'</div>'+(x.obsEn?'<div class="en">'+esc(x.obsEn)+'</div>':'')+
@@ -1437,6 +1520,101 @@ function saveCfg(){
    toast(r.triggerError?(t("fail")+r.triggerError):t(obj.overdueMail?"okTrig":"okSave"))}
   else toast(t("fail")+((r&&r.error)||"?"));
  }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))}).hseSaveConfig(KEY,obj);
+}
+
+/* ---------- 上傳到 Smartsheet ---------- */
+var GOOD="優點",SMSEL={},SMBUSY=0,SMREADY=false;
+function smBox(x){
+ return '<input type="checkbox" class="smc"'+(SMSEL[x.id]?" checked":"")+
+  ' onclick="event.stopPropagation();smTog(\''+x.id+'\',this.checked)">';
+}
+function smTag(x){
+ if(!x.smAt)return "";
+ return x.updatedAt>x.smAt?'<span class="tag soon">'+esc(t("smTagC"))+'</span>'
+  :'<span class="tag sm">'+esc(t("smTag")+x.smAt.slice(5,10).replace("-","/"))+'</span>';
+}
+function smIds(){return Object.keys(SMSEL)}
+function smBarUi(){
+ var n=smIds().length;
+ $("smBar").style.display=n?"flex":"none";
+ $("smN").textContent=t("smSel")+n+t("lN");
+ document.body.style.paddingBottom=n?"96px":"";
+}
+function smTog(id,on){
+ if(on)SMSEL[id]=findRec(id);else delete SMSEL[id];
+ smBarUi();
+}
+function smRepaint(){paint();smBarUi()}
+function smAll(){
+ (MODE==="list"?LIST:DATA).forEach(function(x){SMSEL[x.id]=x});
+ smRepaint();
+}
+function smClear(){SMSEL={};smRepaint()}
+function smOptions(list,ph,cur){
+ return '<option value="">'+esc(ph)+'</option>'+list.map(function(v){
+  return '<option value="'+esc(v)+'"'+(v===cur?" selected":"")+'>'+esc(v)+'</option>'}).join("");
+}
+function smOpen(){
+ if(!SMREADY){toast(t("smNoTok"));openM("cfg");return}
+ var ot=CFG.obsTypes||[],op=CFG.operations||[];
+ $("smAT").innerHTML=smOptions(ot,t("smBT"),"");
+ $("smAO").innerHTML=smOptions(op,t("smBO"),"");
+ $("smRows").innerHTML=smIds().map(function(id){
+  var x=SMSEL[id];
+  var type=x.obsType||(String(x.hazard).indexOf(GOOD)===0?ot.filter(function(o){return o.indexOf(GOOD)===0})[0]:"");
+  var txt=(LG==="en"&&x.obsEn)?x.obsEn:x.obsZh;
+  return '<div class="smr"><div class="smt"><b>'+esc(x.date)+'</b> '+(x.contractor?'【'+esc(x.contractor)+'】':'')+esc(txt)+'</div>'+
+   '<div class="sms"><select id="smt_'+id+'">'+smOptions(ot,t("smBT"),type)+'</select>'+
+   '<select id="smo_'+id+'">'+smOptions(op,t("smBO"),x.operation)+'</select></div>'+
+   '<div class="smst" id="sms_'+id+'">'+esc((x.smAt?t("smUpd")+" · ":"")+x.photos.length+t("smPh"))+'</div></div>';
+ }).join("");
+ $("smGo").textContent=t("smGo");$("smGo").disabled=!!SMBUSY;
+ openM("sm");
+}
+function smApply(k,v){
+ if(!v)return;
+ smIds().forEach(function(id){var s=$((k==="t"?"smt_":"smo_")+id);if(s){s.value=v;s.classList.remove("err")}});
+}
+function smState(id,txt,cls){var e=$("sms_"+id);if(e){e.textContent=txt;e.className="smst"+(cls?" "+cls:"")}}
+function smGo(){
+ if(SMBUSY)return;
+ var ids=smIds(),bad=0;
+ ids.forEach(function(id){
+  ["smt_","smo_"].forEach(function(p){var s=$(p+id),no=!s.value;s.classList.toggle("err",no);if(no)bad++});
+ });
+ if(bad){toast(t("smFix"));return}
+ SMBUSY=1;$("smGo").disabled=true;$("smGo").textContent=t("smGoing");
+ ids.forEach(function(id){smState(id,t("smWait"))});
+ var i=0,ok=0,fail=0;
+ function step(id,r,msg){
+  if(r){ok++;delete SMSEL[id];smState(id,t("smOk"),"ok")}
+  else{fail++;smState(id,t("fail")+msg,"bad")}
+  next();
+ }
+ function next(){
+  if(i>=ids.length){
+   SMBUSY=0;$("smGo").disabled=false;$("smGo").textContent=t("smGo");
+   toast(t("smDone1")+ok+t("smDone2")+fail+t("smDone3"));
+   smBarUi();load();return;
+  }
+  var id=ids[i++];
+  smState(id,t("smDoing"));
+  google.script.run.withSuccessHandler(function(r){
+   step(id,r&&r.ok,(r&&r.error)||"?");
+  }).withFailureHandler(function(e){
+   step(id,false,e&&e.message||e);
+  }).hseSmUpload(KEY,id,$("smt_"+id).value,$("smo_"+id).value);
+ }
+ next();
+}
+function smTokenUi(){$("smState").textContent=t(SMREADY?"smOn":"smOff")}
+function saveSmToken(){
+ var v=$("c_smToken").value.trim();
+ if(!v){toast(t("need"));return}
+ google.script.run.withSuccessHandler(function(r){
+  if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
+  $("c_smToken").value="";SMREADY=true;smTokenUi();toast(t("okSave"));
+ }).withFailureHandler(function(e){toast(t("fail")+(e&&e.message||e))}).hseSmSetToken(KEY,v);
 }
 
 /* ---------- 啟動 ---------- */
