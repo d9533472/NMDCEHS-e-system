@@ -614,8 +614,9 @@ namespace LineAlbumSaver {
         public MainForm() {
             AutoScaleMode = AutoScaleMode.None; DoubleBuffered = true;
             using (var g = CreateGraphics()) S = g.DpiX / 96f;
-            Font = new Font("Microsoft JhengHei UI", 8.25f); Text = "LINE 相簿批次儲存 · NMDC"; BackColor = Theme.Page; ForeColor = Theme.Text;
+            Font = new Font("Microsoft JhengHei UI", 8.25f); BackColor = Theme.Page; ForeColor = Theme.Text;
             nmdcLogo = Theme.LogoForDark(Theme.Resource("nmdc.jpg")); lineLogo = Theme.Resource("line.png");
+            Text = nmdcLogo != null ? "LINE 相簿批次儲存 · NMDC" : "LINE 相簿批次儲存";
             if (lineLogo != null) try { Icon = Icon.FromHandle(new Bitmap(lineLogo, 32, 32).GetHicon()); } catch { }
             ClientSize = new Size(P(680), P(560)); MinimumSize = new Size(P(600), P(520));
             StartPosition = FormStartPosition.Manual;
@@ -727,9 +728,11 @@ namespace LineAlbumSaver {
             using (var lb = new System.Drawing.Drawing2D.LinearGradientBrush(new Rectangle(0, r.Height - P(2), r.Width, P(2)), Theme.Green, Color.FromArgb(0, 0, 176, 80), 0f)) g.FillRectangle(lb, 0, r.Height - P(2), r.Width, P(2));
 
             int x0 = P(16), cy = r.Height / 2;
-            if (nmdcLogo != null) { int h = P(24), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(13); }
-            using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(14), x0, cy + P(14));
-            x0 += P(13);
+            if (nmdcLogo != null) {
+                int h = P(24), w = h * nmdcLogo.Width / nmdcLogo.Height; g.DrawImage(nmdcLogo, x0, cy - h / 2 - P(1), w, h); x0 += w + P(13);
+                using (var p = new Pen(Color.FromArgb(70, 128, 156, 174))) g.DrawLine(p, x0, cy - P(14), x0, cy + P(14));
+                x0 += P(13);
+            }
             if (lineLogo != null) { int h = P(26); g.DrawImage(lineLogo, x0, cy - h / 2, h, h); x0 += h + P(10); }
             using (var f1 = new Font(Font.FontFamily, 10.5f, FontStyle.Bold)) using (var f2 = new Font("Consolas", 6.75f))
             using (var w1 = new SolidBrush(Color.White)) using (var w2 = new SolidBrush(Color.FromArgb(110, 170, 200))) {
@@ -921,8 +924,8 @@ namespace LineAlbumSaver {
             using (var f = new MainForm()) {
                 f.ShowInTaskbar = false; f.StartPosition = FormStartPosition.Manual; f.Location = new Point(-32000, -32000);
                 if (width > 0) f.Size = new Size(width, height);
-                f.windows.Items.Add(new LineWindow { Label = "NMDC 通霄工安群組 相簿", IsOverview = true }); f.windows.SelectedIndex = 0;
-                f.SetDest(@"C:\Users\b7710\OneDrive\Desktop\新增資料夾");
+                f.windows.Items.Add(new LineWindow { Label = "範例群組 相簿", IsOverview = true }); f.windows.SelectedIndex = 0;
+                f.SetDest(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory), "LINE相簿"));
                 f.Show(); Application.DoEvents();
                 f.Report(new AlbumRow { No = 1, Name = "20260831 KESI", Expected = 18, Actual = 18, Status = "完成 ✔", Folder = @"C:\x\20260831 KESI" });
                 f.Report(new AlbumRow { No = 2, Name = "20260826琿宏缺失改善", Expected = 7, Actual = 7, Status = "完成 ✔", Folder = @"C:\x\20260826琿宏缺失改善" });
