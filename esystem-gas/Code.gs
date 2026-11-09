@@ -53,6 +53,7 @@ var STORAGE = {
   archivedScopes:    'A20',
   envScopeSeeded:    'A21',
   contacts:          'A22',
+  lineNotify:        'A23',   // LINE 提醒設定（LINE 機器人的 GAS 只讀這格）
 };
 var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';
@@ -98,7 +99,7 @@ function getAllData() {
     if (!raw) {
       // 預設值
       data[key] = (key === 'docNotes' || key === 'docLastUpdated' || key === 'envScopeSeeded') ? ''
-                  : (key === 'scheduleData' || key === 'otRecords' || key === 'leaveRecords' || key === 'rosterData') ? {}
+                  : (key === 'scheduleData' || key === 'otRecords' || key === 'leaveRecords' || key === 'rosterData' || key === 'lineNotify') ? {}
                   : [];
       continue;
     }
