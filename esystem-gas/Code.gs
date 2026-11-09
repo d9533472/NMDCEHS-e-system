@@ -58,6 +58,7 @@ var STORAGE = {
 var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';
 var DAILY_VISITS_CELL = 'B3'; // JSON: {"2026-08-05":12,"2026-08-06":18,...}
+var LINE_QUOTA_CELL = 'B8';   // JSON：LINE 機器人寫入的推播額度 {limit, used, remaining, perPush, checkedAt...}
 var LINK_CLICKS_CELL = 'B4';  // JSON: {"linkId_or_url": {name:"...", count:12, lastClick:"..."}}
 
 // ── 人員 Email 對照表 ──
@@ -195,6 +196,16 @@ function bulImageUrl_(fileId) {
 
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || null;
+
+  // action=lineQuota → LINE 機器人每小時寫進 B8 的推播額度（網頁「💬 LINE」視窗顯示用，只讀）
+  if (action === 'lineQuota') {
+    try {
+      var raw = getSheet().getRange(LINE_QUOTA_CELL).getValue();
+      return jsonOut_({ ok: true, quota: raw ? JSON.parse(raw) : null });
+    } catch (err) {
+      return jsonOut_({ ok: false, error: err.message });
+    }
+  }
 
   // action=findVesselFile → 根據子資料夾+檔名查 URL
   if (action === 'findVesselFile') {

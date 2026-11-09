@@ -3080,6 +3080,26 @@ function openLineM(){
   $('inLnWeeklyOn').checked=!!c.weeklyOn;$('inLnWeeklyDay').value=String(c.weeklyDay);$('inLnWeeklyHour').innerHTML=hrs(+c.weeklyHour);$('inLnSoon').value=c.soonDays;
   $('lnUpdated').textContent=c.updatedAt?'上次修改：'+c.updatedAt:'';
   $('mLine').classList.remove('hidden');
+  loadLineQuota();
+}
+// 推播額度：LINE 機器人每小時查一次寫進 Sheet B8，這裡從 E system 後端讀
+async function loadLineQuota(){
+  const el=$('lnQuota');el.innerHTML='📊 推播額度載入中…';
+  try{
+    const r=await fetch(GAS_URL+'?action=lineQuota').then(x=>x.json());
+    const q=r&&r.ok&&r.quota;
+    if(!q){el.innerHTML='📊 還沒有額度資料（LINE 機器人每小時更新一次）';return;}
+    const pct=q.limited&&q.limit?Math.min(100,Math.round(q.used/q.limit*100)):0;
+    const col=pct>=90?'#C0392B':pct>=70?'#E07B1F':'var(--accent)';
+    const chats=(q.chats||[]).map(c=>`${c.kind==='group'?'👥':c.kind==='room'?'💬':'👤'} ${esc(c.name||(c.kind==='user'?'私訊':'群組'))}（${c.members==null?'?':c.members} 人）`).join('、')||'還沒有群組訂閱';
+    const left=q.limited&&q.perPush?Math.floor(q.remaining/q.perPush):null;
+    el.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><b>📊 本月推播額度</b><span style="font-size:11px;color:var(--faint)">更新於 ${esc(q.checkedAt||'')}</span></div>`
+      +(q.limited
+        ?`<div style="font-size:22px;font-weight:700;color:${col};margin-top:4px">剩 ${q.remaining} 則<span style="font-size:13px;font-weight:500;color:var(--muted)">　已用 ${q.used} / ${q.limit}</span></div>
+          <div style="height:6px;border-radius:3px;background:var(--border);margin:6px 0"><div style="height:6px;border-radius:3px;width:${pct}%;background:${col}"></div></div>`
+        :`<div style="font-size:16px;font-weight:700;margin-top:4px">無上限方案　已用 ${q.used} 則</div>`)
+      +`<div style="font-size:12px;color:var(--muted)">訂閱：${chats}<br>每發一次約用 <b>${q.perPush}</b> 則${left!=null?`，本月還能發約 <b>${left}</b> 次`:''}</div>`;
+  }catch(e){el.innerHTML='📊 額度讀取失敗：'+esc(e.message||String(e));}
 }
 function saveLineM(){
   if(!isEditor)return;
@@ -4751,6 +4771,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
 <div class="modal-overlay hidden" id="mLine" onclick="this.classList.add('hidden')"><div class="modal-box" style="max-width:480px" onclick="event.stopPropagation()">
   <div class="modal-title">💬 LINE 群組提醒</div>
   <div class="modal-form">
+    <div class="mc-sec" id="lnQuota" style="font-size:13px;line-height:1.6">📊 推播額度載入中…</div>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📅 每日提醒（明天的活動＋快到期的待辦事項、改善單）</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnDailyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
