@@ -4752,12 +4752,12 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   <div class="modal-title">💬 LINE 群組提醒</div>
   <div class="modal-form">
     <div class="mc-sec">
-      <div class="mc-sec-h"><b>📅 每日提醒（明天的活動＋快到期的改善單）</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnDailyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
+      <div class="mc-sec-h"><b>📅 每日提醒（明天的活動＋快到期的待辦事項、改善單）</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnDailyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div><label class="form-label">發送時間</label><select class="form-input" id="inLnDailyHour"></select></div>
-        <div><label class="form-label">改善單剩幾天內就提醒</label><input class="form-input" id="inLnRemind" type="number" min="0" max="30"></div>
+        <div><label class="form-label">剩幾天內就提醒（待辦＋改善單）</label><input class="form-input" id="inLnRemind" type="number" min="0" max="30"></div>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">週一～週五發；週五會一次講到下週一。明天沒活動、也沒有快到期／逾期的改善單就不發。</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">週一～週五發；週五會一次講到下週一。明天沒活動、也沒有快到期／逾期的待辦事項和改善單就不發。</p>
     </div>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📑 每週改善單摘要</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnWeeklyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
