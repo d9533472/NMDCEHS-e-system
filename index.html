@@ -3082,11 +3082,77 @@ function openLineM(){
   $('mLine').classList.remove('hidden');
   loadLineQuota();
 }
+// ── 卡片預覽：LINE 機器人每小時把「現在會發出去的」Flex 卡片存進 Sheet B10，這裡畫成 HTML（只做卡片用到的元件） ──
+let _lnPv=null,_lnPvKind='daily';
+function showLinePv(kind){
+  _lnPvKind=kind;
+  document.querySelectorAll('#lnPvTabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===kind));
+  const box=$('lnPv'),at=$('lnPvAt');if(!box)return;
+  const b=_lnPv&&_lnPv[kind];
+  if(!b){box.innerHTML='<div style="color:var(--muted);font-size:12px;padding:20px 0;text-align:center">還沒有預覽（LINE 機器人每小時產生一次）</div>';at.textContent='';return;}
+  box.innerHTML=flexHtml(b);
+  at.textContent='預覽產生於 '+(_lnPv.at||'')+'・內容以當時的資料為準'+(kind==='daily'?'（實際推播沒事時不會發）':'');
+}
+function flexHtml(n,parent){
+  if(!n)return'';
+  const SZ={xxs:11,xs:13,sm:14,md:16,lg:19,xl:22,xxl:29,'3xl':35},SP={none:0,xs:2,sm:4,md:8,lg:12,xl:16,xxl:20},
+        IMG={xxs:40,xs:60,sm:80,md:100,lg:120,xl:140,xxl:160};
+  const px=v=>v==null?null:/^\d+(\.\d+)?(px|%)$/.test(v)?v:(SP[v]!=null?SP[v]+'px':null);
+  const hz=parent==='horizontal'||parent==='baseline';
+  const st=[];
+  // 在橫向 box 裡，子元件預設平分寬度（LINE 的 flex 預設值）；有指定 width 就不伸縮
+  const fl=n.flex!=null?n.flex:(hz&&n.type!=='separator'?1:0);
+  if(n.width)st.push('width:'+n.width,'flex:none');
+  else if(n.type!=='separator')st.push(fl?'flex:'+fl+' 1 0':'flex:0 0 auto');
+  if(n.margin&&SP[n.margin]!=null)st.push((hz?'margin-left:':'margin-top:')+SP[n.margin]+'px');
+  if(n.gravity==='center')st.push('align-self:center');
+  st.push('min-width:0');
+  if(n.type==='bubble'){
+    const w=n.size==='kilo'?260:n.size==='giga'?380:300;
+    const part=(p,def)=>p?`<div style="background:${p.backgroundColor||'#fff'};padding:${px(p.paddingAll)||def}">${flexHtml(Object.assign({},p,{paddingAll:'0px',backgroundColor:null}))}</div>`:'';
+    return `<div style="width:${w}px;max-width:100%;margin:0 auto;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.15);font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;text-align:left">${part(n.header,'16px')}${part(n.body,'16px')}${part(n.footer,'10px')}</div>`;
+  }
+  if(n.type==='box'){
+    const dir=n.layout==='vertical'?'column':'row';
+    st.push('display:flex','flex-direction:'+dir);
+    if(n.spacing&&SP[n.spacing])st.push('gap:'+SP[n.spacing]+'px');
+    if(n.backgroundColor)st.push('background:'+n.backgroundColor);
+    if(n.cornerRadius)st.push('border-radius:'+n.cornerRadius);
+    if(n.height)st.push('height:'+n.height);
+    ['All','Top','Bottom','Start','End'].forEach(k=>{const v=px(n['padding'+k]);if(v)st.push(k==='All'?'padding:'+v:('padding-'+({Top:'top',Bottom:'bottom',Start:'left',End:'right'})[k])+':'+v);});
+    if(n.justifyContent)st.push('justify-content:'+({'flex-start':'flex-start',center:'center','flex-end':'flex-end','space-between':'space-between'})[n.justifyContent]);
+    return `<div style="${st.join(';')}">${(n.contents||[]).map(c=>flexHtml(c,n.layout)).join('')}</div>`;
+  }
+  if(n.type==='text'){
+    st.push('font-size:'+(SZ[n.size]||14)+'px','line-height:1.4','color:'+(n.color||'#111'));
+    if(n.weight==='bold')st.push('font-weight:700');
+    if(n.align)st.push('text-align:'+({start:'left',end:'right',center:'center'})[n.align]);
+    st.push(n.wrap?'white-space:pre-wrap;word-break:break-word':'white-space:nowrap;overflow:hidden;text-overflow:ellipsis');
+    return `<div style="${st.join(';')}">${esc(n.text||'')}</div>`;
+  }
+  if(n.type==='image'){
+    const w=/px$|%$/.test(n.size||'')?n.size:(n.size==='full'?'100%':(IMG[n.size]||100)+'px');
+    const ar=(n.aspectRatio||'1:1').split(':');
+    st.push('width:'+w,'aspect-ratio:'+ar[0]+'/'+ar[1],'object-fit:'+(n.aspectMode==='cover'?'cover':'contain'),'flex:none');
+    if(n.align==='start')st.push('align-self:flex-start');
+    return `<img src="${esc(n.url)}" alt="" style="${st.join(';')}">`;
+  }
+  if(n.type==='separator')return `<div style="border-top:1px solid ${n.color||'#d4d6da'};${n.margin&&SP[n.margin]!=null?'margin-top:'+SP[n.margin]+'px':''};align-self:stretch"></div>`;
+  if(n.type==='filler')return `<div style="flex:1"></div>`;
+  if(n.type==='button'){
+    const pri=n.style==='primary';
+    st.push('display:flex','align-items:center','justify-content:center','border-radius:6px','font-size:14px','font-weight:600',
+      'height:'+(n.height==='sm'?'40px':'52px'),'background:'+(n.color||(pri?'#17c950':'#dcdfe5')),'color:'+(pri?'#fff':'#111'),'padding:0 8px');
+    return `<div style="${st.join(';')}">${esc((n.action&&n.action.label)||'')}</div>`;
+  }
+  return '';
+}
 // 推播額度：LINE 機器人每小時查一次寫進 Sheet B8，這裡從 E system 後端讀
 async function loadLineQuota(){
   const el=$('lnQuota');el.innerHTML='📊 推播額度載入中…';
   try{
     const r=await fetch(GAS_URL+'?action=lineQuota').then(x=>x.json());
+    _lnPv=(r&&r.ok&&r.preview)||null;showLinePv(_lnPvKind);
     const q=r&&r.ok&&r.quota;
     if(!q){el.innerHTML='📊 還沒有額度資料（LINE 機器人每小時更新一次）';return;}
     const pct=q.limited&&q.limit?Math.min(100,Math.round(q.used/q.limit*100)):0;
@@ -4772,6 +4838,17 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   <div class="modal-title">💬 LINE 群組提醒</div>
   <div class="modal-form">
     <div class="mc-sec" id="lnQuota" style="font-size:13px;line-height:1.6">📊 推播額度載入中…</div>
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>👀 卡片預覽</b>
+        <span id="lnPvTabs" style="display:inline-flex;gap:4px">
+          <button type="button" class="btn-secondary ln-pv-tab on" data-k="daily" onclick="showLinePv('daily')">每日提醒</button>
+          <button type="button" class="btn-secondary ln-pv-tab" data-k="weekly" onclick="showLinePv('weekly')">改善單週報</button>
+        </span>
+      </div>
+      <div id="lnPv" style="background:#9BB0C8;border-radius:10px;padding:14px 10px;max-height:460px;overflow:auto">載入中…</div>
+      <div id="lnPvAt" style="font-size:11px;color:var(--faint);margin-top:6px"></div>
+    </div>
+    <style>.ln-pv-tab{padding:3px 10px!important;font-size:12px!important;opacity:.55}.ln-pv-tab.on{opacity:1;font-weight:700}</style>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📅 每日提醒（明天的活動＋快到期的待辦事項、改善單）</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnDailyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">

@@ -59,6 +59,7 @@ var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';
 var DAILY_VISITS_CELL = 'B3'; // JSON: {"2026-08-05":12,"2026-08-06":18,...}
 var LINE_INBOX_CELL = 'B9';   // JSON 陣列：LINE 機器人新增／完成的待合併項目（見 applyLineInbox_）
+var LINE_PREVIEW_CELL = 'B10'; // JSON：LINE 機器人寫入的卡片預覽 {daily, weekly, at}（Flex bubble）
 var LINE_QUOTA_CELL = 'B8';   // JSON：LINE 機器人寫入的推播額度 {limit, used, remaining, perPush, checkedAt...}
 var LINK_CLICKS_CELL = 'B4';  // JSON: {"linkId_or_url": {name:"...", count:12, lastClick:"..."}}
 
@@ -246,11 +247,13 @@ function bulImageUrl_(fileId) {
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || null;
 
-  // action=lineQuota → LINE 機器人每小時寫進 B8 的推播額度（網頁「💬 LINE」視窗顯示用，只讀）
+  // action=lineQuota → LINE 機器人每小時寫進 B8 的推播額度、B10 的卡片預覽（網頁「💬 LINE」視窗顯示用，只讀）
   if (action === 'lineQuota') {
     try {
-      var raw = getSheet().getRange(LINE_QUOTA_CELL).getValue();
-      return jsonOut_({ ok: true, quota: raw ? JSON.parse(raw) : null });
+      var sh = getSheet();
+      var raw = sh.getRange(LINE_QUOTA_CELL).getValue();
+      var pv = sh.getRange(LINE_PREVIEW_CELL).getValue();
+      return jsonOut_({ ok: true, quota: raw ? JSON.parse(raw) : null, preview: pv ? JSON.parse(pv) : null });
     } catch (err) {
       return jsonOut_({ ok: false, error: err.message });
     }
