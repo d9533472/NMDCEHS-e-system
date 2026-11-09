@@ -58,6 +58,7 @@ var STORAGE = {
 var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';
 var DAILY_VISITS_CELL = 'B3'; // JSON: {"2026-08-05":12,"2026-08-06":18,...}
+var LINE_INBOX_CELL = 'B9';   // JSON 陣列：LINE 機器人新增／完成的待合併項目（見 applyLineInbox_）
 var LINE_QUOTA_CELL = 'B8';   // JSON：LINE 機器人寫入的推播額度 {limit, used, remaining, perPush, checkedAt...}
 var LINK_CLICKS_CELL = 'B4';  // JSON: {"linkId_or_url": {name:"...", count:12, lastClick:"..."}}
 
@@ -113,7 +114,51 @@ function getAllData() {
       data[key] = raw; // 數字或其他直接值
     }
   }
+  // LINE 新增、還沒被網頁存檔吃進去的也一起顯示；_lineOps 記下這個分頁「看過」哪些，存檔時會原樣帶回來
+  var ops = readLineInbox_(sheet);
+  applyLineInbox_(data, ops);
+  data._lineOps = ops.map(function(o) { return o.opId; });
   return data;
+}
+
+// ─────────────────────────────────────────
+// LINE 收件匣（B9）：LINE 機器人新增活動／待辦、標記完成時寫在這裡，不直接改 A2/A8。
+// 網頁每次編輯都會整包存檔，開著的舊分頁會用舊資料蓋掉 LINE 剛加的，所以：
+//   - 讀取：全部合併顯示，並把 opId 放進 data._lineOps
+//   - 存檔：分頁「沒看過」的項目合併進去（舊分頁存幾次都會補回來）；
+//           分頁「看過」的項目以分頁為準（使用者可能刪掉了），寫完從收件匣移除
+// 每筆：{opId, op:'addEvent'|'addTask'|'doneTask', item?, id?, doneAt?, at}
+// ─────────────────────────────────────────
+function readLineInbox_(sheet) {
+  try {
+    var raw = sheet.getRange(LINE_INBOX_CELL).getValue();
+    var v = raw ? JSON.parse(raw) : [];
+    return Array.isArray(v) ? v : [];
+  } catch (e) { return []; }
+}
+
+function applyLineInbox_(data, ops) {
+  if (!ops.length) return;
+  if (!Array.isArray(data.events)) data.events = [];
+  if (!Array.isArray(data.tasks)) data.tasks = [];
+  var has = function(list, id) { return list.some(function(x) { return x && x.id === id; }); };
+  ops.forEach(function(o) {
+    if (o.op === 'addEvent' && o.item && !has(data.events, o.item.id)) data.events.unshift(o.item);
+    if (o.op === 'addTask' && o.item && !has(data.tasks, o.item.id)) data.tasks.push(o.item);
+    if (o.op === 'doneTask') {
+      data.tasks.forEach(function(t) { if (t && t.id === o.id && !t.done) { t.done = true; t.doneAt = o.doneAt; } });
+    }
+  });
+}
+
+/** 存檔寫入後，把分頁已經看過的項目從收件匣移除（重讀一次，保留寫入期間 LINE 新加的） */
+function clearLineInbox_(sheet, seenIds) {
+  if (!seenIds.length) return;
+  var seen = {};
+  seenIds.forEach(function(id) { seen[id] = 1; });
+  var all = readLineInbox_(sheet);
+  var left = all.filter(function(o) { return !seen[o.opId]; });
+  if (left.length !== all.length) sheet.getRange(LINE_INBOX_CELL).setValue(left.length ? JSON.stringify(left) : '');
 }
 
 // ─────────────────────────────────────────
@@ -131,6 +176,9 @@ function saveAllData(payload) {
   var core = ['tasks','bulletins','documents','sections'];
   var allCoreEmpty = core.every(function(k){ var v = payload[k]; return v === undefined || v === null || (Array.isArray(v) && v.length === 0); });
   if (allCoreEmpty) throw new Error('saveAllData 拒絕寫入：tasks／bulletins／documents／sections 全部為空，疑似誤送空資料');
+
+  var seenOps = Array.isArray(payload._lineOps) ? payload._lineOps : [];
+  applyLineInbox_(payload, readLineInbox_(sheet).filter(function(o) { return seenOps.indexOf(o.opId) < 0; }));
 
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
@@ -152,6 +200,7 @@ function saveAllData(payload) {
 
   // 批次寫入 A1:A<欄位數>
   sheet.getRange(1, 1, updates.length, 1).setValues(updates);
+  clearLineInbox_(sheet, seenOps);
   sheet.getRange(LAST_SYNC_CELL).setValue(new Date().toLocaleString('zh-TW'));
   return { ok: true, savedKeys: keys.length };
 }
