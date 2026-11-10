@@ -4917,10 +4917,21 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
     <style>.ln-pv-tab{padding:3px 10px!important;font-size:12px!important;opacity:.55}.ln-pv-tab.on{opacity:1;font-weight:700}
     .ln-memo{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:10px;background:var(--card);font-size:13px}
-    .ln-memo-d{flex:none;font-size:11px;font-weight:700;color:var(--accent2);background:var(--card2);border-radius:6px;padding:2px 6px}</style>
+    .ln-memo-d{flex:none;font-size:11px;font-weight:700;color:var(--accent2);background:var(--card2);border-radius:6px;padding:2px 6px}
+    .ln-g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.ln-g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .ln-add{display:flex;gap:6px}.ln-add #inLnMemoDate{width:150px;flex:none}.ln-add #inLnMemo{flex:1;min-width:0}
+    #mLine .mc-sec-h label{white-space:nowrap;flex:none}
+    /* 手機：外框留白縮小、標題列與「啟用」可換行、欄位改單欄、新增提醒那列改兩行 */
+    @media(max-width:640px){
+      #mLine .modal-box{padding:12px 6px 10px}#mLine .modal-form{padding:14px 6px 16px}
+      #mLine .mc-sec{padding:12px}#mLine .mc-sec-h{flex-wrap:wrap}#mLine .mc-sec-h b{flex:1 1 180px}
+      #mLine .ln-g2{grid-template-columns:1fr}#mLine .ln-g3{grid-template-columns:1fr 1fr}#mLine .ln-g3>:last-child{grid-column:1/-1}
+      #mLine .ln-add{flex-wrap:wrap}#mLine .ln-add #inLnMemo{order:-1;flex:1 1 100%}#mLine .ln-add #inLnMemoDate{flex:1;width:auto}
+      #mLine #lnPv{max-height:380px;padding:10px 6px}
+    }</style>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📅 每日提醒（明天的活動＋快到期的待辦事項、改善單）</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnDailyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="ln-g2">
         <div><label class="form-label">發送時間</label><select class="form-input" id="inLnDailyHour"></select></div>
         <div><label class="form-label">剩幾天內就提醒（待辦＋改善單）</label><input class="form-input" id="inLnRemind" type="number" min="0" max="30"></div>
       </div>
@@ -4929,16 +4940,16 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📌 今日其他提醒事項</b><small>加完立即生效，不用按儲存</small></div>
       <div id="lnMemoList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
-      <div style="display:flex;gap:6px">
-        <input class="form-input" id="inLnMemoDate" type="date" style="width:150px;flex:none">
-        <input class="form-input" id="inLnMemo" maxlength="200" placeholder="例：明早 8 點前回覆環保局" style="flex:1;min-width:0" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addLineMemo()}">
+      <div class="ln-add">
+        <input class="form-input" id="inLnMemoDate" type="date">
+        <input class="form-input" id="inLnMemo" maxlength="200" placeholder="例：明早 8 點前回覆環保局" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addLineMemo()}">
         <button type="button" class="btn-primary" style="flex:none" onclick="addLineMemo()">＋ 新增</button>
       </div>
       <p class="mc-note" style="margin-top:8px">會出現在那天 LINE 每日提醒卡片的最下面；有提醒事項時，就算沒活動也會發。LINE 裡打 <b>/提醒 內容</b>（或 <b>/提醒 11/12 內容</b>）也能加，只打 <b>/提醒</b> 可以看清單、刪除。</p>
     </div>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📑 每週改善單摘要</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnWeeklyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div class="ln-g3">
         <div><label class="form-label">星期</label><select class="form-input" id="inLnWeeklyDay"><option value="1">週一</option><option value="2">週二</option><option value="3">週三</option><option value="4">週四</option><option value="5">週五</option><option value="6">週六</option><option value="0">週日</option></select></div>
         <div><label class="form-label">時間</label><select class="form-input" id="inLnWeeklyHour"></select></div>
         <div><label class="form-label">幾天內算即將到期</label><input class="form-input" id="inLnSoon" type="number" min="1" max="60"></div>
