@@ -1332,7 +1332,7 @@ body.season-nov .site-header::after{content:"";position:absolute;left:0;right:0;
 
 <!-- Modals -->
 <div class="modal-overlay hidden" id="mBul" onclick="closeBulM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mBT">新增公告</div><div class="modal-form"><div><label class="form-label">公告內容</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd('underline')"><u>U</u></button><button class="rte-btn" onclick="rteCmd('strikeThrough')"><s>S</s></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd('foreColor',this.value)"><input type="color" class="rte-color" value="#fef08a" onchange="rteCmd('hiliteColor',this.value)"><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd('removeFormat')" style="font-size:11px">✕</button><div class="rte-sep"></div><button class="rte-btn" onclick="insertBulImage()" title="插入圖片" style="font-size:14px">🖼️</button></div><input type="file" id="bulImgInput" accept="image/*" style="display:none" onchange="handleBulImage(this)"><div class="rte-body" contenteditable="true" id="rteBody" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeBulM()">取消</button><button class="btn-primary" onclick="saveBul()" id="bBul">發布</button></div></div></div></div>
-<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">重複</label><select class="form-input" id="inTRep"><option value="">不重複</option><option value="daily">🔁 每日</option><option value="weekly">🔁 每週（同一個星期幾）</option><option value="monthly">🔁 每月（同一天）</option><option value="quarterly">🔁 每季（每 3 個月同一天）</option><option value="yearly">🔁 每年（同一天）</option></select><div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">以「完成期限」起算（例如期限 5 號＋每月 → 每月 5 號；31 號遇到小月排月底）。打勾完成後自動新增下一期，這一期的完成紀錄照樣列入週報。</div></div><div><label class="form-label">顯示在</label><div style="display:flex;gap:18px;flex-wrap:wrap"><label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text);user-select:none"><input type="checkbox" id="inTShowE" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> 🖥️ E system</label><label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text);user-select:none"><input type="checkbox" id="inTShowLine" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> 💬 LINE 機器人</label></div><div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">沒勾 E system：不列入追蹤事項清單、資訊列統計與週報（清單上方勾「顯示僅 LINE」才看得到）。沒勾 LINE：LINE 提醒不會列出。</div></div><div><label class="form-label">完成狀態</label><label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text);user-select:none"><input type="checkbox" id="inTDoneCk" onchange="trkDoneCkChg()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> ✅ 已完成</label><div id="trkDoneAtWrap" style="display:none;margin-top:8px"><label class="form-label">完成日期</label><input class="form-input" id="inTDoneAt" type="date"><div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">週報的「✅ 本期完成」會列出完成日期落在報告期間（週一～週日）的事項。</div></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button><div class="rte-sep"></div><button class="rte-btn" onclick="insertTrkImage()" title="插入圖片" style="font-size:14px">🖼️</button></div><input type="file" id="trkImgInput" accept="image/*" style="display:none" onchange="handleTrkImage(this)"><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
+<div class="modal-overlay hidden" id="mTrk" onclick="closeTrkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mTT">新增追蹤事項</div><div class="modal-form"><div><label class="form-label">事項</label><input class="form-input" id="inTN" placeholder="事項內容"></div><div><label class="form-label">負責人（可多選）</label><div class="person-checks" id="trkPCks"></div></div><div><label class="form-label">完成期限</label><input class="form-input" id="inTD" type="date"></div><div><label class="form-label">優先度</label><div class="pri-seg" id="priSeg"><button onclick="setPri('high')" id="priH">🔴 高</button><button onclick="setPri('mid')" id="priM" class="sel-mid">🟡 中</button><button onclick="setPri('low')" id="priL">🟢 低</button></div></div><div><label class="form-label">完成狀態</label><label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:14px;color:var(--text);user-select:none"><input type="checkbox" id="inTDoneCk" onchange="trkDoneCkChg()" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> ✅ 已完成</label><div id="trkDoneAtWrap" style="display:none;margin-top:8px"><label class="form-label">完成日期</label><input class="form-input" id="inTDoneAt" type="date"><div style="font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5">週報的「✅ 本期完成」會列出完成日期落在報告期間（週一～週日）的事項。</div></div></div><div><label class="form-label">備註（選填）</label><div class="rte-toolbar"><button class="rte-btn" onclick="rteCmd4('bold')"><b>B</b></button><button class="rte-btn" onclick="rteCmd4('italic')"><i>I</i></button><button class="rte-btn" onclick="rteCmd4('underline')"><u>U</u></button><div class="rte-sep"></div><button class="rte-btn" onclick="rteCmd4('insertOrderedList')">1.</button><button class="rte-btn" onclick="rteCmd4('insertUnorderedList')">•</button><div class="rte-sep"></div><input type="color" class="rte-color" value="#dc2626" onchange="rteCmd4('foreColor',this.value)"><button class="rte-btn" onclick="rteCmd4('removeFormat')" style="font-size:11px">✕</button><div class="rte-sep"></div><button class="rte-btn" onclick="insertTrkImage()" title="插入圖片" style="font-size:14px">🖼️</button></div><input type="file" id="trkImgInput" accept="image/*" style="display:none" onchange="handleTrkImage(this)"><div class="rte-body" contenteditable="true" id="inTNote" style="min-height:60px" oninput="atInput()" onkeydown="atKey(event)"></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeTrkM()">取消</button><button class="btn-primary" onclick="saveTrk()" id="bTrk">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mDone" onclick="closeDoneM()"><div class="modal-box" style="max-width:360px" onclick="event.stopPropagation()"><div class="modal-title">✅ 標記完成</div><div class="modal-form"><div id="doneTaskName" style="font-size:14px;font-weight:600;color:var(--text);background:var(--bg2);border-radius:8px;padding:10px 12px;line-height:1.5"></div><div><label class="form-label">完成日期</label><input class="form-input" id="inDoneAt" type="date" onkeydown="if(event.key==='Enter')confirmDone()"></div><div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:-4px">週報的「✅ 本期完成」會依這個日期判斷要不要列入（報告期間：週一～週日）。之後在列表上還可以再改。</div><div class="modal-actions"><button class="btn-secondary" onclick="closeDoneM()">取消</button><button class="btn-primary" onclick="confirmDone()">標記完成</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mSec" onclick="closeSecM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title">新增區塊</div><div class="modal-form"><div><label class="form-label">區塊名稱</label><input class="form-input" id="inSN" onkeydown="if(event.key==='Enter')saveSec()"></div><div class="modal-actions"><button class="btn-secondary" onclick="closeSecM()">取消</button><button class="btn-primary" onclick="saveSec()">新增</button></div></div></div></div>
 <div class="modal-overlay hidden" id="mLnk" onclick="closeLnkM()"><div class="modal-box" onclick="event.stopPropagation()"><div class="modal-title" id="mLT">新增連結</div><div class="modal-form"><div><label class="form-label">連結標題</label><input class="form-input" id="inLN"></div><div><label class="form-label">連結網址</label><input class="form-input" id="inLU" placeholder="https://"></div><div><label class="form-label">選擇圖示</label><div class="icon-picker-wrap"><button type="button" class="icon-picker-btn" onclick="toggleIc(event)"><span class="preview" id="icP">📄</span><span id="icL" style="flex:1">選擇圖示…</span><span class="arrow" id="icA">▼</span></button><div class="icon-dropdown hidden" id="icDD"></div></div></div><div class="modal-actions"><button class="btn-secondary" onclick="closeLnkM()">取消</button><button class="btn-primary" onclick="saveLnk()" id="bLnk">新增</button></div></div></div></div>
@@ -1997,7 +1997,7 @@ function renderInfoBar(){
 // ── 資訊列活動輪播：今天起 14 天內的重點活動，每 5 秒換一場，滑鼠停留時暫停 ──
 let _ibEvIdx=0,_ibEvTimer=null,_ibEvPause=false;
 function ibEvList(today){
-  return (D.events||[]).filter(e=>{if(!e.date)return false;const n=daysBetween(today,e.date);return n>=0&&n<=14;})
+  return evExpand((D.events||[]).filter(evInE),today,evShiftS(today,14))
     .sort((a,b)=>a.date<b.date?-1:(a.date>b.date?1:((b.starred?1:0)-(a.starred?1:0))));
 }
 function ibEvHtml(ev,i,total,today){
@@ -2019,7 +2019,7 @@ function ibEvTick(){
 }
 // ── 資訊列統計：追蹤事項 / 改善單 的 逾期 與 三天內到期（今天～2 天後）──
 function renderIbStats(today){
-  const tasks=(D.tasks||[]).filter(t=>trkInE(t)&&!t.done&&t.deadline);
+  const tasks=(D.tasks||[]).filter(t=>!t.done&&t.deadline);
   const trkOver=tasks.filter(t=>daysBetween(today,t.deadline)<0);
   const trkSoon=tasks.filter(t=>{const n=daysBetween(today,t.deadline);return n>=0&&n<=2;});
   const ncr=_ncrCache;
@@ -2104,10 +2104,10 @@ function buildGS(){
   (D.parts||[]).forEach(p=>gsItems.push({tab:p.key,tag:'頁籤',ico:p.icon,t:p.title,s:'前往頁籤'}));
   (D.bulletins||[]).forEach(b=>gsItems.push({tab:'bulletin',tag:'公告',ico:'📢',t:stripHtml(b.text).slice(0,90),s:b.date||''}));
   (D.archivedBulletins||[]).forEach(b=>gsItems.push({tab:'bulletin',tag:'封存公告',ico:'📦',t:stripHtml(b.text).slice(0,90),s:'封存 '+(b.archivedAt||b.date||''),act:()=>{showArchive=true;}}));
-  (D.tasks||[]).filter(trkInE).forEach(t=>gsItems.push({tab:'tracker',tag:t.done?'已完成':'追蹤事項',ico:t.done?'✅':'📋',t:t.name||'',s:[t.person,t.done&&t.doneAt?'完成 '+t.doneAt:t.deadline,stripHtml(t.note)].filter(Boolean).join(' · ')}));
+  (D.tasks||[]).forEach(t=>gsItems.push({tab:'tracker',tag:t.done?'已完成':'追蹤事項',ico:t.done?'✅':'📋',t:t.name||'',s:[t.person,t.done&&t.doneAt?'完成 '+t.doneAt:t.deadline,stripHtml(t.note)].filter(Boolean).join(' · ')}));
   (D.documents||[]).forEach(d=>gsItems.push({tab:'documents',tag:'文件',ico:'📑',t:(d.num?'#'+d.num+' ':'')+(d.name||''),s:[d.person,stripHtml(d.note)].filter(Boolean).join(' · ')}));
   (D.sections||[]).forEach(sec=>(sec.links||[]).forEach(l=>gsItems.push({tab:'links',tag:'連結',ico:l.icon||'🔗',t:l.title||'',s:[sec.name,(l.url&&l.url!=='#')?l.url:''].filter(Boolean).join(' · '),url:(l.url&&l.url!=='#')?l.url:''})));
-  (D.events||[]).forEach(e=>gsItems.push({tab:'events',tag:'活動',ico:e.starred?'⭐':'📌',t:e.title||'',s:[e.date,e.area,e.person].filter(Boolean).join(' · ')}));
+  (D.events||[]).filter(evInE).forEach(e=>gsItems.push({tab:'events',tag:'活動',ico:e.starred?'⭐':'📌',t:e.title||'',s:[e.date+(EV_REPEAT[e.repeat]?' 起 '+evRepLbl(e):''),e.area,e.person].filter(Boolean).join(' · ')}));
   (D.contacts||[]).forEach(c=>gsItems.push({tab:'contacts',tag:'聯絡人',ico:'📇',t:c.name||'',s:[c.unit,c.job,ctFullTel(c),c.email].filter(Boolean).join(' · ')}));
 }
 function openGS(){buildGS();const ov=$('gsOverlay');if(!ov)return;ov.classList.remove('hidden');const i=$('gsIn');i.value='';renderGS('');setTimeout(()=>i.focus(),30);}
@@ -2157,8 +2157,8 @@ function renderTab(){window.renderTab=renderTab;window.activeTab=activeTab;let h
 function renderBulHTML(){
   // ── 已過期追蹤事項 ──
   const today=todayS(),tomorrow=tmrS();
-  const overdue=(D.tasks||[]).filter(t=>trkInE(t)&&!t.done&&t.deadline&&t.deadline<today);
-  const upcoming=(D.tasks||[]).filter(t=>trkInE(t)&&!t.done&&t.deadline&&(t.deadline===today||t.deadline===tomorrow));
+  const overdue=(D.tasks||[]).filter(t=>!t.done&&t.deadline&&t.deadline<today);
+  const upcoming=(D.tasks||[]).filter(t=>!t.done&&t.deadline&&(t.deadline===today||t.deadline===tomorrow));
   let h='';
 
   // ── Active bulletins ──
@@ -2208,32 +2208,9 @@ function delBul(id){if(!confirm('刪除？'))return;D.bulletins=D.bulletins.filt
 
 // ═══ 2 TRACKER ═══
 function dlC(dl,done){if(done)return'deadline-ok';const t=todayS(),tm=tmrS();if(dl<t)return'deadline-red';if(dl===t||dl===tm)return'deadline-orange';return'deadline-ok';}
-// ── 循環事項：t.repeat = daily/weekly/monthly/quarterly/yearly；t.repeatDay = 每月／季／年的基準日（31 號遇小月排月底）──
-// 打勾完成時新增下一期，id 固定為「系列 id~新期限」：網頁、esystem-gas（LINE 打勾）、LINE 機器人三邊算法相同，不會重複新增
-// ── 顯示在：t.noE = 不顯示在 E system（清單、資訊列、週報）；t.noLine = 不出現在 LINE 提醒。沒這兩個欄位 = 兩邊都顯示 ──
-const REPEAT_LBL={daily:'每日',weekly:'每週',monthly:'每月',quarterly:'每季',yearly:'每年'};
-let trkLineOnly=false;
-function trkInE(t){return !!t&&!t.noE;}
-function trkAddPeriod(ymd,rep,day){const [y,m,d]=ymd.split('-').map(Number);let dt;
-  if(rep==='daily')dt=new Date(Date.UTC(y,m-1,d+1));
-  else if(rep==='weekly')dt=new Date(Date.UTC(y,m-1,d+7));
-  else{const mi=m-1+(rep==='monthly'?1:rep==='quarterly'?3:12),last=new Date(Date.UTC(y,mi+1,0)).getUTCDate();dt=new Date(Date.UTC(y,mi,Math.min(day||d,last)));}
-  return dt.toISOString().slice(0,10);}
-// 下一期期限：從這期期限往後推，推到晚於完成日為止（拖很久才完成時，已經過去的期數直接跳過）
-function trkNextDue(t){const day=t.repeatDay||+t.deadline.slice(8,10),ref=String(t.doneAt||todayS()).slice(0,10);let n=trkAddPeriod(t.deadline,t.repeat,day),g=0;while(n<=ref&&g++<5000)n=trkAddPeriod(n,t.repeat,day);return n;}
-function trkSpawnNext(t){if(!t||!t.done||!REPEAT_LBL[t.repeat]||!/^\d{4}-\d{2}-\d{2}$/.test(t.deadline||''))return null;
-  const due=trkNextDue(t),id=String(t.id).split('~')[0]+'~'+due;t.nextId=id;if(D.tasks.some(x=>x&&x.id===id))return null;
-  const nt={id,name:t.name,person:t.person,deadline:due,done:false,note:t.note||'',priority:t.priority||'mid',repeat:t.repeat};
-  if(t.repeatDay)nt.repeatDay=t.repeatDay;if(t.noE)nt.noE=true;if(t.noLine)nt.noLine=true;
-  D.tasks.splice(D.tasks.indexOf(t)+1,0,nt);return nt;}
-// 取消完成時，把當初自動產生、還沒完成的下一期一起拿掉
-function trkUnspawn(t){if(!t.nextId)return false;const n=D.tasks.find(x=>x.id===t.nextId);delete t.nextId;if(!n||n.done)return false;D.tasks=D.tasks.filter(x=>x!==n);return true;}
-function trkDoneToast(t,nt,v){showToast('✅ 已完成（'+v+'）'+(nt?'，已新增下一期 '+nt.deadline:''));}
 function renderTrkHTML(){
   const PRIORD={high:0,mid:1,low:2};
-  const lineOnlyCnt=D.tasks.filter(t=>t.noE&&!t.done).length;
-  const vis=D.tasks.filter(t=>trkInE(t)||trkLineOnly);
-  const byFilter=trkFilter==='All'?vis:vis.filter(t=>(t.person||'').includes(trkFilter));
+  const byFilter=trkFilter==='All'?D.tasks:D.tasks.filter(t=>(t.person||'').includes(trkFilter));
   const today=todayS();
   const dueOk=t=>{if(!trkDue)return true;if(t.done||!t.deadline)return false;const n=daysBetween(today,t.deadline);return trkDue==='over'?n<0:n>=0&&n<=2;};
   const filtered=(showDone&&!trkDue?byFilter:byFilter.filter(t=>!t.done)).filter(dueOk)
@@ -2246,11 +2223,10 @@ function renderTrkHTML(){
   let h='<div class="card" style="overflow-x:auto">';
   h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap">';
   h+='<div class="trk-tabs" style="margin:0;flex:1">';
-  PEOPLE.forEach(p=>{const cnt=p==='All'?vis.filter(t=>!t.done).length:vis.filter(t=>(t.person||'').includes(p)&&!t.done).length;
+  PEOPLE.forEach(p=>{const cnt=p==='All'?D.tasks.filter(t=>!t.done).length:D.tasks.filter(t=>(t.person||'').includes(p)&&!t.done).length;
     h+=`<button class="trk-tab ${trkFilter===p?'active':''}" onclick="trkFilter='${p}';renderTab()">${p}<span class="tab-count">${cnt}</span></button>`;});
   h+='</div>';
   h+=`<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card2);user-select:none"><input type="checkbox" onchange="showDone=this.checked;renderTab()" ${showDone?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"> 顯示已完成 <span style="font-size:11px;background:var(--bg2);padding:1px 6px;border-radius:10px">${doneCount}</span></label>`;
-  if(isEditor&&(lineOnlyCnt||trkLineOnly))h+=`<label title="只勾 LINE、沒勾 E system 的事項平常不顯示" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;color:var(--muted);white-space:nowrap;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card2);user-select:none"><input type="checkbox" onchange="trkLineOnly=this.checked;renderTab()" ${trkLineOnly?'checked':''} style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer"> 顯示僅 LINE <span style="font-size:11px;background:var(--bg2);padding:1px 6px;border-radius:10px">${lineOnlyCnt}</span></label>`;
   if(isEditor)h+=`<button onclick="openTrkM()" title="新增追蹤事項" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:.2s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">＋ 新增追蹤事項</button>`;
   if(isEditor)h+=`<button onclick="sendTrkEmail()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-light);color:var(--accent2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='var(--accent-light)';this.style.color='var(--accent2)'">📧 寄出追蹤摘要</button>`;
   if(isEditor)h+=`<button onclick="showMailCfgM()" title="ENV WEEKLY REPORT：收件者、開頭文字、現場照片、KPI 圖（依設定的星期／時間自動寄出）" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">📧 週報設定</button>`;
@@ -2262,17 +2238,15 @@ function renderTrkHTML(){
     const ri=D.tasks.indexOf(t);const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('tasks',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('tasks',${ri},1)" ${ri===D.tasks.length-1?'disabled':''}>▼</button>`:'';
     const priMap={high:'🔴 高',mid:'🟡 中',low:'🟢 低'};const priCls={high:'pri-high',mid:'pri-mid',low:'pri-low'};
     const pri=t.priority||'mid';
-    const bdg=(txt,tip)=>`<span title="${tip}" style="display:inline-block;font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px;background:var(--bg2);color:var(--muted);margin-left:4px;vertical-align:1px;white-space:nowrap">${txt}</span>`;
-    const tags=(REPEAT_LBL[t.repeat]?bdg('🔁 '+REPEAT_LBL[t.repeat],'循環事項：完成後自動新增下一期'):'')+(t.noE?bdg('💬 僅 LINE','不顯示在 E system（清單、資訊列、週報）'):t.noLine?bdg('🔕 不推 LINE','不會出現在 LINE 提醒'):'');
-    h+=`<tr class="${t.done?'done-row':''}"><td><button class="ck ${t.done?'checked':''}" onclick="togDone('${t.id}')">${t.done?'✓':''}</button></td><td><span class="pri-badge ${priCls[pri]}">${priMap[pri]}</span> ${esc(t.name)}${tags}${t.note?`<div class="doc-note" style="margin-top:4px;max-width:none;white-space:normal">${renderHtml(t.note)}</div>`:''}</td><td>${personBadges(t.person)}</td><td class="${dc}">${t.done?doneCell(t):esc(t.deadline)}${tag}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openTrkM('${t.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delTsk('${t.id}')">${SV.trash}</button></td>`:''}</tr>`;});
+    h+=`<tr class="${t.done?'done-row':''}"><td><button class="ck ${t.done?'checked':''}" onclick="togDone('${t.id}')">${t.done?'✓':''}</button></td><td><span class="pri-badge ${priCls[pri]}">${priMap[pri]}</span> ${esc(t.name)}${t.note?`<div class="doc-note" style="margin-top:4px;max-width:none;white-space:normal">${renderHtml(t.note)}</div>`:''}</td><td>${personBadges(t.person)}</td><td class="${dc}">${t.done?doneCell(t):esc(t.deadline)}${tag}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openTrkM('${t.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delTsk('${t.id}')">${SV.trash}</button></td>`:''}</tr>`;});
   h+='</tbody></table>';return h+'</div>';}
 function doneCell(t){const d=t.doneAt||'';if(!isEditor)return '✅ 已完成'+(d?'<br><span style="font-size:11px;color:var(--muted)">'+esc(d)+'</span>':'');return '✅ 已完成<br><input type="date" class="done-date" data-id="'+t.id+'" value="'+esc(d)+'" title="完成日期（週報「本期完成」用這個日期判斷）" onchange="setDoneAt(this.dataset.id,this.value)">';}
 function setDoneAt(id,v){if(!isEditor)return;const t=D.tasks.find(x=>x.id===id);if(!t)return;if(v)t.doneAt=v;else delete t.doneAt;save();renderTab();showToast(v?'✅ 完成日期已更新為 '+v:'已清除完成日期');}
 let eDoneId=null;
-function togDone(id){if(!isEditor)return;const t=D.tasks.find(x=>x.id===id);if(!t)return;if(t.done){t.done=false;delete t.doneAt;const rm=trkUnspawn(t);save();renderTab();if(rm)showToast('已取消完成，並移除自動新增的下一期');return;}eDoneId=id;$('doneTaskName').textContent=t.name||'';$('inDoneAt').value=t.doneAt||todayS();$('mDone').classList.remove('hidden');setTimeout(()=>$('inDoneAt').focus(),50);}
+function togDone(id){if(!isEditor)return;const t=D.tasks.find(x=>x.id===id);if(!t)return;if(t.done){t.done=false;delete t.doneAt;save();renderTab();return;}eDoneId=id;$('doneTaskName').textContent=t.name||'';$('inDoneAt').value=t.doneAt||todayS();$('mDone').classList.remove('hidden');setTimeout(()=>$('inDoneAt').focus(),50);}
 function closeDoneM(){$('mDone').classList.add('hidden');eDoneId=null;}
-function confirmDone(){const t=D.tasks.find(x=>x.id===eDoneId);if(!t){closeDoneM();return;}const v=$('inDoneAt').value||todayS();t.done=true;t.doneAt=v;const nt=trkSpawnNext(t);closeDoneM();save();renderTab();trkDoneToast(t,nt,v);}
-function openTrkM(id){eTrkId=id||null;$('mTT').textContent=id?'編輯事項':'新增追蹤事項';$('bTrk').textContent=id?'儲存':'新增';const t=id?D.tasks.find(x=>x.id===id):null;$('inTN').value=t?t.name:'';$('inTD').value=t?t.deadline:'';$('inTNote').innerHTML=t?t.note||'':'';renderPersonCks('trkPCks',t?t.person:'Paul');setPri(t?t.priority||'mid':'mid');$('inTDoneCk').checked=!!(t&&t.done);$('inTDoneAt').value=(t&&t.doneAt)||todayS();trkDoneCkChg();$('inTRep').value=(t&&REPEAT_LBL[t.repeat])?t.repeat:'';$('inTShowE').checked=!(t&&t.noE);$('inTShowLine').checked=!(t&&t.noLine);$('mTrk').classList.remove('hidden');setTimeout(()=>$('inTN').focus(),50);}
+function confirmDone(){const t=D.tasks.find(x=>x.id===eDoneId);if(!t){closeDoneM();return;}const v=$('inDoneAt').value||todayS();t.done=true;t.doneAt=v;closeDoneM();save();renderTab();showToast('✅ 已完成（'+v+'）');}
+function openTrkM(id){eTrkId=id||null;$('mTT').textContent=id?'編輯事項':'新增追蹤事項';$('bTrk').textContent=id?'儲存':'新增';const t=id?D.tasks.find(x=>x.id===id):null;$('inTN').value=t?t.name:'';$('inTD').value=t?t.deadline:'';$('inTNote').innerHTML=t?t.note||'':'';renderPersonCks('trkPCks',t?t.person:'Paul');setPri(t?t.priority||'mid':'mid');$('inTDoneCk').checked=!!(t&&t.done);$('inTDoneAt').value=(t&&t.doneAt)||todayS();trkDoneCkChg();$('mTrk').classList.remove('hidden');setTimeout(()=>$('inTN').focus(),50);}
 function trkDoneCkChg(){const ck=$('inTDoneCk'),w=$('trkDoneAtWrap');if(!ck||!w)return;w.style.display=ck.checked?'':'none';if(ck.checked&&!$('inTDoneAt').value)$('inTDoneAt').value=todayS();}
 function closeTrkM(){$('mTrk').classList.add('hidden');}
 function setPri(v){['H','M','L'].forEach(x=>{const el=$('pri'+x);if(el)el.className='';});const map={high:'H',mid:'M',low:'L'};const el=$('pri'+(map[v]||'M'));if(el)el.className='sel-'+v;}
@@ -2280,17 +2254,7 @@ function saveTrk(){const n=$('inTN').value.trim();if(!n)return;const p=getChecke
   // 防呆：base64 圖片（例如從剪貼簿直接貼上）會撐爆 Google Sheet 單格 50,000 字上限，導致整份資料存檔失敗
   if(/src\s*=\s*["']?data:image/i.test(note)){showToast('⚠️ 備註內含未上傳的圖片（base64），請刪除後改用工具列 🖼️ 按鈕插入圖片','err');return;}
   if(note.length>10000){showToast('⚠️ 備註內容過長（'+note.length+' 字），雲端無法儲存，請精簡內容','err');return;}
-  const priority=document.querySelector('.pri-seg button[class*=sel-]')?.id==='priH'?'high':document.querySelector('.pri-seg button[class*=sel-]')?.id==='priL'?'low':'mid';const dk=$('inTDoneCk').checked,dv=$('inTDoneAt').value;
-  const rep=$('inTRep').value,showE=$('inTShowE').checked,showLine=$('inTShowLine').checked;
-  if(!showE&&!showLine){showToast('⚠️「顯示在」至少要勾一邊（E system 或 LINE）','err');return;}
-  // 循環設定與顯示位置（沒勾的才寫欄位，舊資料沒有這些欄位 = 不重複、兩邊都顯示）
-  const setOpts=t=>{if(REPEAT_LBL[rep]){t.repeat=rep;if(rep==='daily'||rep==='weekly')delete t.repeatDay;else t.repeatDay=+d.slice(8,10);}else{delete t.repeat;delete t.repeatDay;}
-    if(showE)delete t.noE;else t.noE=true;if(showLine)delete t.noLine;else t.noLine=true;};
-  let t,was=false;
-  if(eTrkId){t=D.tasks.find(x=>x.id===eTrkId);if(t){was=!!t.done;t.name=n;t.person=p;t.deadline=d;t.note=note;t.priority=priority;t.done=dk;if(dk)t.doneAt=dv||t.doneAt||todayS();else delete t.doneAt;setOpts(t);}}
-  else{t={id:gid(),name:n,person:p,deadline:d,done:dk,note,priority};if(dk)t.doneAt=dv||todayS();setOpts(t);D.tasks.push(t);}
-  let nt=null;if(t&&dk&&!was)nt=trkSpawnNext(t);else if(t&&!dk&&was)trkUnspawn(t);
-  save();renderTab();closeTrkM();if(nt)trkDoneToast(t,nt,t.doneAt);}
+  const priority=document.querySelector('.pri-seg button[class*=sel-]')?.id==='priH'?'high':document.querySelector('.pri-seg button[class*=sel-]')?.id==='priL'?'low':'mid';const dk=$('inTDoneCk').checked,dv=$('inTDoneAt').value;if(eTrkId){const t=D.tasks.find(x=>x.id===eTrkId);if(t){t.name=n;t.person=p;t.deadline=d;t.note=note;t.priority=priority;t.done=dk;if(dk)t.doneAt=dv||t.doneAt||todayS();else delete t.doneAt;}}else{const nt={id:gid(),name:n,person:p,deadline:d,done:dk,note,priority};if(dk)nt.doneAt=dv||todayS();D.tasks.push(nt);}save();renderTab();closeTrkM();}
 function delTsk(id){if(!confirm('刪除？'))return;D.tasks=D.tasks.filter(x=>x.id!==id);save();renderTab();}
 
 // ═══ 3 DOCUMENTS ═══
@@ -3328,7 +3292,7 @@ function delArchivedBul(id){
 // ══ Send Tracker Email Preview ══
 function sendTrkEmail(){
   const today=todayS(),tomorrow=tmrS();
-  const pending=D.tasks.filter(t=>trkInE(t)&&!t.done);
+  const pending=D.tasks.filter(t=>!t.done);
   if(!pending.length){showToast('⚠️ 沒有待辦事項');return;}
 
   const priOrd={high:0,mid:1,low:2};
@@ -3962,11 +3926,31 @@ function exportSchImg(){
 // ══ Events Tab ══
 let eEventId=null,evFilterPerson='All',evFilterArea='All',evFilterType='All',evFilterDateFrom='',evFilterDateTo='';
 let evSubView='events'; // 'events' | 'vessels'
+// ── 循環活動：ev.repeat = daily/weekly/monthly/quarterly/yearly（從 ev.date 起算），ev.repeatUntil 選填結束日 ──
+// 只存一筆，顯示時才展開成每一期（esystem-gas evtExpand_、LINE 機器人 envEvOccur_ 同算法）
+// ── 顯示在：ev.noE = 不顯示在 E system（月曆、列表、資訊列、週報）；ev.noLine = 不出現在 LINE 提醒。沒這兩個欄位 = 兩邊都顯示 ──
+const EV_REPEAT={daily:'每日',weekly:'每週',monthly:'每月',quarterly:'每季',yearly:'每年'};
+let evLineOnly=false;
+function evInE(ev){return !!ev&&!ev.noE;}
+function evAddPeriod(ymd,rep,day){const [y,m,d]=ymd.split('-').map(Number);let dt;
+  if(rep==='daily')dt=new Date(Date.UTC(y,m-1,d+1));
+  else if(rep==='weekly')dt=new Date(Date.UTC(y,m-1,d+7));
+  else{const mi=m-1+(rep==='monthly'?1:rep==='quarterly'?3:12),last=new Date(Date.UTC(y,mi+1,0)).getUTCDate();dt=new Date(Date.UTC(y,mi,Math.min(day||d,last)));}
+  return dt.toISOString().slice(0,10);}
+// 一筆活動落在 from～to 的每個日期（不重複的就是它自己那天）；first=true 找到一期就停
+function evOccur(ev,from,to,first){if(!ev||!ev.date)return[];if(!EV_REPEAT[ev.repeat])return ev.date>=from&&ev.date<=to?[ev.date]:[];
+  const end=ev.repeatUntil&&ev.repeatUntil<to?ev.repeatUntil:to,day=+ev.date.slice(8,10),out=[];let d=ev.date,g=0;
+  while(d<=end&&g++<20000){if(d>=from){out.push(d);if(first)break;}d=evAddPeriod(d,ev.repeat,day);}return out;}
+// 展開成各期（複本的 date 換成該期日期，id 不變 → 點任何一期都是編輯整個系列）
+function evExpand(list,from,to){const out=[];list.forEach(ev=>{if(!EV_REPEAT[ev.repeat]){if(ev.date>=from&&ev.date<=to)out.push(ev);return;}evOccur(ev,from,to).forEach(d=>out.push(Object.assign({},ev,{date:d})));});return out;}
+function evRepLbl(ev){return EV_REPEAT[ev.repeat]?'🔁 '+EV_REPEAT[ev.repeat]+(ev.repeatUntil?' 至 '+ev.repeatUntil:''):'';}
+function evShiftS(dateStr,n){const [y,m,d]=dateStr.split('-').map(Number);return new Date(Date.UTC(y,m-1,d+n)).toISOString().slice(0,10);}
 let evViewMode='month'; // 'month' | 'week' | 'list'
 let evViewDate=new Date();evViewDate.setDate(1); // Anchor date for calendar navigation
 
 function renderEventsHTML(){
-  const events=D.events||[];
+  const lineOnlyCnt=(D.events||[]).filter(e=>e&&e.noE).length;
+  const events=(D.events||[]).filter(e=>evInE(e)||evLineOnly);
   const types=D.eventTypes||DEFAULT_EVENT_TYPES;
 
   let h='<div class="card">';
@@ -4033,6 +4017,7 @@ function renderEventsHTML(){
   }
   const hasFilter=evFilterType!=='All'||evFilterArea!=='All'||(evViewMode==='list'&&(evFilterPerson!=='All'||evFilterDateFrom||evFilterDateTo));
   if(hasFilter)h+=`<button class="btn-add-row" style="margin:0;padding:4px 10px;font-size:12px" onclick="clearEvFilters()">✕ 清除</button>`;
+  if(isEditor&&(lineOnlyCnt||evLineOnly))h+=`<label title="只勾 LINE、沒勾 E system 的活動平常不顯示" style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card2);user-select:none"><input type="checkbox" onchange="evLineOnly=this.checked;renderTab()" ${evLineOnly?'checked':''} style="width:14px;height:14px;accent-color:var(--accent);cursor:pointer"> 顯示僅 LINE <span style="font-size:11px;background:var(--bg2);padding:1px 6px;border-radius:10px">${lineOnlyCnt}</span></label>`;
   h+='</div>';
 
   // Apply filters
@@ -4040,9 +4025,13 @@ function renderEventsHTML(){
   if(evFilterType!=='All')filtered=filtered.filter(ev=>ev.typeKey===evFilterType||(!ev.typeKey&&evFilterType==='other'));
   if(evFilterArea!=='All')filtered=filtered.filter(ev=>ev.area===evFilterArea);
   if(evViewMode==='list'){
+    // 列表：循環活動只列一次（日期欄寫起始日與週期），日期篩選看「有沒有任何一期落在區間內」
     if(evFilterPerson!=='All')filtered=filtered.filter(ev=>(ev.person||'').includes(evFilterPerson));
-    if(evFilterDateFrom)filtered=filtered.filter(ev=>ev.date>=evFilterDateFrom);
-    if(evFilterDateTo)filtered=filtered.filter(ev=>ev.date<=evFilterDateTo);
+    if(evFilterDateFrom||evFilterDateTo)filtered=filtered.filter(ev=>evOccur(ev,evFilterDateFrom||'0000-01-01',evFilterDateTo||'9999-12-31',true).length);
+  }else{
+    // 月曆／週曆：展開畫面範圍內的每一期（evViewDate 前 10 天～後 45 天，涵蓋月曆 6 週格與週曆）
+    const a=evViewDate,base=`${a.getFullYear()}-${String(a.getMonth()+1).padStart(2,'0')}-${String(a.getDate()).padStart(2,'0')}`;
+    filtered=evExpand(filtered,evShiftS(base,-10),evShiftS(base,45));
   }
   filtered.sort((a,b)=>b.date.localeCompare(a.date));
 
@@ -4124,7 +4113,7 @@ function renderEventMonth(events,types){
       h+=`<div class="ev-chip" style="background:${t.bg};border-left:3px solid ${t.color};border-radius:4px;padding:4px 6px;margin-bottom:3px;font-size:10px;line-height:1.35;cursor:pointer" onclick="${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}">`;
       h+=`<div style="display:flex;align-items:center;justify-content:space-between;gap:3px;margin-bottom:2px">`;
       h+=`<span style="background:#fff;color:${t.color};padding:0 4px;border-radius:2px;font-size:9px;font-weight:700;border:1px solid ${t.color}44">${esc(t.label)}</span>`;
-      if(ev.starred)h+='<span style="font-size:9px">⭐</span>';
+      if(ev.starred||ev.repeat||ev.noE||ev.noLine)h+=`<span style="font-size:9px;white-space:nowrap">${EV_REPEAT[ev.repeat]?`<span title="${evRepLbl(ev)}">🔁</span>`:''}${ev.noE?'<span title="僅 LINE">💬</span>':ev.noLine?'<span title="不推 LINE">🔕</span>':''}${ev.starred?'⭐':''}</span>`;
       h+='</div>';
       h+=`<div class="ev-title" style="font-weight:700;color:${t.color};word-break:break-word;white-space:normal">${esc(ev.title)}</div>`;
       if(persons)h+=`<div class="ev-sub" style="color:var(--text2);font-size:9px;margin-top:1px;white-space:normal;word-break:break-word">👤 ${esc(persons)}</div>`;
@@ -4176,7 +4165,7 @@ function renderEventWeek(events,types){
       h+=`<div style="background:${t.bg};border-left:3px solid ${t.color};border-radius:6px;padding:6px 8px;margin-bottom:4px;font-size:11px;cursor:pointer" onclick="${isEditor?`openEventM('${ev.id}')`:`showEventDetail('${ev.id}')`}">`;
       h+=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px">`;
       h+=renderEventBadge(ev);
-      if(ev.starred)h+='<span style="font-size:11px">⭐</span>';
+      if(ev.starred||ev.repeat||ev.noE||ev.noLine)h+=`<span style="font-size:11px;white-space:nowrap">${EV_REPEAT[ev.repeat]?`<span title="${evRepLbl(ev)}">🔁</span>`:''}${ev.noE?'<span title="僅 LINE">💬</span>':ev.noLine?'<span title="不推 LINE">🔕</span>':''}${ev.starred?'⭐':''}</span>`;
       h+='</div>';
       h+=`<div style="font-weight:700;color:${t.color};margin-bottom:2px">${esc(ev.title)}</div>`;
       if(persons)h+=`<div style="color:var(--text2);font-size:10px">👤 ${esc(persons)}</div>`;
@@ -4203,7 +4192,7 @@ function renderEventList(events,types){
     const starCell=ev.starred?'<span style="color:#f59e0b;font-size:15px">⭐</span>':'';
     const areaColor=ev.area==='台中'?'color:#0369a1;background:#e0f2fe':ev.area==='通霄'?'color:#6d28d9;background:#ede9fe':ev.area==='專案'?'color:#b45309;background:#fef3c7':ev.area==='離岸'?'color:#0e7490;background:#cffafe':'color:#374151;background:#f3f4f6';
     h+=`<tr style="border-left:3px solid ${ev.starred?'#f59e0b':'var(--accent)'}">`;
-    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${ev.date}</td>`;
+    h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);font-weight:600;color:var(--muted);white-space:nowrap">${ev.date}${EV_REPEAT[ev.repeat]?`<div style="font-size:11px;font-weight:600;color:var(--accent2);margin-top:2px">起 ${esc(evRepLbl(ev))}</div>`:''}${ev.noE?'<div style="font-size:11px;margin-top:2px">💬 僅 LINE</div>':ev.noLine?'<div style="font-size:11px;margin-top:2px">🔕 不推 LINE</div>':''}</td>`;
     h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2);text-align:center">${starCell}</td>`;
     h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)">${renderEventBadge(ev)}</td>`;
     h+=`<td style="padding:9px 10px;border-bottom:1px solid var(--bg2)"><span style="padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;${areaColor}">${esc(ev.area)}</span></td>`;
@@ -4226,7 +4215,7 @@ function showEventDetail(id){
     <div style="padding:8px 0">
       <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">${renderEventBadge(ev)}${ev.starred?'<span>⭐ 重點</span>':''}</div>
       <div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">${esc(ev.title)}</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📅 ${ev.date}</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📅 ${ev.date}${EV_REPEAT[ev.repeat]?' 起　'+esc(evRepLbl(ev)):''}</div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:4px">📍 ${esc(ev.area)}</div>
       <div style="font-size:13px;color:var(--text2);margin-bottom:4px">👤 ${esc(persons)}</div>
       ${noteText?`<div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:8px;font-size:13px">${noteText}</div>`:''}
@@ -4241,7 +4230,7 @@ function alertHtml(html,title){
   document.body.appendChild(m);
 }
 function showDayEvents(dateStr){
-  const evs=(D.events||[]).filter(e=>e.date===dateStr);
+  const evs=evExpand((D.events||[]).filter(e=>evInE(e)||evLineOnly),dateStr,dateStr);
   if(!evs.length)return;
   let html='';
   evs.forEach(ev=>{
@@ -4280,6 +4269,11 @@ function openEventM(id){
   });
   typeSel.value=ev?(ev.typeKey||'other'):'other';
   renderPersonCks('evPCks',ev?ev.person:'');
+  $('inEvRep').value=ev&&EV_REPEAT[ev.repeat]?ev.repeat:'';
+  $('inEvUntil').value=ev&&ev.repeatUntil||'';
+  evRepChg();
+  $('inEvShowE').checked=!(ev&&ev.noE);
+  $('inEvShowLine').checked=!(ev&&ev.noLine);
   $('mEv').classList.remove('hidden');
   setTimeout(()=>$('inEvTitle').focus(),50);
 }
@@ -4295,10 +4289,18 @@ function saveEvent(){
   let note=$('inEvNote').innerHTML.trim();if(note==='<br>')note='';
   if(!D.events)D.events=[];
   const typeKey=$('inEvType').value||'other';
-  if(eEventId){const ev=D.events.find(x=>x.id===eEventId);if(ev){ev.title=title;ev.date=date;ev.person=person;ev.area=area;ev.starred=starred;ev.note=note;ev.typeKey=typeKey;}}
-  else D.events.unshift({id:gid(),title,date,person,area,starred,note,typeKey});
+  const rep=$('inEvRep').value,until=EV_REPEAT[rep]?$('inEvUntil').value:'';
+  const showE=$('inEvShowE').checked,showLine=$('inEvShowLine').checked;
+  if(until&&until<date){showToast('⚠️ 結束日期不能早於開始日期','err');return;}
+  if(!showE&&!showLine){showToast('⚠️「顯示在」至少要勾一邊（E system 或 LINE）','err');return;}
+  // 沒設定的欄位不寫（舊資料沒有這些欄位 = 不重複、兩邊都顯示）
+  const setOpts=ev=>{if(EV_REPEAT[rep])ev.repeat=rep;else delete ev.repeat;if(until)ev.repeatUntil=until;else delete ev.repeatUntil;
+    if(showE)delete ev.noE;else ev.noE=true;if(showLine)delete ev.noLine;else ev.noLine=true;};
+  if(eEventId){const ev=D.events.find(x=>x.id===eEventId);if(ev){ev.title=title;ev.date=date;ev.person=person;ev.area=area;ev.starred=starred;ev.note=note;ev.typeKey=typeKey;setOpts(ev);}}
+  else{const ev={id:gid(),title,date,person,area,starred,note,typeKey};setOpts(ev);D.events.unshift(ev);}
   save();renderTab();closeEventM();
 }
+function evRepChg(){const on=!!EV_REPEAT[$('inEvRep').value];$('evUntilWrap').style.display=on?'':'none';$('evRepHint').style.display=on?'':'none';}
 function delEvent(id){if(!confirm('刪除？'))return;D.events=D.events.filter(x=>x.id!==id);save();renderTab();}
 function delEventFromModal(){if(!eEventId)return;if(!confirm('確定刪除這個活動？'))return;D.events=D.events.filter(x=>x.id!==eEventId);save();closeEventM();renderTab();showToast('🗑️ 已刪除');}
 function toggleHideTab(key){
@@ -5088,6 +5090,22 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     <div style="display:flex;align-items:center;gap:8px;padding:8px 0">
       <input type="checkbox" id="inEvStarred" style="width:16px;height:16px;accent-color:var(--warn);cursor:pointer">
       <label for="inEvStarred" style="cursor:pointer;font-size:13px;font-weight:600;color:var(--text2)">⭐ 標記為重點項目</label>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div><label class="form-label">重複</label>
+        <select class="form-select" id="inEvRep" onchange="evRepChg()">
+          <option value="">不重複</option><option value="daily">🔁 每日</option><option value="weekly">🔁 每週（同一個星期幾）</option><option value="monthly">🔁 每月（同一天）</option><option value="quarterly">🔁 每季（每 3 個月同一天）</option><option value="yearly">🔁 每年（同一天）</option>
+        </select>
+      </div>
+      <div id="evUntilWrap" style="display:none"><label class="form-label">結束日期（選填）</label><input class="form-input" type="date" id="inEvUntil"></div>
+    </div>
+    <div id="evRepHint" style="display:none;font-size:11px;color:var(--muted);line-height:1.5;margin-top:-4px">從上面的「日期」開始重複（例如 5 號＋每月 → 每月 5 號；31 號遇到小月排月底）。結束日期沒填就一直重複。只存一筆：月曆上點任何一期都是編輯整個系列，刪除也是整個系列一起刪。</div>
+    <div><label class="form-label">顯示在</label>
+      <div style="display:flex;gap:18px;flex-wrap:wrap">
+        <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);user-select:none"><input type="checkbox" id="inEvShowE" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> 🖥️ E system</label>
+        <label style="display:inline-flex;align-items:center;gap:7px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text2);user-select:none"><input type="checkbox" id="inEvShowLine" style="width:16px;height:16px;accent-color:var(--accent);cursor:pointer"> 💬 LINE 機器人</label>
+      </div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.5;margin-top:5px">沒勾 E system：不顯示在月曆／列表、資訊列與週報（活動頁勾「顯示僅 LINE」才看得到）。沒勾 LINE：LINE 提醒不會列出。</div>
     </div>
     <div class="modal-actions"><button id="bEvDel" class="btn-secondary" style="display:none;color:#dc2626;border-color:#fecaca" onclick="delEventFromModal()">🗑️ 刪除</button><div style="flex:1"></div><button class="btn-secondary" onclick="closeEventM()">取消</button><button class="btn-primary" onclick="saveEvent()" id="bEv">新增</button></div>
   </div>
