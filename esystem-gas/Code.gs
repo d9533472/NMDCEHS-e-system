@@ -54,6 +54,7 @@ var STORAGE = {
   envScopeSeeded:    'A21',
   contacts:          'A22',
   lineNotify:        'A23',   // LINE 提醒設定（LINE 機器人的 GAS 只讀這格）
+  lineMemos:         'A24',   // LINE 每日提醒的「今日其他提醒事項」[{id,date,text,by,at}]（網頁與 LINE /提醒 都能加）
 };
 var LAST_SYNC_CELL = 'B1';
 var VISITS_CELL = 'B2';
@@ -128,7 +129,7 @@ function getAllData() {
 //   - 讀取：全部合併顯示，並把 opId 放進 data._lineOps
 //   - 存檔：分頁「沒看過」的項目合併進去（舊分頁存幾次都會補回來）；
 //           分頁「看過」的項目以分頁為準（使用者可能刪掉了），寫完從收件匣移除
-// 每筆：{opId, op:'addEvent'|'addTask'|'doneTask', item?, id?, doneAt?, at}
+// 每筆：{opId, op:'addEvent'|'addTask'|'doneTask'|'addMemo'|'delMemo', item?, id?, doneAt?, at}
 // ─────────────────────────────────────────
 function readLineInbox_(sheet) {
   try {
@@ -142,6 +143,7 @@ function applyLineInbox_(data, ops) {
   if (!ops.length) return;
   if (!Array.isArray(data.events)) data.events = [];
   if (!Array.isArray(data.tasks)) data.tasks = [];
+  if (!Array.isArray(data.lineMemos)) data.lineMemos = [];
   var has = function(list, id) { return list.some(function(x) { return x && x.id === id; }); };
   ops.forEach(function(o) {
     if (o.op === 'addEvent' && o.item && !has(data.events, o.item.id)) data.events.unshift(o.item);
@@ -149,6 +151,8 @@ function applyLineInbox_(data, ops) {
     if (o.op === 'doneTask') {
       data.tasks.forEach(function(t) { if (t && t.id === o.id && !t.done) { t.done = true; t.doneAt = o.doneAt; } });
     }
+    if (o.op === 'addMemo' && o.item && !has(data.lineMemos, o.item.id)) data.lineMemos.push(o.item);
+    if (o.op === 'delMemo') data.lineMemos = data.lineMemos.filter(function(m) { return !m || m.id !== o.id; });
   });
 }
 
@@ -178,6 +182,10 @@ function saveAllData(payload) {
   var allCoreEmpty = core.every(function(k){ var v = payload[k]; return v === undefined || v === null || (Array.isArray(v) && v.length === 0); });
   if (allCoreEmpty) throw new Error('saveAllData 拒絕寫入：tasks／bulletins／documents／sections 全部為空，疑似誤送空資料');
 
+  // 改版前就開著的分頁沒有 lineMemos 這個欄位，存檔時保留雲端原本的，不要清空
+  if (payload.lineMemos === undefined) {
+    try { var lm = sheet.getRange(STORAGE.lineMemos).getValue(); payload.lineMemos = lm ? JSON.parse(lm) : []; } catch (e) { payload.lineMemos = []; }
+  }
   var seenOps = Array.isArray(payload._lineOps) ? payload._lineOps : [];
   applyLineInbox_(payload, readLineInbox_(sheet).filter(function(o) { return seenOps.indexOf(o.opId) < 0; }));
 

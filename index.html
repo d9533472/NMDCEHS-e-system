@@ -3079,8 +3079,37 @@ function openLineM(){
   $('inLnDailyOn').checked=!!c.dailyOn;$('inLnDailyHour').innerHTML=hrs(+c.dailyHour);$('inLnRemind').value=c.remindDays;
   $('inLnWeeklyOn').checked=!!c.weeklyOn;$('inLnWeeklyDay').value=String(c.weeklyDay);$('inLnWeeklyHour').innerHTML=hrs(+c.weeklyHour);$('inLnSoon').value=c.soonDays;
   $('lnUpdated').textContent=c.updatedAt?'上次修改：'+c.updatedAt:'';
+  $('inLnMemoDate').value=lnNextDate();renderLineMemos();
   $('mLine').classList.remove('hidden');
   loadLineQuota();
+}
+// ── 今日其他提醒事項（D.lineMemos → Sheet A24）：出現在當天 LINE 每日提醒卡片最下面；LINE 打「/提醒 內容」也能加 ──
+function lnMemos(){if(!Array.isArray(D.lineMemos))D.lineMemos=[];return D.lineMemos;}
+function lnAddDays(ymd,n){const p=ymd.split('-'),d=new Date(+p[0],+p[1]-1,+p[2]+n);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+// 今天的每日提醒還沒到發送時間 → 今天；否則下一個工作日（同 LINE 機器人的 envNextMemoDate_）
+function lnNextDate(){
+  const c=lineCfg(),t=todayS(),now=new Date(),dw=now.getDay();
+  if(dw>=1&&dw<=5&&now.getHours()<=+c.dailyHour)return t;
+  let d=lnAddDays(t,1);while([0,6].includes(new Date(d+'T12:00').getDay()))d=lnAddDays(d,1);return d;
+}
+function lnDayLabel(d){return (d===todayS()?'今天':+d.slice(5,7)+'/'+(+d.slice(8)))+'（'+'日一二三四五六'[new Date(d+'T12:00').getDay()]+'）';}
+function renderLineMemos(){
+  const t=todayS(),list=lnMemos().filter(m=>m&&m.date>=t).sort((a,b)=>a.date.localeCompare(b.date));
+  $('lnMemoList').innerHTML=list.length?list.map(m=>`<div class="ln-memo"><span class="ln-memo-d">${lnDayLabel(m.date)}</span><span style="flex:1;min-width:0;word-break:break-word">${esc(m.text)}${m.by?`<small style="color:var(--faint)"> — ${esc(m.by)}</small>`:''}</span><button type="button" class="mc-ib del" onclick="delLineMemo('${esc(m.id)}')" title="刪除">🗑</button></div>`).join('')
+    :'<div class="mc-empty">還沒有提醒事項</div>';
+}
+function addLineMemo(){
+  if(!isEditor)return;
+  const text=$('inLnMemo').value.trim(),date=$('inLnMemoDate').value||lnNextDate();
+  if(!text)return $('inLnMemo').focus();
+  if(date<todayS())return showToast('⚠️ 日期已經過了','err');
+  const old=lnAddDays(todayS(),-30); // 順手清掉 30 天前的
+  D.lineMemos=lnMemos().filter(m=>m&&m.date>=old).concat([{id:gid(),date,text:text.slice(0,200),by:'',at:todayS()}]);
+  $('inLnMemo').value='';save();renderLineMemos();showToast('📌 已加到 '+lnDayLabel(date)+' 的 LINE 每日提醒');
+}
+function delLineMemo(id){
+  if(!isEditor)return;
+  D.lineMemos=lnMemos().filter(m=>m.id!==id);save();renderLineMemos();
 }
 // ── 卡片預覽：LINE 機器人每小時把「現在會發出去的」Flex 卡片存進 Sheet B10，這裡畫成 HTML（只做卡片用到的元件） ──
 let _lnPv=null,_lnPvKind='daily';
@@ -4848,14 +4877,26 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
       <div id="lnPv" style="background:#9BB0C8;border-radius:10px;padding:14px 10px;max-height:460px;overflow:auto">載入中…</div>
       <div id="lnPvAt" style="font-size:11px;color:var(--faint);margin-top:6px"></div>
     </div>
-    <style>.ln-pv-tab{padding:3px 10px!important;font-size:12px!important;opacity:.55}.ln-pv-tab.on{opacity:1;font-weight:700}</style>
+    <style>.ln-pv-tab{padding:3px 10px!important;font-size:12px!important;opacity:.55}.ln-pv-tab.on{opacity:1;font-weight:700}
+    .ln-memo{display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:10px;background:var(--card);font-size:13px}
+    .ln-memo-d{flex:none;font-size:11px;font-weight:700;color:var(--accent2);background:var(--card2);border-radius:6px;padding:2px 6px}</style>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📅 每日提醒（明天的活動＋快到期的待辦事項、改善單）</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnDailyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
         <div><label class="form-label">發送時間</label><select class="form-input" id="inLnDailyHour"></select></div>
         <div><label class="form-label">剩幾天內就提醒（待辦＋改善單）</label><input class="form-input" id="inLnRemind" type="number" min="0" max="30"></div>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">週一～週五發；週五會一次講到下週一。明天沒活動、也沒有快到期／逾期的待辦事項和改善單就不發。</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;line-height:1.6">週一～週五發；週五會一次講到下週一。明天沒活動、沒有其他提醒，也沒有快到期／逾期的待辦事項和改善單就不發。</p>
+    </div>
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>📌 今日其他提醒事項</b><small>加完立即生效，不用按儲存</small></div>
+      <div id="lnMemoList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+      <div style="display:flex;gap:6px">
+        <input class="form-input" id="inLnMemoDate" type="date" style="width:150px;flex:none">
+        <input class="form-input" id="inLnMemo" maxlength="200" placeholder="例：明早 8 點前回覆環保局" style="flex:1;min-width:0" onkeydown="if(event.key==='Enter'&&!event.isComposing){event.preventDefault();addLineMemo()}">
+        <button type="button" class="btn-primary" style="flex:none" onclick="addLineMemo()">＋ 新增</button>
+      </div>
+      <p class="mc-note" style="margin-top:8px">會出現在那天 LINE 每日提醒卡片的最下面；有提醒事項時，就算沒活動也會發。LINE 裡打 <b>/提醒 內容</b>（或 <b>/提醒 11/12 內容</b>）也能加，只打 <b>/提醒</b> 可以看清單、刪除。</p>
     </div>
     <div class="mc-sec">
       <div class="mc-sec-h"><b>📑 每週改善單摘要</b><label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:13px"><input type="checkbox" id="inLnWeeklyOn" style="width:16px;height:16px;accent-color:var(--accent)"> 啟用</label></div>
