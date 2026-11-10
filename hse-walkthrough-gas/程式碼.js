@@ -30,7 +30,7 @@ var REC_COLS = ['id', 'date', 'time', 'reporter', 'members', 'project', 'contrac
   'status', 'closeOutDate', 'createdAt', 'updatedAt', 'deleted', 'hazard', 'source',
   'obsType', 'operation', 'smRowId', 'smAt'];
 var PHO_COLS = ['id', 'recordId', 'kind', 'fileId', 'name', 'createdAt', 'deleted'];
-var REP_COLS = ['date', 'docId', 'pdfId', 'docxId', 'generatedAt'];
+var REP_COLS = ['date', 'docId', 'pdfId', 'docxId', 'generatedAt', 'scope'];   // scope 空白＝全部，數字＝勾選版的筆數
 
 var DEFAULTS = {
   members: ['Jin', 'Ben', 'Elson', 'Raymond'],   // 固定班底，報告抬頭照這個順序印
@@ -967,7 +967,8 @@ var HDR_BG = '#f2f2f2';
 var NAVY = '#002038';
 var FONT = 'Arial';
 
-function hseBuildReport(key, date) {
+/** ids：前端勾選的紀錄 id；有給就只放當天有勾的那幾筆，沒給就是當天全部。 */
+function hseBuildReport(key, date, ids) {
   auth_(key);
   var lock = LockService.getScriptLock();
   lock.waitLock(120000);
@@ -980,25 +981,33 @@ function hseBuildReport(key, date) {
     var all = rows_(ss.getSheetByName(SH.rec), REC_COLS);
     var recs = all.filter(function (x) { return ymd_(x.date) === d; });
     if (!recs.length) throw new Error(d + ' 當天沒有巡查紀錄，無法產生報告');
+    var pick = (ids || []).map(String);
+    if (pick.length) {
+      recs = recs.filter(function (x) { return pick.indexOf(String(x.id)) >= 0; });
+      if (!recs.length) throw new Error('勾選的項目都不在 ' + d + '，請換日期或清除勾選');
+    }
+    var part = pick.length ? recs.length : 0;
     recs.sort(function (a, b) {
       var t = hm_(a.time).localeCompare(hm_(b.time));
       return t !== 0 ? t : String(a.createdAt).localeCompare(String(b.createdAt));
     });
     var pmap = photosByRecord_(ss);
 
-    trashOld_(ss, d);
+    // 勾選版跟全部版分開保存：只有重產全部版時才汰換當天舊的全部版
+    if (!part) trashOld_(ss, d);
 
-    var built = buildDoc_(d, recs, pmap, cfg, r.reportId);
+    var built = buildDoc_(d, recs, pmap, cfg, r.reportId, part ? '_部分(' + part + '筆)' : '');
     var files = exportDoc_(built.docId, built.name, r.reportId);
 
     var sh = ss.getSheetByName(SH.rep);
     sh.appendRow([d, built.docId, files.pdfId, files.docxId,
-      Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss')]);
+      Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd HH:mm:ss'), part || '']);
 
     return {
       ok: true,
       date: d,
       count: recs.length,
+      partial: !!part,
       name: built.name,
       docUrl: 'https://docs.google.com/document/d/' + built.docId + '/edit',
       pdfUrl: 'https://drive.google.com/file/d/' + files.pdfId + '/view',
@@ -1020,7 +1029,7 @@ function trashOld_(ss, date) {
   var vals = sh.getRange(2, 1, n - 1, REP_COLS.length).getValues();
   var keep = [];
   vals.forEach(function (row) {
-    if (ymd_(row[0]) === date) {
+    if (ymd_(row[0]) === date && !row[5]) {
       [row[1], row[2], row[3]].forEach(function (id) {
         if (id) { try { DriveApp.getFileById(id).setTrashed(true); } catch (e) { } }
       });
@@ -1030,8 +1039,8 @@ function trashOld_(ss, date) {
   if (keep.length) sh.getRange(2, 1, keep.length, REP_COLS.length).setValues(keep);
 }
 
-function buildDoc_(date, recs, pmap, cfg, reportFolderId) {
-  var name = 'HSE Walkthrough Inspection_' + date;
+function buildDoc_(date, recs, pmap, cfg, reportFolderId, suffix) {
+  var name = 'HSE Walkthrough Inspection_' + date + (suffix || '');
   var doc = DocumentApp.create(name);
   var docId = doc.getId();
   try { DriveApp.getFileById(docId).moveTo(DriveApp.getFolderById(reportFolderId)); } catch (e) { }

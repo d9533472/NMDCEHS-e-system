@@ -629,6 +629,7 @@ var L={zh:{
  eHint:"依照 HSE Walkthrough Inspection 範本格式產生（A4 橫式、中英對照、每筆下方含改善前後照片）。",
  eDate:"報告日期（可選其他天）", ePick:"↓ 從有紀錄的日期挑…",
  eCnt1:"這天有 ", eCnt2:" 筆紀錄", eCnt0:"這天沒有巡查紀錄，無法產生報告",
+ eSel1:"，已勾選其中 ", eSel2:" 筆 → 只產出勾選的項目", eSelX:"（勾選的項目不在這天，會產出全部）", eBtnP:"（勾選）",
  eBtn1:"產生 ", eBtn2:" 報告", eBusy:"產生中…（含照片，約 10–40 秒）",
  eDoc:"📝 Google 文件（可編輯）", ePdf:"📕 PDF 預覽 / 下載", eDocx:"📄 下載 Word (.docx)",
  eOk:"報告已產生 ✓", eNone:"當天沒有紀錄",
@@ -712,6 +713,7 @@ var L={zh:{
  eHint:"Generated in the HSE Walkthrough Inspection template format (A4 landscape, bilingual, before/after photos under each item).",
  eDate:"Report date (any day)", ePick:"↓ Pick a date with findings…",
  eCnt1:"", eCnt2:" finding(s) on this day", eCnt0:"No findings on this day",
+ eSel1:"; ", eSel2:" ticked → report includes ticked items only", eSelX:" (none of the ticked items are on this day, so all will be included)", eBtnP:" (ticked)",
  eBtn1:"Generate ", eBtn2:" report", eBusy:"Generating… (with photos, 10–40 s)",
  eDoc:"📝 Google Doc (editable)", ePdf:"📕 PDF view / download", eDocx:"📄 Download Word (.docx)",
  eOk:"Report ready ✓", eNone:"No findings on that date",
@@ -1429,17 +1431,21 @@ function dayCount(d){var n=0;DATES.forEach(function(x){if(x.date===d)n=x.n});ret
 function updExpBtn(){
  var b=$("expBtn");if(!b)return;
  if(!EXPTOUCH)$("expDt").value=$("dt").value||TODAY;
- var d=$("expDt").value||TODAY,n=dayCount(d);
- b.textContent=t("eBtn1")+d+t("eBtn2");
+ var d=$("expDt").value||TODAY,n=dayCount(d),k=expIds(d).length;
+ b.textContent=t("eBtn1")+d+t("eBtn2")+(k?t("eBtnP"):"");
  b.disabled=!n;
- $("expCnt").textContent=n?(t("eCnt1")+n+t("eCnt2")):t("eCnt0");
+ $("expCnt").textContent=n?(t("eCnt1")+n+t("eCnt2")+(k?t("eSel1")+k+t("eSel2"):smIds().length?t("eSelX"):"")):t("eCnt0");
 }
+/** 勾選（與 Smartsheet 共用）裡落在這天的紀錄；沒有就回空陣列＝產出全部。 */
+function expIds(d){return smIds().filter(function(id){return SMSEL[id]&&SMSEL[id].date===d})}
 function buildReport(){
  var d=$("expDt").value||TODAY;
  if(!dayCount(d)){toast(t("eNone"));return}
+ var ids=expIds(d);
  var b=$("expBtn");b.disabled=true;b.textContent=t("eBusy");
  $("expOut").innerHTML="";
  google.script.run.withSuccessHandler(function(r){
+  if(r&&r.ok&&ids.length)smClear();
   updExpBtn();
   if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
   toast(t("eOk"));
@@ -1449,7 +1455,7 @@ function buildReport(){
    '<a class="g" href="'+esc(r.docUrl)+'" target="_blank">'+esc(t("eDoc"))+'</a>';
  }).withFailureHandler(function(e){
   updExpBtn();toast(t("fail")+(e&&e.message||e));
- }).hseBuildReport(KEY,d);
+ }).hseBuildReport(KEY,d,ids);
 }
 
 /* ---------- 設定 ---------- */
@@ -1539,6 +1545,7 @@ function smBarUi(){
  $("smBar").style.display=n?"flex":"none";
  $("smN").textContent=t("smSel")+n+t("lN");
  document.body.style.paddingBottom=n?"96px":"";
+ updExpBtn();
 }
 function smTog(id,on){
  if(on)SMSEL[id]=findRec(id);else delete SMSEL[id];
