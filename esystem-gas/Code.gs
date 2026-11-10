@@ -149,11 +149,42 @@ function applyLineInbox_(data, ops) {
     if (o.op === 'addEvent' && o.item && !has(data.events, o.item.id)) data.events.unshift(o.item);
     if (o.op === 'addTask' && o.item && !has(data.tasks, o.item.id)) data.tasks.push(o.item);
     if (o.op === 'doneTask') {
-      data.tasks.forEach(function(t) { if (t && t.id === o.id && !t.done) { t.done = true; t.doneAt = o.doneAt; } });
+      data.tasks.slice().forEach(function(t) { if (t && t.id === o.id && !t.done) { t.done = true; t.doneAt = o.doneAt; trkSpawnNext_(data.tasks, t); } });
     }
     if (o.op === 'addMemo' && o.item && !has(data.lineMemos, o.item.id)) data.lineMemos.push(o.item);
     if (o.op === 'delMemo') data.lineMemos = data.lineMemos.filter(function(m) { return !m || m.id !== o.id; });
   });
+}
+
+// ── 循環追蹤事項：完成後新增下一期（與 index.html trkSpawnNext、LINE 機器人 envSpawnNext_ 同算法；
+//    下一期 id 固定為「系列 id~新期限」，三邊誰先算都一樣，不會重複） ──
+var TRK_REPEATS = { daily: 1, weekly: 1, monthly: 1, quarterly: 1, yearly: 1 };
+function trkAddPeriod_(ymd, rep, day) {
+  var p = ymd.split('-').map(Number), y = p[0], m = p[1], d = p[2], dt;
+  if (rep === 'daily') dt = new Date(Date.UTC(y, m - 1, d + 1));
+  else if (rep === 'weekly') dt = new Date(Date.UTC(y, m - 1, d + 7));
+  else {
+    var mi = m - 1 + (rep === 'monthly' ? 1 : rep === 'quarterly' ? 3 : 12);
+    var last = new Date(Date.UTC(y, mi + 1, 0)).getUTCDate();
+    dt = new Date(Date.UTC(y, mi, Math.min(day || d, last)));
+  }
+  return dt.toISOString().slice(0, 10);
+}
+function trkSpawnNext_(tasks, t) {
+  if (!t || !t.done || !TRK_REPEATS[t.repeat] || !/^\d{4}-\d{2}-\d{2}$/.test(t.deadline || '')) return null;
+  var day = t.repeatDay || Number(t.deadline.slice(8, 10));
+  var ref = String(t.doneAt || trkTodayStr_()).slice(0, 10);
+  var due = trkAddPeriod_(t.deadline, t.repeat, day), g = 0;
+  while (due <= ref && g++ < 5000) due = trkAddPeriod_(due, t.repeat, day);
+  var id = String(t.id).split('~')[0] + '~' + due;
+  t.nextId = id;
+  if (tasks.some(function(x) { return x && x.id === id; })) return null;
+  var nt = { id: id, name: t.name, person: t.person, deadline: due, done: false, note: t.note || '', priority: t.priority || 'mid', repeat: t.repeat };
+  if (t.repeatDay) nt.repeatDay = t.repeatDay;
+  if (t.noE) nt.noE = true;
+  if (t.noLine) nt.noLine = true;
+  tasks.splice(tasks.indexOf(t) + 1, 0, nt);
+  return nt;
 }
 
 /** 存檔寫入後，把分頁已經看過的項目從收件匣移除（重讀一次，保留寫入期間 LINE 新加的） */
@@ -1963,10 +1994,11 @@ function buildTrackerMail_(opts) {
   var today = trkTodayStr_();
   var range = reportRange_();
   var data  = getAllData();
-  var tasks = (data.tasks || []).filter(function(t){ return t && !t.done; });
+  // noE = 只顯示在 LINE 的事項，週報不列
+  var tasks = (data.tasks || []).filter(function(t){ return t && !t.noE && !t.done; });
   // 本報告期間內（週一～週日）打勾完成的事項；doneAt 由前端打勾時寫入，舊資料沒有就不列
   var doneInRange = (data.tasks || []).filter(function(t){
-    if (!t || !t.done || !t.doneAt) return false;
+    if (!t || t.noE || !t.done || !t.doneAt) return false;
     var d = String(t.doneAt).slice(0, 10);
     return d >= range.fromIso && d <= range.toIso;
   }).sort(function(a, b){ return String(a.doneAt).localeCompare(String(b.doneAt)); });
