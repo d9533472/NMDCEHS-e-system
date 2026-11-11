@@ -177,6 +177,13 @@
   .loading-overlay .spinner{width:36px;height:36px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
   .loading-overlay .load-msg{font-size:14px;color:var(--text);font-weight:500;}
   @keyframes spin{to{transform:rotate(360deg);}}
+  .user-chip{border:1px solid rgba(255,255,255,.45);background:rgba(255,255,255,.12);color:#fff;font-family:inherit;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;cursor:pointer;}
+  .user-chip:hover{background:rgba(255,255,255,.25);}
+  #userPicker{z-index:400;}
+  .user-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+  .user-opt{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border:1.5px solid var(--border);background:#fff;color:var(--text);font-size:15px;}
+  .user-opt:hover,.user-opt.last{border-color:var(--accent);background:var(--accent-light);}
+  .user-opt span{font-size:12px;font-weight:500;color:var(--text-light);}
   .meter-report{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);border-radius:8px;overflow:hidden;}
   .meter-report th,.meter-report td{border:1px solid var(--border);padding:6px 10px;text-align:center;}
   .meter-report th{background:#f0f0ea;font-weight:600;font-size:12px;}
@@ -196,6 +203,7 @@
 
 <div class="app-header">
   <h1>💧 營建工地每日噴灑水作業紀錄</h1>
+  <button class="user-chip" id="userChip" onclick="openUserPicker()" title="切換使用者">👤 未選擇</button>
   <div class="tabs">
     <button class="tab-btn" onclick="switchTab(0)">📝 灑水紀錄</button>
     <button class="tab-btn" onclick="switchTab(1)">📷 照片紀錄</button>
@@ -271,7 +279,7 @@
     <button class="btn btn-danger btn-sm" onclick="deleteSelected()">🗑️ 刪除勾選</button>
     <button class="btn btn-pdf btn-sm" onclick="exportSelectedPDF()">📄 預覽/匯出勾選</button>
     <div style="flex:1;"></div>
-    <button class="btn btn-outline btn-sm" onclick="document.getElementById('importFile').click()">📤 匯入舊資料 JSON</button>
+    <button class="btn btn-outline btn-sm" id="btnImport" onclick="document.getElementById('importFile').click()">📤 匯入舊資料 JSON</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
   </div>
 </div>
@@ -281,7 +289,7 @@
     <select id="cumLoc" onchange="renderCumulative()"><option value="台中">台中</option><option value="通霄">通霄</option></select>
     <button class="btn btn-outline btn-sm" onclick="renderCumulative()">🔄 重新計算</button>
     <button class="btn btn-save btn-sm" onclick="saveCumData()">💾 儲存手動輸入</button>
-    <button class="btn btn-outline btn-sm" onclick="syncWaterFromRecords()">☁️ 從紀錄同步水量</button>
+    <button class="btn btn-outline btn-sm" id="btnSyncFrom" onclick="syncWaterFromRecords()">☁️ 從紀錄同步水量</button>
     <button class="btn btn-outline btn-sm" onclick="syncWaterToRecords()">📥 寫回灑水紀錄</button>
     <button class="btn btn-pdf btn-sm" onclick="exportCumPdf()">📄 匯出 PDF</button>
     <button class="btn btn-outline btn-sm" onclick="exportCumWord()">📝 匯出 Word</button>
@@ -351,6 +359,19 @@
   </div>
 </div>
 
+<div class="dialog-overlay" id="userPicker">
+  <div class="dialog-box">
+    <h3>👤 請選擇使用者</h3>
+    <p>只會顯示並可編輯對應工區的灑水紀錄</p>
+    <div class="user-opts">
+      <button class="btn user-opt" data-user="Raymond" onclick="pickUser('Raymond')"><b>Raymond</b><span>通霄工區</span></button>
+      <button class="btn user-opt" data-user="Sean" onclick="pickUser('Sean')"><b>Sean</b><span>台中工區</span></button>
+      <button class="btn user-opt" data-user="Both" onclick="pickUser('Both')"><b>兩邊工區</b><span>台中＋通霄</span></button>
+    </div>
+    <button class="btn btn-outline btn-sm" id="userPickerCancel" onclick="$('userPicker').classList.remove('open')" style="display:none;">取消</button>
+  </div>
+</div>
+
 <div class="loading-overlay" id="loadingOverlay">
   <div class="spinner"></div>
   <div class="load-msg" id="loadMsg">載入中...</div>
@@ -399,6 +420,50 @@ function R(n){return Math.round(n*10)/10;}
 function weekday(s){return['日','一','二','三','四','五','六'][new Date(s).getDay()];}
 function recKey(loc,sd){return `${loc}_${sd}`;}
 function isNewFormat(sd){return sd&&sd>=NEW_FORMAT_DATE;}
+
+/* ===== 使用者與工區權限（開頁先選人；只顯示、只能改自己工區）===== */
+const SITES=['台中','通霄'];
+const USERS={
+  Raymond:{name:'Raymond',label:'Raymond（通霄）',sites:['通霄']},
+  Sean:{name:'Sean',label:'Sean（台中）',sites:['台中']},
+  Both:{name:'兩邊工區',label:'兩邊工區',sites:SITES,all:true}   // all：含自填地點、匯入、全量同步
+};
+const USER_KEY='wr_user_v1';
+let currentUser=null;
+function canAccess(loc){return !!currentUser&&(currentUser.all||currentUser.sites.includes(loc));}
+function denyMsg(loc){toast(`🔒 ${currentUser?currentUser.label:'未選擇使用者'} 無權限操作「${loc}」的紀錄`,true);}
+function setSelectOpts(id,opts){const el=$(id);const old=el.value;el.innerHTML=opts.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');if(opts.some(([v])=>v===old))el.value=old;}
+function openUserPicker(){
+  let last='';try{last=localStorage.getItem(USER_KEY)||'';}catch(e){}
+  document.querySelectorAll('.user-opt').forEach(b=>b.classList.toggle('last',b.dataset.user===last));
+  $('userPickerCancel').style.display=currentUser?'inline-block':'none';
+  $('userPicker').classList.add('open');
+}
+function pickUser(id){
+  const u=USERS[id];if(!u)return;
+  if(isEditing&&currentUser!==u&&!confirm('切換使用者會關閉目前編輯中的紀錄，確定？'))return;
+  currentUser=u;try{localStorage.setItem(USER_KEY,id);}catch(e){}
+  $('userPicker').classList.remove('open');
+  $('userChip').textContent='👤 '+u.label;
+  if(isEditing&&!canAccess($('locBadge').textContent))clearFormSilent();
+  applyUserScope();
+  if(!isEditing)switchTab(2);
+  toast(`👤 ${u.label}`);
+}
+function applyUserScope(){
+  const s=currentUser?currentUser.sites:[];
+  const siteOpts=s.map(x=>[x,x]);
+  setSelectOpts('filterLoc',s.length>1?[['','全部地點'],...siteOpts]:siteOpts);
+  setSelectOpts('cumLoc',siteOpts);
+  setSelectOpts('meterLoc',s.map(x=>[x,x+'工區']));
+  setSelectOpts('newrecLoc',currentUser&&currentUser.all?[...siteOpts,['__other','其他（自填）']]:siteOpts);
+  const all=!!(currentUser&&currentUser.all);
+  $('btnImport').style.display=all?'':'none';
+  $('btnSyncFrom').style.display=all?'':'none';
+  renderList(true);
+  if($('tab3').classList.contains('active'))renderCumulative();
+  if($('tab4').classList.contains('active'))renderMeterReport();
+}
 
 /* ===== API Layer（XHR + 自動重試 + 單一佇列）=====
    Apps Script 對同一使用者的請求本來就會排隊，前端再併發只會互相拖慢，
@@ -741,6 +806,7 @@ function loadData(data){
 async function saveRecord(){
   const data=collectData();
   if(!data.startDate||!data.location||data.location==='—'){toast('請先選擇地點和日期',true);return;}
+  if(!canAccess(data.location)){denyMsg(data.location);return;}
   const key=recKey(data.location,data.startDate);
   const btn=$('btnSave');btn.disabled=true;btn.textContent='⏳ 上傳驗證中...';
   try{
@@ -780,8 +846,9 @@ function clearFormSilent(){
 
 /* ===== New Record ===== */
 function openNewRecDialog(){
+  if(!currentUser){openUserPicker();return;}
   if(isEditing&&!confirm('目前正在編輯，確定要新增？'))return;
-  $('newrecLoc').value='通霄';$('newrecLocCustom').style.display='none';
+  $('newrecLoc').value=canAccess('通霄')?'通霄':currentUser.sites[0];$('newrecLocCustom').style.display='none';
   $('newrecDate').value=getMonday(new Date().toISOString().slice(0,10));
   $('newrecDupWarn').classList.remove('show');$('newrecLoadBtn').style.display='none';
   $('newrecDialog').classList.add('open');onNewrecDateChange();
@@ -790,13 +857,14 @@ $('newrecLoc').addEventListener('change',function(){$('newrecLocCustom').style.d
 function getNewrecLoc(){const v=$('newrecLoc').value;return v==='__other'?($('newrecLocCustom').value.trim()||'未命名'):v;}
 function onNewrecDateChange(){const sd=$('newrecDate').value;if(!sd)return;$('newrecDate').value=getMonday(sd);const loc=getNewrecLoc();const key=recKey(loc,$('newrecDate').value);if(cloudIndex[key]){$('newrecDupWarn').textContent=`⚠️ 已有「${loc} ${$('newrecDate').value}」的紀錄`;$('newrecDupWarn').classList.add('show');$('newrecLoadBtn').style.display='inline-block';}else{$('newrecDupWarn').classList.remove('show');$('newrecLoadBtn').style.display='none';}}
 async function newrecLoadExisting(){const key=recKey(getNewrecLoc(),$('newrecDate').value);closeNewrecDialog();await editRecord(key);}
-function newrecConfirm(){const loc=getNewrecLoc();if(!loc){toast('請輸入地點',true);return;}const sd=$('newrecDate').value;if(!sd){toast('請選擇日期',true);return;}clearFormSilent();$('locBadge').textContent=loc;$('startDate').value=sd;$('projectName').value=DEFAULT_PROJECT;onStartDateChange();randomizeTimes();currentEditKey=recKey(loc,sd);isEditing=true;closeNewrecDialog();switchTab(0);toast(`新紀錄：${loc} ${sd}`);}
+function newrecConfirm(){const loc=getNewrecLoc();if(!loc){toast('請輸入地點',true);return;}if(!canAccess(loc)){denyMsg(loc);return;}const sd=$('newrecDate').value;if(!sd){toast('請選擇日期',true);return;}clearFormSilent();$('locBadge').textContent=loc;$('startDate').value=sd;$('projectName').value=DEFAULT_PROJECT;onStartDateChange();randomizeTimes();currentEditKey=recKey(loc,sd);isEditing=true;closeNewrecDialog();switchTab(0);toast(`新紀錄：${loc} ${sd}`);}
 function closeNewrecDialog(){$('newrecDialog').classList.remove('open');}
 
 /* ===== Records List（從記憶體 cloudIndex 渲染）===== */
 function renderList(resetPage){
   if(resetPage)currentPage=1;
-  let entries=Object.entries(cloudIndex).filter(([k])=>!k.startsWith('__'));
+  if(!currentUser){$('recordsList').innerHTML='<div class="empty-list">👤 請先選擇使用者</div>';$('paginationBar').innerHTML='';return;}
+  let entries=Object.entries(cloudIndex).filter(([k,v])=>!k.startsWith('__')&&canAccess(v.location));
   const fLoc=$('filterLoc').value,fFrom=$('filterFrom').value,fTo=$('filterTo').value;
   if(fLoc)entries=entries.filter(([,v])=>v.location===fLoc);
   if(fFrom)entries=entries.filter(([,v])=>v.startDate>=fFrom);
@@ -806,6 +874,7 @@ function renderList(resetPage){
   else if(sort==='startDate_asc')entries.sort((a,b)=>a[1].startDate.localeCompare(b[1].startDate));
   else if(sort==='loc')entries.sort((a,b)=>(a[1].location||'').localeCompare(b[1].location||''));
   const total=entries.length,totalPages=Math.max(1,Math.ceil(total/PAGE_SIZE));
+  _listPages=totalPages;
   if(currentPage>totalPages)currentPage=totalPages;
   if(!total){$('recordsList').innerHTML='<div class="empty-list">📭 尚無紀錄（請確認網路連線）</div>';$('paginationBar').innerHTML='';return;}
   const start=(currentPage-1)*PAGE_SIZE;
@@ -825,7 +894,8 @@ function renderList(resetPage){
   pg+=`<span class="pg-info" style="margin-left:8px;">第 ${currentPage}/${totalPages} 頁・共 ${total} 筆</span>`;
   $('paginationBar').innerHTML=pg;
 }
-function goPage(p){const tp=Math.max(1,Math.ceil(Object.keys(cloudIndex).filter(k=>!k.startsWith('__')).length/PAGE_SIZE));if(p<1||p>tp)return;currentPage=p;renderList();$('recordsList').scrollIntoView({behavior:'smooth',block:'start'});}
+let _listPages=1;
+function goPage(p){const tp=_listPages;if(p<1||p>tp)return;currentPage=p;renderList();$('recordsList').scrollIntoView({behavior:'smooth',block:'start'});}
 
 /* ===== Edit（從雲端拉完整資料，同一分頁內會快取）=====
    一筆紀錄含照片約 300KB、雲端要跑 5~20 秒，
@@ -844,6 +914,8 @@ function getCachedRecord(key){
 }
 
 async function editRecord(key){
+  const loc=cloudIndex[key]?cloudIndex[key].location:key.split('_')[0];
+  if(!canAccess(loc)){denyMsg(loc);return;}
   const hit=getCachedRecord(key);
   showLoading(hit?'📦 載入紀錄中...':'☁️ 載入紀錄中...');
   try{
@@ -872,6 +944,8 @@ async function deleteSelected(){
   if(!checks.length){toast('請先勾選要刪除的紀錄',true);return;}
   if(!confirm(`確定刪除 ${checks.length} 筆紀錄？此操作無法復原。`))return;
   const keys=[];checks.forEach(c=>keys.push(c.dataset.key));
+  const bad=keys.find(k=>!canAccess(cloudIndex[k]?cloudIndex[k].location:k.split('_')[0]));
+  if(bad){denyMsg(cloudIndex[bad]?cloudIndex[bad].location:bad);return;}
   showLoading(`🗑️ 刪除中... ${keys.length} 筆`);
   try{
     const result=await apiPost({action:'delete',keys:keys});
@@ -886,6 +960,7 @@ async function deleteSelected(){
 /* ===== Import（舊資料匯入，逐筆上傳到雲端）===== */
 async function importJSON(e){
   const f=e.target.files[0];if(!f)return;
+  if(!currentUser||!currentUser.all){toast('🔒 只有「兩邊工區」可以匯入舊資料',true);e.target.value='';return;}
   const r=new FileReader();
   r.onload=async ev=>{
     try{
@@ -1146,6 +1221,7 @@ async function loadCumData(loc){
 }
 async function saveCumData(){
   const loc=$('cumLoc').value;
+  if(!canAccess(loc)){denyMsg(loc);return;}
   // 收集手動輸入的值
   document.querySelectorAll('[id^="cumInput_"]').forEach(el=>{
     const date=el.dataset.date;
@@ -1260,6 +1336,7 @@ async function loadDailyWatersFromSheet(){
 async function ensureDailyWaters(loc){await loadDailyWatersFromSheet();}
 
 async function syncWaterFromRecords(){
+  if(!currentUser||!currentUser.all){toast('🔒 只有「兩邊工區」可以全量同步水量',true);return;}
   if(!confirm('從所有灑水紀錄重新同步水量到試算表？\n（4/20後的水量會從水表數據重新計算）'))return;
   showLoading('☁️ 同步水量中...');
   try{
@@ -1480,6 +1557,7 @@ async function exportCumWord(){
 
 async function syncWaterToRecords(){
   const loc=$('cumLoc').value;
+  if(!canAccess(loc)){denyMsg(loc);return;}
   if(!confirm(`把「${loc}」4/19前手動輸入的每日用水量寫回對應的灑水紀錄？\n這樣匯出灑水紀錄 PDF 時水量欄就會有值。`))return;
   // 收集 pre-4/20 手動水量
   const waters={};
@@ -1506,6 +1584,7 @@ buildPhotoGrid();
 buildPhotoTable();
 $('projectName').value=DEFAULT_PROJECT;
 switchTab(2);
+openUserPicker();
 
 /* ===== 索引快取 =====
    只存輕量 metadata（地點/日期/savedAt），不含照片，約 20~30KB，localStorage 放得下。
