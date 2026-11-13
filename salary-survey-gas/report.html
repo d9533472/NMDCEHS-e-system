@@ -43,6 +43,11 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .eyebrow{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;
   letter-spacing:.16em;text-transform:uppercase;color:#7fd6ad;margin-bottom:11px}
 .eyebrow::before{content:"";width:22px;height:2px;background:#7fd6ad;border-radius:2px}
+.eyerow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.views{font-size:11.5px;font-weight:700;color:rgba(255,255,255,.82);background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:3px 10px;white-space:nowrap;
+  font-variant-numeric:tabular-nums}
+.views:empty{display:none}
 .hero h1{margin:0 0 7px;font-size:32px;font-weight:900;letter-spacing:-.01em}
 .hero .sub{opacity:.72;font-size:13.5px}
 .meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:10px;margin-top:20px}
@@ -446,7 +451,7 @@ tbody tr:hover{background:#fafcfe}
 
 <div class="hero">
   <div class="wrap">
-    <div class="eyebrow">Analysis Report</div>
+    <div class="eyerow"><div class="eyebrow">Analysis Report</div><span class="views" id="hViews"></span></div>
     <h1 id="hTitle">職安人員薪資調查報告</h1>
     <div class="sub" id="hSub"></div>
     <div class="meta" id="hMeta"></div>
@@ -1385,6 +1390,8 @@ function secCaveats(a) {
 // ══════════════════════════════════
 function render() {
   $('#hTitle').textContent = BOOT.title + '報告';
+  // 鎖住／統計失敗也照樣顯示瀏覽次數，所以放在 render 最前面
+  if (BOOT.views) $('#hViews').textContent = '👁 瀏覽 ' + Number(BOOT.views).toLocaleString() + ' 次';
   // 書籤列由 buildToc() 在最後面重建；還沒報告（鎖住／統計失敗）就整條不出現
   $('#toc').hidden = true;
 

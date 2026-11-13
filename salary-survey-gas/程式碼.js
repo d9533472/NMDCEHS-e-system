@@ -291,6 +291,8 @@ function _digestTrimNote(clean) {
 // 「薪資分析」在前端是五個函式串起來的一整塊（驅動因子／年資曲線／加給／離散／階梯），
 // 這裡只當一個章節看待，不拆開排序。
 const PROP_REPORT_ORDER = 'REPORT_ORDER';
+const PROP_REPORT_VIEWS = 'REPORT_VIEWS';   // 分析報告頁被打開的次數（每次載入 +1）
+const REPORT_VIEWS_BASE = 55;               // 計數下限：補上加計數功能前已有的瀏覽，下一次載入從 56 起跳
 const REPORT_SECTIONS = [
   { key: 'summary',  label: '執行摘要',      note: '報告引言，現算出來的幾條結論' },
   { key: 'negotiate', label: '怎麼用這份報告談薪水',
@@ -384,8 +386,27 @@ function _bootData(page) {
   if (page === 'report') {
     try { d.stats = apiStats(); } catch (err) { d.statsError = String(err); }
     d.order = _reportOrder();   // 不進 apiStats 快取，後台一改、重新整理就生效
+    d.views = _hitReportViews();
   }
   return d;
+}
+
+// 報告瀏覽次數 +1 並回傳新值；鎖拿不到就只讀不加——計數失敗不能擋住報告
+function _hitReportViews() {
+  try {
+    const props = PropertiesService.getScriptProperties();
+    const lock = LockService.getScriptLock();
+    if (!lock.tryLock(3000)) return Number(props.getProperty(PROP_REPORT_VIEWS)) || 0;
+    try {
+      const n = Math.max(Number(props.getProperty(PROP_REPORT_VIEWS)) || 0, REPORT_VIEWS_BASE) + 1;
+      props.setProperty(PROP_REPORT_VIEWS, String(n));
+      return n;
+    } finally {
+      lock.releaseLock();
+    }
+  } catch (err) {
+    return 0;
+  }
 }
 
 function _isOpen() {
