@@ -1431,7 +1431,11 @@ function apiStats(force) {
       beforeN: clean.length,
       fence: tb.fence,                    // { monthly_salary:{lo,hi,p25,p75,iqr} }，鍵＝TRIM_FIELDS
       fields: TRIM_FIELDS.map(function (f) { return { key: f[0], label: f[1] }; }),
-      blocked: tb.blocked
+      blocked: tb.blocked,
+      // 報告頁「被剔除的極端值」浮窗用：只給三個金額、不給任何身分欄位，對不回個人
+      cutList: tb.applied ? tb.cut.map(function (c) {
+        return { m: c.row.monthly_salary, b: c.row.annual_bonus, a: c.row.annual_total };
+      }).sort(function (x, y) { return (y.m || 0) - (x.m || 0); }) : []
     },
     profile: [],
     salary: {}

@@ -344,6 +344,32 @@ tbody tr:hover{background:#fafcfe}
 .cta-b:hover{transform:translateY(-1px);background:linear-gradient(145deg,#ffe8a6,#efba4d)}
 .cta-b .ic{font-size:19px;line-height:1}
 .cta-n{font-size:12.5px;line-height:1.6;opacity:.74;max-width:430px}
+.cta-o{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:14px;cursor:pointer;
+  font:inherit;font-size:14px;font-weight:700;color:#fff;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.28);transition:background .15s}
+.cta-o:hover{background:rgba(255,255,255,.18)}
+.cta-o .ic{font-size:16px;line-height:1}
+/* 被剔除極端值浮窗 */
+.cut-ov{position:fixed;inset:0;z-index:1000;background:rgba(11,27,43,.55);display:flex;
+  align-items:center;justify-content:center;padding:16px}
+.cut-ov[hidden]{display:none}
+.cut-bx{background:var(--card);border-radius:var(--r);box-shadow:0 24px 60px rgba(11,27,43,.35);
+  width:100%;max-width:560px;max-height:min(86vh,760px);display:flex;flex-direction:column;overflow:hidden}
+.cut-hd{padding:18px 22px 12px;border-bottom:1px solid var(--line);position:relative}
+.cut-hd h3{margin:0 0 4px;font-size:18px;font-weight:900}
+.cut-hd p{margin:0;font-size:13px;color:var(--ink-3);line-height:1.65}
+.cut-hd .tag{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:var(--alert);
+  background:var(--alert-soft);border:1px solid var(--alert-line);border-radius:999px;padding:2px 10px}
+.cut-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border:0;border-radius:50%;
+  background:var(--line-2);color:var(--ink-2);font-size:18px;cursor:pointer;line-height:1}
+.cut-x:hover{background:var(--line)}
+.cut-bd{overflow:auto;padding:4px 22px 18px}
+.cut-bd table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+.cut-bd th{position:sticky;top:0;background:var(--card);text-align:right;font-size:12px;color:var(--ink-3);
+  font-weight:700;padding:10px 6px 6px;border-bottom:2px solid var(--line)}
+.cut-bd td{text-align:right;padding:7px 6px;border-bottom:1px solid var(--line-2)}
+.cut-bd th:first-child,.cut-bd td:first-child{text-align:left;color:var(--ink-4)}
+.cut-bd td.hl{font-weight:700;color:var(--alert)}
 .btn.gold{background:linear-gradient(145deg,#ffdd87,#e8ad36);color:#2a1c04;border-color:transparent;
   font-weight:900;box-shadow:0 2px 6px rgba(232,173,54,.3)}
 .btn.gold:hover{background:linear-gradient(145deg,#ffe8a6,#efba4d);color:#2a1c04}
@@ -456,6 +482,18 @@ tbody tr:hover{background:#fafcfe}
     <div class="sub" id="hSub"></div>
     <div class="meta" id="hMeta"></div>
     <div class="cta noprint" id="hCta"></div>
+  </div>
+</div>
+
+<div class="cut-ov noprint" id="cutOv" hidden>
+  <div class="cut-bx" role="dialog" aria-modal="true" aria-labelledby="cutT">
+    <div class="cut-hd">
+      <h3 id="cutT">被剔除的極端值</h3>
+      <p id="cutD"></p>
+      <span class="tag">⛔ 以下資料不列入報告任何統計</span>
+      <button class="cut-x" id="cutX" aria-label="關閉">×</button>
+    </div>
+    <div class="cut-bd" id="cutB"></div>
   </div>
 </div>
 
@@ -1444,7 +1482,13 @@ function render() {
   $('#hCta').innerHTML =
     '<button class="cta-b" data-nego="1"><span class="ic">💬</span>怎麼用這份報告談薪水</button>' +
     '<div class="cta-n">填三個欄位，算出你在同年資同行業裡的位置、建議的開口區間，' +
-      '還有一份可以複製帶去開會的備忘。</div>';
+      '還有一份可以複製帶去開會的備忘。</div>' +
+    (trimmed && (ST.trim.cutList || []).length
+      ? '<button class="cta-o" id="bCut"><span class="ic">🔍</span>查看被剔除的 ' +
+          ST.trim.cutList.length + ' 筆極端值</button>'
+      : '');
+  var bc = $('#bCut');
+  if (bc) bc.addEventListener('click', openCut);
 
   var a = ST.analysis || null;
   $('#app').innerHTML =
@@ -2009,6 +2053,30 @@ function buildSections(a) {
   SEC_FALLBACK.forEach(function (k) { if (!seen[k]) out.push(k); });
   return out.map(function (k) { return SEC[k](a); }).join('');
 }
+
+// 被剔除極端值浮窗：只列金額（後端本來就只給這三欄），依月薪由高到低
+function openCut() {
+  var t = ST.trim, list = t.cutList || [];
+  var f = t.fence && t.fence.monthly_salary;
+  $('#cutD').innerHTML = '依 Tukey 1.5 倍四分位距法，月薪高於上界' +
+    (f ? ' <b>' + esc(wan(f.hi)) + '</b>（P75 ' + esc(wan(f.p75)) + ' ＋ 1.5 × IQR ' + esc(wan(f.iqr)) + '）' : '') +
+    '的填答整筆剔除，共 ' + list.length + ' 筆。只列金額、不列任何身分條件，無法對應到個人。';
+  $('#cutB').innerHTML = '<table><thead><tr><th>#</th><th>月薪</th><th>年終獎金</th><th>全年本業總收入</th></tr></thead><tbody>' +
+    list.map(function (r, i) {
+      return '<tr><td>' + (i + 1) + '</td><td class="hl">' + esc(wan(r.m)) + '</td><td>' +
+        esc(wan(r.b)) + '</td><td>' + esc(wan(r.a)) + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  $('#cutOv').hidden = false;
+  document.body.style.overflow = 'hidden';
+  $('#cutX').focus();
+}
+function closeCut() {
+  $('#cutOv').hidden = true;
+  document.body.style.overflow = '';
+}
+$('#cutX').addEventListener('click', closeCut);
+$('#cutOv').addEventListener('click', function (e) { if (e.target === this) closeCut(); });
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('#cutOv').hidden) closeCut(); });
 
 function bind() {
   // 同一顆鈕在 hero 與執行摘要工具列各有一個，所以用 data 屬性而不是 id
