@@ -1068,7 +1068,8 @@ var MAIL_DEFAULT_CFG = {
   reminderTo:      'paul.tong@nmdc-group.com',
   sendDay:         1,      // 自動寄出的星期：1=週一 … 4=週四（台北時間）
   sendHour:        9,      // 自動寄出的整點：0～23
-  photos:          []      // [{fileId, url, title, location, date, uploadedAt}]
+  photos:          [],     // [{fileId, url, title, location, date, uploadedAt}]
+  incidents:       []      // 事故通報 [{id, type, at, location, contractor, desc, action, tracks:[{item, owner, due, status}]}]
 };
 
 // ── 寄送時間 ──
@@ -1147,6 +1148,8 @@ function getMailConfig_() {
     sendHour:        mailSendHour_(cfg.sendHour),
     scheduleZh:      mailSchedule_(cfg).zh,
     photos:          Array.isArray(cfg.photos) ? cfg.photos : [],
+    incidents:       Array.isArray(cfg.incidents) ? cfg.incidents : [],
+    lastSentIncidents: Array.isArray(cfg.lastSentIncidents) ? cfg.lastSentIncidents : [],
     lastSentAt:      cfg.lastSentAt || '',
     lastSentRange:   cfg.lastSentRange || '',
     autoSkip:        weeklySkipReason_(cfg),     // 非空字串 = 下一次自動排程會略過，設定頁要讓人看得到
@@ -1163,6 +1166,7 @@ function saveMailConfig_(cfg) {
     return { fileId: String(p.fileId || ''), url: String(p.url || ''), title: String(p.title || ''),
              location: String(p.location || ''), date: String(p.date || ''), uploadedAt: String(p.uploadedAt || ''), framed: !!p.framed };
   }).filter(function(p){ return p.fileId; }) : (old.photos || []);
+  var incidents = Array.isArray(cfg.incidents) ? cleanIncidents_(cfg.incidents) : (old.incidents || []);
   var clean = {
     enabled:         truthy(cfg.enabled, true),
     to:              String(cfg.to || '').trim(),
@@ -1175,6 +1179,8 @@ function saveMailConfig_(cfg) {
     sendDay:         mailSendDay_(cfg.sendDay != null ? cfg.sendDay : old.sendDay),
     sendHour:        mailSendHour_(cfg.sendHour != null ? cfg.sendHour : old.sendHour),
     photos:          photos,
+    incidents:       incidents,
+    lastSentIncidents: old.lastSentIncidents || [],
     lastSentAt:      old.lastSentAt || '',
     lastSentRange:   old.lastSentRange || '',
     updatedAt:       new Date().toISOString()
@@ -1197,8 +1203,15 @@ function saveMailConfig_(cfg) {
   if (trigErr) out.triggerError = trigErr;
   return out;
 }
-function markMailSent_(sentPhotos, range) {
+function markMailSent_(sentPhotos, range, sentIncidents) {
   var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
+  // 事故通報：這次寄出的從待寄清單移除，備份一份到 lastSentIncidents（設定頁「↩ 還原上次寄出」用）
+  var incIds = (sentIncidents || []).map(function(x){ return x.id; });
+  if (incIds.length) {
+    cfg.lastSentIncidents = sentIncidents;
+    cfg.incidents = (cfg.incidents || []).filter(function(x){ return incIds.indexOf(x.id) < 0; });
+    Logger.log('已清除 ' + incIds.length + ' 筆事故通報（備份於 lastSentIncidents）');
+  }
   cfg.lastSentAt = new Date().toISOString();
   // 記下「這一封是哪一個報告期間」，自動排程才知道同一份是不是已經寄過了
   cfg.lastSentRange = range ? (range.fromIso + '~' + range.toIso) : '';
@@ -1559,6 +1572,107 @@ function trkIntroHtml_(html) {
   // 純文字（沒有任何區塊標籤）→ 包成 p，換行保留
   if (!/<(p|div|li|table)\b/i.test(s)) s = '<p style="' + base + '">' + s.replace(/\n/g, '<br>') + '</p>';
   return s;
+}
+
+// ── 事故通報（週報 KPI 卡片下方，淺紅底） ──
+var INC_TYPES = {
+  nearmiss: { label: 'Near Miss', zh: '虛驚事件', color: '#b45309', bg: '#fef3c7' },
+  event:    { label: 'Event',     zh: '事件',     color: '#c2410c', bg: '#ffedd5' },
+  cat1:     { label: 'Category 1', zh: '最嚴重', color: '#ffffff', bg: '#991b1b', bd: '#7f1d1d' },   // Category 1 最嚴重，往下遞減
+  cat2:     { label: 'Category 2', zh: '', color: '#991b1b', bg: '#fecaca' },
+  cat3:     { label: 'Category 3', zh: '', color: '#b91c1c', bg: '#fee2e2' },
+  cat4:     { label: 'Category 4', zh: '', color: '#c2410c', bg: '#ffedd5' },
+  cat5:     { label: 'Category 5', zh: '', color: '#a16207', bg: '#fef9c3' }
+};
+var INC_STATUS = {
+  todo:  { zh: '未開始', en: 'Not started', color: '#475569', bg: '#f1f5f9' },
+  doing: { zh: '進行中', en: 'In progress', color: '#b45309', bg: '#fef3c7' },
+  done:  { zh: '已完成', en: 'Completed',   color: '#15803d', bg: '#dcfce7' }
+};
+function cleanIncidents_(list) {
+  var str = function(v, max) { return String(v == null ? '' : v).trim().slice(0, max); };
+  return (Array.isArray(list) ? list : []).map(function(x, i) {
+    x = x || {};
+    return {
+      id:         str(x.id, 40) || ('inc' + Date.now().toString(36) + i),
+      type:       INC_TYPES[x.type] ? x.type : 'nearmiss',
+      at:         str(x.at, 16),
+      location:   str(x.location, 200),
+      contractor: str(x.contractor, 200),
+      desc:       str(x.desc, 4000),
+      action:     str(x.action, 4000),
+      tracks:     (Array.isArray(x.tracks) ? x.tracks : []).map(function(t) {
+        t = t || {};
+        return { item: str(t.item, 500), owner: str(t.owner, 100), due: str(t.due, 10), status: INC_STATUS[t.status] ? t.status : 'todo' };
+      }).filter(function(t){ return t.item || t.owner || t.due; })
+    };
+  });
+}
+// 多行文字：每行中文 + 下方英文小字
+function trkIncLines_(text, doTr) {
+  var h = '';
+  String(text || '').split(/\n+/).forEach(function(l) {
+    l = l.trim(); if (!l) return;
+    h += trkZhEn_(l, 'font-size:13px;color:#1e293b;line-height:1.6;margin-top:2px;', 'font-size:11px;', doTr);
+  });
+  return h || trkP_('—', 'font-size:13px;color:#94a3b8;');
+}
+function trkIncidentsHtml_(list, today, doTr) {
+  var red = '#dc2626';
+  var h = trkSpacer_(28) + '<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr>' +
+    '<td bgcolor="#fef2f2" style="background-color:#fef2f2;border:1px solid #fecaca;border-left:5px solid ' + red + ';padding:16px 18px 6px;' + TRK_FONT + '">';
+  h += trkP_('🚨 事故通報 <span style="color:' + red + ';' + TRK_FONT + '">Incident Report</span>', 'font-size:16px;font-weight:bold;color:#7f1d1d;letter-spacing:.3px;') +
+       trkP_('本期共 ' + list.length + ' 筆 · ' + list.length + ' incident(s) this period', 'font-size:11px;color:#991b1b;margin-top:3px;');
+  var LBL = 'font-size:10px;font-weight:bold;color:#991b1b;letter-spacing:1px;';
+  list.forEach(function(x, i) {
+    var ty = INC_TYPES[x.type] || INC_TYPES.nearmiss;
+    var when = '—';
+    if (x.at) { var d = x.at.slice(0, 10); when = d + (x.at.length > 10 ? ' ' + x.at.slice(11, 16) : '') + '（' + trkWeekdayZh_(d) + '）'; }
+    var loc = x.location ? trkEsc_(x.location) + (doTr && tr_(x.location) ? ' <span style="color:#8a97a8;font-size:11px;' + TRK_FONT + '">' + trkEsc_(tr_(x.location)) + '</span>' : '') : '—';
+    var con = x.contractor ? trkEsc_(x.contractor) + (doTr && tr_(x.contractor) ? ' <span style="color:#8a97a8;font-size:11px;' + TRK_FONT + '">' + trkEsc_(tr_(x.contractor)) + '</span>' : '') : '—';
+    var cell = function(lbl, val, w) {
+      return '<td width="' + w + '" valign="top" style="padding:0 10px 0 0;' + TRK_FONT + '">' + trkP_(lbl, LBL) + trkP_(val, 'font-size:13px;color:#1e293b;margin-top:3px;') + '</td>';
+    };
+    h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:12px 0 10px;"><tr>' +
+      '<td bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #fecaca;padding:14px 16px;' + TRK_FONT + '">';
+    // 標題列：#序號 + 類型膠囊
+    h += '<table cellpadding="0" cellspacing="0" border="0"><tr>' +
+      '<td style="padding:0 10px 0 0;' + TRK_FONT + '">' + trkP_('#' + (i + 1), 'font-size:15px;font-weight:bold;color:#7f1d1d;') + '</td>' +
+      '<td bgcolor="' + ty.bg + '" style="background-color:' + ty.bg + ';border:1px solid ' + (ty.bd || ty.color) + ';padding:3px 10px;' + TRK_FONT + '">' +
+        trkP_(ty.label + (ty.zh ? ' · ' + ty.zh : ''), 'font-size:12px;font-weight:bold;color:' + ty.color + ';white-space:nowrap;') + '</td></tr></table>';
+    // 時間／地點／包商
+    h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;table-layout:fixed;"><tr>' +
+      cell('時間 TIME', trkEsc_(when), '30%') + cell('地點 LOCATION', loc, '35%') + cell('包商 CONTRACTOR', con, '35%') + '</tr></table>';
+    // 經過／處理措施
+    h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:12px;"><tr><td style="border-top:1px dashed #fecaca;padding:10px 0 0;' + TRK_FONT + '">' +
+      trkP_('事故發生經過 WHAT HAPPENED', LBL) + trkIncLines_(x.desc, doTr) + '</td></tr>' +
+      '<tr><td style="padding:12px 0 0;' + TRK_FONT + '">' + trkP_('後續處理措施 ACTIONS TAKEN', LBL) + trkIncLines_(x.action, doTr) + '</td></tr></table>';
+    // 追蹤事項
+    if (x.tracks.length) {
+      var TH = 'padding:7px 9px;background-color:#7f1d1d;color:#ffffff;font-size:11px;font-weight:bold;letter-spacing:.5px;' + TRK_FONT;
+      h += trkP_('追蹤事項 FOLLOW-UP ACTIONS', LBL + 'margin-top:14px;');
+      h += '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;border:1px solid #fecaca;margin-top:6px;">' +
+        '<tr bgcolor="#7f1d1d"><td bgcolor="#7f1d1d" width="48%" style="' + TH + '">事項 Item</td><td bgcolor="#7f1d1d" width="16%" style="' + TH + '">負責人 Owner</td>' +
+        '<td bgcolor="#7f1d1d" width="18%" style="' + TH + '">期限 Due</td><td bgcolor="#7f1d1d" width="18%" style="' + TH + '">狀態 Status</td></tr>';
+      x.tracks.forEach(function(t, j) {
+        var bg = j % 2 === 0 ? '#ffffff' : '#fff7f7';
+        var st = INC_STATUS[t.status] || INC_STATUS.todo;
+        var dl = t.status === 'done' ? null : trkDaysLeft_(t.due, today);
+        var dueColor = dl != null && dl < 0 ? '#b91c1c' : '#334155';
+        var TD = 'padding:8px 9px;border-top:1px solid #fde2e2;font-size:12px;color:#1e293b;vertical-align:top;word-wrap:break-word;background-color:' + bg + ';' + TRK_FONT;
+        h += '<tr bgcolor="' + bg + '">' +
+          '<td bgcolor="' + bg + '" style="' + TD + '">' + trkZhEn_(t.item || '—', 'font-size:13px;color:#0f172a;', '', doTr) + '</td>' +
+          '<td bgcolor="' + bg + '" style="' + TD + '">' + trkEsc_(t.owner || '—') + '</td>' +
+          '<td bgcolor="' + bg + '" style="' + TD + '">' + trkP_(trkEsc_(t.due || '—'), 'font-size:12px;font-weight:bold;color:' + dueColor + ';') +
+            (dl != null && dl < 0 ? trkP_('逾期 ' + (-dl) + ' 天 · Overdue', 'font-size:10px;color:#b91c1c;margin-top:2px;') : '') + '</td>' +
+          '<td bgcolor="' + bg + '" style="' + TD + '"><table cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="' + st.bg + '" style="background-color:' + st.bg + ';padding:3px 8px;' + TRK_FONT + '">' +
+            trkP_(st.zh, 'font-size:12px;font-weight:bold;color:' + st.color + ';white-space:nowrap;') + trkP_(st.en, 'font-size:10px;color:' + st.color + ';white-space:nowrap;') + '</td></tr></table></td></tr>';
+      });
+      h += '</table>';
+    }
+    h += '</td></tr></table>';
+  });
+  return h + '</td></tr></table>';
 }
 
 // ── 追蹤事項表格（rows 已排序） ──
@@ -2098,6 +2212,10 @@ function buildTrackerMail_(opts) {
       doneInRange.length ? '✓ 已完成' : '本期尚無完成', doneInRange.length ? 'Done this period' : 'None this period', '項', 'last', '✅', '#16a34a')
   ]));
 
+  // 事故通報（KPI 卡片正下方，淺紅底；有填才出現，一定保留不省略）
+  var incidents = cleanIncidents_(mc.incidents);
+  if (incidents.length) add(trkIncidentsHtml_(incidents, today, doTr));
+
   // 改善單
   add(trkSectionTitle_('🛠️', '改善單狀態', 'Improvement Notice Status',
     (kpiOk ? '<b>📎 統計表如附件</b>（改善單 KPI 總結圖）· Statistics: see the attached KPI summary image' + (kpiSource === 'slides' ? '，系統依最新資料自動產生' : '') + '<br>' : '') +
@@ -2205,7 +2323,8 @@ function buildTrackerMail_(opts) {
   return { subject: subject, html: html, inline: inline, attachments: attachments, range: range, sizeCtl: sizeCtl, size: size,
            bodyBytes: bodyBytes, trimmed: trim.dropped,
            total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length,
-           photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource };
+           photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource,
+           incidents: incidents.length, incidentList: incidents };
 }
 
 // ── 寄送失敗警示信 ──
@@ -2315,9 +2434,9 @@ function sendTrackerMail_(testTo, source) {
       '收件者：' + to + (cc ? '（CC ' + cc + '）' : '') + (m ? '　·　內文 ' + Math.round(m.bodyBytes / 1024) + 'KB、照片 ' + m.photos + ' 張' : '　·　組信階段就失敗了'));
     throw new Error(msg);
   }
-  if (!testTo) markMailSent_(m.photoList, m.range);
+  if (!testTo) markMailSent_(m.photoList, m.range, m.incidentList);
   var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
-  var note = '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '') +
+  var note = (m.incidents ? '事故 ' + m.incidents + ' 筆，' : '') + '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '') +
              (m.size ? '，圖片 ' + trkMB_(m.size.after) + (m.size.shrunk ? '（自 ' + trkMB_(m.size.before) + ' 自動縮小 ' + m.size.shrunk + ' 張）' : '') : '') +
              '，內文 ' + Math.round(m.bodyBytes / 1024) + 'KB' + ((m.trimmed && m.trimmed.length) ? '（已省略：' + m.trimmed.join('、') + '）' : '');
   logMail_({ type: type, source: src, to: to, cc: cc, subject: opt.subject, ok: true, note: note });
