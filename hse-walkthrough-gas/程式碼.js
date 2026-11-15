@@ -63,7 +63,9 @@ var DEFAULTS = {
   contractorDays: 3,        // 承包商填報頁的預設改善期限（巡查日＋N 天）
   overdueMail: false,       // 逾期是否每天寄信給承包商負責人
   contractorEmails: {},     // 承包商名稱 → 負責人信箱（多個用逗號分隔）
-  overdueCc: ''             // 逾期通知的副本收件人
+  overdueCc: '',            // 逾期通知的副本收件人
+  // 通知信收件人（新增巡查、承包商回報、承包商補件結案；由承包商回報頁代寄），逗號分隔
+  notifyTo: 'jin.wang@nmdc-group.com, raymond.huang@nmdc-group.com, ben.cheng@nmdc-group.com, elson.liu@nmdc-group.com, paul.tong@nmdc-group.com'
 };
 
 /* ============================ 入口 ============================ */

@@ -536,6 +536,10 @@ details summary::-webkit-details-marker{display:none}
    <label data-i="cHseRep"></label><input id="c_hseRep">
    <label data-i="cSecRep"></label><input id="c_sectionRep">
 
+   <div class="csec" data-i="cNtSec"></div>
+   <label data-i="cNotify"></label><textarea id="c_notify" style="height:120px" data-p="pNotify"></textarea>
+   <div class="hint" data-i="cNotifyH"></div>
+
    <div class="csec" data-i="cOdSec"></div>
    <label data-i="cConDays"></label><input id="c_conDays" type="number" min="1" max="60">
    <div class="hint" data-i="cConDaysH"></div>
@@ -653,6 +657,8 @@ var L={zh:{
  lNone:"沒有符合的紀錄", noCon:"未填承包商", tDue:"預定 ", tSrc:"承包商填報", ovD:" 天",
  hzN:"未填危害", eidMiss:"找不到這筆紀錄（可能已刪除或改了日期）",
  odb1:"有 ", odb2:" 筆改善單已逾期未改善", odbGo:"查看 →",
+ cNtSec:"通知信", cNotify:"通知信收件人（一行一個）", pNotify:"例：jin.wang@nmdc-group.com",
+ cNotifyH:"新增巡查紀錄、承包商回報、承包商補件結案時，通知信寄給這些人；承包商有填信箱就另外副本給他。全部清空＝用預設的 5 位。",
  cOdSec:"承包商改善期限與逾期通知",
  cConDays:"承包商回報的預設改善期限（天）", cConDaysH:"承包商填報頁送出時，預定完成日期＝巡查日＋這個天數；承包商頁上也會顯示這個期限。",
  cOdMail:"逾期未改善時，自動寄信給承包商負責人", cOdMailH:"開啟後每天早上 08:00 檢查一次，逾期且未結案的改善單會整理成一封信寄給該承包商；結案後就不再寄。",
@@ -737,6 +743,8 @@ var L={zh:{
  lNone:"No matching findings", noCon:"No contractor", tDue:"Target ", tSrc:"Contractor report", ovD:" d",
  hzN:"No hazard type", eidMiss:"That finding was not found (deleted or moved to another date)",
  odb1:"", odb2:" finding(s) overdue and not yet fixed", odbGo:"View →",
+ cNtSec:"Notification email", cNotify:"Notification recipients (one per line)", pNotify:"e.g. jin.wang@nmdc-group.com",
+ cNotifyH:"Emailed when a walkthrough finding is added, a contractor reports, or a contractor closes an item; the contractor's own address is CC'd if set. Leave empty to use the default 5.",
  cOdSec:"Contractor deadline & overdue notice",
  cConDays:"Default fix deadline for contractor reports (days)", cConDaysH:"Target date = inspection date + these days; also shown on the contractor page.",
  cOdMail:"Email the contractor contact when items are overdue", cOdMailH:"Checked daily at 08:00; each contractor gets one email listing its open overdue items. Stops once closed.",
@@ -1476,6 +1484,7 @@ function fillCfgForm(){
  $("c_conDays").value=CFG.contractorDays||3;
  $("c_odMail").checked=!!CFG.overdueMail;
  $("c_odCc").value=CFG.overdueCc||"";
+ $("c_notify").value=String(CFG.notifyTo||"").split(/[,;，\s]+/).filter(String).join("\n");
  CMAIL=JSON.parse(JSON.stringify(CFG.contractorEmails||{}));
  buildConMail();odUi();
 }
@@ -1506,7 +1515,8 @@ function saveCfg(){
   sectionRep:$("c_sectionRep").value.trim(),
   contractorDays:Math.max(1,Math.min(60,+$("c_conDays").value||3)),
   overdueMail:$("c_odMail").checked,
-  overdueCc:$("c_odCc").value.trim()
+  overdueCc:$("c_odCc").value.trim(),
+  notifyTo:$("c_notify").value.split(/[,;，\s]+/).filter(String).join(", ")
  };
  buildConMail();
  var cm={},bad="",re=/^[^@,;\s]+@[^@,;\s]+\.[^@,;\s]+$/;
@@ -1515,7 +1525,7 @@ function saveCfg(){
   CMAIL[c].split(/[,;，]/).map(function(x){return x.trim()}).filter(String).forEach(function(x){if(!re.test(x))bad=bad||x});
   cm[c]=CMAIL[c];
  });
- obj.overdueCc.split(/[,;，]/).map(function(x){return x.trim()}).filter(String).forEach(function(x){if(!re.test(x))bad=bad||x});
+ (obj.overdueCc+","+obj.notifyTo).split(/[,;，]/).map(function(x){return x.trim()}).filter(String).forEach(function(x){if(!re.test(x))bad=bad||x});
  if(bad){toast(t("badMail")+bad);return}
  obj.contractorEmails=cm;
  google.script.run.withSuccessHandler(function(r){

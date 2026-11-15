@@ -14,6 +14,7 @@ var TZ = 'Asia/Taipei';
 var SS_ID = '1IX1HEYawggWckrna-KXreql1PaGCT2B_F88HUC081wk';
 var PHOTO_ID = '16r0BfZD8S1u7ijhf4-qurHZ7tSIxUDbM';
 var MAIN_URL = 'https://script.google.com/macros/s/AKfycbxxfb4fozcpxhpmVBwatua8n_kY7FfKWCJ_0CyXmno0FQB73VneOVLkPRIVqqq7mxRtZA/exec?k=nmdc-hse-2026-key';
+// 預設通知名單；主系統 ⚙ 設定的「通知信收件人」（Settings 的 notifyTo）有填就改用那份，見 notifyTo_()
 var NOTIFY = [
   'jin.wang@nmdc-group.com',
   'raymond.huang@nmdc-group.com',
@@ -50,7 +51,7 @@ function doGet(e) {
     var pv;
     try {
       if (q.key !== TEST_KEY) throw new Error('unauthorized');
-      if (NOTIFY.indexOf(String(q.to || '')) < 0) throw new Error('收件人不在通知名單內');
+      if (notifyTo_().indexOf(String(q.to || '')) < 0) throw new Error('收件人不在通知名單內');
       pv = overdueRun_(false, String(q.to));
     } catch (err) { pv = { ok: false, error: String(err && err.message || err) }; }
     return ContentService.createTextOutput(JSON.stringify(pv)).setMimeType(ContentService.MimeType.JSON);
@@ -331,7 +332,7 @@ function cClose(p) {
     var mailed = false;
     try {
       var m = buildMail_(r, before, after, { closer: who });
-      MailApp.sendEmail(withCc_({ to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE 承包商回報' }, con));
+      MailApp.sendEmail(withCc_({ to: notifyTo_().join(','), subject: m.subject, htmlBody: m.html, body: m.text, inlineImages: m.inline, name: 'NMDC HSE 承包商回報' }, con));
       mailed = true;
     } catch (e) { console.error('close notify failed: ' + (e && e.message || e)); }
     return { ok: true, id: rec.id, afterCount: after.length, closeOutDate: today, mailed: mailed };
@@ -353,7 +354,7 @@ function notify_(rec, blobs, after) {
   try {
     var m = buildMail_(rec, blobs, after);
     MailApp.sendEmail(withCc_({
-      to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text,
+      to: notifyTo_().join(','), subject: m.subject, htmlBody: m.html, body: m.text,
       inlineImages: m.inline, name: 'NMDC HSE 承包商回報'
     }, rec.contractor));
     return true;
@@ -387,18 +388,19 @@ function wtNotify_(id) {
     .map(function (p) { return DriveApp.getFileById(p.fileId).getBlob(); });
   var m = buildMail_(r, blobs, [], { wt: true });
   MailApp.sendEmail(withCc_({
-    to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text,
+    to: notifyTo_().join(','), subject: m.subject, htmlBody: m.html, body: m.text,
     inlineImages: m.inline, name: 'NMDC HSE 現場巡查'
   }, r.contractor));
   cache.put(ck, '1', 21600);
   return { ok: true, id: id, photos: blobs.length };
 }
 
-/** CC 給該承包商的信箱（主系統 ⚙ 設定的 contractorEmails）；讀不到或沒填就照舊只寄 NOTIFY。 */
+/** CC 給該承包商的信箱（主系統 ⚙ 設定的 contractorEmails）；讀不到或沒填就只寄通知名單。 */
 function withCc_(opt, contractor) {
   try {
+    var to = String(opt.to || '').toLowerCase().split(',');
     var cc = mails_((fullCfg_(SpreadsheetApp.openById(SS_ID)).contractorEmails || {})[String(contractor || '').trim()])
-      .filter(function (x) { return NOTIFY.indexOf(x.toLowerCase()) < 0; });
+      .filter(function (x) { return to.indexOf(x.toLowerCase()) < 0; });
     if (cc.length) opt.cc = cc.join(',');
   } catch (e) { console.error('contractor cc failed: ' + (e && e.message || e)); }
   return opt;
@@ -551,7 +553,7 @@ function buildMail_(rec, blobs, after, opt) {
  */
 var TEST_KEY = 'nmdc-hse-mailtest';
 function testMail_(to) {
-  if (NOTIFY.indexOf(to) < 0) throw new Error('收件人不在通知名單內');
+  if (notifyTo_().indexOf(to) < 0) throw new Error('收件人不在通知名單內');
   var ss = SpreadsheetApp.openById(SS_ID);
   var read = function (name) {
     var sh = ss.getSheetByName(name), v = sh.getDataRange().getValues(), h = v.shift();
@@ -616,8 +618,16 @@ function fullCfg_(ss) {
   });
   return out;
 }
+/** 通知信收件人：主系統 ⚙ 設定的 notifyTo，沒填或讀不到就用預設的 NOTIFY */
+function notifyTo_() {
+  try {
+    var list = mails_(fullCfg_(SpreadsheetApp.openById(SS_ID)).notifyTo);
+    if (list.length) return list;
+  } catch (e) { console.error('notifyTo failed: ' + (e && e.message || e)); }
+  return NOTIFY;
+}
 function mails_(s) {
-  return String(s || '').split(/[,;，]/).map(function (x) { return x.trim(); })
+  return String(s || '').split(/[,;，\s]+/).map(function (x) { return x.trim(); })
     .filter(function (x) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(x); });
 }
 
@@ -665,7 +675,7 @@ function overdueRun_(force, previewTo) {
       opt.to = to.join(',');
       var cc = mails_(cfg.overdueCc);
       if (cc.length) opt.cc = cc.join(',');
-      opt.replyTo = cc.length ? cc[0] : NOTIFY[0];
+      opt.replyTo = cc.length ? cc[0] : notifyTo_()[0];
     }
     MailApp.sendEmail(opt);
     sent.push({ contractor: con, items: list.length, to: opt.to });
