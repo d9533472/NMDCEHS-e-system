@@ -377,7 +377,7 @@ function hseBoot(key, date) {
   var pmap = photosByRecord_(ss);
   var td = today_();
 
-  var counts = { total: 0, open: 0, closed: 0, overdue: 0 };
+  var counts = { total: 0, open: 0, closed: 0, overdue: 0, nosm: 0 };   // nosm＝還沒上傳過 Smartsheet（SOC）
   var dates = {};
   var cal = {};   // 日曆用：日期 → [總數, 未結案, 承包商填報, 已上傳 Smartsheet]
   recs.forEach(function (x) {
@@ -387,6 +387,7 @@ function hseBoot(key, date) {
     if (st === 'Closed') counts.closed++;
     else counts.open++;
     if (st !== 'Closed' && ymd_(x.targetDate) && ymd_(x.targetDate) < td) counts.overdue++;
+    if (!String(x.smAt || '').trim()) counts.nosm++;
     var d = ymd_(x.date);
     if (d) {
       dates[d] = (dates[d] || 0) + 1;
@@ -467,7 +468,7 @@ function hseStats(key, from, to) {
 }
 
 /**
- * 跨日期清單：主畫面上方四顆按鈕用。f＝''（全部）／Open／Closed／overdue。
+ * 跨日期清單：主畫面上方五顆按鈕用。f＝''（全部）／Open／Closed／overdue／nosm（未上傳 SOC）。
  * sn 跟按日期看時一樣，是當天依時間排序的項次。
  */
 function hseList(key, f) {
@@ -489,6 +490,7 @@ function hseList(key, f) {
     var st = status_(x.status);
     if (f === 'Open' || f === 'Closed') return st === f;
     if (f === 'overdue') return st !== 'Closed' && ymd_(x.targetDate) && ymd_(x.targetDate) < td;
+    if (f === 'nosm') return !String(x.smAt || '').trim();
     return true;
   });
   return {

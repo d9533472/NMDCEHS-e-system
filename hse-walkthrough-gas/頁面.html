@@ -59,16 +59,18 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
  border-bottom:1px solid #eef1f4;letter-spacing:1px;display:flex;align-items:center;gap:8px}
 .ft::before{content:"";width:5px;height:18px;border-radius:2px;background:linear-gradient(180deg,#002038,#00B050)}
 
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px}
 .kpi{background:#fff;border-radius:18px;padding:12px 4px 10px;text-align:center;cursor:pointer;
  box-shadow:0 1px 3px rgba(16,24,40,.04),0 6px 16px rgba(16,24,40,.05);transition:transform .1s,box-shadow .15s}
 .kpi:active{transform:scale(.96)}
 .kpi b{display:block;font-size:26px;font-weight:900;line-height:1.15}
 .kpi span{font-size:10.5px;font-weight:700;letter-spacing:.4px;color:#77808c;display:block;margin-top:2px}
+@media(max-width:420px){.kpi b{font-size:22px}.kpi span{font-size:10px;letter-spacing:0}}
 .kpi.k0{background:linear-gradient(180deg,#fcfdff,#f5f9fd);border:1px solid #e7eef5}.kpi.k0 b{color:#1b3a5c}
 .kpi.k1{background:linear-gradient(180deg,#fffef9,#fdf8ec);border:1px solid #f4ecd9}.kpi.k1 b{color:#c07a18}
 .kpi.k2{background:linear-gradient(180deg,#fbfdfc,#f2f9f4);border:1px solid #e3f0e8}.kpi.k2 b{color:#1b6e3c}
 .kpi.k3{background:linear-gradient(180deg,#fffbfb,#fdf4f4);border:1px solid #f7e7e7}.kpi.k3 b{color:#c62828}
+.kpi.k4{background:linear-gradient(180deg,#fafcff,#eef5fc);border:1px solid #dbe8f6}.kpi.k4 b{color:#1f6fbf}
 .kpi.act{box-shadow:0 0 0 2.5px #1b3a5c,0 8px 24px rgba(16,24,40,.10)}
 
 .dbar{display:flex;align-items:center;gap:8px;margin-bottom:11px}
@@ -350,6 +352,7 @@ details summary::-webkit-details-marker{display:none}
   <div class="kpi k1" onclick="flt('Open')"><b id="k1">—</b><span data-i="kOpen"></span></div>
   <div class="kpi k2" onclick="flt('Closed')"><b id="k2">—</b><span data-i="kClosed"></span></div>
   <div class="kpi k3" onclick="flt('overdue')"><b id="k3">—</b><span data-i="kOver"></span></div>
+  <div class="kpi k4" onclick="flt('nosm')"><b id="k4">—</b><span data-i="kNoSm"></span></div>
  </div>
 
  <div id="dwrap">
@@ -589,7 +592,7 @@ var CAL={}, CALM="";                    // CAL：日期 → [總數, 未結案, 
 
 var L={zh:{
  title:"NMDC 通霄工區", sub:"HSE 現場巡查紀錄 · INSPECTION WALKTHROUGH",
- kAll:"全部", kOpen:"開放中", kClosed:"已結案", kOver:"逾期",
+ kAll:"全部", kOpen:"開放中", kClosed:"已結案", kOver:"逾期", kNoSm:"未上傳 SOC", smAllL:"☑ 全選這些",
  btnToday:"今天",
  bAdd:"新增巡檢紀錄", bExp:"報告產出", bStat:"危害統計", bCfg:"設定參數",
  stit:"危害種類統計 Hazard Statistics",
@@ -675,7 +678,7 @@ var L={zh:{
  okTrig:"已儲存 ✓ 逾期通知已開啟（每天 08:00）", badMail:"信箱格式不正確："
 },en:{
  title:"NMDC TungHsiao Site", sub:"HSE INSPECTION WALKTHROUGH",
- kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue",
+ kAll:"All", kOpen:"Open", kClosed:"Closed", kOver:"Overdue", kNoSm:"Not on SOC", smAllL:"☑ Select all",
  btnToday:"Today",
  bAdd:"New finding", bExp:"Report", bStat:"Statistics", bCfg:"Settings",
  stit:"Hazard Statistics",
@@ -821,7 +824,7 @@ function flt(f){
 function backDay(){MODE="day";FILTER="";OPENID="";kpiAct();paint()}
 function kpiAct(){
  document.querySelectorAll(".kpi").forEach(function(el,i){
-  el.classList.toggle("act",MODE==="list"&&["","Open","Closed","overdue"][i]===FILTER);
+  el.classList.toggle("act",MODE==="list"&&["","Open","Closed","overdue","nosm"][i]===FILTER);
  });
 }
 function loadList(){
@@ -861,9 +864,11 @@ function sortList(list){
 }
 function paintList(){
  var list=sortList(LIST.slice());
- var k={"":"kAll",Open:"kOpen",Closed:"kClosed",overdue:"kOver"}[FILTER];
- var col={"":"#1b3a5c",Open:"#c07a18",Closed:"#1b6e3c",overdue:"#c62828"}[FILTER];
- $("lTit").innerHTML=esc(t(k)+" · "+t("lAll")+" ")+'<em style="color:'+col+'">'+list.length+esc(t("lN"))+'</em>';
+ var k={"":"kAll",Open:"kOpen",Closed:"kClosed",overdue:"kOver",nosm:"kNoSm"}[FILTER];
+ var col={"":"#1b3a5c",Open:"#c07a18",Closed:"#1b6e3c",overdue:"#c62828",nosm:"#1f6fbf"}[FILTER];
+ // 未上傳 SOC：多一顆「全選這些」，勾完用底下的上傳列一次傳
+ $("lTit").innerHTML=esc(t(k)+" · "+t("lAll")+" ")+'<em style="color:'+col+'">'+list.length+esc(t("lN"))+'</em>'+
+  (FILTER==="nosm"&&list.length?' <button class="chipx" onclick="smAll()">'+esc(t("smAllL"))+'</button>':"");
  ["over","date","con"].forEach(function(s){$("so_"+s).classList.toggle("on",SORT===s)});
  if(!list.length){$("list").innerHTML='<div class="muted"><b>'+esc(t("lNone"))+'</b></div>';return}
  var h='<div class="rows">',grp=null;
@@ -1242,6 +1247,7 @@ function paint(){
  $("k1").textContent=COUNTS.open||0;
  $("k2").textContent=COUNTS.closed||0;
  $("k3").textContent=COUNTS.overdue||0;
+ $("k4").textContent=COUNTS.nosm||0;
  var od=COUNTS.overdue||0;
  $("odb").style.display=(od&&!(MODE==="list"&&FILTER==="overdue"))?"flex":"none";
  if(od)$("odb").innerHTML='<span class="ic">!</span><span>'+esc(t("odb1"))+'<b>'+od+'</b>'+esc(t("odb2"))+'</span><span class="go">'+esc(t("odbGo"))+'</span>';
