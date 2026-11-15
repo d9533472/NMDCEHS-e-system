@@ -38,6 +38,14 @@ function doGet(e) {
     } catch (err) { od = { ok: false, error: String(err && err.message || err) }; }
     return ContentService.createTextOutput(JSON.stringify(od)).setMimeType(ContentService.MimeType.JSON);
   }
+  if (q.act === 'wtnotify') {
+    var wn;
+    try {
+      if (q.key !== OVERDUE_KEY) throw new Error('unauthorized');
+      wn = wtNotify_(String(q.id || ''));
+    } catch (err) { wn = { ok: false, error: String(err && err.message || err) }; }
+    return ContentService.createTextOutput(JSON.stringify(wn)).setMimeType(ContentService.MimeType.JSON);
+  }
   if (q.act === 'overduepreview') {
     var pv;
     try {
@@ -355,6 +363,37 @@ function notify_(rec, blobs, after) {
   }
 }
 
+/**
+ * 主系統（HSE 現場巡查）新增一筆後用 ?act=wtnotify&key=…&id=… 叫這裡寄通知信（主系統沒有寄信權限）。
+ * 跟承包商回報同一套版面、同一份 NOTIFY 名單、CC 該承包商；同一筆只寄一次。
+ */
+function wtNotify_(id) {
+  var cache = CacheService.getScriptCache(), ck = 'wtmail_' + id;
+  if (cache.get(ck)) return { ok: true, skipped: 'already sent' };
+  var ss = SpreadsheetApp.openById(SS_ID);
+  var rec = readSheet_(ss, 'Records').filter(function (x) { return x.id === id; })[0];
+  if (!rec) throw new Error('找不到這筆紀錄 ' + id);
+  var fmtD = function (v, f) { return Object.prototype.toString.call(v) === '[object Date]' ? Utilities.formatDate(v, TZ, f) : String(v || ''); };
+  var r = {
+    id: rec.id, date: fmtD(rec.date, 'yyyy-MM-dd'), time: fmtD(rec.time, 'HH:mm'),
+    reporter: rec.reporter || '', contractor: String(rec.contractor || '').trim(), hazard: rec.hazard || '',
+    obsZh: rec.obsZh, obsEn: rec.obsEn, recZh: rec.recZh, recEn: rec.recEn,
+    actionBy: rec.actionBy || '', risk: rec.risk || '',
+    targetDate: fmtD(rec.targetDate, 'yyyy-MM-dd'), status: rec.status, closeOutDate: fmtD(rec.closeOutDate, 'yyyy-MM-dd')
+  };
+  var blobs = readSheet_(ss, 'Photos')
+    .filter(function (p) { return p.recordId === id && p.kind === 'before'; })
+    .slice(0, MAX_PHOTOS)
+    .map(function (p) { return DriveApp.getFileById(p.fileId).getBlob(); });
+  var m = buildMail_(r, blobs, [], { wt: true });
+  MailApp.sendEmail(withCc_({
+    to: NOTIFY.join(','), subject: m.subject, htmlBody: m.html, body: m.text,
+    inlineImages: m.inline, name: 'NMDC HSE 現場巡查'
+  }, r.contractor));
+  cache.put(ck, '1', 21600);
+  return { ok: true, id: id, photos: blobs.length };
+}
+
 /** CC 給該承包商的信箱（主系統 ⚙ 設定的 contractorEmails）；讀不到或沒填就照舊只寄 NOTIFY。 */
 function withCc_(opt, contractor) {
   try {
@@ -380,7 +419,10 @@ function buildMail_(rec, blobs, after, opt) {
   blobs = blobs || []; after = after || [];
   var F = "font-family:'Microsoft JhengHei','PingFang TC','Noto Sans TC',Arial,sans-serif;";
   var hz = splitHz_(rec.hazard);
-  var subject = (opt.test ? '[測試] ' : '') + (opt.closer ? '[HSE 承包商結案] ' : '[HSE 承包商回報] ') + rec.contractor + '｜' + hz.zh + '｜' + rec.date + ' ' + rec.time;
+  // wt：主系統 NMDC 現場巡查新增的紀錄（危害種類可能沒選，標題改用巡查發現）
+  if (opt.wt && !hz.zh) hz = { zh: String(rec.obsZh || '').slice(0, 30), en: '' };
+  var subject = (opt.test ? '[測試] ' : '') + (opt.wt ? '[HSE 巡查] ' : opt.closer ? '[HSE 承包商結案] ' : '[HSE 承包商回報] ') +
+    (rec.contractor || 'NMDC') + '｜' + hz.zh + '｜' + rec.date + ' ' + rec.time;
   var editUrl = MAIN_URL + '&d=' + rec.date + '&e=' + encodeURIComponent(rec.id);
   var dayUrl = MAIN_URL + '&d=' + rec.date;
   var inline = { logo: Utilities.newBlob(Utilities.base64Decode(LOGO_B64), 'image/png', 'nmdc.png') };
@@ -422,7 +464,10 @@ function buildMail_(rec, blobs, after, opt) {
   var pics = gallery(blobs, 'p', '改善前照片', 'BEFORE', '#546e7a') +
     gallery(after, 'q', '改善後照片', 'AFTER', '#1b8a4a');
   var closed = rec.status === 'Closed';
-  var todo = opt.closer
+  var todo = opt.wt
+    ? '<b style="color:#b26a00">改善期限 ' + esc_(rec.targetDate || '—') + '</b>' +
+      (rec.actionBy || rec.risk ? '<br>' + [rec.actionBy && '權責單位 ' + esc_(rec.actionBy), rec.risk && '風險等級 ' + esc_(rec.risk)].filter(String).join(' · ') : '')
+    : opt.closer
     ? '<b style="color:#1b6e3c">承包商 ' + esc_(opt.closer) + ' 已補上改善後照片，系統已自動結案</b>（結案日 ' + esc_(rec.closeOutDate) +
       '；原改善期限 ' + esc_(rec.targetDate || '—') + '）<br>如照片不符可按「編輯這一筆」重新開啟。'
     : closed
@@ -460,7 +505,7 @@ function buildMail_(rec, blobs, after, opt) {
     // 墨藍頁首
     '<tr><td bgcolor="#002038" style="background:#002038;padding:24px 28px 22px;border-radius:18px 18px 0 0">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td valign="top">' +
-    '<div style="' + F + 'font-size:11px;letter-spacing:2px;color:#4fd18b;font-weight:800">' + (opt.closer ? '承包商補件結案 · CONTRACTOR CLOSE-OUT' : '承包商安全回報 · CONTRACTOR REPORT') + '</div>' +
+    '<div style="' + F + 'font-size:11px;letter-spacing:2px;color:#4fd18b;font-weight:800">' + (opt.wt ? '現場巡查 · HSE WALKTHROUGH' : opt.closer ? '承包商補件結案 · CONTRACTOR CLOSE-OUT' : '承包商安全回報 · CONTRACTOR REPORT') + '</div>' +
     '<div style="' + F + 'font-size:24px;line-height:1.3;color:#ffffff;font-weight:900;margin-top:8px">' + esc_(hz.zh) + '</div>' +
     (hz.en ? '<div style="' + F + 'font-size:13px;color:#9fb6cb;margin-top:3px">' + esc_(hz.en) + '</div>' : '') +
     '</td><td valign="top" align="right" width="110">' +
@@ -472,7 +517,7 @@ function buildMail_(rec, blobs, after, opt) {
     // 基本資料四格
     '<tr><td bgcolor="#f7f9fb" style="background:#f7f9fb;border-bottom:1px solid #e6ebf1">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>' +
-    meta('承包商', rec.contractor) + meta('填報人', rec.reporter) +
+    meta('承包商', rec.contractor || '—') + meta('填報人', rec.reporter) +
     meta('日期', rec.date) + meta('時間', rec.time, true) +
     '</tr></table></td></tr>' +
     block('巡查發現', 'OBSERVATION', '#c07a18', rec.obsZh, rec.obsEn) +
@@ -489,7 +534,7 @@ function buildMail_(rec, blobs, after, opt) {
     '</table></td></tr>' +
     // 頁尾
     '<tr><td align="center" style="' + F + 'padding:16px 10px 0;font-size:11px;line-height:1.7;color:#98a2ad">' +
-    '此信由 NMDC HSE 承包商安全回報系統自動寄出，請勿直接回覆。<br>NMDC ENERGY · HSE Walkthrough</td></tr>' +
+    '此信由 NMDC HSE ' + (opt.wt ? '現場巡查' : '承包商安全回報') + '系統自動寄出，請勿直接回覆。<br>NMDC ENERGY · HSE Walkthrough</td></tr>' +
     '</table></td></tr></table></body></html>';
 
   var text = subject + '\n\n承包商：' + rec.contractor + '\n填報人：' + rec.reporter +

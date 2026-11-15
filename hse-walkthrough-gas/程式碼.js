@@ -524,8 +524,32 @@ function hseTranslate(key, text, from, to) {
   }
 }
 
+/** 新增（不是編輯）成功後寄通知信，鎖放掉才寄，不卡住別人存檔 */
 function hseSave(key, payload) {
   auth_(key);
+  var res = saveRec_(payload);
+  if (res.ok && res.isNew) res.mailed = notifyNew_(res.id);
+  delete res.isNew;
+  return res;
+}
+
+/**
+ * 通知信請承包商回報頁代寄（同一套版面、同一份 NOTIFY 名單、CC 承包商信箱），
+ * 跟逾期通知一樣，主系統不用多要寄信權限。寄失敗不影響存檔。
+ */
+function notifyNew_(id) {
+  try {
+    var res = UrlFetchApp.fetch(CONTRACTOR_URL + '?act=wtnotify&key=' + OVERDUE_KEY + '&id=' + encodeURIComponent(id), { muteHttpExceptions: true });
+    var out = JSON.parse(res.getContentText());
+    if (!out.ok) console.error('notify failed: ' + out.error);
+    return !!out.ok;
+  } catch (e) {
+    console.error('notify failed: ' + (e && e.message || e));
+    return false;
+  }
+}
+
+function saveRec_(payload) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
@@ -589,7 +613,7 @@ function hseSave(key, payload) {
     }
 
     var n = addPhotos_(ss, r.photoId, rec, payload.photos || [], 'before');
-    return { ok: true, id: rec.id, photoCount: n };
+    return { ok: true, id: rec.id, photoCount: n, isNew: !existing };
   } catch (err) {
     return { ok: false, error: String(err.message || err) };
   } finally {
