@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════════════════════════════════
    NMDC Environmental E-System — v4「Light Console」
@@ -338,6 +339,11 @@ body.season-nov .site-header::after{content:"";position:absolute;left:0;right:0;
 .link-item:hover a{color:var(--accent2)}
 .link-actions{display:flex;gap:2px;opacity:0;transition:.15s;flex-shrink:0}
 .link-item:hover .link-actions{opacity:1}
+.drag-h{cursor:grab;color:var(--faint);font-size:14px;line-height:1;padding:4px 3px;user-select:none;touch-action:none;flex-shrink:0;border-radius:5px;transition:.15s}
+.drag-h:hover{color:var(--accent2);background:var(--bg2)}
+.drag-h:active{cursor:grabbing}
+.drag-ghost{opacity:.35;background:var(--accent-light)!important}
+.drag-chosen{box-shadow:var(--shadow)}
 .empty-hint{padding:28px;text-align:center;color:var(--faint);font-size:12.5px}
 .empty-hint span{color:var(--accent2);font-weight:600}
 
@@ -1954,6 +1960,35 @@ function getCheckedPersons(id){return Array.from($(id).querySelectorAll('.person
 function personBadges(str){return(str||'').split(',').map(s=>s.trim()).filter(Boolean).map(p=>`<span class="person-badge">${esc(p)}</span>`).join(' ');}
 function moveItem(arr,i,dir){const a=D[arr];const j=i+dir;if(!a||j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];save();renderTab();}
 function moveLnk(sid,i,dir){const sec=D.sections.find(s=>s.id===sid);if(!sec)return;const j=i+dir;if(j<0||j>=sec.links.length)return;[sec.links[i],sec.links[j]]=[sec.links[j],sec.links[i]];save();renderTab();}
+// 拖拉排序（系統連結／連結區塊／追蹤事項）
+function initDrag(){
+  if(!isEditor||typeof Sortable==='undefined')return;
+  const opt={handle:'.drag-h',animation:150,ghostClass:'drag-ghost',chosenClass:'drag-chosen'};
+  if(activeTab==='links'){
+    const sl=$('secList');
+    if(sl)Sortable.create(sl,{...opt,draggable:'.section-block',onEnd:e=>{if(e.oldIndex===e.newIndex)return;
+      const ids=[...sl.querySelectorAll(':scope>.section-block')].map(x=>x.dataset.sid);
+      D.sections=ids.map(id=>D.sections.find(s=>s.id===id)).filter(Boolean);save();renderTab();}});
+    document.querySelectorAll('.lnk-list').forEach(el=>Sortable.create(el,{...opt,group:'links',draggable:'.link-item',onEnd:e=>{
+      if(e.from===e.to&&e.oldIndex===e.newIndex)return;
+      const all={};D.sections.forEach(s=>s.links.forEach(l=>all[l.id]=l));
+      [e.from,e.to].forEach(L=>{const sec=D.sections.find(s=>s.id===L.dataset.sid);if(sec)sec.links=[...L.querySelectorAll('.link-item')].map(x=>all[x.dataset.lid]).filter(Boolean);});
+      save();renderTab();}}));
+  }
+  if(activeTab==='tracker'){
+    const tb=$('trkBody');
+    // 列表依「完成/優先度」排序顯示，只允許在同一組內拖拉，否則放下後會跳回原組
+    if(tb)Sortable.create(tb,{...opt,draggable:'tr[data-tid]',onMove:e=>!e.related.dataset.grp||e.related.dataset.grp===e.dragged.dataset.grp,onEnd:e=>{
+      if(e.oldIndex===e.newIndex)return;
+      const row=e.item,t=D.tasks.find(x=>x.id===row.dataset.tid);if(!t)return;
+      const nx=row.nextElementSibling?.dataset.tid,pv=row.previousElementSibling?.dataset.tid;
+      D.tasks=D.tasks.filter(x=>x!==t);
+      if(nx){const k=D.tasks.findIndex(x=>x.id===nx);D.tasks.splice(k<0?D.tasks.length:k,0,t);}
+      else if(pv){const k=D.tasks.findIndex(x=>x.id===pv);D.tasks.splice(k+1,0,t);}
+      else D.tasks.push(t);
+      save();renderTab();}});
+  }
+}
 function rteCmd(cmd,val){document.execCommand(cmd,false,val||null);}
 function rteCmd2(cmd,val){$('rteBody2').focus();document.execCommand(cmd,false,val||null);}
 function rteCmd3(cmd,val){$('inDR').focus();document.execCommand(cmd,false,val||null);}
@@ -2151,7 +2186,7 @@ function switchTab(k,due){activeTab=k;trkDue=due||'';if(trkDue)trkFilter='All';r
 function renderTab(){window.renderTab=renderTab;window.activeTab=activeTab;let h='';
   // (listener wiring below)
   if(activeTab==='bulletin')h=renderBulHTML();else if(activeTab==='tracker')h=renderTrkHTML();else if(activeTab==='documents')h=renderDocHTML();else if(activeTab==='envscope')h=renderScopeHTML();else if(activeTab==='links')h=renderLinksHTML();else if(activeTab==='schedule')h=renderSchHTML();else if(activeTab==='events')h=renderEventsHTML();else if(activeTab==='contacts')h=renderContactsHTML();
-  $('tabContent').innerHTML=h;if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});try{renderInfoBar();}catch(e){}}
+  $('tabContent').innerHTML=h;try{initDrag();}catch(e){}if(eSecId){const inp=$('rn_'+eSecId);if(inp){inp.focus();inp.select();}}(D.sections||[]).forEach(s=>{if(openSec[s.id]===undefined)openSec[s.id]=true;});try{renderInfoBar();}catch(e){}}
 
 // ═══ 1 BULLETIN ═══
 function renderBulHTML(){
@@ -2232,13 +2267,13 @@ function renderTrkHTML(){
   if(isEditor)h+=`<button onclick="showMailCfgM()" title="ENV WEEKLY REPORT：收件者、開頭文字、現場照片、KPI 圖（依設定的星期／時間自動寄出）" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--card2);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">📧 週報設定</button>`;
   h+='</div>';
   if(trkDue){const red=trkDue==='over';h+=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:600;border:1px solid ${red?'#fca5a5':'#fcd34d'};background:${red?'#fef2f2':'#fffbeb'};color:${red?'#b91c1c':'#b45309'}">${red?'⚠️ 只顯示已逾期項目':'🔶 只顯示三天內到期項目'}（${filtered.length} 筆）<button onclick="trkDue='';renderTab()" style="margin-left:auto;padding:3px 10px;border-radius:6px;border:1px solid currentColor;background:#fff;color:inherit;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">✕ 顯示全部</button></div>`;}
-  h+=`<table class="tracker-table"><thead><tr><th style="width:32px"></th><th>事項</th><th>負責人</th><th>完成期限</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody>`;
+  h+=`<table class="tracker-table"><thead><tr><th style="width:32px"></th><th>事項</th><th>負責人</th><th>完成期限</th>${isEditor?'<th style="width:100px"></th>':''}</tr></thead><tbody id="trkBody">`;
   if(!filtered.length)h+=`<tr><td colspan="5" class="tracker-empty">${trkDue==='over'?'沒有逾期項目':trkDue==='soon'?'沒有三天內到期的項目':showDone?'無追蹤事項':'無待辦事項'}</td></tr>`;
   else filtered.forEach(t=>{const dc=dlC(t.deadline,t.done);const tag=!t.done&&dc==='deadline-red'?'<br><span style="font-size:11px">⚠️ 已逾期</span>':!t.done&&dc==='deadline-orange'?'<br><span style="font-size:11px">🔶 即將到期</span>':'';
-    const ri=D.tasks.indexOf(t);const ar=isEditor?`<button class="icon-btn sm" onclick="moveItem('tasks',${ri},-1)" ${ri===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveItem('tasks',${ri},1)" ${ri===D.tasks.length-1?'disabled':''}>▼</button>`:'';
+    const ar=isEditor?`<span class="drag-h" title="拖拉排序">⠿</span>`:'';
     const priMap={high:'🔴 高',mid:'🟡 中',low:'🟢 低'};const priCls={high:'pri-high',mid:'pri-mid',low:'pri-low'};
     const pri=t.priority||'mid';
-    h+=`<tr class="${t.done?'done-row':''}"><td><button class="ck ${t.done?'checked':''}" onclick="togDone('${t.id}')">${t.done?'✓':''}</button></td><td><span class="pri-badge ${priCls[pri]}">${priMap[pri]}</span> ${esc(t.name)}${t.note?`<div class="doc-note" style="margin-top:4px;max-width:none;white-space:normal">${renderHtml(t.note)}</div>`:''}</td><td>${personBadges(t.person)}</td><td class="${dc}">${t.done?doneCell(t):esc(t.deadline)}${tag}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openTrkM('${t.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delTsk('${t.id}')">${SV.trash}</button></td>`:''}</tr>`;});
+    h+=`<tr class="${t.done?'done-row':''}" data-tid="${t.id}" data-grp="${t.done?'done':pri}"><td><button class="ck ${t.done?'checked':''}" onclick="togDone('${t.id}')">${t.done?'✓':''}</button></td><td><span class="pri-badge ${priCls[pri]}">${priMap[pri]}</span> ${esc(t.name)}${t.note?`<div class="doc-note" style="margin-top:4px;max-width:none;white-space:normal">${renderHtml(t.note)}</div>`:''}</td><td>${personBadges(t.person)}</td><td class="${dc}">${t.done?doneCell(t):esc(t.deadline)}${tag}</td>${isEditor?`<td style="white-space:nowrap">${ar}<button class="icon-btn" onclick="openTrkM('${t.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delTsk('${t.id}')">${SV.trash}</button></td>`:''}</tr>`;});
   h+='</tbody></table>';return h+'</div>';}
 function doneCell(t){const d=t.doneAt||'';if(!isEditor)return '✅ 已完成'+(d?'<br><span style="font-size:11px;color:var(--muted)">'+esc(d)+'</span>':'');return '✅ 已完成<br><input type="date" class="done-date" data-id="'+t.id+'" value="'+esc(d)+'" title="完成日期（週報「本期完成」用這個日期判斷）" onchange="setDoneAt(this.dataset.id,this.value)">';}
 function setDoneAt(id,v){if(!isEditor)return;const t=D.tasks.find(x=>x.id===id);if(!t)return;if(v)t.doneAt=v;else delete t.doneAt;save();renderTab();showToast(v?'✅ 完成日期已更新為 '+v:'已清除完成日期');}
@@ -2421,17 +2456,18 @@ function delScope(id){const r=(D.envScopes||[]).find(x=>x.id===id);if(!confirm('
 function renderLinksHTML(){let h='';
   if(isEditor)h+=`<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn-add-section" onclick="openSecM()">${SV.plus} 新增區塊</button></div>`;
   if(!D.sections.length)return h+'<div class="empty-hint" style="padding:40px">尚無連結區塊</div>';
+  h+='<div id="secList">';
   D.sections.forEach((sec,si)=>{const isO=openSec[sec.id]!==false,isR=eSecId===sec.id;
     const lH=sec.links.length===0?`<div class="empty-hint">尚無連結${isEditor?'，點 <span>+</span> 新增':''}</div>`:sec.links.map((lk,li)=>{
-      const ar=isEditor?`<button class="icon-btn sm" onclick="moveLnk('${sec.id}',${li},-1)" ${li===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="moveLnk('${sec.id}',${li},1)" ${li===sec.links.length-1?'disabled':''}>▼</button>`:'';
+      const ar='';
       if(!isEditor&&lk.hidden)return'';
       const hidBtn=isEditor?`<button class="icon-btn" onclick="toggleLnkHide('${sec.id}','${lk.id}')" title="${lk.hidden?'顯示':'隱藏'}" style="opacity:.6">${lk.hidden?'👁':'🚫'}</button>`:'';
       const hidStyle=lk.hidden?'opacity:.45;':'';
-      return`<div class="link-item" style="${hidStyle}"><div class="link-icon-wrap">${lk.icon||'📄'}</div><a href="${esc(lk.url)}" target="_blank" rel="noopener noreferrer" onclick="trackLinkClick('${lk.id}','${esc((lk.title||'').replace(/'/g,"\\'"))}', '${esc(lk.url)}')">${esc(lk.title)}${lk.hidden?'<span style="font-size:10px;color:var(--muted);margin-left:4px">(隱藏)</span>':''}</a>${isEditor?`<div class="link-actions">${ar}${hidBtn}<button class="icon-btn" onclick="openELnk('${sec.id}','${lk.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delLnk('${sec.id}','${lk.id}')">${SV.trash}</button></div>`:''}</div>`;}).join('');
+      return`<div class="link-item" data-lid="${lk.id}" style="${hidStyle}">${isEditor?'<span class="drag-h" title="拖拉排序（可拖到其他區塊）">⠿</span>':''}<div class="link-icon-wrap">${lk.icon||'📄'}</div><a href="${esc(lk.url)}" target="_blank" rel="noopener noreferrer" onclick="trackLinkClick('${lk.id}','${esc((lk.title||'').replace(/'/g,"\\'"))}', '${esc(lk.url)}')">${esc(lk.title)}${lk.hidden?'<span style="font-size:10px;color:var(--muted);margin-left:4px">(隱藏)</span>':''}</a>${isEditor?`<div class="link-actions">${ar}${hidBtn}<button class="icon-btn" onclick="openELnk('${sec.id}','${lk.id}')">${SV.edit}</button><button class="icon-btn danger" onclick="delLnk('${sec.id}','${lk.id}')">${SV.trash}</button></div>`:''}</div>`;}).join('');
     const nH=isR?`<div class="inline-edit" onclick="event.stopPropagation()"><input class="inline-input" id="rn_${sec.id}" value="${esc(sec.name)}" onkeydown="if(event.key==='Enter')cfmRen('${sec.id}');if(event.key==='Escape')canRen()"><button class="icon-btn success" onclick="cfmRen('${sec.id}')">${SV.check}</button><button class="icon-btn" onclick="canRen()">${SV.x}</button></div>`:`<span class="section-name">${esc(sec.name)}<span class="link-count">${sec.links.length}</span></span>`;
-    const secAr=isEditor?`<button class="icon-btn sm" onclick="event.stopPropagation();moveItem('sections',${si},-1)" ${si===0?'disabled':''}>▲</button><button class="icon-btn sm" onclick="event.stopPropagation();moveItem('sections',${si},1)" ${si===D.sections.length-1?'disabled':''}>▼</button>`:'';
+    const secAr='';
     const aH=isEditor?`<div class="section-actions" onclick="event.stopPropagation()">${secAr}<button class="icon-btn" onclick="stRen('${sec.id}')">${SV.edit}</button><button class="icon-btn accent" onclick="openALnk('${sec.id}')">${SV.plus}</button><button class="icon-btn danger" onclick="delSec('${sec.id}')">${SV.trash}</button></div>`:'';
-    h+=`<div class="section-block"><div class="section-header ${isO?'bordered':''}" onclick="togS('${sec.id}')"><span style="color:var(--accent);opacity:.7;display:flex">${SV.folder}</span><span class="chevron ${isO?'open':''}">${SV.chev}</span>${nH}${aH}</div><div class="section-body ${isO?'open':'closed'}">${lH}</div></div>`;});return h;}
+    h+=`<div class="section-block" data-sid="${sec.id}"><div class="section-header ${isO?'bordered':''}" onclick="togS('${sec.id}')">${isEditor?'<span class="drag-h" title="拖拉排序區塊" onclick="event.stopPropagation()">⠿</span>':''}<span style="color:var(--accent);opacity:.7;display:flex">${SV.folder}</span><span class="chevron ${isO?'open':''}">${SV.chev}</span>${nH}${aH}</div><div class="section-body ${isO?'open':'closed'}"><div class="lnk-list" data-sid="${sec.id}" style="min-height:8px">${lH}</div></div></div>`;});return h+'</div>';}
 function togS(id){if(eSecId===id)return;openSec[id]=!openSec[id];renderTab();}
 function openSecM(){$('inSN').value='';$('mSec').classList.remove('hidden');setTimeout(()=>$('inSN').focus(),50);}
 function closeSecM(){$('mSec').classList.add('hidden');}
