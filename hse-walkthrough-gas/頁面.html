@@ -89,7 +89,9 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
  box-shadow:0 1px 3px rgba(16,24,40,.08);font-variant-numeric:tabular-nums}
 .dsel i{font-style:normal;font-size:11px;color:#8a97a5}
 .dsel.on{box-shadow:0 0 0 2px #00B050,0 1px 3px rgba(16,24,40,.08)}
-.cal{display:none;background:#fff;border-radius:18px;border:1px solid #e3e9f0;margin:-3px auto 11px;padding:11px 11px 9px;max-width:440px;
+/* 日曆浮在內容上面，不把下面往下擠（top 不設＝留在日期列正下方） */
+#dwrap{position:relative}
+.cal{display:none;position:absolute;left:0;right:0;z-index:35;background:#fff;border-radius:18px;border:1px solid #e3e9f0;margin:-3px auto 0;padding:11px 11px 9px;max-width:440px;
  box-shadow:0 14px 34px rgba(16,24,40,.14);animation:up .15s ease-out}
 .cal .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
 .cal .mh button{width:36px;height:34px;border-radius:10px;border:0;background:#f5f8fb;color:#16324f;font-size:17px;font-weight:900;cursor:pointer}
