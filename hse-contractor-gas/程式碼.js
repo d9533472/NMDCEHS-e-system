@@ -43,7 +43,7 @@ function doGet(e) {
     var wn;
     try {
       if (q.key !== OVERDUE_KEY) throw new Error('unauthorized');
-      wn = wtNotify_(String(q.id || ''));
+      wn = wtNotify_(String(q.id || ''), q.close === '1');
     } catch (err) { wn = { ok: false, error: String(err && err.message || err) }; }
     return ContentService.createTextOutput(JSON.stringify(wn)).setMimeType(ContentService.MimeType.JSON);
   }
@@ -367,9 +367,10 @@ function notify_(rec, blobs, after) {
 /**
  * 主系統（HSE 現場巡查）新增一筆後用 ?act=wtnotify&key=…&id=… 叫這裡寄通知信（主系統沒有寄信權限）。
  * 跟承包商回報同一套版面、同一份 NOTIFY 名單、CC 該承包商；同一筆只寄一次。
+ * close＝主系統貼了改善後照片而結案，另寄一封結案信。兩種信都附改善前＋改善後照片。
  */
-function wtNotify_(id) {
-  var cache = CacheService.getScriptCache(), ck = 'wtmail_' + id;
+function wtNotify_(id, close) {
+  var cache = CacheService.getScriptCache(), ck = 'wtmail_' + (close ? 'close_' : '') + id;
   if (cache.get(ck)) return { ok: true, skipped: 'already sent' };
   var ss = SpreadsheetApp.openById(SS_ID);
   var rec = readSheet_(ss, 'Records').filter(function (x) { return x.id === id; })[0];
@@ -382,17 +383,20 @@ function wtNotify_(id) {
     actionBy: rec.actionBy || '', risk: rec.risk || '',
     targetDate: fmtD(rec.targetDate, 'yyyy-MM-dd'), status: rec.status, closeOutDate: fmtD(rec.closeOutDate, 'yyyy-MM-dd')
   };
-  var blobs = readSheet_(ss, 'Photos')
-    .filter(function (p) { return p.recordId === id && p.kind === 'before'; })
-    .slice(0, MAX_PHOTOS)
-    .map(function (p) { return DriveApp.getFileById(p.fileId).getBlob(); });
-  var m = buildMail_(r, blobs, [], { wt: true });
+  var photos = readSheet_(ss, 'Photos');
+  var pick = function (kind) {
+    return photos.filter(function (p) { return p.recordId === id && p.kind === kind; })
+      .slice(0, MAX_PHOTOS)
+      .map(function (p) { return DriveApp.getFileById(p.fileId).getBlob(); });
+  };
+  var blobs = pick('before'), after = pick('after');
+  var m = buildMail_(r, blobs, after, { wt: true, wtClose: !!close });
   MailApp.sendEmail(withCc_({
     to: notifyTo_().join(','), subject: m.subject, htmlBody: m.html, body: m.text,
     inlineImages: m.inline, name: 'NMDC HSE 現場巡查'
   }, r.contractor));
   cache.put(ck, '1', 21600);
-  return { ok: true, id: id, photos: blobs.length };
+  return { ok: true, id: id, photos: blobs.length, afterPhotos: after.length };
 }
 
 /** CC 給該承包商的信箱（主系統 ⚙ 設定的 contractorEmails）；讀不到或沒填就只寄通知名單。 */
@@ -423,7 +427,7 @@ function buildMail_(rec, blobs, after, opt) {
   var hz = splitHz_(rec.hazard);
   // wt：主系統 NMDC 現場巡查新增的紀錄（危害種類可能沒選，標題改用巡查發現）
   if (opt.wt && !hz.zh) hz = { zh: String(rec.obsZh || '').slice(0, 30), en: '' };
-  var subject = (opt.test ? '[測試] ' : '') + (opt.wt ? '[HSE 巡查] ' : opt.closer ? '[HSE 承包商結案] ' : '[HSE 承包商回報] ') +
+  var subject = (opt.test ? '[測試] ' : '') + (opt.wtClose ? '[HSE 巡查結案] ' : opt.wt ? '[HSE 巡查] ' : opt.closer ? '[HSE 承包商結案] ' : '[HSE 承包商回報] ') +
     (rec.contractor || 'NMDC') + '｜' + hz.zh + '｜' + rec.date + ' ' + rec.time;
   var editUrl = MAIN_URL + '&d=' + rec.date + '&e=' + encodeURIComponent(rec.id);
   var dayUrl = MAIN_URL + '&d=' + rec.date;
@@ -466,7 +470,10 @@ function buildMail_(rec, blobs, after, opt) {
   var pics = gallery(blobs, 'p', '改善前照片', 'BEFORE', '#546e7a') +
     gallery(after, 'q', '改善後照片', 'AFTER', '#1b8a4a');
   var closed = rec.status === 'Closed';
-  var todo = opt.wt
+  var todo = opt.wtClose
+    ? '<b style="color:#1b6e3c">已補上改善後照片，系統已自動結案</b>（結案日 ' + esc_(rec.closeOutDate || '—') +
+      '；原改善期限 ' + esc_(rec.targetDate || '—') + '）<br>如照片不符可按「編輯這一筆」重新開啟。'
+    : opt.wt
     ? '<b style="color:#b26a00">改善期限 ' + esc_(rec.targetDate || '—') + '</b>' +
       (rec.actionBy || rec.risk ? '<br>' + [rec.actionBy && '權責單位 ' + esc_(rec.actionBy), rec.risk && '風險等級 ' + esc_(rec.risk)].filter(String).join(' · ') : '')
     : opt.closer
@@ -507,7 +514,7 @@ function buildMail_(rec, blobs, after, opt) {
     // 墨藍頁首
     '<tr><td bgcolor="#002038" style="background:#002038;padding:24px 28px 22px;border-radius:18px 18px 0 0">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td valign="top">' +
-    '<div style="' + F + 'font-size:11px;letter-spacing:2px;color:#4fd18b;font-weight:800">' + (opt.wt ? '現場巡查 · HSE WALKTHROUGH' : opt.closer ? '承包商補件結案 · CONTRACTOR CLOSE-OUT' : '承包商安全回報 · CONTRACTOR REPORT') + '</div>' +
+    '<div style="' + F + 'font-size:11px;letter-spacing:2px;color:#4fd18b;font-weight:800">' + (opt.wtClose ? '現場巡查結案 · WALKTHROUGH CLOSE-OUT' : opt.wt ? '現場巡查 · HSE WALKTHROUGH' : opt.closer ? '承包商補件結案 · CONTRACTOR CLOSE-OUT' : '承包商安全回報 · CONTRACTOR REPORT') + '</div>' +
     '<div style="' + F + 'font-size:24px;line-height:1.3;color:#ffffff;font-weight:900;margin-top:8px">' + esc_(hz.zh) + '</div>' +
     (hz.en ? '<div style="' + F + 'font-size:13px;color:#9fb6cb;margin-top:3px">' + esc_(hz.en) + '</div>' : '') +
     '</td><td valign="top" align="right" width="110">' +

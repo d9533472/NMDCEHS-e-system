@@ -89,7 +89,7 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
  box-shadow:0 1px 3px rgba(16,24,40,.08);font-variant-numeric:tabular-nums}
 .dsel i{font-style:normal;font-size:11px;color:#8a97a5}
 .dsel.on{box-shadow:0 0 0 2px #00B050,0 1px 3px rgba(16,24,40,.08)}
-.cal{display:none;background:#fff;border-radius:18px;border:1px solid #e3e9f0;margin:-3px 0 11px;padding:11px 11px 9px;
+.cal{display:none;background:#fff;border-radius:18px;border:1px solid #e3e9f0;margin:-3px auto 11px;padding:11px 11px 9px;max-width:440px;
  box-shadow:0 14px 34px rgba(16,24,40,.14);animation:up .15s ease-out}
 .cal .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
 .cal .mh button{width:36px;height:34px;border-radius:10px;border:0;background:#f5f8fb;color:#16324f;font-size:17px;font-weight:900;cursor:pointer}
@@ -99,15 +99,17 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .wk,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .wk span{font-size:10.5px;font-weight:800;color:#8a97a5;text-align:center;padding:2px 0}
 .wk span:first-child,.wk span:last-child{color:#c28a8a}
-.dc{height:62px;border-radius:10px;border:0;background:none;cursor:pointer;font-family:inherit;padding:5px 0 0;
- display:flex;flex-direction:column;align-items:center;gap:3px;font-variant-numeric:tabular-nums}
+.dc{min-height:44px;border-radius:10px;border:0;background:none;cursor:pointer;font-family:inherit;padding:5px 0 4px;
+ display:flex;flex-direction:column;align-items:center;gap:4px;font-variant-numeric:tabular-nums}
+/* 兩個數字並排；格子太窄時才換行 */
+.dc .n{display:flex;flex-wrap:wrap;justify-content:center;gap:2px}
 .dc b{font-size:13px;font-weight:700;color:#38475a;line-height:1}
 .dc.o b{color:#c3ccd5}
-.dc i{font-style:normal;font-size:10.5px;font-weight:900;line-height:1;min-width:20px;text-align:center;border-radius:999px;padding:2px 5px}
+.dc i{font-style:normal;font-size:10px;font-weight:900;line-height:1;min-width:16px;text-align:center;border-radius:999px;padding:2px 4px}
 .dc i.a{background:#fff3df;color:#c07a18}
 .dc i.c{background:#e2f2e6;color:#1b6e3c}
 /* 已上傳 Smartsheet 筆數：部分上傳淺藍，全部上傳實心藍 */
-.dc i.sm{background:#e8f1fb;color:#1f5f9e;font-size:9.5px;padding:2px 4px}
+.dc i.sm{background:#e8f1fb;color:#1f5f9e;font-size:9.5px;padding:2px 3px}
 .dc i.sm.f{background:#1f6fbf;color:#fff}
 .dc.today{box-shadow:inset 0 0 0 1.5px #bfe5cd}
 .dc.today b{color:#1b6e3c;font-weight:900}
@@ -930,7 +932,7 @@ function calPaint(){
   var dd=new Date(y,m-1,1-start+i),ds=fmt(dd),c=CAL[ds];
   var cls="dc"+(dd.getMonth()!==m-1?" o":"")+(ds===cur?" sel":"")+(ds===TODAY?" today":"");
   h+='<button class="'+cls+'" onclick="calPick(\''+ds+'\')"><b>'+dd.getDate()+'</b>'+
-   (c&&c[0]?'<i class="'+(c[1]?"a":"c")+'">'+c[0]+'</i><i class="sm'+((c[3]||0)>=c[0]?" f":"")+'">☁'+(c[3]||0)+'</i>':'')+'</button>';
+   (c&&c[0]?'<span class="n"><i class="'+(c[1]?"a":"c")+'">'+c[0]+'</i><i class="sm'+((c[3]||0)>=c[0]?" f":"")+'">☁'+(c[3]||0)+'</i></span>':'')+'</button>';
  }
  $("calDays").innerHTML=h;
 }

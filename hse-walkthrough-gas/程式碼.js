@@ -540,9 +540,9 @@ function hseSave(key, payload) {
  * 通知信請承包商回報頁代寄（同一套版面、同一份 NOTIFY 名單、CC 承包商信箱），
  * 跟逾期通知一樣，主系統不用多要寄信權限。寄失敗不影響存檔。
  */
-function notifyNew_(id) {
+function notifyNew_(id, close) {
   try {
-    var res = UrlFetchApp.fetch(CONTRACTOR_URL + '?act=wtnotify&key=' + OVERDUE_KEY + '&id=' + encodeURIComponent(id), { muteHttpExceptions: true });
+    var res = UrlFetchApp.fetch(CONTRACTOR_URL + '?act=wtnotify&key=' + OVERDUE_KEY + '&id=' + encodeURIComponent(id) + (close ? '&close=1' : ''), { muteHttpExceptions: true });
     var out = JSON.parse(res.getContentText());
     if (!out.ok) console.error('notify failed: ' + out.error);
     return !!out.ok;
@@ -646,8 +646,15 @@ function addPhotos_(ss, photoFolderId, rec, photos, kind) {
   return out.length;
 }
 
+/** 貼了改善後照片而結案時，寄結案通知信（改善前＋改善後照片）；鎖放掉才寄 */
 function hseAddPhotos(key, id, photos, kind) {
   auth_(key);
+  var res = addPhotosRec_(id, photos, kind);
+  if (res.ok && res.closed) res.mailed = notifyNew_(id, true);
+  return res;
+}
+
+function addPhotosRec_(id, photos, kind) {
   var lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
