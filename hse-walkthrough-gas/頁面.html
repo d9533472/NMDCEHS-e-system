@@ -99,18 +99,22 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .wk,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
 .wk span{font-size:10.5px;font-weight:800;color:#8a97a5;text-align:center;padding:2px 0}
 .wk span:first-child,.wk span:last-child{color:#c28a8a}
-.dc{height:48px;border-radius:10px;border:0;background:none;cursor:pointer;font-family:inherit;padding:5px 0 0;
+.dc{height:62px;border-radius:10px;border:0;background:none;cursor:pointer;font-family:inherit;padding:5px 0 0;
  display:flex;flex-direction:column;align-items:center;gap:3px;font-variant-numeric:tabular-nums}
 .dc b{font-size:13px;font-weight:700;color:#38475a;line-height:1}
 .dc.o b{color:#c3ccd5}
 .dc i{font-style:normal;font-size:10.5px;font-weight:900;line-height:1;min-width:20px;text-align:center;border-radius:999px;padding:2px 5px}
 .dc i.a{background:#fff3df;color:#c07a18}
 .dc i.c{background:#e2f2e6;color:#1b6e3c}
+/* 已上傳 Smartsheet 筆數：部分上傳淺藍，全部上傳實心藍 */
+.dc i.sm{background:#e8f1fb;color:#1f5f9e;font-size:9.5px;padding:2px 4px}
+.dc i.sm.f{background:#1f6fbf;color:#fff}
 .dc.today{box-shadow:inset 0 0 0 1.5px #bfe5cd}
 .dc.today b{color:#1b6e3c;font-weight:900}
 .dc.sel{background:#002038}
 .dc.sel b{color:#fff}
 .dc.sel i{background:#fff;color:#002038}
+.dc.sel i.sm{background:#2a4a6b;color:#fff}
 .leg{display:flex;gap:12px;justify-content:center;margin-top:8px;font-size:11px;color:#6b7784;font-weight:700}
 .leg i{display:inline-block;width:15px;height:10px;border-radius:999px;vertical-align:-1px;margin-right:4px}
 @media(hover:hover){.dc:hover{background:#f2f6fa}.dc.sel:hover{background:#002038}}
@@ -123,7 +127,7 @@ body{font-family:"Microsoft JhengHei","PingFang TC",system-ui,sans-serif;color:#
 .dsum .seg{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
 .dsum .bar{height:9px}
 .dsum p{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;font-weight:800}
-.dsum .o{color:#c07a18}.dsum .c{color:#1b6e3c}.dsum .s{color:#8a97a5}
+.dsum .o{color:#c07a18}.dsum .c{color:#1b6e3c}.dsum .s{color:#8a97a5}.dsum .m{color:#1f5f9e}
 
 /* 跨日期精簡清單 */
 .fbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 9px}
@@ -356,7 +360,7 @@ details summary::-webkit-details-marker{display:none}
    <div class="mh"><button onclick="calMove(-1)">‹</button><div><b id="calTit"></b><small id="calSub"></small></div><button onclick="calMove(1)">›</button></div>
    <div class="wk" id="calWk"></div>
    <div class="days" id="calDays"></div>
-   <div class="leg"><span><i style="background:#fff3df"></i><em data-i="legA" style="font-style:normal"></em></span><span><i style="background:#e2f2e6"></i><em data-i="legC" style="font-style:normal"></em></span></div>
+   <div class="leg"><span><i style="background:#fff3df"></i><em data-i="legA" style="font-style:normal"></em></span><span><i style="background:#e2f2e6"></i><em data-i="legC" style="font-style:normal"></em></span><span><i style="background:#1f6fbf"></i><em data-i="legSm" style="font-style:normal"></em></span></div>
   </div>
   <div class="dsum" id="dsum"></div>
  </div>
@@ -650,8 +654,8 @@ var L={zh:{
  fail:"失敗：", phMax:"照片最多 6 張，多選的已略過", rdFail:"有一張照片讀取失敗",
  foot:"NMDC ENERGY · HSE 現場巡查紀錄｜手機填報 → 每日匯出報告",
  wk:["日","一","二","三","四","五","六"], calY:" 年 ", calM:" 月",
- calS1:"本月 ", calS2:" 筆 · 開放 ", legA:"有未結案", legC:"全部結案",
- sumN:" 筆數", sOpenN:"開放 ", sClosedN:"結案 ", sConN:"承包商填 ",
+ calS1:"本月 ", calS2:" 筆 · 開放 ", calS3:" · 已上傳 ", legA:"有未結案", legC:"全部結案", legSm:"☁ 已上傳 Smartsheet",
+ sumN:" 筆數", sOpenN:"開放 ", sClosedN:"結案 ", sConN:"承包商填 ", sSmN:"☁ 已上傳 ",
  lAll:"所有日期", lN:" 筆", lBack:"✕ 回日期檢視",
  soOver:"逾期優先", soDate:"日期新→舊", soCon:"依承包商",
  lNone:"沒有符合的紀錄", noCon:"未填承包商", tDue:"預定 ", tSrc:"承包商填報", ovD:" 天",
@@ -736,8 +740,8 @@ var L={zh:{
  fail:"Failed: ", phMax:"Max 6 photos; extras skipped", rdFail:"One photo could not be read",
  foot:"NMDC ENERGY · HSE Walkthrough Record｜Mobile entry → daily report",
  wk:["Su","Mo","Tu","We","Th","Fr","Sa"], calY:" / ", calM:"",
- calS1:"This month ", calS2:" · open ", legA:"Has open items", legC:"All closed",
- sumN:" total", sOpenN:"Open ", sClosedN:"Closed ", sConN:"By contractor ",
+ calS1:"This month ", calS2:" · open ", calS3:" · uploaded ", legA:"Has open items", legC:"All closed", legSm:"☁ On Smartsheet",
+ sumN:" total", sOpenN:"Open ", sClosedN:"Closed ", sConN:"By contractor ", sSmN:"☁ Uploaded ",
  lAll:"All dates", lN:"", lBack:"✕ Back to daily view",
  soOver:"Overdue first", soDate:"Newest first", soCon:"By contractor",
  lNone:"No matching findings", noCon:"No contractor", tDue:"Target ", tSrc:"Contractor report", ovD:" d",
@@ -915,9 +919,9 @@ function calPaint(){
  if(!CALM)return;
  var y=+CALM.slice(0,4),m=+CALM.slice(5,7);
  $("calTit").textContent=y+t("calY")+m+t("calM");
- var tot=0,op=0;
- Object.keys(CAL).forEach(function(d){if(d.slice(0,7)===CALM){tot+=CAL[d][0];op+=CAL[d][1]}});
- $("calSub").textContent=t("calS1")+tot+t("calS2")+op;
+ var tot=0,op=0,sm=0;
+ Object.keys(CAL).forEach(function(d){if(d.slice(0,7)===CALM){tot+=CAL[d][0];op+=CAL[d][1];sm+=CAL[d][3]||0}});
+ $("calSub").textContent=t("calS1")+tot+t("calS2")+op+t("calS3")+sm;
  $("calWk").innerHTML=t("wk").map(function(w){return '<span>'+esc(w)+'</span>'}).join("");
  var first=new Date(y,m-1,1),start=first.getDay();
  var cur=$("dt").value||TODAY,h="";
@@ -926,19 +930,20 @@ function calPaint(){
   var dd=new Date(y,m-1,1-start+i),ds=fmt(dd),c=CAL[ds];
   var cls="dc"+(dd.getMonth()!==m-1?" o":"")+(ds===cur?" sel":"")+(ds===TODAY?" today":"");
   h+='<button class="'+cls+'" onclick="calPick(\''+ds+'\')"><b>'+dd.getDate()+'</b>'+
-   (c&&c[0]?'<i class="'+(c[1]?"a":"c")+'">'+c[0]+'</i>':'')+'</button>';
+   (c&&c[0]?'<i class="'+(c[1]?"a":"c")+'">'+c[0]+'</i><i class="sm'+((c[3]||0)>=c[0]?" f":"")+'">☁'+(c[3]||0)+'</i>':'')+'</button>';
  }
  $("calDays").innerHTML=h;
 }
 function calPick(d){$("dt").value=d;calClose();load()}
 function dsumPaint(){
- var d=$("dt").value||TODAY,c=CAL[d]||[0,0,0];
- var n=DATA.length||c[0],op=c[1],cl=n-op,con=c[2];
+ var d=$("dt").value||TODAY,c=CAL[d]||[0,0,0,0];
+ var n=DATA.length||c[0],op=c[1],cl=n-op,con=c[2],sm=c[3]||0;
  var pc=n?Math.round(op/n*100):0;
  $("dsum").innerHTML='<div class="big">'+n+'<small>'+esc(d.slice(5).replace("-","/")+t("sumN"))+'</small></div>'+
   '<div class="seg"><div class="bar">'+(n?'<i class="o" style="width:'+pc+'%"></i><i class="c" style="width:'+(100-pc)+'%"></i>':'')+'</div>'+
   '<p><span class="o">'+esc(t("sOpenN"))+op+'</span><span class="c">'+esc(t("sClosedN"))+cl+'</span>'+
-  (con?'<span class="s">'+esc(t("sConN"))+con+'</span>':'')+'</p></div>';
+  (con?'<span class="s">'+esc(t("sConN"))+con+'</span>':'')+
+  (n?'<span class="m">'+esc(t("sSmN"))+sm+'/'+n+'</span>':'')+'</p></div>';
 }
 
 /* ---------- 下拉與選項 ---------- */

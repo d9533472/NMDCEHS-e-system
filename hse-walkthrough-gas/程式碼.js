@@ -379,7 +379,7 @@ function hseBoot(key, date) {
 
   var counts = { total: 0, open: 0, closed: 0, overdue: 0 };
   var dates = {};
-  var cal = {};   // 日曆用：日期 → [總數, 未結案, 承包商填報]
+  var cal = {};   // 日曆用：日期 → [總數, 未結案, 承包商填報, 已上傳 Smartsheet]
   recs.forEach(function (x) {
     counts.total++;
     var st = status_(x.status);
@@ -390,10 +390,11 @@ function hseBoot(key, date) {
     var d = ymd_(x.date);
     if (d) {
       dates[d] = (dates[d] || 0) + 1;
-      var c = cal[d] || (cal[d] = [0, 0, 0]);
+      var c = cal[d] || (cal[d] = [0, 0, 0, 0]);
       c[0]++;
       if (st !== 'Closed') c[1]++;
       if (x.source === 'contractor') c[2]++;
+      if (x.smRowId) c[3]++;
     }
   });
 
