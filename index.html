@@ -3530,7 +3530,7 @@ function openOutlookForEmail(){
 
 // ══ 📧 環保部門週報 ENV WEEKLY REPORT：收件者 / 開頭文字 / 現場照片 / KPI 圖 / 由系統寄出 ══
 //    GAS 觸發器：每週自動寄出（預設週一 09:00，設定頁可改成週一～週四任一整點）、每週五 15:00 寄提醒（見 追蹤事項週報-部署說明.md）
-let _mailCfg=null,_mcPhotos=[],_mcIncidents=[],_mcBusy=false,_mcNormalizing=false,_mailCfgErr='';
+let _mailCfg=null,_mcPhotos=[],_mcIncidents=[],_mcAttach=[],_mcBusy=false,_mcNormalizing=false,_mailCfgErr='';
 const MC_LOCS=['Taichung','TungHsiao','Project','Offshore','Tienli','Environmental Monitoring'];
 const MC_DEFAULT_INTRO='<p>Dear Chris, Sam</p><p>Please refer to the attached weekly report from the ENV Department for this week.<br>You are also welcome to discuss with us if you have any suggestions or comments.<br>Thank you all for your continued support.</p><p>BR,<br>Paul Tong</p>';
 // GAS 的 /exec 會轉址到 googleusercontent，Google 端偶爾會回 404／429／5xx（不是程式錯），遇到就等一下再試
@@ -3576,6 +3576,7 @@ function mailCfgFromForm(){
     reminderEnabled:$('inMcRemind').checked,reminderTo:$('inMcRemindTo').value.trim(),
     sendDay:+$('inMcSendDay').value||1,sendHour:+$('inMcSendHour').value,
     photos:_mcPhotos.map(p=>({fileId:p.fileId,url:p.url,title:p.title||'',location:p.location||'',date:p.date||'',uploadedAt:p.uploadedAt||'',framed:!!p.framed})),
+    attachments:_mcAttach.map(a=>({fileId:a.fileId,name:a.name||'',size:a.size||0,mime:a.mime||'',uploadedAt:a.uploadedAt||''})),
     incidents:mcIncClean(_mcIncidents)};
 }
 // 自動寄出時間：星期（週一～週四）＋整點，台北時間
@@ -3596,6 +3597,7 @@ function fillMailCfgForm(c){
   _mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));
   renderMcPhotos();renderMcKpi(c.kpi);
   _mcIncidents=(c.incidents||[]).map(x=>JSON.parse(JSON.stringify(x)));renderMcIncidents();
+  _mcAttach=(c.attachments||[]).map(a=>Object.assign({},a));renderMcAttach();
   const ls=c.lastSentAt?new Date(c.lastSentAt).toLocaleString('zh-TW'):'尚未寄出過';
   // autoSkip 非空＝這一份週報已經寄過，下一次自動排程會略過（週末先寄的情況）
   $('mcLastSent').innerHTML='上次寄出：'+esc(ls)+
@@ -3821,6 +3823,39 @@ async function handleMcPhotos(input){
     if(okCount){setMailCfgStatus(`✅ 已上傳 ${okCount} 張，請填標題／地點後按「儲存設定」`,'ok');await saveMailCfg(true);}
   }finally{_mcBusy=false;}
 }
+// ── 其他附件：上傳到 Drive，寄出時原檔附上；正式寄出後後端會封存並從清單移除 ──
+const MC_ATT_MAX=10*1024*1024;
+function mcFmtSize(n){return n>=1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
+function renderMcAttach(){
+  const el=$('mcAttach');if(!el)return;
+  if(!_mcAttach.length){el.innerHTML='<div class="mc-empty">目前沒有附件。</div>';return;}
+  const tot=_mcAttach.reduce((s,a)=>s+(a.size||0),0);
+  el.innerHTML='<div class="mc-att-list">'+_mcAttach.map((a,i)=>'<div class="mc-att"><span class="mc-att-ic">📄</span><a href="https://drive.google.com/file/d/'+esc(a.fileId)+'/view" target="_blank" rel="noopener" class="mc-att-n" title="'+esc(a.name)+'">'+esc(a.name)+'</a><small>'+mcFmtSize(a.size||0)+'</small><button type="button" class="mc-btn" style="padding:4px 9px" title="移除" onclick="delMcAttach('+i+')">✕</button></div>').join('')+'</div>'+
+    '<div class="mc-note" style="margin-top:6px'+(tot>15*1048576?';color:var(--danger);font-weight:600':'')+'">共 '+_mcAttach.length+' 個，合計 '+mcFmtSize(tot)+(tot>15*1048576?'，超過建議的 15MB，收件端可能收不到':'')+'</div>';
+}
+function delMcAttach(i){const a=_mcAttach[i];if(!a)return;if(!confirm('移除附件「'+a.name+'」？\n按「儲存設定」後才會生效。'))return;_mcAttach.splice(i,1);renderMcAttach();}
+function mcReadDataUrl(f){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(r.error||new Error('讀檔失敗'));r.readAsDataURL(f);});}
+async function handleMcAttach(input){
+  const files=[...(input.files||[])];input.value='';if(!files.length)return;
+  if(_mcBusy){showToast('⚠️ 還在上傳中，請稍候','err');return;}
+  _mcBusy=true;let okCount=0;
+  try{
+    for(let k=0;k<files.length;k++){
+      const f=files[k];
+      if(f.size>MC_ATT_MAX){showToast('⚠️ '+f.name+' 超過 10MB，請壓縮後再上傳','err');continue;}
+      setMailCfgStatus('⏳ 上傳附件 '+(k+1)+'/'+files.length+'：'+f.name);
+      try{
+        let dataUrl=await mcReadDataUrl(f);
+        if(/^data:;/.test(dataUrl))dataUrl='data:'+(f.type||'application/octet-stream')+';'+dataUrl.slice(6);
+        const name='att-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+'-'+f.name;
+        const d=await uploadWeeklyFile('uploadWeeklyAttach',name,dataUrl);
+        _mcAttach.push({fileId:d.photo.fileId,name:f.name,size:f.size,mime:f.type||'',uploadedAt:d.photo.uploadedAt||new Date().toISOString()});
+        renderMcAttach();okCount++;
+      }catch(e){console.error('attach upload:',e);showToast('⚠️ '+f.name+' 上傳失敗：'+e.message,'err');}
+    }
+    if(okCount){setMailCfgStatus('✅ 已上傳 '+okCount+' 個附件','ok');await saveMailCfg(true);}
+  }finally{_mcBusy=false;}
+}
 // ── KPI 總結圖（改善單系統「匯出總結」會自動上傳；這裡可手動上傳／移除） ──
 function renderMcKpi(k){
   const box=$('mcKpi');if(!box)return;
@@ -3881,7 +3916,7 @@ async function sendTrackerMailNow(testOnly){
       const c=await loadMailCfg();
       if(c){
         if(!$('mMailCfg').classList.contains('hidden'))fillMailCfgForm(c);
-        else{_mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));_mcIncidents=(c.incidents||[]).map(x=>JSON.parse(JSON.stringify(x)));}
+        else{_mcPhotos=(c.photos||[]).map(p=>Object.assign({},p));_mcIncidents=(c.incidents||[]).map(x=>JSON.parse(JSON.stringify(x)));_mcAttach=(c.attachments||[]).map(a=>Object.assign({},a));}
         if(d.photos)showToast('📦 已封存 '+d.photos+' 張現場照片到 Drive「已寄出」資料夾');
       }
     }
@@ -5019,6 +5054,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
 .mc-inc-trk{width:100%;border-collapse:collapse;margin-top:6px;font-size:12px}.mc-inc-trk th{text-align:left;font-weight:600;color:var(--muted);padding:4px 6px;font-size:11px}.mc-inc-trk td{padding:3px 4px;vertical-align:top}.mc-inc-trk .form-input{padding:6px 8px;font-size:12px}
 @media(max-width:640px){.mc-inc-trk thead{display:none}.mc-inc-trk tr{display:grid;grid-template-columns:1fr 1fr;gap:4px;border-bottom:1px dashed #fecaca;padding:6px 0}.mc-inc-trk td{width:auto!important}.mc-inc-trk td:first-child{grid-column:1/-1}}
 .mc-inc-empty{font-size:12px;color:#b91c1c;opacity:.75;padding:6px 2px}
+.mc-att-list{display:flex;flex-direction:column;gap:6px}.mc-att{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--card)}.mc-att-n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text);font-size:13px;text-decoration:none}.mc-att-n:hover{color:var(--accent2);text-decoration:underline}.mc-att small{color:var(--muted);font-size:11px;white-space:nowrap}
 .mc-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
 .mc-photo{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .mc-photo .form-input{padding:7px 10px;font-size:12px;border-radius:8px}
@@ -5041,7 +5077,7 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
   <div class="modal-title" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><span>📧 環保部門週報設定 <small style="font-weight:500;color:var(--muted);font-size:12px">ENV WEEKLY REPORT</small></span><span id="mcLastSent" style="font-size:11px;color:var(--muted);font-weight:500"></span></div>
   <div class="modal-form" style="gap:12px">
     <div style="padding:10px 14px;border-radius:10px;background:var(--accent-light);border:1px solid rgba(22,163,74,.2);font-size:12px;color:var(--text2);line-height:1.7">
-      <b>每<span class="mcSchedTxt">週一 09:00</span></b>（台北時間，可在下方 ① 更改）自動寄出主旨為 <b>ENV WEEKLY REPORT (上週一~上週日)</b> 的週報：開頭文字 → KPI 卡片 →（有填才會出現）事故通報 → 改善單狀態（含 KPI 總結圖附件）→ 追蹤事項 → 現場照片，中文內容會自動加上英文小字。<br>
+      <b>每<span class="mcSchedTxt">週一 09:00</span></b>（台北時間，可在下方 ① 更改）自動寄出主旨為 <b>ENV WEEKLY REPORT (上週一~上週日)</b> 的週報：開頭文字 → KPI 卡片 →（有填才會出現）事故通報 → 改善單狀態（含 KPI 總結圖附件）→ 追蹤事項 → 現場照片 →（有放才會附上）其他附件，中文內容會自動加上英文小字。<br>
       <b>每週五 15:00</b> 會寄提醒信，提醒更新照片與 KPI 總結圖。排程讀的是<b>已儲存</b>的設定。<br>
       <b>⚠️ 寄不出去時</b>（任何原因：信太大、額度用完、收件者設錯、排程當掉…）系統會自動寄一封失敗通知到 <b>paul.tong@nmdc-group.com</b>，信裡有錯誤原因與處理方式；可按下方「⚠️ 測試失敗通知」先確認收得到。
     </div>
@@ -5095,7 +5131,14 @@ function hideLoad(){const s=$('loadingScreen');if(!s)return;s.classList.add('fad
     </div>
 
     <div class="mc-sec">
-      <div class="mc-sec-h"><b>⑥ 寄送紀錄</b><div style="display:flex;gap:6px;align-items:center"><small>最近 30 筆（自動／手動／測試／提醒），會到寄件信箱比對退信</small><button type="button" class="mc-btn" onclick="loadMailLog()">↻ 重新整理</button></div></div>
+      <div class="mc-sec-h"><b>⑥ 其他附件</b><div style="display:flex;gap:6px;align-items:center"><small>PDF、Excel、Word…，會原檔附在週報信件裡一起寄出</small><button type="button" class="mc-btn" onclick="$('mcAttInput').click()">＋ 新增附件</button></div></div>
+      <input type="file" id="mcAttInput" multiple style="display:none" onchange="handleMcAttach(this)">
+      <div id="mcAttach"></div>
+      <div class="mc-note" style="margin-top:8px">單檔上限 10MB、全部合計建議 15MB 以內（太大收件端可能收不到）。附件不會縮小，信太大時系統會改縮現場照片。<b>週報正式寄出後，這次寄出的附件會自動從這裡移除並封存到 Drive「已寄出／報告週」資料夾</b>（測試信不會移除）。移除附件後按「儲存設定」才會生效。</div>
+    </div>
+
+    <div class="mc-sec">
+      <div class="mc-sec-h"><b>⑦ 寄送紀錄</b><div style="display:flex;gap:6px;align-items:center"><small>最近 30 筆（自動／手動／測試／提醒），會到寄件信箱比對退信</small><button type="button" class="mc-btn" onclick="loadMailLog()">↻ 重新整理</button></div></div>
       <div id="mcLog" class="mc-note">讀取中…</div>
     </div>
 

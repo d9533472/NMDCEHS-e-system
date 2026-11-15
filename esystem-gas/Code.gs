@@ -552,6 +552,7 @@ function doPost(e) {
     if (payload.action === 'uploadImage')     return uploadBulletinImage(payload);
     if (payload.action === 'saveMailConfig')  return jsonOut_({ ok: true, config: saveMailConfig_(payload.cfg || {}) });
     if (payload.action === 'uploadWeeklyPhoto') return jsonOut_(uploadWeeklyPhoto_(payload));
+    if (payload.action === 'uploadWeeklyAttach') return jsonOut_(uploadWeeklyAttach_(payload));
     if (payload.action === 'uploadKpiSummary')  return jsonOut_(uploadKpiSummary_(payload));
     if (payload.action === 'uploadVesselFile') return uploadVesselFile_(payload);
     if (payload.action === 'findVesselFile')   return findVesselFile_(payload);
@@ -1034,6 +1035,7 @@ function loadRosterState_(data) {
 //  POST action（body JSON）：
 //    {action:'saveMailConfig', cfg:{…}}                     → 儲存設定
 //    {action:'uploadWeeklyPhoto', fileName, dataUrl}        → 上傳現場照片到 Drive
+//    {action:'uploadWeeklyAttach', fileName, dataUrl}       → 上傳其他附件（PDF、Excel…）到 Drive，寄出時一起附上
 //    {action:'uploadKpiSummary', fileName, dataUrl}         → 上傳 KPI 總結圖（改善單系統「匯出總結」會自動呼叫）
 // ═══════════════════════════════════════════════════════════════════════
 var SYSTEM_URL       = 'https://d9533472.github.io/NMDCEHS-e-system/';
@@ -1069,6 +1071,7 @@ var MAIL_DEFAULT_CFG = {
   sendDay:         1,      // 自動寄出的星期：1=週一 … 4=週四（台北時間）
   sendHour:        9,      // 自動寄出的整點：0～23
   photos:          [],     // [{fileId, url, title, location, date, uploadedAt}]
+  attachments:     [],     // 其他附件 [{fileId, name, size, mime, uploadedAt}]
   incidents:       []      // 事故通報 [{id, type, at, location, contractor, desc, action, tracks:[{item, owner, due, status}]}]
 };
 
@@ -1149,6 +1152,7 @@ function getMailConfig_() {
     scheduleZh:      mailSchedule_(cfg).zh,
     photos:          Array.isArray(cfg.photos) ? cfg.photos : [],
     incidents:       Array.isArray(cfg.incidents) ? cfg.incidents : [],
+    attachments:     Array.isArray(cfg.attachments) ? cfg.attachments : [],
     lastSentIncidents: Array.isArray(cfg.lastSentIncidents) ? cfg.lastSentIncidents : [],
     lastSentAt:      cfg.lastSentAt || '',
     lastSentRange:   cfg.lastSentRange || '',
@@ -1167,6 +1171,9 @@ function saveMailConfig_(cfg) {
              location: String(p.location || ''), date: String(p.date || ''), uploadedAt: String(p.uploadedAt || ''), framed: !!p.framed };
   }).filter(function(p){ return p.fileId; }) : (old.photos || []);
   var incidents = Array.isArray(cfg.incidents) ? cleanIncidents_(cfg.incidents) : (old.incidents || []);
+  var atts = Array.isArray(cfg.attachments) ? cfg.attachments.map(function(a) {
+    return { fileId: String(a.fileId || ''), name: String(a.name || '').slice(0, 200), size: +a.size || 0, mime: String(a.mime || ''), uploadedAt: String(a.uploadedAt || '') };
+  }).filter(function(a){ return a.fileId; }) : (old.attachments || []);
   var clean = {
     enabled:         truthy(cfg.enabled, true),
     to:              String(cfg.to || '').trim(),
@@ -1180,15 +1187,21 @@ function saveMailConfig_(cfg) {
     sendHour:        mailSendHour_(cfg.sendHour != null ? cfg.sendHour : old.sendHour),
     photos:          photos,
     incidents:       incidents,
+    attachments:     atts,
     lastSentIncidents: old.lastSentIncidents || [],
     lastSentAt:      old.lastSentAt || '',
     lastSentRange:   old.lastSentRange || '',
     updatedAt:       new Date().toISOString()
   };
-  // 被移除的照片：Drive 檔案丟到垃圾桶
+  // 被移除的照片／附件：Drive 檔案丟到垃圾桶
   (old.photos || []).forEach(function(p) {
     if (p && p.fileId && !photos.some(function(q){ return q.fileId === p.fileId; })) {
       try { DriveApp.getFileById(p.fileId).setTrashed(true); } catch(e) {}
+    }
+  });
+  (old.attachments || []).forEach(function(a) {
+    if (a && a.fileId && !atts.some(function(q){ return q.fileId === a.fileId; })) {
+      try { DriveApp.getFileById(a.fileId).setTrashed(true); } catch(e) {}
     }
   });
   getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(clean));
@@ -1203,7 +1216,7 @@ function saveMailConfig_(cfg) {
   if (trigErr) out.triggerError = trigErr;
   return out;
 }
-function markMailSent_(sentPhotos, range, sentIncidents) {
+function markMailSent_(sentPhotos, range, sentIncidents, sentAttach) {
   var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
   // 事故通報：這次寄出的從待寄清單移除，備份一份到 lastSentIncidents（設定頁「↩ 還原上次寄出」用）
   var incIds = (sentIncidents || []).map(function(x){ return x.id; });
@@ -1216,7 +1229,8 @@ function markMailSent_(sentPhotos, range, sentIncidents) {
   // 記下「這一封是哪一個報告期間」，自動排程才知道同一份是不是已經寄過了
   cfg.lastSentRange = range ? (range.fromIso + '~' + range.toIso) : '';
   var sentIds = (sentPhotos || []).map(function(p){ return p.fileId; });
-  if (sentIds.length) {
+  var attIds = (sentAttach || []).map(function(a){ return a.fileId; });
+  if (sentIds.length || attIds.length) {
     // 封存：EHS-Weekly-Report/已寄出/2026-09-07~2026-09-13
     var sub = null;
     try {
@@ -1228,13 +1242,19 @@ function markMailSent_(sentPhotos, range, sentIncidents) {
       sub = it2.hasNext() ? it2.next() : archive.createFolder(name);
     } catch(e) { Logger.log('建立封存資料夾失敗：' + e.message); }
     // 照片標題／地點／日期一起存進封存資料夾，之後用 restoreArchivedPhotos 可原樣還原
-    try { if (sub) sub.createFile('photos.json', JSON.stringify(sentPhotos), MimeType.PLAIN_TEXT); } catch(e) { Logger.log('寫入 photos.json 失敗：' + e.message); }
+    if (sentIds.length) try { if (sub) sub.createFile('photos.json', JSON.stringify(sentPhotos), MimeType.PLAIN_TEXT); } catch(e) { Logger.log('寫入 photos.json 失敗：' + e.message); }
+    if (attIds.length) {
+      try { if (sub) sub.createFile('attachments.json', JSON.stringify(sentAttach), MimeType.PLAIN_TEXT); } catch(e) { Logger.log('寫入 attachments.json 失敗：' + e.message); }
+      attIds.forEach(function(id) { if (!sub) return; try { DriveApp.getFileById(id).moveTo(sub); } catch(e) { Logger.log('封存附件失敗 ' + id + '：' + e.message); } });
+      cfg.attachments = (cfg.attachments || []).filter(function(a){ return attIds.indexOf(a.fileId) < 0; });
+      Logger.log('已封存 ' + attIds.length + ' 個附件');
+    }
     sentIds.forEach(function(id) {
       if (!sub) return;
       try { DriveApp.getFileById(id).moveTo(sub); } catch(e) { Logger.log('封存照片失敗 ' + id + '：' + e.message); }
     });
     cfg.photos = (cfg.photos || []).filter(function(p){ return sentIds.indexOf(p.fileId) < 0; });
-    Logger.log('已封存 ' + sentIds.length + ' 張照片' + (sub ? '到 ' + sub.getName() : ''));
+    if (sentIds.length) Logger.log('已封存 ' + sentIds.length + ' 張照片' + (sub ? '到 ' + sub.getName() : ''));
   }
   getSheet().getRange(MAIL_CFG_CELL).setValue(JSON.stringify(cfg));
 }
@@ -1260,7 +1280,10 @@ function restoreArchivedPhotos_(rangeName, captions) {
     catch(e) { Logger.log('photos.json 讀取失敗：' + e.message); }
   }
   var files = [], fit = sub.getFiles();
-  while (fit.hasNext()) { var fl = fit.next(); if (String(fl.getMimeType()).indexOf('image/') === 0) files.push(fl); }
+  // 同資料夾裡的「其他附件」（attachments.json 有列）不是現場照片，就算是圖片也不搬
+  var skip = {}, aj = sub.getFilesByName('attachments.json');
+  if (aj.hasNext()) { try { (JSON.parse(aj.next().getBlob().getDataAsString()) || []).forEach(function(x){ if (x && x.fileId) skip[x.fileId] = true; }); } catch(e) {} }
+  while (fit.hasNext()) { var fl = fit.next(); if (!skip[fl.getId()] && String(fl.getMimeType()).indexOf('image/') === 0) files.push(fl); }
   files.sort(function(a, b){ return a.getDateCreated() - b.getDateCreated(); });
   var cfg = readJsonCell_(MAIL_CFG_CELL) || {};
   cfg.photos = cfg.photos || [];
@@ -1292,7 +1315,7 @@ function getWeeklyFolder_() {
 function saveDataUrlToWeekly_(fileName, dataUrl) {
   var parts = String(dataUrl || '').split(',');
   if (parts.length < 2) throw new Error('dataUrl 格式不正確');
-  var mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+  var mime = (parts[0].match(/:(.*?);/) || [])[1] || (/^att-/.test(fileName) ? 'application/octet-stream' : 'image/jpeg');
   var blob = Utilities.newBlob(Utilities.base64Decode(parts[1]), mime, fileName);
   var file = getWeeklyFolder_().createFile(blob);
   try { file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); } catch(e) {}
@@ -1301,6 +1324,14 @@ function saveDataUrlToWeekly_(fileName, dataUrl) {
 function uploadWeeklyPhoto_(payload) {
   var name = payload.fileName || ('weekly-photo-' + Date.now() + '.jpg');
   var r = saveDataUrlToWeekly_(name, payload.dataUrl);
+  r.uploadedAt = new Date().toISOString();
+  return { ok: true, photo: r };
+}
+// 其他附件：檔名前面加時間戳（findWeeklyFile_ 靠檔名查），寄出時再改回原檔名
+function uploadWeeklyAttach_(payload) {
+  var name = payload.fileName || ('att-' + Date.now());
+  var r = saveDataUrlToWeekly_(name, payload.dataUrl);
+  r.url = 'https://drive.google.com/file/d/' + r.fileId + '/view';
   r.uploadedAt = new Date().toISOString();
   return { ok: true, photo: r };
 }
@@ -2181,6 +2212,17 @@ function buildTrackerMail_(opts) {
     catch(e) { Logger.log('照片讀取失敗：' + (p.title || p.fileId) + ' ' + e.message); }
   });
 
+  // 其他附件（設定頁 ⑥）：原檔附上，不縮；照片的大小預算扣掉這些附件的大小
+  var attachList = [], attachBytes = 0;
+  (mc.attachments || []).forEach(function(a) {
+    if (!a || !a.fileId) return;
+    if (opts.noBlobs) { attachList.push(a); return; }
+    try {
+      var ab = DriveApp.getFileById(a.fileId).getBlob(); ab.setName(a.name || ab.getName());
+      attachments.push(ab); attachList.push(a); attachBytes += trkBlobBytes_(ab);
+    } catch(e) { Logger.log('附件讀取失敗：' + (a.name || a.fileId) + ' ' + e.message); }
+  });
+
   var total = tasks.length;
   var dateLine = today + '（' + trkWeekdayZh_(today) + '）';
   // 內文分段組裝：Apps Script 的「電子郵件內文大小」上限是 200KB，追蹤事項一多就會超過而整封寄不出去。
@@ -2257,6 +2299,15 @@ function buildTrackerMail_(opts) {
         trkPhotosHtml_(photos, doTr));
   }
 
+  // 其他附件清單
+  if (attachList.length) {
+    add(trkSectionTitle_('📎', '其他附件', 'Attachments', '共 ' + attachList.length + ' 個檔案，請見信件附件 · ' + attachList.length + ' file(s) attached to this email', '#64748b') +
+        attachList.map(function(a) {
+          return trkP_('• ' + trkEsc_(a.name || '') + (a.size ? ' <span style="color:#94a3b8;' + TRK_FONT + '">(' + (a.size >= 1048576 ? (a.size / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(a.size / 1024)) + ' KB') + ')</span>' : ''),
+                       'font-size:13px;color:#1e293b;margin-top:6px;');
+        }).join(''));
+  }
+
   // 環保委外項目（照片下方）
   try { add(trkScopeHtml_(data), 1, '環保委外項目', 'Outsourced environmental scopes'); } catch(e) { Logger.log('委外項目區塊產生失敗：' + e.message); }
 
@@ -2319,12 +2370,12 @@ function buildTrackerMail_(opts) {
 
   var subject = 'ENV WEEKLY REPORT (' + range.from + '~' + range.to + ')';
   // 附件＋內嵌圖太大就先自動縮到預算內（有寬度下限，不會縮到看不清楚）
-  var size = opts.noBlobs ? null : fitMailSize_(sizeCtl, opts.sizeBudget || TRK_MAIL_BUDGET);
+  var size = opts.noBlobs ? null : fitMailSize_(sizeCtl, opts.sizeBudget || Math.max(TRK_MAIL_BUDGET2, TRK_MAIL_BUDGET - attachBytes));
   return { subject: subject, html: html, inline: inline, attachments: attachments, range: range, sizeCtl: sizeCtl, size: size,
            bodyBytes: bodyBytes, trimmed: trim.dropped,
            total: total, overdue: overdue.length, thisWeek: thisWeek.length, ncr: ncr.length,
            photos: photos.length, photoList: photos, kpi: kpiOk, kpiSource: kpiSource,
-           incidents: incidents.length, incidentList: incidents };
+           incidents: incidents.length, incidentList: incidents, attachList: attachList };
 }
 
 // ── 寄送失敗警示信 ──
@@ -2434,9 +2485,9 @@ function sendTrackerMail_(testTo, source) {
       '收件者：' + to + (cc ? '（CC ' + cc + '）' : '') + (m ? '　·　內文 ' + Math.round(m.bodyBytes / 1024) + 'KB、照片 ' + m.photos + ' 張' : '　·　組信階段就失敗了'));
     throw new Error(msg);
   }
-  if (!testTo) markMailSent_(m.photoList, m.range, m.incidentList);
+  if (!testTo) markMailSent_(m.photoList, m.range, m.incidentList, m.attachList);
   var quota = -1; try { quota = MailApp.getRemainingDailyQuota(); } catch(e) {}
-  var note = (m.incidents ? '事故 ' + m.incidents + ' 筆，' : '') + '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '') +
+  var note = (m.incidents ? '事故 ' + m.incidents + ' 筆，' : '') + (m.attachList && m.attachList.length ? '其他附件 ' + m.attachList.length + ' 個，' : '') + '待辦 ' + m.total + '，逾期 ' + m.overdue + '，改善單 ' + ((m.ncr && m.ncr.open != null) ? m.ncr.open : '-') + '，照片 ' + m.photos + ' 張，KPI 圖' + (m.kpi ? '有' : '無') + (m.kpiSource ? '（' + m.kpiSource + '）' : '') +
              (m.size ? '，圖片 ' + trkMB_(m.size.after) + (m.size.shrunk ? '（自 ' + trkMB_(m.size.before) + ' 自動縮小 ' + m.size.shrunk + ' 張）' : '') : '') +
              '，內文 ' + Math.round(m.bodyBytes / 1024) + 'KB' + ((m.trimmed && m.trimmed.length) ? '（已省略：' + m.trimmed.join('、') + '）' : '');
   logMail_({ type: type, source: src, to: to, cc: cc, subject: opt.subject, ok: true, note: note });
