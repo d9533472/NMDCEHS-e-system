@@ -529,11 +529,14 @@ function hseTranslate(key, text, from, to) {
   }
 }
 
-/** 新增（不是編輯）成功後寄通知信，鎖放掉才寄，不卡住別人存檔 */
+/**
+ * 新增（不是編輯）成功後寄通知信，鎖放掉才寄，不卡住別人存檔。
+ * 新增時就附改善後照片而結案的，只寄一封結案信（改善前＋改善後照片）；編輯時貼了改善後照片而結案也寄結案信。
+ */
 function hseSave(key, payload) {
   auth_(key);
   var res = saveRec_(payload);
-  if (res.ok && res.isNew) res.mailed = notifyNew_(res.id);
+  if (res.ok && (res.isNew || res.closed)) res.mailed = notifyNew_(res.id, res.closed);
   delete res.isNew;
   return res;
 }
@@ -618,7 +621,16 @@ function saveRec_(payload) {
     }
 
     var n = addPhotos_(ss, r.photoId, rec, payload.photos || [], 'before');
-    return { ok: true, id: rec.id, photoCount: n, isNew: !existing };
+    // 填報時就附改善後照片（當場改善）→ 直接結案，結案日給今天
+    var na = addPhotos_(ss, r.photoId, rec, payload.afterPhotos || [], 'after');
+    var closed = false;
+    if (na > 0 && rec.status === 'Open') {
+      var row = existing ? existing._row : sh.getLastRow();
+      setCell_(sh, row, 'status', 'Closed');
+      if (!rec.closeOutDate) setCell_(sh, row, 'closeOutDate', today_());
+      closed = true;
+    }
+    return { ok: true, id: rec.id, photoCount: n, afterCount: na, closed: closed, isNew: !existing };
   } catch (err) {
     return { ok: false, error: String(err.message || err) };
   } finally {

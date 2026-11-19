@@ -448,6 +448,11 @@ details summary::-webkit-details-marker{display:none}
    <input id="fp" type="file" accept="image/*" multiple onchange="addPhotos(this.files)">
    <div class="thumbs" id="th"></div>
 
+   <label data-i="lPhotoA"></label>
+   <input id="fpa" type="file" accept="image/*" multiple onchange="addPhotos(this.files,1)">
+   <div class="hint" data-i="hPhotoA"></div>
+   <div class="thumbs" id="tha"></div>
+
    <div style="height:14px"></div>
    <button class="btn" id="send" onclick="submit0()" style="margin-bottom:0"></button>
    <button class="btn btn2" id="cancelEdit" onclick="cancelEdit0()" style="margin:9px 0 0;display:none"></button>
@@ -581,7 +586,7 @@ details summary::-webkit-details-marker{display:none}
 
 <script>
 var KEY="<?!= KEY ?>";
-var LG="zh", CFG=null, DATA=[], COUNTS={}, DATES=[], TODAY="", FILTER="", RISK="", PH=[], PBUSY=0;
+var LG="zh", CFG=null, DATA=[], COUNTS={}, DATES=[], TODAY="", FILTER="", RISK="", PH=[], PA=[], PBUSY=0;
 var EXPTOUCH=0;
 var EDIT="", AFID="", TRB=0, BUSY=0;
 var REP_OTHER="__other__";
@@ -618,6 +623,9 @@ var L={zh:{
  lTarget:"預定完成日期 TARGET DATE",
  hT1:"預設＝巡查日 ＋ ", hT2:" 天，可自行修改。", hT0:"選風險等級可自動帶入期限。",
  lPhoto:"改善前照片 BEFORE（可多張，自動壓縮，最多 6 張）",
+ lPhotoA:"改善後照片 AFTER（選填，最多 6 張）",
+ hPhotoA:"已經當場改善的話可以直接附上，送出後自動結案（結案日＝今天）。",
+ okSaveClosed:"已儲存，已附改善後照片並自動結案 ✓",
  send:"送出紀錄", save:"儲存修改", cancel:"取消編輯",
  up:"上傳中…", busy:"照片處理中…", trBusy:"🌐 翻譯中…",
  need:"請填寫必填欄位", lding:"載入中…", lfail:"載入失敗，請下拉重試",
@@ -704,6 +712,9 @@ var L={zh:{
  lTarget:"TARGET DATE",
  hT1:"Default = inspection date + ", hT2:" days; editable.", hT0:"Pick a risk level to auto-fill the target date.",
  lPhoto:"BEFORE photos (multiple, auto-compressed, max 6)",
+ lPhotoA:"AFTER photos (optional, max 6)",
+ hPhotoA:"If it was fixed on the spot, attach them here — the finding is closed out on submit (close-out date = today).",
+ okSaveClosed:"Saved and closed out with after photos ✓",
  send:"Submit", save:"Save changes", cancel:"Cancel edit",
  up:"Uploading…", busy:"Processing photos…", trBusy:"🌐 Translating…",
  need:"Please fill in the required fields", lding:"Loading…", lfail:"Load failed, pull to retry",
@@ -1114,24 +1125,26 @@ function compress(f,cb){
  rd.readAsDataURL(f);
 }
 
-function addPhotos(fs){
+// after＝改善後照片（送出後直接結案），否則是改善前照片
+function addPhotos(fs,after){
+ var L=after?PA:PH, inp=after?"fpa":"fp", box=after?"tha":"th";
  var arr=Array.prototype.slice.call(fs);
- var room=6-PH.length;
- if(arr.length>room){toast(t("phMax"));if(room<1){$("fp").value="";return}arr=arr.slice(0,room)}
+ var room=6-L.length;
+ if(arr.length>room){toast(t("phMax"));if(room<1){$(inp).value="";return}arr=arr.slice(0,room)}
  arr.forEach(function(f){
-  var o={data:null,w:null,url:""};
+  var o={data:null,w:null,url:"",L:L};
   var dv=document.createElement("div");dv.className="thw";o.w=dv;
   var im=document.createElement("img");try{o.url=URL.createObjectURL(f);im.src=o.url}catch(e){}
   var x=document.createElement("span");x.className="thx";x.textContent="✕";
   x.onclick=function(){phDel(o)};
-  dv.appendChild(im);dv.appendChild(x);$("th").appendChild(dv);PH.push(o);
+  dv.appendChild(im);dv.appendChild(x);$(box).appendChild(dv);L.push(o);
   PBUSY++;
   compress(f,function(d){PBUSY--;if(!d){toast(t("rdFail"));phDel(o);return}o.data=d});
  });
- $("fp").value="";
+ $(inp).value="";
 }
 function phDel(o){
- var i=PH.indexOf(o);if(i>=0)PH.splice(i,1);
+ var i=o.L.indexOf(o);if(i>=0)o.L.splice(i,1);
  if(o.url)try{URL.revokeObjectURL(o.url)}catch(e){}
  if(o.w&&o.w.parentNode)o.w.parentNode.removeChild(o.w);
 }
@@ -1175,7 +1188,8 @@ function submit0(retry){
   actionBy:selVal("f_action"),
   risk:RISK,
   targetDate:$("f_target").value,
-  photos:PH.filter(function(p){return p.data}).map(function(p){return {data:p.data}})
+  photos:PH.filter(function(p){return p.data}).map(function(p){return {data:p.data}}),
+  afterPhotos:PA.filter(function(p){return p.data}).map(function(p){return {data:p.data}})
  };
  if(EDIT){
   var cur=findRec(EDIT);
@@ -1186,7 +1200,7 @@ function submit0(retry){
   if(!r||!r.ok){toast(t("fail")+((r&&r.error)||"?"));return}
   // 存到別天時把清單跳過去，不然剛填的那筆會看不見。
   if(pay.date&&pay.date!==$("dt").value)$("dt").value=pay.date;
-  toast(t("okSave"));resetForm();closeM("rep");load();
+  toast(t(r.closed?"okSaveClosed":"okSave"));resetForm();closeM("rep");load();
  }).withFailureHandler(function(e){
   BUSY=0;$("send").disabled=false;$("send").textContent=t(EDIT?"save":"send");
   toast(t("fail")+(e&&e.message||e));
@@ -1194,7 +1208,7 @@ function submit0(retry){
 }
 
 function resetForm(){
- EDIT="";RISK="";PH=[];PBUSY=0;
+ EDIT="";RISK="";PH=[];PA=[];PBUSY=0;$("tha").innerHTML="";
  ["f_obsZh","f_obsEn","f_recZh","f_recEn","f_conOther","f_hazOther","f_actionOther"].forEach(function(id){
   var e=$(id);if(e){e.value="";e.dataset.auto="";e.dataset.last=""}});
  $("f_target").value="";$("th").innerHTML="";
@@ -1227,7 +1241,7 @@ function editRec(id){
  setSel("f_action",x.actionBy);
  RISK=x.risk||"";["P1","P2","P3"].forEach(function(p){$("r"+p).className="risk"+(RISK===p?" on-"+p:"")});
  $("f_target").value=x.targetDate||"";
- PH=[];$("th").innerHTML="";
+ PH=[];$("th").innerHTML="";PA=[];$("tha").innerHTML="";
  $("cancelEdit").style.display="block";
  $("send").textContent=t("save");
  updTargetHint();
