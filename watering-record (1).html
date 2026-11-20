@@ -537,14 +537,14 @@ function switchTab(idx){
 
 /* ===== Build UI ===== */
 function buildRecordTable(){
-  let h='<table class="record-table" id="recTable"><thead><tr><th colspan="2">日期/時段</th><th>灑水開始時間</th><th>灑水結束時間</th><th>灑水方式</th><th class="water-col">每日用水量(m³)<br><span id="waterNote" style="font-weight:400;font-size:9px;color:#999;">水表數據自動計算</span></th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>';
+  let h='<table class="record-table" id="recTable"><thead><tr><th colspan="2">日期/時段</th><th>灑水開始時間</th><th>灑水結束時間</th><th>灑水方式</th><th class="water-col">每日用水量/<br>累積用水量(m³)<br><span id="waterNote" style="font-weight:400;font-size:9px;color:#999;">水表數據自動計算</span></th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>';
   for(let d=0;d<DAYS;d++){
     const ra=`d${d}_am`,rp=`d${d}_pm`;
     h+=`<tr class="day-header"><td id="dayColspan_${d}" colspan="8"><span id="dayLabel_${d}">第 ${d+1} 天</span> <button class="btn-add-period" onclick="addPeriod(${d})" title="新增灑水時段">＋</button></td></tr>`;
     h+=`<tr class="am-row" id="row_${d}_am"><td>上午</td><td style="width:70px;" id="dayDate_${d}_am"></td>`;
     h+=`<td><input type="time" id="${ra}_start"></td><td><input type="time" id="${ra}_end"></td>`;
     h+=`<td><select class="method-select" id="${ra}_method">${METHODS.map((m,i)=>`<option value="${i}"${i===DM?' selected':''}>${m}</option>`).join('')}</select></td>`;
-    h+=`<td rowspan="2" class="water-col" id="waterCell_${d}" style="vertical-align:middle;"><input type="number" id="d${d}_water" step="0.1" readonly style="background:#f0f0ea;color:var(--am);text-align:center;border:none;font-weight:600;width:70px;"></td>`;
+    h+=`<td rowspan="2" class="water-col" id="waterCell_${d}" style="vertical-align:middle;white-space:nowrap;"><input type="number" id="d${d}_water" step="0.1" readonly style="background:#f0f0ea;color:var(--am);text-align:center;border:none;font-weight:600;width:56px;"><span id="d${d}_cum" style="color:var(--am);font-weight:600;"></span></td>`;
     h+=`<td><input type="number" id="${ra}_len" step="0.1" min="0" oninput="onFieldChange('${ra}_len','len')"></td>`;
     h+=`<td><input type="text" id="${ra}_person" oninput="onFieldChange('${ra}_person','person')"></td></tr>`;
     h+=`<tr class="pm-row" id="row_${d}_pm"><td>下午</td><td style="width:70px;" id="dayDate_${d}_pm"></td>`;
@@ -637,6 +637,10 @@ function updateRecordCumDisplay(){
   const loc=$('locBadge').textContent;
   const useNew=isNewFormat(sd);
   const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  // 累積用水量要用到該地點全部水量資料，還沒載入就先載，載完再刷新一次
+  const ready=loc!=='—'&&cumData[loc]&&dailyWatersCache;
+  if(!ready&&loc!=='—')ensureCumLoaded(loc).then(()=>{if(cumData[loc]&&dailyWatersCache)updateRecordCumDisplay();});
+  let cum=ready?cumBefore(loc,sd):0;
   for(let d=0;d<DAYS;d++){
     const dt=addDays(sd,d);
     let w=0;
@@ -648,7 +652,27 @@ function updateRecordCumDisplay(){
     }
     const el=$(`d${d}_water`);
     if(el)el.value=w>0?w.toFixed(1):'';
+    cum=R(cum+R(w));
+    const cEl=$(`d${d}_cum`);
+    if(cEl)cEl.textContent=ready&&w>0?'/'+cum.toFixed(1):'';
   }
+}
+
+// 該地點在 date 之前（不含當天）的累積用水量，資料來源同「每日用水量」分頁
+function cumBefore(loc,date){
+  const sheetW=(dailyWatersCache&&dailyWatersCache[loc])||{};
+  const dailyMap={...sheetW,...(cumData[loc]||{})};
+  let s=0;
+  Object.keys(dailyMap).sort().forEach(dt=>{if(dt<date)s=R(s+R(parseFloat(dailyMap[dt])||0));});
+  return s;
+}
+let _cumLoading={};
+function ensureCumLoaded(loc){
+  if(!loc||loc==='—')return Promise.resolve();
+  if(!_cumLoading[loc])_cumLoading[loc]=(async()=>{
+    try{if(!cumData[loc])await loadCumData(loc);await ensureDailyWaters(loc);}catch(e){}
+  })().finally(()=>{delete _cumLoading[loc];});
+  return _cumLoading[loc];
 }
 
 function switchPhotoFormat(useNew){
@@ -1006,15 +1030,16 @@ function buildPdfHtml(data,isFirst){
 
   // Page 1: Record table
   const useNew=data.photoFormat==='table';
-  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table class="pdf-rt"><colgroup><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:11%"><col style="width:18%"><col style="width:13%"><col style="width:12%"><col style="width:14%"></colgroup><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
+  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table class="pdf-rt"><colgroup><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:11%"><col style="width:15%"><col style="width:16%"><col style="width:12%"><col style="width:14%"></colgroup><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量/<br>累積用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
   if(data.days){
     let weekTotal=0;
+    const cumBase=cumBefore(loc,sd);
     data.days.forEach((day,d)=>{
-      const dailyW=R(parseFloat(day.water)||0);weekTotal=R(weekTotal+dailyW);const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;
+      const dailyW=R(parseFloat(day.water)||0);weekTotal=R(weekTotal+dailyW);const cumW=R(cumBase+weekTotal);const dt=day.date?`${fmtDate(day.date)}(${weekday(day.date)})`:`第${d+1}天`;
       const rs=2+(day.extra?day.extra.length:0);
       for(const p of['am','pm']){
         const r=day[p]||{};
-        const waterTd=p==='am'?`<td rowspan="${rs}" style="vertical-align:middle;">${dailyW>0?dailyW.toFixed(1):''}</td>`:'';
+        const waterTd=p==='am'?`<td rowspan="${rs}" style="vertical-align:middle;">${dailyW>0?dailyW.toFixed(1)+'/'+cumW.toFixed(1):''}</td>`:'';
         const dayTd=p==='am'?`<td class="rt-day" rowspan="${rs}" style="vertical-align:middle;">${dt}</td>`:'';
         h+=`<tr>${dayTd}<td>${p==='am'?'上午':'下午'}</td><td>${r.start||''}</td><td>${r.end||''}</td><td>${METHODS[r.method]||METHODS[DM]}</td>${waterTd}<td>${r.len||''}</td><td>${esc(r.person||'')}</td></tr>`;
       }
@@ -1098,8 +1123,10 @@ function showInPreview(html,title,filename,orient){
 }
 
 /* 單筆預覽（從編輯頁） */
-function openPreview(){
+async function openPreview(){
   const data=collectData();
+  showLoading('☁️ 載入累積用水量中...');
+  try{await ensureCumLoaded(data.location);}finally{hideLoading();}
   showInPreview(buildPdfHtml(data),'📄 預覽紀錄',`灑水紀錄_${data.location||''}_${data.startDate||''}.pdf`,'landscape');
 }
 function closePreview(){$('previewModal').classList.remove('open');}
@@ -1121,6 +1148,8 @@ async function exportSelectedPDF(){
       if(result.success&&result.data)allData.push(result.data);else failed++;
     }catch(e){failed++;}
   }
+  setLoadingMsg('☁️ 載入累積用水量中...');
+  for(const loc of new Set(allData.map(d=>d.location)))await ensureCumLoaded(loc);
   hideLoading();
   if(!allData.length){toast('❌ 沒有成功下載任何紀錄',true);return;}
   if(failed)toast(`⚠️ ${failed} 筆下載失敗，其餘繼續匯出`,true);
