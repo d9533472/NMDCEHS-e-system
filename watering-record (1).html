@@ -1030,7 +1030,7 @@ function buildPdfHtml(data,isFirst){
 
   // Page 1: Record table
   const useNew=data.photoFormat==='table';
-  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table class="pdf-rt"><colgroup><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:11%"><col style="width:15%"><col style="width:16%"><col style="width:12%"><col style="width:14%"></colgroup><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量/<br>累積用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
+  let h=`<div class="pdf-page ${pbClass}"><h2>營建工地每日裸露地表噴灑水作業紀錄表</h2><div class="sub-info">工程名稱：${data.project||''} ｜ 地點：${loc} ｜ 期間：${sd} ～ ${ed}</div><table class="pdf-rt"><colgroup><col style="width:11%"><col style="width:10%"><col style="width:11%"><col style="width:11%"><col style="width:15%"><col style="width:16%"><col style="width:12%"><col style="width:14%"></colgroup><thead><tr><th>日期</th><th>時段</th><th>開始時間</th><th>結束時間</th><th>灑水方式</th><th>每日用水量/<br>累積用水量(m³)</th><th>灑水面積(m²)</th><th>操作人員</th></tr></thead><tbody>`;
   if(data.days){
     let weekTotal=0;
     const cumBase=cumBefore(loc,sd);
